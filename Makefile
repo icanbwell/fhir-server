@@ -81,6 +81,7 @@ update:down
 upgrade_packages:down
 	. ${NVM_DIR}/nvm.sh && nvm use && \
 	yarn install --no-optional && \
+	npm install -g npm-check-updates && \
 	ncu -u --reject @sentry/node
 
 .PHONY:tests
@@ -210,3 +211,9 @@ resourceFieldTypes:
 .PHONY:dbSchema
 dbSchema:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_db_schema.py"
+
+# useful for reflecting env update through docker-compose in fhir for local development
+.PHONY:restart_fhir
+restart_fhir:
+	docker compose -p fhir-dev -f docker-compose.yml down fhir && \
+	docker compose -p fhir-dev -f docker-compose.yml up fhir -d --no-deps

@@ -1,4 +1,3 @@
-const env = require('var');
 // test file
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 const person1Resource = require('./fixtures/Person/person1.json');
@@ -88,11 +87,11 @@ describe('everything _includeNonClinicalResources Tests', () => {
     });
 
     test('Person and Patient $everything with _includeNonClinicalResources', async () => {
-        const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
-        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        const DISABLE_GRAPH_IN_EVERYTHING_OP = process.env.DISABLE_GRAPH_IN_EVERYTHING_OP;
+        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
         const request = await createTestRequest();
         await createResources(request)
 
@@ -200,18 +199,18 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPatientEverythingForTwoPatientsWithPatientScope);
         expect(resp).toHaveResponse(expectedPatientEverythingForTwoPatientsWithPatientScope);
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
     });
 
     test('Person and Patient $everything with exclude resources based on consent view control', async () => {
-        const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
-        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
-        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+        const DISABLE_GRAPH_IN_EVERYTHING_OP = process.env.DISABLE_GRAPH_IN_EVERYTHING_OP;
+        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
-        env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'healthsystem1';
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'healthsystem1';
         const request = await createTestRequest();
         await createResources(request)
 
@@ -292,17 +291,17 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeWithoutExclude);
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
-        env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
     });
 
     test('Patient $everything: nonClinical _type support', async () => {
-        const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
-        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        const DISABLE_GRAPH_IN_EVERYTHING_OP = process.env.DISABLE_GRAPH_IN_EVERYTHING_OP;
+        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
         const request = await createTestRequest();
         await createResources(request)
 
@@ -352,16 +351,16 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedClinicalWithTypeAndUuidOnly);
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
     })
 
     test('should able to extract non clinical references when present in nested array: Practitioner reference in Specimen', async () => {
-        const DISABLE_GRAPH_IN_EVERYTHING_OP = env.DISABLE_GRAPH_IN_EVERYTHING_OP;
-        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        const DISABLE_GRAPH_IN_EVERYTHING_OP = process.env.DISABLE_GRAPH_IN_EVERYTHING_OP;
+        const ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = '1';
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = '1';
         const request = await createTestRequest();
 
         let resp = await request
@@ -405,8 +404,8 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
         expect(resp).toHaveResponse(specimenAndLinkedPractitioner);
 
-        env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
-        env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
+        process.env.DISABLE_GRAPH_IN_EVERYTHING_OP = DISABLE_GRAPH_IN_EVERYTHING_OP;
+        process.env.ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP = ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP;
     })
 
     async function createResources(request) {

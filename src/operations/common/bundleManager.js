@@ -1,5 +1,4 @@
 const moment = require('moment-timezone');
-const env = require('var');
 const { mongoQueryAndOptionsStringify, mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { logDebug } = require('./logging');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
@@ -250,7 +249,7 @@ class BundleManager {
             bundle.id = requestId;
         }
 
-        if (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG') {
+        if (parsedArgs._explain || parsedArgs._debug || process.env.LOGLEVEL === 'DEBUG') {
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */
@@ -448,7 +447,7 @@ class BundleManager {
             bundle.id = requestId;
         }
 
-        if (((parsedArgs._explain || parsedArgs._debug)) || env.LOGLEVEL === 'DEBUG') {
+        if (((parsedArgs._explain || parsedArgs._debug)) || process.env.LOGLEVEL === 'DEBUG') {
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */

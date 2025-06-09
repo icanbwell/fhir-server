@@ -1,7 +1,6 @@
 const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
 const { assertIsValid, assertTypeEquals } = require('./assertType');
 const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
-const env = require('var');
 const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
 
@@ -35,6 +34,8 @@ class KafkaClient {
          */
         this.producerConnected = false;
 
+        // there is an open discussion regarding negative timeout being set in kafkajs for which warning is now being logged
+        // (https://github.com/tulios/kafkajs/issues/1751)
         this.init(this.getConfigAsync());
     }
 
@@ -51,8 +52,8 @@ class KafkaClient {
         } : null;
         if (this.configManager.kafkaUseSasl) {
             if (!this.userName || !this.password) {
-                this.userName = env.KAFKA_SASL_USERNAME;
-                this.password = env.KAFKA_SASL_PASSWORD;
+                this.userName = process.env.KAFKA_SASL_USERNAME;
+                this.password = process.env.KAFKA_SASL_PASSWORD;
             }
             sasl.username = this.userName;
             sasl.password = this.password;
@@ -133,7 +134,7 @@ class KafkaClient {
      * @return {Promise<void>}
      */
     async sendMessagesAsync (topic, messages) {
-        const maxRetries = parseInt(env.KAFKA_MAX_RETRY) || 3;
+        const maxRetries = parseInt(process.env.KAFKA_MAX_RETRY) || 3;
         let iteration = 1;
 
         // by default shouldn't retry
@@ -216,7 +217,7 @@ class KafkaClient {
                     }
                 };
             });
-            if (env.LOGLEVEL === 'DEBUG') {
+            if (process.env.LOGLEVEL === 'DEBUG') {
                 await logTraceSystemEventAsync({
                     event: 'kafkaClient',
                     message: 'Sending message',
@@ -236,7 +237,7 @@ class KafkaClient {
                 topic,
                 messages: kafkaMessages
             });
-            if (env.LOGLEVEL === 'DEBUG') {
+            if (process.env.LOGLEVEL === 'DEBUG') {
                 await logTraceSystemEventAsync({
                     event: 'kafkaClient',
                     message: 'Sent message',

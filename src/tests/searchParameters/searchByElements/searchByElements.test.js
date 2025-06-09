@@ -1,4 +1,3 @@
-const env = require('var');
 // test file
 const personResource = require('./fixtures/Person/person.json');
 
@@ -72,7 +71,7 @@ describe('Person Tests', () => {
         });
 
         test('Person search by setting useAccessIndex to true', async () => {
-            env.USE_ACCESS_INDEX = 1;
+            process.env.USE_ACCESS_INDEX = 1;
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -103,12 +102,12 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithIdAndMetaFields);
-            env.USE_ACCESS_INDEX = 0;
+            process.env.USE_ACCESS_INDEX = 0;
         });
 
         test('Person search by letting person be the collection that uses access index', async () => {
-            const currentCollectionAccessIndex = env.COLLECTIONS_ACCESS_INDEX;
-            env.COLLECTIONS_ACCESS_INDEX = ['Person'];
+            const currentCollectionAccessIndex = process.env.COLLECTIONS_ACCESS_INDEX;
+            process.env.COLLECTIONS_ACCESS_INDEX = ['Person'];
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -139,7 +138,7 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithIdAndMetaFields);
-            env.USE_ACCESS_INDEX = currentCollectionAccessIndex;
+            process.env.USE_ACCESS_INDEX = currentCollectionAccessIndex;
         });
     });
 });

@@ -1,5 +1,4 @@
 const { NotFoundError, ForbiddenError } = require('../../utils/httpErrors');
-const env = require('var');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -238,7 +237,7 @@ class HistoryOperation {
         /**
          * @type {import('mongodb').Document[]}
          */
-        const explanations = (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
+        const explanations = (parsedArgs._explain || parsedArgs._debug || process.env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
         if (parsedArgs._explain) {
             // if explain is requested then don't return any results
             cursor.clear();

@@ -101,17 +101,6 @@ const processQuestion = () => {
 
     return (req, res) => new Promise((resolve, reject) => {
         logger.info('Base >>> Question');
-        const {
-
-            resourceType,
-
-            type
-        } = req.body;
-        const {
-
-            base_version: baseVersion
-        } = req.params;
-
         return resolve({});
     });
 };

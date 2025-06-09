@@ -1,4 +1,3 @@
-const env = require('var');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const documentReferenceData = require('./fixtures/document_reference/document_reference1.json');
 
@@ -40,8 +39,8 @@ describe('GridFS search tests', () => {
 
         test('attachment.data is present with fast serialization', async () => {
             // enable FastSerializerInSearchById
-            let enableFastSerializerInSearchById = env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID;
-            env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID = '1';
+            let enableFastSerializerInSearchById = process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID;
+            process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID = '1';
             const serializerSpy = jest.spyOn(FhirResourceSerializer, 'serialize');
 
             const request = await createTestRequest();
@@ -66,7 +65,7 @@ describe('GridFS search tests', () => {
             expect(resp._body.content[0].attachment.data).toEqual(documentReferenceData.content[0].attachment.data);
 
             expect(serializerSpy).toHaveBeenCalled()
-            env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID = enableFastSerializerInSearchById;
+            process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID = enableFastSerializerInSearchById;
         });
 
         test('search streaming works', async () => {
@@ -94,8 +93,8 @@ describe('GridFS search tests', () => {
 
         test('search streaming works with _elements and fast serialization', async () => {
             // enable FastSerializerInSearch
-            let enableFastSerializerInSearch = env.ENABLE_FAST_SERIALIZER_IN_SEARCH;
-            env.ENABLE_FAST_SERIALIZER_IN_SEARCH = '1';
+            let enableFastSerializerInSearch = process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH;
+            process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH = '1';
             const serializerSpy = jest.spyOn(FhirResourceSerializer, 'serialize');
 
             const request = await createTestRequest();
@@ -120,7 +119,7 @@ describe('GridFS search tests', () => {
             expect(resp._body[0].content[0].attachment.data).toEqual(documentReferenceData.content[0].attachment.data);
 
             expect(serializerSpy).toHaveBeenCalled()
-            env.ENABLE_FAST_SERIALIZER_IN_SEARCH = enableFastSerializerInSearch;
+            process.env.ENABLE_FAST_SERIALIZER_IN_SEARCH = enableFastSerializerInSearch;
         });
 
         test('search searchByVersionId works', async () => {

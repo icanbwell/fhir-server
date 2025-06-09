@@ -1,5 +1,3 @@
-const env = require('var');
-
 const { ACCESS_LOGS_COLLECTION_NAME, CONSENT_OF_LINKED_PERSON_INDEX } = require('../constants');
 
 /**
@@ -52,8 +50,8 @@ module.exports = {
             },
             ...(
                     (
-                        env.ACCESS_TAGS_INDEXED &&
-                        env.ACCESS_TAGS_INDEXED.split(',').map((item) => item.trim())
+                        process.env.ACCESS_TAGS_INDEXED &&
+                        process.env.ACCESS_TAGS_INDEXED.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {
@@ -280,7 +278,7 @@ module.exports = {
                 },
                 options: {
                     name: 'timestamp_1',
-                    expireAfterSeconds: env.ACCESS_LOGS_EXPIRE_TIME ? Number(env.ACCESS_LOGS_EXPIRE_TIME) : 30 * 24 * 60 * 60
+                    expireAfterSeconds: process.env.ACCESS_LOGS_EXPIRE_TIME ? Number(process.env.ACCESS_LOGS_EXPIRE_TIME) : 30 * 24 * 60 * 60
                 }
             }
         ],
@@ -399,8 +397,8 @@ module.exports = {
         Encounter_4_0_0: [
             ...(
                     (
-                        env.ACCESS_TAGS_INDEXED_ENCOUNTER &&
-                        env.ACCESS_TAGS_INDEXED_ENCOUNTER.split(',').map((item) => item.trim())
+                        process.env.ACCESS_TAGS_INDEXED_ENCOUNTER &&
+                        process.env.ACCESS_TAGS_INDEXED_ENCOUNTER.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {
@@ -447,8 +445,8 @@ module.exports = {
         ExplanationOfBenefit_4_0_0: [
             ...(
                     (
-                        env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT &&
-                        env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT.split(',').map((item) => item.trim())
+                        process.env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT &&
+                        process.env.ACCESS_TAGS_INDEXED_EXPLANATIONOFBENEFIT.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {
@@ -683,8 +681,8 @@ module.exports = {
             },
             ...(
                     (
-                        env.ACCESS_TAGS_INDEXED_ORGANIZATION &&
-                        env.ACCESS_TAGS_INDEXED_ORGANIZATION.split(',').map((item) => item.trim())
+                        process.env.ACCESS_TAGS_INDEXED_ORGANIZATION &&
+                        process.env.ACCESS_TAGS_INDEXED_ORGANIZATION.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {
@@ -958,8 +956,8 @@ module.exports = {
             },
             ...(
                     (
-                        env.ACCESS_TAGS_INDEXED_PRACTITIONER &&
-                        env.ACCESS_TAGS_INDEXED_PRACTITIONER.split(',').map((item) => item.trim())
+                        process.env.ACCESS_TAGS_INDEXED_PRACTITIONER &&
+                        process.env.ACCESS_TAGS_INDEXED_PRACTITIONER.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {
@@ -1028,8 +1026,8 @@ module.exports = {
             },
             ...(
                     (
-                        env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE &&
-                        env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',').map((item) => item.trim())
+                        process.env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE &&
+                        process.env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {

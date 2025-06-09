@@ -1,4 +1,3 @@
-const env = require('var');
 const winston = require('winston');
 const Transport = require('winston-transport');
 
@@ -77,7 +76,7 @@ class FhirLogger {
             level: process.env.LOGLEVEL ? process.env.LOGLEVEL.toLowerCase() : 'info',
             format: winston.format.json(),
             transports: [
-                (env.LOGLEVEL === 'DEBUG')
+                (process.env.LOGLEVEL === 'DEBUG')
                     ? new NullTransport() // the secure logger will write to console in debug mode
                     : new winston.transports.Console({
                         format: winston.format.json()

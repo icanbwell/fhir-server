@@ -1,5 +1,3 @@
-const env = require('var');
-
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');
@@ -28,8 +26,8 @@ describe('Next link Tests', () => {
     describe('Person search Tests', () => {
         test('next link is present and works', async () => {
             // change DEFAULT_SORT_ID to _uuid
-            const defaultSortId = env.DEFAULT_SORT_ID;
-            env.DEFAULT_SORT_ID = '_uuid';
+            const defaultSortId = process.env.DEFAULT_SORT_ID;
+            process.env.DEFAULT_SORT_ID = '_uuid';
 
             const request = await createTestRequest();
 
@@ -97,13 +95,13 @@ describe('Next link Tests', () => {
             expect(resp.body.link.length).toEqual(1);
 
             // revert DEFAULT_SORT_ID to original value
-            env.DEFAULT_SORT_ID = defaultSortId;
+            process.env.DEFAULT_SORT_ID = defaultSortId;
         });
 
         test('next link is present and works', async () => {
             // change DEFAULT_SORT_ID to _uuid
-            const defaultSortId = env.DEFAULT_SORT_ID;
-            env.DEFAULT_SORT_ID = '_uuid';
+            const defaultSortId = process.env.DEFAULT_SORT_ID;
+            process.env.DEFAULT_SORT_ID = '_uuid';
 
             const request = await createTestRequest();
 
@@ -169,7 +167,7 @@ describe('Next link Tests', () => {
             expect(resp.body.link.length).toEqual(1);
 
             // revert DEFAULT_SORT_ID to original value
-            env.DEFAULT_SORT_ID = defaultSortId;
+            process.env.DEFAULT_SORT_ID = defaultSortId;
         });
     });
 });

@@ -1,4 +1,3 @@
-const env = require('var');
 const fs = require('fs');
 const path = require('path');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -66,8 +65,8 @@ describe('Enrichers test for graphql', () => {
 
     test('Golbalid and proxy patient enrichers works', async () => {
         // disable graphqlRawBundle
-        let graphqlRawBundle = env.ENABLE_RAW_BUNDLE_IN_GRAPHQL;
-        env.ENABLE_RAW_BUNDLE_IN_GRAPHQL = "0";
+        let graphqlRawBundle = process.env.ENABLE_RAW_BUNDLE_IN_GRAPHQL;
+        process.env.ENABLE_RAW_BUNDLE_IN_GRAPHQL = "0";
 
         const request = await createTestRequest();
         const graphqlQueryText = enrichersGraphQLQuery.replace(/\\n/g, '');
@@ -106,6 +105,6 @@ describe('Enrichers test for graphql', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedEnrichedResponse);
 
-        env.ENABLE_RAW_BUNDLE_IN_GRAPHQL = graphqlRawBundle;
+        process.env.ENABLE_RAW_BUNDLE_IN_GRAPHQL = graphqlRawBundle;
     });
 });

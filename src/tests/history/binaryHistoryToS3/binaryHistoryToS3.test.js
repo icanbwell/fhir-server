@@ -8,7 +8,6 @@ const {
     afterAll,
     jest
 } = require('@jest/globals');
-const env = require('var');
 
 const utils = require('../../../utils/uid.util');
 let i = 0;
@@ -51,15 +50,15 @@ describe('Binary history resource S3 read test', () => {
     let historyResourceCloudStorageClient;
 
     beforeAll(() => {
-        historyResourceCloudStorageBucket = env.HISTORY_RESOURCE_BUCKET_NAME;
-        historyResourceCloudStorageClient = env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
-        env.HISTORY_RESOURCE_BUCKET_NAME = 'test';
-        env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
+        historyResourceCloudStorageBucket = process.env.HISTORY_RESOURCE_BUCKET_NAME;
+        historyResourceCloudStorageClient = process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT;
+        process.env.HISTORY_RESOURCE_BUCKET_NAME = 'test';
+        process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = CLOUD_STORAGE_CLIENTS.S3_CLIENT;
     });
 
     afterAll(() => {
-        env.HISTORY_RESOURCE_BUCKET_NAME = historyResourceCloudStorageBucket;
-        env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = historyResourceCloudStorageClient;
+        process.env.HISTORY_RESOURCE_BUCKET_NAME = historyResourceCloudStorageBucket;
+        process.env.HISTORY_RESOURCE_CLOUD_STORAGE_CLIENT = historyResourceCloudStorageClient;
     });
 
     beforeEach(async () => {
@@ -227,8 +226,8 @@ describe('Binary history resource S3 read test', () => {
     });
 
     test('Binary history resource should not be written to S3 when configured', async () => {
-        let cloudStorageHistoryResources = env.CLOUD_STORAGE_HISTORY_RESOURCES;
-        env.CLOUD_STORAGE_HISTORY_RESOURCES = 'Observation';
+        let cloudStorageHistoryResources = process.env.CLOUD_STORAGE_HISTORY_RESOURCES;
+        process.env.CLOUD_STORAGE_HISTORY_RESOURCES = 'Observation';
 
         const request = await createTestRequest((c) => {
             c.register(
@@ -312,6 +311,6 @@ describe('Binary history resource S3 read test', () => {
 
         expect(mockDownloadInBatchAsync).toHaveBeenCalledTimes(0);
         expect(mockDownloadAsync).toHaveBeenCalledTimes(0);
-        env.CLOUD_STORAGE_HISTORY_RESOURCES = cloudStorageHistoryResources;
+        process.env.CLOUD_STORAGE_HISTORY_RESOURCES = cloudStorageHistoryResources;
     });
 });

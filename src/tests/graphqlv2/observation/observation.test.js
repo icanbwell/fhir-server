@@ -21,7 +21,6 @@ const expectedResultNotMissing = require('./fixtures/expected_observation_not_mi
 const expectedObservationIdEquals = require('./fixtures/expected_observation_id_equals.json');
 const expectedObservationIdNotEquals = require('./fixtures/expected_observation_id_not_equals.json');
 
-const env = require('var');
 const fs = require('fs');
 const path = require('path');
 
@@ -619,8 +618,8 @@ describe('GraphQL Observation Tests', () => {
         });
 
         test('GraphQL id equals and not equals test with patient data view control', async () => {
-            const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
-            env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'client';
+            const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+            process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'client';
 
             const request = await createTestRequest();
             // ARRANGE
@@ -683,7 +682,7 @@ describe('GraphQL Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedObservationIdNotEquals, 'observations');
 
-            env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
+            process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
         });
      });
 });

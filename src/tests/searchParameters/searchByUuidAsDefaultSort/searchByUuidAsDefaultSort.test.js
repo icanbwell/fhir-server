@@ -1,5 +1,3 @@
-const env = require('var');
-
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');
@@ -28,8 +26,8 @@ describe('Person Tests', () => {
 
     describe('Person search using uuid as default sort id Tests', () => {
         test('Search person using uuid as default sort id ', async () => {
-            const DEFAULT_SORT_ID = env.DEFAULT_SORT_ID;
-            env.DEFAULT_SORT_ID = '_uuid';
+            const DEFAULT_SORT_ID = process.env.DEFAULT_SORT_ID;
+            process.env.DEFAULT_SORT_ID = '_uuid';
 
             const request = await createTestRequest();
             // ARRANGE
@@ -71,7 +69,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources2);
 
-            env.DEFAULT_SORT_ID = DEFAULT_SORT_ID;
+            process.env.DEFAULT_SORT_ID = DEFAULT_SORT_ID;
         });
     });
 });

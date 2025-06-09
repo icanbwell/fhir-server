@@ -4,7 +4,6 @@
 const { createTestRequest } = require('./tests/common');
 
 const { describe, beforeAll, afterAll, test, jest, expect } = require('@jest/globals');
-const env = require('var');
 const { KafkaClient } = require('./utils/kafkaClient');
 
 // Mocking connect and disconnect methods of producer class
@@ -83,11 +82,11 @@ describe('#app', () => {
     });
 
     test('it should startup check kafka health and return health check status ok', async () => {
-        const enableKafkaEvents = env.ENABLE_EVENTS_KAFKA;
-        const enablekafkahealthcheck = env.ENABLE_KAFKA_HEALTHCHECK;
+        const enableKafkaEvents = process.env.ENABLE_EVENTS_KAFKA;
+        const enablekafkahealthcheck = process.env.ENABLE_KAFKA_HEALTHCHECK;
         // Setting ENABLE_EVENTS_KAFKA to '1' which implies kafka is being used.
-        env.ENABLE_EVENTS_KAFKA = '1';
-        env.ENABLE_KAFKA_HEALTHCHECK = '1';
+        process.env.ENABLE_EVENTS_KAFKA = '1';
+        process.env.ENABLE_KAFKA_HEALTHCHECK = '1';
 
         let request = await createTestRequest((c) => {
             c.register('kafkaClient', () => new MockKafkaClient({ configManager: c.configManager }));
@@ -131,7 +130,7 @@ describe('#app', () => {
         // Ensuring the connect() is being called.
         expect(mockProducerMethods.connect).toHaveBeenCalledTimes(0);
 
-        env.ENABLE_EVENTS_KAFKA = enableKafkaEvents;
-        env.ENABLE_KAFKA_HEALTHCHECK = enablekafkahealthcheck;
+        process.env.ENABLE_EVENTS_KAFKA = enableKafkaEvents;
+        process.env.ENABLE_KAFKA_HEALTHCHECK = enablekafkahealthcheck;
     });
 });

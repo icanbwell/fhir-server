@@ -1,5 +1,4 @@
 const { isTrue } = require('../../utils/isTrue');
-const env = require('var');
 const { logDebug, logError } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
@@ -502,7 +501,7 @@ class SearchManager {
         }
 
         // set batch size if specified
-        if (env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {
+        if (process.env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {
             // https://www.dbkoda.com/blog/2017/10/01/bulk-operations-in-mongoDB
             const __ret = this.setCursorBatchSize({ parsedArgs, cursorQuery });
             cursorBatchSize = __ret.cursorBatchSize;
@@ -515,7 +514,7 @@ class SearchManager {
 
         // find columns being queried and match them to an index
         // noinspection JSUnresolvedReference
-        if (isTrue(env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
+        if (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
             // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 { resourceType, base_version });
@@ -896,7 +895,7 @@ class SearchManager {
     setCursorBatchSize ({ parsedArgs, cursorQuery }) {
         const cursorBatchSize = parsedArgs._cursorBatchSize
             ? parseInt(parsedArgs._cursorBatchSize)
-            : parseInt(env.MONGO_BATCH_SIZE);
+            : parseInt(process.env.MONGO_BATCH_SIZE);
         if (cursorBatchSize > 0) {
             cursorQuery = cursorQuery.batchSize({ size: cursorBatchSize });
         }

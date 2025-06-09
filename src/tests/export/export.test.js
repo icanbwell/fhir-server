@@ -6,7 +6,6 @@ const exportStatus1Resource = require('./fixtures/exportStatus/exportStatus1.jso
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const env = require('var');
 const { BulkDataExportRunner } = require('../../operations/export/script/bulkDataExportRunner');
 const { MockK8sClient } = require('./mocks/k8sClient');
 const { MockS3Client } = require('./mocks/s3Client');
@@ -20,7 +19,7 @@ const { getLogger } = require('../../winstonInit');
 
 describe('Export Tests', () => {
     beforeEach(async () => {
-        env.ENABLE_BULK_EXPORT = '1';
+        process.env.ENABLE_BULK_EXPORT = '1';
         const container = getTestContainer();
         if (container) {
             delete container.services.bulkDataExportRunner;
@@ -29,7 +28,7 @@ describe('Export Tests', () => {
     });
 
     afterEach(async () => {
-        env.ENABLE_BULK_EXPORT = '0';
+        process.env.ENABLE_BULK_EXPORT = '0';
         await commonAfterEach();
     });
 
