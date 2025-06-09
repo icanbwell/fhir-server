@@ -5,7 +5,7 @@ const contentType = require('content-type');
 const httpContext = require('express-http-context');
 const { ApolloServer } = require('@apollo/server');
 const { buildSubgraphSchema } = require('@apollo/subgraph');
-const { expressMiddleware } = require('@apollo/server/express4');
+const { expressMiddleware } = require('@as-integrations/express5');
 const {
     ApolloServerPluginLandingPageDisabled,
     ApolloServerPluginInlineTraceDisabled
