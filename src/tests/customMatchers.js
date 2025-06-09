@@ -8,7 +8,7 @@ const { YearMonthPartitioner } = require('../partitioners/yearMonthPartitioner')
 const { ndjsonToJsonText } = require('ndjson-to-json-text');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { csv2json } = require('csv42');
-const _ = require('lodash');
+const sortBy = require('lodash.sortby');
 
 /**
  * @typedef JestUtils
@@ -669,7 +669,7 @@ function toHaveMongoQuery(resp, expected, expectedTagPath = null) {
             const newObj = {};
             for (const key in obj) {
                 if (key === '$in' && Array.isArray(obj[key])) {
-                    newObj[key] = _.sortBy(obj[key]);
+                    newObj[key] = sortBy(obj[key]);
                 } else {
                     newObj[key] = sortNestedArrays(obj[key]);
                 }
