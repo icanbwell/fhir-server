@@ -16,10 +16,13 @@ const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongo
 const { RouterInstrumentation } = require('@opentelemetry/instrumentation-router');
 const { WinstonInstrumentation } = require('@opentelemetry/instrumentation-winston');
 
-const ignoreUrls = ['/health', '/live', '/ready'].concat(
-    process.env.OPENTELEMETRY_IGNORE_URLS?.split(',')
-);
-``
+let ignoreUrls = ['/health', '/live', '/ready'];
+if (process.env.OPENTELEMETRY_IGNORE_URLS) {
+    ignoreUrls = ignoreUrls.concat(
+        process.env.OPENTELEMETRY_IGNORE_URLS?.split(',')
+    );
+}
+
 const sdk = new opentelemetry.NodeSDK({
     resource: new Resource(),
     traceExporter: new OTLPTraceExporter(),
@@ -36,7 +39,7 @@ const sdk = new opentelemetry.NodeSDK({
                 // For graphql urls we are using middlewares to process the graphql request, there is no route
                 // attached with any http method so we have to add the route in the 'span' to aggregate
                 // data on datadog and grafana
-                if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$graphql')) {
+                if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$')) {
                     span.attributes['http.route'] = span.attributes['http.target'].replace(/\$/g, '([$])');
                     // graphqlv2 path starts with base_version
                     if (span.attributes['http.route'].includes('graphqlv2')) {
