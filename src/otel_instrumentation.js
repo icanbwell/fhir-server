@@ -16,9 +16,9 @@ const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongo
 const { RouterInstrumentation } = require('@opentelemetry/instrumentation-router');
 const { WinstonInstrumentation } = require('@opentelemetry/instrumentation-winston');
 
-const ignoreUrls = ['/health', '/live', '/ready'];
+let ignoreUrls = ['/health', '/live', '/ready'];
 if (process.env.OPENTELEMETRY_IGNORE_URLS) {
-    ignoreUrls.concat(
+    ignoreUrls = ignoreUrls.concat(
         process.env.OPENTELEMETRY_IGNORE_URLS?.split(',')
     );
 }
