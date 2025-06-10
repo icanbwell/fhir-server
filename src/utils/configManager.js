@@ -841,17 +841,6 @@ class ConfigManager {
     }
 
     /**
-     * True if Datadog is enabled, false if opentelemetry is enabled
-     * @returns {boolean}
-     */
-    get isDataDogEnabled() {
-        if (env.DD_TRACE_ENABLED === null || env.DD_TRACE_ENABLED === undefined) {
-            return false;
-        }
-        return isTrue(env.DD_TRACE_ENABLED);
-    }
-
-    /**
      * return AUTH_JWKS_URL
      * @returns {string}
      */
