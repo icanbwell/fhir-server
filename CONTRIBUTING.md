@@ -303,3 +303,7 @@ Output:
 ```
 {"dd":{"service":"bwell-fhir-server","version":"0.0.1"},"level":"info","logger":"admin","message":"Logger Message","timestamp":"Feb-10-2023 10:10:10+00:00"}
 ```
+
+## Locked packages in Package.json
+
+Some packages like sentry node and opentelemetry are locked in package.json file due to compatability issues in newer versions and should be tested properly before updating.
