@@ -3,7 +3,7 @@
 const opentelemetry = require('@opentelemetry/sdk-node');
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
 const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-grpc');
-const { defaultResource } = require('@opentelemetry/resources');
+const { Resource } = require('@opentelemetry/resources');
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
 
 // Instrumentations
@@ -24,7 +24,7 @@ if (process.env.OPENTELEMETRY_IGNORE_URLS) {
 }
 
 const sdk = new opentelemetry.NodeSDK({
-    resource: defaultResource(),
+    resource: new Resource(),
     traceExporter: new OTLPTraceExporter(),
     metricReader: new PeriodicExportingMetricReader({
         exporter: new OTLPMetricExporter()
