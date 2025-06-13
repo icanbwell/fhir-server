@@ -9,7 +9,6 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { getFirstElementOrNull } = require('../../utils/list.util');
 const { ResourceValidator } = require('../common/resourceValidator');
-const moment = require('moment-timezone');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { ParsedArgs } = require('../query/parsedArgs');
 
@@ -69,7 +68,6 @@ class GraphOperation {
      * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
-     * @param {boolean} getRaw
      * @return {Promise<Bundle>}
      */
     async graph({
@@ -80,8 +78,7 @@ class GraphOperation {
         responseStreamer,
         supportLegacyId = true,
         includeNonClinicalResources = false,
-        nonClinicalResourcesDepth = 1,
-        getRaw = false
+        nonClinicalResourcesDepth = 1
     }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(res !== undefined);
@@ -202,8 +199,7 @@ class GraphOperation {
                         parsedArgs,
                         supportLegacyId,
                         includeNonClinicalResources,
-                        nonClinicalResourcesDepth,
-                        getRaw
+                        nonClinicalResourcesDepth
                     }
                 );
 

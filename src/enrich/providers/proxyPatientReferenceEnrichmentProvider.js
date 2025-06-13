@@ -4,7 +4,7 @@ const { ParsedArgs } = require('../../operations/query/parsedArgs');
 const { PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX } = require('../../constants');
 const { isTrueWithFallback } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
-const { rawResourceReferenceUpdater } = require('../../utils/rawResourceUpdater');
+const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -26,7 +26,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync ({ resources, parsedArgs, rawResources = false  }) {
+    async enrichAsync ({ resources, parsedArgs }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const rewritePatientReference = isTrueWithFallback(parsedArgs._rewritePatientReference, this.configManager.rewritePatientReference);
         // if rewrite is false, then don't enrich the resources
@@ -52,28 +52,13 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                         a.startsWith('Patient/') ? a : `Patient/${a}`
                     ) ?? [];
                 for (const resource of resources) {
-                    if (resource.updateReferencesAsync) {
-                        await resource.updateReferencesAsync(
-                            {
-                                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
-                                    {
-                                        reference,
-                                        patientIdsFromQueryParam,
-                                        patientToPersonMap
-                                    }
-                                )
-                            }
-                        );
-                    }
-                    else if (rawResources){
-                        await rawResourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
-                            {
-                                reference,
-                                patientIdsFromQueryParam,
-                                patientToPersonMap
-                            }
-                        ));
-                    }
+                    await resourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                        {
+                            reference,
+                            patientIdsFromQueryParam,
+                            patientToPersonMap
+                        }
+                    ));
                 }
                 // now copy the latest Patient and set the id to proxyPatient
                 const patientResources = resources.filter(r => r.resourceType === 'Patient');
@@ -148,14 +133,13 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync ({ entries, parsedArgs, rawResources = false  }) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         for (const entry of entries) {
             if (entry.resource) {
                 entry.resource = (await this.enrichAsync(
                     {
                         resources: [entry.resource],
-                        parsedArgs,
-                        rawResources
+                        parsedArgs
                     }
                 ))[0];
                 entry.id = entry.resource.id;

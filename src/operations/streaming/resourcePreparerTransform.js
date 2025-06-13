@@ -16,7 +16,6 @@ class ResourcePreparerTransform extends Transform {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
-     * @param {boolean} rawResources
      */
     constructor (
         {
@@ -26,8 +25,7 @@ class ResourcePreparerTransform extends Transform {
             resourcePreparer,
             highWaterMark,
             configManager,
-            response,
-            rawResources = false
+            response
         }
     ) {
         super({ objectMode: true, highWaterMark });
@@ -51,10 +49,6 @@ class ResourcePreparerTransform extends Transform {
          * @type {import('http').ServerResponse}
          */
         this.response = response;
-        /**
-         * @type {Boolean}
-         */
-        this.rawResources = rawResources;
 
 
         /**
@@ -181,8 +175,7 @@ class ResourcePreparerTransform extends Transform {
             {
                 parsedArgs: this.parsedArgs,
                 element: chunk1,
-                resourceType: this.resourceName,
-                rawResources: this.rawResources
+                resourceType: this.resourceName
             })
             .then(
                 /** @type {Resource[]} */resources => {

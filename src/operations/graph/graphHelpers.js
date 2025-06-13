@@ -285,8 +285,7 @@ class GraphHelper {
                                         parsedArgs,
                                         explain,
                                         debug,
-                                        supportLegacyId = true,
-                                        getRaw = false
+                                        supportLegacyId = true
                                     }) {
         try {
             if (!parentEntities || parentEntities.length === 0 || !isValidResource(resourceType)) {
@@ -392,7 +391,7 @@ class GraphHelper {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResource = getRaw ? await cursor.nextRaw() : await cursor.next();
+                let relatedResource = await cursor.nextRaw();
 
                 if (relatedResource) {
                     // create a class to hold information about this resource
@@ -543,8 +542,7 @@ class GraphHelper {
                                         parsedArgs,
                                         supportLegacyId = true,
                                         proxyPatientIds = [],
-                                        proxyPatientResources = [],
-                                        getRaw = false
+                                        proxyPatientResources = []
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -690,7 +688,7 @@ class GraphHelper {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResourcePropertyCurrent = getRaw ? await cursor.nextRaw() : await cursor.next();
+                let relatedResourcePropertyCurrent = await cursor.nextRaw();
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
                         relatedResourcePropertyCurrent, RETRIEVE
@@ -930,7 +928,6 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
-     * @param {boolean} getRaw
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
     async processLinkTargetAsync(
@@ -946,8 +943,7 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = [],
-            getRaw = false
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -1005,7 +1001,6 @@ class GraphHelper {
                                 explain,
                                 debug,
                                 supportLegacyId,
-                                getRaw,
                                 parsedArgs
                             }
                         );
@@ -1069,8 +1064,7 @@ class GraphHelper {
                                 supportLegacyId,
                                 proxyPatientIds,
                                 proxyPatientResources,
-                                parsedArgs,
-                                getRaw
+                                parsedArgs
                             }
                         );
                         if (queryItem) {
@@ -1115,8 +1109,7 @@ class GraphHelper {
                                 parsedArgs,
                                 supportLegacyId,
                                 proxyPatientIds,
-                                proxyPatientResources,
-                                getRaw
+                                proxyPatientResources
                             }
                         )
                     );
@@ -1156,7 +1149,6 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
-     * @param {boolean} getRaw
      * @returns {Promise<QueryItem[]>}
      */
     async processOneGraphLinkAsync(
@@ -1171,8 +1163,7 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = [],
-            getRaw = false
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -1198,8 +1189,7 @@ class GraphHelper {
                         parsedArgs,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources,
-                        getRaw
+                        proxyPatientResources
                     }
                 )
             );
@@ -1241,7 +1231,6 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
-     * @param {boolean} getRaw
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync(
@@ -1256,8 +1245,7 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             proxyPatientIds = [],
-            proxyPatientResources = [],
-            getRaw = false
+            proxyPatientResources = []
         }
     ) {
         try {
@@ -1289,8 +1277,7 @@ class GraphHelper {
                         parsedArgs,
                         supportLegacyId,
                         proxyPatientIds,
-                        proxyPatientResources,
-                        getRaw
+                        proxyPatientResources
                     }
                 )
             );
@@ -1318,34 +1305,25 @@ class GraphHelper {
     /**
      * get all the contained entities recursively
      * @param {EntityAndContainedBase} entityAndContained
-     * @param {Boolean} getRaw
      * @returns {BundleEntry[]}
      */
-    getRecursiveContainedEntities(entityAndContained, getRaw = false) {
+    getRecursiveContainedEntities(entityAndContained) {
         /**
          * @type {BundleEntry[]}
          */
         let result = [];
         if (entityAndContained.includeInOutput && entityAndContained.resource && entityAndContained.resource.id) {
             // only include entities the caller has requested and are defined
-            result.push(
-                getRaw
-                    ? {
-                        id: entityAndContained.resource.id,
-                        fullUrl: entityAndContained.fullUrl,
-                        resource: entityAndContained.resource
-                    }
-                    : new BundleEntry({
-                        id: entityAndContained.resource.id,
-                        fullUrl: entityAndContained.fullUrl,
-                        resource: entityAndContained.resource
-                    })
-            );
+            result.push({
+                id: entityAndContained.resource.id,
+                fullUrl: entityAndContained.fullUrl,
+                resource: entityAndContained.resource
+            });
         }
 
         // now recurse
         result.push(
-            ...entityAndContained.containedEntries.flatMap((c) => this.getRecursiveContainedEntities(c, getRaw))
+            ...entityAndContained.containedEntries.flatMap((c) => this.getRecursiveContainedEntities(c))
         );
         return result;
     }
@@ -1359,7 +1337,6 @@ class GraphHelper {
      * @param {string} base_version
      * @param {boolean} explain
      * @param {boolean} debug
-     * @param {boolean} getRaw
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[]}>}
      */
     async getLinkedNonClinicalResources(
@@ -1369,8 +1346,7 @@ class GraphHelper {
         parsedArgs,
         base_version,
         explain,
-        debug,
-        getRaw = false
+        debug
     ) {
         try {
             /**
@@ -1438,21 +1414,14 @@ class GraphHelper {
                     requestInfo,
                     resourceType,
                     parsedArgs: childParseArgs,
-                    useAggregationPipeline: false,
-                    getRaw
+                    useAggregationPipeline: false
                 });
 
                 for (let entry of bundle.entry || []) {
-                    const resourceBundleEntry = getRaw
-                        ? {
-                            id: entry.id,
-                            resource: entry.resource
-                        }
-                        : new BundleEntry({
-                            id: entry.id,
-                            resource: entry.resource
-                        });
-                    entities.push(resourceBundleEntry);
+                    entities.push({
+                        id: entry.id,
+                        resource: entry.resource
+                    });
                 }
 
                 if (debug || explain) {
@@ -1479,8 +1448,7 @@ class GraphHelper {
 
             entities = await this.enrichmentManager.enrichBundleEntriesAsync({
                 entries: entities,
-                parsedArgs,
-                rawResources: getRaw
+                parsedArgs
             });
 
             return {entities, queryItems};
@@ -1519,7 +1487,6 @@ class GraphHelper {
      * @param {number} nonClinicalResourcesDepth
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
-     * @param {boolean} getRaw
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync(
@@ -1538,8 +1505,7 @@ class GraphHelper {
             includeNonClinicalResources = false,
             nonClinicalResourcesDepth = 1,
             proxyPatientIds = [],
-            proxyPatientResources = [],
-            getRaw = false
+            proxyPatientResources = []
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1628,7 +1594,7 @@ class GraphHelper {
                  * element
                  * @type {Resource|null}
                  */
-                let startResource = getRaw ? await cursor.nextRaw() : await cursor.next();
+                let startResource = await cursor.nextRaw();
                 if (startResource) {
                     /**
                      * @type {BundleEntry}
@@ -1637,15 +1603,10 @@ class GraphHelper {
                     startResource = await this.databaseAttachmentManager.transformAttachments(
                         startResource, RETRIEVE
                     );
-                    const current_entity = getRaw
-                        ? {
-                            id: startResource.id,
-                            resource: startResource
-                        }
-                        : new BundleEntry({
-                            id: startResource.id,
-                            resource: startResource
-                        });
+                    const current_entity = {
+                        id: startResource.id,
+                        resource: startResource
+                    };
                     entries = entries.concat([current_entity]);
                     topLevelBundleEntries.push(current_entity);
                 }
@@ -1675,8 +1636,7 @@ class GraphHelper {
                     parsedArgs,
                     supportLegacyId,
                     proxyPatientIds,
-                    proxyPatientResources,
-                    getRaw
+                    proxyPatientResources
                 }
             );
 
@@ -1706,26 +1666,18 @@ class GraphHelper {
                  * @type {BundleEntry[]}
                  */
                 let bundleEntriesForTopLevelResource = [];
-                /**
-                 * @type {BundleEntry}
-                 */
-                const bundleEntry = getRaw
-                    ? {
-                        id: topLevelResource.id,
-                        resource: topLevelResource
-                    }
-                    : new BundleEntry({
-                        id: topLevelResource.id,
-                        resource: topLevelResource
-                    });
-                bundleEntriesForTopLevelResource.push(bundleEntry);
+
+                bundleEntriesForTopLevelResource.push({
+                    id: topLevelResource.id,
+                    resource: topLevelResource
+                });
 
                 if (entity.containedEntries.length > 0) {
                     /**
                      * @type {BundleEntry[]}
                      */
                     const recursiveEntries = entity.containedEntries.flatMap((e) =>
-                        this.getRecursiveContainedEntities(e, getRaw)
+                        this.getRecursiveContainedEntities(e)
                     );
 
                     if (contained) {
@@ -1737,8 +1689,7 @@ class GraphHelper {
                 bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
                     {
                         entries: bundleEntriesForTopLevelResource,
-                        parsedArgs,
-                        rawResources: getRaw
+                        parsedArgs
                     }
                 );
                 // /**
@@ -1778,8 +1729,7 @@ class GraphHelper {
                             parsedArgs,
                             base_version,
                             explain,
-                            debug,
-                            getRaw
+                            debug
                         );
 
                         if (contained) {
@@ -1821,8 +1771,7 @@ class GraphHelper {
                         if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
                             await responseStreamer.writeBundleEntryAsync(
                                 {
-                                    bundleEntry: bundleEntry1,
-                                    rawResources: getRaw
+                                    bundleEntry: bundleEntry1
                                 }
                             );
                             idsOfBundleEntriesProcessed.push(resourceIdentifier);
@@ -1890,7 +1839,6 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @param {boolean} includeNonClinicalResources
      * @param {number} nonClinicalResourcesDepth
-     * @param {boolean} getRaw
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
@@ -1904,8 +1852,7 @@ class GraphHelper {
             parsedArgs,
             supportLegacyId = true,
             includeNonClinicalResources = false,
-            nonClinicalResourcesDepth = 1,
-            getRaw = false
+            nonClinicalResourcesDepth = 1
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -2001,8 +1948,7 @@ class GraphHelper {
                         includeNonClinicalResources,
                         nonClinicalResourcesDepth,
                         proxyPatientIds,
-                        proxyPatientResources,
-                        getRaw
+                        proxyPatientResources
                     }
                 );
                 entries = entries.concat(entries1);
@@ -2024,7 +1970,7 @@ class GraphHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
+            const bundle = this.bundleManager.createRawBundle(
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
@@ -2044,7 +1990,7 @@ class GraphHelper {
                 }
             );
             if (responseStreamer) {
-                responseStreamer.setBundle({bundle, rawResources: getRaw});
+                responseStreamer.setBundle({bundle});
             }
             return bundle;
         } catch (e) {

@@ -95,7 +95,7 @@ class AdminPersonPatientDataManager {
                 res,
                 resourceType: 'Patient',
                 parsedArgs: this.r4ArgsParser.parseArgs({ resourceType: 'Patient', args }),
-                responseStreamer
+                responseStreamer: null
             });
             if (method === 'DELETE') {
                 // now also remove any connections to this Patient record
@@ -106,10 +106,11 @@ class AdminPersonPatientDataManager {
                     base_version,
                     requestInfo,
                     bundle,
-                    responseStreamer
+                    responseStreamer: null
                 });
                 bundleEntries.forEach(e => bundle.entry.push(e));
             }
+            bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({ bundleEntry }));
             return bundle;
         } catch (e) {
             throw new RethrownError({
@@ -201,16 +202,20 @@ class AdminPersonPatientDataManager {
                 parsedArgs: this.r4ArgsParser.parseArgs({ resourceType: 'Person', args }),
                 responseStreamer: null
             });
-            bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({ bundleEntry }));
             if (method === 'DELETE') {
                 // now also remove any connections to this Patient record
-                await this.removeLinksFromOtherPersonsAsync({
+                /**
+                 * @type {BundleEntry[]}
+                 */
+                const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
                     base_version,
                     requestInfo,
-                    responseStreamer,
+                    responseStreamer: null,
                     bundle
                 });
+                bundleEntries.forEach(e => bundle.entry.push(e));
             }
+            bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({ bundleEntry }));
             return bundle;
         } catch (e) {
             throw new RethrownError({

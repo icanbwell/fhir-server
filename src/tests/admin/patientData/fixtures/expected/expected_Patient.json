@@ -1,11 +1,8 @@
 {
   "entry": [
     {
-      "id": "patient1",
+      "id": "241ba7c0-ce2e-50ac-a4fd-780c7ccdd9b3",
       "resource": {
-        "birthDate": "2017-01-01",
-        "contained": [
-          {
             "code": {
               "coding": [
                 {
@@ -29,7 +26,7 @@
               "end": "2021-12-31T00:00:00.000Z",
               "start": "2021-01-01T00:00:00.000Z"
             },
-            "id": "observation1",
+            "id": "241ba7c0-ce2e-50ac-a4fd-780c7ccdd9b3",
             "identifier": [
               {
                 "id": "sourceId",
@@ -94,11 +91,14 @@
                   "valueString": "client"
                 }
               ],
-              "reference": "Patient/patient1|client"
+              "reference": "Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
             },
             "valueBoolean": false
+            }
           },
           {
+            "id": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
+            "resource": {
             "active": true,
             "address": [
               {
@@ -116,7 +116,7 @@
               }
             ],
             "gender": "male",
-            "id": "person1",
+            "id": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
             "identifier": [
               {
                 "system": "http://www.client.com/profileid",
@@ -157,7 +157,7 @@
                       "valueString": "client"
                     }
                   ],
-                  "reference": "Patient/patient1|client"
+                  "reference": "Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
                 }
               }
             ],
@@ -255,168 +255,14 @@
                 "value": "+52123456789"
               }
             ]
-          },
-          {
-            "active": true,
-            "address": [
-              {
-                "city": "Austin",
-                "country": "Some country",
-                "id": "2011-10-05T14:48:00.000Z",
-                "line": [
-                  "301 W, in a yellow submarine"
-                ],
-                "period": {
-                  "id": "2011-10-05T14:48:00.000Z"
-                },
-                "postalCode": "78701",
-                "state": "Texas"
-              }
-            ],
-            "gender": "male",
-            "id": "topLevelPerson",
-            "identifier": [
-              {
-                "system": "http://www.client.com/profileid",
-                "value": "1000000-a-02"
-              },
-              {
-                "id": "sourceId",
-                "system": "https://www.icanbwell.com/sourceId",
-                "value": "topLevelPerson"
-              },
-              {
-                "id": "uuid",
-                "system": "https://www.icanbwell.com/uuid",
-                "value": "bfbf2a31-e0aa-5302-8d33-69d6a06b0fee"
-              }
-            ],
-            "implicitRules": "some-implicit-rule",
-            "language": "english",
-            "link": [
-              {
-                "assurance": "level4",
-                "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
-                "target": {
-                  "extension": [
-                    {
-                      "id": "sourceId",
-                      "url": "https://www.icanbwell.com/sourceId",
-                      "valueString": "Person/person1"
-                    },
-                    {
-                      "id": "uuid",
-                      "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Person/5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
-                    },
-                    {
-                      "id": "sourceAssigningAuthority",
-                      "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "healthsystem1"
-                    }
-                  ],
-                  "reference": "Person/person1|healthsystem1"
-                }
-              }
-            ],
-            "managingOrganization": {
-              "display": "some-text-to-display",
-              "extension": [
-                {
-                  "id": "sourceId",
-                  "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab"
-                },
-                {
-                  "id": "uuid",
-                  "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab"
-                },
-                {
-                  "id": "sourceAssigningAuthority",
-                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "bwell"
-                }
-              ],
-              "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
-              "reference": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab",
-              "type": "foo://example.com:8042/over/there?name=ferret#"
-            },
-            "meta": {
-              "extension": [
-                {
-                  "id": "2011-10-05T14:48:00.000Z",
-                  "url": "someurl",
-                  "valueCodeableConcept": {
-                    "coding": [
-                      {
-                        "id": "b765b00c-29bd-5ad0-a2b1-f42d7849e68c",
-                        "code": "code-1",
-                        "display": "some-display",
-                        "system": "foo://example.com:8042/over/there?name=ferret#"
-                      }
-                    ],
-                    "id": "2011-10-05T14:48:00.000Z",
-                    "text": "some-text"
-                  }
-                }
-              ],
-              "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
-              "profile": [
-                "some-profile"
-              ],
-              "security": [
-                {
-                  "code": "bwell",
-                  "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
-                  "system": "https://www.icanbwell.com/owner"
-                },
-                {
-                  "code": "bwell",
-                  "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
-                  "system": "https://www.icanbwell.com/access"
-                },
-                {
-                  "code": "bwell",
-                  "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
-                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-                }
-              ],
-              "source": "https://www.icanbwell.com",
-              "versionId": "1"
-            },
-            "name": [
-              {
-                "family": "Azamar",
-                "given": [
-                  "Daniel"
-                ],
-                "use": "nickname"
-              }
-            ],
-            "photo": {
-              "contentType": "image/jpeg",
-              "data": "R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7",
-              "hash": "R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7",
-              "id": "2011-10-05T14:48:00.000Z",
-              "language": "english",
-              "size": 1024,
-              "title": "what a nice picture!",
-              "url": "someurl.com"
-            },
-            "resourceType": "Person",
-            "telecom": [
-              {
-                "id": "2011-10-05T14:48:00.000Z",
-                "system": "phone",
-                "use": "home",
-                "value": "+52123456789"
-              }
-            ]
-          }
-        ],
+      }
+    },
+    {
+      "id": "8c164262-c5a9-5d78-a0f2-8c6255a12ad0",
+      "resource": {
+        "birthDate": "2017-01-01",
         "gender": "female",
-        "id": "patient1",
+        "id": "8c164262-c5a9-5d78-a0f2-8c6255a12ad0",
         "identifier": [
           {
             "id": "sourceId",
@@ -465,6 +311,6 @@
     }
   ],
   "resourceType": "Bundle",
-  "total": 1,
+  "total": 3,
   "type": "searchset"
 }

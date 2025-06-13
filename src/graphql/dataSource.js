@@ -13,6 +13,7 @@ const { ConfigManager } = require('../utils/configManager');
 const { parseResolveInfo } = require('graphql-parse-resolve-info');
 const { getResource } = require('../operations/common/getResource');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
+const { SearchBundleOperation } = require('../operations/search/searchBundle');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -82,12 +83,6 @@ class FhirDataSource {
          * @type {object|null}
          */
         this.resourceProjections = null;
-
-        /**
-         * whether to disable class object creation while getting bundle
-         * @type {boolean}
-         */
-        this.getRawBundle = this.configManager.getRawGraphQLBundle;
     }
 
     /**
@@ -214,8 +209,7 @@ class FhirDataSource {
                                 resourceType,
                                 headers: requestInfo.headers
                             }),
-                            useAggregationPipeline: false,
-                            getRaw: this.getRawBundle
+                            useAggregationPipeline: false
                         });
 
                         // Add results from this batch to the combined results array
@@ -422,8 +416,7 @@ class FhirDataSource {
                             headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                         }
                     ),
-                    useAggregationPipeline: false,
-                    getRaw: this.getRawBundle
+                    useAggregationPipeline: false
                 }
             )
         );
@@ -511,8 +504,7 @@ class FhirDataSource {
                         headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                     }
                 ),
-                useAggregationPipeline,
-                getRaw: this.getRawBundle
+                useAggregationPipeline
             }
         );
         if (bundle.meta) {

@@ -187,6 +187,12 @@ searchParameters:
 	eslint --fix "src/middleware/fhir/resources/**/*.js" && \
 	eslint --fix "src/searchParameters/*.js"
 
+.PHONY:fastSerializers
+fastSerializers:
+	. ${NVM_DIR}/nvm.sh && nvm use && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_serializers.py && python3 src/fhir/generator/generate_classes_serializer_index.py" && \
+	eslint --fix "src/fhir/serializers/4_0_0/**/*.js"
+
 .PHONY:audit_fix
 audit_fix:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
