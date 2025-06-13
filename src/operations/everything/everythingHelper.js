@@ -186,7 +186,6 @@ class EverythingHelper {
      * @property {ParsedArgs} parsedArgs
      * @property {boolean} supportLegacyId
      * @property {boolean} includeNonClinicalResources
-     * @property {boolean} getRaw
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -197,8 +196,7 @@ class EverythingHelper {
         resourceType,
         responseStreamer,
         parsedArgs,
-        includeNonClinicalResources = true,
-        getRaw = false
+        includeNonClinicalResources = true
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -288,8 +286,7 @@ class EverythingHelper {
                     bundleEntryIdsProcessedTracker,
                     responseStreamer,
                     includeNonClinicalResources,
-                    proxyPatientIds,
-                    getRaw
+                    proxyPatientIds
                     }
                 );
 
@@ -312,7 +309,7 @@ class EverythingHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
+            const bundle = this.bundleManager.createRawBundle(
                 {
                 type: 'searchset',
                 requestId: requestInfo.userRequestId,
@@ -333,7 +330,7 @@ class EverythingHelper {
             );
 
             if (responseStreamer) {
-                responseStreamer.setBundle({ bundle, rawResources: getRaw });
+                responseStreamer.setBundle({ bundle });
             }
             return bundle;
         } catch (error) {
@@ -365,7 +362,6 @@ class EverythingHelper {
      * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
      * @property {boolean} includeNonClinicalResources
      * @property {string[]} proxyPatientIds
-     * @property {boolean} getRaw
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -380,8 +376,7 @@ class EverythingHelper {
         responseStreamer,
         bundleEntryIdsProcessedTracker,
         includeNonClinicalResources = false,
-        proxyPatientIds = [],
-        getRaw = false
+        proxyPatientIds = []
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -447,7 +442,6 @@ class EverythingHelper {
                     base_version,
                     explain,
                     debug,
-                    getRaw,
                     parsedArgs,
                     responseStreamer,
                     bundleEntryIdsProcessedTracker,
@@ -525,7 +519,6 @@ class EverythingHelper {
                     responseStreamer,
                     bundleEntryIdsProcessedTracker,
                     proxyPatientIds,
-                    getRaw,
                     nonClinicalReferencesExtractor,
                     everythingRelatedResourceManager,
                     useUuidProjection,
@@ -607,7 +600,6 @@ class EverythingHelper {
                                 base_version,
                                 explain,
                                 debug,
-                                getRaw,
                                 parsedArgs: childParseArgs,
                                 responseStreamer,
                                 bundleEntryIdsProcessedTracker,
@@ -659,13 +651,10 @@ class EverythingHelper {
             if (responseStreamer) {
                 entries = [];
             } else {
-                entries = await this.enrichmentManager.enrichBundleEntriesAsync(
-                    {
+                entries = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries,
-                    parsedArgs,
-                    rawResources: getRaw
-                    }
-                );
+                    parsedArgs
+                });
             }
 
             return new ProcessMultipleIdsAsyncResult({
@@ -704,7 +693,6 @@ class EverythingHelper {
      * @property {ResourceProccessedTracker|undefined} bundleEntryIdsProcessedTracker
      * @property {ResourceIdentifier[]} resourceIdentifiers
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
-     * @property {boolean} getRaw
      * @property {boolean} applyPatientFilter
      * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
@@ -723,7 +711,6 @@ class EverythingHelper {
         responseStreamer,
         bundleEntryIdsProcessedTracker,
         resourceIdentifiers,
-        getRaw,
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
@@ -815,7 +802,6 @@ class EverythingHelper {
 
         const { bundleEntries } = await this.processCursorAsync({
             cursor,
-            getRaw,
             parentParsedArgs: parsedArgs,
             responseStreamer: responseStreamer,
             bundleEntryIdsProcessedTracker,
@@ -852,7 +838,6 @@ class EverythingHelper {
      * @property {ResourceIdentifier[]} parentResourceIdentifiers
      * @property {ResourceProccessedTracker} parentResourcesProcessedTracker
      * @property {string[]} proxyPatientIds
-     * @property {boolean} getRaw
      * @property {NonClinicalReferencesExtractor} nonClinicalReferencesExtractor
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {Boolean} useUuidProjection
@@ -874,7 +859,6 @@ class EverythingHelper {
         parentResourceIdentifiers,
         parentResourcesProcessedTracker,
         proxyPatientIds = [],
-        getRaw = false,
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
@@ -1096,7 +1080,6 @@ class EverythingHelper {
                 responseStreamer,
                 parentParsedArgs: parsedArgs,
                 bundleEntryIdsProcessedTracker,
-                getRaw,
                 nonClinicalReferencesExtractor,
                 parentResourcesProcessedTracker,
                 parentLookupField,
@@ -1137,7 +1120,6 @@ class EverythingHelper {
      *  parentParsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker|undefined,
      *  resourceIdentifiers: ResourceIdentifier[] | null,
-     *  getRaw: boolean,
      *  nonClinicalReferencesExtractor: NonClinicalReferencesExtractor | null,
      *  parentResourcesProcessedTracker?: ResourceProccessedTracker,
      *  parentLookupField?: string,
@@ -1155,7 +1137,6 @@ class EverythingHelper {
         parentParsedArgs,
         bundleEntryIdsProcessedTracker,
         resourceIdentifiers,
-        getRaw,
         nonClinicalReferencesExtractor,
         parentResourcesProcessedTracker,
         parentLookupField,
@@ -1174,7 +1155,7 @@ class EverythingHelper {
              * element
              * @type {Resource|null}
              */
-            let startResource = getRaw ? await cursor.nextRaw() : await cursor.next();
+            let startResource = await cursor.nextRaw();
             if (startResource) {
                 /**
                  * @type {BundleEntry}
@@ -1183,15 +1164,10 @@ class EverythingHelper {
                 startResource = await this.databaseAttachmentManager.transformAttachments(
                     startResource, RETRIEVE
                 );
-                let current_entity = getRaw
-                    ? {
-                          id: startResource._sourceId,
-                          resource: startResource
-                      }
-                    : new BundleEntry({
-                          id: startResource._sourceId,
-                          resource: startResource
-                      });
+                let current_entity = {
+                    id: startResource._sourceId,
+                    resource: startResource
+                };
 
 
                 let sendResource = true;
@@ -1318,8 +1294,7 @@ class EverythingHelper {
                     ) {
                         [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                             entries: [current_entity],
-                            parsedArgs: parentParsedArgs,
-                            rawResources: getRaw
+                            parsedArgs: parentParsedArgs
                         });
 
                         if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
@@ -1328,9 +1303,8 @@ class EverythingHelper {
                             }
                             await responseStreamer.writeBundleEntryAsync(
                                 {
-                                bundleEntry: current_entity,
-                                rawResources: getRaw
-                        }
+                                    bundleEntry: current_entity
+                                }
                             );
                         }
 

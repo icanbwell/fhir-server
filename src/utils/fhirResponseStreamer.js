@@ -1,10 +1,10 @@
 const moment = require('moment-timezone');
-const { removeNull } = require('./nullRemover');
 const { assertIsValid } = require('./assertType');
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
 const BundleEntrySerializer = require('../fhir/serializers/4_0_0/backbone_elements/bundleEntry');
+const BundleSerializer = require('../fhir/serializers/4_0_0/resources/bundle');
 
 class FhirResponseStreamer extends BaseResponseStreamer {
     /**
@@ -75,17 +75,11 @@ class FhirResponseStreamer extends BaseResponseStreamer {
     /**
      * writes to response
      * @param {BundleEntry} bundleEntry
-     * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({ bundleEntry, rawResources = false }) {
+    async writeBundleEntryAsync({ bundleEntry }) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
-            if (rawResources) {
-                FhirResourceSerializer.serialize(bundleEntry, BundleEntrySerializer);
-            }
-            else {
-                bundleEntry = bundleEntry.toJSON();
-            }
+            FhirResourceSerializer.serialize(bundleEntry, BundleEntrySerializer);
             /**
              * @type {string}
              */
@@ -107,11 +101,9 @@ class FhirResponseStreamer extends BaseResponseStreamer {
     /**
      * sets the bundle to use
      * @param {Bundle} bundle
-     * @param {boolean} rawResources
      */
-    setBundle({ bundle, rawResources = false }) {
+    setBundle({ bundle }) {
         this._bundle = bundle;
-        this._rawBundle = rawResources;
     }
 
     /**
@@ -119,15 +111,14 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * @return {Promise<void>}
      */
     async endAsync() {
-        const emptyBundle = () => this._rawBundle ? {
-            id: this.requestId,
-            type: this._bundleType,
-            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z'
-        } : new Bundle({
-            id: this.requestId,
-            type: this._bundleType,
-            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z'
-        });
+        const emptyBundle = () => {
+            return {
+                id: this.requestId,
+                type: this._bundleType,
+                timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
+                resourceType: 'Bundle'
+            };
+        };
 
         const bundle = this._bundle || emptyBundle();
         bundle.total = this._count;
@@ -135,7 +126,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
         /**
          * @type {Object}
          */
-        const cleanObject = this._rawBundle ? FhirResourceSerializer.serialize(bundle) : removeNull(bundle.toJSON());
+        const cleanObject = FhirResourceSerializer.serialize(bundle, BundleSerializer);
         /**
          * @type {string}
          */

@@ -1,4 +1,5 @@
 const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
+const BundleEntrySerializer = require('../fhir/serializers/4_0_0/backbone_elements/bundleEntry');
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const { fhirContentTypes } = require('./contentTypes');
 
@@ -40,22 +41,16 @@ class FhirResponseNdJsonStreamer extends BaseResponseStreamer {
     /**
      * writes to response
      * @param {BundleEntry} bundleEntry
-     * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({ bundleEntry, rawResources = false }) {
+    async writeBundleEntryAsync({ bundleEntry }) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
             /**
              * @type {Resource}
              */
             let resource = bundleEntry.resource;
             if (resource !== null && resource !== undefined) {
-                if (rawResources) {
-                    FhirResourceSerializer.serialize(resource);
-                }
-                else {
-                    resource = resource.toJSON();
-                }
+                FhirResourceSerializer.serialize(resource, BundleEntrySerializer);
                 /**
                  * @type {string}
                  */

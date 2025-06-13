@@ -48,7 +48,6 @@ services:
       KAFKA_CLIENT_ID: 'fhir-server'
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
-      PARTITION_RESOURCES: ''
       AUTH_CUSTOM_USERNAME: "cognito:username,preferred_username"
       AUTH_CUSTOM_GROUP: "cognito:groups,groups"
       AUTH_CUSTOM_SCOPE: "custom:scope"
@@ -76,11 +75,6 @@ services:
       ENABLE_VULCAN_IG_QUERY: 'true'
       REQUIRED_AUDIT_EVENT_FILTERS: 'date'
       ENABLE_SWAGGER_DOC: 1
-      ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID: 1
-      ENABLE_FAST_SERIALIZER_IN_GRAPH_OP: 1
-      ENABLE_FAST_SERIALIZER_IN_SEARCH: 1
-      ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP: 1
-      DISABLE_GRAPH_IN_EVERYTHING_OP: 1
     ports:
       - '3000:3000'
     volumes:

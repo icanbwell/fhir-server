@@ -19,7 +19,6 @@ class MongoReadableStream extends Readable {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
-     * @param {boolean} getRaw
      * @param {import('http').ServerResponse} response
      */
     constructor (
@@ -31,8 +30,7 @@ class MongoReadableStream extends Readable {
             highWaterMark,
             configManager,
             response,
-            params,
-            getRaw = false
+            params
         }
     ) {
         super({ objectMode: true, highWaterMark });
@@ -77,8 +75,6 @@ class MongoReadableStream extends Readable {
         this.lastUUID = null;
 
         this.params = params;
-
-        this.getRaw = getRaw;
     }
 
     async _read (size) {
@@ -118,7 +114,7 @@ class MongoReadableStream extends Readable {
                      * element
                      * @type {Resource}
                      */
-                    let resource = this.getRaw ? await this.cursor.nextRaw() : await this.cursor.next();
+                    let resource = await this.cursor.nextRaw();
                     this.lastUUID = resource._uuid;
                     if (this.configManager.logStreamSteps) {
                         logInfo(`mongoStreamReader: read ${resource.id}`, { count, size });

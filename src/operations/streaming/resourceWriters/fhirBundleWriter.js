@@ -8,8 +8,8 @@ const { logInfo, logError } = require('../../common/logging');
 const { RethrownError } = require('../../../utils/rethrownError');
 const { convertErrorToOperationOutcome } = require('../../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../../common/sentry');
-const { removeUnderscoreProps } = require('../../../utils/removeUnderscoreProps');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
+const BundleSerializer = require('../../../fhir/serializers/4_0_0/resources/bundle');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -21,8 +21,6 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
-     * @param {Boolean} rawResources
-     * @param {Boolean} useFastSerializer
      */
     constructor({
         fnBundle,
@@ -31,17 +29,13 @@ class FhirBundleWriter extends FhirResourceWriterBase {
         defaultSortId,
         highWaterMark,
         configManager,
-        response,
-        rawResources = false,
-        useFastSerializer = false
+        response
     }) {
         super({
             objectMode: true,
             contentType: fhirContentTypes.fhirJson,
             highWaterMark,
-            response,
-            rawResources,
-            useFastSerializer
+            response
         });
         /**
          * @type {function (string | null, number): Bundle}
@@ -97,26 +91,15 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             return;
         }
         const chunkId = chunk.id;
-        let chunkJson = {};
         try {
             if (chunk !== null && chunk !== undefined) {
                 // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
                 this._lastid = chunk[this.defaultSortId];
 
-                if (this.rawResources){
-                    chunkJson = chunk;
-                    if(this.useFastSerializer){
-                        FhirResourceSerializer.serialize(chunkJson);
-                    } else {
-                        removeUnderscoreProps(chunkJson);
-                    }
-                }
-                else {
-                    chunkJson = chunk.toJSON();
-                }
+                FhirResourceSerializer.serialize(chunk);
                 const resourceJson = JSON.stringify(
                     {
-                        resource: chunkJson
+                        resource: chunk
                     }, getCircularReplacer()
                 );
                 if (this.configManager.logStreamSteps) {
@@ -140,7 +123,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     error: e,
                     args: {
                         chunkId,
-                        chunkJson,
+                        chunkJson: chunk,
                         encoding
                     }
                 }
@@ -204,16 +187,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
              */
             let bundle = this._fnBundle(this._lastid, stopTime);
 
-            if (this.rawResources){
-                if(this.useFastSerializer){
-                    FhirResourceSerializer.serialize(bundle);
-                } else {
-                    removeUnderscoreProps(bundle);
-                }
-            }
-            else {
-                bundle = bundle.toJSON();
-            }
+            FhirResourceSerializer.serialize(bundle, BundleSerializer);
             /**
              * @type {Object}
              */

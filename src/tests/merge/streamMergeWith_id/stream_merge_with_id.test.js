@@ -15,7 +15,6 @@ const {
     parseNdjsonResponse
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const expectedPersonResources = require('../mergeWith_id/fixtures/expected/expected_Person.json');
 
 describe('Streaming Merge Tests', () => {
     let requestId;

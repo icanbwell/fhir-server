@@ -185,16 +185,6 @@ class SearchByIdOperation {
                 requestId
             });
 
-            /**
-             * @type {Boolean}
-            */
-            let rawResourceQuery = this.configManager.skipClassObjectResources.includes(resourceType);
-
-            const useFastSerializer = this.configManager.enableFastSerializerInSearchById;
-            if (useFastSerializer) {
-                rawResourceQuery = true;
-            }
-
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }
             );
@@ -206,7 +196,7 @@ class SearchByIdOperation {
             /**
              * @type {Resource[]}
              */
-            const resources = rawResourceQuery ? await cursor.toArrayRawAsync() : await cursor.toArrayAsync();
+            const resources = await cursor.toArrayRawAsync();
 
             /**
              * @type {ParsedArgsItem|undefined}
@@ -241,7 +231,7 @@ class SearchByIdOperation {
 
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], parsedArgs, rawResources: rawResourceQuery
+                            resources: [resource], parsedArgs
                         }
                     )
                 )[0];
@@ -275,11 +265,7 @@ class SearchByIdOperation {
                 });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-                if (useFastSerializer) {
-                    FhirResourceSerializer.serializeByResourceType(resource, resourceType);
-                } else if (rawResourceQuery) {
-                    removeUnderscoreProps(resource);
-                }
+                FhirResourceSerializer.serializeByResourceType(resource, resourceType);
                 return resource;
             } else {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);

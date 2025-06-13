@@ -1271,12 +1271,214 @@
           ]
         }
       }
+    },
+    {
+      "id": "58502df6-19f1-4c47-b391-6efd5728e2c7",
+      "resource": {
+        "asserter": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "PractitionerRole/9ec009e4-28f7-4958-86da-256fe0f67c75"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "PractitionerRole/9ec009e4-28f7-4958-86da-256fe0f67c75"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
+          "reference": "PractitionerRole/9ec009e4-28f7-4958-86da-256fe0f67c75",
+          "display": "Dr. Susan Jane"
+        },
+        "bodySite": [
+          {
+            "coding": [
+              {
+                "id": "3201cdbb-6929-585b-9694-0dc84fe84b6c",
+                "system": "http://snomed.info/sct",
+                "code": "82169009",
+                "display": "Right knee joint structure"
+              }
+            ],
+            "text": "Right knee"
+          }
+        ],
+        "category": {
+          "coding": [
+            {
+              "id": "1fdfaaaa-402a-538f-84dd-c21d25c226f5",
+              "system": "http://terminology.hl7.org/CodeSystem/procedure-category",
+              "code": "surgical",
+              "display": "Surgical Operation"
+            }
+          ],
+          "text": "Surgical Operation"
+        },
+        "code": {
+          "coding": [
+            {
+              "id": "f6027072-072e-5685-b571-a5c8133d5cac",
+              "system": "http://snomed.info/sct",
+              "code": "72651009",
+              "display": "Arthroscopy of knee"
+            }
+          ],
+          "text": "Knee Arthroscopy"
+        },
+        "id": "58502df6-19f1-4c47-b391-6efd5728e2c7",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "58502df6-19f1-4c47-b391-6efd5728e2c7"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "58502df6-19f1-4c47-b391-6efd5728e2c7"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "source": "healthsystem1",
+          "security": [
+            {
+              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+              "system": "https://www.icanbwell.com/access",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "healthsystem1"
+            }
+          ]
+        },
+        "note": [
+          {
+            "time": "2023-06-15T10:30:00+00:00",
+            "text": "Arthroscopic procedure completed successfully. Meniscus repair performed with no complications."
+          }
+        ],
+        "outcome": {
+          "coding": [
+            {
+              "id": "20f8ad3b-6007-5b20-9064-1ab2af6a9a39",
+              "system": "http://terminology.hl7.org/CodeSystem/procedure-outcome",
+              "code": "successful",
+              "display": "Successful"
+            }
+          ],
+          "text": "Procedure completed successfully without complications"
+        },
+        "performedPeriod": {
+          "start": "2023-06-15T09:00:00+00:00",
+          "end": "2023-06-15T10:30:00+00:00"
+        },
+        "performer": [
+          {
+            "actor": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "healthsystem1"
+                }
+              ],
+              "reference": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae",
+              "display": "Dr. James Smith"
+            }
+          }
+        ],
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "id": "715bba65-cc11-53f8-ae10-4898e6901d9a",
+                "system": "http://snomed.info/sct",
+                "code": "239720000",
+                "display": "Tear of meniscus of knee"
+              }
+            ],
+            "text": "Meniscus tear"
+          }
+        ],
+        "recorder": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
+          "reference": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae",
+          "display": "Dr. Susan Jane"
+        },
+        "resourceType": "Procedure",
+        "status": "completed",
+        "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/patient1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
+          "reference": "Patient/patient1",
+          "display": "Test Patient"
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Knee Arthroscopy</div>"
+        }
+      }
     }
   ],
   "resourceType": "Bundle",
   "type": "searchset",
   "timestamp": "2023-12-20T03:31:07.077Z",
-  "total": 13,
+  "total": 14,
   "link": [
     {
       "relation": "self",

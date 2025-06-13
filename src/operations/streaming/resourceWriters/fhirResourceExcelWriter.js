@@ -5,7 +5,6 @@ const {assertTypeEquals} = require('../../../utils/assertType');
 const {ConfigManager} = require('../../../utils/configManager');
 const {captureException} = require('../../common/sentry');
 const {FhirResourceSerializer} = require('../../../fhir/fhirResourceSerializer');
-const {removeUnderscoreProps} = require('../../../utils/removeUnderscoreProps');
 const {BundleToExcelConverter} = require("../../../converters/bundleToExcelConverter");
 const {generateUUID} = require("../../../utils/uid.util");
 const {BufferToChunkTransferResponse} = require("../../../utils/buffer_to_chunk_transfer_response");
@@ -19,19 +18,15 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
-     * @param {Boolean} rawResources
-     * @param {Boolean} useFastSerializer
      */
     constructor({
                     signal,
                     contentType,
                     highWaterMark,
                     configManager,
-                    response,
-                    rawResources = false,
-                    useFastSerializer = false
+                    response
                 }) {
-        super({objectMode: true, contentType, highWaterMark, response, rawResources, useFastSerializer});
+        super({objectMode: true, contentType, highWaterMark, response});
         /**
          * @type {AbortSignal}
          * @private
@@ -70,23 +65,11 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
         }
         try {
             if (chunk !== null && chunk !== undefined) {
-                /**
-                 * @type {Resource|Object}
-                 */
-                let myChunk = chunk;
                 if (this.configManager.logStreamSteps) {
                     logInfo(`FhirResourceExcelWriter: _transform ${chunk.id}`, {});
                 }
-                if (this.rawResources) {
-                    if (this.useFastSerializer) {
-                        myChunk = FhirResourceSerializer.serialize(chunk);
-                    } else {
-                        removeUnderscoreProps(myChunk);
-                    }
-                } else {
-                    myChunk = chunk.toJSON();
-                }
-                this.json_resources.push(myChunk);
+                FhirResourceSerializer.serialize(chunk);
+                this.json_resources.push(chunk);
             }
         } catch (e) {
             logError(`FhirResourceExcelWriter _transform: error: ${e.message}`, {

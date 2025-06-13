@@ -1,5 +1,5 @@
 const { isTrue } = require('../../utils/isTrue');
-const { rawResourceReferenceUpdater } = require('../../utils/rawResourceUpdater');
+const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
 /**
@@ -13,7 +13,7 @@ class HashReferencesEnrichmentProvider {
      * @return {Promise<Resource[]>}
      */
 
-    async enrichAsync ({ resources, parsedArgs, rawResources = false  }) {
+    async enrichAsync ({ resources, parsedArgs }) {
         /**
          * @type {boolean}
          */
@@ -29,26 +29,12 @@ class HashReferencesEnrichmentProvider {
                             resourceTypeAndIdSet.add(`${containedResource.resourceType}/${containedResource.id}`);
                         }
                     }
-                    if (resource.updateReferencesAsync) {
-                        await resource.updateReferencesAsync(
-                            {
-                                fnUpdateReferenceAsync: async (reference) => this.updateReferenceAsync(
-                                    {
-                                        reference,
-                                        resourceTypeAndIdSet
-                                    }
-                                )
-                            }
-                        );
-                    }
-                    else if (rawResources){
-                        await rawResourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
-                            {
-                                reference,
-                                resourceTypeAndIdSet
-                            }
-                        ))
-                    }
+                    await resourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                        {
+                            reference,
+                            resourceTypeAndIdSet
+                        }
+                    ));
                 }
             }
         }
@@ -62,7 +48,7 @@ class HashReferencesEnrichmentProvider {
      * @return {Promise<BundleEntry[]>}
      */
 
-    async enrichBundleEntriesAsync ({ entries, parsedArgs, rawResources = false }) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         /**
          * @type {boolean}
          */
@@ -82,26 +68,12 @@ class HashReferencesEnrichmentProvider {
                             resourceTypeAndIdSet.add(`${containedResource.resourceType}/${containedResource.id}`);
                         }
                     }
-                    if (resource.updateReferencesAsync) {
-                        await resource.updateReferencesAsync(
-                            {
-                                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
-                                    {
-                                        reference,
-                                        resourceTypeAndIdSet
-                                    }
-                                )
-                            }
-                        );
-                    }
-                    else if (rawResources){
-                        await rawResourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
-                            {
-                                reference,
-                                resourceTypeAndIdSet
-                            }
-                        ))
-                    }
+                    await resourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                        {
+                            reference,
+                            resourceTypeAndIdSet
+                        }
+                    ));
                 }
             }
         }

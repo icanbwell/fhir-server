@@ -24,47 +24,7 @@ describe('Enrichers test for graphqlv2', () => {
         await commonAfterEach();
     });
 
-    test('Golbalid and proxy patient enrichers works with raw resource', async () => {
-        const request = await createTestRequest();
-        const graphqlQueryText = enrichersGraphQLQuery.replace(/\\n/g, '');
-        // ARRANGE
-        // add the resources to FHIR server
-        let resp = await request.post('/4_0_0/Person/1/$merge?validate=true').send(person1Resource).set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({ created: true });
-
-        // add patients
-        resp = await request.post('/4_0_0/Patient/1/$merge?validate=true').send(patient1Resource).set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({ created: true });
-
-        // add tasks
-        resp = await request
-            .post('/4_0_0/Composition/1/$merge?validate=true')
-            .send(composition1Resource)
-            .set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({ created: true });
-
-        // ACT & ASSERT
-        resp = await request
-            .post('/4_0_0/$graphqlv2')
-            .send({
-                operationName: null,
-                variables: {},
-                query: graphqlQueryText
-            })
-            .set(getGraphQLHeaders());
-
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedEnrichedResponse);
-    });
-
     test('Golbalid and proxy patient enrichers works', async () => {
-        // disable graphqlRawBundle
-        let graphqlRawBundle = process.env.ENABLE_RAW_BUNDLE_IN_GRAPHQLV2;
-        process.env.ENABLE_RAW_BUNDLE_IN_GRAPHQLV2 = "0";
-
         const request = await createTestRequest();
         const graphqlQueryText = enrichersGraphQLQuery.replace(/\\n/g, '');
         // ARRANGE
@@ -98,7 +58,5 @@ describe('Enrichers test for graphqlv2', () => {
 
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedEnrichedResponse);
-
-        process.env.ENABLE_RAW_BUNDLE_IN_GRAPHQLV2 = graphqlRawBundle;
     });
 });
