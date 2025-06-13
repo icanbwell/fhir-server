@@ -11,7 +11,6 @@ const { ScopesValidator } = require('../security/scopesValidator');
 const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { getFirstResourceOrNull } = require('../../utils/list.util');
-const { removeUnderscoreProps } = require('../../utils/removeUnderscoreProps')
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');

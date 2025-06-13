@@ -27,6 +27,7 @@ const {
 } = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
 const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
+const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');

@@ -197,7 +197,7 @@ class BundleManager {
         /**
          * array of links
          */
-        let link = [];
+        let link = null;
         // find id of last resource
         if (originalUrl) {
             if (last_id) {

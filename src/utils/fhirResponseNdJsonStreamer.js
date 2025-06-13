@@ -50,7 +50,7 @@ class FhirResponseNdJsonStreamer extends BaseResponseStreamer {
              */
             let resource = bundleEntry.resource;
             if (resource !== null && resource !== undefined) {
-                FhirResourceSerializer.serialize(resource, BundleEntrySerializer);
+                FhirResourceSerializer.serialize(resource);
                 /**
                  * @type {string}
                  */
