@@ -7,6 +7,7 @@ const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithEx
 const { createTestContainer } = require('../createTestContainer');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { generateUUIDv5 } = require('../../utils/uid.util');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 /**
  * Gets graph helper
@@ -88,7 +89,8 @@ describe('graphHelper Tests', () => {
             );
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -142,7 +144,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -226,7 +229,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -296,7 +300,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -366,7 +371,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -434,7 +440,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -517,7 +524,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid10,
@@ -590,7 +598,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -674,7 +683,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -803,7 +813,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -963,7 +974,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -1102,7 +1114,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid10,
@@ -1302,7 +1315,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -1557,7 +1571,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result.timestamp;
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -1809,7 +1824,8 @@ describe('graphHelper Tests', () => {
                     delete tag.display;
                 }
             }
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 entry: [
                     {
                         id: uuid1,
@@ -2095,7 +2111,8 @@ describe('graphHelper Tests', () => {
                     delete tag.display;
                 }
             }
-            expect(result.toJSON()).toStrictEqual({
+            FhirResourceSerializer.serialize(result);
+            expect(result).toStrictEqual({
                 resourceType: 'Bundle',
                 id: '1',
                 meta: {
