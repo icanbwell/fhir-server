@@ -25,10 +25,9 @@ const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
 const { pipeline } = require('stream/promises'); // <- for async pipeline
-const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
-const { ResourcePreparerTransform } = require('../streaming/resourcePreparerTransform');
-const { ResourcePreparer } = require('../common/resourcePreparer');
 const { HttpResponseWriter } = require('../streaming/responseWriter');
+const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
+const { fhirContentTypes } = require('../../utils/contentTypes');
 
 
 class MergeOperation {
@@ -43,8 +42,6 @@ class MergeOperation {
      * @param {ConfigManager} configManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {MergeValidator} mergeValidator
-     * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
-     * @param {ResourcePreparer} resourcePreparer
      */
     constructor (
         {
@@ -57,9 +54,7 @@ class MergeOperation {
             bundleManager,
             configManager,
             bwellPersonFinder,
-            mergeValidator,
-            fhirResourceWriterFactory,
-            resourcePreparer
+            mergeValidator
         }
     ) {
         /**
@@ -117,19 +112,6 @@ class MergeOperation {
          */
         this.mergeValidator = mergeValidator;
         assertTypeEquals(mergeValidator, MergeValidator);
-
-        /**
-         * @type {FhirResourceWriterFactory}
-         */
-        this.fhirResourceWriterFactory = fhirResourceWriterFactory;
-        assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
-
-        /**
-         * @type {ResourcePreparer}
-         */
-        this.resourcePreparer = resourcePreparer;
-        assertTypeEquals(resourcePreparer, ResourcePreparer);
-
     }
 
     /**
@@ -434,7 +416,6 @@ class MergeOperation {
         const base_version = parsedArgs.base_version;
         const effectiveSmartMerge = isTrue(parsedArgs.smartMerge ?? true);
         const response = res ?? requestInfo.response;
-        const accepts = ['application/fhir+ndjson'];
 
         // Final merge outcomes (successes, errors, unchanged), streamed out
         const finalMergeResults = [];
@@ -538,40 +519,14 @@ class MergeOperation {
         });
 
         // ---------------- Writer ----------------
-        /**
-         * @type {FhirResourceWriterBase}
-         */
-        const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter({
-            accepts,
+
+        // result of merge operation is of custom MergeResultEntry type which needs to be serialized using toJSON method
+        const fhirWriter = new ObjectSerializedFhirResourceNdJsonWriter({
             signal,
-            url: requestInfo.originalUrl,
-            fnBundle: (lastId, stopTime) => this.bundleManager.createBundle({
-                type: 'batch-response',
-                requestId: requestInfo.userRequestId,
-                originalUrl: requestInfo.originalUrl,
-                host: requestInfo.host,
-                protocol: requestInfo.protocol,
-                resources: [],
-                base_version: parsedArgs.base_version,
-                total_count: null,
-                originalQuery: new QueryItem({
-                    query: null,
-                    resourceType: resourceType,
-                    collectionName: null
-                }),
-                originalOptions: {},
-                stopTime:stopTime,
-                startTime: Date.now(),
-                user: requestInfo.user,
-                explanations: [],
-                parsedArgs:parsedArgs
-            }),
-            defaultSortId: 'id',
-            highWaterMark: highWaterMark,
+            contentType: fhirContentTypes.ndJson,
+            highWaterMark,
             configManager: self.configManager,
-            response:response,
-            rawResources: false,
-            useFastSerializer: true
+            response
         });
 
         const responseWriter = new HttpResponseWriter(

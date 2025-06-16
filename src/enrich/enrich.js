@@ -23,16 +23,15 @@ class EnrichmentManager {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {Resource[]} resources
-     * @param {boolean} rawResources
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync ({ resources, parsedArgs, rawResources = false }) {
+    async enrichAsync ({ resources, parsedArgs }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
                 resources = await enrichmentProvider.enrichAsync(
                     {
-                        resources, parsedArgs, rawResources
+                        resources, parsedArgs
                     }
                 );
             }
@@ -51,22 +50,18 @@ class EnrichmentManager {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
-     * @param {boolean} rawResources
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync ({ entries, parsedArgs, rawResources = false }) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         try {
             assertIsValid(entries !== null && entries !== undefined, 'entries is null');
             assertIsValid(Array.isArray(entries), 'entries is not an array');
             for (const /** @type {EnrichmentProvider} */ enrichmentProvider of this.enrichmentProviders) {
                 entries = await enrichmentProvider.enrichBundleEntriesAsync(
                     {
-                        entries, parsedArgs, rawResources
+                        entries, parsedArgs
                     }
                 );
-            }
-            if(!rawResources) {
-                entries.forEach(entry => assertTypeEquals(entry, BundleEntry));
             }
             return entries;
         } catch (e) {

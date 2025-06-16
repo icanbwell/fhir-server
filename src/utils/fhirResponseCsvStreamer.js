@@ -2,6 +2,7 @@ const {BaseResponseStreamer} = require('./baseResponseStreamer');
 const {fhirContentTypes} = require('./contentTypes');
 const {BundleToCsvConverter} = require("../converters/bundleToCsvConverter");
 const {BufferToChunkTransferResponse} = require("./buffer_to_chunk_transfer_response");
+const { logError } = require('../operations/common/logging');
 
 class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
@@ -53,19 +54,17 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
      * writes to response
      * @param {BundleEntry} bundleEntry
-     * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({bundleEntry, rawResources = false}) {
+    async writeBundleEntryAsync({bundleEntry}) {
         this._bundle_entries.push(bundleEntry);
     }
 
     /**
      * sets the bundle to use
      * @param {Bundle} bundle
-     * @param {boolean} rawResources
      */
-    setBundle({bundle, rawResources = false}) {
+    setBundle({bundle}) {
         this._bundle = bundle;
     }
 
@@ -83,20 +82,8 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 );
                 this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
 
-                /**
-                 * @type {Object}
-                 */
-                let bundle = this._bundle.toJSON();
                 if (this._bundle_entries.length > 0) {
-                    /**
-                     * @type {Bundle}
-                     */
-                    const bundle_copy = this._bundle.clone();
-                    bundle_copy.entry = this._bundle_entries;
-                    /**
-                     * @type {Object}
-                     */
-                    bundle = bundle_copy.toJSON();
+                    this._bundle.entry = this._bundle_entries;
                 }
 
                 /**
@@ -108,7 +95,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                  */
                 const csvBuffer = exporter.convert(
                     {
-                        bundle
+                        bundle: this._bundle
                     }
                 );
                 // Verify buffer before sending
@@ -127,7 +114,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 this.response.status(404).end();
             }
         } catch (error) {
-            console.error('Error generating FHIR CSV export:', error);
+            logError('Error generating FHIR CSV export:', error);
             this.response.status(500).end();
         }
 

@@ -4,7 +4,6 @@ const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { logInfo } = require('../../common/logging');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
-const { removeUnderscoreProps } = require('../../../utils/removeUnderscoreProps');
 
 class FhirResourceCsvWriter extends Transform {
     /**
@@ -15,17 +14,13 @@ class FhirResourceCsvWriter extends Transform {
      * @param {string} contentType
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
-     * @param {Boolean} rawResources
-     * @param {Boolean} useFastSerializer
      */
     constructor({
         signal,
         delimiter,
         contentType,
         highWaterMark,
-        configManager,
-        rawResources = false,
-        useFastSerializer = false
+        configManager
     }) {
         /**
          * @type {import('@json2csv/node').Json2CSVBaseOptions}
@@ -67,16 +62,6 @@ class FhirResourceCsvWriter extends Transform {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {Boolean}
-         */
-        this.rawResources = rawResources;
-
-        /**
-         * @type {Boolean}
-         */
-        this.useFastSerializer = useFastSerializer;
     }
 
     /**
@@ -94,18 +79,8 @@ class FhirResourceCsvWriter extends Transform {
         if (this.configManager.logStreamSteps) {
             logInfo(`FhirResourceCsvWriter._transform${chunk.id}`, {});
         }
-        let chunkJSON = chunk;
-        if (this.rawResources){
-            if(this.useFastSerializer){
-                FhirResourceSerializer.serialize(chunkJSON);
-            } else {
-                removeUnderscoreProps(chunkJSON);
-            }
-        }
-        else {
-            chunkJSON = chunk.toJSON();
-        }
-        return super._transform(chunkJSON, encoding, done);
+        FhirResourceSerializer.serialize(chunk);
+        return super._transform(chunk, encoding, done);
     }
 
     /**

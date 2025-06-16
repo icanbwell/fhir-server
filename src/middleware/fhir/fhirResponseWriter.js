@@ -1,8 +1,8 @@
 const path = require('path');
-const { assertTypeEquals } = require('../../utils/assertType');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../../constants');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 /**
  * @classdesc Writes response in FHIR
@@ -33,9 +33,9 @@ class FhirResponseWriter {
      * @param {Resource} result - json to send to client
      */
     read ({ req, res, result }) {
-        assertTypeEquals(result, Resource);
         this.setBaseResponseHeaders({ req, res });
-        res.status(200).json(result.toJSON());
+        FhirResourceSerializer.serialize(result);
+        res.status(200).json(result);
     }
 
     /**

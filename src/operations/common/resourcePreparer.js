@@ -49,45 +49,21 @@ class ResourcePreparer {
      * @param {ParsedArgs} parsedArgs
      * @param {Resource} element
      * @param {string} resourceType
-     * @param {boolean} rawResources
      * @return {Resource}
      */
-    selectSpecificElements ({ parsedArgs, element, resourceType, rawResources = false }) {
+    selectSpecificElements ({ parsedArgs, element, resourceType }) {
         /**
          * @type {string[]|null}
          */
         const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue.values;
-        properties_to_return_list.push('resourceType')
+        properties_to_return_list.push('resourceType');
 
-        let element_to_return = null;
-
-        if (rawResources) {
-            element_to_return = Object.keys(element)
-                .filter((key) => properties_to_return_list.includes(key))
-                .reduce((acc, key) => {
-                    acc[key] = element[key];
-                    return acc;
-                }, {});
-        }
-        else {
-            /**
-             * @type {Resource}
-             */
-            element_to_return = element.create({});
-            if (properties_to_return_list) {
-                /**
-                 * @type {string}
-                 */
-                for (const property of properties_to_return_list) {
-                    if (property in element_to_return) {
-                        // for handling non-writable field 'resourceType'
-                        if (property !== 'resourceType') {
-                            element_to_return[`${property}`] = element[`${property}`];
-                        }
-                    }
-                }
-            }
-        }
+        let element_to_return = Object.keys(element)
+            .filter((key) => properties_to_return_list.includes(key))
+            .reduce((acc, key) => {
+                acc[key] = element[key];
+                return acc;
+            }, {});
 
         // this is a hack for the CQL Evaluator since it does not request these fields but expects them
         if (resourceType === 'Library') {
@@ -102,10 +78,9 @@ class ResourcePreparer {
      * @param {ParsedArgs} parsedArgs
      * @param {Resource} element
      * @param {string} resourceType
-     * @param {boolean} rawResources
      * @returns {Promise<Resource[]>}
      */
-    async prepareResourceAsync({ parsedArgs, element, resourceType, rawResources }) {
+    async prepareResourceAsync({ parsedArgs, element, resourceType }) {
         if (parsedArgs.get('_elements') && !parsedArgs.get('_isGraphQLRequest')) {
             /**
              * @type {Resource}
@@ -113,8 +88,7 @@ class ResourcePreparer {
             element = this.selectSpecificElements({
                 parsedArgs,
                 element,
-                resourceType,
-                rawResources
+                resourceType
             });
         }
         if (!parsedArgs.get('_elements') || parsedArgs.get('_isGraphQLRequest')) {
@@ -123,8 +97,7 @@ class ResourcePreparer {
              */
             [element] = await this.enrichmentManager.enrichAsync({
                 resources: [element],
-                parsedArgs,
-                rawResources
+                parsedArgs
             });
         }
         return [element];

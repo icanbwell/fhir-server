@@ -23,7 +23,6 @@ services:
       AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/openid-configuration
       AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
       AUTH_CODE_FLOW_URL: https://bwell-dev.auth.us-east-1.amazoncognito.com
-      REDIRECT_TO_LOGIN: 1
       MAX_INDEX_NAME_LENGTH: 65
       ENV: local
       ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL: 0
@@ -48,7 +47,6 @@ services:
       KAFKA_CLIENT_ID: 'fhir-server'
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
-      PARTITION_RESOURCES: ''
       AUTH_CUSTOM_USERNAME: "cognito:username,preferred_username"
       AUTH_CUSTOM_GROUP: "cognito:groups,groups"
       AUTH_CUSTOM_SCOPE: "custom:scope"
@@ -66,7 +64,6 @@ services:
       # FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       ENABLE_STATS_ENDPOINT: '1'
       FHIR_SERVER_UI_URL: 'http://localhost:5051'
-      FHIR_ADMIN_UI_URL: 'http://localhost:4000'
       REDIRECT_TO_NEW_UI: '1'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       ENABLE_BULK_EXPORT: '1'
@@ -76,11 +73,6 @@ services:
       ENABLE_VULCAN_IG_QUERY: 'true'
       REQUIRED_AUDIT_EVENT_FILTERS: 'date'
       ENABLE_SWAGGER_DOC: 1
-      ENABLE_FAST_SERIALIZER_IN_SEARCH_BY_ID: 1
-      ENABLE_FAST_SERIALIZER_IN_GRAPH_OP: 1
-      ENABLE_FAST_SERIALIZER_IN_SEARCH: 1
-      ENABLE_RAW_BUNDLE_IN_EVERYTHING_OP: 1
-      DISABLE_GRAPH_IN_EVERYTHING_OP: 1
     ports:
       - '3000:3000'
     volumes:

@@ -32,6 +32,17 @@
         "id": "person1",
         "resourceType": "Person"
       }
+    },
+    {
+      "id": "topLevelPerson",
+      "resource": {
+        "resourceType": "Person",
+        "id": "topLevelPerson"
+      },
+      "request": {
+        "method": "PATCH",
+        "url": "/4_0_0/Person/topLevelPerson"
+      }
     }
   ],
   "resourceType": "Bundle",
