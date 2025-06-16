@@ -12,9 +12,8 @@ The FHIR server implements OAuth for authentication purposes. To configure OAuth
 1. AUTH_JWKS_URL: This variable specifies the URL where the public keys of the OAuth provider can be obtained. These keys are used to verify the signatures of JWT tokens issued by the OAuth provider. E.g., https://cognito-idp.us-east-1.amazonaws.com/us-east-1_<cognito-id>/.well-known/jwks.json.
 2. AUTH_CODE_FLOW_URL: This variable is used to specify the URL of the OAuth provider's authorization endpoint for the Authorization Code Flow. This endpoint is where users are redirected to authorize the application.
 3. AUTH_CODE_FLOW_CLIENT_ID: This variable holds the client ID of the application registered with the OAuth provider. This ID is used during the OAuth process to identify the application.
-4. REDIRECT_TO_LOGIN: This variable determines whether a GET request from a web browser should be redirected to the OAuth provider's login page if the user is not authenticated.
-5. AUTH_CONFIGURATION_URI: This variable specifies the URI where the OAuth provider's configuration can be obtained. This configuration typically includes important details such as authorization endpoint URLs, token endpoint URLs, supported OAuth flows, and other OAuth-related settings.
-6. EXTERNAL_AUTH_JWKS_URLS: This variable is used to specify the additional URLs where the public keys (JWKS) of other user pools(oauth providers) can be obtained. These keys are used to verify the signatures of JWT tokens issued by the authentication providers.
+4. AUTH_CONFIGURATION_URI: This variable specifies the URI where the OAuth provider's configuration can be obtained. This configuration typically includes important details such as authorization endpoint URLs, token endpoint URLs, supported OAuth flows, and other OAuth-related settings.
+5. EXTERNAL_AUTH_JWKS_URLS: This variable is used to specify the additional URLs where the public keys (JWKS) of other user pools(oauth providers) can be obtained. These keys are used to verify the signatures of JWT tokens issued by the authentication providers.
 
 These environment variables allow the FHIR server to interact with the OAuth provider for authentication purposes.
 

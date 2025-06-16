@@ -23,7 +23,6 @@ services:
       AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/openid-configuration
       AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
       AUTH_CODE_FLOW_URL: https://bwell-dev.auth.us-east-1.amazoncognito.com
-      REDIRECT_TO_LOGIN: 1
       MAX_INDEX_NAME_LENGTH: 65
       ENV: local
       ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL: 0
@@ -65,7 +64,6 @@ services:
       # FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       ENABLE_STATS_ENDPOINT: '1'
       FHIR_SERVER_UI_URL: 'http://localhost:5051'
-      FHIR_ADMIN_UI_URL: 'http://localhost:4000'
       REDIRECT_TO_NEW_UI: '1'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       ENABLE_BULK_EXPORT: '1'

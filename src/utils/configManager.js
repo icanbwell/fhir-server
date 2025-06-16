@@ -828,17 +828,6 @@ class ConfigManager {
     get cacheExpiryTime() {
         return env.CACHE_EXPIRY_TIME ? parseInt(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME; // 1 hour
     }
-
-    /**
-     * return REDIRECT_TO_LOGIN
-     * @returns {boolean}
-     */
-    get redirectToLogin() {
-        if (env.REDIRECT_TO_LOGIN === null || env.REDIRECT_TO_LOGIN === undefined) {
-            return false;
-        }
-        return isTrue(env.REDIRECT_TO_LOGIN);
-    }
 }
 
 module.exports = {
