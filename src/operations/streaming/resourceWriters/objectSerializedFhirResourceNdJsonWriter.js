@@ -4,7 +4,7 @@ const { FhirResourceNdJsonWriter } = require('./fhirResourceNdJsonWriter');
 const { getCircularReplacer } = require('../../../utils/getCircularReplacer');
 const { captureException } = require('../../common/sentry');
 
-class objectSerializedFhirResourceNdJsonWriter extends FhirResourceNdJsonWriter {
+class ObjectSerializedFhirResourceNdJsonWriter extends FhirResourceNdJsonWriter {
     /**
      * transforms a chunk
      * @param {Resource} chunk
@@ -18,18 +18,18 @@ class objectSerializedFhirResourceNdJsonWriter extends FhirResourceNdJsonWriter 
             return;
         }
         try {
-            if (chunk !== null && chunk !== undefined) {
+            if (chunk) {
                 if (this.configManager.logStreamSteps) {
-                    logInfo(`FhirResourceNdJsonWriter: _transform ${chunk.id}`, {});
+                    logInfo(`ObjectSerializedFhirResourceNdJsonWriter: _transform ${chunk.id}`, {});
                 }
                 chunk = chunk.toJSON();
                 const resourceJson = JSON.stringify(chunk, getCircularReplacer());
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {
-            logError(`FhirResourceNdJsonWriter _transform: error: ${e.message}`, {
+            logError(`ObjectSerializedFhirResourceNdJsonWriter _transform: error: ${e.message}`, {
                 error: e,
-                source: 'FhirResourceNdJsonWriter._transform',
+                source: 'ObjectSerializedFhirResourceNdJsonWriter._transform',
                 args: {
                     stack: e.stack,
                     message: e.message
@@ -45,5 +45,5 @@ class objectSerializedFhirResourceNdJsonWriter extends FhirResourceNdJsonWriter 
 }
 
 module.exports = {
-    objectSerializedFhirResourceNdJsonWriter
+    ObjectSerializedFhirResourceNdJsonWriter
 };

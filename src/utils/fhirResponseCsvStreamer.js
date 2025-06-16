@@ -2,6 +2,7 @@ const {BaseResponseStreamer} = require('./baseResponseStreamer');
 const {fhirContentTypes} = require('./contentTypes');
 const {BundleToCsvConverter} = require("../converters/bundleToCsvConverter");
 const {BufferToChunkTransferResponse} = require("./buffer_to_chunk_transfer_response");
+const { logError } = require('../operations/common/logging');
 
 class FhirResponseCsvStreamer extends BaseResponseStreamer {
     /**
@@ -113,7 +114,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                 this.response.status(404).end();
             }
         } catch (error) {
-            console.error('Error generating FHIR CSV export:', error);
+            logError('Error generating FHIR CSV export:', error);
             this.response.status(500).end();
         }
 

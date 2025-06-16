@@ -26,7 +26,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
 const { pipeline } = require('stream/promises'); // <- for async pipeline
 const { HttpResponseWriter } = require('../streaming/responseWriter');
-const { objectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
+const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
 const { fhirContentTypes } = require('../../utils/contentTypes');
 
 
@@ -521,7 +521,7 @@ class MergeOperation {
         // ---------------- Writer ----------------
 
         // result of merge operation is of custom MergeResultEntry type which needs to be serialized using toJSON method
-        const fhirWriter = new objectSerializedFhirResourceNdJsonWriter({
+        const fhirWriter = new ObjectSerializedFhirResourceNdJsonWriter({
             signal,
             contentType: fhirContentTypes.ndJson,
             highWaterMark,
