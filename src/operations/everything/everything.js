@@ -3,7 +3,6 @@ const organizationEverythingGraph = require('../../graphs/organization/everythin
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const personEverythingGraph = require('../../graphs/person/everything.json');
 const personEverythingForDeletionGraph = require('../../graphs/person/everything_for_deletion.json');
-const patientEverythingGraph = require('../../graphs/patient/everything.json');
 const patientEverythingForDeletionGraph = require('../../graphs/patient/everything_for_deletion.json');
 const { GraphOperation } = require('../graph/graph');
 const { ScopesValidator } = require('../security/scopesValidator');
@@ -150,8 +149,7 @@ class EverythingOperation {
          */
         let useEverythingHelperForPatient =
             resourceType === 'Patient' &&
-            requestInfo.method.toLowerCase() !== 'delete' &&
-            this.configManager.disableGraphInEverythingOp;
+            requestInfo.method.toLowerCase() !== 'delete';
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -207,8 +205,7 @@ class EverythingOperation {
                     resourceType,
                     responseStreamer,
                     parsedArgs,
-                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true),
-                    getRaw: this.configManager.getRawEverythingOpBundle
+                    includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true)
                 });
             } else {
                 if (isTrue(parsedArgs._includeNonClinicalResources)) {
@@ -254,7 +251,7 @@ class EverythingOperation {
                         parsedArgs.resource =
                             requestInfo.method.toLowerCase() === 'delete'
                                 ? patientEverythingForDeletionGraph
-                                : patientEverythingGraph;
+                                : null;
                         break;
                     }
                     default:
@@ -276,8 +273,7 @@ class EverythingOperation {
                     responseStreamer,
                     supportLegacyId,
                     includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
-                    nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth,
-                    getRaw: this.configManager.getRawEverythingOpBundle
+                    nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
                 });
             }
 

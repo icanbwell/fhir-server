@@ -581,9 +581,7 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             configManager: c.configManager,
             bwellPersonFinder: c.bwellPersonFinder,
-            mergeValidator: c.mergeValidator,
-            fhirResourceWriterFactory: c.fhirResourceWriterFactory,
-            resourcePreparer: c.resourcePreparer
+            mergeValidator: c.mergeValidator
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({

@@ -53,19 +53,17 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
     /**
      * writes to response
      * @param {BundleEntry} bundleEntry
-     * @param {boolean} rawResources
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({bundleEntry, rawResources = false}) {
+    async writeBundleEntryAsync({bundleEntry}) {
         this._bundle_entries.push(bundleEntry);
     }
 
     /**
      * sets the bundle to use
      * @param {Bundle} bundle
-     * @param {boolean} rawResources
      */
-    setBundle({bundle, rawResources = false}) {
+    setBundle({bundle}) {
         this._bundle = bundle;
     }
 
@@ -82,15 +80,8 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                     `attachment; filename="${filename}"`
                 );
                 this.response.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-                /**
-                 * @type {Bundle}
-                 */
-                const bundle_copy = this._bundle.clone();
-                bundle_copy.entry = this._bundle_entries;
-                /**
-                 * @type {Object}
-                 */
-                const bundle = bundle_copy.toJSON();
+
+                this._bundle.entry = this._bundle_entries;
 
                 /**
                  * @type {BundleToExcelConverter}
@@ -101,7 +92,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                  */
                 const excelBuffer = exporter.convert(
                     {
-                        bundle
+                        bundle: this._bundle
                     }
                 );
 

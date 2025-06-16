@@ -807,12 +807,11 @@ class SearchManager {
      * @param {string | null} user
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
-     * @param {boolean} getRaw
      * @returns {Promise<Resource[]>}
      */
     async readResourcesFromCursorAsync (
         {
-            cursor, user, parsedArgs, resourceType, getRaw = false
+            cursor, user, parsedArgs, resourceType
         }
     ) {
         /**
@@ -837,8 +836,7 @@ class SearchManager {
                 signal: ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
                 highWaterMark,
-                configManager: this.configManager,
-                getRaw
+                configManager: this.configManager
             });
 
             await pipeline(
@@ -851,8 +849,7 @@ class SearchManager {
                         signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark,
-                        configManager: this.configManager,
-                        rawResources: getRaw
+                        configManager: this.configManager
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -968,8 +965,6 @@ class SearchManager {
      * @param {string} resourceType
      * @param {string[]|null} accepts
      * @param {string} defaultSortId
-     * @param {boolean} getRaw
-     * @param {boolean} useFastSerializer
      * @param {Object} params
      * @returns {Promise<string[]>} ids of resources streamed
      */
@@ -985,9 +980,7 @@ class SearchManager {
             resourceType,
             accepts,
             defaultSortId,
-            params,
-            getRaw = false,
-            useFastSerializer = false
+            params
         }
     ) {
         assertIsValid(requestId);
@@ -1031,9 +1024,7 @@ class SearchManager {
                 defaultSortId,
                 highWaterMark,
                 configManager: this.configManager,
-                response: res,
-                rawResources: getRaw,
-                useFastSerializer
+                response: res
             }
         );
 
@@ -1061,8 +1052,7 @@ class SearchManager {
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark,
                 configManager: this.configManager,
-                response: res,
-                rawResources: getRaw
+                response: res
             }
         );
         /**
@@ -1088,8 +1078,7 @@ class SearchManager {
             highWaterMark,
             configManager: this.configManager,
             response: res,
-            params,
-            getRaw
+            params
         });
 
         try {

@@ -19,6 +19,7 @@ const { WRITE } = require('../constants').OPERATIONS;
 const { logError } = require('../operations/common/logging');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../utils/bulkExportEventProducer');
+const { FhirResourceSerializer } = require('../fhir/fhirResourceSerializer');
 
 class AdminExportManager {
     /**
@@ -129,6 +130,7 @@ class AdminExportManager {
                         res
                     },
                     'ExportStatus');
+                FhirResourceSerializer.serialize(exportStatusResource)
                 return exportStatusResource;
             }
             else {
@@ -139,7 +141,7 @@ class AdminExportManager {
                         res
                     },
                     'ExportStatus');
-
+                FhirResourceSerializer.serialize(bundle)
                 return bundle;
             }
         }

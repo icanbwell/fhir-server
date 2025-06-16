@@ -103,11 +103,10 @@ class SearchBundleOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAggregationPipeline
-     * @param {boolean} getRaw
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (
-        { requestInfo, parsedArgs, resourceType, useAggregationPipeline, getRaw = false }
+        { requestInfo, parsedArgs, resourceType, useAggregationPipeline }
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -293,8 +292,7 @@ class SearchBundleOperation {
                         cursor,
                         user,
                         parsedArgs,
-                        resourceType,
-                        getRaw
+                        resourceType
                     }
                 );
 
@@ -343,7 +341,7 @@ class SearchBundleOperation {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager[getRaw ? 'createRawBundle' : 'createBundle'](
+            const bundle = this.bundleManager.createRawBundle(
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,

@@ -102,7 +102,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?contained=true')
+                .get('/4_0_0/Patient/patient1/$everything')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);

@@ -1,7 +1,7 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { ReferenceParser } = require('../../utils/referenceParser');
-const { rawResourceReferenceUpdater } = require('../../utils/rawResourceUpdater');
+const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const { SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM } = require('../../constants')
 
 
@@ -14,11 +14,10 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * enrich the specified resources
      * @param {Resource[]} resources
      * @param {ParsedArgs} parsedArgs
-     * @param {Boolean} rawResources
      * @return {Promise<Resource[]>}
      */
 
-    async enrichAsync({ resources, parsedArgs, rawResources = false }) {
+    async enrichAsync({ resources, parsedArgs }) {
         /**
          * @type {string}
          */
@@ -40,29 +39,15 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                         resource.contained = await this.enrichAsync(
                             {
                                 resources: resource.contained,
-                                parsedArgs,
-                                rawResources
+                                parsedArgs
                             }
                         );
                     }
-                    if (resource.updateReferencesAsync) {
-                        // update references
-                        await resource.updateReferencesAsync(
-                            {
-                                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
-                                    {
-                                        reference
-                                    }
-                                )
-                            }
-                        );
-                    } else if (rawResources) {
-                        await rawResourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
-                            {
-                                reference
-                            }
-                        ));
-                    }
+                    await resourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                        {
+                            reference
+                        }
+                    ));
                 }
             }
         }
@@ -133,17 +118,15 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
-     * @param {Boolean} rawResources
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({ entries, parsedArgs, rawResources = false }) {
+    async enrichBundleEntriesAsync({ entries, parsedArgs }) {
         for (const entry of entries) {
             if (entry.resource) {
                 entry.resource = (await this.enrichAsync(
                     {
                         resources: [entry.resource],
-                        parsedArgs,
-                        rawResources
+                        parsedArgs
                     }
                 ))[0];
             }

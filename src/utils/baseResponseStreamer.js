@@ -38,31 +38,28 @@ class BaseResponseStreamer {
     /**
      * writes to response
      * @param {BundleEntry} bundleEntry
-     * @param {boolean} rawResources
      * @return {Promise<void>}
      */
 
-    async writeBundleEntryAsync ({ bundleEntry, rawResources = false }) {
+    async writeBundleEntryAsync ({ bundleEntry }) {
         throw new Error('Method not implemented.');
     }
 
     /**
      * writes some arbitrary content
      * @param {*} content
-     * @param {boolean} rawResources
      * @returns {Promise<void>}
      */
 
-    async writeAsync ({ content, rawResources = false }) {
+    async writeAsync ({ content }) {
         // ok to not specify
     }
 
     /**
      * sets the bundle to use
      * @param {Bundle} bundle
-     * @param {boolean} rawResources
      */
-    setBundle ({ bundle, rawResources = false }) {
+    setBundle ({ bundle }) {
         // ok to not specify
     }
 

@@ -121,12 +121,6 @@ class FhirDataSource {
         this.resourceProjections = null;
 
         /**
-         * whether to disable class object creation while getting bundle
-         * @type {boolean}
-         */
-        this.getRawBundle = this.configManager.getRawGraphQLV2Bundle;
-
-        /**
          * contains list of ids to be excluded for each resource
          * @type {{[resourceType: string]: string[]}|null}
          */
@@ -256,8 +250,7 @@ class FhirDataSource {
                                 resourceType,
                                 headers: requestInfo.headers
                             }),
-                            useAggregationPipeline: false,
-                            getRaw: this.getRawBundle
+                            useAggregationPipeline: false
                         });
 
                         // Add results from this batch to the combined results array
@@ -498,8 +491,7 @@ class FhirDataSource {
                             headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                         }
                     ),
-                    useAggregationPipeline: false,
-                    getRaw: this.getRawBundle
+                    useAggregationPipeline: false
                 }
             )
         );
@@ -549,8 +541,7 @@ class FhirDataSource {
                         headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                     }
                 ),
-                useAggregationPipeline: false,
-                getRaw: this.getRawBundle
+                useAggregationPipeline: false
             }
         );
         if (bundle.meta) {
