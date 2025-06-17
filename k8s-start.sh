@@ -8,7 +8,7 @@ MAX_OLD_SPACE_SIZE_MB=$(( (MAX_OLD_SPACE_SIZE_BYTES + 1048576 - 1) / 1048576 ))
 
 # Start the Node.js application with the calculated memory limit & instrumentation
 if [ "$1" = "otel" ]; then
-    exec node --max-old-space-size=$MAX_OLD_SPACE_SIZE_MB --require=./src/otel_instrumentation.js src/index.js
+    exec OTEL_NODE_ENABLED_INSTRUMENTATIONS=dataloader,express,graphql,lru-memoizer,router,winston,http,mongodb node --max-old-space-size=$MAX_OLD_SPACE_SIZE_MB --require=./src/otel_instrumentation.js src/index.js
 else
     exec node --max-old-space-size=$MAX_OLD_SPACE_SIZE_MB src/index.js
 fi

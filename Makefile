@@ -19,7 +19,7 @@ up:
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-mongo-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-mongo-1 =========\n" && exit 1; fi
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-fhir-1`" != "restarting" ]; do printf "." && sleep 2; done && \
-	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-fhir-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
 	echo FHIR server GraphQL: http://localhost:3000/\$$graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
@@ -35,7 +35,24 @@ up-offline:
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-mongo-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-mongo-1 =========\n" && exit 1; fi
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-fhir-1`" != "restarting" ]; do printf "." && sleep 2; done && \
-	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-fhir-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
+	echo FHIR server GraphQL: http://localhost:3000/\$$graphql && \
+	echo FHIR server Metrics: http://localhost:3000/metrics && \
+	echo Kafka UI: http://localhost:9000 && \
+	echo HAPI UI: http://localhost:3001/fhir/ && \
+	echo OpenSearch: http://admin:admin@localhost:9200/fhir_summaries/_search?pretty && \
+	echo FHIR server: http://localhost:3000
+
+.PHONY:up-autoinstrumentation
+up-autoinstrumentation:
+	docker compose -f docker-compose.yml  -p fhir-dev build --parallel && \
+	docker compose -p fhir-dev -f docker-compose.yml -f docker-compose-autoinstrumentation.yml up --detach && \
+	echo "\nwaiting for Mongo server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-mongo-1`" != "restarting" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-mongo-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-mongo-1 =========\n" && exit 1; fi
+	echo "\nwaiting for FHIR server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-fhir-1`" != "restarting" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-fhir-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
 	echo FHIR server GraphQL: http://localhost:3000/\$$graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
@@ -45,7 +62,7 @@ up-offline:
 
 .PHONY:down
 down:
-	docker compose -p fhir-dev -f docker-compose.yml down && \
+	docker compose -p fhir-dev -f docker-compose.yml -f docker-compose-autoinstrumentation.yml down && \
 	docker system prune -f
 
 .PHONY:clean
