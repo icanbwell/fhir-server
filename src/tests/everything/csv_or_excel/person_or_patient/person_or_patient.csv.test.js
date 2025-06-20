@@ -186,7 +186,7 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}; charset=utf-8`);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
 
             // Generate unique filename
@@ -368,7 +368,7 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}; charset=utf-8`);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
 
             // Generate unique filename
@@ -549,7 +549,7 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}; charset=utf-8`);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
 
             // Generate unique filename
