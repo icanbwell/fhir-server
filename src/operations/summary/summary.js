@@ -9,6 +9,7 @@ const {ForbiddenError} = require('../../utils/httpErrors');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
 const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
+const {ComprehensiveIPSCompositionBuilder} = require("@imranq2/fhirpatientsummary/lib/src/generators/fhir_summary_generator");
 
 class SummaryOperation {
     /**
@@ -171,8 +172,7 @@ class SummaryOperation {
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
              */
-            let result;
-            result = await this.graphOperation.graph({
+            const result = await this.graphOperation.graph({
                 requestInfo,
                 res,
                 parsedArgs,
@@ -181,7 +181,17 @@ class SummaryOperation {
                 supportLegacyId,
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources)
             });
-
+            const builder = new ComprehensiveIPSCompositionBuilder();
+            const timezone = 'America/New_York';
+            const summaryBundle = builder.read_bundle(
+                result,
+                timezone
+            ).build_bundle(
+                "bwell",
+                'b.well Connected Health',
+                'https://bwell.com/summary',
+                timezone
+            );
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -189,7 +199,7 @@ class SummaryOperation {
                 startTime,
                 action: currentOperationName
             });
-            return result;
+            return summaryBundle;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

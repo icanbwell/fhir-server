@@ -35,21 +35,21 @@ const expectedPerson1ContainedResources = require('./fixtures/expected/expected_
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientResourcesType = require('./fixtures/expected/expected_Patient_type.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
-const {unzipSync, strFromU8} = require('fflate');
+const XLSX = require("xlsx");
 
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersCsv,
+    getHeadersExcel,
     getHeadersZip
-} = require('../../common');
+} = require('../../../common');
 const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
 const fs = require("node:fs");
-const {fhirContentTypes} = require("../../../utils/contentTypes");
+const {fhirContentTypes} = require("../../../../utils/contentTypes");
 
-describe('Person and Patient $summary Tests', () => {
+describe('Person and Patient $everything Tests with Excel content', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -58,8 +58,8 @@ describe('Person and Patient $summary Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Person and Patient $summary Tests with CSV content type', () => {
-        test('Patient $summary works with Accepts header', async () => {
+    describe('Person and Patient $everything Tests', () => {
+        test('Patient $everything works with Accepts header', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -178,16 +178,16 @@ describe('Person and Patient $summary Tests', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$summary?_debug=true')
-                .set(getHeadersCsv())
+                .get('/4_0_0/Patient/patient1/$everything?_debug=true')
+                .set(getHeadersExcel())
                 .responseType('blob'); // Important for binary data
 
             // Basic response checks
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.zip);
-            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.excel}; charset=utf-8`);
+            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
             // get folder containing this test
@@ -200,7 +200,7 @@ describe('Person and Patient $summary Tests', () => {
             if (!fs.existsSync(tempFolder)) {
                 fs.mkdirSync(tempFolder);
             }
-            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.zip`;
+            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.xlsx`;
             const filepath = tempFolder + '/' + filename;
 
             // Write file
@@ -213,35 +213,44 @@ describe('Person and Patient $summary Tests', () => {
             const stats = fs.statSync(filepath);
             expect(stats.size).toBeGreaterThan(0);
 
-            // Convert response to fflate for detailed inspection
-            const zipContent = unzipSync(new Uint8Array(resp.body));
-
-            const fileNames = Object.keys(zipContent);
-            console.log('Zip file contents:', fileNames); // Diagnostic logging
-
-            // Check for files in the zip
-            expect(fileNames.length).toBeGreaterThan(0);
+            const workbook = XLSX.read(resp.body);
+            const sheetNameExpectedRowCount = {
+                Patient: 3,
+                Observation: 2,
+                SubscriptionTopic: 2,
+                SubscriptionStatus: 2,
+                Person: 4,
+                Subscription: 2
+            };
 
             // Detailed file inspection
-            for (const fileName of fileNames) {
-                const fileContent = strFromU8(zipContent[fileName]);
+            /**
+             * @type {str}
+             */
+            for (const sheetName of workbook.SheetNames) {
+                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
-                expect(fileContent).toBeTruthy();
-                expect(fileContent.trim().length).toBeGreaterThan(0);
+                console.info(`Sheet Name: ${sheetName} - Row Count: ${sheetData.length}`);
+
+                expect(sheetData.length).toBeGreaterThan(0);
+                // Check for expected row count
+                expect(sheetData.length).toBe(sheetNameExpectedRowCount[sheetName]);
             }
-
 
             // Check for specific resource type CSVs
             const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed
             expectedResourceTypes.forEach(resourceType => {
-                const matchingFile = fileNames.find(filename =>
-                    filename.toLowerCase().includes(resourceType.toLowerCase()) &&
-                    filename.endsWith('.csv')
+                /**
+                 * @type {string[]}
+                 */
+                const sheetNames = workbook.SheetNames;
+                const matchingFile = sheetNames.find(filename =>
+                    filename.toLowerCase().includes(resourceType.toLowerCase())
                 );
                 expect(matchingFile).toBeTruthy();
             });
         });
-        test('Patient $summary works with _format', async () => {
+        test('Patient $everything works with _format', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -360,7 +369,7 @@ describe('Person and Patient $summary Tests', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$summary?_format=text/csv')
+                .get('/4_0_0/Patient/patient1/$everything?_format=application/vnd.ms-excel')
                 .set(getHeaders())
                 .responseType('blob'); // Important for binary data
 
@@ -368,8 +377,8 @@ describe('Person and Patient $summary Tests', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.zip);
-            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.excel}; charset=utf-8`);
+            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
             // get folder containing this test
@@ -382,7 +391,8 @@ describe('Person and Patient $summary Tests', () => {
             if (!fs.existsSync(tempFolder)) {
                 fs.mkdirSync(tempFolder);
             }
-            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.zip`;
+            const filenameMatch = resp.headers['content-disposition'].split('filename=')[1];
+            const filename = filenameMatch.split(';')[0].trim().replace(/"/g, '');
             const filepath = tempFolder + '/' + filename;
 
             // Write file
@@ -395,34 +405,43 @@ describe('Person and Patient $summary Tests', () => {
             const stats = fs.statSync(filepath);
             expect(stats.size).toBeGreaterThan(0);
 
-            // Convert response to fflate for detailed inspection
-            const zipContent = unzipSync(new Uint8Array(resp.body));
-
-            const fileNames = Object.keys(zipContent);
-            console.log('Zip file contents:', fileNames); // Diagnostic logging
-
-            // Check for files in the zip
-            expect(fileNames.length).toBeGreaterThan(0);
-
+            const workbook = XLSX.read(resp.body);
+            const sheetNameExpectedRowCount = {
+                Patient: 3,
+                Observation: 2,
+                SubscriptionTopic: 2,
+                SubscriptionStatus: 2,
+                Person: 4,
+                Subscription: 2
+            };
             // Detailed file inspection
-            for (const fileName of fileNames) {
-                const fileContent = strFromU8(zipContent[fileName]);
+            /**
+             * @type {str}
+             */
+            for (const sheetName of workbook.SheetNames) {
+                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
-                expect(fileContent).toBeTruthy();
-                expect(fileContent.trim().length).toBeGreaterThan(0);
+                console.info(`Sheet Name: ${sheetName} - Row Count: ${sheetData.length}`);
+
+                expect(sheetData.length).toBeGreaterThan(0);
+                // Check for expected row count
+                expect(sheetData.length).toBe(sheetNameExpectedRowCount[sheetName]);
             }
 
             // Check for specific resource type CSVs
             const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed
             expectedResourceTypes.forEach(resourceType => {
-                const matchingFile = fileNames.find(filename =>
-                    filename.toLowerCase().includes(resourceType.toLowerCase()) &&
-                    filename.endsWith('.csv')
+                /**
+                 * @type {string[]}
+                 */
+                const sheetNames = workbook.SheetNames;
+                const matchingFile = sheetNames.find(filename =>
+                    filename.toLowerCase().includes(resourceType.toLowerCase())
                 );
                 expect(matchingFile).toBeTruthy();
             });
         });
-        test('Person $summary works', async () => {
+        test('Patient $everything works with _format but only returns resources allowed', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -541,16 +560,16 @@ describe('Person and Patient $summary Tests', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Person/person1/$summary')
-                .set(getHeadersCsv())
+                .get('/4_0_0/Patient/patient1/$everything?_format=application/vnd.ms-excel')
+                .set(getHeaders('user/Patient.read user/Observation.read access/*.*'))
                 .responseType('blob'); // Important for binary data
 
             // Basic response checks
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.zip);
-            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.excel}; charset=utf-8`);
+            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
             // get folder containing this test
@@ -563,7 +582,8 @@ describe('Person and Patient $summary Tests', () => {
             if (!fs.existsSync(tempFolder)) {
                 fs.mkdirSync(tempFolder);
             }
-            const filename = `export_${new Date().toISOString().replace(/:/g, '-')}.zip`;
+            const filenameMatch = resp.headers['content-disposition'].split('filename=')[1];
+            const filename = filenameMatch.split(';')[0].trim().replace(/"/g, '');
             const filepath = tempFolder + '/' + filename;
 
             // Write file
@@ -576,30 +596,345 @@ describe('Person and Patient $summary Tests', () => {
             const stats = fs.statSync(filepath);
             expect(stats.size).toBeGreaterThan(0);
 
-            // Convert response to fflate for detailed inspection
-            const zipContent = unzipSync(new Uint8Array(resp.body));
-
-            const fileNames = Object.keys(zipContent);
-            console.log('Zip file contents:', fileNames); // Diagnostic logging
-
-            // Check for files in the zip
-            expect(fileNames.length).toBeGreaterThan(0);
-
+            const workbook = XLSX.read(resp.body);
+            const sheetNameExpectedRowCount = {
+                Patient: 3,
+                Observation: 2,
+                SubscriptionTopic: 2,
+                SubscriptionStatus: 2,
+                Person: 4,
+                Subscription: 2
+            };
             // Detailed file inspection
-            for (const fileName of fileNames) {
-                const fileContent = strFromU8(zipContent[fileName]);
+            /**
+             * @type {str}
+             */
+            for (const sheetName of workbook.SheetNames) {
+                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
-                expect(fileContent).toBeTruthy();
-                expect(fileContent.trim().length).toBeGreaterThan(0);
+                console.info(`Sheet Name: ${sheetName} - Row Count: ${sheetData.length}`);
+
+                expect(sheetData.length).toBeGreaterThan(0);
+                // Check for expected row count
+                expect(sheetData.length).toBe(sheetNameExpectedRowCount[sheetName]);
             }
-
 
             // Check for specific resource type CSVs
             const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed
             expectedResourceTypes.forEach(resourceType => {
-                const matchingFile = fileNames.find(filename =>
-                    filename.toLowerCase().includes(resourceType.toLowerCase()) &&
-                    filename.endsWith('.csv')
+                /**
+                 * @type {string[]}
+                 */
+                const sheetNames = workbook.SheetNames;
+                const matchingFile = sheetNames.find(filename =>
+                    filename.toLowerCase().includes(resourceType.toLowerCase())
+                );
+                expect(matchingFile).toBeTruthy();
+            });
+        });
+        test('Patient $everything returns nothing with _format if caller has no access to patient', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(accountResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(unlinkedAccountResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+                .send(subscription1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+                .send(subscription2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // ACT & ASSERT
+            // First get patient everything
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything?_format=application/vnd.ms-excel')
+                .set(getHeaders('patient/*.read user/*.* access/*.*'))
+                .responseType('blob'); // Important for binary data
+
+            // Basic response checks
+            expect(resp.status).toBe(404);
+        });
+        test('Person $everything works', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(accountResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(unlinkedAccountResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+                .send(subscription1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+                .send(subscription2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // ACT & ASSERT
+            // First get patient everything
+            resp = await request
+                .get('/4_0_0/Person/person1/$everything')
+                .set(getHeadersExcel())
+                .responseType('blob'); // Important for binary data
+
+            // Basic response checks
+            expect(resp.status).toBe(200);
+
+            // Content-Type checks
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.excel}; charset=utf-8`);
+            expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
+
+            const filenameMatch = resp.headers['content-disposition'].split('filename=')[1];
+            const filename = filenameMatch.split(';')[0].trim().replace(/"/g, '');
+
+            // Generate unique filename
+            // get folder containing this test
+            const tempFolder = __dirname + '/temp';
+            // if subfolder temp from current folder exists then delete it
+            if (fs.existsSync(tempFolder)) {
+                fs.rmSync(tempFolder, {recursive: true, force: true});
+            }
+            // if subfolder temp from current folder does not exist then create it
+            if (!fs.existsSync(tempFolder)) {
+                fs.mkdirSync(tempFolder);
+            }
+            const filepath = tempFolder + '/' + filename;
+
+            // Write file
+            fs.writeFileSync(filepath, resp.body);
+
+            // Optional: Verify file was written
+            expect(fs.existsSync(filepath)).toBe(true);
+
+            // Optional: Check file size
+            const stats = fs.statSync(filepath);
+            expect(stats.size).toBeGreaterThan(0);
+
+            const workbook = XLSX.read(resp.body);
+
+            // Detailed file inspection
+            /**
+             * @type {str}
+             */
+            for (const sheetName of workbook.SheetNames) {
+                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
+
+                expect(sheetData.length).toBeGreaterThan(0);
+            }
+
+            // Check for specific resource type CSVs
+            const expectedResourceTypes = ['Patient', 'Observation']; // Adjust as needed
+            expectedResourceTypes.forEach(resourceType => {
+                /**
+                 * @type {string[]}
+                 */
+                const sheetNames = workbook.SheetNames;
+                const matchingFile = sheetNames.find(filename =>
+                    filename.toLowerCase().includes(resourceType.toLowerCase())
                 );
                 expect(matchingFile).toBeTruthy();
             });
