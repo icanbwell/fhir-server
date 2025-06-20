@@ -727,7 +727,7 @@ class FhirOperationsManager {
                         responseStreamer
                     });
                 await responseStreamer.endAsync();
-                return result;
+                return undefined;
             } catch (err) {
                 const status = err.statusCode || 500;
                 /**
