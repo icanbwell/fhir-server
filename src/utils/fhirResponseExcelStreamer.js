@@ -101,7 +101,7 @@ class FhirResponseExcelStreamer extends BaseResponseStreamer {
                     throw new Error('Generated Excel buffer is empty');
                 }
 
-                new BufferToChunkTransferResponse().sendLargeFileChunked(
+                await new BufferToChunkTransferResponse().sendLargeFileChunkedAsync(
                     {
                         response: this.response,
                         buffer: excelBuffer,

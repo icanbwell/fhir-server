@@ -47,8 +47,8 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
 
         /**
          * @type {string}
-        */
-        this.requestId = this.response.req.id
+         */
+        this.requestId = this.response.req.id;
     }
 
     /**
@@ -127,15 +127,22 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
                 }
             );
             // write the buffer to the response
-            new BufferToChunkTransferResponse().sendLargeFileChunked(
+            new BufferToChunkTransferResponse().sendLargeFileChunkedAsync(
                 {
                     response: this.response,
                     buffer: excelBuffer,
                     chunkSize: 64 * 1024
                 }
+            ).then(
+                callback()
             );
+        } else {
+            // if no resources were written, we still need to end the stream
+            this.response.setHeader('Content-Type', this.getContentType());
+            this.response.setHeader('X-Request-ID', String(this.requestId));
+            this.response.statusCode = 204; // No Content
+            callback();
         }
-        callback();
     }
 
     /**
