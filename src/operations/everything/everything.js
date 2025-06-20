@@ -62,7 +62,6 @@ class EverythingOperation {
      * does a FHIR $everything
      * @typedef everythingAsyncParams
      * @property {FhirRequestInfo} requestInfo
-     * @property {import('http').ServerResponse} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
@@ -70,9 +69,8 @@ class EverythingOperation {
      * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async everythingAsync({ requestInfo, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -84,7 +82,6 @@ class EverythingOperation {
         try {
             return await this.everythingBundleAsync({
                 requestInfo,
-                res,
                 parsedArgs,
                 resourceType,
                 responseStreamer // disable response streaming if we are answering a question
@@ -106,7 +103,6 @@ class EverythingOperation {
      * does a FHIR $everything
      * @typedef everythingBundleAsyncParams
      * @property {FhirRequestInfo} requestInfo
-     * @property {import('express').Response} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
@@ -114,9 +110,8 @@ class EverythingOperation {
      * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async everythingBundleAsync({ requestInfo, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'everything';
@@ -182,7 +177,7 @@ class EverythingOperation {
                 headers = {
                     prefer: 'global_id=true',
                     ...headers
-                }
+                };
                 parsedArgs.headers = headers;
 
                 // disable rewrite proxy patient rewrite by default
@@ -194,7 +189,8 @@ class EverythingOperation {
                                 value: false,
                                 operator: '$and'
                             }),
-                            modifiers: []
+                            modifiers: [],
+                            patientToPersonMap: {}
                         })
                     );
                 }
@@ -267,7 +263,6 @@ class EverythingOperation {
 
                 result = await this.graphOperation.graph({
                     requestInfo,
-                    res,
                     parsedArgs,
                     resourceType,
                     responseStreamer,

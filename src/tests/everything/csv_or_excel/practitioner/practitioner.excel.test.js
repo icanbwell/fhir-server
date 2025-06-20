@@ -11,10 +11,10 @@ const {
     getHeaders,
     createTestRequest,
     getHeadersExcel
-} = require('../../common');
+} = require('../../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const fs = require("node:fs");
-const {fhirContentTypes} = require("../../../utils/contentTypes");
+const {fhirContentTypes} = require("../../../../utils/contentTypes");
 
 describe('Practitioner $summary Tests with Excel content', () => {
     beforeEach(async () => {
@@ -109,9 +109,6 @@ describe('Practitioner $summary Tests with Excel content', () => {
             };
 
             // Detailed file inspection
-            /**
-             * @type {str}
-             */
             for (const sheetName of workbook.SheetNames) {
                 const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
@@ -218,9 +215,6 @@ describe('Practitioner $summary Tests with Excel content', () => {
             };
 
             // Detailed file inspection
-            /**
-             * @type {str}
-             */
             for (const sheetName of workbook.SheetNames) {
                 const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 

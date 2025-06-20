@@ -61,7 +61,6 @@ class GraphOperation {
     /**
      * Supports $graph
      * @param {FhirRequestInfo} requestInfo
-     * @param {import('express').Response} res
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
@@ -72,7 +71,6 @@ class GraphOperation {
      */
     async graph({
         requestInfo,
-        res,
         parsedArgs,
         resourceType,
         responseStreamer,
@@ -81,7 +79,6 @@ class GraphOperation {
         nonClinicalResourcesDepth = 1
     }) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'graph';
