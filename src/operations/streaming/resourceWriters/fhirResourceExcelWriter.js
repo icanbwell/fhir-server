@@ -134,7 +134,7 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
                     chunkSize: 64 * 1024
                 }
             ).then(
-                callback()
+                () => callback()
             );
         } else {
             // if no resources were written, we still need to end the stream
