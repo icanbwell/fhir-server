@@ -9,7 +9,7 @@ const {ForbiddenError} = require('../../utils/httpErrors');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
 const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
-const {ComprehensiveIPSCompositionBuilder} = require("@imranq2/fhirpatientsummary/lib/src/generators/fhir_summary_generator");
+const {ComprehensiveIPSCompositionBuilder} = require("@imranq2/fhirpatientsummary");
 
 class SummaryOperation {
     /**
