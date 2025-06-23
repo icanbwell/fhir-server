@@ -695,6 +695,13 @@ class AdminPersonPatientLinkManager {
         const personToDelete = await databaseQueryManager.findOneAsync({
             query: { [isUuid(personId) ? '_uuid' : 'id']: personId }
         });
+
+        if (!personToDelete) {
+            return {
+                deletedCount: 0
+            };
+        }
+
         /**
          * @type {{deletedCount: (number|null), error: (Error|null)}}
          */
