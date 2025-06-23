@@ -598,8 +598,7 @@ const createContainer = function () {
 
     container.register('bulkHistoryInserter', (c) => new BulkHistoryInserter({
         requestSpecificCache: c.requestSpecificCache,
-        resourceLocatorFactory: c.resourceLocatorFactory,
-        configManager: c.configManager
+        resourceLocatorFactory: c.resourceLocatorFactory
     }));
 
     container.register('removeHelper', c => new RemoveHelper({

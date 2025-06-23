@@ -8,6 +8,7 @@ const { RethrownError } = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { logSystemErrorAsync } = require('../operations/common/systemEventLogging');
 
 class BulkDeleteEntry {
     /**
@@ -86,7 +87,13 @@ class BulkHistoryInserter {
             historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
         }
         const historyResource = resource.clone();
-        historyOperationsByResourceTypeMap.get(resourceType).push({
+        /** @type {string} */
+        const sourceAssigningAuthority = resource._sourceAssigningAuthority;
+        /** @type {string} */
+        const id = resource.id;
+        /** @type {string} */
+        const uuid = resource._uuid;
+        historyOperationsByResourceTypeMap.get(resourceType).push(new BulkDeleteEntry({
             resource: historyResource,
             operation: {
                 insertOne: {
@@ -100,8 +107,12 @@ class BulkHistoryInserter {
                         })
                     }).toJSONInternal()
                 }
-            }
-        });
+            },
+            resourceType,
+            id,
+            uuid,
+            sourceAssigningAuthority
+        }));
     }
 
     /**
@@ -193,7 +204,7 @@ class BulkHistoryInserter {
                 await logSystemErrorAsync({
                     event: 'bulkHistoryInserter',
                     message: 'bulkHistoryInserter: Error bulkWrite',
-                    error: e,
+                    error,
                     args: {
                         requestId,
                         operations: operations,

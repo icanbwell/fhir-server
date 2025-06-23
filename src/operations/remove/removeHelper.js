@@ -99,11 +99,6 @@ class RemoveHelper {
                     if (resource) {
                         await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
                         /**
-                         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-                         */
-                        const historyCollection =
-                            await resourceLocator.getOrCreateHistoryCollectionAsync(resource);
-                        /**
                          * @type {Resource}
                          */
                         const historyResource = resource.clone();
@@ -129,7 +124,6 @@ class RemoveHelper {
             }
             return { deletedCount, error: null };
         } catch (e) {
-            console.log(e);
             throw new RethrownError({
                 message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`,
                 error: e,
