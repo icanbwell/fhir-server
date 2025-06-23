@@ -993,7 +993,7 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {string}
                          */
                         let diagnostics;
-                        if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCCCEDS) {
+                        if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCEEDS) {
                             diagnostics = error.toString()
                         } else {
                             throw new RethrownError({ message: 'databaseBulkInserter: Error bulkWrite', error })

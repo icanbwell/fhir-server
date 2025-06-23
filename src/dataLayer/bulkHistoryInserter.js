@@ -218,7 +218,7 @@ class BulkHistoryInserter {
                 let diagnostics;
                 if (
                     error instanceof MongoInvalidArgumentError &&
-                    error.message === MONGO_ERROR.RESOURCE_SIZE_EXCCCEDS
+                    error.message === MONGO_ERROR.RESOURCE_SIZE_EXCEEDS
                 ) {
                     diagnostics = error.toString();
                 } else {
