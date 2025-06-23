@@ -799,6 +799,31 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * Executes all the history operations in bulk
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @returns {Promise<void>}
+     */
+    async executeHistoryAsync ({ requestInfo, base_version }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
+        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
+        if (historyOperationsByResourceTypeMap.size > 0) {
+            await async.map(
+                historyOperationsByResourceTypeMap.entries(),
+                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                    {
+                        requestInfo,
+                        mapEntry: x,
+                        base_version,
+                        useHistoryCollection: true
+                    }
+                ));
+            historyOperationsByResourceTypeMap.clear();
+        }
+    }
+
+    /**
      * Performs bulk operations
      * @param {FhirRequestInfo} requestInfo
      * @param {[string, BulkInsertUpdateEntry[]]} mapEntry

@@ -119,7 +119,6 @@ const {READ} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
-const { BulkHistoryInserter } = require('./dataLayer/bulkHistoryInserter');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
 
 /**
@@ -596,13 +595,8 @@ const createContainer = function () {
         everythingHelper: c.everythingHelper
     }));
 
-    container.register('bulkHistoryInserter', (c) => new BulkHistoryInserter({
-        requestSpecificCache: c.requestSpecificCache,
-        resourceLocatorFactory: c.resourceLocatorFactory
-    }));
-
     container.register('removeHelper', c => new RemoveHelper({
-        bulkHistoryInserter: c.bulkHistoryInserter,
+        databaseBulkInserter: c.databaseBulkInserter,
         resourceLocatorFactory: c.resourceLocatorFactory,
         databaseQueryFactory: c.databaseQueryFactory,
         databaseAttachmentManager: c.databaseAttachmentManager

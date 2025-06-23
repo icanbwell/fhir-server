@@ -1,5 +1,4 @@
 const moment = require('moment');
-const { BulkHistoryInserter } = require('../../dataLayer/bulkHistoryInserter');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -7,28 +6,23 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { ResourceLocator } = require('../common/resourceLocator');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { DELETE } = require('../../constants').GRIDFS;
 
 class RemoveHelper {
     /**
      *
-     * @param {BulkHistoryInserter} bulkHistoryInserter
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor({
-        bulkHistoryInserter,
         resourceLocatorFactory,
         databaseQueryFactory,
-        databaseAttachmentManager
+        databaseAttachmentManager,
+        databaseBulkInserter
     }) {
-        /**
-         * @type {BulkHistoryInserter}
-         */
-        this.bulkHistoryInserter = bulkHistoryInserter;
-        assertTypeEquals(bulkHistoryInserter, BulkHistoryInserter);
-
         /**
          * @type {ResourceLocatorFactory}
          */
@@ -46,6 +40,12 @@ class RemoveHelper {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -105,16 +105,20 @@ class RemoveHelper {
                         historyResource.meta.lastUpdated = new Date(
                             moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
                         );
-                        this.bulkHistoryInserter.addAsync({
-                            requestId,
-                            resource: historyResource,
-                            base_version
+                        this.databaseBulkInserter.insertOneHistoryAsync({
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            doc: historyResource
                         });
                     }
                 }
 
                 // Add history before deletion
-                await this.bulkHistoryInserter.executeAsync({ base_version, requestInfo });
+                await this.databaseBulkInserter.executeHistoryAsync({
+                    requestInfo,
+                    base_version
+                })
 
                 /**
                  * @type {import('mongodb').DeleteResult}
