@@ -13,6 +13,7 @@ const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {SearchManager} = require('../search/searchManager');
 const {OPERATIONS: {DELETE}} = require('../../constants');
 const {logInfo, logWarn} = require('../common/logging');
+const { RemoveHelper } = require('./removeHelper');
 
 class RemoveOperation {
     /**
@@ -24,6 +25,7 @@ class RemoveOperation {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {SearchManager} searchManager
+     * @param {RemoveHelper} removeHelper
      */
     constructor(
         {
@@ -34,7 +36,8 @@ class RemoveOperation {
             configManager,
             queryRewriterManager,
             postRequestProcessor,
-            searchManager
+            searchManager,
+            removeHelper
         }
     ) {
         /**
@@ -81,6 +84,12 @@ class RemoveOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {RemoveHelper}
+         */
+        this.removeHelper = removeHelper;
+        assertTypeEquals(removeHelper, RemoveHelper);
     }
 
     /**
@@ -170,67 +179,66 @@ class RemoveOperation {
                 {resourceType, base_version}
             );
 
-            try {
-                res = await databaseQueryManager.findAsync({query});
-                const resourcesToDelete = {};
+            res = await databaseQueryManager.findAsync({query});
+            const resourcesToDelete = {};
 
-                while (await res.hasNext()) {
-                    const resource = await res.next();
+            while (await res.hasNext()) {
+                const resource = await res.next();
 
-                    // isAccessToResourceAllowedByAccessAndPatientScopes will throw forbidden error so wrap this under try catch
-                    try {
-                        await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
-                            requestInfo, resource, base_version
-                        });
-
-                        resourcesToDelete[resource._uuid] = {
-                            id: resource.id,
-                            _uuid: resource._uuid,
-                            _sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                            resourceType: resource.resourceType,
-                            created: false,
-                            deleted: true
-                        };
-                    } catch (err) {
-                        logWarn(`${user} with scope ${scope} is trying to delete ${resource.resourceType}/${resource.id}`);
-                    }
-                }
-                /**
-                 * @type {DeleteManyResult}
-                 */
-                res = await databaseQueryManager.deleteManyAsync({
-                    requestId,
-                    query: {_uuid: {$in: Object.keys(resourcesToDelete)}}
-                });
-
-                Object.values(resourcesToDelete).forEach(data => {
-                    logInfo('Resource Deleted', {
-                        action: currentOperationName,
-                        ...data
+                // isAccessToResourceAllowedByAccessAndPatientScopes will throw forbidden error so wrap this under try catch
+                try {
+                    await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
+                        requestInfo, resource, base_version
                     });
-                });
 
-                if (resourceType !== 'AuditEvent') {
-                    this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async () => {
-                            // log access to audit logs
-                            await this.auditLogger.logAuditEntryAsync(
-                                {
-                                    requestInfo,
-                                    base_version,
-                                    resourceType,
-                                    operation: 'delete',
-                                    args: parsedArgs.getRawArgs(),
-                                    ids: Object.keys(resourcesToDelete)
-                                }
-                            );
-                        }
-                    });
+                    resourcesToDelete[resource._uuid] = {
+                        id: resource.id,
+                        _uuid: resource._uuid,
+                        _sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType,
+                        created: false,
+                        deleted: true
+                    };
+                } catch (err) {
+                    logWarn(`${user} with scope ${scope} is trying to delete ${resource.resourceType}/${resource.id}`);
                 }
-            } catch (e) {
-                throw new NotAllowedError(e.message);
             }
+            /**
+             * @type {DeleteManyResult}
+             */
+            res = await this.removeHelper.deleteManyAsync({
+                requestInfo,
+                query: {_uuid: {$in: Object.keys(resourcesToDelete)}},
+                resourceType,
+                base_version
+            });
+
+            Object.values(resourcesToDelete).forEach(data => {
+                logInfo('Resource Deleted', {
+                    action: currentOperationName,
+                    ...data
+                });
+            });
+
+            if (resourceType !== 'AuditEvent') {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        // log access to audit logs
+                        await this.auditLogger.logAuditEntryAsync(
+                            {
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: 'delete',
+                                args: parsedArgs.getRawArgs(),
+                                ids: Object.keys(resourcesToDelete)
+                            }
+                        );
+                    }
+                });
+            }
+
 
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,

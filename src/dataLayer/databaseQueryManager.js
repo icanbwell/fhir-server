@@ -3,15 +3,10 @@ const { ResourceLocatorFactory } = require('../operations/common/resourceLocator
 const { ResourceLocator } = require('../operations/common/resourceLocator');
 const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
-const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const moment = require('moment-timezone');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const { MongoFilterGenerator } = require('../utils/mongoFilterGenerator');
-const { SecurityTagStructure } = require('../fhir/securityTagStructure');
 const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
-const { DELETE } = require('../constants').GRIDFS;
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -112,75 +107,6 @@ class DatabaseQueryManager {
                 message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`,
 error: e,
                 args: { query, options }
-            });
-        }
-    }
-
-    /**
-     * Deletes resources
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
-     * @param {string} requestId
-     * @param {import('mongodb').DeleteOptions} options
-     * @return {Promise<DeleteManyResult>}
-     */
-    async deleteManyAsync ({ query, requestId, options = {} }) {
-        try {
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query
-            });
-            let deletedCount = 0;
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
-                 * @type {DatabasePartitionedCursor}
-                 */
-                const resourcesCursor = await this.findAsync({
-                    query, options
-                });
-                // find the history collection for each
-                while (await resourcesCursor.hasNext()) {
-                    /**
-                     * @type {Resource|null}
-                     */
-                    const resource = await resourcesCursor.next();
-                    if (resource) {
-                        await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
-                        /**
-                         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-                         */
-                        const historyCollection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(resource);
-                        /**
-                         * @type {Resource}
-                         */
-                        const historyResource = resource.clone();
-                        historyResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-                        await historyCollection.insertOne(new BundleEntry({
-                            id: historyResource.id,
-                            resource: historyResource,
-                            request: new BundleRequest(
-                                {
-                                    id: requestId,
-                                    method: 'DELETE',
-                                    url: `${this._base_version}/${resource.resourceType}/${resource._uuid}`
-                                }
-                            )
-                        }).toJSONInternal());
-                    }
-                }
-                /**
-                 * @type {import('mongodb').DeleteWriteOpResultObject}
-                 */
-                const result = await collection.deleteMany(query, options);
-                deletedCount += result.deletedCount;
-            }
-            return { deletedCount, error: null };
-        } catch (e) {
-            throw new RethrownError({
-                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`,
-error: e,
-                args: { query, requestId, options }
             });
         }
     }

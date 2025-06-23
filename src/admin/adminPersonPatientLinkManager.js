@@ -14,6 +14,7 @@ const { generateUUID, isUuid, generateUUIDv5 } = require('../utils/uid.util');
 const { COLLECTION } = require('../constants');
 const { SecurityTagSystem } = require('../utils/securityTagSystem');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
+const { RemoveHelper } = require('../operations/remove/removeHelper');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
@@ -29,6 +30,7 @@ class AdminPersonPatientLinkManager {
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {PatientFilterManager} patientFilterManager
+     * @param {RemoveHelper} removeHelper
      */
     constructor (
         {
@@ -36,7 +38,8 @@ class AdminPersonPatientLinkManager {
             databaseUpdateFactory,
             fhirOperationsManager,
             postSaveProcessor,
-            patientFilterManager
+            patientFilterManager,
+            removeHelper
         }
     ) {
         /**
@@ -68,6 +71,12 @@ class AdminPersonPatientLinkManager {
          */
         this.patientFilterManager = patientFilterManager;
         assertTypeEquals(patientFilterManager, PatientFilterManager);
+
+        /**
+         * @type {RemoveHelper}
+         */
+        this.removeHelper = removeHelper;
+        assertTypeEquals(removeHelper, RemoveHelper);
     }
 
     /**
@@ -651,6 +660,7 @@ class AdminPersonPatientLinkManager {
      */
     async deletePersonAsync ({ req, requestId, personId }) {
         personId = personId.replace('Person/', '');
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
 
         /**
          * @type {DatabaseQueryManager}
@@ -688,9 +698,11 @@ class AdminPersonPatientLinkManager {
         /**
          * @type {{deletedCount: (number|null), error: (Error|null)}}
          */
-        const result = await databaseQueryManager.deleteManyAsync({
+        const result = await this.removeHelper.deleteManyAsync({
             query: { id: personId },
-            requestId
+            requestInfo,
+            base_version,
+            resourceType: 'Person'
         });
         result.linksRemoved = parentPersonResponses;
 

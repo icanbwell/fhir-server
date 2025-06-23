@@ -119,6 +119,9 @@ const {READ} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
+const { BulkHistoryInserter } = require('./dataLayer/bulkHistoryInserter');
+const { RemoveHelper } = require('./operations/remove/removeHelper');
+
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
@@ -468,7 +471,8 @@ const createContainer = function () {
                 r4ArgsParser: c.r4ArgsParser,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 searchParametersManager: c.searchParametersManager,
-                searchBundleOperation: c.searchBundleOperation
+                searchBundleOperation: c.searchBundleOperation,
+                removeHelper: c.removeHelper
             }
         )
     );
@@ -592,6 +596,19 @@ const createContainer = function () {
         everythingHelper: c.everythingHelper
     }));
 
+    container.register('bulkHistoryInserter', (c) => new BulkHistoryInserter({
+        requestSpecificCache: c.requestSpecificCache,
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        configManager: c.configManager
+    }));
+
+    container.register('removeHelper', c => new RemoveHelper({
+        bulkHistoryInserter: c.bulkHistoryInserter,
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseAttachmentManager: c.databaseAttachmentManager
+    }));
+
     container.register('removeOperation', (c) => new RemoveOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
@@ -601,7 +618,8 @@ const createContainer = function () {
             configManager: c.configManager,
             queryRewriterManager: c.queryRewriterManager,
             postRequestProcessor: c.postRequestProcessor,
-            searchManager: c.searchManager
+            searchManager: c.searchManager,
+            removeHelper: c.removeHelper
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -794,7 +812,8 @@ const createContainer = function () {
         databaseUpdateFactory: c.databaseUpdateFactory,
         fhirOperationsManager: c.fhirOperationsManager,
         postSaveProcessor: c.postSaveProcessor,
-        patientFilterManager: c.patientFilterManager
+        patientFilterManager: c.patientFilterManager,
+        removeHelper: c.removeHelper
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
