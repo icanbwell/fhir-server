@@ -613,6 +613,7 @@ class GraphHelper {
              */
             let reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
             reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentResourceIdList.join(','));
+
             if (params && Object.keys(params).length > 0) {
                 // Process params and replace placeholders
                 const processedParams = {};
@@ -626,19 +627,30 @@ class GraphHelper {
                         processedParams[key] = value;
                     }
                 }
-                // Convert params to query string format and append to reverseFilterWithParentIds
-                const paramString = Object.entries(processedParams)
+
+                // Parse existing parameters and new parameters, then merge without duplicates
+                const parseParams = (paramString) => {
+                    if (!paramString) return {};
+                    return Object.fromEntries(
+                        paramString.split('&')
+                            .filter(param => param.includes('='))
+                            .map(param => {
+                                const [key, value] = param.split('=').map(decodeURIComponent);
+                                return [key, value];
+                            })
+                    );
+                };
+
+                // Parse existing reverse_filter parameters
+                const existingParams = parseParams(reverseFilterWithParentIds);
+
+                // Merge parameters (existing params take precedence to preserve parent ID filters)
+                const mergedParams = { ...processedParams, ...existingParams };
+
+                // Reconstruct clean query string
+                reverseFilterWithParentIds = Object.entries(mergedParams)
                     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
                     .join('&');
-
-                if (reverseFilterWithParentIds.includes('&')) {
-                    reverseFilterWithParentIds += '&' + paramString;
-                } else if (reverseFilterWithParentIds.includes('=')) {
-                    reverseFilterWithParentIds += '&' + paramString;
-                } else {
-                    // This shouldn't happen since reverse_filter should always have a search parameter
-                    reverseFilterWithParentIds = paramString;
-                }
             }
 
             /**
