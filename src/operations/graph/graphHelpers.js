@@ -285,7 +285,8 @@ class GraphHelper {
                                         parsedArgs,
                                         explain,
                                         debug,
-                                        supportLegacyId = true
+                                        supportLegacyId = true,
+                                        params = {}
                                     }) {
         try {
             if (!parentEntities || parentEntities.length === 0 || !isValidResource(resourceType)) {
@@ -336,9 +337,18 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
+            // Start with base args and add the id parameter
             const args = Object.assign({
-                base_version, _includeHidden: parsedArgs._includeHidden
-            }, {id: relatedReferenceIds.join(',')});
+                base_version,
+                _includeHidden: parsedArgs._includeHidden,
+                id: relatedReferenceIds.join(',')
+            });
+
+            // Apply additional params if provided
+            if (params && Object.keys(params).length > 0) {
+                Object.assign(args, params);
+            }
+
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
                     resourceType,
@@ -485,7 +495,8 @@ class GraphHelper {
                     filterProperty,
                     filterValue,
                     explain,
-                    debug
+                    debug,
+                    params
                 }
             });
         }
@@ -542,7 +553,8 @@ class GraphHelper {
                                         parsedArgs,
                                         supportLegacyId = true,
                                         proxyPatientIds = [],
-                                        proxyPatientResources = []
+                                        proxyPatientResources = [],
+                                        params = {}
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -601,6 +613,34 @@ class GraphHelper {
              */
             let reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
             reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentResourceIdList.join(','));
+            if (params && Object.keys(params).length > 0) {
+                // Process params and replace placeholders
+                const processedParams = {};
+                for (const [key, value] of Object.entries(params)) {
+                    if (typeof value === 'string') {
+                        // Replace {ref} and {id} placeholders in param values
+                        let processedValue = value.replace('{ref}', parentResourceTypeAndIdList.join(','));
+                        processedValue = processedValue.replace('{id}', parentResourceIdList.join(','));
+                        processedParams[key] = processedValue;
+                    } else {
+                        processedParams[key] = value;
+                    }
+                }
+                // Convert params to query string format and append to reverseFilterWithParentIds
+                const paramString = Object.entries(processedParams)
+                    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+                    .join('&');
+
+                if (reverseFilterWithParentIds.includes('&')) {
+                    reverseFilterWithParentIds += '&' + paramString;
+                } else if (reverseFilterWithParentIds.includes('=')) {
+                    reverseFilterWithParentIds += '&' + paramString;
+                } else {
+                    // This shouldn't happen since reverse_filter should always have a search parameter
+                    reverseFilterWithParentIds = paramString;
+                }
+            }
+
             /**
              * @type {ParsedArgs}
              */
@@ -914,6 +954,7 @@ class GraphHelper {
         return {filterProperty, filterValue, property};
     }
 
+
     /**
      * process a link
      * @param {FhirRequestInfo} requestInfo
@@ -986,6 +1027,13 @@ class GraphHelper {
                         action: 'graph',
                         accessRequested: 'read'
                     })) {
+                        let targetParams = {};
+
+                        // Parse target-level params
+                        if (target.params) {
+                            targetParams = this.parseTargetParams(target.params);
+                        }
+
                         /**
                          * @type {QueryItem}
                          */
@@ -1001,7 +1049,9 @@ class GraphHelper {
                                 explain,
                                 debug,
                                 supportLegacyId,
-                                parsedArgs
+                                parsedArgs,
+                                params: targetParams
+
                             }
                         );
                         if (queryItem) {
@@ -1032,6 +1082,12 @@ class GraphHelper {
                     }
                 }
             } else if (target.params) { // reverse link
+                let targetParams = {};
+                // Parse target-level params
+                if (target.params) {
+                    targetParams = this.parseTargetParams(target.params);
+                }
+
                 if (target.type) { // if caller has requested this entity or just wants a nested entity
                     // reverse link
                     if (this.scopesValidator.hasValidScopes({
@@ -1064,7 +1120,8 @@ class GraphHelper {
                                 supportLegacyId,
                                 proxyPatientIds,
                                 proxyPatientResources,
-                                parsedArgs
+                                parsedArgs,
+                                params: targetParams
                             }
                         );
                         if (queryItem) {
@@ -1134,6 +1191,30 @@ class GraphHelper {
                 }
             });
         }
+    }
+
+    /**
+     * Parses link params string into an object of search parameters
+     * @param {string|undefined} paramsString - Parameters string like "status=active&date=ge2023-01-01"
+     * @returns {Object} - Object with parsed parameters
+     */
+    parseTargetParams(paramsString) {
+        if (!paramsString || typeof paramsString !== 'string') {
+            return {};
+        }
+
+        const params = {};
+        try {
+            // Handle URL query string format
+            const searchParams = new URLSearchParams(paramsString);
+            for (const [key, value] of searchParams) {
+                params[key] = value;
+            }
+        } catch (error) {
+            logError(`Error parsing link params: ${paramsString}`, {error});
+        }
+
+        return params;
     }
 
     /**

@@ -1,0 +1,13 @@
+{
+  "resourceType": "Patient",
+  "id": "patient-with-encounters",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  }
+}
