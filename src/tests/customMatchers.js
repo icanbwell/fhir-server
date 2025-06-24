@@ -3,8 +3,6 @@ const { assertFail, assertIsValid } = require('../utils/assertType');
 const { diff } = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
 const { expect } = require('@jest/globals');
-const moment = require('moment-timezone');
-const { YearMonthPartitioner } = require('../partitioners/yearMonthPartitioner');
 const { ndjsonToJsonText } = require('ndjson-to-json-text');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { csv2json } = require('csv42');
@@ -20,13 +18,6 @@ const sortBy = require('lodash.sortby');
 
 function cleanMeta (resource) {
     assertIsValid(resource, 'resource is null');
-    const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-    /**
-     * @type {string}
-     */
-    const auditCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-        { fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0' }
-    );
 
     if (resource.meta && resource.meta.tag) {
         resource.meta.tag.forEach((tag) => {
@@ -38,12 +29,6 @@ function cleanMeta (resource) {
             }
             if (tag.system === 'https://www.icanbwell.com/queryExplainSimple' && tag.display) {
                 delete tag.display;
-            }
-            if (tag.system === 'https://www.icanbwell.com/query' && tag.display) {
-                tag.display = tag.display.replace('db.AuditEvent_4_0_0.', `db.${auditCollectionName}.`);
-            }
-            if (tag.system === 'https://www.icanbwell.com/queryCollection' && tag.code && tag.code.startsWith('AuditEvent_4_0_0')) {
-                tag.code = `${auditCollectionName}`;
             }
         });
     }

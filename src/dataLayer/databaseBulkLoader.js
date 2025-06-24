@@ -5,6 +5,7 @@ const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { ConfigManager } = require('../utils/configManager');
+const { DatabaseCursor } = require('./databaseCursor');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -116,7 +117,7 @@ class DatabaseBulkLoader {
             );
             /**
              * cursor
-             * @type {DatabasePartitionedCursor}
+             * @type {DatabaseCursor}
              */
             const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources });
 
@@ -134,7 +135,7 @@ class DatabaseBulkLoader {
 
     /**
      * Reads resources from cursor
-     * @param {DatabasePartitionedCursor} cursor
+     * @param {DatabaseCursor} cursor
      * @returns {Promise<Resource[]>}
      */
     async cursorToResourcesAsync ({ cursor }) {
@@ -148,7 +149,7 @@ class DatabaseBulkLoader {
                  * element
                  * @type {Resource|null}
                  */
-                const resource = await cursor.next();
+                const resource = await cursor.nextObject();
                 result.push(resource);
             }
             return result;

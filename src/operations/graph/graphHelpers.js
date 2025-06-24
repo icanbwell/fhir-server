@@ -48,8 +48,6 @@ const {NestedPropertyReader} = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
 const {SearchBundleOperation} = require('../search/searchBundle');
-const {DatabasePartitionedCursor} = require('../../dataLayer/databasePartitionedCursor');
-const {ForbiddenError} = require("../../utils/httpErrors");
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 const nonClinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['nonClinicalResources'];
 
@@ -369,10 +367,7 @@ class GraphHelper {
              */
             const maxMongoTimeMS = this.configManager.mongoTimeout;
             const databaseQueryManager = this.databaseQueryFactory.createQuery({resourceType, base_version});
-            /**
-             * mongo db cursor
-             * @type {DatabasePartitionedCursor}
-             */
+
             let cursor = await databaseQueryManager.findAsync({query, options});
 
             /**
@@ -385,13 +380,13 @@ class GraphHelper {
             }
 
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
-            const collectionName = cursor.getFirstCollection();
+            const collectionName = cursor.getCollection();
 
             while (await cursor.hasNext()) {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResource = await cursor.nextRaw();
+                let relatedResource = await cursor.next();
 
                 if (relatedResource) {
                     // create a class to hold information about this resource
@@ -657,10 +652,7 @@ class GraphHelper {
                 resourceType: relatedResourceType,
                 base_version
             });
-            /**
-             * mongo db cursor
-             * @type {DatabasePartitionedCursor}
-             */
+
             let cursor = await databaseQueryManager.findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
@@ -682,13 +674,13 @@ class GraphHelper {
                 // if explain is requested then don't return any results
                 cursor = cursor.limit(1);
             }
-            const collectionName = cursor.getFirstCollection();
+            const collectionName = cursor.getCollection();
 
             while (await cursor.hasNext()) {
                 /**
                  * @type {Resource|null}
                  */
-                let relatedResourcePropertyCurrent = await cursor.nextRaw();
+                let relatedResourcePropertyCurrent = await cursor.next();
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
                         relatedResourcePropertyCurrent, RETRIEVE
@@ -1558,14 +1550,11 @@ class GraphHelper {
             const optionsForQueries = [];
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery({resourceType, base_version});
-            /**
-             * mongo db cursor
-             * @type {DatabasePartitionedCursor}
-             */
+
             let cursor = await databaseQueryManager.findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
-            const collectionName = cursor.getFirstCollection();
+            const collectionName = cursor.getCollection();
             queries.push(
                 new QueryItem({
                         query,
@@ -1594,7 +1583,7 @@ class GraphHelper {
                  * element
                  * @type {Resource|null}
                  */
-                let startResource = await cursor.nextRaw();
+                let startResource = await cursor.next();
                 if (startResource) {
                     /**
                      * @type {BundleEntry}

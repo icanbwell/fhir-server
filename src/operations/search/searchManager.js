@@ -38,6 +38,7 @@ const {
     OPERATIONS: { READ },
     GRIDFS: { RETRIEVE }
 } = require('../../constants');
+const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 
 class SearchManager {
     /**
@@ -470,7 +471,7 @@ class SearchManager {
             { resourceType, base_version }
         );
         /**
-         * @type {DatabasePartitionedCursor}
+         * @type {DatabaseCursor}
          */
         let cursorQuery;
         if (useAggregationPipeline) {
@@ -508,24 +509,20 @@ class SearchManager {
             cursorQuery = __ret.cursorQuery;
         }
         /**
-         * @type {DatabasePartitionedCursor}
+         * @type {DatabaseCursor}
          */
         let cursor = cursorQuery;
 
         // find columns being queried and match them to an index
         // noinspection JSUnresolvedReference
         if (isTrue(process.env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
-            // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 { resourceType, base_version });
-            const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync(
-                {
-                    query, extraInfo
-                });
+            const collectionName = resourceLocator.getCollectionName();
             const indexName = parsedArgs._setIndexHint;
             const __ret = this.setIndexHint(
                 {
-                    mongoCollectionName: collectionNamesForQueryForResourceType[0],
+                    mongoCollectionName: collectionName,
                     columns,
                     cursor,
                     user,
@@ -548,7 +545,7 @@ class SearchManager {
                 });
         }
 
-        const collectionName = cursor.getFirstCollection();
+        const collectionName = cursor.getCollection();
         return new GetCursorResult(
             {
                 columns,
@@ -769,7 +766,7 @@ class SearchManager {
                 { resourceType, base_version }
             );
             /**
-             * @type {DatabasePartitionedCursor}
+             * @type {DatabaseCursor}
              */
             const cursor = await databaseQueryManager.findAsync({ query, options });
             /**
@@ -778,7 +775,7 @@ class SearchManager {
             const idResults = await cursor
                 .sort({ sortOption })
                 .maxTimeMS({ milliSecs: maxMongoTimeMS })
-                .toArrayRawAsync();
+                .toArrayAsync();
             if (idResults.length > 0) {
                 // now get the documents for those ids.  We can clear all the other query parameters
                 query = idResults.length === 1
@@ -803,7 +800,7 @@ class SearchManager {
     // noinspection FunctionWithInconsistentReturnsJS
     /**
      * Reads resources from Mongo cursor
-     * @param {DatabasePartitionedCursor} cursor
+     * @param {DatabaseCursor} cursor
      * @param {string | null} user
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
@@ -886,8 +883,8 @@ class SearchManager {
     /**
      * sets cursor batch size based on args or environment variables
      * @param {ParsedArgs} parsedArgs
-     * @param {DatabasePartitionedCursor} cursorQuery
-     * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
+     * @param {DatabaseCursor} cursorQuery
+     * @return {{cursorBatchSize: number, cursorQuery: DatabaseCursor}}
      */
     setCursorBatchSize ({ parsedArgs, cursorQuery }) {
         const cursorBatchSize = parsedArgs._cursorBatchSize
@@ -922,10 +919,10 @@ class SearchManager {
      * sets the index hint
      * @param {string} mongoCollectionName
      * @param {Set} columns
-     * @param {DatabasePartitionedCursor} cursor
+     * @param {DatabaseCursor} cursor
      * @param {string | null} user
      * @param {string | undefined} indexName
-     * @return {{cursor: DatabasePartitionedCursor, indexHint: (string|null)}}
+     * @return {{cursor: DatabaseCursor, indexHint: (string|null)}}
      */
     setIndexHint (
         {
@@ -955,7 +952,7 @@ class SearchManager {
 
     /**
      * Reads resources from Mongo cursor and writes to response
-     * @param {DatabasePartitionedCursor} cursor
+     * @param {DatabaseCursor} cursor
      * @param {string|null} requestId
      * @param {string | null} url
      * @param {function (string | null, number): Bundle} fnBundle
@@ -1298,12 +1295,12 @@ class SearchManager {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
         /**
          * mongo db cursor
-         * @type {DatabasePartitionedCursor}
+         * @type {DatabaseCursor}
          */
         let cursor = await databaseQueryManager.findAsync({ query, options });
         cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
-        const collectionName = cursor.getFirstCollection();
+        const collectionName = cursor.getCollection();
 
         /**
          * @type {QueryItem}
@@ -1328,7 +1325,7 @@ class SearchManager {
              * element
              * @type {Resource|null}
              */
-            let startResource = await cursor.nextRaw();
+            let startResource = await cursor.next();
             if (startResource) {
                 /**
                  * @type {BundleEntry}

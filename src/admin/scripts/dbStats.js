@@ -34,7 +34,7 @@ async function main () {
     );
 
     /**
-     * @type {PartitionAuditEventRunner}
+     * @type {DatabaseStats}
      */
     const processDatabaseStats = container.processDatabaseStats;
     await processDatabaseStats.processAsync();

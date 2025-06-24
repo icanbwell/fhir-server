@@ -145,7 +145,7 @@ class BwellPersonFinder {
         });
 
         while (await linkedPersonCursor.hasNext()) {
-            const linkedPerson = await linkedPersonCursor.next();
+            const linkedPerson = await linkedPersonCursor.nextObject();
             const allLinkedIds = this.getAllLinkedReferencesFromPerson(linkedPerson);
             personToLinkedPatientsMap.set(linkedPerson._uuid, allLinkedIds);
 
@@ -237,7 +237,7 @@ class BwellPersonFinder {
 
         // iterate over linked Persons (breadth search)
         while (!foundPersonId && (await linkedPersons.hasNext())) {
-            const nextPerson = await linkedPersons.next();
+            const nextPerson = await linkedPersons.nextObject();
             const nextPersonId = nextPerson._uuid;
             if (this.isBwellPerson(nextPerson)) {
                 foundPersonId = nextPersonId;

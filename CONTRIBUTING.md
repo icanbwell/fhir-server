@@ -75,8 +75,6 @@ Run `make up` to bring up the fhir server in docker on your local machine. Click
 
 [src/operations](src/operations): Each folder implements a particular operation in FHIR (e.g., get all resources, update a resource etc). [FHIR Spec](https://www.hl7.org/fhir/operations.html)
 
-[src/partitioners](src/partitioners): Code to support partitioned collections
-
 [src/routeHandlers](src/routeHandlers): Non-FHIR routes (e.g., logout, show stats)
 
 [src/searchParameters](src/searchParameters): Code-generated information about all the FHIR search parameters (https://www.hl7.org/fhir/searchparameter-registry.html). Called by r4.js to implement searching. Code-generation script: [src/searchParameters/generate_search_parameters.py](src/searchParameters/generate_search_parameters.py)
@@ -210,23 +208,6 @@ git reset --hard
 ```shell
 git clone --branch separate_partitioners_into_classes --single-branch https://github.com/icanbwell/fhir-server.git
 ```
-
-## Partitioning
-Partitioning means we can store a collection as multiple partitioned collections based on a partitioner.
-
-This is useful for really large tables and when the pattern of usage is specific.  Partitioning can result in faster performance.
-
-For example, the AuditEvent collection is partitioned by year-month of the recorded date.
-
-For a collection to be partitioned:
-1. You have to specify in [src/partitioners/partitions.json](src/partitioners/partitions.json) how you want the collection to be partitioned.
-2. If you need a new type of partitioner, then you can implement a sub-class of [src/partitioners/basePartitioner.js](src/partitioners/basePartitioner.js).  
-   1. For example: [src/partitioners/yearMonthPartitioner.js](src/partitioners/yearMonthPartitioner.js)
-3. If you added a new type of partitioner then you need to add calls to it from the PartitionManager in [src/partitioners/partitioningManager.js](src/partitioners/partitioningManager.js)
-4. In addition we use the environment variable `PARTITION_RESOURCES` to turn on /off partitioning for each environment
-   1. e.g., `PARTITION_RESOURCES: 'AuditEvent'`
-
-If you have existing data, you need to copy it into partitioned collections.  You can use an admin script like [src/admin/scripts/partitionAuditEvent.js](src/admin/scripts/partitionAuditEvent.js).  Once you are done copying it, you can drop the original collection.
 
 ## Access indexes
 A number of queries include searching on security tags:

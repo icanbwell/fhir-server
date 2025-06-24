@@ -30,7 +30,7 @@ const {
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const { DatabasePartitionedCursor } = require('../../dataLayer/databasePartitionedCursor');
+const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
 const { QueryItem } = require('../graph/queryItem');
@@ -772,14 +772,11 @@ class EverythingHelper {
         const maxMongoTimeMS = this.configManager.mongoTimeout;
 
         const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-        /**
-         * mongo db cursor
-         * @type {DatabasePartitionedCursor}
-         */
+
         let cursor = await databaseQueryManager.findAsync({ query, options });
         cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
-        const collectionName = cursor.getFirstCollection();
+        const collectionName = cursor.getCollection();
 
         queries.push(
             new QueryItem({
@@ -1059,10 +1056,7 @@ class EverythingHelper {
                 resourceType: relatedResourceType,
                 base_version
             });
-            /**
-             * mongo db cursor
-             * @type {DatabasePartitionedCursor}
-             */
+
             let cursor = await databaseQueryManager.findAsync({ query, options });
             cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
@@ -1074,7 +1068,7 @@ class EverythingHelper {
                 // if explain is requested then don't return any results
                 cursor = cursor.limit(1);
             }
-            const collectionName = cursor.getFirstCollection();
+            const collectionName = cursor.getCollection();
             const promiseResult = this.processCursorAsync({
                 cursor,
                 responseStreamer,
@@ -1115,7 +1109,7 @@ class EverythingHelper {
     /**
      * Fetches the data from cursor and streams it
      * @param {{
-     *  cursor: DatabasePartitionedCursor,
+     *  cursor: DatabaseCursor,
      *  responseStreamer: BaseResponseStreamer,
      *  parentParsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker|undefined,
@@ -1155,7 +1149,7 @@ class EverythingHelper {
              * element
              * @type {Resource|null}
              */
-            let startResource = await cursor.nextRaw();
+            let startResource = await cursor.next();
             if (startResource) {
                 /**
                  * @type {BundleEntry}

@@ -14,6 +14,7 @@ const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { DatabaseUpdateManager } = require('../dataLayer/databaseUpdateManager');
 const { DatabaseQueryManager } = require('../dataLayer/databaseQueryManager');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
+const { DatabaseCursor } = require('../dataLayer/databaseCursor');
 
 const base_version = VERSIONS['4_0_0'];
 
@@ -269,7 +270,7 @@ class AdminPersonPatientDataManager {
                  */
                 const deletedResourceIdsWithResourceType = deletedResourceIds.map(deletedResourceId => `${resourceType}/${deletedResourceId}`);
                 /**
-                 * @type {DatabasePartitionedCursor}
+                 * @type {DatabaseCursor}
                  */
                 const personRecordsWithLinkToDeletedResourceIdCursor = await databaseQueryManagerForPerson.findAsync({
                     query: { 'link.target._uuid': { $in: deletedResourceIdsWithResourceType } }
@@ -277,7 +278,7 @@ class AdminPersonPatientDataManager {
                 /**
                  * @type {import('mongodb').DefaultSchema[]}
                  */
-                const personRecordsWithLinkToDeletedResourceId = await personRecordsWithLinkToDeletedResourceIdCursor.toArrayRawAsync();
+                const personRecordsWithLinkToDeletedResourceId = await personRecordsWithLinkToDeletedResourceIdCursor.toArrayAsync();
                 for (
                     const /** @type {import('mongodb').DefaultSchema} */
                     personRecordWithLinkToDeletedResourceId of personRecordsWithLinkToDeletedResourceId

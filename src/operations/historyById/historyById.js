@@ -16,6 +16,7 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { ScopesManager } = require('../security/scopesManager');
+const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 
 class HistoryByIdOperation {
     /**
@@ -206,7 +207,7 @@ class HistoryByIdOperation {
         };
         try {
             /**
-             * @type {DatabasePartitionedCursor}
+             * @type {DatabaseCursor}
              */
             let cursor;
             try {
@@ -228,9 +229,9 @@ class HistoryByIdOperation {
             const explanations = (cursor && (parsedArgs._explain || parsedArgs._debug || process.env.LOGLEVEL === 'DEBUG')) ? (await cursor.explainAsync()) : [];
             if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
-                cursor.clear();
+                cursor.setEmpty();
             }
-            const collectionName = cursor.getFirstCollection();
+            const collectionName = cursor.getCollection();
 
             /**
              * @type {String[]|null}
@@ -248,7 +249,7 @@ class HistoryByIdOperation {
              */
             const entries = [];
             while (await cursor.hasNext()) {
-                let historyResource = await cursor.nextRaw();
+                let historyResource = await cursor.next();
                 if (!historyResource) {
                     throw new NotFoundError('Resource not found');
                 }
@@ -262,7 +263,7 @@ class HistoryByIdOperation {
                 historyResources.push(historyResource);
             }
 
-            if (historyResources.length === 0) {
+            if (historyResources.length === 0 && !parsedArgs._explain) {
                 throw new NotFoundError(`History not found for resource ${resourceType}/${id}`);
             }
 

@@ -175,7 +175,7 @@ class RemoveOperation {
                 const resourcesToDelete = {};
 
                 while (await res.hasNext()) {
-                    const resource = await res.next();
+                    const resource = await res.nextObject();
 
                     // isAccessToResourceAllowedByAccessAndPatientScopes will throw forbidden error so wrap this under try catch
                     try {

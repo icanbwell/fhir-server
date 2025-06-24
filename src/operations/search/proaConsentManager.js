@@ -98,7 +98,7 @@ class ProaConsentManager {
                 indexHint: CONSENT_OF_LINKED_PERSON_INDEX
             })
             .sort({ 'meta.lastUpdated': -1 })
-            .toArrayRawAsync();
+            .toArrayAsync();
 
         return consentResources;
     }

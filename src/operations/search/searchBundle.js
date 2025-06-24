@@ -16,6 +16,8 @@ const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { ResourceLocator } = require('../common/resourceLocator');
+const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 
 class SearchBundleOperation {
     /**
@@ -210,6 +212,10 @@ class SearchBundleOperation {
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
             { resourceType, base_version });
+        /**
+         * @type {string}
+         */
+        const collectionName = resourceLocator.getCollectionName();
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
@@ -260,14 +266,14 @@ class SearchBundleOperation {
              */
             const cursorBatchSize = __ret.cursorBatchSize;
             /**
-             * @type {DatabasePartitionedCursor}
+             * @type {DatabaseCursor}
              */
             const cursor = __ret.cursor;
 
             /**
              * @type {string[]}
              */
-            const allCollectionsToSearch = cursor ? cursor.getAllCollections() : [];
+            const allCollectionsToSearch = cursor ? [cursor.getCollection()] : [];
 
             /**
              * @type {import('mongodb').Document[]}
@@ -275,7 +281,7 @@ class SearchBundleOperation {
             const explanations = (cursor && !useAggregationPipeline && (parsedArgs._explain || parsedArgs._debug || process.env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
             if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
-                cursor.clear();
+                cursor.setEmpty();
             }
             // process results
             if (cursor !== null) { // usually means the two-step optimization found no results
@@ -326,12 +332,6 @@ class SearchBundleOperation {
              */
             const stopTime = Date.now();
 
-            /**
-             * @type {string}
-             */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                query
-            });
             /**
              * id of last resource in the list it can be either _uuid or id depending on DEFAULT_SORT_ID passed
              * @type {?string}
@@ -389,12 +389,6 @@ class SearchBundleOperation {
             });
             return bundle;
         } catch (e) {
-            /**
-             * @type {string}
-             */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                query
-            });
             const logQuery = mongoQueryAndOptionsStringify({
                 query: new QueryItem({
                     query,

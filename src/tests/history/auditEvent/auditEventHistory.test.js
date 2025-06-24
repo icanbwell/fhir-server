@@ -11,7 +11,6 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
 const { MongoDatabaseManager } = require('../../../utils/mongoDatabaseManager');
 const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 
@@ -49,15 +48,6 @@ describe('AuditEvent History Collection Tests', () => {
          * @type {MongoDatabaseManager}
          */
         const mongoDatabaseManager = container.mongoDatabaseManager;
-
-        const fieldDate = new Date(moment.utc('2021-09-20').format('YYYY-MM-DDTHH:mm:ssZ'));
-        /**
-         * @type {string}
-         */
-        const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth({
-            fieldValue: fieldDate.toString(),
-            resourceWithBaseVersion: 'AuditEvent_4_0_0'
-        });
         /**
          * mongo auditEventDb connection
          * @type {import('mongodb').Db}
@@ -71,13 +61,13 @@ describe('AuditEvent History Collection Tests', () => {
         let auditEventCollections = await auditEventDb.listCollections().toArray();
         let auditEventCollectionsNames = auditEventCollections.map((collection) => collection.name);
         // verify AuditEvent collection in db
-        expect(auditEventCollectionsNames).toEqual([mongoCollectionName]);
+        expect(auditEventCollectionsNames).toEqual(["AuditEvent_4_0_0"]);
 
         await request.get(`/4_0_0/AuditEvent/_history`).set(getHeaders()).expect(404);
 
         auditEventCollections = await auditEventDb.listCollections().toArray();
         auditEventCollectionsNames = auditEventCollections.map((collection) => collection.name);
         // verify that AuditEvent history collection is not created while querying for history
-        expect(auditEventCollectionsNames).toEqual([mongoCollectionName]);
+        expect(auditEventCollectionsNames).toEqual(["AuditEvent_4_0_0"]);
     });
 });
