@@ -211,7 +211,7 @@ class RemoveOperation {
                 base_version
             });
 
-            Object.values(resourceArrayToDelete).forEach(r => {
+            resourceArrayToDelete.forEach(r => {
                 const data = {
                      id: r.id,
                     _uuid: r._uuid,
