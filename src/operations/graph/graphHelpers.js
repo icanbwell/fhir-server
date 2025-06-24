@@ -48,6 +48,7 @@ const {NestedPropertyReader} = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
 const {SearchBundleOperation} = require('../search/searchBundle');
+const { RemoveHelper } = require('../remove/removeHelper');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 const nonClinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['nonClinicalResources'];
 
@@ -70,6 +71,7 @@ class GraphHelper {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchParametersManager} searchParametersManager
      * @param {SearchBundleOperation} searchParametersOperation
+     * @param {RemoveHelper} removeHelper
      */
     constructor({
                     databaseQueryFactory,
@@ -85,7 +87,8 @@ class GraphHelper {
                     r4ArgsParser,
                     databaseAttachmentManager,
                     searchParametersManager,
-                    searchBundleOperation
+                    searchBundleOperation,
+                    removeHelper
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -167,6 +170,12 @@ class GraphHelper {
          */
         this.searchBundleOperation = searchBundleOperation;
         assertTypeEquals(searchBundleOperation, SearchBundleOperation);
+
+        /**
+         * @type {RemoveHelper}
+         */
+        this.removeHelper = removeHelper;
+        assertTypeEquals(removeHelper, RemoveHelper);
     }
 
     /**
@@ -2028,6 +2037,7 @@ class GraphHelper {
              */
             const startTime = Date.now();
             /**
+             * Raw Bundle
              * @type {Bundle}
              */
             const bundle = await this.processGraphAsync(
@@ -2049,6 +2059,7 @@ class GraphHelper {
             const deleteOperationBundleEntries = [];
             for (const entry of (bundle.entry || [])) {
                 /**
+                 * Raw Resource
                  * @type {Resource}
                  */
                 const resource = entry.resource;
@@ -2056,17 +2067,7 @@ class GraphHelper {
                  * @type {string}
                  */
                 const resultResourceType = resource.resourceType;
-                /**
-                 * @type {string[]}
-                 */
-                const idList = [resource._uuid];
-                /**
-                 * @type {DatabaseQueryManager}
-                 */
-                const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                    resourceType: resultResourceType,
-                    base_version
-                });
+
                 await this.scopesValidator.verifyHasValidScopesAsync({
                     requestInfo,
                     parsedArgs,
@@ -2076,9 +2077,11 @@ class GraphHelper {
                     startTime
                 });
 
-                await databaseQueryManager.deleteManyAsync({
-                    requestId: requestInfo.requestId,
-                    query: {_uuid: {$in: idList}}
+                await this.removeHelper.deleteManyAsync({
+                    requestInfo,
+                    resources: [resource],
+                    base_version,
+                    resourceType: resultResourceType
                 });
 
                 // for testing with delay

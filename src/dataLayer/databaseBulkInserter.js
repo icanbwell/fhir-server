@@ -413,16 +413,18 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {Resource} doc
      * @param {MergePatchEntry[]|null} patches
+     * @param {boolean} skipResourceAssertion Skip assertion for doc to be as instance of Resource
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches }) {
-        assertTypeEquals(doc, Resource);
+    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches, skipResourceAssertion = false }) {
+        if (!skipResourceAssertion) {
+            assertTypeEquals(doc, Resource);
+        }
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
         const userRequestId = requestInfo.userRequestId;
         const method = requestInfo.method;
         try {
-            assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
                 requestId,
                 resourceType,
@@ -799,6 +801,31 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * Executes all the history operations in bulk
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @returns {Promise<void>}
+     */
+    async executeHistoryAsync ({ requestInfo, base_version }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
+        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
+        if (historyOperationsByResourceTypeMap.size > 0) {
+            await async.map(
+                historyOperationsByResourceTypeMap.entries(),
+                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                    {
+                        requestInfo,
+                        mapEntry: x,
+                        base_version,
+                        useHistoryCollection: true
+                    }
+                ));
+            historyOperationsByResourceTypeMap.clear();
+        }
+    }
+
+    /**
      * Performs bulk operations
      * @param {FhirRequestInfo} requestInfo
      * @param {[string, BulkInsertUpdateEntry[]]} mapEntry
@@ -993,7 +1020,7 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {string}
                          */
                         let diagnostics;
-                        if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCCCEDS) {
+                        if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCEEDS) {
                             diagnostics = error.toString()
                         } else {
                             throw new RethrownError({ message: 'databaseBulkInserter: Error bulkWrite', error })
