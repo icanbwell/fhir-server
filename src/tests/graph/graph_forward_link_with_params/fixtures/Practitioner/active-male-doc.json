@@ -1,0 +1,21 @@
+{
+  "resourceType": "Practitioner",
+  "id": "active-male-doc",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "active": true,
+  "gender": "male",
+  "name": [
+    {
+      "family": "ActiveMale",
+      "given": ["Dr"]
+    }
+  ]
+}

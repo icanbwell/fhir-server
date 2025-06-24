@@ -1,0 +1,21 @@
+{
+  "resourceType": "Practitioner",
+  "id": "inactive-female-doc",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "active": false,
+  "gender": "female",
+  "name": [
+    {
+      "family": "InactiveFemale",
+      "given": ["Dr"]
+    }
+  ]
+}

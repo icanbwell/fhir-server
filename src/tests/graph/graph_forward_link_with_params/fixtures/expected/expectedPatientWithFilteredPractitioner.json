@@ -1,0 +1,139 @@
+{
+  "entry": [
+    {
+      "id": "test-patient",
+      "resource": {
+        "generalPractitioner": [
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/active-male-doc"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/b70cd78e-5f4b-5732-b5f4-182c0731b4f9"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client"
+              }
+            ],
+            "reference": "Practitioner/active-male-doc"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/inactive-female-doc"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/ba88de99-3d37-509f-b901-4e2ccf0a3cbf"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client"
+              }
+            ],
+            "reference": "Practitioner/inactive-female-doc"
+          }
+        ],
+        "id": "test-patient",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "test-patient"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "21566b28-90b8-5bcb-a06e-4ac831770e7e"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2025-06-24T16:55:33.581Z",
+          "source": "test",
+          "security": [
+            {
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client"
+            },
+            {
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client"
+            }
+          ]
+        },
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "id": "active-male-doc",
+      "resource": {
+        "active": true,
+        "gender": "male",
+        "id": "active-male-doc",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "active-male-doc"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "b70cd78e-5f4b-5732-b5f4-182c0731b4f9"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2025-06-24T16:55:33.582Z",
+          "source": "test",
+          "security": [
+            {
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client"
+            },
+            {
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client"
+            }
+          ]
+        },
+        "name": [
+          {
+            "family": "ActiveMale",
+            "given": [
+              "Dr"
+            ]
+          }
+        ],
+        "resourceType": "Practitioner"
+      }
+    }
+  ],
+  "type": "searchset",
+  "timestamp": "2025-06-24T04:55:34.3434Z",
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost:3000/4_0_0/Patient/test-patient/$graph"
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 2,
+  "id": "7b498f39-5ca8-4837-9a39-43ccbb1500a1"
+}
