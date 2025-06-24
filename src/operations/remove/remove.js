@@ -1,6 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {NotAllowedError} = require('../../utils/httpErrors');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {AuditLogger} = require('../../utils/auditLogger');

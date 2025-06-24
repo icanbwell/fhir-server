@@ -3,7 +3,6 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { RethrownError } = require('../../utils/rethrownError');
-const { ResourceLocator } = require('../common/resourceLocator');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
