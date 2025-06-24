@@ -706,7 +706,7 @@ class AdminPersonPatientLinkManager {
          * @type {{deletedCount: (number|null), error: (Error|null)}}
          */
         const result = await this.removeHelper.deleteManyAsync({
-            query: { id: personId },
+            resources: [personToDelete],
             requestInfo,
             base_version,
             resourceType: 'Person'

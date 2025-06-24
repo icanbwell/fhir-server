@@ -1,7 +1,7 @@
 const moment = require('moment');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { assertTypeEquals } = require('../../utils/assertType');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ResourceLocator } = require('../common/resourceLocator');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
@@ -51,30 +51,55 @@ class RemoveHelper {
     /**
      * Deletes resources
      * @typedef {Object} DeleteManyAsyncOption
-     * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @property {FhirRequestInfo} requestInfo
      * @property {import('mongodb').DeleteOptions} options
      * @property {string} resourceType
      * @property {string} base_version
+     * @property {Resource} resources
      *
      * @param {DeleteManyAsyncOption}
      * @return {Promise<import('../../dataLayer/databaseQueryManager').DeleteManyResult>}
      */
-    async deleteManyAsync({ query, requestInfo, options = {}, resourceType, base_version }) {
+    async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version }) {
         const { requestId } = requestInfo;
+        let uuidList = [];
+        let query = {};
         try {
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
                 resourceType,
                 base_version
             });
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                resourceType,
-                base_version
-            });
 
-            /**
-             * @type {ResourceLocator}
-             */
+            for (const resource of resources) {
+                if (!resource) {
+                    continue;
+                }
+                const resourceUuid = resource._uuid;
+                assertIsValid(resourceUuid, 'Resource UUID must be defined');
+                uuidList.push(resourceUuid);
+
+                await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
+                resource.meta.lastUpdated = new Date(
+                    moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+                );
+                await this.databaseBulkInserter.insertOneHistoryAsync({
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    doc: resource,
+                    skipResourceAssertion: true
+                });
+            }
+
+            // Add history before deletion
+            await this.databaseBulkInserter.executeHistoryAsync({
+                requestInfo,
+                base_version
+            })
+
+            query = {
+                _uuid: { $in: uuidList }
+            }
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
@@ -82,50 +107,15 @@ class RemoveHelper {
                 query
             });
             let deletedCount = 0;
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
-                 * @type {DatabasePartitionedCursor}
-                 */
-                const resourcesCursor = await databaseQueryManager.findAsync({
-                    query,
-                    options
-                });
-                // find the history collection for each
-                while (await resourcesCursor.hasNext()) {
-                    /**
-                     * @type {Resource|null}
-                     */
-                    const resource = await resourcesCursor.next();
-                    if (resource) {
-                        await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
-                        /**
-                         * @type {Resource}
-                         */
-                        const historyResource = resource.clone();
-                        historyResource.meta.lastUpdated = new Date(
-                            moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
-                        );
-                        this.databaseBulkInserter.insertOneHistoryAsync({
-                            requestInfo,
-                            base_version,
-                            resourceType,
-                            doc: historyResource
-                        });
-                    }
-                }
 
-                // Add history before deletion
-                await this.databaseBulkInserter.executeHistoryAsync({
-                    requestInfo,
-                    base_version
-                })
-
+            for (const collection of collections) {
                 /**
                  * @type {import('mongodb').DeleteResult}
                  */
                 const result = await collection.deleteMany(query, options);
                 deletedCount += result.deletedCount;
             }
+
             return { deletedCount, error: null };
         } catch (e) {
             throw new RethrownError({

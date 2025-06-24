@@ -413,16 +413,18 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {Resource} doc
      * @param {MergePatchEntry[]|null} patches
+     * @param {boolean} skipResourceAssertion Skip assertion for doc to be as instance of Resource
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches }) {
-        assertTypeEquals(doc, Resource);
+    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches, skipResourceAssertion = false }) {
+        if (!skipResourceAssertion) {
+            assertTypeEquals(doc, Resource);
+        }
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
         const userRequestId = requestInfo.userRequestId;
         const method = requestInfo.method;
         try {
-            assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
                 requestId,
                 resourceType,

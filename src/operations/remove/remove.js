@@ -180,7 +180,11 @@ class RemoveOperation {
             );
 
             res = await databaseQueryManager.findAsync({query});
-            const resourcesToDelete = {};
+            /**
+             * @type {string[]}
+             */
+            const resourceIdsToDelete = [];
+            let resourceArrayToDelete = [];
 
             while (await res.hasNext()) {
                 const resource = await res.next();
@@ -191,14 +195,8 @@ class RemoveOperation {
                         requestInfo, resource, base_version
                     });
 
-                    resourcesToDelete[resource._uuid] = {
-                        id: resource.id,
-                        _uuid: resource._uuid,
-                        _sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                        resourceType: resource.resourceType,
-                        created: false,
-                        deleted: true
-                    };
+                    resourceIdsToDelete.push(resource._uuid);
+                    resourceArrayToDelete.push(resource);
                 } catch (err) {
                     logWarn(`${user} with scope ${scope} is trying to delete ${resource.resourceType}/${resource.id}`);
                 }
@@ -208,12 +206,20 @@ class RemoveOperation {
              */
             res = await this.removeHelper.deleteManyAsync({
                 requestInfo,
-                query: {_uuid: {$in: Object.keys(resourcesToDelete)}},
+                resources: resourceArrayToDelete,
                 resourceType,
                 base_version
             });
 
-            Object.values(resourcesToDelete).forEach(data => {
+            Object.values(resourceArrayToDelete).forEach(r => {
+                const data = {
+                     id: r.id,
+                    _uuid: r._uuid,
+                    _sourceAssigningAuthority: r._sourceAssigningAuthority,
+                    resourceType: r.resourceType,
+                    created: false,
+                    deleted: true
+                }
                 logInfo('Resource Deleted', {
                     action: currentOperationName,
                     ...data
@@ -232,7 +238,7 @@ class RemoveOperation {
                                 resourceType,
                                 operation: 'delete',
                                 args: parsedArgs.getRawArgs(),
-                                ids: Object.keys(resourcesToDelete)
+                                ids: resourceIdsToDelete
                             }
                         );
                     }

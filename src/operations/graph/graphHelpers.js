@@ -2046,6 +2046,7 @@ class GraphHelper {
              */
             const startTime = Date.now();
             /**
+             * Raw Bundle
              * @type {Bundle}
              */
             const bundle = await this.processGraphAsync(
@@ -2067,6 +2068,7 @@ class GraphHelper {
             const deleteOperationBundleEntries = [];
             for (const entry of (bundle.entry || [])) {
                 /**
+                 * Raw Resource
                  * @type {Resource}
                  */
                 const resource = entry.resource;
@@ -2074,10 +2076,6 @@ class GraphHelper {
                  * @type {string}
                  */
                 const resultResourceType = resource.resourceType;
-                /**
-                 * @type {string[]}
-                 */
-                const idList = [resource._uuid];
 
                 await this.scopesValidator.verifyHasValidScopesAsync({
                     requestInfo,
@@ -2090,7 +2088,7 @@ class GraphHelper {
 
                 await this.removeHelper.deleteManyAsync({
                     requestInfo,
-                    query: {_uuid: {$in: idList}},
+                    resources: [resource],
                     base_version,
                     resourceType: resultResourceType
                 });
