@@ -16,13 +16,6 @@ const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
  */
 
 /**
- * @typedef DeleteManyResult
- * @type {object}
- * @property {number|null} deletedCount
- * @property {Error|null} error
- */
-
-/**
  * This class manages access to the database by finding the appropriate collection to use for the
  * provided resourceType
  */

@@ -703,16 +703,18 @@ class AdminPersonPatientLinkManager {
             };
         }
 
-        /**
-         * @type {{deletedCount: (number|null), error: (Error|null)}}
-         */
-        const result = await this.removeHelper.deleteManyAsync({
+        const deletedResourceCount = await this.removeHelper.deleteManyAsync({
             resources: [personToDelete],
             requestInfo,
             base_version,
             resourceType: 'Person'
         });
-        result.linksRemoved = parentPersonResponses;
+
+        const result = {
+            deletedCount: deletedResourceCount,
+            error: null,
+            linksRemoved: parentPersonResponses
+        };
 
         await this.postSaveProcessor.afterSaveAsync({
             requestId,
