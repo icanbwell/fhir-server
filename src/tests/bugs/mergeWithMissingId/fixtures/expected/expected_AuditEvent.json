@@ -6752,11 +6752,11 @@
       "tag": [
           {
               "system": "https://www.icanbwell.com/query",
-              "display": "db.AuditEvent_4_0_0_2022_09.find({'recorded':{'$gt':ISODate('2022-08-15T00:00:00.000Z'),'$lt':ISODate('2022-10-09T00:00:00.000Z')}}, {}).sort({'_uuid':1}).limit(100)"
+              "display": "db.AuditEvent_4_0_0.find({'recorded':{'$gt':ISODate('2022-08-15T00:00:00.000Z'),'$lt':ISODate('2022-10-09T00:00:00.000Z')}}, {}).sort({'_uuid':1}).limit(100)"
           },
           {
               "system": "https://www.icanbwell.com/queryCollection",
-              "code": "AuditEvent_4_0_0_2022_09"
+              "code": "AuditEvent_4_0_0"
           },
           {
               "system": "https://www.icanbwell.com/queryOptions",

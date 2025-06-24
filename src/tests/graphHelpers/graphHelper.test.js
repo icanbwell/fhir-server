@@ -208,7 +208,7 @@ describe('graphHelper Tests', () => {
             const cursor = await collection.find({
                 'practitioner._uuid': 'Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
             });
-            const doc = await cursor.nextObject();
+            const doc = await cursor.next();
             delete doc._id;
             expect(doc).toStrictEqual({
                 id: '10',
