@@ -15,6 +15,10 @@ const inactiveFemaleDoc = require('./fixtures/Practitioner/inactive-female-doc.j
 const patientWithEncounters = require('./fixtures/Patient/patient-with-encounters.json');
 const activeEncounter = require('./fixtures/Encounter/active-encounter.json');
 const finishedEncounter = require('./fixtures/Encounter/finished-encounter.json');
+const expectedPatientWithFilteredPractitioner= require('./fixtures/expected/expectedPatientWithFilteredPractitioner.json');
+const expectedPatientWithReverseLinkEncounters = require('./fixtures/expected/expectedPatientWithReverseLinkEncounters.json');
+const expectedPatientWithMultipleTargetPractitioners = require('./fixtures/expected/expectedPatientWithMultipleTargetPractitioners.json');
+const expectedPatientWithAllReferencedPractitioners = require('./fixtures/expected/expectedPatientWithAllReferencedPractitioners.json');
 
 describe('GraphOperation Forward Link with Params Tests', () => {
     beforeEach(async () => {
@@ -65,30 +69,8 @@ describe('GraphOperation Forward Link with Params Tests', () => {
 
             expect(resp).toBeDefined();
             expect(resp.body.resourceType).toBe('Bundle');
-            expect(resp.body.entry).toBeDefined();
 
-            // Should contain the patient
-            const patientEntries = resp.body.entry.filter(
-                (e) => e.resource.resourceType === 'Patient'
-            );
-            expect(patientEntries).toHaveLength(1);
-
-            // Should only contain the active male practitioner (filtered by target.params)
-            const practitionerEntries = resp.body.entry.filter(
-                (e) => e.resource.resourceType === 'Practitioner'
-            );
-            expect(practitionerEntries).toHaveLength(1);
-            expect(practitionerEntries[0].resource.id).toBe('active-male-doc');
-            expect(practitionerEntries[0].resource.active).toBe(true);
-            expect(practitionerEntries[0].resource.gender).toBe('male');
-
-            // Should NOT contain the inactive female practitioner
-            const inactiveFemaleEntry = resp.body.entry.find(
-                (e) =>
-                    e.resource.resourceType === 'Practitioner' &&
-                    e.resource.id === 'inactive-female-doc'
-            );
-            expect(inactiveFemaleEntry).toBeUndefined();
+            expect(resp).toHaveResponse(expectedPatientWithFilteredPractitioner);
         });
 
         test('should handle reverse link with target params and security filtering', async () => {
@@ -130,20 +112,8 @@ describe('GraphOperation Forward Link with Params Tests', () => {
             expect(resp).toBeDefined();
             expect(resp.body.resourceType).toBe('Bundle');
 
-            // Should contain the patient
-            const patientEntries = resp.body.entry.filter(
-                (e) => e.resource.resourceType === 'Patient'
-            );
-            expect(patientEntries).toHaveLength(1);
-            expect(patientEntries[0].resource.id).toBe('patient-with-encounters');
+            expect(resp).toHaveResponse(expectedPatientWithReverseLinkEncounters);
 
-            // Should only contain the active encounter (filtered by params)
-            const encounterEntries = resp.body.entry.filter(
-                (e) => e.resource.resourceType === 'Encounter'
-            );
-            expect(encounterEntries).toHaveLength(1);
-            expect(encounterEntries[0].resource.id).toBe('active-encounter');
-            expect(encounterEntries[0].resource.status).toBe('in-progress');
         });
 
         test('should handle multiple targets with different params', async () => {
@@ -190,14 +160,7 @@ describe('GraphOperation Forward Link with Params Tests', () => {
             expect(resp).toBeDefined();
             expect(resp.body.resourceType).toBe('Bundle');
 
-            // Should contain both practitioners: active male (matches active=true) and inactive female (matches gender=female)
-            const practitionerEntries = resp.body.entry.filter(
-                (e) => e.resource.resourceType === 'Practitioner'
-            );
-            expect(practitionerEntries).toHaveLength(2);
-
-            const practitionerIds = practitionerEntries.map(e => e.resource.id).sort();
-            expect(practitionerIds).toEqual(['active-male-doc', 'inactive-female-doc']);
+            expect(resp).toHaveResponse(expectedPatientWithMultipleTargetPractitioners);
         });
 
         test('should work without params (backward compatibility)', async () => {
@@ -239,11 +202,8 @@ describe('GraphOperation Forward Link with Params Tests', () => {
             expect(resp).toBeDefined();
             expect(resp.body.resourceType).toBe('Bundle');
 
-            // Should contain ALL referenced practitioners when no params filtering
-            const practitionerEntries = resp.body.entry.filter(
-                (e) => e.resource.resourceType === 'Practitioner'
-            );
-            expect(practitionerEntries).toHaveLength(2); // Both practitioners should be returned
+            expect(resp).toHaveResponse(expectedPatientWithAllReferencedPractitioners);
+
         });
     });
 });

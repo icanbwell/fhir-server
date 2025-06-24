@@ -614,45 +614,6 @@ class GraphHelper {
             let reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
             reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentResourceIdList.join(','));
 
-            if (params && Object.keys(params).length > 0) {
-                // Process params and replace placeholders
-                const processedParams = {};
-                for (const [key, value] of Object.entries(params)) {
-                    if (typeof value === 'string') {
-                        // Replace {ref} and {id} placeholders in param values
-                        let processedValue = value.replace('{ref}', parentResourceTypeAndIdList.join(','));
-                        processedValue = processedValue.replace('{id}', parentResourceIdList.join(','));
-                        processedParams[key] = processedValue;
-                    } else {
-                        processedParams[key] = value;
-                    }
-                }
-
-                // Parse existing parameters and new parameters, then merge without duplicates
-                const parseParams = (paramString) => {
-                    if (!paramString) return {};
-                    return Object.fromEntries(
-                        paramString.split('&')
-                            .filter(param => param.includes('='))
-                            .map(param => {
-                                const [key, value] = param.split('=').map(decodeURIComponent);
-                                return [key, value];
-                            })
-                    );
-                };
-
-                // Parse existing reverse_filter parameters
-                const existingParams = parseParams(reverseFilterWithParentIds);
-
-                // Merge parameters (existing params take precedence to preserve parent ID filters)
-                const mergedParams = { ...processedParams, ...existingParams };
-
-                // Reconstruct clean query string
-                reverseFilterWithParentIds = Object.entries(mergedParams)
-                    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-                    .join('&');
-            }
-
             /**
              * @type {ParsedArgs}
              */
