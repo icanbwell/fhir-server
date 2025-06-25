@@ -44,6 +44,7 @@ const {ConfigManager} = require('../utils/configManager');
 const {FhirResponseCsvStreamer} = require("../utils/fhirResponseCsvStreamer");
 const {FhirResponseExcelStreamer} = require("../utils/fhirResponseExcelStreamer");
 const {SummaryOperation} = require("./summary/summary");
+const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -693,22 +694,12 @@ class FhirOperationsManager {
                         requestId: req.id
                     }
                 );
-            } else if (hasCsvContentType(requestInfo.accept) || hasCsvContentType(parsedArgs._format)) {
-                responseStreamer = new FhirResponseCsvStreamer({
-                        response: res,
-                        requestId: req.id
-                    }
-                );
-            } else if (hasExcelContentType(requestInfo.accept) || hasExcelContentType(parsedArgs._format)) {
-                responseStreamer = new FhirResponseExcelStreamer({
-                        response: res,
-                        requestId: req.id
-                    }
-                );
             } else {
-                responseStreamer = new FhirResponseStreamer({
-                    response: res,
-                    requestId: req.id
+                responseStreamer = ResponseStreamerFactory.create({
+                    res,
+                    requestId: req.id,
+                    requestInfo,
+                    parsedArgs
                 });
             }
             // Start the response streamer
@@ -791,23 +782,12 @@ class FhirOperationsManager {
          * response streamer to use
          * @type {BaseResponseStreamer}
          */
-        let responseStreamer = new FhirResponseStreamer({
-            response: res,
-            requestId: req.id
+        let responseStreamer = ResponseStreamerFactory.create({
+            res,
+            requestId: req.id,
+            requestInfo,
+            parsedArgs
         });
-        if (hasCsvContentType(requestInfo.accept) || hasCsvContentType(parsedArgs._format)) {
-            responseStreamer = new FhirResponseCsvStreamer({
-                    response: res,
-                    requestId: req.id
-                }
-            );
-        } else if (hasExcelContentType(requestInfo.accept) || hasExcelContentType(parsedArgs._format)) {
-            responseStreamer = new FhirResponseExcelStreamer({
-                    response: res,
-                    requestId: req.id
-                }
-            );
-        }
 
         await responseStreamer.startAsync();
 
