@@ -1,4 +1,4 @@
-const dataElementsJson = require('../fhir/generator/json/fhir-generated.field-types.json');
+const dataElementsJson = require('../fhir/fhir-generated.field-types.json');
 const dataElementMap = new Map(Object.entries(dataElementsJson));
 const customDataElementsMap = new Map([
     [

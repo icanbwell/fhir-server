@@ -5,12 +5,14 @@ import os
 import shutil
 from os import path
 from pathlib import Path
-from typing import Union, List, Dict, Any
+from typing import Union, List
+import sys
 
-from fhir_xml_schema_parser import FhirXmlSchemaParser
-from search_parameters import search_parameter_queries
-from fhir_xml_schema_parser import FhirEntity
+# Add the project root to the Python path to resolve imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
+from generatorScripts.fhir_xml_schema_parser import FhirXmlSchemaParser, FhirEntity
 
 def my_copytree(
         src: Union[Path, str],
@@ -32,23 +34,24 @@ def my_copytree(
 
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
-    fhir_dir = Path(__file__).parent.joinpath("../")
-    classes_dir: Path = fhir_dir.joinpath("classes/4_0_0/")
+    fhir_dir = Path("src/fhir/")
+    serializers_dir: Path = fhir_dir.joinpath("serializers/4_0_0/")
+    template_name = 'template.javascript.class_serializer.index.jinja2'
 
     # clean out old stuff
-    classes_resources_folder = classes_dir.joinpath("resources")
-    indexFilePath = classes_resources_folder.joinpath("index.js")
+    serializers_resources_folder = serializers_dir.joinpath("resources")
+    indexFilePath = serializers_resources_folder.joinpath("index.js")
     if os.path.exists(indexFilePath):
         os.remove(indexFilePath)
 
-    classes_complex_types_folder = classes_dir.joinpath("complex_types")
-    complexTypeIndexFilePath = classes_complex_types_folder.joinpath("index.js")
+    serializers_complex_types_folder = serializers_dir.joinpath("complex_types")
+    complexTypeIndexFilePath = serializers_complex_types_folder.joinpath("index.js")
     if os.path.exists(complexTypeIndexFilePath):
         os.remove(complexTypeIndexFilePath)
 
     fhir_entities: List[FhirEntity] = [f for f in FhirXmlSchemaParser.generate_classes() if f.is_resource]
 
-    with open(data_dir.joinpath("template.javascript.class.index.jinja2"), "r") as file:
+    with open(data_dir.joinpath(template_name), "r") as file:
         template_contents = file.read()
         from jinja2 import Template
 
@@ -66,7 +69,7 @@ def main() -> int:
     fhir_entities: List[FhirEntity] = [f for f in FhirXmlSchemaParser.generate_classes()
                                        if f.type_ == "Element" and f.cleaned_name != "Resource"]
 
-    with open(data_dir.joinpath("template.javascript.class.index.jinja2"), "r") as file:
+    with open(data_dir.joinpath(template_name), "r") as file:
         template_contents = file.read()
         from jinja2 import Template
 

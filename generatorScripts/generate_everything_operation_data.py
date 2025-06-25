@@ -4,11 +4,17 @@
 from typing import Dict, Set, List, Union
 from pathlib import Path
 import json
-from fhir_xml_schema_parser import FhirEntity, FhirProperty, FhirXmlSchemaParser
 import copy
+import sys
 
-patient_graphs: Path = Path(__file__).parent.joinpath("./../../graphs/patient")
-everything_operation: Path = Path(__file__).parent.joinpath("./../../operations/everything")
+# Add the project root to the Python path to resolve imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from generatorScripts.fhir_xml_schema_parser import FhirEntity, FhirProperty, FhirXmlSchemaParser
+
+patient_graphs: Path = Path("src/graphs/patient")
+everything_operation: Path = Path("src/operations/everything")
 
 reference_type_list = FhirXmlSchemaParser.get_types_for_references(only_resources=True)
 resource_type_list = FhirXmlSchemaParser.get_list_of_resources()
@@ -328,7 +334,7 @@ def main():
 
     clinical_resources_for_graph_flow = clinical_resources
     # to prevent duplicate fields where reference type is 'Resource' as we have V2 with list of all resources
-    # src/fhir/generator/fhir_xml_schema_parser.py (line 985)
+    # generatorScripts/fhir_xml_schema_parser.py (line 985)
     clinical_resources_for_graph_flow.append("Resource")
 
     non_clinical_resource_fields_list = get_non_clinical_resources_fields(

@@ -83,7 +83,7 @@ def get_resources_fields_data():
 def main():
     fields_data = get_resources_fields_data()
 
-    json_file_path = data_dir.joinpath("json").joinpath(
+    json_file_path = Path('src/fhir/').joinpath(
         "fhir-generated.field-types.json"
     )
     with open(json_file_path, "w") as json_file:

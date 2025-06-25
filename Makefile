@@ -159,7 +159,8 @@ fix-lint:
 
 .PHONY:generate
 generate:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/services/generate_services.py"
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/generate_services.py" && \
+	eslint --fix "src/profiles.js"
 
 .PHONY:shell
 shell: ## Brings up the bash shell in dev docker
@@ -180,34 +181,33 @@ run-pre-commit: setup-pre-commit
 .PHONY:graphql
 graphql:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_graphql_classes.py" && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/graphql/generate_graphql_classes.py" && \
 	graphql-schema-linter src/graphql/**/*.graphql && \
 	eslint --fix "src/graphql/**/*.js"
 
 .PHONY:graphqlv2
 graphqlv2:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_graphqlv2_classes.py" && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/graphqlv2/generate_graphqlv2_classes.py" && \
 	graphql-schema-linter src/graphqlv2/**/*.graphql && \
 	eslint --fix "src/graphqlv2/**/*.js"
 
 .PHONY:classes
 classes:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_classes.py" && \
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_classes_index.py" && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/classes/generate_classes.py && python3 generatorScripts/classes/generate_classes_index.py" && \
 	eslint --fix "src/fhir/classes/**/*.js"
 
 .PHONY:searchParameters
 searchParameters:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/searchParameters/generate_search_parameters.py" && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/searchParameters/generate_search_parameters.py" && \
 	eslint --fix "src/middleware/fhir/resources/**/*.js" && \
 	eslint --fix "src/searchParameters/*.js"
 
 .PHONY:fastSerializers
 fastSerializers:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/fhir/generator/generate_serializers.py && python3 src/fhir/generator/generate_classes_serializer_index.py" && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/fastSerializers/generate_serializers.py && python3 generatorScripts/fastSerializers/generate_classes_serializer_index.py" && \
 	eslint --fix "src/fhir/serializers/4_0_0/**/*.js"
 
 .PHONY:audit_fix
@@ -221,19 +221,23 @@ qodana:
 
 .PHONY:schema
 schema:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_schema.py"
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml && cd app && python3 generatorScripts/generate_schema.py"
 
 .PHONY:everythingOperationData
 everythingOperationData:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_everything_operation_data.py"
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml && cd app && python3 generatorScripts/generate_everything_operation_data.py"
 
 .PHONY:resourceFieldTypes
 resourceFieldTypes:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_resource_fields_type.py"
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml && cd app && python3 generatorScripts/generate_resource_fields_type.py"
+
+.PHONY:getResourceReferencedBy
+getResourceReferencedBy:
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml && cd app && python3 generatorScripts/get_resource_referenced_by.py"
 
 .PHONY:dbSchema
 dbSchema:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml && python3 src/fhir/generator/generate_db_schema.py"
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml && cd app && python3 generatorScripts/db-schema/generate_db_schema.py"
 
 # useful for reflecting env update through docker-compose in fhir for local development
 .PHONY:restart_fhir

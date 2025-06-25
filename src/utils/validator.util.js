@@ -7,7 +7,7 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { validateReferences } = require('./referenceValidator');
 
-const generatedSchema = require('../fhir/generator/json/fhir-generated.schema.json');
+const generatedSchema = require('../fhir/fhir-generated.schema.json');
 
 /**
  * By default, ajv uses fhir.json.schema but only returns first error it finds.
