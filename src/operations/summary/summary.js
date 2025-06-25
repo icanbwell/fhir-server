@@ -199,6 +199,7 @@ class SummaryOperation {
                         bundleEntry: entry
                     });
                 }
+                // data was already written to the response streamer
                 return undefined;
             } else {
                 await this.fhirLoggingManager.logOperationSuccessAsync({

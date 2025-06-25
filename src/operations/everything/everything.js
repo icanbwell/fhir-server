@@ -280,6 +280,7 @@ class EverythingOperation {
                 action: currentOperationName
             });
             if (responseStreamer) {
+                // data was already streamed, so we return undefined
                 return undefined;
             } else {
                 return result;
