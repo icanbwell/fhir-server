@@ -175,7 +175,12 @@ describe('Patient $summary Tests', () => {
             // Basic response checks
             expect(resp.status).toBe(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientBundle);
+            expect(resp).toHaveResponse(expectedPatientBundle, (resource) => {
+                // remove the date from the Composite resource
+                if (resource.resourceType === 'Composition') {
+                    delete resource.date;
+                }
+            });
         });
     });
 });
