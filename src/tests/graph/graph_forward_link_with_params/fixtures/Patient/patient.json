@@ -1,0 +1,17 @@
+{
+  "resourceType": "Patient",
+  "id": "test-patient",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client"
+      }
+    ]
+  },
+  "generalPractitioner": [
+    { "reference": "Practitioner/active-male-doc" },
+    { "reference": "Practitioner/inactive-female-doc" }
+  ]
+}
