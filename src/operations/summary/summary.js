@@ -182,7 +182,7 @@ class SummaryOperation {
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources)
             });
             const builder = new ComprehensiveIPSCompositionBuilder();
-            const timezone = 'America/New_York';
+            const timezone = this.configManager.serverTimeZone;
             const summaryBundle = builder.read_bundle(
                 result,
                 timezone

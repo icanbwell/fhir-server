@@ -828,6 +828,14 @@ class ConfigManager {
     get cacheExpiryTime() {
         return env.CACHE_EXPIRY_TIME ? parseInt(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME; // 1 hour
     }
+
+    /**
+     * returns the server time zone
+     * @returns {string}
+     */
+    get serverTimeZone() {
+        return env.SERVER_TIME_ZONE || 'America/New_York';
+    }
 }
 
 module.exports = {
