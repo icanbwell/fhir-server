@@ -193,12 +193,12 @@ class SummaryOperation {
                 timezone
             );
             if (responseStreamer) {
-                responseStreamer.streamResponse({
-                    requestInfo,
-                    res,
-                    resourceType,
-                    bundle: summaryBundle
-                });
+                responseStreamer.setBundle({bundle: summaryBundle});
+                for (const entry of summaryBundle.entry) {
+                    await responseStreamer.writeBundleEntryAsync({
+                        bundleEntry: entry
+                    });
+                }
             }
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
