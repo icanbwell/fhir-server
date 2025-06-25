@@ -177,7 +177,7 @@ class SummaryOperation {
                 res,
                 parsedArgs,
                 resourceType,
-                responseStreamer: null,
+                responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
                 supportLegacyId,
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources)
             });
@@ -199,15 +199,17 @@ class SummaryOperation {
                         bundleEntry: entry
                     });
                 }
+                return undefined;
+            } else {
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
+                return summaryBundle;
             }
-            await this.fhirLoggingManager.logOperationSuccessAsync({
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName
-            });
-            return summaryBundle;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
