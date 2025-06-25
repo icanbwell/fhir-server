@@ -199,6 +199,13 @@ class SummaryOperation {
                         bundleEntry: entry
                     });
                 }
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
                 // data was already written to the response streamer
                 return undefined;
             } else {
