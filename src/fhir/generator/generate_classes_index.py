@@ -30,26 +30,6 @@ def my_copytree(
         else:
             shutil.copy2(s, d)
 
-
-def clean_duplicate_lines(file_path: Union[Path, str]) -> None:
-    print(f"Removing duplicate lines from {file_path}")
-    with open(file_path, "r") as file:
-        lines: List[str] = file.readlines()
-    new_lines: List[str] = []
-    for line in lines:
-        if (
-            not line.strip() 
-            or not line.lstrip().startswith("from") 
-            or (
-                line not in new_lines 
-                and line.lstrip() not in [c.lstrip() for c in new_lines]
-            )
-        ):
-            new_lines.append(line)
-    with open(file_path, "w") as file:
-        file.writelines(new_lines)
-
-
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
     fhir_dir = Path(__file__).parent.joinpath("../")

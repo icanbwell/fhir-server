@@ -1,0 +1,130 @@
+{
+    "resourceType": "Bundle",
+    "type": "history",
+    "timestamp": "2025-06-23T12:35:35.3535Z",
+    "total": 2,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Patient/2/_history"
+        }
+    ],
+    "entry": [
+        {
+            "id": "941f082a-39a9-5f55-9630-5839a010e1bc",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "2",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-06-23T12:35:35.603Z",
+                    "source": "http://clienthealth.org/provider",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "2"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "941f082a-39a9-5f55-9630-5839a010e1bc"
+                    }
+                ],
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "t",
+                        "family": "PATIENT1",
+                        "given": [
+                            "SHYLA"
+                        ]
+                    }
+                ],
+                "gender": "female",
+                "birthDate": "2017-01-01"
+            },
+            "request": {
+                "id": "54b052c7-ce3d-4580-90f9-6f800b6c34e5",
+                "method": "POST",
+                "url": "/4_0_0/Patient/2"
+            }
+        },
+        {
+            "id": "941f082a-39a9-5f55-9630-5839a010e1bc",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "2",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-06-23T12:35:35.650Z",
+                    "source": "http://clienthealth.org/provider",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "2"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "941f082a-39a9-5f55-9630-5839a010e1bc"
+                    }
+                ],
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "t",
+                        "family": "PATIENT1",
+                        "given": [
+                            "SHYLA"
+                        ]
+                    }
+                ],
+                "gender": "female",
+                "birthDate": "2017-01-01"
+            },
+            "request": {
+                "id": "89dbb394-4cd1-4419-b32e-7e7160d15f95",
+                "method": "DELETE",
+                "url": "/4_0_0/Patient/2"
+            }
+        }
+    ]
+}

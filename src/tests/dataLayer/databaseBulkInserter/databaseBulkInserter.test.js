@@ -277,7 +277,7 @@ describe('databaseBulkInserter Tests', () => {
             const mockBulkWrite = jest.spyOn(Collection.prototype, 'bulkWrite');
 
             mockBulkWrite.mockImplementation((operations) => {
-                throw new MongoInvalidArgumentError(MONGO_ERROR.RESOURCE_SIZE_EXCCCEDS);
+                throw new MongoInvalidArgumentError(MONGO_ERROR.RESOURCE_SIZE_EXCEEDS);
             });
 
             /**

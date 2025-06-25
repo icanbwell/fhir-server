@@ -48,8 +48,7 @@ const {NestedPropertyReader} = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
 const {SearchBundleOperation} = require('../search/searchBundle');
-const {DatabasePartitionedCursor} = require('../../dataLayer/databasePartitionedCursor');
-const {ForbiddenError} = require("../../utils/httpErrors");
+const { RemoveHelper } = require('../remove/removeHelper');
 const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
 const nonClinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['nonClinicalResources'];
 
@@ -72,6 +71,7 @@ class GraphHelper {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchParametersManager} searchParametersManager
      * @param {SearchBundleOperation} searchParametersOperation
+     * @param {RemoveHelper} removeHelper
      */
     constructor({
                     databaseQueryFactory,
@@ -87,7 +87,8 @@ class GraphHelper {
                     r4ArgsParser,
                     databaseAttachmentManager,
                     searchParametersManager,
-                    searchBundleOperation
+                    searchBundleOperation,
+                    removeHelper
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -169,6 +170,12 @@ class GraphHelper {
          */
         this.searchBundleOperation = searchBundleOperation;
         assertTypeEquals(searchBundleOperation, SearchBundleOperation);
+
+        /**
+         * @type {RemoveHelper}
+         */
+        this.removeHelper = removeHelper;
+        assertTypeEquals(removeHelper, RemoveHelper);
     }
 
     /**
@@ -285,7 +292,8 @@ class GraphHelper {
                                         parsedArgs,
                                         explain,
                                         debug,
-                                        supportLegacyId = true
+                                        supportLegacyId = true,
+                                        params = {}
                                     }) {
         try {
             if (!parentEntities || parentEntities.length === 0 || !isValidResource(resourceType)) {
@@ -336,9 +344,18 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
+            // Start with base args and add the id parameter
             const args = Object.assign({
-                base_version, _includeHidden: parsedArgs._includeHidden
-            }, {id: relatedReferenceIds.join(',')});
+                base_version,
+                _includeHidden: parsedArgs._includeHidden,
+                id: relatedReferenceIds.join(',')
+            });
+
+            // Apply additional params if provided
+            if (params && Object.keys(params).length > 0) {
+                Object.assign(args, params);
+            }
+
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
                     resourceType,
@@ -485,7 +502,8 @@ class GraphHelper {
                     filterProperty,
                     filterValue,
                     explain,
-                    debug
+                    debug,
+                    params
                 }
             });
         }
@@ -542,7 +560,8 @@ class GraphHelper {
                                         parsedArgs,
                                         supportLegacyId = true,
                                         proxyPatientIds = [],
-                                        proxyPatientResources = []
+                                        proxyPatientResources = [],
+                                        params = {}
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -601,6 +620,7 @@ class GraphHelper {
              */
             let reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
             reverseFilterWithParentIds = reverseFilterWithParentIds.replace('{id}', parentResourceIdList.join(','));
+
             /**
              * @type {ParsedArgs}
              */
@@ -914,6 +934,7 @@ class GraphHelper {
         return {filterProperty, filterValue, property};
     }
 
+
     /**
      * process a link
      * @param {FhirRequestInfo} requestInfo
@@ -986,6 +1007,13 @@ class GraphHelper {
                         action: 'graph',
                         accessRequested: 'read'
                     })) {
+                        let targetParams = {};
+
+                        // Parse target-level params
+                        if (target.params) {
+                            targetParams = this.parseTargetParams(target.params);
+                        }
+
                         /**
                          * @type {QueryItem}
                          */
@@ -1001,7 +1029,9 @@ class GraphHelper {
                                 explain,
                                 debug,
                                 supportLegacyId,
-                                parsedArgs
+                                parsedArgs,
+                                params: targetParams
+
                             }
                         );
                         if (queryItem) {
@@ -1032,6 +1062,12 @@ class GraphHelper {
                     }
                 }
             } else if (target.params) { // reverse link
+                let targetParams = {};
+                // Parse target-level params
+                if (target.params) {
+                    targetParams = this.parseTargetParams(target.params);
+                }
+
                 if (target.type) { // if caller has requested this entity or just wants a nested entity
                     // reverse link
                     if (this.scopesValidator.hasValidScopes({
@@ -1064,7 +1100,8 @@ class GraphHelper {
                                 supportLegacyId,
                                 proxyPatientIds,
                                 proxyPatientResources,
-                                parsedArgs
+                                parsedArgs,
+                                params: targetParams
                             }
                         );
                         if (queryItem) {
@@ -1134,6 +1171,30 @@ class GraphHelper {
                 }
             });
         }
+    }
+
+    /**
+     * Parses link params string into an object of search parameters
+     * @param {string|undefined} paramsString - Parameters string like "status=active&date=ge2023-01-01"
+     * @returns {Object} - Object with parsed parameters
+     */
+    parseTargetParams(paramsString) {
+        if (!paramsString || typeof paramsString !== 'string') {
+            return {};
+        }
+
+        const params = {};
+        try {
+            // Handle URL query string format
+            const searchParams = new URLSearchParams(paramsString);
+            for (const [key, value] of searchParams) {
+                params[key] = value;
+            }
+        } catch (error) {
+            logError(`Error parsing link params: ${paramsString}`, {error});
+        }
+
+        return params;
     }
 
     /**
@@ -2039,6 +2100,7 @@ class GraphHelper {
              */
             const startTime = Date.now();
             /**
+             * Raw Bundle
              * @type {Bundle}
              */
             const bundle = await this.processGraphAsync(
@@ -2060,6 +2122,7 @@ class GraphHelper {
             const deleteOperationBundleEntries = [];
             for (const entry of (bundle.entry || [])) {
                 /**
+                 * Raw Resource
                  * @type {Resource}
                  */
                 const resource = entry.resource;
@@ -2067,17 +2130,7 @@ class GraphHelper {
                  * @type {string}
                  */
                 const resultResourceType = resource.resourceType;
-                /**
-                 * @type {string[]}
-                 */
-                const idList = [resource._uuid];
-                /**
-                 * @type {DatabaseQueryManager}
-                 */
-                const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                    resourceType: resultResourceType,
-                    base_version
-                });
+
                 await this.scopesValidator.verifyHasValidScopesAsync({
                     requestInfo,
                     parsedArgs,
@@ -2087,9 +2140,11 @@ class GraphHelper {
                     startTime
                 });
 
-                await databaseQueryManager.deleteManyAsync({
-                    requestId: requestInfo.requestId,
-                    query: {_uuid: {$in: idList}}
+                await this.removeHelper.deleteManyAsync({
+                    requestInfo,
+                    resources: [resource],
+                    base_version,
+                    resourceType: resultResourceType
                 });
 
                 // for testing with delay
