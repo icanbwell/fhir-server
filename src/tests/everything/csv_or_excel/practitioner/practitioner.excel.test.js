@@ -16,7 +16,7 @@ const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals')
 const fs = require("node:fs");
 const {fhirContentTypes} = require("../../../../utils/contentTypes");
 
-describe('Practitioner $summary Tests with Excel content', () => {
+describe('Practitioner $everything Tests with Excel content', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -25,8 +25,8 @@ describe('Practitioner $summary Tests with Excel content', () => {
         await commonAfterEach();
     });
 
-    describe('Practitioner $summary Tests', () => {
-        test('Practitioner $summary works with Accepts header', async () => {
+    describe('Practitioner $everything Tests', () => {
+        test('Practitioner $everything works with Accepts header', async () => {
             const request = await createTestRequest();
             // ARRANGE
             let resp = await request
@@ -66,7 +66,7 @@ describe('Practitioner $summary Tests with Excel content', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Practitioner/1679033641/$summary?_debug=true')
+                .get('/4_0_0/Practitioner/1679033641/$everything?_debug=true')
                 .set(getHeadersExcel())
                 .responseType('blob'); // Important for binary data
 
@@ -130,7 +130,7 @@ describe('Practitioner $summary Tests with Excel content', () => {
                 expect(matchingFile).toBeTruthy();
             });
         });
-        test('Practitioner $summary works with _format', async () => {
+        test('Practitioner $everything works with _format', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // ARRANGE
@@ -171,7 +171,7 @@ describe('Practitioner $summary Tests with Excel content', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Practitioner/1679033641/$summary?_debug=true')
+                .get('/4_0_0/Practitioner/1679033641/$everything?_debug=true')
                 .set(getHeadersExcel())
                 .responseType('blob'); // Important for binary data
 
