@@ -1,0 +1,5 @@
+{
+  "resourceType": "Bundle",
+  "id": "expected-patient-bundle",
+  "type": "searchset"
+}

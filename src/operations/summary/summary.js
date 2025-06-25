@@ -177,7 +177,7 @@ class SummaryOperation {
                 res,
                 parsedArgs,
                 resourceType,
-                responseStreamer,
+                responseStreamer: null,
                 supportLegacyId,
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources)
             });
@@ -192,6 +192,14 @@ class SummaryOperation {
                 'https://bwell.com/summary',
                 timezone
             );
+            if (responseStreamer) {
+                responseStreamer.streamResponse({
+                    requestInfo,
+                    res,
+                    resourceType,
+                    bundle: summaryBundle
+                });
+            }
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
