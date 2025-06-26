@@ -142,7 +142,7 @@ For security, we use the same mechanism for both REST and GraphQL. There are two
 
 ### Code Generation
 
-We use a code generator to read the FHIR schema and generate the GraphQLv2 schema and resolvers. This code generator is in https://github.com/icanbwell/fhir-server/blob/master/src/fhir/generator/generate_graphqlv2_classes.py and can be run by typing the command `make graphqlv2`.
+We use a code generator to read the FHIR schema and generate the GraphQLv2 schema and resolvers. This code generator is in https://github.com/icanbwell/fhir-server/blob/master/generatorScripts/graphqlv2/generate_graphqlv2_classes.py and can be run by typing the command `make graphqlv2`.
 
 In the https://github.com/icanbwell/fhir-server/tree/master/src/graphqlv2/schemas folder each FHIR entity has its own GraphQL schema file. The schema.graphql file is the top level schema element.
 In the https://github.com/icanbwell/fhir-server/tree/master/src/graphqlv2/resolvers folder each FHIR resource has its own GraphQL resolver file. The resolvers.js merges all the resolvers together.
@@ -889,7 +889,7 @@ query {
 ### Support for mutations are removed from GraphQLv2
 
 ### In GraphQLv2, the resource names are now updated with their plurals for top level.
-Complete mapping for plural names of resources can be found [here](https://github.com/icanbwell/fhir-server/blob/main/src/fhir/generator/fhir_xml_schema_parser.py#L117).
+Complete mapping for plural names of resources can be found [here](https://github.com/icanbwell/fhir-server/blob/main/generatorScripts/fhir_xml_schema_parser.py#L117).
 Additionally field names of [patient custom queries](https://github.com/icanbwell/fhir-server/blob/main/src/graphqlv2/schemas/custom/patient.graphql) for fetching linked clinical resources are also updated to their plural names.
 
 GraphQLv1:

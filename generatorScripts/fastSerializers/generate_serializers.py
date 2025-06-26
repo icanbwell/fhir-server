@@ -6,10 +6,15 @@ import shutil
 from os import path
 from pathlib import Path
 from typing import Union, List, Dict, Any
+import sys
 
-from fhir_xml_schema_parser import FhirXmlSchemaParser
-from search_parameters import search_parameter_queries
-from fhir_xml_schema_parser import FhirEntity
+# Add the project root to the Python path to resolve imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from generatorScripts.fhir_xml_schema_parser import FhirXmlSchemaParser
+from generatorScripts.search_parameters import search_parameter_queries
+from generatorScripts.fhir_xml_schema_parser import FhirEntity
 
 
 def my_copytree(
@@ -32,7 +37,7 @@ def my_copytree(
 
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
-    fhir_dir = Path(__file__).parent.joinpath("../")
+    fhir_dir = Path("src/fhir/")
     serializers_dir: Path = fhir_dir.joinpath("serializers/4_0_0/")
     serializer_template_file_name = 'template.javascript.class_serializer.jinja2'
     

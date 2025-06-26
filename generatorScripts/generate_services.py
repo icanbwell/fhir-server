@@ -33,7 +33,7 @@ def main() -> int:
                  'TerminologyCapabilities', 'TestReport', 'TestScript', 'ValueSet', 'VerificationResult',
                  'VisionPrescription']
 
-    data_dir: Path = Path(__file__).parent.joinpath('./')
+    data_dir: Path = Path('src/services/')
 
     collection_entries = {}
     config_entries = []

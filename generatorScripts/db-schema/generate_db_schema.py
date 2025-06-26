@@ -2,13 +2,17 @@ import os
 import json
 import shutil
 from pathlib import Path
+import sys
 
-from fhir_xml_schema_parser import FhirProperty, FhirXmlSchemaParser
+# Add the project root to the Python path to resolve imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from generatorScripts.fhir_xml_schema_parser import FhirProperty, FhirXmlSchemaParser
 
 data_dir: Path = (
     Path(__file__)
     .parent.joinpath("./")
-    .joinpath("json")
     .joinpath("fhir-generated.db-schema")
 )
 

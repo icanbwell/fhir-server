@@ -285,7 +285,7 @@ def main():
     
     schema = fhir_parser.get_schema(); 
 
-    json_file_path = data_dir.joinpath('json').joinpath('fhir-generated.schema.json')
+    json_file_path = Path("src/fhir/").joinpath('fhir-generated.schema.json')
     with open(json_file_path, 'w') as json_file:
         json.dump(schema, json_file, indent=2)
         json_file.write('\n')

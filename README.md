@@ -21,58 +21,58 @@ For example:
 
 ## Cheat sheet
 
-[Cheatsheet](cheatsheet.md)
+[Cheatsheet](readme/cheatsheet.md)
 
 ## Security
 
-[Security](security.md)
+[Security](readme/security.md)
 
 ## Optimizing Performance
 
-[Performance](performance.md)
+[Performance](readme/performance.md)
 
 ## FHIR GraphDefinition Support (We recommend using graphql below whenever possible instead)
 
-[Graph](graph.md)
+[Graph](readme/graph.md)
 
 ## GraphQL Support
 
-[GraphQL](graphql.md)
+[GraphQL](readme/graphql.md)
 
 ## GraphQLV2 Support
 
-[GraphQLV2](graphqlV2.md)
+[GraphQLV2](readme/graphqlV2.md)
 
 ## Merge functionality
 
-[Merge](merge.md)
+[Merge](readme/merge.md)
 
 ## $everything functionality
 
-[Everything](everything.md)
+[Everything](readme/everything.md)
 
 ## Patient $everything
 
-[Patient $everything](patientEverything.md)
+[Patient $everything](readme/patientEverything.md)
 
 ## Patient Data View Control
 
-[Patient Data View Control](patientDataViewControl.md)
+[Patient Data View Control](readme/patientDataViewControl.md)
 
 ## Streaming functionality
 
-[Streaming](streaming.md)
+[Streaming](readme/streaming.md)
 
 ## Bulk Export functionality
 
-[Bulk Export](export.md)
+[Bulk Export](readme/export.md)
 
 ## Proxy Patient
 
-[Proxy Patient](proxyPatient.md)
+[Proxy Patient](readme/proxyPatient.md)
 
 ## Optimistic Concurrency Support
-[Optimistic Concurrency](concurrency.md)
+[Optimistic Concurrency](readme/concurrency.md)
 
 ## Contributing
 
@@ -80,7 +80,7 @@ For example:
 
 ## Status Codes
 
-[Status Codes](statusCodes.md)
+[Status Codes](readme/statusCodes.md)
 
 ## Continous Integration
 
@@ -112,12 +112,12 @@ Use `/health` as the url for health check in Kubernetes or other systems
 ## Change Events
 
 The FHIR server can optionally send change events to a Kafka queue:
-[Change Events](changeEvents.md)
+[Change Events](readme/changeEvents.md)
 
 ## Download Patient (or Person or Practioner) Summary
 This b.well FHIR server supports the $summary operation for the Patient, Person, and Practitioner resources. This operation allows you to retrieve a summary of a patient's information in a single request.
-[download_summary.md](download_summary.md)
+[download_summary.md](readme/download_summary.md)
 
 ## Download Search Results as Microsoft Excel file
 In addition to receiving search results in JSON format, you can also download the search results in Microsoft Excel format. To do this, you can use the following URL:
-[download_results.md](download_results.md)
+[download_results.md](readme/download_results.md)
