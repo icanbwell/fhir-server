@@ -4,6 +4,7 @@ const patient2Resource = require('./fixtures/patient/patient2.json');
 
 // expected
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
+const expectedDeletedPatientHistory = require('./fixtures/expected/expected_deleted_patient_history.json');
 
 const {
     commonBeforeEach,
@@ -68,6 +69,9 @@ describe('Practitioner Delete Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);
+
+            resp = await request.get('/4_0_0/Patient/2/_history').set(getHeaders()).expect(200);
+            expect(resp).toHaveResponse(expectedDeletedPatientHistory);
         });
     });
 });

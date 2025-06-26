@@ -2,7 +2,7 @@ class GetCursorResult {
     /**
      *
      * @param {number | null} cursorBatchSize
-     * @param {DatabasePartitionedCursor|null} cursor
+     * @param {DatabaseCursor|null} cursor
      * @param {string | null} indexHint
      * @param {boolean} useTwoStepSearchOptimization
      * @param {Set} columns
@@ -33,7 +33,7 @@ class GetCursorResult {
          */
         this.cursorBatchSize = cursorBatchSize;
         /**
-         * @type {DatabasePartitionedCursor|null}
+         * @type {DatabaseCursor|null}
          */
         this.cursor = cursor;
         /**

@@ -1,6 +1,5 @@
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { assertTypeEquals } = require('../../utils/assertType');
-const { YearMonthPartitioner } = require('../../partitioners/yearMonthPartitioner');
 const moment = require('moment-timezone');
 const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { IndexManager } = require('../../indexes/indexManager');
@@ -175,10 +174,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     break;
                 }
                 this.adminLogger.logInfo(`From=${recordedAfterForLoop.utc().toISOString()} to=${recordedBeforeForLoop.utc().toISOString()}`);
-                const destinationCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth({
-                    fieldValue: recordedAfterForLoop.utc().toISOString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
-                });
+                const destinationCollectionName = "AuditEvent_4_0_0";
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */

@@ -507,7 +507,7 @@ class DataSharingManager {
         const patientsList = [];
 
         while (await cursor.hasNext()) {
-            const patient = await cursor.next();
+            const patient = await cursor.nextObject();
             patientsList.push(patient);
         }
         return patientsList;

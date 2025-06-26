@@ -57,7 +57,7 @@ async function main () {
     );
 
     /**
-     * @type {PartitionAuditEventRunner}
+     * @type {CopyToV3Runner}
      */
     const processUpdateFhirRunner = container.processCopyToV3Runner;
     await processUpdateFhirRunner.processAsync();

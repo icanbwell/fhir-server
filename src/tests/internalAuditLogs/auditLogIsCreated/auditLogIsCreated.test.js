@@ -19,7 +19,6 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
 const { AuditLogger } = require('../../../utils/auditLogger');
 
 const headers = getHeaders('patient/*.* user/*.* access/*.*');
@@ -84,24 +83,17 @@ describe('InternalAuditLog Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            const base_version = '4_0_0';
-            const collection_name = process.env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
-            const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             /**
              * @type {string}
              */
-            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-                {
-                    fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: `${collection_name}_${base_version}`
-                });
+            const mongoCollectionName = "AuditEvent_4_0_0";
             /**
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const auditEventCollection = auditEventDb.collection(mongoCollectionName);
             // no audit logs should be created since there were no resources returned
-            expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(0);
+            expect(await auditEventCollection.countDocuments()).toStrictEqual(0);
 
             // now add a record
             resp = await request
@@ -113,7 +105,7 @@ describe('InternalAuditLog Tests', () => {
 
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
-            let logs = await internalAuditEventCollection.find({}).toArray();
+            let logs = await auditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
             logs.forEach((log) => {
                 delete log.meta.lastUpdated;
@@ -145,7 +137,7 @@ describe('InternalAuditLog Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
-            logs = await internalAuditEventCollection.find({}).toArray();
+            logs = await auditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach((log) => {
                 delete log.meta.lastUpdated;
@@ -167,7 +159,7 @@ describe('InternalAuditLog Tests', () => {
 
             // confirm no audit event log is created in the normal auditEventDb
             expect(
-                (await fhirDb.collection(collection_name).find({}).toArray()).length
+                (await fhirDb.collection(mongoCollectionName).find({}).toArray()).length
             ).toStrictEqual(0);
 
             // try to merge the same item again. No audit event should be created
@@ -180,7 +172,7 @@ describe('InternalAuditLog Tests', () => {
 
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
-            logs = await internalAuditEventCollection.find({}).toArray();
+            logs = await auditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach((log) => {
                 delete log.meta.lastUpdated;
@@ -208,7 +200,7 @@ describe('InternalAuditLog Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             // one audit log should be created
-            logs = await internalAuditEventCollection.find({}).toArray();
+            logs = await auditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(3);
             logs.forEach((log) => {
                 delete log.meta.lastUpdated;
@@ -266,24 +258,18 @@ describe('InternalAuditLog Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            const base_version = '4_0_0';
-            const collection_name = process.env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             /**
              * @type {string}
              */
-            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-                {
-                    fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: `${collection_name}_${base_version}`
-                });
+            const mongoCollectionName = "AuditEvent_4_0_0";
             /**
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const auditEventCollection = auditEventDb.collection(mongoCollectionName);
 
-            // Creating audit event, but it should not be created.
+            // Creating audit event, should not create internal Audit log.
             let resp = await request
                 .post('/4_0_0/AuditEvent/$merge')
                 .send(auditEvent)
@@ -293,8 +279,8 @@ describe('InternalAuditLog Tests', () => {
 
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
-            let logs = await internalAuditEventCollection.find({}).toArray();
-            expect(logs.length).toStrictEqual(0);
+            let logs = await auditEventCollection.find({}).toArray();
+            expect(logs.length).toStrictEqual(1);
 
             // Creating audit event with patients scope, 200 should be received but object not created
             resp = await request
@@ -316,8 +302,8 @@ describe('InternalAuditLog Tests', () => {
 
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
-            logs = await internalAuditEventCollection.find({}).toArray();
-            expect(logs.length).toStrictEqual(1);
+            logs = await auditEventCollection.find({}).toArray();
+            expect(logs.length).toStrictEqual(2);
 
             // No audit event must be fetched when using patients scope
             const currentDate = fieldDate.toISOString().split('T')[0];
@@ -328,9 +314,9 @@ describe('InternalAuditLog Tests', () => {
 
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
-            logs = await internalAuditEventCollection.find({}).toArray();
+            logs = await auditEventCollection.find({}).toArray();
             // No new audit event must be created as nothing is fetched
-            expect(logs.length).toStrictEqual(1);
+            expect(logs.length).toStrictEqual(2);
         });
     });
 });

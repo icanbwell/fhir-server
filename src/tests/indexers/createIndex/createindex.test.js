@@ -1,6 +1,5 @@
 const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
 const { IndexProvider } = require('../../../indexes/indexProvider');
 
 const { customIndexes } = require('./mockCustomIndexes');
@@ -240,7 +239,7 @@ describe('Create Index Tests', () => {
                 }
             );
         });
-        test('createIndex works for AuditEvent partitioned table', async () => {
+        test('createIndex works for AuditEvent table', async () => {
             /**
              * @type {SimpleContainer}
              */
@@ -259,12 +258,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            const collectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-                {
-                    fieldValue: (new Date()).toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
-                }
-            );
+            const collectionName = "AuditEvent_4_0_0";
             /**
              * mongo collection
              * @type {import('mongodb').Collection}
@@ -627,7 +621,7 @@ describe('Create Index Tests', () => {
                 }
             );
         });
-        test('createIndex works for AuditEvent partitioned table', async () => {
+        test('createIndex works for AuditEvent table', async () => {
             /**
              * @type {SimpleContainer}
              */
@@ -646,12 +640,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            const collectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-                {
-                    fieldValue: (new Date()).toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
-                }
-            ) + '_History';
+            const collectionName = 'AuditEvent_4_0_0_History';
             /**
              * mongo collection
              * @type {import('mongodb').Collection}

@@ -48,7 +48,6 @@ const {BundleManager} = require('./operations/common/bundleManager');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ResourceMerger} = require('./operations/common/resourceMerger');
 const {ResourceValidator} = require('./operations/common/resourceValidator');
-const {PartitioningManager} = require('./partitioners/partitioningManager');
 const {ConfigManager} = require('./utils/configManager');
 const {AccessIndexManager} = require('./operations/common/accessIndexManager');
 const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
@@ -119,6 +118,8 @@ const {READ} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
+const { RemoveHelper } = require('./operations/remove/removeHelper');
+
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
@@ -249,11 +250,6 @@ const createContainer = function () {
         proaConsentManager: c.proaConsentManager,
         requestSpecificCache: c.requestSpecificCache
     }));
-    container.register('partitioningManager', (c) => new PartitioningManager(
-        {
-            configManager: c.configManager,
-            mongoDatabaseManager: c.mongoDatabaseManager
-        }));
     container.register('indexProvider', (c) => new IndexProvider({
         configManager: c.configManager
     }));
@@ -279,7 +275,6 @@ const createContainer = function () {
     container.register('resourceLocatorFactory', (c) => new ResourceLocatorFactory(
         {
             mongoCollectionManager: c.mongoCollectionManager,
-            partitioningManager: c.partitioningManager,
             mongoDatabaseManager: c.mongoDatabaseManager
         }));
 
@@ -468,7 +463,8 @@ const createContainer = function () {
                 r4ArgsParser: c.r4ArgsParser,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 searchParametersManager: c.searchParametersManager,
-                searchBundleOperation: c.searchBundleOperation
+                searchBundleOperation: c.searchBundleOperation,
+                removeHelper: c.removeHelper
             }
         )
     );
@@ -592,6 +588,13 @@ const createContainer = function () {
         everythingHelper: c.everythingHelper
     }));
 
+    container.register('removeHelper', c => new RemoveHelper({
+        databaseBulkInserter: c.databaseBulkInserter,
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseAttachmentManager: c.databaseAttachmentManager
+    }));
+
     container.register('removeOperation', (c) => new RemoveOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
@@ -601,7 +604,8 @@ const createContainer = function () {
             configManager: c.configManager,
             queryRewriterManager: c.queryRewriterManager,
             postRequestProcessor: c.postRequestProcessor,
-            searchManager: c.searchManager
+            searchManager: c.searchManager,
+            removeHelper: c.removeHelper
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -794,7 +798,8 @@ const createContainer = function () {
         databaseUpdateFactory: c.databaseUpdateFactory,
         fhirOperationsManager: c.fhirOperationsManager,
         postSaveProcessor: c.postSaveProcessor,
-        patientFilterManager: c.patientFilterManager
+        patientFilterManager: c.patientFilterManager,
+        removeHelper: c.removeHelper
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({

@@ -515,7 +515,7 @@ class ResourceValidator {
             /**
              * @type {Resource}
              */
-            const profileJson = await cursor.next();
+            const profileJson = await cursor.nextObject();
             const profileUrl = profileJson.url;
             profileJsonToUpdate.push({profileJson: profileJson.toJSON(), profileUrl});
             profilesToFetchFromRemote.delete(profileUrl);

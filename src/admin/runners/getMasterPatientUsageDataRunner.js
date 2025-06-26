@@ -82,16 +82,13 @@ class GetMasterPatientUsageDataRunner extends BaseBulkOperationRunner {
                 base_version: '4_0_0'
             });
 
-            /**
-             * @type {import('../../dataLayer/databasePartitionedCursor').DatabasePartitionedCursor}
-             */
             const cursor = await databaseQueryManager.findAsync({
                 query,
                 options
             });
 
             while (await cursor.hasNext()) {
-                const doc = await cursor.nextRaw();
+                const doc = await cursor.next();
                 this.masterPatientUuids.add(doc._uuid);
             }
             this.adminLogger.logInfo('Master patient uuids fetched');
@@ -193,16 +190,13 @@ class GetMasterPatientUsageDataRunner extends BaseBulkOperationRunner {
                 base_version: '4_0_0'
             });
 
-            /**
-             * @type {import('../../dataLayer/databasePartitionedCursor').DatabasePartitionedCursor}
-             */
             const cursor = await databaseQueryManager.findAsync({ query: {} });
 
             while (await cursor.hasNext()) {
                 /**
                  * @type {import('../../fhir/classes/4_0_0/resources/resource')}
                  */
-                const resource = await cursor.next();
+                const resource = await cursor.nextObject();
 
                 await resource.updateReferencesAsync({
                     fnUpdateReferenceAsync: (reference) =>

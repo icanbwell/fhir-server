@@ -30,13 +30,13 @@ const {
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
-const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
+const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client1.*');
 
 describe('Data sharing test cases for different scenarios', () => {
-    const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');
+    const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
         cursorSpy.mockReturnThis();

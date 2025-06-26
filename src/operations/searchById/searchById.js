@@ -188,14 +188,14 @@ class SearchByIdOperation {
                 { resourceType, base_version }
             );
             /**
-             * @type {DatabasePartitionedCursor}
+             * @type {DatabaseCursor}
              */
             const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             // we can convert to array since we don't expect to be many resources that have same id
             /**
              * @type {Resource[]}
              */
-            const resources = await cursor.toArrayRawAsync();
+            const resources = await cursor.toArrayAsync();
 
             /**
              * @type {ParsedArgsItem|undefined}

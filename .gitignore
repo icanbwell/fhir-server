@@ -22,7 +22,6 @@ globalConfig.json
 /.idea/*
 !/.idea/fileTemplates/
 #!/.idea/file.template.settings.xml
-/src/graphql/generator/__pycache__
 
 # dotenv environment variables file
 src/admin/scripts/.env
@@ -30,7 +29,8 @@ src/admin/scripts/.env.prod
 src/admin/scripts/.env.staging
 src/admin/scripts/.env.dev
 .env.test
-src/fhir/generator/__pycache__
 .env
 /src/tests/practitioner/search_by_multiple_ids_csv/fixtures/practitioner/practitioner_out.json
 /**/temp/
+generatorScripts/data/
+/**/__pycache__/

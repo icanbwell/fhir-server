@@ -140,7 +140,7 @@ class GetIncompatibleResourcesRunner extends BaseBulkOperationRunner {
             this.writeStream.write('ResourceType| ResourceId| ValidationOperationOutcome|\n');
 
             while (await cursor.hasNext()) {
-                const resource = await cursor.next();
+                const resource = await cursor.nextObject();
 
                 this.adminLogger.logInfo(`Processing ${resourceType}/${resource._uuid}`);
 
