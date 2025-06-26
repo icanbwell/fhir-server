@@ -210,7 +210,7 @@ class HistoryOperation {
 
         // Query our collection for this observation
         /**
-         * @type {DatabasePartitionedCursor}
+         * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursor;
         try {
@@ -240,9 +240,9 @@ class HistoryOperation {
         const explanations = (parsedArgs._explain || parsedArgs._debug || process.env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
         if (parsedArgs._explain) {
             // if explain is requested then don't return any results
-            cursor.clear();
+            cursor.setEmpty();
         }
-        const collectionName = cursor.getFirstCollection();
+        const collectionName = cursor.getCollection();
 
         /**
          * @type {String[]|null}
@@ -256,7 +256,7 @@ class HistoryOperation {
         let historyResources = [];
 
         while (await cursor.hasNext()) {
-            let historyResource = await cursor.nextRaw();
+            let historyResource = await cursor.next();
             if (!historyResource) {
                 throw new NotFoundError('Resource not found');
             }
@@ -269,7 +269,7 @@ class HistoryOperation {
             }
             historyResources.push(historyResource);
         }
-        if (historyResources.length === 0) {
+        if (historyResources.length === 0 && !parsedArgs._explain) {
             throw new NotFoundError('Resource not found');
         }
 

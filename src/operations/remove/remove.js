@@ -173,20 +173,19 @@ class RemoveOperation {
                 return {deleted: 0};
             }
             // Delete our resource record
-            let res;
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
             );
 
-            res = await databaseQueryManager.findAsync({query});
+            const cursor = await databaseQueryManager.findAsync({query});
             /**
              * @type {string[]}
              */
             const resourceIdsToDelete = [];
             let resourceArrayToDelete = [];
 
-            while (await res.hasNext()) {
-                const resource = await res.next();
+            while (await cursor.hasNext()) {
+                const resource = await cursor.nextObject();
 
                 // isAccessToResourceAllowedByAccessAndPatientScopes will throw forbidden error so wrap this under try catch
                 try {
@@ -200,10 +199,8 @@ class RemoveOperation {
                     logWarn(`${user} with scope ${scope} is trying to delete ${resource.resourceType}/${resource.id}`);
                 }
             }
-            /**
-             * @type {DeleteManyResult}
-             */
-            res = await this.removeHelper.deleteManyAsync({
+
+            const deletedResourceCount = await this.removeHelper.deleteManyAsync({
                 requestInfo,
                 resources: resourceArrayToDelete,
                 resourceType,
@@ -252,7 +249,7 @@ class RemoveOperation {
                 startTime,
                 action: currentOperationName
             });
-            return {deleted: res.deletedCount};
+            return {deleted: deletedResourceCount};
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

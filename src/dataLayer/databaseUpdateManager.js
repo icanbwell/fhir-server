@@ -328,7 +328,7 @@ class DatabaseUpdateManager {
         const requestId = requestInfo.requestId;
         const method = requestInfo.method;
         doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-        const historyCollectionName = await this.resourceLocator.getHistoryCollectionNameAsync(doc);
+        const historyCollectionName = this.resourceLocator.getHistoryCollectionName(doc);
         const historyCollection = await this.resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
         await historyCollection.insertOne(new BundleEntry({
             id: doc.id,

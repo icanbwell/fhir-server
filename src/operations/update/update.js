@@ -236,14 +236,11 @@ class UpdateOperation {
                 { resourceType, base_version }
             );
 
-            /**
-             * @type {DatabasePartitionedCursor}
-             */
             const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             /**
              * @type {[Resource] | null}
              */
-            const resources = await cursor.toArrayAsync();
+            const resources = await cursor.toObjectArrayAsync();
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(

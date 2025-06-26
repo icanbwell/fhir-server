@@ -42,14 +42,6 @@ describe('AuditEventSearchFilterTests', () => {
                 .get('/4_0_0/AuditEvent/?date=gt2021-08-02&date=lt2021-10-02&_bundle=1&streamResponse=1&_debug=1')
                 .set(getHeaders());
 
-            expectedAuditEventResource.meta.tag.forEach((tag) => {
-                if (tag.system === 'https://www.icanbwell.com/query' && tag.display) {
-                    tag.display = tag.display.replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
-                }
-                if (tag.system === 'https://www.icanbwell.com/queryCollection' && tag.code) {
-                    tag.code = 'AuditEvent_4_0_0_2021_09';
-                }
-            });
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource);
 

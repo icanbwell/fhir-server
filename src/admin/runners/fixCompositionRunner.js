@@ -42,7 +42,7 @@ class FixCompositionRunner extends BaseBulkOperationRunner {
             base_version: '4_0_0'
         });
 
-        const rawHistoryResourceResult = await databaseHistoryManager.findOneRawAsync({
+        const rawHistoryResourceResult = await databaseHistoryManager.findOneAsync({
             query: { 'resource._uuid': id },
             options: { sort: { 'resource.meta.versionId': -1 } }
         });

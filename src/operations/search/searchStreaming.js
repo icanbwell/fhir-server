@@ -268,7 +268,7 @@ class SearchStreamingOperation {
              */
             const cursorBatchSize = __ret.cursorBatchSize;
             /**
-             * @type {DatabasePartitionedCursor}
+             * @type {DatabaseCursor}
              */
             const cursor = __ret.cursor;
 
@@ -294,15 +294,15 @@ class SearchStreamingOperation {
                 ? (await cursor.explainAsync()) : [];
             if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
-                cursor.clear();
+                cursor.setEmpty();
             }
 
-            collectionName = cursor ? cursor.getFirstCollection() : null;
-            databaseName = cursor ? cursor.getFirstDatabase() : null;
+            collectionName = cursor ? cursor.getCollection() : null;
+            databaseName = cursor ? cursor.getDatabase() : null;
             /**
              * @type {string[]}
              */
-            const allCollectionsToSearch = cursor ? cursor.getAllCollections() : [];
+            const allCollectionsToSearch = cursor ? [cursor.getCollection()] : [];
 
             if (cursor !== null) { // usually means the two-step optimization found no results
                 /**
@@ -456,9 +456,7 @@ class SearchStreamingOperation {
             /**
              * @type {string}
              */
-            collectionName = collectionName || (await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                query
-            }));
+            collectionName = collectionName || resourceLocator.getCollectionName();
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 query: mongoQueryAndOptionsStringify({
                         query: new QueryItem({

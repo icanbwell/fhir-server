@@ -162,11 +162,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {string}
                  */
-                const referenceCollectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(
-                    {
-                        query: {}
-                    }
-                );
+                const referenceCollectionName = resourceLocator.getCollectionName();
 
                 // first check in cache
                 /**

@@ -916,10 +916,10 @@ class DatabaseBulkInserter extends EventEmitter {
                 const collectionName = isAccessLogOperation
                     ? ACCESS_LOGS_COLLECTION_NAME
                     : useHistoryCollection
-                      ? await resourceLocator.getHistoryCollectionNameAsync(
+                      ? resourceLocator.getHistoryCollectionName(
                             resource.resource || resource
                         )
-                      : await resourceLocator.getCollectionNameAsync(resource);
+                      : resourceLocator.getCollectionNameForResource(resource);
                 if (!(operationsByCollectionNames.has(collectionName))) {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }

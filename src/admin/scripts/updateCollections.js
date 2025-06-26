@@ -53,7 +53,7 @@ async function main () {
     );
 
     /**
-     * @type {PartitionAuditEventRunner}
+     * @type {UpdateCollectionsRunner}
      */
     const processUpdateFhirRunner = container.processUpdateFhirRunner;
     await processUpdateFhirRunner.processAsync();

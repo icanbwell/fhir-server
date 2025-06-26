@@ -57,7 +57,7 @@ class RemoveHelper {
      * @property {Resource} resources
      *
      * @param {DeleteManyAsyncOption}
-     * @return {Promise<import('../../dataLayer/databaseQueryManager').DeleteManyResult>}
+     * @return {Promise<Number>}
      */
     async deleteManyAsync({ requestInfo, options = {}, resourceType, resources, base_version }) {
         const { requestId } = requestInfo;
@@ -99,23 +99,10 @@ class RemoveHelper {
             query = {
                 _uuid: { $in: uuidList }
             }
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query
-            });
-            let deletedCount = 0;
+            const collection = await resourceLocator.getOrCreateCollectionForQueryAsync({});
+            const result = await collection.deleteMany(query, options);
 
-            for (const collection of collections) {
-                /**
-                 * @type {import('mongodb').DeleteResult}
-                 */
-                const result = await collection.deleteMany(query, options);
-                deletedCount += result.deletedCount;
-            }
-
-            return { deletedCount, error: null };
+            return result.deletedCount;
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`,

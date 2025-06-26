@@ -8,19 +8,10 @@ const expectedPatientResourcesAccessIndex = require('./fixtures/expected/expecte
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const moment = require('moment-timezone');
 const { ConfigManager } = require('../../../utils/configManager');
-const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
 const { IndexProvider } = require('../../../indexes/indexProvider');
 
-class MockConfigManagerWithAllPartitionedResources extends ConfigManager {
-    /**
-     * @returns {string[]}
-     */
-    get partitionResources () {
-        return ['all'];
-    }
-
+class MockConfigManagerWithAllAccessIndexResources extends ConfigManager {
     get resourcesWithAccessIndex () {
         return ['all'];
     }
@@ -54,7 +45,7 @@ describe('AuditEvent when all is set Tests', () => {
     describe('AuditEvent accessIndex Tests when all is set', () => {
         test('accessIndex works for audit event when all is set', async () => {
             const request = await createTestRequest((container) => {
-                container.register('configManager', () => new MockConfigManagerWithAllPartitionedResources());
+                container.register('configManager', () => new MockConfigManagerWithAllAccessIndexResources());
                 container.register('indexProvider', (c) => new MockIndexProvider({
                     configManager: c.configManager
                 }));
@@ -93,15 +84,6 @@ describe('AuditEvent when all is set Tests', () => {
             const mongoDatabaseManager = container.mongoDatabaseManager;
 
             // read from database to make sure the _accessIndex property was set
-            const fieldDate = new Date(moment.utc('2021-09-20').format('YYYY-MM-DDTHH:mm:ssZ'));
-            /**
-             * @type {string}
-             */
-            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-                {
-                    fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
-                });
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
@@ -111,7 +93,7 @@ describe('AuditEvent when all is set Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection("AuditEvent_4_0_0");
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
@@ -132,7 +114,7 @@ describe('AuditEvent when all is set Tests', () => {
         });
         test('accessIndex works for other resources when all is set', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithAllPartitionedResources());
+                c.register('configManager', () => new MockConfigManagerWithAllAccessIndexResources());
                 return c;
             });
             // first confirm there are no AuditEvent

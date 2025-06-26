@@ -1,4 +1,4 @@
-const { DatabasePartitionedCursor } = require('./databasePartitionedCursor');
+const { DatabaseCursor } = require('./databaseCursor');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { ResourceLocator } = require('../operations/common/resourceLocator');
 const { assertTypeEquals } = require('../utils/assertType');
@@ -16,14 +16,7 @@ const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
  */
 
 /**
- * @typedef DeleteManyResult
- * @type {object}
- * @property {number|null} deletedCount
- * @property {Error|null} error
- */
-
-/**
- * This class manages access to the database by finding the appropriate partitioned collection to use for the
+ * This class manages access to the database by finding the appropriate collection to use for the
  * provided resourceType
  */
 class DatabaseQueryManager {
@@ -35,13 +28,13 @@ class DatabaseQueryManager {
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor ({
-                    resourceLocatorFactory,
-                    resourceType,
-                    base_version,
-                    mongoFilterGenerator,
-                    databaseAttachmentManager
-                }) {
+    constructor({
+        resourceLocatorFactory,
+        resourceType,
+        base_version,
+        mongoFilterGenerator,
+        databaseAttachmentManager
+    }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
@@ -76,7 +69,7 @@ class DatabaseQueryManager {
     }
 
     /**
-     * Finds one resource by looking in multiple partitions of a resource type
+     * Finds one resource of a resource type
      * @typedef FindOneOption
      * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @property {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
@@ -84,160 +77,95 @@ class DatabaseQueryManager {
      * @param {FindOneOption} params
      * @return {Promise<Resource|null>}
      */
-    async findOneAsync ({ query, options = null }) {
+    async findOneAsync({ query, options = null }) {
         try {
+            const collection = await this.resourceLocator.getOrCreateCollectionForQueryAsync({});
             /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
+             * @type { Promise<Resource|null>}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query
-            });
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
-                 * @type { Promise<Resource|null>}
-                 */
-                const resource = await collection.findOne(query, options);
-                if (resource !== null) {
-                    return FhirResourceCreator.createByResourceType(resource, this._resourceType);
-                }
+            const resource = await collection.findOne(query, options);
+            if (resource !== null) {
+                return FhirResourceCreator.createByResourceType(resource, this._resourceType);
             }
             return null;
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`,
-error: e,
+                error: e,
                 args: { query, options }
             });
         }
     }
 
     /**
-     * Returns a DatabasePartitionedCursor by executing the query
+     * Returns a DatabaseCursor by executing the query
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @param {Object} extraInfo
-     * @return {Promise<DatabasePartitionedCursor>}
+     * @return {Promise<DatabaseCursor>}
      */
-    async findAsync ({ query, options = null, extraInfo = {} }) {
+    async findAsync({ query, options = null, extraInfo = {} }) {
         try {
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync(
-                {
-                    query, extraInfo
-                }
-            );
-            /**
-             * @type {CursorInfo[]}
-             */
-            const cursors = [];
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
-                 * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
-                 */
-                const cursor = collection.find(query, options);
-                cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
-            }
-            return new DatabasePartitionedCursor({
+            const collection = await this.resourceLocator.getOrCreateCollectionForQueryAsync({
+                extraInfo
+            });
+            const cursor = collection.find(query, options);
+            return new DatabaseCursor({
                 base_version: this._base_version,
-resourceType: this._resourceType,
-cursors,
+                resourceType: this._resourceType,
+                cursor,
                 query
             });
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`,
-error: e,
+                error: e,
                 args: { query, options }
             });
         }
     }
 
     /**
-     * Returns a DatabasePartitionedCursor by executing the query
+     * Returns a DatabaseCursor by executing the query
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param projection
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @param {Object} extraInfo
-     * @return {DatabasePartitionedCursor}
+     * @return {Promise<DatabaseCursor>}
      */
-    async findUsingAggregationAsync ({ query, projection, options = null, extraInfo = {} }) {
+    async findUsingAggregationAsync({ query, projection, options = null, extraInfo = {} }) {
         try {
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({ query, extraInfo });
-            /**
-             * @type {CursorInfo[]}
-             */
-            const cursors = [];
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                let cursor;
-                if (extraInfo.matchQueryProvided) {
-                    cursor = collection.aggregate(query);
-                } else {
-                    /**
-                     * @type {import('mongodb').AggregationCursor<Document>}
-                     */
-                    cursor = collection.aggregate(
-                        [
-                            {
-                                $match: query
-                            },
-                            {
-                                $project: projection
-
-                            }
-                        ],
-                        options
-                    );
-                }
-                cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
+            const collection = await this.resourceLocator.getOrCreateCollectionForQueryAsync({ extraInfo });
+            let cursor;
+            if (extraInfo.matchQueryProvided) {
+                cursor = collection.aggregate(query);
+            } else {
+                /**
+                 * @type {import('mongodb').AggregationCursor<Document>}
+                 */
+                cursor = collection.aggregate(
+                    [
+                        {
+                            $match: query
+                        },
+                        {
+                            $project: projection
+                        }
+                    ],
+                    options
+                );
             }
-            return new DatabasePartitionedCursor({
+            return new DatabaseCursor({
                 base_version: this._base_version,
-resourceType: this._resourceType,
-cursors,
+                resourceType: this._resourceType,
+                cursor,
                 query
             });
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in findUsingAggregationAsync(): ' + `query: ${JSON.stringify(query)}`,
-error: e,
+                error: e,
                 args: { query, options }
-            });
-        }
-    }
-
-    /**
-     * Gets estimated count of ALL documents in a collection.  This does not accept a query
-     * @param {import('mongodb').EstimatedDocumentCountOptions} options
-     * @return {Promise<*>}
-     */
-    async estimatedDocumentCountAsync ({ options }) {
-        try {
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query: undefined
-            });
-            let count = 0;
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
-                 * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#estimatedDocumentCount
-                 * @type {number}
-                 */
-                const countInCollection = await collection.estimatedDocumentCount(options);
-                count += countInCollection;
-            }
-            return count;
-        } catch (e) {
-            throw new RethrownError({
-                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`,
-error: e,
-                args: { options }
             });
         }
     }
@@ -246,29 +174,16 @@ error: e,
      * Gets exact count
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>|null} query
      * @param { import('mongodb').MongoCountPreferences|null} options
-     * @return {Promise<*>}
+     * @return {Promise<number>}
      */
-    async exactDocumentCountAsync ({ query, options }) {
+    async exactDocumentCountAsync({ query, options }) {
         try {
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query: undefined
-            });
-            let count = 0;
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
-                 * @type {number}
-                 */
-                const countInCollection = await collection.countDocuments(query, options);
-                count += countInCollection;
-            }
-            return count;
+            const collection = await this.resourceLocator.getOrCreateCollectionForQueryAsync({});
+            return await collection.countDocuments(query, options);
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`,
-error: e,
+                error: e,
                 args: { query, options }
             });
         }
@@ -277,38 +192,27 @@ error: e,
     /**
      * Finds and returns subset of passed in resources that exist in the database
      * @param {Resource[]} resources
-     * @return {Promise<DatabasePartitionedCursor>}
+     * @return {Promise<DatabaseCursor>}
      */
-    async findResourcesInDatabaseAsync ({ resources }) {
+    async findResourcesInDatabaseAsync({ resources }) {
         try {
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await this.resourceLocator.getOrCreateCollectionsAsync({ resources });
+            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(resources[0]);
             const query = {
-                _uuid: { $in: resources.map(r => r._uuid) }
+                _uuid: { $in: resources.map((r) => r._uuid) }
             };
             const options = {};
-            /**
-             * @type {CursorInfo[]}
-             */
-            const cursors = [];
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
-                 * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
-                 */
-                const cursor = collection.find(query, options);
-                cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
-            }
-            return new DatabasePartitionedCursor({
+            const cursor = collection.find(query, options);
+            return new DatabaseCursor({
                 base_version: this._base_version,
-resourceType: this._resourceType,
-cursors,
+                resourceType: this._resourceType,
+                cursor,
                 query
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
+                message:
+                    'Error in findResourcesInDatabaseAsync(): ' +
+                    `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
                 error: e,
                 args: { resources }
             });

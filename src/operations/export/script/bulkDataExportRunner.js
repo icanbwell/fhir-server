@@ -568,15 +568,10 @@ class BulkDataExportRunner {
                 base_version: '4_0_0'
             });
 
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query: patientQuery
-            });
+            const collection = await resourceLocator.getOrCreateCollectionForQueryAsync({});
 
             const options = { projection: { _uuid: 1 }, batchSize: this.fetchResourceBatchSize };
-            const patientCursor = collections[0].find(patientQuery, options);
+            const patientCursor = collection.find(patientQuery, options);
 
             const multipartContext = new S3MultiPartContext({
                 resourceFilePath: `${this.baseS3Folder}/${resourceType}.ndjson`
