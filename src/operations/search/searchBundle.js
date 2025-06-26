@@ -17,7 +17,6 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { ResourceLocator } = require('../common/resourceLocator');
-const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 
 class SearchBundleOperation {
     /**
@@ -266,7 +265,7 @@ class SearchBundleOperation {
              */
             const cursorBatchSize = __ret.cursorBatchSize;
             /**
-             * @type {DatabaseCursor}
+             * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
              */
             const cursor = __ret.cursor;
 

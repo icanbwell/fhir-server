@@ -30,7 +30,6 @@ const {
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
 const { QueryItem } = require('../graph/queryItem');
@@ -1109,7 +1108,7 @@ class EverythingHelper {
     /**
      * Fetches the data from cursor and streams it
      * @param {{
-     *  cursor: DatabaseCursor,
+     *  cursor: import('../../dataLayer/databaseCursor').DatabaseCursor,
      *  responseStreamer: BaseResponseStreamer,
      *  parentParsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker|undefined,

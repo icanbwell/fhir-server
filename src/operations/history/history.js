@@ -16,7 +16,6 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { ScopesManager } = require('../security/scopesManager');
-const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 
 class HistoryOperation {
     /**
@@ -211,7 +210,7 @@ class HistoryOperation {
 
         // Query our collection for this observation
         /**
-         * @type {DatabaseCursor}
+         * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursor;
         try {

@@ -1,6 +1,3 @@
-/**
- * This class handles database cursor
- */
 const { assertIsValid } = require('../utils/assertType');
 const async = require('async');
 const { RethrownError } = require('../utils/rethrownError');
@@ -9,6 +6,9 @@ const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry
 const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { FindCursor } = require('mongodb');
 
+/**
+ * This class handles database cursor
+ */
 class DatabaseCursor {
     /**
      * Constructor
@@ -101,13 +101,11 @@ class DatabaseCursor {
 
         try {
             const result = await this.cursor.next();
-            if (result !== null) {
-                // for adding resourceType to _elements case and excluding addition to history resource
-                if (!result.resourceType && !result.resource) {
-                    result.resourceType = this.resourceType;
-                }
-                return result;
+            // for adding resourceType to _elements case and excluding addition to history resource
+            if (result && !result.resourceType && !result.resource) {
+                result.resourceType = this.resourceType;
             }
+            return result;
         } catch (e) {
             throw new RethrownError({
                 collections: this.cursor.namespace.collection,
@@ -116,7 +114,6 @@ class DatabaseCursor {
                 query: this.query
             });
         }
-        return null;
     }
 
     /**
@@ -130,9 +127,10 @@ class DatabaseCursor {
              * @type {Object}
              */
             const result = await this.next();
-            if (result !== null) {
-                return FhirResourceCreator.mapDocumentToResourceObject(result, this.resourceType);
+            if (!result) {
+                return null;
             }
+            return FhirResourceCreator.mapDocumentToResourceObject(result, this.resourceType);
         } catch (e) {
             throw new RethrownError({
                 collections: this.cursor.namespace.collection,
@@ -141,7 +139,6 @@ class DatabaseCursor {
                 query: this.query
             });
         }
-        return null;
     }
 
     /**
@@ -156,7 +153,7 @@ class DatabaseCursor {
 
     /**
      * Map all documents using the provided function
-     * @param {function({Object}): Object} mapping
+     * @param {<T,S>(obj: T) => S} mapping
      * @return {DatabaseCursor}
      */
     map({ mapping }) {

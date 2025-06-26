@@ -38,7 +38,6 @@ const {
     OPERATIONS: { READ },
     GRIDFS: { RETRIEVE }
 } = require('../../constants');
-const { DatabaseCursor } = require('../../dataLayer/databaseCursor');
 
 class SearchManager {
     /**
@@ -471,7 +470,7 @@ class SearchManager {
             { resourceType, base_version }
         );
         /**
-         * @type {DatabaseCursor}
+         * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursorQuery;
         if (useAggregationPipeline) {
@@ -509,7 +508,7 @@ class SearchManager {
             cursorQuery = __ret.cursorQuery;
         }
         /**
-         * @type {DatabaseCursor}
+         * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursor = cursorQuery;
 
@@ -766,7 +765,7 @@ class SearchManager {
                 { resourceType, base_version }
             );
             /**
-             * @type {DatabaseCursor}
+             * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
              */
             const cursor = await databaseQueryManager.findAsync({ query, options });
             /**
@@ -800,7 +799,7 @@ class SearchManager {
     // noinspection FunctionWithInconsistentReturnsJS
     /**
      * Reads resources from Mongo cursor
-     * @param {DatabaseCursor} cursor
+     * @param {import('../../dataLayer/databaseCursor').DatabaseCursor} cursor
      * @param {string | null} user
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
@@ -883,7 +882,7 @@ class SearchManager {
     /**
      * sets cursor batch size based on args or environment variables
      * @param {ParsedArgs} parsedArgs
-     * @param {DatabaseCursor} cursorQuery
+     * @param {import('../../dataLayer/databaseCursor').DatabaseCursor} cursorQuery
      * @return {{cursorBatchSize: number, cursorQuery: DatabaseCursor}}
      */
     setCursorBatchSize ({ parsedArgs, cursorQuery }) {
@@ -919,7 +918,7 @@ class SearchManager {
      * sets the index hint
      * @param {string} mongoCollectionName
      * @param {Set} columns
-     * @param {DatabaseCursor} cursor
+     * @param {import('../../dataLayer/databaseCursor').DatabaseCursor} cursor
      * @param {string | null} user
      * @param {string | undefined} indexName
      * @return {{cursor: DatabaseCursor, indexHint: (string|null)}}
@@ -952,7 +951,7 @@ class SearchManager {
 
     /**
      * Reads resources from Mongo cursor and writes to response
-     * @param {DatabaseCursor} cursor
+     * @param {import('../../dataLayer/databaseCursor').DatabaseCursor} cursor
      * @param {string|null} requestId
      * @param {string | null} url
      * @param {function (string | null, number): Bundle} fnBundle
@@ -1295,7 +1294,7 @@ class SearchManager {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
         /**
          * mongo db cursor
-         * @type {DatabaseCursor}
+         * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
         let cursor = await databaseQueryManager.findAsync({ query, options });
         cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });

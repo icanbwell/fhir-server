@@ -14,7 +14,6 @@ const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { DatabaseUpdateManager } = require('../dataLayer/databaseUpdateManager');
 const { DatabaseQueryManager } = require('../dataLayer/databaseQueryManager');
 const { PostSaveProcessor } = require('../dataLayer/postSaveProcessor');
-const { DatabaseCursor } = require('../dataLayer/databaseCursor');
 
 const base_version = VERSIONS['4_0_0'];
 
@@ -270,7 +269,7 @@ class AdminPersonPatientDataManager {
                  */
                 const deletedResourceIdsWithResourceType = deletedResourceIds.map(deletedResourceId => `${resourceType}/${deletedResourceId}`);
                 /**
-                 * @type {DatabaseCursor}
+                 * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
                  */
                 const personRecordsWithLinkToDeletedResourceIdCursor = await databaseQueryManagerForPerson.findAsync({
                     query: { 'link.target._uuid': { $in: deletedResourceIdsWithResourceType } }

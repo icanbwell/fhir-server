@@ -15,7 +15,6 @@ const { COLLECTION } = require('../constants');
 const { SecurityTagSystem } = require('../utils/securityTagSystem');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { RemoveHelper } = require('../operations/remove/removeHelper');
-const { DatabaseCursor } = require('../dataLayer/databaseCursor');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
@@ -555,7 +554,7 @@ class AdminPersonPatientLinkManager {
         if (level === 1) {
             // find all links to this Person
             /**
-             * @type {DatabaseCursor}
+             * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
              */
             const personsLinkingToThisPersonId = await databaseQueryManager.findAsync(
                 {
@@ -582,7 +581,7 @@ class AdminPersonPatientLinkManager {
                 resourceType: 'Patient', base_version
             });
             /**
-             * @type {DatabaseCursor}
+             * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
              */
             const patientCursor = await patientDatabaseManager.findAsync({
                 query: { id: { $in: patientIds } }
@@ -672,7 +671,7 @@ class AdminPersonPatientLinkManager {
         });
         // find all links to this Person
         /**
-         * @type {DatabaseCursor}
+         * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
          */
         const personsLinkingToThisPersonId = await databaseQueryManager.findAsync(
             {
