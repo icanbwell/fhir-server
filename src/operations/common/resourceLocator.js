@@ -144,7 +144,7 @@ class ResourceLocator {
             `resourceType ${this._resourceType} has an invalid postfix`
         );
         assertIsValid(
-            !this._resourceType === 'AuditEvent',
+            this._resourceType !== 'AuditEvent',
             `resourceType ${this._resourceType} don't have a history collection`
         );
 
