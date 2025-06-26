@@ -568,7 +568,7 @@ class BulkDataExportRunner {
                 base_version: '4_0_0'
             });
 
-            const collection = await resourceLocator.getOrCreateCollectionForQueryAsync({});
+            const collection = await resourceLocator.getCollectionAsync({});
 
             const options = { projection: { _uuid: 1 }, batchSize: this.fetchResourceBatchSize };
             const patientCursor = collection.find(patientQuery, options);

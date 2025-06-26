@@ -84,7 +84,6 @@ describe('Person Tests', () => {
 
             container.register('fixReferenceIdHapiRunner', (c) => new MockFixReferenceIdHapiRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,

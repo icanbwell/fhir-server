@@ -92,7 +92,6 @@ describe('Person Tests', () => {
                 'fixDuplicateUuidRunner',
                 (c) =>
                     new FixDuplicateUuidRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         useAuditDatabase: false,
@@ -152,7 +151,6 @@ describe('Person Tests', () => {
                 'fixDuplicateUuidRunner',
                 (c) =>
                     new FixDuplicateUuidRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         useAuditDatabase: false,
@@ -208,7 +206,6 @@ describe('Person Tests', () => {
                 'fixDuplicateUuidRunner',
                 (c) =>
                     new FixDuplicateUuidRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         useAuditDatabase: false,
@@ -259,7 +256,6 @@ describe('Person Tests', () => {
                 'fixDuplicateUuidRunner',
                 (c) =>
                     new FixDuplicateUuidRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         useAuditDatabase: false,
@@ -336,7 +332,6 @@ describe('Person Tests', () => {
                 'fixDuplicateUuidRunner',
                 (c) =>
                     new FixDuplicateUuidRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         useAuditDatabase: false,

@@ -57,7 +57,6 @@ async function main () {
     // now add our class
     container.register('fixBwellMasterPersonReferenceRunner', (c) => new FixBwellMasterPersonReferenceRunner(
         {
-            mongoCollectionManager: c.mongoCollectionManager,
             mongoDatabaseManager: c.mongoDatabaseManager,
             preSaveManager: c.preSaveManager,
             databaseQueryFactory: c.databaseQueryFactory,

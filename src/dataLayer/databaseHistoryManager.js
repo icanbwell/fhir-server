@@ -55,7 +55,7 @@ class DatabaseHistoryManager {
      */
     async findOneAsync ({ query, options = null }) {
         try {
-            const collection = await this.resourceLocator.getOrCreateHistoryCollectionForQueryAsync();
+            const collection = await this.resourceLocator.getHistoryCollectionAsync();
             /**
              * @type {object|null}
              */
@@ -79,7 +79,7 @@ class DatabaseHistoryManager {
      * @return {Promise<DatabaseCursor>}
      */
     async findAsync ({ query, options = null }) {
-        const collection = await this.resourceLocator.getOrCreateHistoryCollectionForQueryAsync();
+        const collection = await this.resourceLocator.getHistoryCollectionAsync();
         const cursor = collection.find(query, options);
         return new DatabaseCursor({
             base_version: this._base_version,

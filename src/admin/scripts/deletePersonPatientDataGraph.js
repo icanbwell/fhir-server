@@ -56,7 +56,6 @@ async function main () {
         'deletePersonPatientDataGraphRunner',
         (c) =>
             new DeletePersonPatientDataGraphRunner({
-                mongoCollectionManager: c.mongoCollectionManager,
                 batchSize,
                 adminLogger,
                 mongoDatabaseManager: c.mongoDatabaseManager,

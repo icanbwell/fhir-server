@@ -53,7 +53,6 @@ async function main() {
         'getIncompatibleResourcesRunner',
         (c) =>
             new GetIncompatibleResourcesRunner({
-                mongoCollectionManager: c.mongoCollectionManager,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 databaseQueryFactory: c.databaseQueryFactory,
                 adminLogger,

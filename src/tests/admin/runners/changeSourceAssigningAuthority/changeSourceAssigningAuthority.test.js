@@ -83,7 +83,6 @@ describe('Person Tests', () => {
 
             container.register('changeSourceAssigningAuthorityRunner', (c) => new ChangeSourceAssigningAuthorityRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,
@@ -199,7 +198,6 @@ describe('Person Tests', () => {
 
             container.register('changeSourceAssigningAuthorityRunner', (c) => new ChangeSourceAssigningAuthorityRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,

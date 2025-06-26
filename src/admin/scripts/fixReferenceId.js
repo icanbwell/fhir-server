@@ -73,7 +73,6 @@ async function main () {
     // now add our class
     container.register('fixReferenceIdRunner', (c) => new FixReferenceIdRunner(
             {
-                mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
                 referenceBatchSize: parameters.referenceBatchSize,

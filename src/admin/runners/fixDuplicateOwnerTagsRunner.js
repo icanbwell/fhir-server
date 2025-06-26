@@ -8,7 +8,6 @@ class FixDuplicateOwnerTagsRunner extends BaseBulkOperationRunner {
     /**
      * constructor
      * @typedef {Object} ConstructorProps
-     * @property {MongoCollectionManager} mongoCollectionManager
      * @property {MongoDatabaseManager} mongoDatabaseManager
      * @property {string[]} collections
      * @property {number} batchSize
@@ -22,7 +21,6 @@ class FixDuplicateOwnerTagsRunner extends BaseBulkOperationRunner {
      * @param {ConstructorProps}
      */
     constructor ({
-        mongoCollectionManager,
         mongoDatabaseManager,
         collections,
         batchSize,
@@ -34,7 +32,6 @@ class FixDuplicateOwnerTagsRunner extends BaseBulkOperationRunner {
         startFromId
     }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager
@@ -80,7 +77,7 @@ class FixDuplicateOwnerTagsRunner extends BaseBulkOperationRunner {
         const { db, client, session } = await this.createSingeConnectionAsync({ mongoConfig });
 
         try {
-            const collectionNames = await this.mongoCollectionManager.getAllCollectionNames({ db });
+            const collectionNames = await this.getAllCollectionNamesForDb({ db });
             return collectionNames.filter((c) => !c.includes('_History'));
         } catch (err) {
             this.adminLogger.logError(`Error in getAllCollectionNamesAsync: ${err.message}`, {

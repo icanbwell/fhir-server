@@ -56,7 +56,6 @@ async function main () {
         'addProxyPatientToConsentResourceRunner',
         (c) =>
             new AddProxyPatientToConsentResourceRunner({
-                mongoCollectionManager: c.mongoCollectionManager,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 collections,
                 batchSize,

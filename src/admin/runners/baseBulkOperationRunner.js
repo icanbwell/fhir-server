@@ -18,20 +18,17 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
  */
 class BaseBulkOperationRunner extends BaseScriptRunner {
     /**
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
     constructor (
         {
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager
         }) {
         super({
-            mongoCollectionManager,
             adminLogger,
             mongoDatabaseManager
         });
@@ -615,19 +612,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').Collection<import('mongodb').Document>}
          */
-        const destinationCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            {
-                db: destinationDb, collectionName: destinationCollectionName
-            }
-        );
+        const destinationCollection = destinationDb.collection(destinationCollectionName);
         /**
          * @type {import('mongodb').Collection}
          */
-        const sourceCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            {
-                db: sourceDb, collectionName: sourceCollectionName
-            }
-        );
+        const sourceCollection = sourceDb.collection(sourceCollectionName);
         return { sourceClient, destinationClient, session, sessionId, sourceDb, destinationCollection, sourceCollection };
     }
 

@@ -15,7 +15,6 @@ const { ConfigManager } = require('../../utils/configManager');
 class CreateAccessIndexRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {boolean} useAuditDatabase
@@ -25,7 +24,6 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      */
     constructor (
         {
-            mongoCollectionManager,
             collections,
             batchSize,
             useAuditDatabase,
@@ -34,7 +32,6 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             configManager
         }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

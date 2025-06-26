@@ -28,7 +28,6 @@ const { SearchParametersManager } = require('../../searchParameters/searchParame
 class FixReferenceIdRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {number} referenceBatchSize
@@ -53,7 +52,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      */
     constructor (
         {
-            mongoCollectionManager,
             collections,
             batchSize,
             referenceBatchSize,
@@ -77,7 +75,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             searchParametersManager
         }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

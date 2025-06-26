@@ -59,7 +59,6 @@ async function main () {
     // now add our class
     container.register('fixReferenceSourceAssigningAuthorityRunner', (c) => new FixReferenceSourceAssigningAuthorityRunner(
             {
-                mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
                 afterLastUpdatedDate,

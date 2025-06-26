@@ -1,5 +1,4 @@
 const { ResourceLocator } = require('./resourceLocator');
-const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 
@@ -9,16 +8,9 @@ const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 class ResourceLocatorFactory {
     /**
      * Constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor ({ mongoCollectionManager, mongoDatabaseManager }) {
-        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
-        /**
-         * @type {MongoCollectionManager}
-         */
-        this.mongoCollectionManager = mongoCollectionManager;
-
+    constructor({ mongoDatabaseManager }) {
         /**
          * @type {MongoDatabaseManager}
          */
@@ -31,17 +23,14 @@ class ResourceLocatorFactory {
      * @param {string} base_version
      * @return {ResourceLocator}
      */
-    createResourceLocator ({ resourceType, base_version }) {
+    createResourceLocator({ resourceType, base_version }) {
         assertIsValid(resourceType, 'resourceType is missing');
         assertIsValid(base_version, 'base_version is missing');
-        return new ResourceLocator(
-            {
-                mongoCollectionManager: this.mongoCollectionManager,
-resourceType,
-base_version,
-                mongoDatabaseManager: this.mongoDatabaseManager
-            }
-        );
+        return new ResourceLocator({
+            resourceType,
+            base_version,
+            mongoDatabaseManager: this.mongoDatabaseManager
+        });
     }
 }
 

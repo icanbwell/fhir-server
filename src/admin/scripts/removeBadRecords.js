@@ -38,8 +38,7 @@ async function main () {
             useAuditDatabase: !!parameters.audit,
             includeHistoryCollections: !!parameters.includeHistoryCollections,
             adminLogger: new AdminLogger(),
-            mongoDatabaseManager: c.mongoDatabaseManager,
-            mongoCollectionManager: c.mongoCollectionManager
+            mongoDatabaseManager: c.mongoDatabaseManager
         }));
 
     /**

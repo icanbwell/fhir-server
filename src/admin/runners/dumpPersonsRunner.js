@@ -8,7 +8,6 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
      * Constructor
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {number} batchSize
      * @param {string} accessCode
      * @param {string} beforeDate
@@ -19,7 +18,6 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         {
             adminLogger,
             mongoDatabaseManager,
-            mongoCollectionManager,
             batchSize,
             accessCode,
             beforeDate,
@@ -28,7 +26,6 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         }
     ) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager
@@ -94,11 +91,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         const session = sourceClient.startSession();
         const sessionId = session.serverSession.id;
         const sourceDb = sourceClient.db(config.db_name);
-        const sourceCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            {
-                db: sourceDb, collectionName: this.collectionName
-            }
-        );
+        const sourceCollection = sourceDb.collection(this.collectionName);
         const options = { session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS };
         let refreshTimestamp = moment(); // take note of time at operation start
         // Filter to process only certain documents depending on the owner code passed.

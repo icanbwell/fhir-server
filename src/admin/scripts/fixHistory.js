@@ -41,7 +41,6 @@ async function main () {
     // now add our class
     container.register('fixHistoryRunner', (c) => new FixHistoryRunner(
             {
-                mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
                 adminLogger: new AdminLogger(),

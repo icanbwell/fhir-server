@@ -13,7 +13,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
     /**
      * constructor
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {moment.Moment} recordedAfter
      * @param {moment.Moment} recordedBefore
      * @param {number} batchSize
@@ -26,7 +25,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      */
     constructor ({
                     mongoDatabaseManager,
-                    mongoCollectionManager,
                     recordedAfter,
                     recordedBefore,
                     batchSize,
@@ -39,7 +37,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 }) {
         super({
             mongoDatabaseManager,
-            mongoCollectionManager,
             batchSize,
             adminLogger
         });

@@ -19,7 +19,6 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {AdminLogger} adminLogger
      * @param {boolean} synchronizeIndexes
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      */
     constructor (
         {
@@ -33,12 +32,10 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             removeExtraIndexesOnly,
             adminLogger,
             synchronizeIndexes,
-            mongoDatabaseManager,
-            mongoCollectionManager
+            mongoDatabaseManager
         }
     ) {
         super({
-            mongoCollectionManager,
             adminLogger,
             mongoDatabaseManager
         });

@@ -66,7 +66,6 @@ describe('Binary history resource should be migrated to S3', () => {
                 'migrateHistoryToCloudStorageRunner',
                 (c) =>
                     new MigrateHistoryToCloudStorageRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         collectionName: 'Binary_4_0_0_History',
                         batchSize: 2,

@@ -15,7 +15,6 @@ const AvailableCollections = ['Consent_4_0_0'];
 class FixConsentRunner extends BaseBulkOperationRunner {
     /**
      * @typedef AddProxyPatientToConsentResourceRunnerParams
-     * @property {MongoCollectionManager} mongoCollectionManager
      * @property {number} batchSize
      * @property {AdminLogger} adminLogger
      * @property {MongoDatabaseManager} mongoDatabaseManager
@@ -27,6 +26,8 @@ class FixConsentRunner extends BaseBulkOperationRunner {
      * @property {boolean|undefined} useTransaction
      * @property {Date|undefined} beforeLastUpdatedDate
      * @property {Date|undefined} afterLastUpdatedDate} options
+     *
+     * @param {AddProxyPatientToConsentResourceRunnerParams} options
      */
     constructor ({
         limit,

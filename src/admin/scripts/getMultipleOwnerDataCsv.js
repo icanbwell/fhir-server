@@ -31,7 +31,6 @@ async function main () {
 
     // now add our class
     container.register('getMultipleOwnerDataCsvRunner', (c) => new GetMultipleOwnerDataCsvRunner({
-        mongoCollectionManager: c.mongoCollectionManager,
         mongoDatabaseManager: c.mongoDatabaseManager,
         adminLogger,
         batchSize

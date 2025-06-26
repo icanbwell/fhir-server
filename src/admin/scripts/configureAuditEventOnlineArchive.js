@@ -25,7 +25,6 @@ async function main () {
         (c) =>
             new ConfigureAuditEventOnlineArchiveRunner({
                 mongoDatabaseManager: c.mongoDatabaseManager,
-                mongoCollectionManager: c.mongoCollectionManager,
                 adminLogger,
                 collections,
                 expireAfterDays

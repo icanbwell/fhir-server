@@ -10,7 +10,6 @@ const fs = require('fs');
 class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
@@ -22,7 +21,6 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * @param {boolean} dryRun
      */
     constructor ({
-        mongoCollectionManager,
         batchSize,
         adminLogger,
         mongoDatabaseManager,
@@ -34,7 +32,6 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
         dryRun
     }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

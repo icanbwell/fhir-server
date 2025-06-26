@@ -10,7 +10,6 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {string} deleteData
@@ -26,7 +25,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} beforeLastUpdatedDate
      */
     constructor ({
-        mongoCollectionManager,
         collections,
         batchSize,
         deleteData,
@@ -42,7 +40,6 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         beforeLastUpdatedDate
     }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

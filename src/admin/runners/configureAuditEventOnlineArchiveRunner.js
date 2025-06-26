@@ -5,13 +5,11 @@ const ARCHIVE_DEFAULT_EXPIRE_AFTER_DAYS = 60;
 class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
     constructor ({
         mongoDatabaseManager,
-        mongoCollectionManager,
         adminLogger,
         collections,
         expireAfterDays
     }) {
         super({
-            mongoCollectionManager,
             adminLogger,
             mongoDatabaseManager
         });
@@ -97,7 +95,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
 
         // If collection name has been passed from shell tha filter only the audit event collections
         // else get all collection names from audit event cluster database.
-        const allCollectionNames = this.collections ? this.collections : await this.mongoCollectionManager.getAllCollectionNames({ db: auditEventDatabase });
+        const allCollectionNames = this.collections ? this.collections : await this.getAllCollectionNamesForDb({ db: auditEventDatabase });
 
         const collectionNames = this.filterAuditEventCollections(allCollectionNames);
         await this.adminLogger.logInfo(

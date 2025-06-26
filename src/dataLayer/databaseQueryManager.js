@@ -4,7 +4,6 @@ const { ResourceLocator } = require('../operations/common/resourceLocator');
 const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
-const { MongoFilterGenerator } = require('../utils/mongoFilterGenerator');
 const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
 
@@ -25,14 +24,12 @@ class DatabaseQueryManager {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor({
         resourceLocatorFactory,
         resourceType,
         base_version,
-        mongoFilterGenerator,
         databaseAttachmentManager
     }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
@@ -56,12 +53,6 @@ class DatabaseQueryManager {
         assertTypeEquals(this.resourceLocator, ResourceLocator);
 
         /**
-         * @type {MongoFilterGenerator}
-         */
-        this.mongoFilterGenerator = mongoFilterGenerator;
-        assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
-
-        /**
          * @type {DatabaseAttachmentManager}
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
@@ -79,7 +70,7 @@ class DatabaseQueryManager {
      */
     async findOneAsync({ query, options = null }) {
         try {
-            const collection = await this.resourceLocator.getOrCreateCollectionForQueryAsync({});
+            const collection = await this.resourceLocator.getCollectionAsync({});
             /**
              * @type { Promise<Resource|null>}
              */
@@ -106,7 +97,7 @@ class DatabaseQueryManager {
      */
     async findAsync({ query, options = null, extraInfo = {} }) {
         try {
-            const collection = await this.resourceLocator.getOrCreateCollectionForQueryAsync({
+            const collection = await this.resourceLocator.getCollectionAsync({
                 extraInfo
             });
             const cursor = collection.find(query, options);
@@ -135,7 +126,7 @@ class DatabaseQueryManager {
      */
     async findUsingAggregationAsync({ query, projection, options = null, extraInfo = {} }) {
         try {
-            const collection = await this.resourceLocator.getOrCreateCollectionForQueryAsync({ extraInfo });
+            const collection = await this.resourceLocator.getCollectionAsync({ extraInfo });
             let cursor;
             if (extraInfo.matchQueryProvided) {
                 cursor = collection.aggregate(query);
@@ -178,7 +169,7 @@ class DatabaseQueryManager {
      */
     async exactDocumentCountAsync({ query, options }) {
         try {
-            const collection = await this.resourceLocator.getOrCreateCollectionForQueryAsync({});
+            const collection = await this.resourceLocator.getCollectionAsync({});
             return await collection.countDocuments(query, options);
         } catch (e) {
             throw new RethrownError({
@@ -196,7 +187,7 @@ class DatabaseQueryManager {
      */
     async findResourcesInDatabaseAsync({ resources }) {
         try {
-            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(resources[0]);
+            const collection = await this.resourceLocator.getCollectionForResourceAsync(resources[0]);
             const query = {
                 _uuid: { $in: resources.map((r) => r._uuid) }
             };

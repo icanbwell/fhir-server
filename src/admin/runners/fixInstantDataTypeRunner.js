@@ -9,7 +9,6 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
     /**
      * constructor
      * @typedef {Object} ConstructorProps
-     * @property {MongoCollectionManager} mongoCollectionManager
      * @property {MongoDatabaseManager} mongoDatabaseManager
      * @property {string[]} collections
      * @property {number} batchSize
@@ -23,7 +22,6 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
      * @param {ConstructorProps}
      */
     constructor ({
-        mongoCollectionManager,
         mongoDatabaseManager,
         collections,
         batchSize,
@@ -35,7 +33,6 @@ class FixInstantDataTypeRunner extends BaseBulkOperationRunner {
         startFromId
     }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

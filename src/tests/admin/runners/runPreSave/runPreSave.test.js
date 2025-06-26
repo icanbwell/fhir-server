@@ -112,7 +112,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
@@ -177,7 +176,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
@@ -242,7 +240,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
@@ -308,7 +305,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
@@ -373,7 +369,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
@@ -436,7 +431,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
@@ -493,7 +487,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
@@ -553,7 +546,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         afterLastUpdatedDate: '2023-01-09',
@@ -618,7 +610,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         afterLastUpdatedDate: '2023-02-29',
@@ -673,7 +664,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         afterLastUpdatedDate: '2023-01-09',
@@ -740,7 +730,6 @@ describe('Patient Tests', () => {
 
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         afterLastUpdatedDate: '2023-02-29',

@@ -10,7 +10,6 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 class FixHistoryRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
@@ -21,7 +20,6 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
      */
     constructor (
         {
-            mongoCollectionManager,
             collections,
             batchSize,
             adminLogger,
@@ -31,7 +29,6 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
             startFromCollection
         }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

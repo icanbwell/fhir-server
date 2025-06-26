@@ -54,7 +54,6 @@ async function main () {
         'fixConsentRunner',
         (c) =>
             new FixConsentRunner({
-                mongoCollectionManager: c.mongoCollectionManager,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 collections,
                 batchSize,
