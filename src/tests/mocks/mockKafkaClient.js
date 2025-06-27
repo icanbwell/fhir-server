@@ -12,6 +12,7 @@ class MockKafkaClient extends KafkaClient {
          */
 
         this.messages = [];
+        this.cloudEventMessages = [];
     }
 
     /**
@@ -44,12 +45,23 @@ class MockKafkaClient extends KafkaClient {
         this.messages = this.messages.concat(messages);
     }
 
+    async sendCloudEventMessageAsync({ topic, messages }) {
+        this.cloudEventMessages = this.cloudEventMessages.concat(messages);
+    }
+
     /**
      * Returns current messages
      * @return {KafkaClientMessage[]}
      */
     getMessages () {
         return this.messages;
+    }
+
+    /**
+     * Returns current cloud event messages
+     */
+    getCloudEventMessages () {
+        return this.cloudEventMessages;
     }
 }
 

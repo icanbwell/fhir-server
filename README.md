@@ -109,10 +109,10 @@ Go to `/version` to see what version you're running.
 
 Use `/health` as the url for health check in Kubernetes or other systems
 
-## Change Events
+## Kafka Events
 
-The FHIR server can optionally send change events to a Kafka queue:
-[Change Events](readme/changeEvents.md)
+The FHIR server can optionally send various Kafka Events
+[Kafka Events](readme/kafkaEvents.md)
 
 ## Download Patient (or Person or Practioner) Summary
 This b.well FHIR server supports the $summary operation for the Patient, Person, and Practitioner resources. This operation allows you to retrieve a summary of a patient's information in a single request.

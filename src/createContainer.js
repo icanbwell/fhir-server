@@ -117,6 +117,7 @@ const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
+const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
 
 /**
  * Creates a container and sets up all the services
@@ -229,6 +230,12 @@ const createContainer = function () {
             configManager: c.configManager
         }
     ));
+    container.register('fhirOperationUsageEventProducer', (c) => new FhirOperationUsageEventProducer({
+       configManager: c.configManager,
+       fhirOperationAccessEventTopic: process.env.KAFKA_FHIR_OPERATION_USAGE_EVENT_TOPIC || 'fhir.operation.usage.events',
+       kafkaClient: c.kafkaClient
+    }));
+
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
         r4SearchQueryCreator: c.r4SearchQueryCreator
     }));
@@ -572,7 +579,9 @@ const createContainer = function () {
         fhirLoggingManager: c.fhirLoggingManager,
         scopesValidator: c.scopesValidator,
         configManager: c.configManager,
-        everythingHelper: c.everythingHelper
+        everythingHelper: c.everythingHelper,
+        fhirOperationUsageEventProducer: c.fhirOperationUsageEventProducer,
+        postRequestProcessor: c.postRequestProcessor
     }));
 
     container.register('removeHelper', c => new RemoveHelper({

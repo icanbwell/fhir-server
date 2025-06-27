@@ -17,17 +17,21 @@ const { ForbiddenError } = require('../../utils/httpErrors');
 const { isFalseWithFallback } = require('../../utils/isFalse');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
+const { FhirOperationUsageEventProducer } = require('../../utils/fhirOperationUsageEventProducer');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class EverythingOperation {
     /**
-     * constructor
-     * @param {GraphOperation} graphOperation
-     * @param {FhirLoggingManager} fhirLoggingManager
-     * @param {ScopesValidator} scopesValidator
-     * @param {ConfigManager} configManager
-     * @param {EverythingHelper} everythingHelper
+     * @param {Object} constructor
+     * @param {GraphOperation} constructor.graphOperation
+     * @param {FhirLoggingManager} constructor.fhirLoggingManager
+     * @param {ScopesValidator} constructor.scopesValidator
+     * @param {ConfigManager} constructor.configManager
+     * @param {EverythingHelper} constructor.everythingHelper
+     * @param {FhirOperationUsageEventProducer} constructor.fhirOperationUsageEventProducer
+     * @param {PostRequestProcessor} constructor.postRequestProcessor
      */
-    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper }) {
+    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper, fhirOperationUsageEventProducer, postRequestProcessor }) {
         /**
          * @type {GraphOperation}
          */
@@ -56,6 +60,18 @@ class EverythingOperation {
          */
         this.everythingHelper = everythingHelper;
         assertTypeEquals(everythingHelper, EverythingHelper);
+
+        /**
+         * @type {FhirOperationUsageEventProducer}
+         */
+        this.fhirOperationUsageEventProducer = fhirOperationUsageEventProducer;
+        assertTypeEquals(fhirOperationUsageEventProducer, FhirOperationUsageEventProducer);
+
+        /**
+         *  @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -105,7 +121,7 @@ class EverythingOperation {
     /**
      * does a FHIR $everything
      * @typedef everythingBundleAsyncParams
-     * @property {FhirRequestInfo} requestInfo
+     * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {import('express').Response} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
@@ -274,6 +290,23 @@ class EverythingOperation {
                     supportLegacyId,
                     includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                     nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
+                });
+            }
+
+            if (isUser && useEverythingHelperForPatient) {
+                this.postRequestProcessor.add({
+                    requestId: requestInfo.requestId,
+                    fnTask: async () => {
+                        const clientFhirPersonId = requestInfo.personIdFromJwtToken;
+                        const bwellFhirPersonId = requestInfo.masterPersonIdFromJwtToken;
+                        const managingOrganization = requestInfo.managingOrganizationId;
+                        await this.fhirOperationUsageEventProducer.produce({
+                            operationType: 'EverythingAccessed',
+                            bwellFhirPersonId,
+                            clientFhirPersonId,
+                            managingOrganization
+                        });
+                    }
                 });
             }
 
