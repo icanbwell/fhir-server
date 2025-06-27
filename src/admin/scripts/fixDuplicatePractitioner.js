@@ -56,7 +56,6 @@ async function main () {
         'fixDuplicatePractitionerRunner',
         (c) =>
             new FixDuplicatePractitionerRunner({
-                mongoCollectionManager: c.mongoCollectionManager,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 collections,
                 batchSize,

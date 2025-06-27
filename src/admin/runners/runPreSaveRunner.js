@@ -11,7 +11,6 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 class RunPreSaveRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {date|undefined} afterLastUpdatedDate
@@ -26,7 +25,6 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      */
     constructor (
         {
-            mongoCollectionManager,
             collections,
             batchSize,
             afterLastUpdatedDate,
@@ -40,7 +38,6 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             limit
         }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

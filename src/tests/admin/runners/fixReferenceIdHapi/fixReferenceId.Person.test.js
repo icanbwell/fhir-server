@@ -105,7 +105,6 @@ describe('Person Tests', () => {
 
             container.register('fixReferenceIdHapiRunner', (c) => new FixReferenceIdHapiRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,
@@ -220,7 +219,6 @@ describe('Person Tests', () => {
 
             container.register('fixReferenceIdHapiRunner', (c) => new FixReferenceIdHapiRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,
@@ -322,7 +320,6 @@ describe('Person Tests', () => {
 
             container.register('fixReferenceIdHapiRunner', (c) => new FixReferenceIdHapiRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,

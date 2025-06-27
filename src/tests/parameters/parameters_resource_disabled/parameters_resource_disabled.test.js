@@ -186,7 +186,7 @@ describe('Parameters resource Tests', () => {
             const collectionsNames = collections.map(collection => collection.name).sort();
 
             expect(collectionsNames).toEqual(
-                ['GuidanceResponse_4_0_0', 'Person_4_0_0', 'Person_4_0_0_History']
+                ['Person_4_0_0', 'Person_4_0_0_History']
             );
         });
     });

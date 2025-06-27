@@ -40,7 +40,6 @@ async function main () {
         (c) =>
             new UpdateCollectionsRunner({
                 mongoDatabaseManager: c.mongoDatabaseManager,
-                mongoCollectionManager: c.mongoCollectionManager,
                 updatedBefore: moment.utc(updatedBefore),
                 readBatchSize,
                 concurrentRunners,

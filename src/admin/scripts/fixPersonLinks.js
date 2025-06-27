@@ -40,7 +40,6 @@ async function main () {
     // now add our class
     container.register('fixPersonLinksRunner', (c) => new FixPersonLinksRunner(
         {
-            mongoCollectionManager: c.mongoCollectionManager,
             batchSize,
             beforeLastUpdatedDate,
             adminLogger: new AdminLogger(),

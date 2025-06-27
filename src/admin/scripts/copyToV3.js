@@ -44,7 +44,6 @@ async function main () {
         (c) =>
             new CopyToV3Runner({
                 mongoDatabaseManager: c.mongoDatabaseManager,
-                mongoCollectionManager: c.mongoCollectionManager,
                 updatedAfter,
                 batchSize,
                 concurrentRunners,

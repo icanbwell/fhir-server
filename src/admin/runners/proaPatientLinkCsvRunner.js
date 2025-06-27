@@ -27,7 +27,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @typedef {Object} ConstructorProps
      * @property {AdminLogger} adminLogger
      * @property {MongoDatabaseManager} mongoDatabaseManager
-     * @property {MongoCollectionManager} mongoCollectionManager
      * @property {PersonMatchManager} personMatchManager
      * @property {number} batchSize
      * @property {string[]} clientSourceAssigningAuthorities
@@ -39,7 +38,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
     constructor ({
                     adminLogger,
                     mongoDatabaseManager,
-                    mongoCollectionManager,
                     personMatchManager,
                     batchSize,
                     clientSourceAssigningAuthorities,
@@ -49,7 +47,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
         super({
             adminLogger,
             mongoDatabaseManager,
-            mongoCollectionManager,
             batchSize
         });
         /**

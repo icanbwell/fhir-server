@@ -51,7 +51,6 @@ async function main () {
     // now add our class
     container.register('fixWalgreenConsentRunner', (c) => new FixWalgreenConsentRunner(
             {
-                mongoCollectionManager: c.mongoCollectionManager,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 adminLogger,
                 batchSize,

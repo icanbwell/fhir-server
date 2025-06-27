@@ -12,7 +12,6 @@ const {
 } = require('../operations/common/systemEventLogging');
 const { ResourceManager } = require('../operations/common/resourceManager');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
-const { MongoCollectionManager } = require('../utils/mongoCollectionManager');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
@@ -30,7 +29,6 @@ const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const { MongoFilterGenerator } = require('../utils/mongoFilterGenerator');
 const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
@@ -46,27 +44,23 @@ class DatabaseBulkInserter extends EventEmitter {
      * Constructor
      * @param {ResourceManager} resourceManager
      * @param {PostRequestProcessor} postRequestProcessor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {PreSaveManager} preSaveManager
      * @param {RequestSpecificCache} requestSpecificCache
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
-     * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {PostSaveProcessor} postSaveProcessor
      */
     constructor ({
                     resourceManager,
                     postRequestProcessor,
-                    mongoCollectionManager,
                     resourceLocatorFactory,
                     preSaveManager,
                     requestSpecificCache,
                     databaseUpdateFactory,
                     resourceMerger,
                     configManager,
-                    mongoFilterGenerator,
                     postSaveProcessor
                 }) {
         super();
@@ -82,12 +76,6 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-
-        /**
-         * @type {MongoCollectionManager}
-         */
-        this.mongoCollectionManager = mongoCollectionManager;
-        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
 
         /**
          * @type {ResourceLocatorFactory}
@@ -125,12 +113,6 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {MongoFilterGenerator}
-         */
-        this.mongoFilterGenerator = mongoFilterGenerator;
-        assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
 
         /**
          * @type {PostSaveProcessor}
@@ -916,7 +898,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 const collectionName = isAccessLogOperation
                     ? ACCESS_LOGS_COLLECTION_NAME
                     : useHistoryCollection
-                      ? resourceLocator.getHistoryCollectionName(
+                      ? resourceLocator.getHistoryCollectionNameForResource(
                             resource.resource || resource
                         )
                       : resourceLocator.getCollectionNameForResource(resource);
@@ -967,8 +949,8 @@ class DatabaseBulkInserter extends EventEmitter {
                      * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                      */
                     const collection = isAccessLogOperation
-                        ? await resourceLocator.getOrCreateAccessLogCollectionAsync()
-                        : await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                        ? await resourceLocator.getAccessLogCollectionAsync()
+                        : await resourceLocator.getCollectionByNameAsync(collectionName);
                     /**
                      * @type {BulkInsertUpdateEntry[]}
                      */

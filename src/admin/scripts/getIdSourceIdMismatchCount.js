@@ -31,7 +31,6 @@ async function main () {
 
     // now add our class
     container.register('getIdSourceIdMismatchCountRunner', (c) => new GetIdSourceIdMismatchCountRunner({
-        mongoCollectionManager: c.mongoCollectionManager,
         mongoDatabaseManager: c.mongoDatabaseManager,
         adminLogger,
         batchSize

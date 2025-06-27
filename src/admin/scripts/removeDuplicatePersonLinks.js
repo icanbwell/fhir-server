@@ -34,7 +34,6 @@ async function main () {
         {
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
-            mongoCollectionManager: c.mongoCollectionManager,
             preSaveManager: c.preSaveManager,
             personUuids,
             limit: parameters.limit,

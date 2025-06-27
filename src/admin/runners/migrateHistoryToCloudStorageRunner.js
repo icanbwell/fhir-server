@@ -15,7 +15,6 @@ const { BaseScriptRunner } = require('./baseScriptRunner');
 class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {string} collectionName,
      * @param {number} batchSize
@@ -27,7 +26,6 @@ class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
      * @param {ConfigManager} configManager
      */
     constructor({
-        mongoCollectionManager,
         mongoDatabaseManager,
         collectionName,
         batchSize,
@@ -38,7 +36,6 @@ class MigrateHistoryToCloudStorageRunner extends BaseScriptRunner {
         configManager
     }) {
         super({
-            mongoCollectionManager,
             adminLogger,
             mongoDatabaseManager
         });

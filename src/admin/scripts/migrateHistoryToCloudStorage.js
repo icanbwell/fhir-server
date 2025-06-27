@@ -31,7 +31,6 @@ async function main() {
         'migrateHistoryToCloudStorageRunner',
         (c) =>
             new MigrateHistoryToCloudStorageRunner({
-                mongoCollectionManager: c.mongoCollectionManager,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 collectionName: parameters.collection,
                 batchSize,

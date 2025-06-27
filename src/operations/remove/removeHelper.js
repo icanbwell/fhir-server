@@ -99,7 +99,7 @@ class RemoveHelper {
             query = {
                 _uuid: { $in: uuidList }
             }
-            const collection = await resourceLocator.getOrCreateCollectionForQueryAsync({});
+            const collection = await resourceLocator.getCollectionAsync({});
             const result = await collection.deleteMany(query, options);
 
             return result.deletedCount;

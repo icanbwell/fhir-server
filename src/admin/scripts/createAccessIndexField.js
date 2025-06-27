@@ -35,7 +35,6 @@ async function main () {
     // now add our class
     container.register('createAccessIndexRunner', (c) => new CreateAccessIndexRunner(
             {
-                mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
                 useAuditDatabase: !!parameters.audit,

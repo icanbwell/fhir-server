@@ -51,6 +51,11 @@ To add a new package or update version of a package, edit package.json and then 
 
 Run `make up` to bring up the fhir server in docker on your local machine. Click the links shown to access the FHIR server. You can also use PostMan to make queries to the local FHIR server.
 
+### Auto created mongo collections
+
+Running `make up` also creates all the resource collections in mongo along with their indexes.
+This id done only once and in case this needs to be run again `make create_all_collections` command can be used after running `make up`
+
 ## Project Layout
 
 [.github/](.github/): workflows for Github Actions

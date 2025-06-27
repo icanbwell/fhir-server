@@ -55,7 +55,6 @@ async function main () {
     // now add our class
     container.register('fixDuplicateUuidRunner', (c) => new FixDuplicateUuidRunner(
             {
-                mongoCollectionManager: c.mongoCollectionManager,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 adminLogger,
                 batchSize,

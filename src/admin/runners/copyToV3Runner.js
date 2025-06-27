@@ -1,10 +1,10 @@
 const { assertTypeEquals } = require('../../utils/assertType');
 const moment = require('moment-timezone');
-const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
 const { ObjectId } = require('mongodb');
 const { mongoConfig } = require('../../config');
+const { isNotSystemCollection } = require('../../utils/mongoDBUtils');
 
 /**
  * @classdesc Copies documents from one collection into the other collection in different clusters
@@ -13,7 +13,6 @@ class CopyToV3Runner {
     /**
      * Constructor
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {moment.Moment} updatedAfter
      * @param {number} readBatchSize
      * @param {Object|string|undefined} collections
@@ -21,7 +20,6 @@ class CopyToV3Runner {
      */
     constructor ({
         mongoDatabaseManager,
-        mongoCollectionManager,
         updatedAfter,
         batchSize,
         concurrentRunners,
@@ -74,12 +72,6 @@ class CopyToV3Runner {
         assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
 
         /**
-         * @type {MongoCollectionManager}
-         */
-        this.mongoCollectionManager = mongoCollectionManager;
-        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
-
-        /**
          * @type {AdminLogger}
          */
         this.adminLogger = adminLogger;
@@ -127,7 +119,7 @@ class CopyToV3Runner {
         const collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
-            if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name)) {
+            if (collection.type !== 'collection' || !isNotSystemCollection(collection.name)) {
                 continue;
             }
             // If the list of collection is mentioned verify the collection name is in the list of collections passed

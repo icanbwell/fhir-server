@@ -1,6 +1,5 @@
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
@@ -10,18 +9,12 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 class ResourceLocator {
     /**
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string} resourceType
      * @param {string} base_version
      */
-    constructor({ mongoDatabaseManager, mongoCollectionManager, resourceType, base_version }) {
+    constructor({ mongoDatabaseManager, resourceType, base_version }) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
-        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
-        /**
-         * @type {MongoCollectionManager}
-         */
-        this.mongoCollectionManager = mongoCollectionManager;
         /**
          * @type {string}
          * @private
@@ -60,41 +53,13 @@ class ResourceLocator {
     }
 
     /**
-     * returns unique collections names for the provided resources
-     * @param {Resource[]} resources
-     * @returns {string[]}
-     */
-    getCollectionNames({ resources }) {
-        let collectionNames = resources.map((resource) => {
-            assertIsValid(resource, 'resource is null');
-            return this.getCollectionNameForResource(resource);
-        });
-        return Array.from(new Set(collectionNames)); // return unique collection names
-    }
-
-    /**
      * returns the history collection name for the given resource
      * @param {Resource} resource
      * @returns {string}
      */
-    getHistoryCollectionName(resource) {
+    getHistoryCollectionNameForResource(resource) {
         assertIsValid(resource, 'resource is null');
         return `${resource.resourceType}_${this._base_version}_History`;
-    }
-
-    /**
-     * returns history the collection names for resourceType
-     * @returns {string}
-     */
-    getHistoryCollectionNameForQuery() {
-        assertIsValid(
-            !this._resourceType.endsWith('_History'),
-            `resourceType ${this._resourceType} has an invalid postfix`
-        );
-        if (this._resourceType === 'AuditEvent') {
-            return null;
-        }
-        return `${this._resourceType}_${this._base_version}_History`;
     }
 
     /**
@@ -115,29 +80,26 @@ class ResourceLocator {
      * @param {string} collectionName
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateCollectionAsync(collectionName) {
+    async getCollectionByNameAsync(collectionName) {
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
         const db = await this.getDatabaseConnectionAsync({ isHistoryQuery: collectionName.endsWith('_History') });
-        return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
+        return db.collection(collectionName);
     }
 
     /**
      * Creates a db collection for access log
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateAccessLogCollectionAsync() {
+    async getAccessLogCollectionAsync() {
         /**
          * Access log mongo db connection
          * @type {import('mongodb').Db}
          */
         const db = await this.mongoDatabaseManager.getAccessLogsDbAsync();
-        return await this.mongoCollectionManager.getOrCreateCollectionAsync({
-            db,
-            collectionName: ACCESS_LOGS_COLLECTION_NAME
-        });
+        return db.collection(ACCESS_LOGS_COLLECTION_NAME);
     }
 
     /**
@@ -145,13 +107,13 @@ class ResourceLocator {
      * @param {Resource} resource
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateCollectionForResourceAsync(resource) {
+    async getCollectionForResourceAsync(resource) {
         assertTypeEquals(resource, Resource);
         /**
          * @type {string}
          */
         const collectionName = this.getCollectionNameForResource(resource);
-        return await this.getOrCreateCollectionAsync(collectionName);
+        return await this.getCollectionByNameAsync(collectionName);
     }
 
     /**
@@ -159,7 +121,7 @@ class ResourceLocator {
      * @param {Object} extraInfo
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateCollectionForQueryAsync({ extraInfo = {} }) {
+    async getCollectionAsync({ extraInfo = {} }) {
         /**
          * @type {string[]}
          */
@@ -169,39 +131,26 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = await this.getDatabaseConnectionAsync(extraInfo);
-        return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
+        return db.collection(collectionName);
     }
 
     /**
      * Gets the history collection for this resourceType.  If collection do not exist then it is created.
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateHistoryCollectionForQueryAsync() {
-        const collectionName = this.getHistoryCollectionNameForQuery();
-        /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
-         */
-        const db = await this.getDatabaseConnectionAsync({ isHistoryQuery: true });
-        return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
-    }
+    async getHistoryCollectionAsync() {
+        assertIsValid(
+            !this._resourceType.endsWith('_History'),
+            `resourceType ${this._resourceType} has an invalid postfix`
+        );
+        assertIsValid(
+            this._resourceType !== 'AuditEvent',
+            `resourceType ${this._resourceType} don't have a history collection`
+        );
 
-    /**
-     * Gets the history collection for this resource.  If collection does not exist then it is created.
-     * @param {Resource} resource
-     * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
-     */
-    async getOrCreateHistoryCollectionAsync(resource) {
-        /**
-         * @type {string}
-         */
-        const collectionName = this.getHistoryCollectionName(resource);
-        /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
-         */
+        const collectionName = `${this._resourceType}_${this._base_version}_History`;
         const db = await this.getDatabaseConnectionAsync({ isHistoryQuery: true });
-        return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
+        return db.collection(collectionName);
     }
 }
 

@@ -89,7 +89,7 @@ class DatabaseUpdateManager {
     async insertOneAsync ({ doc }) {
         try {
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+            const collection = await this.resourceLocator.getCollectionForResourceAsync(doc);
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
@@ -116,7 +116,7 @@ class DatabaseUpdateManager {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
              */
-            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+            const collection = await this.resourceLocator.getCollectionForResourceAsync(doc);
 
             await collection.replaceOne({ _uuid: doc._uuid }, doc.toJSONInternal());
         } catch (err) {
@@ -157,7 +157,7 @@ class DatabaseUpdateManager {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
              */
-            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+            const collection = await this.resourceLocator.getCollectionForResourceAsync(doc);
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {
@@ -328,8 +328,8 @@ class DatabaseUpdateManager {
         const requestId = requestInfo.requestId;
         const method = requestInfo.method;
         doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-        const historyCollectionName = this.resourceLocator.getHistoryCollectionName(doc);
-        const historyCollection = await this.resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
+        const historyCollectionName = this.resourceLocator.getHistoryCollectionNameForResource(doc);
+        const historyCollection = await this.resourceLocator.getCollectionByNameAsync(historyCollectionName);
         await historyCollection.insertOne(new BundleEntry({
             id: doc.id,
             resource: doc.toJSONInternal(),

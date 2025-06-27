@@ -144,7 +144,6 @@ describe('FixCodeableConcepts Tests', () => {
 
             container.register('fixCodeableConceptsRunner', (c) =>
                 new FixCodeableConceptsRunner({
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     promiseConcurrency: 3,

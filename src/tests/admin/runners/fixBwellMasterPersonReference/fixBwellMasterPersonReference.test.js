@@ -173,7 +173,6 @@ describe('Person Tests', () => {
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     preLoadCollections,
                     batchSize,
@@ -315,7 +314,6 @@ describe('Person Tests', () => {
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     preLoadCollections,
                     batchSize,
@@ -443,7 +441,6 @@ describe('Person Tests', () => {
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     preLoadCollections,
                     batchSize,
@@ -555,7 +552,6 @@ describe('Person Tests', () => {
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     preLoadCollections,
                     batchSize,
@@ -645,7 +641,6 @@ describe('Person Tests', () => {
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     preLoadCollections,
                     batchSize,

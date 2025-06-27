@@ -29,7 +29,6 @@ async function main () {
         {
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
-            mongoCollectionManager: c.mongoCollectionManager,
             batchSize,
             accessCode,
             beforeDate,

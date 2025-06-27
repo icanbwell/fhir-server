@@ -73,7 +73,6 @@ describe('Person Tests', () => {
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
                         concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
@@ -148,7 +147,6 @@ describe('Person Tests', () => {
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
                         concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
@@ -236,7 +234,6 @@ describe('Person Tests', () => {
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
                         concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
@@ -312,7 +309,6 @@ describe('Person Tests', () => {
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
                         concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
@@ -357,7 +353,6 @@ describe('Person Tests', () => {
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
                         concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
@@ -417,7 +412,6 @@ describe('Person Tests', () => {
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
                         concurrencyBatchSize,
                         adminLogger: new AdminLogger(),

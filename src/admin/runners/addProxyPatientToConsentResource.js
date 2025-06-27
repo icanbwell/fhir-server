@@ -21,7 +21,6 @@ const AvailableCollections = ['Consent_4_0_0', 'Consent_4_0_0_History'];
 class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
     /**
      * @typedef AddProxyPatientToConsentResourceRunnerParams
-     * @property {MongoCollectionManager} mongoCollectionManager
      * @property {number} batchSize
      * @property {AdminLogger} adminLogger
      * @property {MongoDatabaseManager} mongoDatabaseManager

@@ -90,7 +90,6 @@ describe('Person Tests', () => {
                     {
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
-                        mongoCollectionManager: c.mongoCollectionManager,
                         preSaveManager: c.preSaveManager,
                         personUuids: undefined,
                         minLinks: 3,
