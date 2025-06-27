@@ -229,7 +229,6 @@ module.exports = {
         'in-progress': 'ExportStatusUpdated',
         'entered-in-error': 'ExportCompleted'
     },
-    DISABLED_COLLECTIONS: ['Parameters_4_0_0'],
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS: ['extension', 'identifier'],
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM: {
         patient: 'https://icanbwell.com/codes/source_patient_id',

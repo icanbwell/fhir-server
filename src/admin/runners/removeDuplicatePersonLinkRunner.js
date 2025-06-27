@@ -10,7 +10,6 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * Constructor
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {PreSaveManager} preSaveManager
      * @param {Object} personUuids
      * @param {number} limit
@@ -23,7 +22,6 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         {
             adminLogger,
             mongoDatabaseManager,
-            mongoCollectionManager,
             preSaveManager,
             personUuids,
             limit,
@@ -34,7 +32,6 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         }
     ) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager
@@ -184,11 +181,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         await this.init();
         this.startFromIdContainer.startFromId = '';
         const db = await this.mongoDatabaseManager.getClientDbAsync();
-        const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            {
-                db, collectionName: this.collectionName
-            }
-        );
+        const dbCollection = db.collection(this.collectionName);
         // Filter to process only certain documents which match an uuid
         const personUuidQuery = this.personUuids
             ? { _uuid: { $in: this.personUuids } }

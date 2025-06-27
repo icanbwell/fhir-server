@@ -9,7 +9,6 @@ const expectedCodeSystemsFromDatabase = require('./fixtures/expected/expected_co
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getTestRequestInfo } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
-const moment = require('moment-timezone');
 const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const deepcopy = require('deepcopy');
@@ -36,14 +35,9 @@ describe('CodeSystem Tests', () => {
             const container = getTestContainer();
             expect(container).toBeDefined();
             /**
-             * @type {MongoCollectionManager}
-             */
-            const mongoCollectionManager = container.mongoCollectionManager;
-            /**
              * @type {import('../../../utils/postRequestProcessor').PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            expect(mongoCollectionManager).toBeDefined();
             /**
              * @type {MongoDatabaseManager}
              */
@@ -54,10 +48,7 @@ describe('CodeSystem Tests', () => {
              */
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'CodeSystem_4_0_0';
-            await mongoCollectionManager.clearCollectionAsync({
-                db: fhirDb,
-                collectionName
-            });
+            await fhirDb.collection(collectionName).deleteMany({});
             expect(await fhirDb.collection(collectionName).countDocuments()).toStrictEqual(0);
 
             // Currently we don't handle concurrent inserts of same resource so create
@@ -150,11 +141,6 @@ describe('CodeSystem Tests', () => {
             const container = getTestContainer();
             expect(container).toBeDefined();
             /**
-             * @type {MongoCollectionManager}
-             */
-            const mongoCollectionManager = container.mongoCollectionManager;
-            expect(mongoCollectionManager).toBeDefined();
-            /**
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
@@ -164,10 +150,7 @@ describe('CodeSystem Tests', () => {
              */
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'CodeSystem_4_0_0';
-            await mongoCollectionManager.clearCollectionAsync({
-                db: fhirDb,
-                collectionName
-            });
+            await fhirDb.collection(collectionName).deleteMany({});
 
             /**
              * @type {DatabaseUpdateFactory}
@@ -234,11 +217,6 @@ describe('CodeSystem Tests', () => {
             const container = getTestContainer();
             expect(container).toBeDefined();
             /**
-             * @type {MongoCollectionManager}
-             */
-            const mongoCollectionManager = container.mongoCollectionManager;
-            expect(mongoCollectionManager).toBeDefined();
-            /**
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
@@ -248,10 +226,7 @@ describe('CodeSystem Tests', () => {
              */
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'CodeSystem_4_0_0';
-            await mongoCollectionManager.clearCollectionAsync({
-                db: fhirDb,
-                collectionName
-            });
+            await fhirDb.collection(collectionName).deleteMany({});
             expect(await fhirDb.collection(collectionName).countDocuments()).toStrictEqual(0);
 
             /**
@@ -336,11 +311,6 @@ describe('CodeSystem Tests', () => {
             const container = getTestContainer();
             expect(container).toBeDefined();
             /**
-             * @type {MongoCollectionManager}
-             */
-            const mongoCollectionManager = container.mongoCollectionManager;
-            expect(mongoCollectionManager).toBeDefined();
-            /**
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
@@ -350,10 +320,7 @@ describe('CodeSystem Tests', () => {
              */
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'CodeSystem_4_0_0';
-            await mongoCollectionManager.clearCollectionAsync({
-                db: fhirDb,
-                collectionName
-            });
+            await fhirDb.collection(collectionName).deleteMany({});
             const codeSystemCollection = fhirDb.collection(collectionName);
             expect(await codeSystemCollection.countDocuments()).toStrictEqual(0);
 

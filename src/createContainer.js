@@ -9,7 +9,6 @@ const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
 const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
 const {AuditLogger} = require('./utils/auditLogger');
-const {MongoCollectionManager} = require('./utils/mongoCollectionManager');
 const {IndexManager} = require('./indexes/indexManager');
 const {ValueSetManager} = require('./utils/valueSet.util');
 const {DatabaseQueryFactory} = require('./dataLayer/databaseQueryFactory');
@@ -77,7 +76,6 @@ const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/pr
 const {KafkaClient} = require('./utils/kafkaClient');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
-const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
 const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
@@ -262,26 +260,18 @@ const createContainer = function () {
             mongoDatabaseManager: c.mongoDatabaseManager
         })
     );
-    container.register('mongoCollectionManager', (c) => new MongoCollectionManager(
-        {
-            indexManager: c.indexManager,
-            configManager: c.configManager,
-            mongoDatabaseManager: c.mongoDatabaseManager
-        }));
     container.register('valueSetManager', (c) => new ValueSetManager(
         {
             databaseQueryFactory: c.databaseQueryFactory
         }));
     container.register('resourceLocatorFactory', (c) => new ResourceLocatorFactory(
         {
-            mongoCollectionManager: c.mongoCollectionManager,
             mongoDatabaseManager: c.mongoDatabaseManager
         }));
 
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
         {
             resourceLocatorFactory: c.resourceLocatorFactory,
-            mongoFilterGenerator: c.mongoFilterGenerator,
             databaseAttachmentManager: c.databaseAttachmentManager
         }));
     container.register('databaseHistoryFactory', (c) => new DatabaseHistoryFactory(
@@ -373,7 +363,6 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager,
-                mongoFilterGenerator: c.mongoFilterGenerator,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 postRequestProcessor: c.postRequestProcessor
             }
@@ -406,7 +395,6 @@ const createContainer = function () {
             {
                 resourceManager: c.resourceManager,
                 postRequestProcessor: c.postRequestProcessor,
-                mongoCollectionManager: c.mongoCollectionManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 postSaveProcessor: c.postSaveProcessor,
                 preSaveManager: c.preSaveManager,
@@ -414,7 +402,6 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                mongoFilterGenerator: c.mongoFilterGenerator,
                 databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
@@ -819,12 +806,6 @@ const createContainer = function () {
     container.register('personMatchManager', (c) => new PersonMatchManager(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            configManager: c.configManager
-        }
-    ));
-
-    container.register('mongoFilterGenerator', (c) => new MongoFilterGenerator(
-        {
             configManager: c.configManager
         }
     ));

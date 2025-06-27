@@ -100,7 +100,6 @@ describe('Person Tests', () => {
                 'fixPersonLinksRunner',
                 (c) => new FixPersonLinksRunner(
                     {
-                        mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,

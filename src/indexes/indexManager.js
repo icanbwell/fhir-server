@@ -10,6 +10,7 @@ const { IndexProvider } = require('./indexProvider');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 const deepEqual = require('fast-deep-equal');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
+const { isNotSystemCollection } = require('../utils/mongoDBUtils');
 
 /**
  * @typedef IndexConfig
@@ -279,7 +280,7 @@ args: {
          */
         const commandCursor = db.listCollections();
         await commandCursor.forEach(collection => {
-            if (this.isNotSystemCollection(collection.name)) {
+            if (isNotSystemCollection(collection.name)) {
                 collectionNames.push(collection.name);
             }
         });
@@ -488,12 +489,12 @@ args: {
             const collection_names = new Set();
 
             for await (const collection of db.listCollections()) {
-                if (this.isNotSystemCollection(collection.name)) {
+                if (isNotSystemCollection(collection.name)) {
                     collection_names.add(collection.name);
                 }
             }
             for await (const collection of resourceHistoryDb.listCollections()) {
-                if (this.isNotSystemCollection(collection.name)) {
+                if (isNotSystemCollection(collection.name)) {
                     collection_names.add(collection.name);
                 }
             }
@@ -542,7 +543,7 @@ args: {
         const collection_names = new Set();
 
         for await (const collection of db.listCollections({ type: { $ne: 'view' } })) {
-            if (this.isNotSystemCollection(collection.name)) {
+            if (isNotSystemCollection(collection.name)) {
                 collection_names.add(collection.name);
             }
         }
@@ -551,7 +552,7 @@ args: {
             for await (const collection of resourceHistoryDb.listCollections({
                 type: { $ne: 'view' }
             })) {
-                if (this.isNotSystemCollection(collection.name)) {
+                if (isNotSystemCollection(collection.name)) {
                     collection_names.add(collection.name);
                 }
             }
@@ -628,7 +629,7 @@ args: {
         let collectionNames = [];
 
         for await (const collection of db.listCollections()) {
-            if (this.isNotSystemCollection(collection.name)) {
+            if (isNotSystemCollection(collection.name)) {
                 collectionNames.push(collection.name);
             }
         }
@@ -997,16 +998,6 @@ args: {
         return {
             dropped: collectionIndexesDropped
         };
-    }
-
-    /**
-     * Check if a collection is system collection or not
-     * @param {String} collectionName
-     * @returns {boolean}
-     */
-    isNotSystemCollection (collectionName) {
-        const systemCollectionNames = ['system.', 'fs.files', 'fs.chunks'];
-        return !systemCollectionNames.some(systemCollectionName => collectionName.indexOf(systemCollectionName) !== -1);
     }
 }
 

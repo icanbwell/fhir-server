@@ -17,7 +17,6 @@ const marketingCategoryCodingDisplay = 'marketing';
 class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
@@ -30,7 +29,6 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} beforeLastUpdatedDate
      */
     constructor ({
-        mongoCollectionManager,
         batchSize,
         adminLogger,
         mongoDatabaseManager,
@@ -43,7 +41,6 @@ class FixWalgreenConsentRunner extends BaseBulkOperationRunner {
         beforeLastUpdatedDate
     }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

@@ -138,7 +138,8 @@ Linked resources can be nested. For example, this graph has nested linked resour
                             "path": "location[x]",
                             "target": [
                                 {
-                                    "type": "Location"
+                                    "type": "Location",
+                                    "params": "_security=https://www.icanbwell.com/access|abc"
                                 }
                             ]
                         },
@@ -200,6 +201,20 @@ For reverse link params, you can use standard query parameters:
   ]
 },
 ```
+
+Filtering in forward reference linkage can also be done as in this example:
+```json
+{
+    "path": "location[x]",
+    "target": [
+        {
+            "type": "Location",
+            "params": "_security=https://www.icanbwell.com/access|abc"
+        }
+    ]
+}
+```
+Here only those locations will be fetched whose reference in present at given path and those which satisfy the query parameter
 
 ### Contained query parameter
 

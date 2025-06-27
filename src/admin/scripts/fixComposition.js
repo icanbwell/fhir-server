@@ -35,7 +35,6 @@ async function main () {
     // now add our class
     container.register('fixCompositionRunner', (c) =>
         new FixCompositionRunner({
-            mongoCollectionManager: c.mongoCollectionManager,
             mongoDatabaseManager: c.mongoDatabaseManager,
             databaseHistoryFactory: c.databaseHistoryFactory,
             batchSize,

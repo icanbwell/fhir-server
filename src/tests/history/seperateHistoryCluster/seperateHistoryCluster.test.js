@@ -257,7 +257,6 @@ describe('Person Tests', () => {
                 'changeSourceAssigningAuthorityRunner',
                 (c) =>
                     new ChangeSourceAssigningAuthorityRunner({
-                        mongoCollectionManager: c.mongoCollectionManager,
                         collections,
                         batchSize,
                         useAuditDatabase: false,

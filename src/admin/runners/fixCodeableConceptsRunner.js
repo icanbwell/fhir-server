@@ -15,7 +15,6 @@ const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeable
 class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
@@ -33,7 +32,6 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {boolean} updateResources
      */
     constructor ({
-        mongoCollectionManager,
         batchSize,
         adminLogger,
         mongoDatabaseManager,
@@ -51,7 +49,6 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
         updateResources
     }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

@@ -1,10 +1,10 @@
 const { assertTypeEquals } = require('../../utils/assertType');
 const moment = require('moment-timezone');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
-const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
 const { ObjectId } = require('mongodb');
+const { isNotSystemCollection } = require('../../utils/mongoDBUtils');
 
 /**
  * @classdesc Copies documents from one collection into the other collection in different clusters
@@ -13,7 +13,6 @@ class UpdateCollectionsRunner {
     /**
      * Constructor
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {moment.Moment} updatedBefore
      * @param {number} readBatchSize
      * @param concurrentRunners
@@ -25,7 +24,6 @@ class UpdateCollectionsRunner {
      */
     constructor ({
         mongoDatabaseManager,
-        mongoCollectionManager,
         updatedBefore,
         readBatchSize,
         concurrentRunners,
@@ -76,12 +74,6 @@ class UpdateCollectionsRunner {
          */
         this.mongoDatabaseManager = mongoDatabaseManager;
         assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
-
-        /**
-         * @type {MongoCollectionManager}
-         */
-        this.mongoCollectionManager = mongoCollectionManager;
-        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
 
         /**
          * @type {AdminLogger}
@@ -139,7 +131,7 @@ class UpdateCollectionsRunner {
         const collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
-            if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name)) {
+            if (collection.type !== 'collection' || !isNotSystemCollection(collection.name)) {
                 continue;
             }
             // If the list of collection is mentioned verify the collection name is in the list of collections passed

@@ -265,9 +265,9 @@ class DatabaseCursor {
             });
             if (this.resourceType === 'AuditEvent') {
                 // due to online archiving, default of 'allPlansExecution' not available
-                return [this.cursor.explain('queryPlanner')];
+                return [await this.cursor.explain('queryPlanner')];
             } else {
-                return [this.cursor.explain()];
+                return [await this.cursor.explain()];
             }
         } catch (e) {
             throw new RethrownError({

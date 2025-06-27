@@ -85,7 +85,6 @@ describe('Observation Tests', () => {
 
             container.register('fixReferenceIdHapiRunner', (c) => new FixReferenceIdHapiRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,
@@ -166,7 +165,6 @@ describe('Observation Tests', () => {
 
             container.register('fixReferenceIdHapiRunner', (c) => new FixReferenceIdHapiRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,
@@ -233,7 +231,6 @@ describe('Observation Tests', () => {
 
             container.register('fixReferenceIdHapiRunner', (c) => new FixReferenceIdHapiRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,
@@ -300,7 +297,6 @@ describe('Observation Tests', () => {
 
             container.register('fixReferenceIdHapiRunner', (c) => new FixReferenceIdHapiRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,

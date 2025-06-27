@@ -16,7 +16,6 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 class FixPersonLinksRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {date|undefined} beforeLastUpdatedDate
@@ -32,7 +31,6 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
      */
     constructor (
         {
-            mongoCollectionManager,
             batchSize,
             beforeLastUpdatedDate,
             databaseQueryFactory,
@@ -46,7 +44,6 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
             minLinks
         }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager
@@ -369,10 +366,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                 {
                     resourceType: this._resourceType
                 });
-            const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
-                db,
-                collectionName
-            });
+            const dbCollection = db.collection(collectionName);
             const result = await dbCollection.aggregate([
                 {
                     $match: {

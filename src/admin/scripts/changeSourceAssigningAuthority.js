@@ -64,7 +64,6 @@ async function main () {
     // now add our class
     container.register('changeSourceAssigningAuthorityRunner', (c) => new ChangeSourceAssigningAuthorityRunner(
         {
-            mongoCollectionManager: c.mongoCollectionManager,
             mongoDatabaseManager: c.mongoDatabaseManager,
             preSaveManager: c.preSaveManager,
             databaseQueryFactory: c.databaseQueryFactory,

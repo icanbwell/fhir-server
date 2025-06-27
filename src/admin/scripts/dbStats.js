@@ -27,7 +27,6 @@ async function main () {
         (c) =>
             new DatabaseStats({
                 mongoDatabaseManager: c.mongoDatabaseManager,
-                mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 adminLogger
             })

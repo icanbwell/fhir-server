@@ -35,7 +35,6 @@ async function main () {
 
     // now add our class
     container.register('getProxyPatientUsageDataRunner', (c) => new GetProxyPatientUsageDataRunner({
-        mongoCollectionManager: c.mongoCollectionManager,
         mongoDatabaseManager: c.mongoDatabaseManager,
         adminLogger,
         batchSize,

@@ -84,7 +84,6 @@ describe('Person Tests', () => {
 
             container.register('fixReferenceIdRunner', (c) => new MockFixReferenceIdRunner(
                 {
-                    mongoCollectionManager: c.mongoCollectionManager,
                     collections,
                     batchSize,
                     useAuditDatabase: false,

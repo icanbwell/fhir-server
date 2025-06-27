@@ -14,7 +14,6 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
      * @param {boolean} includeHistoryCollections
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      */
     constructor (
         {
@@ -23,12 +22,10 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
             useAuditDatabase,
             includeHistoryCollections,
             adminLogger,
-            mongoDatabaseManager,
-            mongoCollectionManager
+            mongoDatabaseManager
         }
     ) {
         super({
-            mongoCollectionManager,
             adminLogger,
             mongoDatabaseManager
         });

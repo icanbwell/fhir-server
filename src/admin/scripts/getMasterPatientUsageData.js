@@ -35,7 +35,6 @@ async function main () {
 
     // now add our class
     container.register('getMasterPatientUsageDataRunner', (c) => new GetMasterPatientUsageDataRunner({
-        mongoCollectionManager: c.mongoCollectionManager,
         mongoDatabaseManager: c.mongoDatabaseManager,
         adminLogger,
         batchSize,

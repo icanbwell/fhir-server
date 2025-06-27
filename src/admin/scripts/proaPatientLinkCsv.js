@@ -35,7 +35,6 @@ async function main () {
 
     // now add our class
     container.register('proaPatientLinkCsvRunner', (c) => new ProaPatientLinkCsvRunner({
-        mongoCollectionManager: c.mongoCollectionManager,
         mongoDatabaseManager: c.mongoDatabaseManager,
         personMatchManager: c.personMatchManager,
         adminLogger,

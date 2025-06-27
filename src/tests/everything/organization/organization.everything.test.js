@@ -104,9 +104,9 @@ describe('Organization Everything Tests', () => {
             collections = await db.listCollections().toArray();
             const collectionNames = collections.map(collection => collection.name);
             expect(collectionNames).toEqual(expect.arrayContaining([
-                'Organization_4_0_0', 'OrganizationAffiliation_4_0_0', 'Location_4_0_0_History',
+                'Organization_4_0_0', 'Location_4_0_0_History',
                 'HealthcareService_4_0_0_History', 'Organization_4_0_0_History',
-                'Location_4_0_0', 'HealthcareService_4_0_0', 'Practitioner_4_0_0'
+                'Location_4_0_0', 'HealthcareService_4_0_0'
             ]));
         });
     });

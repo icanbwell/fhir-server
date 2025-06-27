@@ -7,7 +7,6 @@ const { RethrownError } = require('../../utils/rethrownError');
 class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
@@ -22,7 +21,6 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} beforeLastUpdatedDate
      */
     constructor ({
-        mongoCollectionManager,
         collections,
         batchSize,
         adminLogger,
@@ -37,7 +35,6 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
         beforeLastUpdatedDate
     }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

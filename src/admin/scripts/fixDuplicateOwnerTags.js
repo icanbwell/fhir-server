@@ -41,7 +41,6 @@ async function main () {
     // now add our class
     container.register('fixDuplicateOwnerTagsRunner', (c) => new FixDuplicateOwnerTagsRunner(
         {
-            mongoCollectionManager: c.mongoCollectionManager,
             mongoDatabaseManager: c.mongoDatabaseManager,
             collections,
             batchSize,

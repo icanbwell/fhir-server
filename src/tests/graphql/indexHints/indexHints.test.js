@@ -1,5 +1,5 @@
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getGraphQLHeaders } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getGraphQLHeaders, getTestContainer } = require('../../common');
 const { customIndexes } = require('./mockCustomIndexes');
 const { IndexProvider } = require('../../../indexes/indexProvider');
 
@@ -8,6 +8,8 @@ const personBundleResource = require('./fixtures/person_bundle.json');
 
 const fs = require('fs');
 const path = require('path');
+const { CreateCollectionsRunner } = require('../../../admin/runners/createCollectionsRunner');
+const { AdminLogger } = require('../../../admin/adminLogger');
 
 const queryWithIndexHint1 = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_with_indexhint_1.graphql'),
@@ -40,8 +42,22 @@ describe('Graphql IndexHints Test', () => {
                 container.register('indexProvider', (c) => new MockIndexProvider({
                     configManager: c.configManager
                 }));
+                container.register(
+                    'createCollectionsRunner',
+                    (c) =>
+                        new CreateCollectionsRunner({
+                            indexManager: c.indexManager,
+                            adminLogger: new AdminLogger(),
+                            mongoDatabaseManager: c.mongoDatabaseManager
+                        })
+                );
                 return container;
             });
+
+            const container = getTestContainer();
+            // create collections and indexes
+            const createCollectionsRunner = container.createCollectionsRunner;
+            await createCollectionsRunner.processAsync();
 
             const graphqlQueryTextWithIndexHint1 = queryWithIndexHint1.replace(/\\n/g, '');
             const graphqlQueryTextWithIndexHint2 = queryWithIndexHint2.replace(/\\n/g, '');

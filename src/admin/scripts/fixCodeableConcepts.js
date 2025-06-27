@@ -95,7 +95,6 @@ async function main () {
     // now add our class
     container.register('fixCodeableConceptsRunner', (c) => new FixCodeableConceptsRunner(
             {
-                mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
                 promiseConcurrency,

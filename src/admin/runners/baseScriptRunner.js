@@ -13,31 +13,23 @@
  */
 
 const { assertTypeEquals } = require('../../utils/assertType');
-const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
 const { AdminLogger } = require('../adminLogger');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
+const { isNotSystemCollection } = require('../../utils/mongoDBUtils');
 
 /**
  * @classdesc base class that implements connecting to the database
  */
 class BaseScriptRunner {
     /**
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
     constructor (
         {
-            mongoCollectionManager,
             adminLogger,
             mongoDatabaseManager
         }) {
-        /**
-         * @type {MongoCollectionManager}
-         */
-        this.mongoCollectionManager = mongoCollectionManager;
-        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
-
         /**
          * @type {AdminLogger}
          */
@@ -103,7 +95,7 @@ class BaseScriptRunner {
         /**
          * @type {string[]}
          */
-        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({ db });
+        let collectionNames = await this.getAllCollectionNamesForDb({ db });
         // exclude history tables since we always search by id on those
         if (!includeHistoryCollections) {
             collectionNames = collectionNames.filter(c => !c.includes('_History'));
@@ -112,7 +104,7 @@ class BaseScriptRunner {
             // for backward compatability in case clientDB and resourceHistoryDB are same
             collectionNames = new Set(
                 collectionNames.concat(
-                    await this.mongoCollectionManager.getAllCollectionNames({
+                    await this.getAllCollectionNamesForDb({
                         db: resourceHistoryDb
                     })
                 )
@@ -120,6 +112,25 @@ class BaseScriptRunner {
         }
         await this.mongoDatabaseManager.disconnectClientAsync(client);
         return Array.from(collectionNames);
+    }
+
+    /**
+     * Returns the list of all collection names specific to a db
+     * @param {import('mongodb').Db} db
+     * @return {Promise<string[]>}
+     */
+    async getAllCollectionNamesForDb ({ db }) {
+        /**
+         * @type {string[]}
+         */
+        const collectionNames = [];
+        for await (const /** @type {{name: string, type: string}} */ collection of db.listCollections(
+            { type: { $ne: 'view' } }, { nameOnly: true })) {
+            if (isNotSystemCollection(collection.name)) {
+                collectionNames.push(collection.name);
+            }
+        }
+        return collectionNames;
     }
 }
 

@@ -15,7 +15,6 @@ const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory')
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
-const { MongoFilterGenerator } = require('../../utils/mongoFilterGenerator');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ResourceMerger } = require('../common/resourceMerger');
@@ -43,7 +42,6 @@ class MergeManager {
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
-     * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
@@ -59,7 +57,6 @@ class MergeManager {
             resourceValidator,
             preSaveManager,
             configManager,
-            mongoFilterGenerator,
             databaseAttachmentManager,
             postRequestProcessor
         }
@@ -118,12 +115,6 @@ class MergeManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {MongoFilterGenerator}
-         */
-        this.mongoFilterGenerator = mongoFilterGenerator;
-        assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
 
         /**
          * @type {DatabaseAttachmentManager}
@@ -348,7 +339,7 @@ class MergeManager {
                 );
             } else {
                 currentResource = await databaseQueryManager.findOneAsync({
-                    query: this.mongoFilterGenerator.generateFilterForUuid({ uuid })
+                    query: { _uuid: uuid.toString() }
                 });
             }
 

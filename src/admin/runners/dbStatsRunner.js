@@ -1,21 +1,19 @@
+const { isNotSystemCollection } = require('../../utils/mongoDBUtils');
 const { BaseScriptRunner } = require('./baseScriptRunner');
 
 class DatabaseStats extends BaseScriptRunner {
     /**
      *
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string|Array|undefined} collections
      * @param {AdminLogger} adminLogger
      */
     constructor ({
         mongoDatabaseManager,
-        mongoCollectionManager,
         collections,
         adminLogger
     }) {
         super({
-            mongoCollectionManager,
             adminLogger,
             mongoDatabaseManager
         });
@@ -35,7 +33,7 @@ class DatabaseStats extends BaseScriptRunner {
         const validCollections = [];
         for (const collection of collectionNames) {
             // Skip collections which are of type views or collection whose name contains 'system.
-            if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name)) {
+            if (collection.type !== 'collection' || !isNotSystemCollection(collection.name)) {
                 this.adminLogger.logInfo(`${collection.name} is an invalid collection`);
                 continue;
             }

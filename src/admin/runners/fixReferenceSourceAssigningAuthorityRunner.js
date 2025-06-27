@@ -77,7 +77,6 @@ function getFilter (properties) {
 class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner {
     /**
      * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
@@ -98,7 +97,6 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      */
     constructor (
         {
-            mongoCollectionManager,
             collections,
             batchSize,
             adminLogger,
@@ -118,7 +116,6 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             startFromId
         }) {
         super({
-            mongoCollectionManager,
             batchSize,
             adminLogger,
             mongoDatabaseManager

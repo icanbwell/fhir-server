@@ -20,12 +20,23 @@ up:
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-fhir-1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-fhir-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
+	if [ ! -f ./generatorScripts/data/.collections_created ]; then \
+		echo "\nCreating all mongo collections and indexes" && \
+		make create_all_collections && \
+		mkdir -p ./generatorScripts/data && \
+		touch ./generatorScripts/data/.collections_created; \
+	fi
 	echo FHIR server GraphQL: http://localhost:3000/\$$graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
 	echo OpenSearch: http://admin:admin@localhost:9200/fhir_summaries/_search?pretty && \
 	echo FHIR server: http://localhost:3000
+
+.PHONY: create_all_collections
+create_all_collections:
+	docker exec -t fhir-dev-fhir-1 sh -c "cd /srv/src && node src/admin/scripts/createCollections.js"
+	echo "\nAll collections and indexes created successfully."
 
 .PHONY:up-offline
 up-offline:

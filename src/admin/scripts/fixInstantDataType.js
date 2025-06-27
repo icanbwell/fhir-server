@@ -41,7 +41,6 @@ async function main () {
     // now add our class
     container.register('fixInstantDataTypeRunner', (c) => new FixInstantDataTypeRunner(
         {
-            mongoCollectionManager: c.mongoCollectionManager,
             mongoDatabaseManager: c.mongoDatabaseManager,
             collections,
             batchSize,

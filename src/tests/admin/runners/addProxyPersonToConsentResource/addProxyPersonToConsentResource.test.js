@@ -77,7 +77,6 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             'addProxyPatientToConsentResourceRunner',
             (c) =>
                 new AddProxyPatientToConsentResourceRunner({
-                    mongoCollectionManager: c.mongoCollectionManager,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     collections,
                     batchSize,
@@ -128,7 +127,6 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             'addProxyPatientToConsentResourceRunner',
             (c) =>
                 new AddProxyPatientToConsentResourceRunner({
-                    mongoCollectionManager: c.mongoCollectionManager,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     collections,
                     batchSize,
@@ -180,7 +178,6 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             'addProxyPatientToConsentResourceRunner',
             (c) =>
                 new AddProxyPatientToConsentResourceRunner({
-                    mongoCollectionManager: c.mongoCollectionManager,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     collections,
                     batchSize,
@@ -231,7 +228,6 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             'addProxyPatientToConsentResourceRunner',
             (c) =>
                 new AddProxyPatientToConsentResourceRunner({
-                    mongoCollectionManager: c.mongoCollectionManager,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     collections,
                     batchSize,
@@ -284,7 +280,6 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             'addProxyPatientToConsentResourceRunner',
             (c) =>
                 new AddProxyPatientToConsentResourceRunner({
-                    mongoCollectionManager: c.mongoCollectionManager,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     collections,
                     batchSize,
