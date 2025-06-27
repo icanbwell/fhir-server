@@ -67,7 +67,7 @@ async function main() {
     );
 
     /**
-     * @type {PartitionAuditEventRunner}
+     * @type {ProaResourcesStats}
      */
     const processProaResourcesStats = container.processProaResourcesStats;
     await processProaResourcesStats.processAsync();

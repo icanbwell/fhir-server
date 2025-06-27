@@ -116,7 +116,7 @@ describe('databaseBulkInserter Tests', () => {
              */
             const postRequestProcessor = container.postRequestProcessor;
             await postRequestProcessor.executeAsync({ requestId });
-            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
 
             /**
              * @type {MongoDatabaseManager}

@@ -48,7 +48,6 @@ const {BundleManager} = require('./operations/common/bundleManager');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ResourceMerger} = require('./operations/common/resourceMerger');
 const {ResourceValidator} = require('./operations/common/resourceValidator');
-const {PartitioningManager} = require('./partitioners/partitioningManager');
 const {ConfigManager} = require('./utils/configManager');
 const {AccessIndexManager} = require('./operations/common/accessIndexManager');
 const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
@@ -251,11 +250,6 @@ const createContainer = function () {
         proaConsentManager: c.proaConsentManager,
         requestSpecificCache: c.requestSpecificCache
     }));
-    container.register('partitioningManager', (c) => new PartitioningManager(
-        {
-            configManager: c.configManager,
-            mongoDatabaseManager: c.mongoDatabaseManager
-        }));
     container.register('indexProvider', (c) => new IndexProvider({
         configManager: c.configManager
     }));
@@ -281,7 +275,6 @@ const createContainer = function () {
     container.register('resourceLocatorFactory', (c) => new ResourceLocatorFactory(
         {
             mongoCollectionManager: c.mongoCollectionManager,
-            partitioningManager: c.partitioningManager,
             mongoDatabaseManager: c.mongoDatabaseManager
         }));
 

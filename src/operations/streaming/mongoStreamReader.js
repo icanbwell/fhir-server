@@ -14,7 +14,7 @@ const { RETRIEVE } = require('../../constants').GRIDFS;
 class MongoReadableStream extends Readable {
     /**
      * constructor
-     * @param {DatabasePartitionedCursor} cursor
+     * @param {DatabaseCursor} cursor
      * @param {AbortSignal} signal
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {number} highWaterMark
@@ -36,7 +36,7 @@ class MongoReadableStream extends Readable {
         super({ objectMode: true, highWaterMark });
 
         /**
-         * @type {DatabasePartitionedCursor}
+         * @type {DatabaseCursor}
          */
         this.cursor = cursor;
 
@@ -114,7 +114,7 @@ class MongoReadableStream extends Readable {
                      * element
                      * @type {Resource}
                      */
-                    let resource = await this.cursor.nextRaw();
+                    let resource = await this.cursor.next();
                     this.lastUUID = resource._uuid;
                     if (this.configManager.logStreamSteps) {
                         logInfo(`mongoStreamReader: read ${resource.id}`, { count, size });

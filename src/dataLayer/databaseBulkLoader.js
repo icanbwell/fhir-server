@@ -116,7 +116,7 @@ class DatabaseBulkLoader {
             );
             /**
              * cursor
-             * @type {DatabasePartitionedCursor}
+             * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
              */
             const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources });
 
@@ -134,7 +134,7 @@ class DatabaseBulkLoader {
 
     /**
      * Reads resources from cursor
-     * @param {DatabasePartitionedCursor} cursor
+     * @param {import('../dataLayer/databaseCursor').DatabaseCursor} cursor
      * @returns {Promise<Resource[]>}
      */
     async cursorToResourcesAsync ({ cursor }) {
@@ -148,7 +148,7 @@ class DatabaseBulkLoader {
                  * element
                  * @type {Resource|null}
                  */
-                const resource = await cursor.next();
+                const resource = await cursor.nextObject();
                 result.push(resource);
             }
             return result;

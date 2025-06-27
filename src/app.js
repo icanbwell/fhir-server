@@ -207,6 +207,9 @@ function createApp({fnGetContainer}) {
     // middleware to parse user agent string
     app.use(useragent.express());
 
+    // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
+    app.use(helmet());
+
     // redirect to new fhir-ui if html is requested
     app.use((req, res, next) => {
         if (shouldReturnHtml(req)) {
@@ -229,9 +232,6 @@ function createApp({fnGetContainer}) {
 
     // middleware for oAuth
     app.use(passport.initialize());
-
-    // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
-    app.use(helmet());
 
     // Used to initialize context for each request
     app.use(httpContext.middleware);

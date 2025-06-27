@@ -19,7 +19,7 @@ const {
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
-const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
+const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 const { ConfigManager } = require('../../../utils/configManager');
 
 const headers = getHeaders('user/*.read access/client.*');
@@ -34,7 +34,7 @@ class MockConfigManager extends ConfigManager {
 }
 
 describe('Disabled HIE/Treatment Related Data Access Test', () => {
-    const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');
+    const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
         cursorSpy.mockReturnThis();

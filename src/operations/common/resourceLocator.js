@@ -1,10 +1,7 @@
-const async = require('async');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
-const { PartitioningManager } = require('../../partitioners/partitioningManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
-const { RethrownError } = require('../../utils/rethrownError');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 /**
@@ -16,12 +13,8 @@ class ResourceLocator {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {PartitioningManager} partitioningManager
      */
-    constructor ({
-                    mongoDatabaseManager,
-                    mongoCollectionManager, resourceType, base_version, partitioningManager
-                }) {
+    constructor({ mongoDatabaseManager, mongoCollectionManager, resourceType, base_version }) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
         assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
@@ -39,11 +32,6 @@ class ResourceLocator {
          * @private
          */
         this._base_version = base_version;
-        /**
-         * @type {PartitioningManager}
-         */
-        this.partitioningManager = partitioningManager;
-        assertTypeEquals(partitioningManager, PartitioningManager);
 
         /**
          * @type {MongoDatabaseManager}
@@ -53,102 +41,60 @@ class ResourceLocator {
     }
 
     /**
-     * returns the collection name for this resource
+     * returns the collection name for given resource
      * @param {Resource} resource
-     * @returns {Promise<string>}
+     * @returns {string}
      */
-    async getCollectionNameAsync (resource) {
-        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+    getCollectionNameForResource(resource) {
         assertIsValid(resource, 'resource is null');
-        return await this.partitioningManager.getPartitionNameByResourceAsync(
-            { resource, base_version: this._base_version });
+        return `${resource.resourceType}_${this._base_version}`;
+    }
+
+    /**
+     * returns the collection name
+     * @returns {string}
+     */
+    getCollectionName() {
+        assertIsValid(this._resourceType, '_resourceType is null');
+        return `${this._resourceType}_${this._base_version}`;
     }
 
     /**
      * returns unique collections names for the provided resources
      * @param {Resource[]} resources
-     * @returns {Promise<string[]>}
+     * @returns {string[]}
      */
-    async getCollectionNamesAsync ({ resources }) {
-        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return await this.partitioningManager.getPartitionNamesByResourcesAsync(
-            { resources, base_version: this._base_version }
-        );
-    }
-
-    /**
-     * returns all the collection names for resourceType
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
-     * @param {Object} [extraInfo]
-     * @returns {Promise<string[]>}
-     */
-    async getCollectionNamesForQueryAsync ({ query, extraInfo = {} }) {
-        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return await this.partitioningManager.getPartitionNamesByQueryAsync({
-            resourceType: this._resourceType,
-            base_version: this._base_version,
-            query,
-            extraInfo
+    getCollectionNames({ resources }) {
+        let collectionNames = resources.map((resource) => {
+            assertIsValid(resource, 'resource is null');
+            return this.getCollectionNameForResource(resource);
         });
-    }
-
-    /**
-     * returns the first collection name for resourceType.   Use for debugging only
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
-     * @returns {Promise<string>}
-     */
-    async getFirstCollectionNameForQueryDebugOnlyAsync ({ query }) {
-        try {
-            assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-            /**
-             * @type {string[]}
-             */
-            const collectionNames = await this.partitioningManager.getPartitionNamesByQueryAsync({
-                resourceType: this._resourceType,
-                base_version: this._base_version,
-                query
-            });
-            return collectionNames.length > 0 ? collectionNames[0] : '';
-        } catch (e) {
-            throw new RethrownError({
-                message: 'getFirstCollectionNameForQueryDebugOnlyAsync()',
-                error: e,
-                args: {
-                    query
-                }
-            });
-        }
+        return Array.from(new Set(collectionNames)); // return unique collection names
     }
 
     /**
      * returns the history collection name for the given resource
      * @param {Resource} resource
-     * @returns {Promise<string>}
+     * @returns {string}
      */
-    async getHistoryCollectionNameAsync (resource) {
-        assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
-        /**
-         * @type {string}
-         */
-        const partition = await this.partitioningManager.getPartitionNameByResourceAsync({
-            resource,
-            base_version: this._base_version
-        });
-        return `${partition}_History`;
+    getHistoryCollectionName(resource) {
+        assertIsValid(resource, 'resource is null');
+        return `${resource.resourceType}_${this._base_version}_History`;
     }
 
     /**
-     * returns all the collection names for resourceType
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
-     * @returns {Promise<string[]>}
+     * returns history the collection names for resourceType
+     * @returns {string}
      */
-    async getHistoryCollectionNamesForQueryAsync ({ query }) {
-        assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return await this.partitioningManager.getAllHistoryPartitionsForResourceTypeAsync({
-            resourceType: this._resourceType,
-            base_version: this._base_version,
-            query
-        });
+    getHistoryCollectionNameForQuery() {
+        assertIsValid(
+            !this._resourceType.endsWith('_History'),
+            `resourceType ${this._resourceType} has an invalid postfix`
+        );
+        if (this._resourceType === 'AuditEvent') {
+            return null;
+        }
+        return `${this._resourceType}_${this._base_version}_History`;
     }
 
     /**
@@ -156,13 +102,12 @@ class ResourceLocator {
      * @param {Object} [extraInfo]
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseConnectionAsync (extraInfo = {}) {
+    async getDatabaseConnectionAsync(extraInfo = {}) {
         // noinspection JSValidateTypes
-        return await this.mongoDatabaseManager.getDatabaseForResourceAsync(
-            {
-                resourceType: this._resourceType,
-                extraInfo
-            });
+        return await this.mongoDatabaseManager.getDatabaseForResourceAsync({
+            resourceType: this._resourceType,
+            extraInfo
+        });
     }
 
     /**
@@ -170,28 +115,29 @@ class ResourceLocator {
      * @param {string} collectionName
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateCollectionAsync (collectionName) {
+    async getOrCreateCollectionAsync(collectionName) {
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = await this.getDatabaseConnectionAsync({isHistoryQuery: collectionName.endsWith('_History')});
-        return await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            { db, collectionName });
+        const db = await this.getDatabaseConnectionAsync({ isHistoryQuery: collectionName.endsWith('_History') });
+        return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
     }
 
     /**
      * Creates a db collection for access log
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateAccessLogCollectionAsync () {
+    async getOrCreateAccessLogCollectionAsync() {
         /**
          * Access log mongo db connection
          * @type {import('mongodb').Db}
          */
         const db = await this.mongoDatabaseManager.getAccessLogsDbAsync();
-        return await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            { db, collectionName: ACCESS_LOGS_COLLECTION_NAME });
+        return await this.mongoCollectionManager.getOrCreateCollectionAsync({
+            db,
+            collectionName: ACCESS_LOGS_COLLECTION_NAME
+        });
     }
 
     /**
@@ -199,74 +145,45 @@ class ResourceLocator {
      * @param {Resource} resource
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateCollectionForResourceAsync (resource) {
+    async getOrCreateCollectionForResourceAsync(resource) {
         assertTypeEquals(resource, Resource);
         /**
          * @type {string}
          */
-        const collectionName = await this.getCollectionNameAsync(resource);
+        const collectionName = this.getCollectionNameForResource(resource);
         return await this.getOrCreateCollectionAsync(collectionName);
     }
 
     /**
-     * Gets all the collections for these resources.  If collections do not exist then they are created.
-     * @param {Resource[]} resources
-     * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
-     */
-    async getOrCreateCollectionsAsync ({ resources }) {
-        /**
-         * @type {string[]}
-         */
-        const collectionNames = await this.getCollectionNamesAsync({ resources });
-        /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
-         */
-        const db = await this.getDatabaseConnectionAsync();
-        return async.map(collectionNames,
-            async collectionName => await this.mongoCollectionManager.getOrCreateCollectionAsync(
-                { db, collectionName }));
-    }
-
-    /**
-     * Gets all the collections for this resourceType.  If collections do not exist then they are created.
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * Gets collection for this resourceType.  If collection do not exist then it is created.
      * @param {Object} extraInfo
-     * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
+     * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateCollectionsForQueryAsync ({ query, extraInfo = {} }) {
+    async getOrCreateCollectionForQueryAsync({ extraInfo = {} }) {
         /**
          * @type {string[]}
          */
-        const collectionNames = await this.getCollectionNamesForQueryAsync({ query, extraInfo });
+        const collectionName = `${this._resourceType}_${this._base_version}`;
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
         const db = await this.getDatabaseConnectionAsync(extraInfo);
-        return async.map(collectionNames,
-            async collectionName => await this.mongoCollectionManager.getOrCreateCollectionAsync(
-                { db, collectionName }));
+        return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
     }
 
     /**
-     * Gets all the collections for this resourceType.  If collections do not exist then they are created.
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
-     * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
+     * Gets the history collection for this resourceType.  If collection do not exist then it is created.
+     * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateHistoryCollectionsForQueryAsync ({ query }) {
-        /**
-         * @type {string[]}
-         */
-        const collectionNames = await this.getHistoryCollectionNamesForQueryAsync({ query });
+    async getOrCreateHistoryCollectionForQueryAsync() {
+        const collectionName = this.getHistoryCollectionNameForQuery();
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = await this.getDatabaseConnectionAsync({isHistoryQuery: true});
-        return async.map(collectionNames,
-            async collectionName => await this.mongoCollectionManager.getOrCreateCollectionAsync(
-                { db, collectionName }));
+        const db = await this.getDatabaseConnectionAsync({ isHistoryQuery: true });
+        return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
     }
 
     /**
@@ -274,16 +191,16 @@ class ResourceLocator {
      * @param {Resource} resource
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateHistoryCollectionAsync (resource) {
+    async getOrCreateHistoryCollectionAsync(resource) {
         /**
          * @type {string}
          */
-        const collectionName = await this.getHistoryCollectionNameAsync(resource);
+        const collectionName = this.getHistoryCollectionName(resource);
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = await this.getDatabaseConnectionAsync({isHistoryQuery: true});
+        const db = await this.getDatabaseConnectionAsync({ isHistoryQuery: true });
         return await this.mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName });
     }
 }

@@ -4,6 +4,7 @@ const { assertIsValid } = require('../utils/assertType');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { RethrownError } = require('../utils/rethrownError');
 const { BadRequestError } = require('../utils/httpErrors');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 class FhirResourceCreator {
     /**
@@ -101,6 +102,31 @@ class FhirResourceCreator {
                     source: 'FhirResourceCreator.createArray'
                 }
             );
+        }
+    }
+
+    /**
+     * maps a doc from the database into a Resource Object or BundleEntry
+     * @param {Object} doc
+     * @param {string} classResourceType
+     * @return {Resource|BundleEntry}
+     */
+    static mapDocumentToResourceObject(doc, classResourceType) {
+        const resourceType = doc.resource ? 'BundleEntry' : doc.resourceType || classResourceType;
+        try {
+            if (resourceType === 'BundleEntry') {
+                return new BundleEntry(doc);
+            }
+            return FhirResourceCreator.createByResourceType(doc, resourceType);
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in mapping resource to Resource Object',
+                error: e,
+                args: {
+                    resource: doc
+                },
+                source: 'FhirResourceCreator.mapDocumentToResourceObject'
+            });
         }
     }
 }

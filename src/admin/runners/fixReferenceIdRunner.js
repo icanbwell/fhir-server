@@ -305,11 +305,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             /**
              * @type {string}
              */
-            const referenceCollectionName = (await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(
-                {
-                    query: {}
-                }
-            )).replace('_4_0_0', '');
+            const referenceCollectionName = (resourceLocator.getCollectionName()).replace('_4_0_0', '');
 
             // first check in cache
             /**

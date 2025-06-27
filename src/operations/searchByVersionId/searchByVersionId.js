@@ -197,7 +197,7 @@ class SearchByVersionIdOperation {
                         resourceType, base_version
                     }
                 );
-                result = await databaseHistoryManager.findOneRawAsync({
+                result = await databaseHistoryManager.findOneAsync({
                     query
                 });
             } catch (e) {

@@ -55,14 +55,14 @@ const {
     createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
+const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
 const { jest } = require('@jest/globals');
 
 describe('Consent Based Data Access Test', () => {
-    const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');
+    const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
         cursorSpy.mockReturnThis();

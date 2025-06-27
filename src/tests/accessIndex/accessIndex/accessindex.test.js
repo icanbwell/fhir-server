@@ -3,41 +3,22 @@ const auditevent1Resource = require('./fixtures/AuditEvent/auditevent1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 // expected
-const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
 const expectedAuditEventResourcesThedcare = require('./fixtures/expected/expected_AuditEvent_thedcare.json');
 const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const moment = require('moment-timezone');
 const { ConfigManager } = require('../../../utils/configManager');
-const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
 const { IndexProvider } = require('../../../indexes/indexProvider');
 
 class MockConfigManager extends ConfigManager {
-    /**
-     * @returns {string[]}
-     */
-    get partitionResources () {
-        return ['Account', 'AuditEvent'];
-    }
-
     get useAccessIndex () {
         return true;
     }
 
     get resourcesWithAccessIndex () {
         return ['Account', 'AuditEvent'];
-    }
-}
-
-class MockConfigManagerWithNoPartitionedResources extends ConfigManager {
-    /**
-     * @returns {string[]}
-     */
-    get partitionResources () {
-        return [];
     }
 }
 
@@ -102,15 +83,6 @@ describe('AuditEvent Tests', () => {
             const mongoDatabaseManager = container.mongoDatabaseManager;
 
             // read from database to make sure the _accessIndex property was set
-            const fieldDate = new Date(moment.utc('2021-09-20').format('YYYY-MM-DDTHH:mm:ssZ'));
-            /**
-             * @type {string}
-             */
-            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-                {
-                    fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
-                });
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
@@ -120,7 +92,7 @@ describe('AuditEvent Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection("AuditEvent_4_0_0");
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
@@ -178,15 +150,6 @@ describe('AuditEvent Tests', () => {
             const mongoDatabaseManager = container.mongoDatabaseManager;
 
             // read from database to make sure the _accessIndex property was set
-            const fieldDate = new Date(moment.utc('2021-09-20').format('YYYY-MM-DDTHH:mm:ssZ'));
-            /**
-             * @type {string}
-             */
-            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-                {
-                    fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
-                });
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
@@ -196,7 +159,7 @@ describe('AuditEvent Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection("AuditEvent_4_0_0");
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
@@ -215,7 +178,7 @@ describe('AuditEvent Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResourcesThedcare);
         });
-        test('accessIndex works even for resources not on partitionResources', async () => {
+        test('accessIndex works even all resources', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -269,11 +232,8 @@ describe('AuditEvent Tests', () => {
     });
 
     describe('AuditEvent accessIndex Tests', () => {
-        test('accessIndex is not used if resource not in partitionResources', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithNoPartitionedResources());
-                return c;
-            });
+        test('accessIndex is not used if resource not in resourcesWithAccessIndex', async () => {
+            const request = await createTestRequest();
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/AuditEvent/?date=gt2021-08-09&date=lt2021-10-09').set(getHeaders());
             // noinspection JSUnresolvedFunction

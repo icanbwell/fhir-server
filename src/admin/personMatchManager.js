@@ -97,11 +97,11 @@ class PersonMatchManager {
         const source = [];
         const target = [];
         while (await sourceCursor.hasNext()) {
-            const sourceResource = await sourceCursor.next();
+            const sourceResource = await sourceCursor.nextObject();
             source.push(sourceResource);
         }
         while (await targetCursor.hasNext()) {
-            const targetResource = await targetCursor.next();
+            const targetResource = await targetCursor.nextObject();
             target.push(targetResource);
         }
 

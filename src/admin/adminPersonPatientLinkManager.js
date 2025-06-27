@@ -554,7 +554,7 @@ class AdminPersonPatientLinkManager {
         if (level === 1) {
             // find all links to this Person
             /**
-             * @type {DatabasePartitionedCursor}
+             * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
              */
             const personsLinkingToThisPersonId = await databaseQueryManager.findAsync(
                 {
@@ -564,7 +564,7 @@ class AdminPersonPatientLinkManager {
                 }
             );
 
-            parentPersons = (await personsLinkingToThisPersonId.toArrayRawAsync()).map(mapResource);
+            parentPersons = (await personsLinkingToThisPersonId.toArrayAsync()).map(mapResource);
         }
 
         /**
@@ -581,7 +581,7 @@ class AdminPersonPatientLinkManager {
                 resourceType: 'Patient', base_version
             });
             /**
-             * @type {DatabasePartitionedCursor}
+             * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
              */
             const patientCursor = await patientDatabaseManager.findAsync({
                 query: { id: { $in: patientIds } }
@@ -589,7 +589,7 @@ class AdminPersonPatientLinkManager {
             /**
              * @type {Patient[]}
              */
-            const patients = await patientCursor.toArrayRawAsync();
+            const patients = await patientCursor.toArrayAsync();
             children = children.concat(
                 patients.map(mapResource)
             );
@@ -671,7 +671,7 @@ class AdminPersonPatientLinkManager {
         });
         // find all links to this Person
         /**
-         * @type {DatabasePartitionedCursor}
+         * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
          */
         const personsLinkingToThisPersonId = await databaseQueryManager.findAsync(
             {
@@ -683,7 +683,7 @@ class AdminPersonPatientLinkManager {
         const parentPersonResponses = [];
         // iterate and remove links to this person
         while (await personsLinkingToThisPersonId.hasNext()) {
-            const parentPerson = await personsLinkingToThisPersonId.next();
+            const parentPerson = await personsLinkingToThisPersonId.nextObject();
             const removePersonResult = await this.removePersonToPersonLinkAsync({
                 req,
                 bwellPersonId: parentPerson.id,
@@ -702,16 +702,18 @@ class AdminPersonPatientLinkManager {
             };
         }
 
-        /**
-         * @type {{deletedCount: (number|null), error: (Error|null)}}
-         */
-        const result = await this.removeHelper.deleteManyAsync({
+        const deletedResourceCount = await this.removeHelper.deleteManyAsync({
             resources: [personToDelete],
             requestInfo,
             base_version,
             resourceType: 'Person'
         });
-        result.linksRemoved = parentPersonResponses;
+
+        const result = {
+            deletedCount: deletedResourceCount,
+            error: null,
+            linksRemoved: parentPersonResponses
+        };
 
         await this.postSaveProcessor.afterSaveAsync({
             requestId,

@@ -145,13 +145,11 @@ class ValidateOperation {
                 const databaseQueryManager = this.databaseQueryFactory.createQuery(
                     { resourceType, base_version }
                 );
-                /**
-                 * @type {DatabasePartitionedCursor}
-                 */
+
                 const cursor = await databaseQueryManager.findAsync({ query });
                 let operationOutcome = null;
                 while (await cursor.hasNext()) {
-                    resource_incoming = (await cursor.next()).toJSON();
+                    resource_incoming = (await cursor.nextObject()).toJSON();
                     const operationOutcomeForResource = await this.validateResourceAsync(
                         {
                             base_version,

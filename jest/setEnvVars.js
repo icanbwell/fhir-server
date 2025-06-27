@@ -23,7 +23,6 @@ process.env.ENABLE_KAFKA_HEALTHCHECK = '0';
 process.env.ENVIRONMENT = "local";
 process.env.HOST_SERVER = "http://localhost:3000";
 process.env.SET_INDEX_HINTS = '0';
-process.env.PARTITION_RESOURCES = 'AuditEvent';
 process.env.LOGLEVEL = 'SILENT';
 process.env.GRIDFS_RESOURCES = 'DocumentReference';
 process.env.REQUIRED_AUDIT_EVENT_FILTERS = 'date';

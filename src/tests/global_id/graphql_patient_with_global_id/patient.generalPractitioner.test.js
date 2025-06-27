@@ -23,7 +23,6 @@ const {
     getTestContainer, mockHttpContext
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const moment = require('moment-timezone');
 const { AuditLogger } = require('../../../utils/auditLogger');
 
 describe('GraphQL Patient Tests', () => {
@@ -75,16 +74,10 @@ describe('GraphQL Patient Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            const base_version = '4_0_0';
-            const collection_name = process.env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
-            const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-            const year = fieldDate.getUTCFullYear();
-            const month = fieldDate.getUTCMonth() + 1; // 0 indexed
-            const monthFormatted = String(month).padStart(2, '0');
             /**
              * @type {string}
              */
-            const mongoCollectionName = `${collection_name}_${base_version}_${year}_${monthFormatted}`;
+            const mongoCollectionName = "AuditEvent_4_0_0";
             /**
              * mongo collection
              * @type {import('mongodb').Collection}
