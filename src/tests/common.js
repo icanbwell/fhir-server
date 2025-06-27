@@ -162,6 +162,7 @@ const getToken = (module.exports.getToken = (scope) => {
         clientFhirPatientId: 'clientFhirPatient',
         bwellFhirPersonId: 'root-person',
         bwellFhirPatientId: 'bwellFhirPatient',
+        managingOrganization: 'managingOrganization',
         token_use: 'access'
     };
     return createToken(privateKey, '123', payload);
@@ -275,6 +276,7 @@ module.exports.getGraphQLHeadersWithPerson = (personId) => {
         clientFhirPatientId: 'clientFhirPatient',
         bwellFhirPersonId: personId,
         bwellFhirPatientId: 'bwellFhirPatient',
+        managingOrganization: 'managingOrganization',
         token_use: 'access'
     };
     return {
