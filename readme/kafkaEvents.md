@@ -98,7 +98,9 @@ PostRequestProcessor is used to fire the events AFTER the response has been retu
 ## 2. FHIR Operation Usage Event
 
 The FHIR server (optionally) produces CloudEvent-compliant Kafka events for fhir operation usages, such as when a user accesses their data (e.g., $everything operation).
-Cureently it emits an event whenever a user performs everything operation.
+Currently it emits an event whenever a user performs everything operation.
+
+### Using Operation Usage Event
 
 This functionality can be enabled by setting env variable ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS = 1
 
@@ -109,12 +111,12 @@ By default events are send to `fhir.operation.usage.events`
 
 - **Producer:** [FhirOperationUsageEventProducer](/src/utils/fhirUseEventProducer.js`)
 
-### Event Data
+### Context of Event
 1. managingOrganization: Managing Organization of user
 2. bwellFhirPersonId: FHIR Master person id
 3. clientFhirPersonId: FHIR Client person id
 
-### Example Event Data
+### Header of Event
 ```json
 {
   "managingOrganization": "orgId",
@@ -142,7 +144,7 @@ Operational metadata, such as integrations and CloudEvents attributes, are store
 
 PostRequestProcessor is used to fire the events AFTER the response has been returned to the caller.  This is to avoid slowing down responses while we do post request processing tasks.
 
-## Bulk Export Event
+## 3. Bulk Export Event
 FHIR server can send events to a Kafka queue whenever for updates of bulk export.
 
 ### Using change events
