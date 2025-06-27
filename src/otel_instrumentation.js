@@ -18,7 +18,7 @@ let instrumentationConfigs = {
                 span.attributes['http.route'] = span.attributes['http.target'].replace(/\$/g, '([$])');
                 // graphqlv2 path starts with base_version
                 if (span.attributes['http.route'].includes('graphqlv2')) {
-                    span.attributes['http.route'] = span.attributes['http.route'].replace('4_0_0', ':base_version')
+                    span.attributes['http.route'] = span.attributes['http.route'].replace('4_0_0', ':base_version');
                 }
             }
         }
@@ -34,14 +34,14 @@ let instrumentationConfigs = {
             }
         }
     }
-}
+};
 
 if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-instrumentation-nodejs/autoinstrumentation.js")) {
     /**
      * Auto-instrumentation is enabled, SDK is already started. Configure instrumentations without starting a new SDK
      */
-    const { registerInstrumentations } = require('@opentelemetry/instrumentation');
-    const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
+    const {registerInstrumentations} = require('@opentelemetry/instrumentation');
+    const {getNodeAutoInstrumentations} = require('@opentelemetry/auto-instrumentations-node');
     registerInstrumentations({
         instrumentations: [
             getNodeAutoInstrumentations(instrumentationConfigs)
@@ -52,23 +52,26 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
      * We have to start the instrumentation SDK ourselves
      */
     const opentelemetry = require('@opentelemetry/sdk-node');
-    const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
-    const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-grpc');
-    const { Resource } = require('@opentelemetry/resources');
-    const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
+    const {OTLPTraceExporter} = require('@opentelemetry/exporter-trace-otlp-grpc');
+    const {OTLPMetricExporter} = require('@opentelemetry/exporter-metrics-otlp-grpc');
+    const { resourceFromAttributes } = require('@opentelemetry/resources');
+    const {PeriodicExportingMetricReader} = require('@opentelemetry/sdk-metrics');
 
     // Instrumentations
-    const { DataloaderInstrumentation } = require('@opentelemetry/instrumentation-dataloader');
-    const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
-    const { GraphQLInstrumentation } = require('@opentelemetry/instrumentation-graphql');
-    const { LruMemoizerInstrumentation } = require('@opentelemetry/instrumentation-lru-memoizer');
-    const { RouterInstrumentation } = require('@opentelemetry/instrumentation-router');
-    const { WinstonInstrumentation } = require('@opentelemetry/instrumentation-winston');
-    const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
-    const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
+    const {DataloaderInstrumentation} = require('@opentelemetry/instrumentation-dataloader');
+    const {ExpressInstrumentation} = require('@opentelemetry/instrumentation-express');
+    const {GraphQLInstrumentation} = require('@opentelemetry/instrumentation-graphql');
+    const {LruMemoizerInstrumentation} = require('@opentelemetry/instrumentation-lru-memoizer');
+    const {RouterInstrumentation} = require('@opentelemetry/instrumentation-router');
+    const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
+    const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
+    const {MongoDBInstrumentation} = require('@opentelemetry/instrumentation-mongodb');
+    const { ATTR_SERVICE_NAME } = require('@opentelemetry/semantic-conventions');
 
     const sdk = new opentelemetry.NodeSDK({
-        resource: new Resource(),
+        resource: resourceFromAttributes({
+            [ATTR_SERVICE_NAME]: 'fhir-server'
+        }),
         traceExporter: new OTLPTraceExporter(),
         metricReader: new PeriodicExportingMetricReader({
             exporter: new OTLPMetricExporter()
@@ -86,4 +89,3 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
 
     sdk.start();
 }
-
