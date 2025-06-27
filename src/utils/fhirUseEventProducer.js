@@ -7,13 +7,13 @@ const { CloudEvent, Kafka } = require('cloudevents');
 const { CLOUD_EVENT } = require('../constants');
 
 /**
- * FhirUsesEventProducer
+ * FhirOperationUsageEventProducer
  *
  * Produces CloudEvent-compliant Kafka events for user operation access in the FHIR server.
  *
- * @typedef {"EverythingAccessed"} FhirUsesOperationType
+ * @typedef {"EverythingAccessed"} FhirOperationUsageEventProducerOperationType
  */
-class FhirUsesEventProducer {
+class FhirOperationUsageEventProducer {
     /**
      * Constructor
      * @param {Object} params
@@ -40,8 +40,8 @@ class FhirUsesEventProducer {
     }
 
     /**
-     * Creates fhir uses event message using CloudEvent
-     * @param {FhirUsesOperationType} operationType
+     * Creates fhir operation usage event message using CloudEvent
+     * @param {FhirOperationUsageEventProducerOperationType} operationType
      * @param {string} managingOrganization
      * @param {string} bwellFhirPersonId
      * @param {string} clientFhirPersonId
@@ -78,7 +78,7 @@ class FhirUsesEventProducer {
     /**
      * Produces kafka events for operation access
      *  @typedef {Object} ProduceOperationAccessEventParams
-     * @property {FhirUsesOperationType} operationType
+     * @property {FhirOperationUsageEventProducerOperationType} operationType
      * @property {string} managingOrganization
      * @property {string} bwellFhirPersonId
      * @property {string} clientFhirPersonId
@@ -87,7 +87,7 @@ class FhirUsesEventProducer {
      */
     async produce({ operationType, managingOrganization, bwellFhirPersonId, clientFhirPersonId }) {
         try {
-            if (!this.configManager.kafkaEnableFhirUseEvents) {
+            if (!this.configManager.kafkaEnableFhirOperationUsageEvents) {
                 return;
             }
 
@@ -118,7 +118,7 @@ class FhirUsesEventProducer {
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in FhirUsesEventProducer.produce(): ',
+                message: 'Error in FhirOperationUsageEventProducer.produce(): ',
                 error: e,
                 args: {
                     bwellFhirPersonId,
@@ -131,5 +131,5 @@ class FhirUsesEventProducer {
 }
 
 module.exports = {
-    FhirUsesEventProducer
+    FhirOperationUsageEventProducer
 };

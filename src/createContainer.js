@@ -119,7 +119,7 @@ const {AuthService} = require("./strategies/authService");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
-const { FhirUsesEventProducer } = require('./utils/fhirUseEventProducer');
+const { FhirOperationUsageEventProducer } = require('./utils/fhirUseEventProducer');
 
 /**
  * Creates a container and sets up all the services
@@ -232,9 +232,9 @@ const createContainer = function () {
             configManager: c.configManager
         }
     ));
-    container.register('fhirUsesEventProducer', (c) => new FhirUsesEventProducer({
+    container.register('fhirOperationUsageEventProducer', (c) => new FhirOperationUsageEventProducer({
        configManager: c.configManager,
-       fhirOperationAccessEventTopic: process.env.KAFKA_FHIR_USES_EVENT_TOPIC || 'fhir.uses.events',
+       fhirOperationAccessEventTopic: process.env.KAFKA_FHIR_OPERAION_USAGE_EVENT_TOPIC || 'fhir.operation.usage.events',
        kafkaClient: c.kafkaClient
     }));
 
@@ -593,7 +593,8 @@ const createContainer = function () {
         scopesValidator: c.scopesValidator,
         configManager: c.configManager,
         everythingHelper: c.everythingHelper,
-        fhirUsesEventProducer: c.fhirUsesEventProducer
+        fhirOperationUsageEventProducer: c.fhirOperationUsageEventProducer,
+        postRequestProcessor: c.postRequestProcessor
     }));
 
     container.register('removeHelper', c => new RemoveHelper({

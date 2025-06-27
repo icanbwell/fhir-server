@@ -260,7 +260,7 @@ describe('kafkaClient Tests', () => {
       const kafkaClient = new MockKafkaClient({ configManager: new ConfigManager() });
       kafkaClient.producerConnected = true; // Mock the producer connection
       kafkaClient.producer = { send: kafkaProduceSpy }; // Mock the producer's send
-      const topic = 'fhir.users.events';
+      const topic = 'fhir.operation.usage.events';
       const messages = [
           {
               key: 'key',

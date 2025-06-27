@@ -17,7 +17,8 @@ const { ForbiddenError } = require('../../utils/httpErrors');
 const { isFalseWithFallback } = require('../../utils/isFalse');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { FhirUsesEventProducer } = require('../../utils/fhirUseEventProducer');
+const { FhirOperationUsageEventProducer } = require('../../utils/fhirUseEventProducer');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class EverythingOperation {
     /**
@@ -27,9 +28,10 @@ class EverythingOperation {
      * @param {ScopesValidator} constructor.scopesValidator
      * @param {ConfigManager} constructor.configManager
      * @param {EverythingHelper} constructor.everythingHelper
-     * @param {FhirUsesEventProducer} constructor.fhirUsesEventProducer
+     * @param {FhirOperationUsageEventProducer} constructor.fhirOperationUsageEventProducer
+     * @param {PostRequestProcessor} constructor.postRequestProcessor
      */
-    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper, fhirUsesEventProducer }) {
+    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper, fhirOperationUsageEventProducer, postRequestProcessor }) {
         /**
          * @type {GraphOperation}
          */
@@ -60,10 +62,16 @@ class EverythingOperation {
         assertTypeEquals(everythingHelper, EverythingHelper);
 
         /**
-         * @type {FhirUsesEventProducer}
+         * @type {FhirOperationUsageEventProducer}
          */
-        this.fhirUsesEventProducer = fhirUsesEventProducer;
-        assertTypeEquals(fhirUsesEventProducer, FhirUsesEventProducer);
+        this.fhirOperationUsageEventProducer = fhirOperationUsageEventProducer;
+        assertTypeEquals(fhirOperationUsageEventProducer, FhirOperationUsageEventProducer);
+
+        /**
+         *  @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -286,15 +294,20 @@ class EverythingOperation {
             }
 
             if (isUser && useEverythingHelperForPatient) {
-                const clientFhirPersonId = requestInfo.personIdFromJwtToken
-                const bwellFhirPersonId = requestInfo.masterPersonIdFromJwtToken;
-                const managingOrganization = requestInfo.managingOrganizationId;
-                await this.fhirUsesEventProducer.produce({
-                    operationType: 'EverythingAccessed',
-                    bwellFhirPersonId,
-                    clientFhirPersonId,
-                    managingOrganization
-                })
+                this.postRequestProcessor.add({
+                    requestId: requestInfo.requestId,
+                    fnTask: async () => {
+                        const clientFhirPersonId = requestInfo.personIdFromJwtToken;
+                        const bwellFhirPersonId = requestInfo.masterPersonIdFromJwtToken;
+                        const managingOrganization = requestInfo.managingOrganizationId;
+                        await this.fhirOperationUsageEventProducer.produce({
+                            operationType: 'EverythingAccessed',
+                            bwellFhirPersonId,
+                            clientFhirPersonId,
+                            managingOrganization
+                        });
+                    }
+                });
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync({

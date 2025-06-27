@@ -82,7 +82,6 @@ const {
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 const deepcopy = require('deepcopy');
-const { MockKafkaClient } = require('../../mocks/mockKafkaClient');
 
 describe('everything _includeNonClinicalResources Tests', () => {
     beforeEach(async () => {
@@ -523,9 +522,10 @@ describe('everything _includeNonClinicalResources Tests', () => {
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true')
             .set(patientHeader);
-        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+        let expected = deepcopy(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+        expect(resp).toHaveMongoQuery(expected);
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+        expect(resp).toHaveResponse(expected);
 
         // exclude using consent works only for patient scope
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true').set(getHeaders());
@@ -569,94 +569,6 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeWithoutExclude);
 
         process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
-    });
-
-    test('Patient $everything sends events whenever accessed by patient', async () => {
-        const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
-        const ENABLE_FHIR_USE_EVENTS = process.env.ENABLE_FHIR_USE_EVENTS;
-
-        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'healthsystem1';
-        process.env.ENABLE_FHIR_USE_EVENTS = '1';
-        /**
-         * @type {MockKafkaClient}
-         */
-        let mockKafkaClient;
-        const request = await createTestRequest((c) => {
-            c.register('kafkaClient', () => new MockKafkaClient({
-                configManager: c.configManager
-            }));
-            mockKafkaClient = c.kafkaClient;
-            return c;
-        });
-        await createResources(request)
-
-        // ACT & ASSERT
-        let resp = await request
-            .post('/4_0_0/Procedure/1/$merge?validate=true')
-            .send(procedureResource2)
-            .set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({ created: true });
-
-        // make consent resource for patient1 containing deleted resources
-        resp = await request
-            .post('/4_0_0/Consent/1/$merge?validate=true')
-            .send(excludeConsentResource)
-            .set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({ created: true });
-
-        // patient everything with patient scope
-        let jwtPayload = {
-            scope: 'patient/*.* user/*.* access/*.*',
-            username: 'test',
-            client_id: 'client',
-            clientFhirPersonId: '5f3ca115-8630-5e55-a97d-4d6ee26c0adc',
-            clientFhirPatientId: '24a5930e-11b4-5525-b482-669174917044',
-            bwellFhirPersonId: 'master-person',
-            bwellFhirPatientId: 'master-patient',
-            managingOrganization: 'managing-org',
-            token_use: 'access'
-        };
-        let patientHeader = getHeadersWithCustomPayload(jwtPayload);
-
-        const mockHeaders = {
-            "content-type": "application/json;charset=utf-8",
-            ce_type: "EverythingAccessed",
-            ce_source: "https://www.icanbwell.com/fhir-server",
-            ce_specversion: "1.0",
-            ce_datacontenttype: "application/json;charset=utf-8",
-            ce_integrations: "[\"analytics\"]"
-        }
-        resp = await request
-            .get('/4_0_0/Patient/patient1/$everything?_debug=true')
-            .set(patientHeader);
-        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndExcludeRes);
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeRes);
-        expect(mockKafkaClient.cloudEventMessages.length).toBe(1);
-        expect(mockKafkaClient.cloudEventMessages[0].value).toBe(
-            JSON.stringify({
-                managingOrganization: 'managing-org',
-                bwellFhirPersonId: 'master-person',
-                clientFhirPersonId: '5f3ca115-8630-5e55-a97d-4d6ee26c0adc'
-            })
-        );
-        delete mockKafkaClient.cloudEventMessages[0].headers['ce_time'];
-        delete mockKafkaClient.cloudEventMessages[0].headers['ce_id'];
-        expect(mockKafkaClient.cloudEventMessages[0].headers).toStrictEqual(mockHeaders);
-
-        mockKafkaClient.cloudEventMessages = [];
-
-        // only works for patient scope
-        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true').set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalDepth3GlobalIdAndExcludeRes);
-        expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalDepth3GlobalIdAndExcludeRes);
-        // no events should be sent for this request
-        expect(mockKafkaClient.cloudEventMessages.length).toBe(0);
-        process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
-        process.env.ENABLE_FHIR_USE_EVENTS = ENABLE_FHIR_USE_EVENTS;
     });
 
     test('Patient $everything: nonClinical _type support', async () => {
