@@ -263,6 +263,118 @@ class KafkaClient {
     }
 
     /**
+     * Helper function for sendCloudEventMessageAsync
+     * @param {Object} params
+     * @param {string} params.topic
+     * @param {import('kafkajs').Message[]} params.messages
+     * @return {Promise<void>}
+     */
+    async sendCloudEventMessageHelperAsync({ topic, messages }) {
+        if (!this.producerConnected) {
+            try {
+                await this.producer.connect();
+                this.producerConnected = true;
+            } catch (e) {
+                throw new RethrownError({
+                    message: 'Error in connecting producer to kafka',
+                    error: e,
+                    config: this.client.config
+                });
+            }
+        }
+        try {
+            if (process.env.LOGLEVEL === 'DEBUG') {
+                await logTraceSystemEventAsync({
+                    event: 'kafkaClient',
+                    message: 'Sending CloudEvent messages',
+                    args: {
+                        clientId: this.clientId,
+                        brokers: this.brokers,
+                        ssl: this.ssl,
+                        topic,
+                        messages
+                    }
+                });
+            }
+            const result = await this.producer.send({
+                topic,
+                messages
+            });
+            if (process.env.LOGLEVEL === 'DEBUG') {
+                await logTraceSystemEventAsync({
+                    event: 'kafkaClient',
+                    message: 'Sent CloudEvent messages',
+                    args: {
+                        clientId: this.clientId,
+                        brokers: this.brokers,
+                        ssl: this.ssl,
+                        topic,
+                        messages,
+                        result
+                    }
+                });
+            }
+        } catch (e) {
+            await logSystemErrorAsync({
+                event: 'kafkaClient',
+                message: 'Error sending CloudEvent messages',
+                args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl },
+                error: e
+            });
+            throw e;
+        }
+    }
+
+    /**
+     * Sends multiple CloudEvent messages to Kafka with retry support
+     * @param {Object} params
+     * @param {string} params.topic - Kafka topic name
+     * @param {import('kafkajs').Message[]} params.messages - Array of messages, each with key, value, and headers
+     * @return {Promise<void>}
+     */
+    async sendCloudEventMessageAsync({ topic, messages }) {
+        const maxRetries = parseInt(process.env.KAFKA_MAX_RETRY) || 3;
+        let iteration = 1;
+        let shouldRetry = false;
+        do {
+            try {
+                await this.sendCloudEventMessageHelperAsync({ topic, messages });
+                shouldRetry = false;
+                return;
+            } catch (e) {
+                if (e instanceof KafkaJSNonRetriableError) {
+                    const cause = e.cause;
+                    if (cause instanceof KafkaJSProtocolError && cause.code === 72) {
+                        const oldBrokers = this.brokers || [];
+                        const reorderedBrokers = oldBrokers.length > 1 ? [...oldBrokers.slice(1), oldBrokers[0]] : [...oldBrokers];
+                        await logSystemEventAsync({
+                            event: 'kafkaClientRetry',
+                            message: 'Retrying sending the CloudEvent message by creating new client',
+                            args: {
+                                iteration,
+                                brokers: reorderedBrokers
+                            }
+                        });
+                        this.init({
+                            clientId: this.clientId,
+                            brokers: reorderedBrokers,
+                            ssl: this.ssl,
+                            sasl: this.sasl
+                        });
+                        shouldRetry = true;
+                    } else {
+                        this.producerConnected = false;
+                        throw e;
+                    }
+                } else {
+                    this.producerConnected = false;
+                    throw e;
+                }
+            }
+        } while (++iteration <= maxRetries && shouldRetry);
+    }
+
+    /**
      * waits for consumer to join group
      * @param consumer
      * @param maxWait

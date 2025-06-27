@@ -259,5 +259,8 @@ module.exports = {
     MONGO_ERROR: {
         RESOURCE_SIZE_EXCEEDS: 'Document is larger than the maximum size 16777216'
     },
-    STREAM_ACCESS_LOG_BODY_LIMIT: 100
+    STREAM_ACCESS_LOG_BODY_LIMIT: 100,
+    CLOUD_EVENT: {
+        SOURCE: 'https://www.icanbwell.com/fhir-server'
+    }
 };

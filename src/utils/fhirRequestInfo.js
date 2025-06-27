@@ -7,22 +7,25 @@ const { isTrue } = require('./isTrue');
 class FhirRequestInfo {
     /**
      * class that holds request info
-     * @param {string | null} user
-     * @param {string} scope
-     * @param {string} protocol
-     * @param {string|null} originalUrl
-     * @param {string | null} [remoteIpAddress]
-     * @param {string|null} requestId
-     * @param {string|null} userRequestId
-     * @param {string | null} [path]
-     * @param {string | null} host
-     * @param {Object | Object[] | null} [body]
-     * @param {string | string[] | null} [accept]
-     * @param {boolean | null} [isUser]
-     * @param {string | null} [personIdFromJwtToken]
-     * @param {Object} headers
-     * @param {string} method
-     * @param {import('content-type').ContentType|null} contentTypeFromHeader
+     * @param {Object} params
+     * @param {string | null} params.user
+     * @param {string} params.scope
+     * @param {string} params.protocol
+     * @param {string|null} params.originalUrl
+     * @param {string | null} params.remoteIpAddress
+     * @param {string|null} params.requestId
+     * @param {string|null} params.userRequestId
+     * @param {string | null} params.path
+     * @param {string | null} params.host
+     * @param {Object | Object[] | null} params.body
+     * @param {string | string[] | null} params.accept
+     * @param {boolean | null} params.isUser
+     * @param {string | null} params.personIdFromJwtToken
+     * @param {string | null} params.masterPersonIdFromJwtToken
+     * @param {stirng | null} params.managingOrganizationId
+     * @param {Object} params.headers
+     * @param {string} params.method
+     * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
      */
     constructor (
         {
@@ -39,6 +42,8 @@ class FhirRequestInfo {
             accept,
             isUser,
             personIdFromJwtToken,
+            masterPersonIdFromJwtToken,
+            managingOrganizationId,
             headers,
             method,
             contentTypeFromHeader
@@ -97,6 +102,14 @@ class FhirRequestInfo {
          * @type {string | null}
          */
         this.personIdFromJwtToken = personIdFromJwtToken;
+        /**
+         * @type {string | null}
+         */
+        this.masterPersonIdFromJwtToken = masterPersonIdFromJwtToken;
+        /**
+         * @type {string | null}
+         */
+        this.managingOrganizationId = managingOrganizationId;
         /**
          * @type {Object}
          */

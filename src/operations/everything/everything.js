@@ -17,17 +17,19 @@ const { ForbiddenError } = require('../../utils/httpErrors');
 const { isFalseWithFallback } = require('../../utils/isFalse');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
+const { FhirUsesEventProducer } = require('../../utils/fhirUseEventProducer');
 
 class EverythingOperation {
     /**
-     * constructor
-     * @param {GraphOperation} graphOperation
-     * @param {FhirLoggingManager} fhirLoggingManager
-     * @param {ScopesValidator} scopesValidator
-     * @param {ConfigManager} configManager
-     * @param {EverythingHelper} everythingHelper
+     * @param {Object} constructor
+     * @param {GraphOperation} constructor.graphOperation
+     * @param {FhirLoggingManager} constructor.fhirLoggingManager
+     * @param {ScopesValidator} constructor.scopesValidator
+     * @param {ConfigManager} constructor.configManager
+     * @param {EverythingHelper} constructor.everythingHelper
+     * @param {FhirUsesEventProducer} constructor.fhirUsesEventProducer
      */
-    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper }) {
+    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper, fhirUsesEventProducer }) {
         /**
          * @type {GraphOperation}
          */
@@ -56,6 +58,12 @@ class EverythingOperation {
          */
         this.everythingHelper = everythingHelper;
         assertTypeEquals(everythingHelper, EverythingHelper);
+
+        /**
+         * @type {FhirUsesEventProducer}
+         */
+        this.fhirUsesEventProducer = fhirUsesEventProducer;
+        assertTypeEquals(fhirUsesEventProducer, FhirUsesEventProducer);
     }
 
     /**
@@ -105,7 +113,7 @@ class EverythingOperation {
     /**
      * does a FHIR $everything
      * @typedef everythingBundleAsyncParams
-     * @property {FhirRequestInfo} requestInfo
+     * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {import('express').Response} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
@@ -275,6 +283,18 @@ class EverythingOperation {
                     includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
                     nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
                 });
+            }
+
+            if (isUser && useEverythingHelperForPatient) {
+                const clientFhirPersonId = requestInfo.personIdFromJwtToken
+                const bwellFhirPersonId = requestInfo.masterPersonIdFromJwtToken;
+                const managingOrganization = requestInfo.managingOrganizationId;
+                await this.fhirUsesEventProducer.produce({
+                    operationType: 'EverythingAccessed',
+                    bwellFhirPersonId,
+                    clientFhirPersonId,
+                    managingOrganization
+                })
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync({
