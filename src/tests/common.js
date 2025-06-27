@@ -186,6 +186,8 @@ const getTokenWithCustomPayload = (module.exports.getTokenWithCustomPayload = (p
     return createToken(privateKey, '123', {
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
+        // if not present, it will be set
+        managingOrganization: 'managingOrganization',
         ...payload
     });
 });
