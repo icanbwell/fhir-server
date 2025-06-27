@@ -59,51 +59,74 @@ describe('CSV Performance tests', () => {
                     .expect(200);
                 expect(resp.body.length).toBe(10);
 
-                /**
-                 * Parser that reads chunks as they are received from server
-                 * @param {import('http').IncomingMessage} req
-                 * @param callback
-                 */
-                function chunkParser (req, callback) {
-                    req.text = '';
-                    let text = '';
-                    req.setEncoding('utf8');
-                    let chunkNumber = 0;
-                    req.on('data', (chunk) => {
-                        req.text += chunk;
-                        text += chunk;
-                        chunkNumber++;
-                        console.log(`Received chunk ${chunkNumber} of length ${chunk.length}`);
-                    });
-                    req.on('end', () => {
-                        // Process the response data here
-                        callback(null, text);
-                    });
-                }
+                // Use a promise to properly handle the streaming response
+                return new Promise((resolve, reject) => {
+                    let lineCount = 0;
+                    let headerLine = '';
 
-                // now check that we get the right record back
-                request
-                    .get(`/4_0_0/Practitioner/?_streamResponse=1&_count=${numberOfResources}&_format=text/csv`)
-                    .buffer(true)
-                    .set(getHeaders())
-                    // .buffer(false)
-                    .on('response', (res) => {
-                        // Handle response headers
-                        console.log('Response headers:', res.headers);
-                    })
-                    .on('error', (res) => {
-                        console.log('Response error:', res);
-                    })
-                    .on('end', (resp1) => {
-                        // Handle end of response
-                        console.log('Response complete');
-                        const lines = resp1.req.res.text.split('\n');
-                        expect(lines.length).toBe(numberOfResources + 1);
-                    })
-                    .parse(chunkParser)
-                ;
+                    request
+                        .get(`/4_0_0/Practitioner/?_streamResponse=1&_count=${numberOfResources}&_format=text/csv`)
+                        .buffer(false) // Don't buffer in memory
+                        .set(getHeaders())
+                        .on('response', (res) => {
+                            // Handle response headers
+                            console.log('Response headers:', res.headers);
+                        })
+                        .on('error', (err) => {
+                            console.error('Response error:', err);
+                            reject(err);
+                        })
+                        .parse((res, callback) => {
+                            res.setEncoding('utf8');
+                            let buffer = '';
+
+                            res.on('data', (chunk) => {
+                                buffer += chunk;
+
+                                // Process lines as they come
+                                const lines = buffer.split('\n');
+
+                                // Keep the last partial line in buffer
+                                buffer = lines.pop();
+
+                                // Process complete lines
+                                for (const line of lines) {
+                                    if (lineCount === 0) {
+                                        headerLine = line;
+                                    }
+                                    lineCount++;
+                                }
+                            });
+
+                            res.on('end', () => {
+                                // Process the last line if buffer has content
+                                if (buffer.length > 0) {
+                                    lineCount++;
+                                }
+
+                                callback(null, { lineCount, headerLine });
+                            });
+                        })
+                        .end((err, res) => {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+
+                            // Expect that we have the header line plus all resource lines
+                            expect(res.body.lineCount).toBe(numberOfResources + 1);
+                            expect(res.body.headerLine).toBeTruthy();
+
+                            // Force garbage collection if available
+                            if (global.gc) {
+                                global.gc();
+                            }
+
+                            resolve();
+                        });
+                });
             },
-            240 * 1000
+            30000 // Increase timeout for this large test
         );
     });
 });
