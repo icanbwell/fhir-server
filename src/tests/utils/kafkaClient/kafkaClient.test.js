@@ -64,7 +64,7 @@ describe('kafkaClient Tests', () => {
         console.log(error);
       }
 
-      expect(initSpy).toBeCalledTimes(3);
+      expect(initSpy).toHaveBeenCalledTimes(3);
       expect(sendMessagesAsyncHelperSpy).toHaveBeenCalledTimes(3);
     });
 
@@ -110,7 +110,7 @@ describe('kafkaClient Tests', () => {
         expect(error.cause.type).toBe(72);
       }
 
-      expect(initSpy).toBeCalledTimes(4);
+      expect(initSpy).toHaveBeenCalledTimes(4);
       expect(sendMessagesAsyncHelperSpy).toHaveBeenCalledTimes(3);
     });
   });

@@ -32,7 +32,7 @@ describe('AccessLogs Tests', () => {
                 'logAccessLogAsync'
             );
 
-            expect(logAccessLogAsync).toHaveBeenCalledTimes(0);
+            expect(logAccessLogAsync).toBeCalledTimes(0);
             await request
                 .put('/4_0_0/Observation/1')
                 .send(observationResource)
@@ -53,7 +53,7 @@ describe('AccessLogs Tests', () => {
                 .set(getHeaders())
                 .expect(400);
 
-            expect(logAccessLogAsync).toHaveBeenCalledTimes(3);
+            expect(logAccessLogAsync).toBeCalledTimes(3);
         });
     });
 });

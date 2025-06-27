@@ -32,7 +32,7 @@ describe('AccessLogs Tests', () => {
                 'logAccessLogAsync'
             );
 
-            expect(logAccessLogAsync).toHaveBeenCalledTimes(0);
+            expect(logAccessLogAsync).toBeCalledTimes(0);
             await request
                 .post('/4_0_0/Observation/$merge')
                 .send(observationResource)
@@ -51,7 +51,7 @@ describe('AccessLogs Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(logAccessLogAsync).toHaveBeenCalledTimes(3);
+            expect(logAccessLogAsync).toBeCalledTimes(3);
         });
     });
 });
