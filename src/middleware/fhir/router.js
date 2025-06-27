@@ -17,6 +17,10 @@ const {
     routes
 } = require('./route.config');
 
+const {
+    routes: baseRoutes
+} = require('./base/base.config');
+
 const hyphenToCamelcase = require('./utils/hyphen-to-camel.utils');
 
 const { getArgsMiddleware } = require('./utils/getArgs.utils');
@@ -449,9 +453,8 @@ class FhirRouter {
     enableBaseRoute (app, config, corsDefaults) {
         // Determine which versions need a base endpoint, we need to loop through
         // all the configured profiles and find all the uniquely provided versions
-        const routes1 = require('./base/base.config');
 
-        for (const currentRoute of routes1.routes) {
+        for (const currentRoute of baseRoutes) {
             const versionValidationConfiguration = {
                 versions: this.getAllConfiguredVersions(config.profiles)
             };
