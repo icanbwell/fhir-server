@@ -52,12 +52,14 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersWithCustomPayload
+    getHeadersWithCustomPayload,
+    getTestContainer
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 const deepcopy = require('deepcopy');
 const { MockKafkaClient } = require('../../mocks/mockKafkaClient');
+const { generateUUID } = require('../../../utils/uid.util');
 
 describe('patient everything kafka events', () => {
     beforeEach(async () => {
@@ -292,10 +294,10 @@ describe('patient everything kafka events', () => {
     test('Patient $everything sends events whenever accessed by patient', async () => {
         const CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL =
             process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
-        const ENABLE_FHIR_USE_EVENTS = process.env.ENABLE_FHIR_USE_EVENTS;
+        const ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS = process.env.ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS;
 
         process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = 'healthsystem1';
-        process.env.ENABLE_FHIR_USE_EVENTS = '1';
+        process.env.ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS = '1';
         /**
          * @type {MockKafkaClient}
          */
@@ -313,6 +315,8 @@ describe('patient everything kafka events', () => {
         });
 
         await createResources(request);
+        const container = getTestContainer();
+        const postRequestProcessor = container.postRequestProcessor;
 
         // ACT & ASSERT
         let resp = await request
@@ -343,6 +347,7 @@ describe('patient everything kafka events', () => {
             token_use: 'access'
         };
         let patientHeader = getHeadersWithCustomPayload(jwtPayload);
+        let requestId = generateUUID();
 
         const mockHeaders = {
             'content-type': 'application/json;charset=utf-8',
@@ -354,11 +359,13 @@ describe('patient everything kafka events', () => {
         };
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true')
-            .set(patientHeader);
+            .set({ 'x-request-id': requestId,...patientHeader});
         let expected = deepcopy(expectedPatientEverythingWithPatientScopeAndExcludeRes);
         expect(resp).toHaveMongoQuery(expected);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expected);
+
+        await postRequestProcessor.waitTillDoneAsync({ requestId });
         expect(mockKafkaClient.cloudEventMessages.length).toBe(1);
         expect(mockKafkaClient.cloudEventMessages[0].value).toBe(
             JSON.stringify({
@@ -373,10 +380,12 @@ describe('patient everything kafka events', () => {
 
         mockKafkaClient.cloudEventMessages = [];
 
+        requestId = generateUUID();
         // only works for patient scope
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true')
-            .set(getHeaders());
+            .set({ 'x-request-id': requestId, ...getHeaders()});
+        await postRequestProcessor.waitTillDoneAsync({ requestId });
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(
             expectedPatientResourcesWithNonClinicalDepth3GlobalIdAndExcludeRes
@@ -388,6 +397,6 @@ describe('patient everything kafka events', () => {
         expect(mockKafkaClient.cloudEventMessages.length).toBe(0);
         process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL =
             CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
-        process.env.ENABLE_FHIR_USE_EVENTS = ENABLE_FHIR_USE_EVENTS;
+        process.env.ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS = ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS;
     });
 });
