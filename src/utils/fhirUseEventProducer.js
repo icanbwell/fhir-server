@@ -87,7 +87,7 @@ class FhirUsesEventProducer {
      */
     async produce({ operationType, managingOrganization, bwellFhirPersonId, clientFhirPersonId }) {
         try {
-            if (!this.configManager.kafkaEnableOperationAccessEvents) {
+            if (!this.configManager.kafkaEnableFhirUseEvents) {
                 return;
             }
 

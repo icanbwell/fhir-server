@@ -205,6 +205,13 @@ class ConfigManager {
     }
 
     /**
+     *  whether to send fhir uses events to kafka
+     */
+    get kafkaEnableFhirUseEvents() {
+        return isTrue(env.ENABLE_FHIR_USE_EVENTS);
+    }
+
+    /**
      * list of resources for which kafka events are enabled
      * @return {boolean}
      */
