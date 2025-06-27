@@ -58,6 +58,7 @@
     "verbose": false,
     "testEnvironment": "node",
     "collectCoverage": false,
+    "coverageProvider": "v8",
     "coverageReporters": [
       "text",
       "lcov",
@@ -69,7 +70,7 @@
       "jest-failure-reporter"
     ],
     "transform": {
-      "^.+\\.js$": "babel-jest"
+      "^.+\\.js$": ["babel-jest", { "configFile": "./babel.config.js" }]
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!@kubernetes/client-node)/",
@@ -128,7 +129,6 @@
     "@asymmetrik/sof-scope-checker": "^1.0.7",
     "@aws-sdk/client-s3": "^3.837.0",
     "@aws-sdk/lib-storage": "^3.837.0",
-
     "@godaddy/terminus": "^4.12.1",
     "@graphql-tools/load-files": "^7.0.1",
     "@graphql-tools/merge": "^9.0.24",
@@ -197,12 +197,13 @@
   },
   "devDependencies": {
     "@babel/core": "^7.27.7",
+    "@babel/preset-env": "^7.27.2",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@eslint/js": "^9.29.0",
     "@graphql-eslint/eslint-plugin": "^4.4.0",
     "@jest/globals": "^30.0.3",
-    "babel-plugin-istanbul": "^6.1.1",
+    "babel-plugin-istanbul": "^7.0.0",
     "csv42": "^5.0.3",
     "dotenv": "^16.6.0",
     "eslint": "^9.29.0",

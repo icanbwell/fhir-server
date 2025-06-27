@@ -14,11 +14,11 @@ const { expect } = require('@jest/globals');
 
 expect.extend({
     toHaveResponse,
-toHaveStatusCode,
-toHaveStatusOk,
-toHaveMergeResponse,
-toHaveResourceCount,
-toHaveGraphQLResponse,
+    toHaveStatusCode,
+    toHaveStatusOk,
+    toHaveMergeResponse,
+    toHaveResourceCount,
+    toHaveGraphQLResponse,
     sortEntriesByUUID,
     toHaveMongoQuery
 });
