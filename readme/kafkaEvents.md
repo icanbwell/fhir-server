@@ -117,9 +117,9 @@ By default events are send to `fhir.operation.usage.events`
 ### Example Event Data
 ```json
 {
-  "managingOrganization": "6e1c3dd8-a6a5-4d76-b5ed-6ffbac444ea4",
-  "bwellFhirPersonId": "9a92aa37-f2e9-4f9e-a66b-ea3133a74d16",
-  "clientFhirPersonId": "9a92aa37-f2e9-4f9e-a66b-ea3133a74d16"
+  "managingOrganization": "orgId",
+  "bwellFhirPersonId": "personId",
+  "clientFhirPersonId": "clientPersonId"
 }
 ```
 

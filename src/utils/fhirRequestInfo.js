@@ -22,7 +22,7 @@ class FhirRequestInfo {
      * @param {boolean | null} params.isUser
      * @param {string | null} params.personIdFromJwtToken
      * @param {string | null} params.masterPersonIdFromJwtToken
-     * @param {stirng | null} params.managingOrganizationId
+     * @param {string | null} params.managingOrganizationId
      * @param {Object} params.headers
      * @param {string} params.method
      * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
