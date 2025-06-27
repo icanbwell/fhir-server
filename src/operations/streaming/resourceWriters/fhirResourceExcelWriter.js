@@ -135,6 +135,13 @@ class FhirResourceExcelWriter extends FhirResourceWriterBase {
                 }
             ).then(
                 () => callback()
+            ).catch(
+                (err) => {
+                    this.response.statusCode = 500;
+                    this.response.setHeader('Content-Type', 'application/json');
+                    this.response.end(JSON.stringify({ error: 'Failed to send file', details: err.message }));
+                    callback(err);
+                }
             );
         } else {
             // if no resources were written, we still need to end the stream
