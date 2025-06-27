@@ -103,7 +103,7 @@ Cureently it emits an event whenever a user performs everything operation.
 This functionality can be enabled by setting env variable ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS = 1
 
 By default events are send to `fhir.operation.usage.events`
-> To override the default topic name, set KAFKA_FHIR_OPERAION_USAGE_EVENT_TOPIC
+> To override the default topic name, set KAFKA_FHIR_OPERATION_USAGE_EVENT_TOPIC
 
 * Event is not sent for non-patient jwt token.
 

@@ -17,7 +17,7 @@ const { ForbiddenError } = require('../../utils/httpErrors');
 const { isFalseWithFallback } = require('../../utils/isFalse');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { FhirOperationUsageEventProducer } = require('../../utils/fhirUseEventProducer');
+const { FhirOperationUsageEventProducer } = require('../../utils/fhirOperationUsageEventProducer');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class EverythingOperation {

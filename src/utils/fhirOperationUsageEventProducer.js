@@ -91,7 +91,7 @@ class FhirOperationUsageEventProducer {
                 return;
             }
 
-            assertIsValid(managingOrganization, 'Managing Organzation Id is required');
+            assertIsValid(managingOrganization, 'Managing Organization Id is required');
             assertIsValid(bwellFhirPersonId, 'Bwell Person Id is required');
             assertIsValid(clientFhirPersonId, 'Client Person Id is required');
             const cloudEvent = this._createCloudEvent({
