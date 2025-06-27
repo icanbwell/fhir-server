@@ -110,6 +110,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .send(graphDefinitionResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedResource);
             expect(resp).toHaveResponse(expectedResource);
 
             resp = await request
@@ -129,6 +130,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .send(graphDefinitionResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedMultipleResource);
             expect(resp).toHaveResponse(expectedMultipleResource);
         });
     });

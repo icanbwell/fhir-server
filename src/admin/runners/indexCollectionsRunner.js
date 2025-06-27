@@ -90,6 +90,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
     async processAsync () {
         try {
             await this.init();
+            this.adminLogger.logInfo('INFO', { message: 'IndexCollectionsRunner started' });
             /**
              * @type {import('mongodb').Db}
              */
@@ -146,8 +147,9 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                     });
                 }
             }
+            this.adminLogger.logInfo('INFO', { message: 'IndexCollectionsRunner finished' });
         } catch (e) {
-            this.adminLogger.logError('ERROR', { error: 'e' });
+            this.adminLogger.logError('ERROR', { error: e });
         } finally {
             await this.shutdown();
         }

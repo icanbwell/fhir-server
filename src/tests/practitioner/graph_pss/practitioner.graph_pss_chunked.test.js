@@ -120,6 +120,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .send(graphDefinitionResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedResource);
             expect(resp).toHaveResponse(expectedResource);
 
             resp = await request
@@ -139,6 +140,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .send(graphDefinitionResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMongoQuery(expectedMultipleChunkedResource);
             expect(resp).toHaveResponse(expectedMultipleChunkedResource);
         });
     });
