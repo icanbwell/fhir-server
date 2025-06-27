@@ -1516,10 +1516,10 @@
     fflate "^0.8.2"
     xlsx "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 
-"@imranq2/fhirpatientsummary@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.6.tgz#83bf5a498ffe5e20d454fe6067400ed37e093127"
-  integrity sha512-bOMCwwio5w/f953pMwEe0EwAFxaPBrRle1kYuXFQ+0n0WlMXJEThEFxmBGYIhu9OOWZbhXUf1Tx1jGhBHkW3gw==
+"@imranq2/fhirpatientsummary@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.7.tgz#8180309d0c72d9c87dceb679928c332e96254bd4"
+  integrity sha512-wug0kQ427sqmDzuwu6TcHe6j1yxZYF1D7sowEik8BSixpHmcdLKKs+4a9r/zHT+Ka7cShRA/7SbOPlzsPu20HA==
   dependencies:
     luxon "^3.6.1"
     turndown "^7.2.0"
@@ -3853,9 +3853,9 @@
     form-data "^4.0.0"
 
 "@types/node@*", "@types/node@>=13.7.0":
-  version "24.0.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-24.0.4.tgz#dbae889912bda33a7f57669fb8587c1a56bc0c1f"
-  integrity sha512-ulyqAkrhnuNq9pB76DRBTkcS6YsmDALy6Ua63V8OhrOBgbcYt6IOdzpw5P1+dyRIyMerzLkeYWBeOXPpA9GMAA==
+  version "24.0.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-24.0.5.tgz#7bb47e203fd2da87615d47e7b7ed5018c1f41247"
+  integrity sha512-CXEG9E7GCTOZIre0WdDznmnhvF7xi7AmnP/zF496trmLiqlfdtxp9nPRgLVqfmJ8jgtcKcs0EcvOu2yDZSuvTg==
   dependencies:
     undici-types "~7.8.0"
 
