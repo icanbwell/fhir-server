@@ -254,7 +254,7 @@ describe('kafkaClient Tests', () => {
     });
 
     test('should produce cloud event specified message', async () => {
-      // sendCloudEventMessagesAsyncHelperSpy.mockResolvedValueOnce();
+      sendCloudEventMessagesAsyncHelperSpy.mockRestore()
       const kafkaProduceSpy = jest.fn();
 
       const kafkaClient = new MockKafkaClient({ configManager: new ConfigManager() });
