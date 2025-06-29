@@ -113,9 +113,12 @@ describe('AuditEvent when all is set Tests', () => {
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
         test('accessIndex works for other resources when all is set', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithAllAccessIndexResources());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManagerWithAllAccessIndexResources());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
