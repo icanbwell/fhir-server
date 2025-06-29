@@ -61,14 +61,14 @@ describe('AccessLogs Tests', () => {
                 'logAccessLogAsync'
             );
 
-            expect(logAccessLogAsync).toHaveBeenCalledTimes(0);
+            expect(logAccessLogAsync).toBeCalledTimes(0);
 
             await request
                 .post('/4_0_0/Observation/')
                 .send(observationResource)
                 .set(getHeaders())
                 .expect(400);
-            expect(logAccessLogAsync).toHaveBeenCalledTimes(1);
+            expect(logAccessLogAsync).toBeCalledTimes(1);
         });
 
         test('AccessLog is called every time as expected', async () => {
@@ -83,7 +83,7 @@ describe('AccessLogs Tests', () => {
                 'logAccessLogAsync'
             );
             delete observationResource.status;
-            expect(logAccessLogAsync).toHaveBeenCalledTimes(1);
+            expect(logAccessLogAsync).toBeCalledTimes(1);
             await request
                 .post('/4_0_0/Observation/')
                 .send(observationResource)
@@ -103,7 +103,7 @@ describe('AccessLogs Tests', () => {
                 .set(getHeaders())
                 .expect(201);
 
-            expect(logAccessLogAsync).toHaveBeenCalledTimes(4);
+            expect(logAccessLogAsync).toBeCalledTimes(4);
         });
     });
 });

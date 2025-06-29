@@ -103,7 +103,7 @@ class FhirResponseCsvStreamer extends BaseResponseStreamer {
                     throw new Error('Generated zip buffer is empty');
                 }
 
-                await new BufferToChunkTransferResponse().sendLargeFileChunked(
+                await new BufferToChunkTransferResponse().sendLargeFileChunkedAsync(
                     {
                         response: this.response,
                         buffer: csvBuffer,

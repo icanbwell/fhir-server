@@ -1,20 +1,20 @@
 const cron = require('node-cron');
-const { jest } = require('@jest/globals');
+const {jest} = require('@jest/globals');
 
 // const {getToken} = require('../../token');
-const { jwksEndpoint } = require('./mocks/jwks');
-const { publicKey, privateKey } = require('./mocks/keys');
-const { createToken } = require('./mocks/tokens');
+const {jwksEndpoint} = require('./mocks/jwks');
+const {publicKey, privateKey} = require('./mocks/keys');
+const {createToken} = require('./mocks/tokens');
 const nock = require('nock');
-const { createTestContainer } = require('./createTestContainer');
+const {createTestContainer} = require('./createTestContainer');
 const supertest = require('supertest');
-const { createApp } = require('../app');
-const { createServer } = require('../server');
-const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
+const {createApp} = require('../app');
+const {createServer} = require('../server');
+const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
-const { fhirContentTypes } = require('../utils/contentTypes');
-const { TestConfigManager } = require('./testConfigManager');
-const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const {fhirContentTypes} = require('../utils/contentTypes');
+const {TestConfigManager} = require('./testConfigManager');
+const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 
 /**
  * @type {import('http').Server}
@@ -52,7 +52,7 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      * @type {SimpleContainer}
      */
     testContainer = createTestContainer(fnUpdateContainer);
-    return createApp({ fnGetContainer: () => testContainer, trackMetrics: false });
+    return createApp({fnGetContainer: () => testContainer, trackMetrics: false});
 };
 
 /**
@@ -93,7 +93,7 @@ module.exports.commonBeforeEach = async () => {
     process.env.VALIDATE_SCHEMA = true;
     const urlObject = new URL(process.env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
-        { pub: publicKey, kid: '123' }
+        {pub: publicKey, kid: '123'}
     ]);
     /**
      * @type {string[]}
@@ -122,30 +122,50 @@ module.exports.commonAfterEach = async () => {
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
         /**
          * @type {RequestSpecificCache}
          */
         const requestSpecificCache = testContainer.requestSpecificCache;
         await requestSpecificCache.clearAllAsync();
-        // testContainer = null;
-    }
-    nock.cleanAll();
-    // nock.restore(); // nock.activate()
 
+        // Cleanup any event listeners or other resources in container
+        if (testContainer.cleanup) {
+            await testContainer.cleanup();
+        }
+
+        // Explicitly null out the testContainer to allow garbage collection
+        testContainer = null;
+    }
+
+    // Clean up all nock mocks
+    nock.cleanAll();
+
+    // Create a fresh config manager if needed
     const configManager = testContainer?.configManager ?? new TestConfigManager();
 
-    const testMongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
+    // Ensure MongoDB connections are properly closed
+    const testMongoDatabaseManager = new TestMongoDatabaseManager({configManager});
     await testMongoDatabaseManager.dropDatabasesAsync();
+
+    // Close server if it exists
     if (server) {
         await server.close();
         server = null;
     }
+
+    // Clear HTTP context to prevent memory leaks
+    httpContext.ns?.active && httpContext.ns.exitContext();
+
+    // Explicitly set to null to help with garbage collection
     tester = null;
-    // app = null;
-    // global.gc();
-    // globals.clear();
+    app = null;
+
+    // Force garbage collection if available
+    if (global.gc) {
+        global.gc();
+    }
 };
 
 /**
@@ -426,9 +446,9 @@ module.exports.getRequestId = (resp) => {
  * @returns {string}
  */
 module.exports.mockHttpContext = ({
-    systemGeneratedRequestId,
-    userRequestId
-} = {}) => {
+                                      systemGeneratedRequestId,
+                                      userRequestId
+                                  } = {}) => {
 
     jest.spyOn(httpContext, 'get');
     const values = {
@@ -453,7 +473,7 @@ module.exports.getTestRequestInfo = ({
                                          userRequestId
                                      }) => {
     if (!userRequestId) {
-        userRequestId = requestId
+        userRequestId = requestId;
     }
 
     const requestInfo = new FhirRequestInfo(

@@ -4,19 +4,19 @@ const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const personEverythingGraph = require('../../graphs/person/everything.json');
 const personEverythingForDeletionGraph = require('../../graphs/person/everything_for_deletion.json');
 const patientEverythingForDeletionGraph = require('../../graphs/patient/everything_for_deletion.json');
-const { GraphOperation } = require('../graph/graph');
-const { ScopesValidator } = require('../security/scopesValidator');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { FhirLoggingManager } = require('../common/fhirLoggingManager');
-const { ParsedArgs } = require('../query/parsedArgs');
+const {GraphOperation} = require('../graph/graph');
+const {ScopesValidator} = require('../security/scopesValidator');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ParsedArgs} = require('../query/parsedArgs');
 const deepcopy = require('deepcopy');
-const { isTrue } = require('../../utils/isTrue');
-const { ConfigManager } = require('../../utils/configManager');
-const { EverythingHelper } = require('./everythingHelper');
-const { ForbiddenError } = require('../../utils/httpErrors');
-const { isFalseWithFallback } = require('../../utils/isFalse');
-const { ParsedArgsItem } = require('../query/parsedArgsItem');
-const { QueryParameterValue } = require('../query/queryParameterValue');
+const {isTrue} = require('../../utils/isTrue');
+const {ConfigManager} = require('../../utils/configManager');
+const {EverythingHelper} = require('./everythingHelper');
+const {ForbiddenError} = require('../../utils/httpErrors');
+const {isFalseWithFallback} = require('../../utils/isFalse');
+const {ParsedArgsItem} = require('../query/parsedArgsItem');
+const {QueryParameterValue} = require('../query/queryParameterValue');
 
 class EverythingOperation {
     /**
@@ -27,7 +27,7 @@ class EverythingOperation {
      * @param {ConfigManager} configManager
      * @param {EverythingHelper} everythingHelper
      */
-    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper }) {
+    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper}) {
         /**
          * @type {GraphOperation}
          */
@@ -62,7 +62,6 @@ class EverythingOperation {
      * does a FHIR $everything
      * @typedef everythingAsyncParams
      * @property {FhirRequestInfo} requestInfo
-     * @property {import('http').ServerResponse} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
@@ -70,9 +69,8 @@ class EverythingOperation {
      * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -84,7 +82,6 @@ class EverythingOperation {
         try {
             return await this.everythingBundleAsync({
                 requestInfo,
-                res,
                 parsedArgs,
                 resourceType,
                 responseStreamer // disable response streaming if we are answering a question
@@ -106,7 +103,6 @@ class EverythingOperation {
      * does a FHIR $everything
      * @typedef everythingBundleAsyncParams
      * @property {FhirRequestInfo} requestInfo
-     * @property {import('express').Response} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
@@ -114,14 +110,13 @@ class EverythingOperation {
      * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'everything';
 
-        const { user, scope, isUser } = requestInfo;
+        const {user, scope, isUser} = requestInfo;
 
         /**
          * @type {number}
@@ -131,7 +126,7 @@ class EverythingOperation {
         if (isUser && requestInfo.method.toLowerCase() === 'delete') {
             const forbiddenError = new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to delete ` +
-                    '$everything: Access to delete $everything not allowed if patient scope is present'
+                '$everything: Access to delete $everything not allowed if patient scope is present'
             );
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
@@ -161,7 +156,7 @@ class EverythingOperation {
         });
 
         try {
-            const { _type: resourceFilter } = parsedArgs;
+            const {_type: resourceFilter} = parsedArgs;
             const supportLegacyId = false;
 
             if (resourceFilter) {
@@ -176,13 +171,13 @@ class EverythingOperation {
              */
             let result;
             if (useEverythingHelperForPatient) {
-                let { base_version, headers } = parsedArgs;
+                let {base_version, headers} = parsedArgs;
 
                 // set global_id to true as default
                 headers = {
                     prefer: 'global_id=true',
                     ...headers
-                }
+                };
                 parsedArgs.headers = headers;
 
                 // disable rewrite proxy patient rewrite by default
@@ -194,7 +189,8 @@ class EverythingOperation {
                                 value: false,
                                 operator: '$and'
                             }),
-                            modifiers: []
+                            modifiers: [],
+                            patientToPersonMap: {}
                         })
                     );
                 }
@@ -267,7 +263,6 @@ class EverythingOperation {
 
                 result = await this.graphOperation.graph({
                     requestInfo,
-                    res,
                     parsedArgs,
                     resourceType,
                     responseStreamer,
@@ -284,7 +279,12 @@ class EverythingOperation {
                 startTime,
                 action: currentOperationName
             });
-            return result;
+            if (responseStreamer) {
+                // data was already streamed, so we return undefined
+                return undefined;
+            } else {
+                return result;
+            }
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

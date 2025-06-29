@@ -44,12 +44,12 @@ const {
     createTestRequest,
     getHeadersCsv,
     getHeadersZip
-} = require('../../common');
+} = require('../../../common');
 const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
 const fs = require("node:fs");
-const {fhirContentTypes} = require("../../../utils/contentTypes");
+const {fhirContentTypes} = require("../../../../utils/contentTypes");
 
-describe('Person and Patient $summary Tests', () => {
+describe('Person and Patient $everything Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -58,8 +58,8 @@ describe('Person and Patient $summary Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Person and Patient $summary Tests with CSV content type', () => {
-        test('Patient $summary works with Accepts header', async () => {
+    describe('Person and Patient $everything Tests with CSV content type', () => {
+        test('Patient $everything works with Accepts header', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -178,7 +178,7 @@ describe('Person and Patient $summary Tests', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$summary?_debug=true')
+                .get('/4_0_0/Patient/patient1/$everything?_debug=true')
                 .set(getHeadersCsv())
                 .responseType('blob'); // Important for binary data
 
@@ -186,7 +186,7 @@ describe('Person and Patient $summary Tests', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.zip);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
 
             // Generate unique filename
@@ -241,7 +241,7 @@ describe('Person and Patient $summary Tests', () => {
                 expect(matchingFile).toBeTruthy();
             });
         });
-        test('Patient $summary works with _format', async () => {
+        test('Patient $everything works with _format', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -360,7 +360,7 @@ describe('Person and Patient $summary Tests', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$summary?_format=text/csv')
+                .get('/4_0_0/Patient/patient1/$everything?_format=text/csv')
                 .set(getHeaders())
                 .responseType('blob'); // Important for binary data
 
@@ -368,7 +368,7 @@ describe('Person and Patient $summary Tests', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.zip);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
 
             // Generate unique filename
@@ -422,7 +422,7 @@ describe('Person and Patient $summary Tests', () => {
                 expect(matchingFile).toBeTruthy();
             });
         });
-        test('Person $summary works', async () => {
+        test('Person $everything works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -541,7 +541,7 @@ describe('Person and Patient $summary Tests', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Person/person1/$summary')
+                .get('/4_0_0/Person/person1/$everything')
                 .set(getHeadersCsv())
                 .responseType('blob'); // Important for binary data
 
@@ -549,7 +549,7 @@ describe('Person and Patient $summary Tests', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.zip);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.zip}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.zip/);
 
             // Generate unique filename

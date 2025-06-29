@@ -6,7 +6,6 @@ const {PatientFilterManager} = require('../../fhir/patientFilterManager');
 const {R4SearchQueryCreator} = require('../query/r4');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
-const querystring = require('querystring');
 const { OPERATIONS, RESOURCE_RESTRICTION_TAG } = require('../../constants');
 
 class PatientQueryCreator {
@@ -111,7 +110,7 @@ class PatientQueryCreator {
                 /**
                  * @type {ParsedUrlQuery}
                  */
-                const args = querystring.parse(patientFilterWithQueryProperty);
+                const args = Object.fromEntries(new URLSearchParams(patientFilterWithQueryProperty));
                 const propertyName = Object.keys(args)[0];
                 args[propertyName] = patientUuids.map(p => args[propertyName].replace('{patient}', p));
                 args.base_version = VERSIONS['4_0_0'];
@@ -188,7 +187,7 @@ class PatientQueryCreator {
                 /**
                  * @type {ParsedUrlQuery}
                  */
-                const args = querystring.parse(patientFilterWithQueryProperty);
+                const args = Object.fromEntries(new URLSearchParams(patientFilterWithQueryProperty));
                 const propertyName = Object.keys(args)[0];
                 args[propertyName] = patientNonUuids.map(p => args[propertyName].replace('{patient}', p));
                 args.base_version = VERSIONS['4_0_0'];
@@ -265,7 +264,7 @@ class PatientQueryCreator {
                 /**
                  * @type {ParsedUrlQuery}
                  */
-                const args = querystring.parse(personFilterWithQueryProperty);
+                const args = Object.fromEntries(new URLSearchParams(personFilterWithQueryProperty));
                 const propertyName = Object.keys(args)[0];
                 args[propertyName] = personIds.map(p => args[propertyName].replace('{person}', p));
                 args.base_version = VERSIONS['4_0_0'];

@@ -60,6 +60,18 @@ describe('databaseBulkInserter Tests', () => {
     describe('databaseBulkInserter Tests', () => {
         const base_version = '4_0_0';
         test('execAsync works', async () => {
+            // Create mock functions first
+            const mockOnResourceCreateAsync = jest.fn().mockResolvedValue();
+            const mockOnResourceChangeAsync = jest.fn().mockResolvedValue();
+
+            // Temporarily store original methods
+            const originalOnResourceCreateAsync = MockChangeEventProducer.prototype.onResourceCreateAsync;
+            const originalOnResourceChangeAsync = MockChangeEventProducer.prototype.onResourceChangeAsync;
+
+            // Replace with mocks
+            MockChangeEventProducer.prototype.onResourceCreateAsync = mockOnResourceCreateAsync;
+            MockChangeEventProducer.prototype.onResourceChangeAsync = mockOnResourceChangeAsync;
+
             const container = createTestContainer((container1) => {
                 container1.register(
                     'changeEventProducer',
@@ -75,19 +87,7 @@ describe('databaseBulkInserter Tests', () => {
                 return container1;
             });
 
-            // noinspection JSCheckFunctionSignatures
-            const onResourceCreateAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onResourceCreateAsync')
-                .mockImplementation(() => {
-                });
-            // noinspection JSCheckFunctionSignatures
-            const onResourceChangeAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onResourceChangeAsync')
-                .mockImplementation(() => {
-                });
-            /**
-             * @type {DatabaseBulkInserter}
-             */
+            // Rest of test code
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
             const requestInfo = getTestRequestInfo({ requestId });
@@ -133,8 +133,13 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
-            expect(onResourceCreateAsync).toBeCalledTimes(1);
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            // Check if mock functions were called correctly
+            expect(mockOnResourceCreateAsync.mock.calls.length).toBe(1);
+            expect(mockOnResourceChangeAsync.mock.calls.length).toBe(0);
+
+            // Restore original methods
+            MockChangeEventProducer.prototype.onResourceCreateAsync = originalOnResourceCreateAsync;
+            MockChangeEventProducer.prototype.onResourceChangeAsync = originalOnResourceChangeAsync;
         });
 
         test('execAsync handles mongo error', async () => {
@@ -234,8 +239,8 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onResourceCreateAsync).toBeCalledTimes(1);
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(onResourceCreateAsync).toHaveBeenCalledTimes(1);
+            expect(onResourceChangeAsync).toHaveBeenCalledTimes(0);
         });
 
         test('execAsync handles thrown mongo error', async () => {
@@ -358,8 +363,8 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onResourceCreateAsync).toBeCalledTimes(0);
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(onResourceCreateAsync).toHaveBeenCalledTimes(0);
+            expect(onResourceChangeAsync).toHaveBeenCalledTimes(0);
             expect(mockBulkWrite).toHaveBeenCalledTimes(2);
         });
     });
@@ -1199,7 +1204,7 @@ describe('databaseBulkInserter Tests', () => {
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
-                        _uuid: generateUUIDv5('loinc-1|client'),
+                        _uuid: '93289a07-f21f-514b-9224-532b574c16cd',
                         status: 'active',
                         content: 'complete',
                         meta: new Meta({
@@ -1207,8 +1212,8 @@ describe('databaseBulkInserter Tests', () => {
                             source: 'http://www/icanbwell.com',
                             security: [
                                 new Coding({
-                                    system: 'https://www.icanbwell.com/owner',
                                     id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                                    system: 'https://www.icanbwell.com/owner',
                                     code: 'client'
                                 }),
                                 new Coding({
