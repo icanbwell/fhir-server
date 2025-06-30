@@ -3,7 +3,7 @@ FHIR generates several kafka events on various operations.
 
 ## 1. Change Event
 
-This FHIR server can (optionally) send events to a Kafka queue whenever a resource is changed.
+This FHIR server can (optionally) send events to a Kafka queue whenever a resource is changed like created or updated.
 
 ### Using change events
 
@@ -25,7 +25,6 @@ Change events follow the FHIR Audit Event Schema.
 #### Topic supported
 
 business.events:
-(new user registered, new user added, onboarding, new client added, etc..)
 
 Topic name can be changed using the below environment variable:-
 1. ```KAFKA_RESOURCE_CHANGE_TOPIC```: Used to set topic name for events created for kafka enabled Fhir resources
@@ -107,16 +106,16 @@ This functionality can be enabled by setting env variable ENABLE_FHIR_OPERATION_
 By default events are send to `fhir.operation.usage.events`
 > To override the default topic name, set KAFKA_FHIR_OPERATION_USAGE_EVENT_TOPIC
 
-* Event is not sent for non-patient jwt token.
+* Event is sent only for patient scoped jwt token.
 
-- **Producer:** [FhirOperationUsageEventProducer](/src/utils/fhirUseEventProducer.js`)
+- **Producer:** [FhirOperationUsageEventProducer](../src/utils/fhirOperationUsageEventProducer.js)
 
-### Context of Event
+### Content of Event
 1. managingOrganization: Managing Organization of user
 2. bwellFhirPersonId: FHIR Master person id
 3. clientFhirPersonId: FHIR Client person id
 
-### Header of Event
+#### Example Kafka Message
 ```json
 {
   "managingOrganization": "orgId",
@@ -128,7 +127,7 @@ By default events are send to `fhir.operation.usage.events`
 ### Event Headers
 Operational metadata, such as integrations and CloudEvents attributes, are stored in Kafka headers to separate them from the business logic contained in the payload.
 
-### Example Headers
+#### Example Headers
 ```json
 {
   "ce_integrations": "[\"analytics\"]",
