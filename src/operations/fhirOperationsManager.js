@@ -224,6 +224,14 @@ class FhirOperationsManager {
          */
         const personIdFromJwtToken = req.authInfo?.context?.personIdFromJwtToken;
         /**
+         * @type {string|null}
+         */
+        const masterPersonIdFromJwtToken = req.authInfo?.context?.masterPersonIdFromJwtToken;
+        /**
+         * @type {string|null}
+         */
+        const managingOrganizationId = req.authInfo?.context?.managingOrganizationId;
+        /**
          * @type {string}
          */
         const scope = req.authInfo && req.authInfo.scope;
@@ -293,6 +301,8 @@ class FhirOperationsManager {
                 accept,
                 isUser,
                 personIdFromJwtToken,
+                masterPersonIdFromJwtToken,
+                managingOrganizationId,
                 headers,
                 method,
                 contentTypeFromHeader

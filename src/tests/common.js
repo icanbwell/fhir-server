@@ -162,6 +162,7 @@ const getToken = (module.exports.getToken = (scope) => {
         clientFhirPatientId: 'clientFhirPatient',
         bwellFhirPersonId: 'root-person',
         bwellFhirPatientId: 'bwellFhirPatient',
+        managingOrganization: 'managingOrganization',
         token_use: 'access'
     };
     return createToken(privateKey, '123', payload);
@@ -185,6 +186,8 @@ const getTokenWithCustomPayload = (module.exports.getTokenWithCustomPayload = (p
     return createToken(privateKey, '123', {
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
+        // if not present, it will be set
+        managingOrganization: 'managingOrganization',
         ...payload
     });
 });
@@ -275,6 +278,7 @@ module.exports.getGraphQLHeadersWithPerson = (personId) => {
         clientFhirPatientId: 'clientFhirPatient',
         bwellFhirPersonId: personId,
         bwellFhirPatientId: 'bwellFhirPatient',
+        managingOrganization: 'managingOrganization',
         token_use: 'access'
     };
     return {
