@@ -522,9 +522,10 @@ describe('everything _includeNonClinicalResources Tests', () => {
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true')
             .set(patientHeader);
-        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+        let expected = deepcopy(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+        expect(resp).toHaveMongoQuery(expected);
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeRes);
+        expect(resp).toHaveResponse(expected);
 
         // exclude using consent works only for patient scope
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true').set(getHeaders());

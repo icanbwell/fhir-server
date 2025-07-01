@@ -39,8 +39,9 @@ class PostRequestProcessor {
 
     /**
      * Add a task to the queue
-     * @param {string} requestId
-     * @param {() =>void} fnTask
+     * @param {Object} params
+     * @param {string} params.requestId
+     * @param {() =>void} params.fnTask
      */
     add ({ requestId, fnTask }) {
         assertIsValid(requestId, 'requestId is null');
