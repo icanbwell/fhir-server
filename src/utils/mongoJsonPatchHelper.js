@@ -1,4 +1,4 @@
-function toDot (path) {
+function toDot(path) {
     return path.replace(/^\//, '').replace(/\//g, '.').replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
@@ -8,7 +8,7 @@ class MongoJsonPatchHelper {
      * @param {import('fast-json-patch').Operation[]} patches
      * @return {{}}
      */
-    static convertJsonPatchesToMongoUpdateCommand (
+    static convertJsonPatchesToMongoUpdateCommand(
         {
             patches
         }
@@ -24,7 +24,6 @@ class MongoJsonPatchHelper {
                     let addToEnd = positionPart === '-';
                     let key = parts.slice(0, -1).join('.');
                     if (Number.isNaN(parseInt(positionPart))) {
-                        addToEnd = true;
                         positionPart = '';
                         key = parts.join('.');
                     }
@@ -50,6 +49,20 @@ class MongoJsonPatchHelper {
                             update.$push[`${key}`].$position = Math.min($position, update.$push[`${key}`].$position);
                         }
                     } else if (addToEnd) {
+                        if (update.$push[`${key}`] === undefined) {
+                            update.$push[`${key}`] = patch.value;
+                        } else {
+                            if (update.$push[`${key}`] === null || update.$push[`${key}`].$each === undefined) {
+                                update.$push[`${key}`] = {
+                                    $each: [update.$push[`${key}`]]
+                                };
+                            }
+                            if (update.$push[`${key}`].$position !== undefined) {
+                                throw new Error('Unsupported Operation! can\'t use add op with mixed positions');
+                            }
+                            update.$push[`${key}`].$each.push(patch.value);
+                        }
+                    } else if (!addToEnd) {
                         update.$set = update.$set || {};
                         update.$set[`${key}`] = patch.value;
                     } else {

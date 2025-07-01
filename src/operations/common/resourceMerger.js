@@ -88,7 +88,7 @@ class ResourceMerger {
     /**
      * Updates security tag with provided system to system present in current resource
      * @param {UpdateSecurityTagProps}
-     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
+     * @returns {import('../../fhir/classes/4_0_0/resources/resource') | undefined}
      */
     updateSecurityTag ({ system, resourceToMerge, currentResource }) {
         const currentValue = currentResource.meta.security.find(
