@@ -131,7 +131,7 @@ Operational metadata, such as integrations and CloudEvents attributes, are store
 ```json
 {
   "ce_integrations": "[\"analytics\"]",
-  "ce_type": "EverythingAccessed",
+  "ce_type": "AccessedEverything",
   "ce_source": "https://www.icanbwell.com/fhir-server",
   "ce_datacontenttype": "application/json;charset=utf-8",
   "ce_time": "2025-06-27T07:25:59.377Z",

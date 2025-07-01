@@ -301,7 +301,7 @@ class EverythingOperation {
                         const bwellFhirPersonId = requestInfo.masterPersonIdFromJwtToken;
                         const managingOrganization = requestInfo.managingOrganizationId;
                         await this.fhirOperationUsageEventProducer.produce({
-                            operationType: 'EverythingAccessed',
+                            operationType: 'AccessedEverything',
                             bwellFhirPersonId,
                             clientFhirPersonId,
                             managingOrganization
