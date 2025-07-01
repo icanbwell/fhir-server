@@ -457,13 +457,6 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 }
             );
 
-            // run preSaveAsync again to make sure any changes to references are handled
-            resource = await this.preSaveManager.preSaveAsync({
-                base_version,
-                requestInfo,
-                resource
-            });
-
             // for speed, first check if the incoming resource is exactly the same
             const updatedResourceJsonInternal = resource.toJSONInternal();
             const currentResourceJsonInternal = currentResource.toJSONInternal();
