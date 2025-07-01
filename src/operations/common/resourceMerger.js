@@ -362,8 +362,8 @@ class ResourceMerger {
          */
         let mergedObject;
         mergedObject = smartMerge
-            ? mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON())
-            : resourceToMerge.toJSON();
+            ? mergeObject(currentResourceWithAttachmentData.toJSONInternal(), resourceToMerge.toJSONInternal())
+            : resourceToMerge.toJSONInternal();
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources
@@ -375,7 +375,7 @@ class ResourceMerger {
         currentResourceWithAttachmentData = await dateColumnHandler.preSaveAsync({ resource: currentResourceWithAttachmentData });
         mergedObject = await dateColumnHandler.preSaveAsync({ resource: mergedObject });
         const patchContent = this.compareObjects({
-            currentObject: currentResourceWithAttachmentData.toJSON(),
+            currentObject: currentResourceWithAttachmentData.toJSONInternal(),
             mergedObject,
             limitToPaths
         });
