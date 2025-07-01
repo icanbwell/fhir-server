@@ -11,7 +11,7 @@ const { CLOUD_EVENT } = require('../constants');
  *
  * Produces CloudEvent-compliant Kafka events for user operation access in the FHIR server.
  *
- * @typedef {"EverythingAccessed"} FhirOperationUsageEventProducerOperationType
+ * @typedef {"AccessedEverything"} FhirOperationUsageEventProducerOperationType
  */
 class FhirOperationUsageEventProducer {
     /**

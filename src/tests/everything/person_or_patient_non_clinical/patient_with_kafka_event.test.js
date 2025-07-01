@@ -351,7 +351,7 @@ describe('patient everything kafka events', () => {
 
         const mockHeaders = {
             'content-type': 'application/json;charset=utf-8',
-            ce_type: 'EverythingAccessed',
+            ce_type: 'AccessedEverything',
             ce_source: 'https://www.icanbwell.com/fhir-server',
             ce_specversion: '1.0',
             ce_datacontenttype: 'application/json;charset=utf-8',
