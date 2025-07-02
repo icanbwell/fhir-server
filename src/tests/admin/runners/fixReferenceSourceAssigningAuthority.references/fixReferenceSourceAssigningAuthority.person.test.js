@@ -58,9 +58,22 @@ async function setupDatabaseAsync(
      */
     const collection = fhirDb.collection(collectionName);
     /**
+     * @type {number}
+     */
+    const countBeforeInsert = await collection.countDocuments({});
+    /**
      * @type {import('mongodb').InsertOneResult<import('mongodb').Document>}
      */
     const insertResult = await collection.insertOne(resourceToInsert);
+
+    expect(insertResult.acknowledged).toBeTruthy();
+    expect(insertResult.insertedId).toBeDefined();
+
+    /**
+     * @type {number}
+     */
+    const countAfterInsert = await collection.countDocuments({});
+    expect(countAfterInsert).toBe(countBeforeInsert + 1);
 
     // ACT & ASSERT
     // check that two entries were stored in the database
@@ -105,7 +118,7 @@ describe('Person Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            const collection =             await setupDatabaseAsync(
+            const collection = await setupDatabaseAsync(
                 {
                     mongoDatabaseManager,
                     resourceToInsert: person1Resource,
@@ -113,7 +126,7 @@ describe('Person Tests', () => {
                     collectionName: 'Person_4_0_0'
                 }
             );
-              await setupDatabaseAsync(
+            await setupDatabaseAsync(
                 {
                     mongoDatabaseManager,
                     resourceToInsert: person2Resource,
