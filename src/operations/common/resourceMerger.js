@@ -374,6 +374,9 @@ class ResourceMerger {
         dateColumnHandler.setFlag(true);
         currentResourceWithAttachmentData = await dateColumnHandler.preSaveAsync({ resource: currentResourceWithAttachmentData });
         mergedObject = await dateColumnHandler.preSaveAsync({ resource: mergedObject });
+        /**
+         * @type {import('fast-json-patch').Operation[]}
+         */
         const patchContent = this.compareObjects({
             currentObject: currentResourceWithAttachmentData.toJSONInternal(),
             mergedObject,
