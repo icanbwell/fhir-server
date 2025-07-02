@@ -9,7 +9,7 @@ const {ForbiddenError} = require('../../utils/httpErrors');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
 const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
-const {ComprehensiveIPSCompositionBuilder} = require("@imranq2/fhirpatientsummary");
+const {ComprehensiveIPSCompositionBuilder, TBundle} = require("@imranq2/fhirpatientsummary");
 
 class SummaryOperation {
     /**
@@ -184,7 +184,7 @@ class SummaryOperation {
             const builder = new ComprehensiveIPSCompositionBuilder();
             const timezone = this.configManager.serverTimeZone;
             const summaryBundle = builder.read_bundle(
-                result,
+                /** @type {TBundle} */ (result),
                 timezone
             ).build_bundle(
                 "bwell",

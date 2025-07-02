@@ -532,6 +532,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Promise<Resource | null | undefined>}
      */
     async searchById(args, {req}, resourceType) {
         /**
@@ -561,7 +562,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
-     * @returns {Resource}
+     * @returns {Promise<Resource>}
      */
     async create(args, {req}, resourceType) {
         /**
@@ -671,7 +672,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {import('express').Response} res
      * @param {string} resourceType
-     * @returns {Bundle}
+     * @returns {Promise<Bundle | undefined>}
      */
     async everything(args, {req, res}, resourceType) {
         /**
@@ -767,7 +768,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {import('express').Response} res
      * @param {string} resourceType
-     * @returns {Bundle}
+     * @returns {Promise<Bundle|undefined>}
      */
     async summary(args, {req, res}, resourceType) {
         /**
@@ -838,6 +839,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Promise<{deleted: number}>}
      */
     async remove(args, {req}, resourceType) {
         /**
@@ -867,6 +869,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Promise<{deleted: number}>}
      */
     async remove_by_query(args, {req}, resourceType) {
         /**
@@ -896,6 +899,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Promise<any | undefined>}
      */
     async searchByVersionId(args, {req}, resourceType) {
         /**
@@ -926,6 +930,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Promise<any>}
      */
     async history(args, {req}, resourceType) {
         /**
@@ -957,6 +962,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns { Promise<any | undefined>}
      */
     async historyById(args, {req}, resourceType) {
         /**
@@ -986,7 +992,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
-     * @return {{id: string,created: boolean, resource_version: string, resource: Resource}}
+     * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
     async patch(args, {req}, resourceType) {
         /**
@@ -1016,6 +1022,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Promise<Resource>}
      */
     async validate(args, {req}, resourceType) {
         /**
@@ -1046,7 +1053,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {import('http').ServerResponse} res
      * @param {string} resourceType
-     * @return {Promise<Bundle>}
+     * @return {Promise<Bundle|undefined>}
      */
     async graph(args, {req, res}, resourceType) {
         /**
@@ -1118,6 +1125,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Promise<Resource>}
      */
     async expand(args, {req}, resourceType) {
         /**
@@ -1147,7 +1155,7 @@ class FhirOperationsManager {
      * does FHIR Bulk export
      * @param {string[]} args
      * @param {{ req: import('http').IncomingMessage }}
-     * @return {Resource | Resource[]}
+     * @return {Promise<Resource | Resource[]>}
      */
     async export(args, {req}) {
         /**
@@ -1168,7 +1176,7 @@ class FhirOperationsManager {
      * returns status for the bulk export
      * @param {string[]} args
      * @param {{ req: import('http').IncomingMessage }}
-     * @return {Resource | Resource[]}
+     * @return {Promise<Resource | Resource[]>}
      */
     async exportById(args, {req}) {
         /**

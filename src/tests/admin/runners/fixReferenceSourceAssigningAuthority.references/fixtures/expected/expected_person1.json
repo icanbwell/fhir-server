@@ -32,9 +32,9 @@
       "type": {
         "coding": [
           {
+            "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
             "code": "FHIR_id",
             "display": "bWell FHIR id",
-            "id": "866c7fe6-2825-5413-9ca6-3a3fe7846140",
             "system": "https://www.icanbwell.com"
           }
         ]
@@ -46,9 +46,9 @@
       "type": {
         "coding": [
           {
+            "id": "6cc93c8f-1db1-590d-a5d3-b97d4601558a",
             "code": "user_id",
             "display": "bWell App user_id",
-            "id": "6cc93c8f-1db1-590d-a5d3-b97d4601558a",
             "system": "https://www.icanbwell.com"
           }
         ]
@@ -60,9 +60,9 @@
       "type": {
         "coding": [
           {
+            "id": "aaa0e9f2-2b20-5a04-8823-d213dbf4bee7",
             "code": "member_id",
             "display": "bWell App member_id",
-            "id": "aaa0e9f2-2b20-5a04-8823-d213dbf4bee7",
             "system": "https://www.icanbwell.com"
           }
         ]
@@ -137,7 +137,7 @@
     }
   ],
   "meta": {
-    "lastUpdated": "2025-07-02T20:10:03.954Z",
+    "lastUpdated": "2023-03-05T20:22:27.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
     ],
