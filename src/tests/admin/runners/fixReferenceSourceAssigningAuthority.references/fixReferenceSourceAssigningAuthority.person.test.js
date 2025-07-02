@@ -17,40 +17,63 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { AdminLogger } = require('../../../../admin/adminLogger');
-const { ConfigManager } = require('../../../../utils/configManager');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const {AdminLogger} = require('../../../../admin/adminLogger');
+const {ConfigManager} = require('../../../../utils/configManager');
 const {
     FixReferenceSourceAssigningAuthorityRunner
 } = require('../../../../admin/runners/fixReferenceSourceAssigningAuthorityRunner');
-const { IdentifierSystem } = require('../../../../utils/identifierSystem');
-const { assertTypeEquals } = require('../../../../utils/assertType');
+const {IdentifierSystem} = require('../../../../utils/identifierSystem');
+const {assertTypeEquals} = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableReturnBundle () {
+    get enableReturnBundle() {
         return true;
     }
 }
 
-async function setupDatabaseAsync (mongoDatabaseManager, personResource, expectedPersonInDatabase,
-                                  collectionName) {
+/**
+ * sets up the datebase with the given personResource and expectedPersonInDatabase.
+ * @param {MongoDatabaseManager} mongoDatabaseManager
+ * @param {Person} resourceToInsert
+ * @param {Person} expectedResourceInDatabase
+ * @param {string} collectionName
+ * @returns {Promise<import('mongodb').Collection<import('mongodb').Document>>}
+ */
+async function setupDatabaseAsync(
+    {
+        mongoDatabaseManager,
+        resourceToInsert,
+        expectedResourceInDatabase,
+        collectionName
+    }
+) {
+    /**
+     * @type {import('mongodb').Db}
+     */
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
+    /**
+     * @type {import('mongodb').Collection<import('mongodb').Document>}
+     */
     const collection = fhirDb.collection(collectionName);
-    await collection.insertOne(personResource);
+    /**
+     * @type {import('mongodb').InsertOneResult<import('mongodb').Document>}
+     */
+    const insertResult = await collection.insertOne(resourceToInsert);
 
     // ACT & ASSERT
     // check that two entries were stored in the database
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({ id: personResource.id });
+    const resource = await collection.findOne({id: resourceToInsert.id});
     // const resultsJson = JSON.stringify(results);
 
     delete resource._id;
 
-    personResource.meta.lastUpdated = resource.meta.lastUpdated;
-    expect(resource).toStrictEqual(expectedPersonInDatabase);
+    resourceToInsert.meta.lastUpdated = resource.meta.lastUpdated;
+    expect(resource).toStrictEqual(expectedResourceInDatabase);
     return collection;
 }
 
@@ -82,17 +105,29 @@ describe('Person Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            const collection = await setupDatabaseAsync(
-                mongoDatabaseManager, person1Resource, expectedPerson1DatabaseBeforeRun,
-                'Person_4_0_0'
+            const collection =             await setupDatabaseAsync(
+                {
+                    mongoDatabaseManager,
+                    resourceToInsert: person1Resource,
+                    expectedResourceInDatabase: expectedPerson1DatabaseBeforeRun,
+                    collectionName: 'Person_4_0_0'
+                }
+            );
+              await setupDatabaseAsync(
+                {
+                    mongoDatabaseManager,
+                    resourceToInsert: person2Resource,
+                    expectedResourceInDatabase: expectedPerson2DatabaseBeforeRun,
+                    collectionName: 'Person_4_0_0'
+                }
             );
             await setupDatabaseAsync(
-                mongoDatabaseManager, person2Resource, expectedPerson2DatabaseBeforeRun,
-                'Person_4_0_0'
-            );
-            await setupDatabaseAsync(
-                mongoDatabaseManager, patient1Resource, expectedPatient1DatabaseBeforeRun,
-                'Patient_4_0_0'
+                {
+                    mongoDatabaseManager,
+                    resourceToInsert: patient1Resource,
+                    expectedResourceInDatabase: expectedPatient1DatabaseBeforeRun,
+                    collectionName: 'Patient_4_0_0'
+                }
             );
 
             // run admin runner
@@ -130,7 +165,7 @@ describe('Person Tests', () => {
             await fixReferenceSourceAssigningAuthorityRunner.processAsync();
 
             // Check patient 1
-            const person1 = await collection.findOne({ id: person1Resource.id });
+            const person1 = await collection.findOne({id: person1Resource.id});
             expect(person1).toBeDefined();
             delete person1._id;
             expect(person1._uuid).toBeDefined();
@@ -154,7 +189,6 @@ describe('Person Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-
             const postRequestProcessor = container.postRequestProcessor;
 
             // insert directly into database instead of going through merge() so we simulate old records
@@ -163,16 +197,28 @@ describe('Person Tests', () => {
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
             const collection = await setupDatabaseAsync(
-                mongoDatabaseManager, person1Resource, expectedPerson1DatabaseBeforeRun,
-                'Person_4_0_0'
+                {
+                    mongoDatabaseManager,
+                    resourceToInsert: person1Resource,
+                    expectedResourceInDatabase: expectedPerson1DatabaseBeforeRun,
+                    collectionName: 'Person_4_0_0'
+                }
             );
             await setupDatabaseAsync(
-                mongoDatabaseManager, person2Resource, expectedPerson2DatabaseBeforeRun,
-                'Person_4_0_0'
+                {
+                    mongoDatabaseManager,
+                    resourceToInsert: person2Resource,
+                    expectedResourceInDatabase: expectedPerson2DatabaseBeforeRun,
+                    collectionName: 'Person_4_0_0'
+                }
             );
             await setupDatabaseAsync(
-                mongoDatabaseManager, patient1Resource, expectedPatient1DatabaseBeforeRun,
-                'Patient_4_0_0'
+                {
+                    mongoDatabaseManager,
+                    resourceToInsert: patient1Resource,
+                    expectedResourceInDatabase: expectedPatient1DatabaseBeforeRun,
+                    collectionName: 'Patient_4_0_0'
+                }
             );
 
             // run admin runner
@@ -213,7 +259,7 @@ describe('Person Tests', () => {
             await fixReferenceSourceAssigningAuthorityRunner.processAsync();
 
             // Check patient 1
-            const person1 = await collection.findOne({ id: person1Resource.id });
+            const person1 = await collection.findOne({id: person1Resource.id});
             expect(person1).toBeDefined();
             delete person1._id;
             expect(person1._uuid).toBeDefined();
