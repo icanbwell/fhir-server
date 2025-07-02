@@ -234,6 +234,8 @@ class ResourceMerger {
                 item.value && (
                     (typeof item.value === 'string' && isUuid(item.value)) ||
                     (typeof item.value === 'object' && item.value.system === IdentifierSystem.uuid)
+                ) && (
+                    item.op !== 'add'  // and we are not adding a new identifier
                 )
             )
         );
@@ -241,7 +243,9 @@ class ResourceMerger {
         patchContent = patchContent.filter(
             item => !(
                 item.path.startsWith('/identifier') && item.value &&
-                item.value.system === IdentifierSystem.sourceId
+                item.value.system === IdentifierSystem.sourceId  && (
+                    item.op !== 'add'  // and we are not adding a new identifier
+                )
             )
         );
         if (limitToPaths && limitToPaths.length > 0) {

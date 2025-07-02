@@ -258,7 +258,9 @@ describe('Person Tests', () => {
                         ],
                         resourceMerger: c.resourceMerger,
                         properties: [
-                            'link'
+                            'link',
+                            'identifier',
+                            'meta'
                         ]
                     }
                 )
