@@ -106,10 +106,17 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             // now execute the bulk inserts
-            await databaseBulkInserter.executeAsync({
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await databaseBulkInserter.executeAsync({
                 requestInfo,
                 base_version
             });
+
+            expect(mergeResults.length).toStrictEqual(2);
+            expect(mergeResults[0].created).toStrictEqual(true);
+            expect(mergeResults[1].created).toStrictEqual(true);
 
             /**
              * @type {PostRequestProcessor}
@@ -133,8 +140,8 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
-            expect(onResourceCreateAsync).toBeCalledTimes(1);
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(onResourceCreateAsync).toHaveBeenCalledTimes(1);
+            expect(onResourceChangeAsync).toHaveBeenCalledTimes(0);
         });
 
         test('execAsync handles mongo error', async () => {
@@ -234,8 +241,8 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onResourceCreateAsync).toBeCalledTimes(1);
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(onResourceCreateAsync).toHaveBeenCalledTimes(1);
+            expect(onResourceChangeAsync).toHaveBeenCalledTimes(0);
         });
 
         test('execAsync handles thrown mongo error', async () => {
@@ -358,8 +365,8 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onResourceCreateAsync).toBeCalledTimes(0);
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(onResourceCreateAsync).toHaveBeenCalledTimes(0);
+            expect(onResourceChangeAsync).toHaveBeenCalledTimes(0);
             expect(mockBulkWrite).toHaveBeenCalledTimes(2);
         });
     });
@@ -733,6 +740,8 @@ describe('databaseBulkInserter Tests', () => {
                     resource: new CodeSystem({
                         id: 'loinc-1',
                         _uuid: '93289a07-f21f-514b-9224-532b574c16cd',
+                        _sourceAssigningAuthority: "client",
+                        _sourceId: "loinc-1",
                         status: 'active',
                         content: 'complete',
                         meta: new Meta({
@@ -824,6 +833,20 @@ describe('databaseBulkInserter Tests', () => {
                                         severity: 'information',
                                         code: 'informational',
                                         diagnostics: '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}'
+                                    }
+                                ),
+                                new OperationOutcomeIssue(
+                                    {
+                                        code: "informational",
+                                        diagnostics: "{\"op\":\"add\",\"path\":\"/_sourceAssigningAuthority\",\"value\":\"client\"}",
+                                        severity: "information"
+                                    }
+                                ),
+                                new OperationOutcomeIssue(
+                                    {
+                                        code: "informational",
+                                        diagnostics: "{\"op\":\"add\",\"path\":\"/_sourceId\",\"value\":\"loinc-1\"}",
+                                        severity: "information"
                                     }
                                 )
                             ],
@@ -1199,7 +1222,9 @@ describe('databaseBulkInserter Tests', () => {
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
-                        _uuid: generateUUIDv5('loinc-1|client'),
+                        _uuid: '93289a07-f21f-514b-9224-532b574c16cd',
+                        _sourceAssigningAuthority: "client",
+                        _sourceId: "loinc-1",
                         status: 'active',
                         content: 'complete',
                         meta: new Meta({
@@ -1207,8 +1232,8 @@ describe('databaseBulkInserter Tests', () => {
                             source: 'http://www/icanbwell.com',
                             security: [
                                 new Coding({
-                                    system: 'https://www.icanbwell.com/owner',
                                     id: "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                                    system: 'https://www.icanbwell.com/owner',
                                     code: 'client'
                                 }),
                                 new Coding({
@@ -1291,6 +1316,20 @@ describe('databaseBulkInserter Tests', () => {
                                         code: 'informational',
                                         diagnostics: '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}',
                                         severity: 'information'
+                                    }
+                                ),
+                                new OperationOutcomeIssue(
+                                    {
+                                        code: "informational",
+                                        diagnostics: "{\"op\":\"add\",\"path\":\"/_sourceAssigningAuthority\",\"value\":\"client\"}",
+                                        severity: "information"
+                                    }
+                                ),
+                                new OperationOutcomeIssue(
+                                    {
+                                        code: "informational",
+                                        diagnostics: "{\"op\":\"add\",\"path\":\"/_sourceId\",\"value\":\"loinc-1\"}",
+                                        severity: "information"
                                     }
                                 )
                             ],

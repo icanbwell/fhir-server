@@ -9,6 +9,7 @@ const {ForbiddenError} = require('../../utils/httpErrors');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
 const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
+const {ComprehensiveIPSCompositionBuilder, TBundle} = require("@imranq2/fhirpatientsummary");
 
 class SummaryOperation {
     /**
@@ -171,25 +172,52 @@ class SummaryOperation {
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
              */
-            let result;
-            result = await this.graphOperation.graph({
+            const result = await this.graphOperation.graph({
                 requestInfo,
                 res,
                 parsedArgs,
                 resourceType,
-                responseStreamer,
+                responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
                 supportLegacyId,
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources)
             });
-
-            await this.fhirLoggingManager.logOperationSuccessAsync({
-                requestInfo,
-                args: parsedArgs.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName
-            });
-            return result;
+            const builder = new ComprehensiveIPSCompositionBuilder();
+            const timezone = this.configManager.serverTimeZone;
+            const summaryBundle = builder.read_bundle(
+                /** @type {TBundle} */ (result),
+                timezone
+            ).build_bundle(
+                "bwell",
+                'b.well Connected Health',
+                'https://bwell.com/summary',
+                timezone
+            );
+            if (responseStreamer) {
+                responseStreamer.setBundle({bundle: summaryBundle});
+                for (const entry of summaryBundle.entry) {
+                    await responseStreamer.writeBundleEntryAsync({
+                        bundleEntry: entry
+                    });
+                }
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
+                // data was already written to the response streamer
+                return undefined;
+            } else {
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
+                return summaryBundle;
+            }
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

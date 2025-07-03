@@ -6,9 +6,9 @@ class BufferToChunkTransferResponse {
      * @param {ServerResponse} response
      * @param {Buffer} buffer
      * @param {number} chunkSize
-     * @returns {void}
+     * @returns {Promise<void>} Resolves when the stream is fully written
      */
-    sendLargeFileChunked({response, buffer, chunkSize = 64 * 1024}) {
+    async sendLargeFileChunkedAsync({response, buffer, chunkSize = 64 * 1024}) {
         // Create a readable stream from the buffer
         /**
          * @type {module:stream.Stream.Readable | module:stream.internal.Readable}
@@ -31,21 +31,19 @@ class BufferToChunkTransferResponse {
 
         response.setHeader('Transfer-Encoding', 'chunked');
 
-        // Pipe the stream to response
-        readableStream.pipe(response);
+        return new Promise((resolve, reject) => {
+            // Pipe the stream to response
+            readableStream.pipe(response);
 
-        // Handle potential errors
-        readableStream.on('error', (err) => {
-            console.error('Stream error:', err);
-            response.statusCode = 500;
-            response.end('Error streaming file');
-        });
-        readableStream.on('end', () => {
-            response.end();
-        });
-        readableStream.on('close', () => {
-        });
-        readableStream.on('finish', () => {
+            // Handle potential errors
+            readableStream.on('error', (err) => {
+                console.error('Stream error:', err);
+                response.statusCode = 500;
+                response.end('Error streaming file');
+                reject(err);
+            });
+            response.on('close', resolve);
+            response.on('finish', resolve);
         });
     }
 }
