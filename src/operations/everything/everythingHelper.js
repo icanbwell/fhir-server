@@ -576,6 +576,10 @@ class EverythingHelper {
                             _includeHidden: parsedArgs._includeHidden
                         };
 
+                        if (parsedArgs._since) {
+                            baseArgs._lastUpdated = `gt${parsedArgs._since}`;
+                        }
+
                         // for non-clinical resources, only binary support patient data view control
                         if (resourceType === 'Binary' && resourceToExcludeIdsMap[resourceType]?.length > 0) {
                             baseArgs["id:not"] = resourceToExcludeIdsMap[resourceType].join(',');
@@ -920,6 +924,10 @@ class EverythingHelper {
 
             let commonArgs = {
                 _includeHidden: parsedArgs._includeHidden
+            };
+
+            if (parsedArgs._since) {
+                commonArgs._lastUpdated = `gt${parsedArgs._since}`;
             }
 
             if (resourceToExcludeIdsMap && resourceToExcludeIdsMap[relatedResourceType]?.length > 0) {

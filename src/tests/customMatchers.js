@@ -669,7 +669,28 @@ function toHaveMongoQuery(resp, expected, expectedTagPath = null) {
         // Extract the collection name
         const collectionName = queryString.match(collectionNameRegex)[1];
 
-        let queryPart = queryString.match(/\(([^)]+)\)/)[1];
+        // Find the outermost parentheses by tracking parentheses count
+        const firstParenIndex = queryString.indexOf('(');
+        let parenCount = 0;
+        let lastParenIndex = -1;
+
+        for (let i = firstParenIndex; i < queryString.length; i++) {
+            if (queryString[i] === '(') parenCount++;
+            if (queryString[i] === ')') {
+                parenCount--;
+                if (parenCount === 0) {
+                    lastParenIndex = i;
+                    break;
+                }
+            }
+        }
+
+        let queryPart = queryString.substring(firstParenIndex + 1, lastParenIndex);
+
+        // to handle query containing ISODate
+        queryPart = queryPart.replace("ISODate", "");
+        queryPart = queryPart.replace("(", "");
+        queryPart = queryPart.replace(")", "");
 
         // Find the position of the last comma outside of braces
         let braceCount = 0;
