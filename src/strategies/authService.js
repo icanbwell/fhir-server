@@ -62,7 +62,9 @@ class AuthService {
             clientFhirPersonId: 'clientFhirPersonId',
             clientFhirPatientId: 'clientFhirPatientId',
             bwellFhirPersonId: 'bwellFhirPersonId',
-            bwellFhirPatientId: 'bwellFhirPatientId',
+            bwellFhirPatientId: 'bwellFhirPatientId'
+        };
+        this.optionalJWTFields = {
             bwellManagingOrganizationId: 'managingOrganization'
         };
         this.cacheOptions = {
@@ -190,7 +192,7 @@ class AuthService {
             }
             context.personIdFromJwtToken = jwt_payload[this.requiredJWTFields.clientFhirPersonId];
             context.masterPersonIdFromJwtToken = jwt_payload[this.requiredJWTFields.bwellFhirPersonId];
-            context.managingOrganizationId = jwt_payload[this.requiredJWTFields.bwellManagingOrganizationId];
+            context.managingOrganizationId = jwt_payload[this.optionalJWTFields.bwellManagingOrganizationId];
         }
         logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
         done(null, {id: client_id, isUser, name: username, username}, {scope, context});
