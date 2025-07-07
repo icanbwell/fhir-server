@@ -335,6 +335,9 @@ class ResourceMerger {
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         // confirm the resource has been run through preSave
+        if (!currentResource._uuid) {
+            currentResource = await this.preSaveManager.preSaveAsync({ resource: currentResource });
+        }
         if (!resourceToMerge._uuid) {
             resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
         }
