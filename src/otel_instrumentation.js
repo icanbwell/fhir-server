@@ -74,12 +74,12 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
             exporter: new OTLPMetricExporter()
         }),
         instrumentations: [
-            new DataloaderInstrumentation(),
-            new ExpressInstrumentation(),
-            new LruMemoizerInstrumentation(),
-            new RouterInstrumentation(),
-            new WinstonInstrumentation(),
             new HttpInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-http']),
+            new ExpressInstrumentation(),
+            new RouterInstrumentation(),
+            new DataloaderInstrumentation(),
+            new LruMemoizerInstrumentation(),
+            new WinstonInstrumentation(),
             new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb'])
         ]
     });
