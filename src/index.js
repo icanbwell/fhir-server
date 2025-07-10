@@ -14,7 +14,10 @@ Sentry.init({
     release: getImageVersion(),
     environment: process.env.ENVIRONMENT,
     autoSessionTracking: false,
-    skipOpenTelemetrySetup: true
+    skipOpenTelemetrySetup: true,
+    tracesSampleRate: undefined,
+    tracesSampler: undefined,
+    tracePropagationTargets: []
 });
 
 // Validate that OpenTelemetry setup is correct
