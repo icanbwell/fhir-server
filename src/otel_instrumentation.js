@@ -84,6 +84,7 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
             new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb'])
         ],
         // Config needed for Sentry integration
+        // https://docs.sentry.io/platforms/javascript/guides/node/opentelemetry/custom-setup/
         // Ensure context & request isolation are correctly managed
         contextManager: new Sentry.SentryContextManager(),
         spanProcessors: [
