@@ -51,10 +51,11 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     /**
      * We have to start the instrumentation SDK ourselves
      */
+    const Sentry = require('@sentry/node');
+
     const opentelemetry = require('@opentelemetry/sdk-node');
     const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
     const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-grpc');
-    const { Resource } = require('@opentelemetry/resources');
     const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
 
     // Instrumentations
@@ -68,20 +69,24 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
 
     const sdk = new opentelemetry.NodeSDK({
-        resource: new Resource(),
         traceExporter: new OTLPTraceExporter(),
         metricReader: new PeriodicExportingMetricReader({
             exporter: new OTLPMetricExporter()
         }),
         instrumentations: [
-            new DataloaderInstrumentation(),
-            new ExpressInstrumentation(),
-            new LruMemoizerInstrumentation(),
-            new RouterInstrumentation(),
-            new WinstonInstrumentation(),
             new HttpInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-http']),
+            new ExpressInstrumentation(),
+            new RouterInstrumentation(),
+            new DataloaderInstrumentation(),
+            new LruMemoizerInstrumentation(),
+            new WinstonInstrumentation(),
+            new GraphQLInstrumentation(),
             new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb'])
-        ]
+        ],
+        // Config needed for Sentry integration
+        // https://docs.sentry.io/platforms/javascript/guides/node/opentelemetry/custom-setup/
+        // Ensure context & request isolation are correctly managed
+        contextManager: new Sentry.SentryContextManager()
     });
 
     sdk.start();
