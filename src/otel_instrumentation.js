@@ -51,10 +51,12 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     /**
      * We have to start the instrumentation SDK ourselves
      */
+    const Sentry = require('@sentry/node');
+    const { SentrySpanProcessor, SentryPropagator } = require('@sentry/opentelemetry');
+
     const opentelemetry = require('@opentelemetry/sdk-node');
     const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
     const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-grpc');
-    const { Resource } = require('@opentelemetry/resources');
     const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
 
     // Instrumentations
@@ -68,8 +70,6 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
 
     const sdk = new opentelemetry.NodeSDK({
-        resource: new Resource(),
-        traceExporter: new OTLPTraceExporter(),
         metricReader: new PeriodicExportingMetricReader({
             exporter: new OTLPMetricExporter()
         }),
@@ -80,8 +80,18 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
             new DataloaderInstrumentation(),
             new LruMemoizerInstrumentation(),
             new WinstonInstrumentation(),
+            new GraphQLInstrumentation(),
             new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb'])
-        ]
+        ],
+        // Config needed for Sentry integration
+        // Ensure context & request isolation are correctly managed
+        contextManager: new Sentry.SentryContextManager(),
+        spanProcessors: [
+            new opentelemetry.tracing.BatchSpanProcessor(new OTLPTraceExporter()),
+            // Ensure spans are correctly linked & sent to Sentry
+            new SentrySpanProcessor()
+        ],
+        textMapPropagator: new SentryPropagator()
     });
 
     sdk.start();
