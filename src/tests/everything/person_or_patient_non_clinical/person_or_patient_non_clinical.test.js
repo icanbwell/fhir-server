@@ -65,11 +65,13 @@ const expectedPatientResourcesWithNonClinicalDepth3AndIncludeHidden = require('.
 const expectedPatientEverythingWithPatientScope = require('./fixtures/expected/expected_patient_everything_with_patient_scope_without_graph.json');
 const expectedPatientEverythingWithPatientScopeAndExcludeRes = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res.json');
 const expectedPatientEverythingWithPatientScopeSinceAndExcludeRes = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res.json');
+const expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res_uuid_only.json');
 const expectedPatientResourcesWithNonClinicalDepth3GlobalIdAndExcludeRes = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_without_graph_global_id_exclude_res.json');
 const expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res_uuid_only.json');
 const expectedPatientEverythingWithPatientScopeWithoutExclude = require('./fixtures/expected/expected_patient_everything_with_patient_scope_without_exclude.json');
 const expectedPatientEverythingWithPatientScopeAndIncludeHidden = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_without_graph.json');
 const expectedPatientEverythingWithPatientScopeAndIncludeHiddenSince = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_since.json');
+const expectedPatientEverythingWithPatientScopeAndIncludeHiddenSinceNonClinical = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_since_non_clinical.json');
 const expectedPatientEverythingForTwoPatients = require('./fixtures/expected/expected_patient_everything_for_two_patients.json');
 const expectedPatientEverythingForTwoPatientsWithPatientScope = require('./fixtures/expected/expected_patient_everything_for_two_patients_with_patient_scope.json');
 const expectedPatientEverythingCarePlan = require('./fixtures/expected/expected_Patient_CarePlan.json');
@@ -506,7 +508,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
             }
         );
 
-        // get patient everything with documentReference and linked binary excluded
+        // get patient everything with documentReference excluded, but linked binary included
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1&_since=2025-01-02T00:00:00.000Z')
             .set(patientHeader);
@@ -552,6 +554,24 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expected = deepcopy(expectedPatientResourcesWithNonClinicalDepth3)
         expect(resp).toHaveMongoQuery(expected);
         expect(resp).toHaveResponse(expected);
+
+        let futureDatetime = new Date();
+        futureDatetime.setHours(futureDatetime.getHours() + 4);
+        await fhirDb.collection('Location_4_0_0').updateMany(
+            {},
+            {
+                $set: {
+                    'meta.lastUpdated': futureDatetime
+                }
+            }
+        );
+        // get patient everything with _since works even if only nested non-clinical resources is updated
+        resp = await request
+            .get(`/4_0_0/Patient/patient1/$everything?_debug=true&_includeHidden=1&_since=${(new Date()).toISOString()}`)
+            .set(patientHeader);
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndIncludeHiddenSinceNonClinical);
+        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndIncludeHiddenSinceNonClinical);
+
     });
 
     test('Person and Patient $everything with exclude resources based on consent view control', async () => {
@@ -661,13 +681,30 @@ describe('everything _includeNonClinicalResources Tests', () => {
             }
         );
 
-        // get patient everything with documentReference and linked binary excluded
+        await fhirDb.collection('Patient_4_0_0').updateMany(
+            {},
+            {
+                $set: {
+                    'meta.lastUpdated': new Date('2025-01-01T00:00:00.000Z')
+                }
+            }
+        );
+
+        // get patient everything with documentReference & Patient excluded
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-01-02T02:00:00.000%2B02:00')
             .set(patientHeader);
         expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeSinceAndExcludeRes);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeSinceAndExcludeRes);
+
+        // get patient everything with documentReference & Patient excluded with _includePatientLinkedUuidOnly
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-01-02T02:00:00.000%2B02:00&_includePatientLinkedUuidOnly=1')
+            .set(patientHeader);
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnly);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnly);
 
         process.env.CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL = CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL;
     });
