@@ -183,6 +183,7 @@ class SummaryOperation {
             });
             const builder = new ComprehensiveIPSCompositionBuilder();
             const timezone = this.configManager.serverTimeZone;
+            // noinspection JSCheckFunctionSignatures
             const summaryBundle = builder.read_bundle(
                 /** @type {TBundle} */ (result),
                 timezone
