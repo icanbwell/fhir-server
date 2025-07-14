@@ -79,7 +79,6 @@ class EverythingOperation {
      * does a FHIR $everything
      * @typedef everythingAsyncParams
      * @property {FhirRequestInfo} requestInfo
-     * @property {import('http').ServerResponse} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @property {BaseResponseStreamer|undefined} [responseStreamer]
@@ -87,9 +86,8 @@ class EverythingOperation {
      * @param {everythingAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async everythingAsync({requestInfo, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -101,7 +99,6 @@ class EverythingOperation {
         try {
             return await this.everythingBundleAsync({
                 requestInfo,
-                res,
                 parsedArgs,
                 resourceType,
                 responseStreamer // disable response streaming if we are answering a question
@@ -131,14 +128,13 @@ class EverythingOperation {
      * @param {everythingBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async everythingBundleAsync({requestInfo, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'everything';
 
-        const { user, scope, isUser } = requestInfo;
+        const {user, scope, isUser} = requestInfo;
 
         /**
          * @type {number}
@@ -148,7 +144,7 @@ class EverythingOperation {
         if (isUser && requestInfo.method.toLowerCase() === 'delete') {
             const forbiddenError = new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to delete ` +
-                    '$everything: Access to delete $everything not allowed if patient scope is present'
+                '$everything: Access to delete $everything not allowed if patient scope is present'
             );
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
@@ -178,7 +174,7 @@ class EverythingOperation {
         });
 
         try {
-            const { _type: resourceFilter } = parsedArgs;
+            const {_type: resourceFilter} = parsedArgs;
             const supportLegacyId = false;
 
             if (resourceFilter) {
@@ -193,13 +189,13 @@ class EverythingOperation {
              */
             let result;
             if (useEverythingHelperForPatient) {
-                let { base_version, headers } = parsedArgs;
+                let {base_version, headers} = parsedArgs;
 
                 // set global_id to true as default
                 headers = {
                     prefer: 'global_id=true',
                     ...headers
-                }
+                };
                 parsedArgs.headers = headers;
 
                 // disable rewrite proxy patient rewrite by default
@@ -211,7 +207,8 @@ class EverythingOperation {
                                 value: false,
                                 operator: '$and'
                             }),
-                            modifiers: []
+                            modifiers: [],
+                            patientToPersonMap: undefined
                         })
                     );
                 }
@@ -292,7 +289,6 @@ class EverythingOperation {
 
                 result = await this.graphOperation.graph({
                     requestInfo,
-                    res,
                     parsedArgs,
                     resourceType,
                     responseStreamer,
@@ -326,7 +322,12 @@ class EverythingOperation {
                 startTime,
                 action: currentOperationName
             });
-            return result;
+            if (responseStreamer) {
+                // data was already streamed, so we return undefined
+                return undefined;
+            } else {
+                return result;
+            }
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
