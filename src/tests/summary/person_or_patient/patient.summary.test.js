@@ -27,6 +27,19 @@ const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscri
 
 // expected
 const expectedPatientBundle = require('./fixtures/expected/expected_patient_bundle.json');
+const expectedCompositionDivPath = `${__dirname}/fixtures/expected/expected_composition_div.html`;
+
+// Helper function to normalize HTML for comparison
+const normalizeHtml = (html) => {
+    if (!html) return '';
+    return html
+        .replace(/\r\n/g, '\n')  // Normalize line endings
+        .replace(/\s+/g, ' ')    // Normalize whitespace
+        .replace(/>\s+</g, '><') // Remove whitespace between tags
+        .replace(/\s+>/g, '>')   // Remove whitespace before closing bracket
+        .replace(/<\s+/g, '<')   // Remove whitespace after opening bracket
+        .trim();                 // Trim whitespace
+};
 
 const {
     commonBeforeEach,
@@ -181,6 +194,20 @@ describe('Patient $summary Tests', () => {
                     delete resource.date;
                 }
             });
+
+            // Extract the first Composition resource from the bundle
+            const compositionResource = resp.body.entry.find(entry =>
+                entry.resource && entry.resource.resourceType === 'Composition'
+            )?.resource;
+
+            // Check that we found a Composition resource
+            expect(compositionResource).toBeDefined();
+
+            // Read the expected composition div content from fixture file
+            const expectedCompositionDiv = fs.readFileSync(expectedCompositionDivPath, 'utf8');
+
+            // Compare the text.div from the Composition resource with the expected HTML
+            expect(normalizeHtml(compositionResource.text.div)).toBe(normalizeHtml(expectedCompositionDiv));
         });
     });
 });
