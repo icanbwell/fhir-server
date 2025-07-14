@@ -27,7 +27,7 @@ describe('ResourceMerger Tests', () => {
 
     describe('ResourceMerger Tests', () => {
         const base_version = '4_0_0';
-        test('ResourceMerger works with identical resources', async () => {
+        test('ResourceMerger returns null with identical resources', async () => {
             const configManager = new TestConfigManager();
             /**
              * @type {MongoDatabaseManager}

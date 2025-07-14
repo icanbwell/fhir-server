@@ -430,9 +430,9 @@ module.exports.getRequestId = (resp) => {
  * @returns {string}
  */
 module.exports.mockHttpContext = ({
-    systemGeneratedRequestId,
-    userRequestId
-} = {}) => {
+                                      systemGeneratedRequestId,
+                                      userRequestId
+                                  } = {}) => {
 
     jest.spyOn(httpContext, 'get');
     const values = {
@@ -457,7 +457,7 @@ module.exports.getTestRequestInfo = ({
                                          userRequestId
                                      }) => {
     if (!userRequestId) {
-        userRequestId = requestId
+        userRequestId = requestId;
     }
 
     const requestInfo = new FhirRequestInfo(
