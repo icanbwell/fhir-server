@@ -1,5 +1,4 @@
 const superagent = require('superagent');
-const urlLib = require('url');
 const crypto = require('crypto');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 
@@ -71,7 +70,7 @@ class RequestWithDigestAuth {
                 .createHash('md5')
                 .update(`${this.username}:${realm}:${this.password}`)
                 .digest('hex');
-            const url1 = new urlLib.URL(options.url);
+            const url1 = new URL(options.url);
             const path = url1.pathname;
             const ha2 = crypto
                 .createHash('md5')

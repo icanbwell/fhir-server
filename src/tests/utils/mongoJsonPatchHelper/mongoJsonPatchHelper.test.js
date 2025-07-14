@@ -1,17 +1,23 @@
-const { commonBeforeEach, commonAfterEach, getTestContainer, createTestRequest, getTestRequestInfo } = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getTestContainer,
+    createTestRequest,
+    getTestRequestInfo
+} = require('../../common');
 const {
     MongoJsonPatchHelper
 } = require('../../../utils/mongoJsonPatchHelper');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const Person = require('../../../fhir/classes/4_0_0/resources/person');
 const Reference = require('../../../fhir/classes/4_0_0/complex_types/reference');
 const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const PersonLink = require('../../../fhir/classes/4_0_0/backbone_elements/personLink');
-const { assertTypeEquals } = require('../../../utils/assertType');
-const { ResourceMerger } = require('../../../operations/common/resourceMerger');
-const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
-const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {ResourceMerger} = require('../../../operations/common/resourceMerger');
+const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
+const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
 
 describe('mongoJsonPatchHelper Tests', () => {
     beforeEach(async () => {
@@ -54,8 +60,8 @@ describe('mongoJsonPatchHelper Tests', () => {
                     })
                 ]
             });
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
-            doc1 = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc1 });
+            const requestInfo = getTestRequestInfo({requestId: '1234'});
+            doc1 = await preSaveManager.preSaveAsync({base_version, requestInfo, resource: doc1});
 
             /**
              * @type {MongoDatabaseManager}
@@ -98,7 +104,7 @@ describe('mongoJsonPatchHelper Tests', () => {
             const resourceMerger = container.resourceMerger;
             assertTypeEquals(resourceMerger, ResourceMerger);
 
-            const { patches } = await resourceMerger.mergeResourceAsync({
+            const {patches} = await resourceMerger.mergeResourceAsync({
                 base_version,
                 requestInfo,
                 currentResource: doc1,
@@ -110,6 +116,9 @@ describe('mongoJsonPatchHelper Tests', () => {
                     path: '/link/1',
                     value: {
                         target: {
+                            _sourceAssigningAuthority: "myAccess",
+                            _sourceId: "Patient/3",
+                            _uuid: "Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e",
                             extension: [
                                 {
                                     id: 'sourceId',
@@ -146,6 +155,9 @@ describe('mongoJsonPatchHelper Tests', () => {
                         $each: [
                             {
                                 target: {
+                                    _sourceAssigningAuthority: "myAccess",
+                                    _sourceId: "Patient/3",
+                                    _uuid: "Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e",
                                     extension: [
                                         {
                                             id: 'sourceId',
@@ -185,7 +197,7 @@ describe('mongoJsonPatchHelper Tests', () => {
             const result = await collection.bulkWrite(operations);
             expect(result.modifiedCount).toStrictEqual(1);
 
-            const docFromDatabase = await collection.findOne({}, { projection: { _id: 0 } });
+            const docFromDatabase = await collection.findOne({}, {projection: {_id: 0}});
             expect(docFromDatabase).toStrictEqual({
                 _sourceAssigningAuthority: 'myAccess',
                 _sourceId: '1',
@@ -231,6 +243,9 @@ describe('mongoJsonPatchHelper Tests', () => {
                     },
                     {
                         target: {
+                            _sourceAssigningAuthority: "myAccess",
+                            _sourceId: "Patient/3",
+                            _uuid: "Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e",
                             extension: [
                                 {
                                     id: 'sourceId',
@@ -302,8 +317,8 @@ describe('mongoJsonPatchHelper Tests', () => {
                     })
                 ]
             });
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
-            doc1 = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc1 });
+            const requestInfo = getTestRequestInfo({requestId: '1234'});
+            doc1 = await preSaveManager.preSaveAsync({base_version, requestInfo, resource: doc1});
 
             /**
              * @type {MongoDatabaseManager}
@@ -348,13 +363,23 @@ describe('mongoJsonPatchHelper Tests', () => {
             const resourceMerger = container.resourceMerger;
             assertTypeEquals(resourceMerger, ResourceMerger);
 
-            const { patches } = await resourceMerger.mergeResourceAsync({
+            const {patches} = await resourceMerger.mergeResourceAsync({
                 base_version,
                 requestInfo,
                 currentResource: doc1,
                 resourceToMerge: doc2
             });
             expect(patches).toStrictEqual([
+                {
+                    op: "replace",
+                    path: "/link/0/target/_sourceId",
+                    value: "Patient/3"
+                },
+                {
+                    op: "replace",
+                    path: "/link/0/target/_uuid",
+                    value: "Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e"
+                },
                 {
                     op: 'replace',
                     path: '/link/0/target/reference',
@@ -381,6 +406,8 @@ describe('mongoJsonPatchHelper Tests', () => {
 
             expect(updateOperation).toStrictEqual({
                 $set: {
+                    "link.0.target._sourceId": "Patient/3",
+                    "link.0.target._uuid": "Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e",
                     'link.0.target.extension.0.valueString': 'Patient/3',
                     'link.0.target.extension.1.valueString': 'Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e',
                     'link.0.target.reference': 'Patient/3'
@@ -400,7 +427,7 @@ describe('mongoJsonPatchHelper Tests', () => {
             const result = await collection.bulkWrite(operations);
             expect(result.modifiedCount).toStrictEqual(1);
 
-            const docFromDatabase = await collection.findOne({}, { projection: { _id: 0 } });
+            const docFromDatabase = await collection.findOne({}, {projection: {_id: 0}});
             expect(docFromDatabase).toStrictEqual({
                 _sourceAssigningAuthority: 'myAccess',
                 _sourceId: '1',
@@ -423,8 +450,8 @@ describe('mongoJsonPatchHelper Tests', () => {
                         id: '1',
                         target: {
                             _sourceAssigningAuthority: 'myAccess',
-                            _sourceId: 'Patient/2',
-                            _uuid: 'Patient/413ed4ad-0c9c-584f-a9b5-a3cb42aa036e',
+                            _sourceId: "Patient/3",
+                            _uuid: "Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e",
                             extension: [
                                 {
                                     id: 'sourceId',

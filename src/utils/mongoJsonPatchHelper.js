@@ -1,4 +1,4 @@
-function toDot (path) {
+function toDot(path) {
     return path.replace(/^\//, '').replace(/\//g, '.').replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
@@ -8,7 +8,7 @@ class MongoJsonPatchHelper {
      * @param {import('fast-json-patch').Operation[]} patches
      * @return {{}}
      */
-    static convertJsonPatchesToMongoUpdateCommand (
+    static convertJsonPatchesToMongoUpdateCommand(
         {
             patches
         }
@@ -24,7 +24,6 @@ class MongoJsonPatchHelper {
                     let addToEnd = positionPart === '-';
                     let key = parts.slice(0, -1).join('.');
                     if (Number.isNaN(parseInt(positionPart))) {
-                        addToEnd = true;
                         positionPart = '';
                         key = parts.join('.');
                     }
@@ -63,6 +62,9 @@ class MongoJsonPatchHelper {
                             }
                             update.$push[`${key}`].$each.push(patch.value);
                         }
+                    } else if (!addToEnd) {
+                        update.$set = update.$set || {};
+                        update.$set[`${key}`] = patch.value;
                     } else {
                         throw new Error('Unsupported Operation! can\'t use add op without position');
                     }

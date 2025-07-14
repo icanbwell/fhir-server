@@ -34,3 +34,4 @@ src/admin/scripts/.env.dev
 /**/temp/
 generatorScripts/data/
 /**/__pycache__/
+/coverage/

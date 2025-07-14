@@ -88,7 +88,7 @@ class ResourceMerger {
     /**
      * Updates security tag with provided system to system present in current resource
      * @param {UpdateSecurityTagProps}
-     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
+     * @returns {import('../../fhir/classes/4_0_0/resources/resource') | undefined}
      */
     updateSecurityTag ({ system, resourceToMerge, currentResource }) {
         const currentValue = currentResource.meta.security.find(
@@ -234,6 +234,8 @@ class ResourceMerger {
                 item.value && (
                     (typeof item.value === 'string' && isUuid(item.value)) ||
                     (typeof item.value === 'object' && item.value.system === IdentifierSystem.uuid)
+                ) && (
+                    item.op !== 'add'  // and we are not adding a new identifier
                 )
             )
         );
@@ -241,7 +243,9 @@ class ResourceMerger {
         patchContent = patchContent.filter(
             item => !(
                 item.path.startsWith('/identifier') && item.value &&
-                item.value.system === IdentifierSystem.sourceId
+                item.value.system === IdentifierSystem.sourceId  && (
+                    item.op !== 'add'  // and we are not adding a new identifier
+                )
             )
         );
         if (limitToPaths && limitToPaths.length > 0) {
@@ -331,6 +335,9 @@ class ResourceMerger {
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         // confirm the resource has been run through preSave
+        if (!currentResource._uuid) {
+            currentResource = await this.preSaveManager.preSaveAsync({ resource: currentResource });
+        }
         if (!resourceToMerge._uuid) {
             resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
         }
@@ -362,8 +369,8 @@ class ResourceMerger {
          */
         let mergedObject;
         mergedObject = smartMerge
-            ? mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON())
-            : resourceToMerge.toJSON();
+            ? mergeObject(currentResourceWithAttachmentData.toJSONInternal(), resourceToMerge.toJSONInternal())
+            : resourceToMerge.toJSONInternal();
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources
@@ -374,8 +381,11 @@ class ResourceMerger {
         dateColumnHandler.setFlag(true);
         currentResourceWithAttachmentData = await dateColumnHandler.preSaveAsync({ resource: currentResourceWithAttachmentData });
         mergedObject = await dateColumnHandler.preSaveAsync({ resource: mergedObject });
+        /**
+         * @type {import('fast-json-patch').Operation[]}
+         */
         const patchContent = this.compareObjects({
-            currentObject: currentResourceWithAttachmentData.toJSON(),
+            currentObject: currentResourceWithAttachmentData.toJSONInternal(),
             mergedObject,
             limitToPaths
         });
