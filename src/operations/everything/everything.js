@@ -19,6 +19,7 @@ const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
 const { FhirOperationUsageEventProducer } = require('../../utils/fhirOperationUsageEventProducer');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { REGEX } = require('../../constants');
 
 class EverythingOperation {
     /**
@@ -210,6 +211,14 @@ class EverythingOperation {
                             patientToPersonMap: {}
                         })
                     );
+                }
+
+                if (
+                    parsedArgs._since &&
+                    !REGEX.INSTANT.test(parsedArgs._since)
+                ) {
+                    parsedArgs.remove('_since');
+                    parsedArgs._since = null;
                 }
 
                 result = await this.everythingHelper.retriveEverythingAsync({

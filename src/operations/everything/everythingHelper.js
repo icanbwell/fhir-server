@@ -226,6 +226,10 @@ class EverythingHelper {
              */
             const idChunks = ids ? sliceIntoChunksGenerator(ids, this.configManager.everythingBatchSize) : [];
 
+            if (parsedArgs._since) {
+                parsedArgs._since = new Date(parsedArgs._since);
+            }
+
             /**
              * @type {BundleEntry[]}
              */
@@ -573,7 +577,8 @@ class EverythingHelper {
                         const baseArgs = {
                             base_version: base_version,
                             _debug: debug || explain,
-                            _includeHidden: parsedArgs._includeHidden
+                            _includeHidden: parsedArgs._includeHidden,
+                            _since: parsedArgs._since
                         };
 
                         // for non-clinical resources, only binary support patient data view control
@@ -695,7 +700,6 @@ class EverythingHelper {
      * @property {boolean} applyPatientFilter
      * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
-     * @property {boolean} addInBundleOnly
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -713,8 +717,7 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
-        applyPatientFilter = true,
-        addInBundleOnly = false
+        applyPatientFilter = true
     }) {
 
         /**
@@ -758,6 +761,11 @@ class EverythingHelper {
         let projection = {};
         if (useUuidProjection) {
             projection = deepcopy(this.uuidProjection);
+            if (parsedArgs._since) {
+                projection.meta = {
+                    lastUpdated: 1
+                }
+            }
         }
         // also exclude _id so if there is a covering index the query can be satisfied from the covering index
         projection._id = 0;
@@ -804,8 +812,7 @@ class EverythingHelper {
             resourceIdentifiers,
             nonClinicalReferencesExtractor,
             everythingRelatedResourceManager,
-            useUuidProjection,
-            addInBundleOnly
+            useUuidProjection
         });
 
         entries.push(...(bundleEntries || []));
@@ -920,7 +927,7 @@ class EverythingHelper {
 
             let commonArgs = {
                 _includeHidden: parsedArgs._includeHidden
-            }
+            };
 
             if (resourceToExcludeIdsMap && resourceToExcludeIdsMap[relatedResourceType]?.length > 0) {
                 commonArgs["id:not"] = resourceToExcludeIdsMap[relatedResourceType].join(',');
@@ -1039,6 +1046,11 @@ class EverythingHelper {
             if (useUuidProjection) {
                 projection = deepcopy(this.uuidProjection);
                 projection[parentLookupField] = 1;
+                if (parsedArgs._since) {
+                    projection.meta = {
+                        lastUpdated: 1
+                    }
+                }
             }
 
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
@@ -1120,7 +1132,6 @@ class EverythingHelper {
      *  parentResourceType?: string,
      *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
      *  useUuidProjection: boolean,
-     *  addInBundleOnly: boolean
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[]}>}
      */
@@ -1136,8 +1147,7 @@ class EverythingHelper {
         proxyPatientIds,
         parentResourceType,
         everythingRelatedResourceManager,
-        useUuidProjection,
-        addInBundleOnly = false
+        useUuidProjection
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1256,12 +1266,7 @@ class EverythingHelper {
 
                 }
 
-                if (addInBundleOnly) {
-                    // if addInBundleOnly is true, then we don't need to send the resource
-                    // in the response, we just need to add it to the bundle
-                    bundleEntries.push(current_entity);
-                }
-                else if (sendResource) {
+                if (sendResource) {
                     if (useUuidProjection){
                         if (parentLookupField) {
                             // remove parent lookup field from result
@@ -1279,40 +1284,36 @@ class EverythingHelper {
                         await nonClinicalReferencesExtractor.processResource(startResource);
                     }
 
-                    if (
-                        responseStreamer &&
-                        everythingRelatedResourceManager.allowedToBeSent(
-                            resourceIdentifier.resourceType
-                        )
-                    ) {
-                        [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
-                            entries: [current_entity],
-                            parsedArgs: parentParsedArgs
-                        });
-
-                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
-                            if (resourceIdentifiers) {
-                                resourceIdentifiers.push(resourceIdentifier)
-                            }
-                            await responseStreamer.writeBundleEntryAsync(
-                                {
-                                    bundleEntry: current_entity
-                                }
-                            );
+                    if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
+                        if (resourceIdentifiers) {
+                            resourceIdentifiers.push(resourceIdentifier);
                         }
-
-                    } else {
-                        if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
-                            if (resourceIdentifiers) {
-                                resourceIdentifiers.push(resourceIdentifier)
+                        // check resource is allowed to be sent and either _since filter is not set or
+                        // the last updated time of the resource is greater than the since filter
+                        if (
+                            everythingRelatedResourceManager.allowedToBeSent(resourceIdentifier.resourceType) &&
+                            (!parentParsedArgs._since || current_entity.resource.meta.lastUpdated > parentParsedArgs._since)
+                        ) {
+                            if (useUuidProjection && parentParsedArgs._since) {
+                                current_entity.resource.meta = null; // remove meta to avoid sending lastUpdated
                             }
-                            if (everythingRelatedResourceManager.allowedToBeSent(resourceIdentifier.resourceType)){
+                            // if response streamer is present then write the entry to the response streamer
+                            if (responseStreamer) {
+                                [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
+                                    entries: [current_entity],
+                                    parsedArgs: parentParsedArgs
+                                });
+
+                                await responseStreamer.writeBundleEntryAsync({
+                                    bundleEntry: current_entity
+                                });
+                            // else push it to the bundle entries
+                            } else {
                                 bundleEntries.push(current_entity);
                             }
                         }
+                        bundleEntryIdsProcessedTracker.add(resourceIdentifier);
                     }
-
-                    bundleEntryIdsProcessedTracker.add(resourceIdentifier);
                 }
             }
         }

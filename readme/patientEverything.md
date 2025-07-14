@@ -87,6 +87,12 @@ _type would be preferred over _includePatientLinkedOnly if user request a non-cl
 
 For example: <base_url>/4_0_0/Patient/\<patient1>/$everything?\_type=Person,Account,Observation
 
+### \_since
+
+This parameter can be used to only get resources which are updated after the given period. The intent of this parameter is to allow a client to request only records that have changed since the last request. Accepts FHIR [instant](https://www.hl7.org/fhir/R4B/datatypes.html#instant) type input for param.
+
+For example: <base_url>/4_0_0/Patient/\<patient1>/$everything?\_since=2025-06-01T00:00:00Z
+
 ## Custom Search query parameters
 
 ### \_debug

@@ -13,8 +13,15 @@ const { getImageVersion } = require('./utils/getImageVersion');
 Sentry.init({
     release: getImageVersion(),
     environment: process.env.ENVIRONMENT,
-    autoSessionTracking: false
+    autoSessionTracking: false,
+    skipOpenTelemetrySetup: true,
+    tracesSampleRate: undefined,
+    tracesSampler: undefined,
+    tracePropagationTargets: []
 });
+
+// Validate that OpenTelemetry setup is correct
+Sentry.validateOpenTelemetrySetup();
 
 const main = async function () {
     try {

@@ -51,11 +51,13 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     /**
      * We have to start the instrumentation SDK ourselves
      */
+    const Sentry = require('@sentry/node');
+
     const opentelemetry = require('@opentelemetry/sdk-node');
-    const {OTLPTraceExporter} = require('@opentelemetry/exporter-trace-otlp-grpc');
-    const {OTLPMetricExporter} = require('@opentelemetry/exporter-metrics-otlp-grpc');
+    const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
+    const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-grpc');
+    const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
     const { resourceFromAttributes } = require('@opentelemetry/resources');
-    const {PeriodicExportingMetricReader} = require('@opentelemetry/sdk-metrics');
 
     // Instrumentations
     const {DataloaderInstrumentation} = require('@opentelemetry/instrumentation-dataloader');
@@ -77,14 +79,19 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
             exporter: new OTLPMetricExporter()
         }),
         instrumentations: [
-            new DataloaderInstrumentation(),
-            new ExpressInstrumentation(),
-            new LruMemoizerInstrumentation(),
-            new RouterInstrumentation(),
-            new WinstonInstrumentation(),
             new HttpInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-http']),
+            new ExpressInstrumentation(),
+            new RouterInstrumentation(),
+            new DataloaderInstrumentation(),
+            new LruMemoizerInstrumentation(),
+            new WinstonInstrumentation(),
+            new GraphQLInstrumentation(),
             new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb'])
-        ]
+        ],
+        // Config needed for Sentry integration
+        // https://docs.sentry.io/platforms/javascript/guides/node/opentelemetry/custom-setup/
+        // Ensure context & request isolation are correctly managed
+        contextManager: new Sentry.SentryContextManager()
     });
 
     sdk.start();
