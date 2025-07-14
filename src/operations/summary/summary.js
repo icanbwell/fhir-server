@@ -183,14 +183,15 @@ class SummaryOperation {
             });
             const builder = new ComprehensiveIPSCompositionBuilder();
             const timezone = this.configManager.serverTimeZone;
-            // noinspection JSCheckFunctionSignatures
-            const summaryBundle = builder.read_bundle(
+            await builder.readBundleAsync(
                 /** @type {TBundle} */ (result),
                 timezone
-            ).build_bundle(
-                "bwell",
-                'b.well Connected Health',
-                'https://bwell.com/summary',
+            );
+            // noinspection JSCheckFunctionSignatures
+            const summaryBundle = await builder.buildBundleAsync(
+                this.configManager.summaryGeneratorOrganizationId,
+                this.configManager.summaryGeneratorOrganizationName,
+                this.configManager.summaryGeneratorOrganizationBaseUrl,
                 timezone
             );
             if (responseStreamer) {
