@@ -822,6 +822,38 @@ class ConfigManager {
     get cacheExpiryTime() {
         return env.CACHE_EXPIRY_TIME ? parseInt(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME; // 1 hour
     }
+
+    /**
+     * returns the server time zone
+     * @returns {string}
+     */
+    get serverTimeZone() {
+        return env.SERVER_TIME_ZONE || 'America/New_York';
+    }
+
+    /**
+     * returns the organization name used in summary generator
+     * @returns {string}
+     */
+    get summaryGeneratorOrganizationName() {
+        return env.SUMMARY_GENERATOR_ORGANIZATION_NAME || 'b.well Connected Health';
+    }
+
+    /**
+     * returns the organization id used in summary generator
+     * @returns {string}
+     */
+    get summaryGeneratorOrganizationId() {
+        return env.SUMMARY_GENERATOR_ORGANIZATION_ID || 'bwell';
+    }
+
+    /**
+     * returns the base url used in summary generator
+     * @returns {string}
+     */
+    get summaryGeneratorOrganizationBaseUrl() {
+        return env.SUMMARY_GENERATOR_ORGANIZATION_BASE_URL || 'https://bwell.com/summary';
+    }
 }
 
 module.exports = {

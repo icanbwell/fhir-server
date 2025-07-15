@@ -1,6 +1,6 @@
 {
     "resourceType": "Patient",
-    "id": "patient3",
+    "id": "patient1",
     "meta": {
         "source": "http://healthsystem1health.org/provider",
         "security": [
@@ -21,19 +21,9 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT1",
-            "given": [
-                "SHYLA"
-            ],
+            "given": ["SHYLA"],
             "prefix": [],
             "suffix": []
-        }
-    ],
-    "link": [
-        {
-            "other": {
-                "reference": "Patient/patient1|healthsystem1"
-            },
-            "type": "seealso"
         }
     ]
 }

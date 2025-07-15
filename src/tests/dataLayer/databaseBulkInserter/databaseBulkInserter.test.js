@@ -106,10 +106,17 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             // now execute the bulk inserts
-            await databaseBulkInserter.executeAsync({
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await databaseBulkInserter.executeAsync({
                 requestInfo,
                 base_version
             });
+
+            expect(mergeResults.length).toStrictEqual(2);
+            expect(mergeResults[0].created).toStrictEqual(true);
+            expect(mergeResults[1].created).toStrictEqual(true);
 
             /**
              * @type {PostRequestProcessor}

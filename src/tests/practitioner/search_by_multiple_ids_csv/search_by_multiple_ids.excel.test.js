@@ -43,7 +43,7 @@ describe('search by multiple ids Excel', () => {
                 .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.excel}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+            expect(resp).toHaveStatusCode(204);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')

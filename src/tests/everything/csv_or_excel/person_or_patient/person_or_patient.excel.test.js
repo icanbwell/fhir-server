@@ -44,12 +44,12 @@ const {
     createTestRequest,
     getHeadersExcel,
     getHeadersZip
-} = require('../../common');
+} = require('../../../common');
 const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
 const fs = require("node:fs");
-const {fhirContentTypes} = require("../../../utils/contentTypes");
+const {fhirContentTypes} = require("../../../../utils/contentTypes");
 
-describe('Person and Patient $summary Tests with Excel content', () => {
+describe('Person and Patient $everything Tests with Excel content', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -58,8 +58,8 @@ describe('Person and Patient $summary Tests with Excel content', () => {
         await commonAfterEach();
     });
 
-    describe('Person and Patient $summary Tests', () => {
-        test('Patient $summary works with Accepts header', async () => {
+    describe('Person and Patient $everything Tests', () => {
+        test('Patient $everything works with Accepts header', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -178,7 +178,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$summary?_debug=true')
+                .get('/4_0_0/Patient/patient1/$everything?_debug=true')
                 .set(getHeadersExcel())
                 .responseType('blob'); // Important for binary data
 
@@ -186,7 +186,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.excel}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
@@ -250,7 +250,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
                 expect(matchingFile).toBeTruthy();
             });
         });
-        test('Patient $summary works with _format', async () => {
+        test('Patient $everything works with _format', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -369,7 +369,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$summary?_format=application/vnd.ms-excel')
+                .get('/4_0_0/Patient/patient1/$everything?_format=application/vnd.ms-excel')
                 .set(getHeaders())
                 .responseType('blob'); // Important for binary data
 
@@ -377,7 +377,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.excel}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
@@ -441,7 +441,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
                 expect(matchingFile).toBeTruthy();
             });
         });
-        test('Patient $summary works with _format but only returns resources allowed', async () => {
+        test('Patient $everything works with _format but only returns resources allowed', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -560,7 +560,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$summary?_format=application/vnd.ms-excel')
+                .get('/4_0_0/Patient/patient1/$everything?_format=application/vnd.ms-excel')
                 .set(getHeaders('user/Patient.read user/Observation.read access/*.*'))
                 .responseType('blob'); // Important for binary data
 
@@ -568,7 +568,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.excel}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             // Generate unique filename
@@ -632,7 +632,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
                 expect(matchingFile).toBeTruthy();
             });
         });
-        test('Patient $summary returns nothing with _format if caller has no access to patient', async () => {
+        test('Patient $everything returns nothing with _format if caller has no access to patient', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -751,14 +751,14 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Patient/patient1/$summary?_format=application/vnd.ms-excel')
+                .get('/4_0_0/Patient/patient1/$everything?_format=application/vnd.ms-excel')
                 .set(getHeaders('patient/*.read user/*.* access/*.*'))
                 .responseType('blob'); // Important for binary data
 
             // Basic response checks
             expect(resp.status).toBe(404);
         });
-        test('Person $summary works', async () => {
+        test('Person $everything works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -877,7 +877,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             // ACT & ASSERT
             // First get patient everything
             resp = await request
-                .get('/4_0_0/Person/person1/$summary')
+                .get('/4_0_0/Person/person1/$everything')
                 .set(getHeadersExcel())
                 .responseType('blob'); // Important for binary data
 
@@ -885,7 +885,7 @@ describe('Person and Patient $summary Tests with Excel content', () => {
             expect(resp.status).toBe(200);
 
             // Content-Type checks
-            expect(resp.headers['content-type']).toBe(fhirContentTypes.excel);
+            expect(resp.headers['content-type']).toBe(`${fhirContentTypes.excel}`);
             expect(resp.headers['content-disposition']).toMatch(/attachment; filename=.+\.xlsx/);
 
             const filenameMatch = resp.headers['content-disposition'].split('filename=')[1];

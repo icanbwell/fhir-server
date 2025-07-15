@@ -1,0 +1,219 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "patient1",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "24a5930e-11b4-5525-b482-669174917044"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem1",
+              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem1",
+              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://healthsystem1health.org/provider",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ],
+            "text": "t",
+            "use": "usual"
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "resource": {
+        "code": {
+          "coding": [
+            {
+              "code": "BMI001",
+              "id": "62186514-8c23-5680-85fd-b6898c99eacb",
+              "system": "http://www.icanbwell.com/cql/library"
+            },
+            {
+              "code": "1.0.0",
+              "id": "77b3739c-725f-5833-a93e-cce825fb7b4a",
+              "system": "http://www.icanbwell.com/cql/libraryVersion"
+            },
+            {
+              "code": "InAgeCohort",
+              "id": "977380c4-aca5-57a2-9eab-03eea0c1941d",
+              "system": "http://www.icanbwell.com/cql/rule"
+            }
+          ]
+        },
+        "effectivePeriod": {
+          "end": "2021-12-31T00:00:00.000Z",
+          "start": "2021-01-01T00:00:00.000Z"
+        },
+        "id": "2354-InAgeCohort",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2354-InAgeCohort"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "61886699-c643-5e3b-a074-569e4c43bddf"
+          }
+        ],
+        "issued": "2021-01-01T12:00:00.000Z",
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem1",
+              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "B",
+              "id": "675ab9a9-9fb6-5a48-8406-dce8c95a100b",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "B",
+              "id": "073d5d2a-f3b8-5458-a152-5746f24b5488",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem1",
+              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "/patients",
+          "versionId": "1"
+        },
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/patient1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
+          "reference": "Patient/patient1"
+        },
+        "valueBoolean": false
+      }
+    },
+    {
+      "resource": {
+        "id": "bwell",
+        "name": "b.well Connected Health",
+        "resourceType": "Organization"
+      }
+    },
+    {
+      "resource": {
+        "author": [
+          {
+            "display": "b.well Connected Health",
+            "reference": "Organization/bwell"
+          }
+        ],
+        "id": "Composition-patient1",
+        "resourceType": "Composition",
+        "section": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "30954-2",
+                  "display": "Relevant diagnostic tests/laboratory data Narrative",
+                  "system": "http://loinc.org"
+                }
+              ],
+              "text": "Relevant diagnostic tests/laboratory data Narrative"
+            },
+            "entry": [
+              {
+                "display": "Observation",
+                "reference": "Observation/2354-InAgeCohort"
+              }
+            ],
+            "text": {
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <h5>Diagnostic Results: Observations</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Reference Range</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> </tbody> </table></div>",
+              "status": "generated"
+            },
+            "title": "Relevant diagnostic tests/laboratory data Narrative"
+          }
+        ],
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient1"
+        },
+        "text": {
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <h2>Patient Summary</h2> <ul> <li><strong>Name(s):</strong><ul><li>t</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Identifier(s):</strong><ul><li>https://www.icanbwell.com/sourceId: patient1</li></ul><ul><li>https://www.icanbwell.com/uuid: 24a5930e-11b4-5525-b482-669174917044</li></ul></li> <li><strong>Telecom:</strong></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div> <h5>Vital Signs</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Component(s)</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> </tbody> </table> <h5>Diagnostic Results: Observations</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Reference Range</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> </tbody> </table> <h5>Social History</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> </tr> </tbody> </table> <h5>Pregnancy</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> </tr> </tbody> </table> <h5>Functional Status</h5> <table> <thead> <tr> <th>Assessment</th> <th>Status</th> <th>Finding</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>final</td> <td></td> <td></td> <td></td> </tr> </tbody> </table></div>",
+          "status": "generated"
+        },
+        "title": "International Patient Summary",
+        "type": {
+          "coding": [
+            {
+              "code": "60591-5",
+              "display": "Patient summary Document",
+              "system": "http://loinc.org"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "identifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:uuid:4dcfd353-49fd-4ab0-b521-c8d57ced74d6"
+  },
+  "resourceType": "Bundle",
+  "total": 4,
+  "type": "document"
+}
