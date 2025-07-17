@@ -181,6 +181,12 @@ class SummaryOperation {
                 supportLegacyId,
                 includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources)
             });
+
+            if (!result || !result.entry || result.entry.length === 0) {
+                // no resources found
+                return undefined;
+            }
+
             const builder = new ComprehensiveIPSCompositionBuilder();
             const timezone = this.configManager.serverTimeZone;
             await builder.readBundleAsync(
