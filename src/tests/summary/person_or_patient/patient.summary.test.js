@@ -209,5 +209,18 @@ describe('Patient $summary Tests', () => {
             // Compare the text.div from the Composition resource with the expected HTML
             expect(normalizeHtml(compositionResource.text.div)).toBe(normalizeHtml(expectedCompositionDiv));
         });
+
+        test('Patient $summary gives empty response for invalid id', async () => {
+            const request = await createTestRequest();
+            const resp = await request.get('/4_0_0/Patient/patient1/$summary').set(getHeaders());
+
+            expect(resp.status).toBe(200);
+            expect(resp).toHaveResponse({
+                resourceType: 'Bundle',
+                type: 'searchset',
+                total: 0,
+                entry: []
+            });
+        });
     });
 });
