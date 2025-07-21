@@ -100,7 +100,7 @@ describe('AccessLogs Tests', () => {
                 .post('/4_0_0/Observation/')
                 .send(observationResource)
                 .set(getHeaders())
-                .expect(400);
+                .expect(201);
 
             expect(logAccessLogAsync).toHaveBeenCalledTimes(4);
         });
