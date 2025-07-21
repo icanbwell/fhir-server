@@ -11,6 +11,7 @@
   },
   "details": {
     "version": "undefined",
+    "origin-service": "test-server",
     "host": "36365f1830b9",
     "content-type": "application/fhir+json",
     "accept": "application/fhir+json",

@@ -51,7 +51,7 @@ describe('AccessLogs Tests', () => {
             await request
                 .post('/4_0_0/Observation/$merge')
                 .send(observationResource)
-                .set({...getHeaders(), 'origin-server': 'test-server', 'x-request-id': 'test-request-id'})
+                .set({...getHeaders(), 'Origin-Service': 'test-server', 'x-request-id': 'test-request-id'})
                 .expect(200);
 
             expect(logAccessLogAsync).toHaveBeenCalledTimes(1);
