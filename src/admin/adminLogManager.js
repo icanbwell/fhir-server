@@ -28,7 +28,7 @@ class AdminLogManager {
 
             const accessLogsCollection = accessLogsDb.collection(ACCESS_LOGS_COLLECTION_NAME);
 
-            const result = await accessLogsCollection.find({ 'meta.id': { $eq: id } }).toArray();
+            const result = await accessLogsCollection.find({ 'request.id': id }).toArray();
             return result;
         } catch (e) {
             logError(e.message, { error: e });

@@ -293,7 +293,7 @@ class MergeOperation {
                 action: currentOperationName
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                result: JSON.stringify(mergeResults, getCircularReplacer())
+                mergeResults: JSON.stringify(mergeResults)
             });
 
             /**
@@ -633,7 +633,7 @@ class MergeOperation {
         });
 
         let contextData =  httpContext.get(ACCESS_LOGS_ENTRY_DATA) || {};
-        contextData.result = 'STREAMED ' + JSON.stringify(finalMergeResults, getCircularReplacer())
+        contextData.mergeResults = 'STREAMED ' + JSON.stringify(finalMergeResults, getCircularReplacer())
         httpContext.set(ACCESS_LOGS_ENTRY_DATA, contextData);
     }
 

@@ -14,7 +14,6 @@ const { ConfigManager } = require('../../utils/configManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { READ } = require('../../constants').OPERATIONS;
 
 class SearchStreamingOperation {
@@ -434,17 +433,6 @@ class SearchStreamingOperation {
                     }
                 }
             }
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                query: mongoQueryAndOptionsStringify({
-                        query: new QueryItem({
-                            query,
-                            resourceType,
-                            collectionName
-                        }),
-                        options
-                    }
-                )
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -457,17 +445,6 @@ class SearchStreamingOperation {
              * @type {string}
              */
             collectionName = collectionName || resourceLocator.getCollectionName();
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                query: mongoQueryAndOptionsStringify({
-                        query: new QueryItem({
-                            query,
-                            resourceType,
-                            collectionName
-                        }),
-                        options
-                    }
-                )
-            });
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

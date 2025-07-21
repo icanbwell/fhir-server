@@ -444,7 +444,7 @@ class UpdateOperation {
                     action: currentOperationName
                 });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    result: JSON.stringify(result, getCircularReplacer())
+                    mergeResults: JSON.stringify(mergeResults[0])
                 });
                 this.postRequestProcessor.add({
                     requestId,
@@ -485,7 +485,14 @@ class UpdateOperation {
                     action: currentOperationName
                 });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    result: JSON.stringify(result, getCircularReplacer())
+                    mergeResults: JSON.stringify({
+                        created: false,
+                        updated: false,
+                        id: foundResource.id,
+                        uuid: foundResource._uuid,
+                        sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
+                        resourceType: foundResource.resourceType
+                    })
                 });
 
                 return result;

@@ -285,7 +285,7 @@ class CreateOperation {
                 action: currentOperationName
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                result: JSON.stringify(doc, getCircularReplacer())
+                mergeResults: JSON.stringify(mergeResults[0])
             });
 
             this.postRequestProcessor.add({

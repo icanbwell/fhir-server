@@ -172,7 +172,7 @@ function createApp({fnGetContainer}) {
 
             if (
                 configManager.enableAccessLogsMiddleware &&
-                !ignoredUrls.some(url => reqPath.startsWith(url))
+                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body)
             ) {
                 accessLogger.logAccessLogAsync({
                     ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
