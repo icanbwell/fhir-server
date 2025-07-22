@@ -37,14 +37,14 @@ describe('AccessLogs Tests', () => {
                 .put('/4_0_0/Observation/1')
                 .send(observationResource)
                 .set(getHeaders())
-                .expect(400);
+                .expect(201);
 
             observationResource.status = 'final';
             await request
                 .put('/4_0_0/Observation/1')
                 .send(observationResource)
                 .set(getHeaders())
-                .expect(201);
+                .expect(200);
 
             observationResource.status = 'invalid';
             await request

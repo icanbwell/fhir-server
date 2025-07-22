@@ -6,7 +6,9 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { DELETE } = require('../../constants').GRIDFS;
+const httpContext = require('express-http-context');
 
 class RemoveHelper {
     /**
@@ -69,6 +71,8 @@ class RemoveHelper {
                 base_version
             });
 
+            const deletionResult = [];
+
             for (const resource of resources) {
                 if (!resource) {
                     continue;
@@ -88,6 +92,16 @@ class RemoveHelper {
                     doc: resource,
                     skipResourceAssertion: true
                 });
+
+                deletionResult.push({
+                    id: resource.id,
+                    uuid: resourceUuid,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType,
+                    deleted: true,
+                    created: false,
+                    updated: false
+                });
             }
 
             // Add history before deletion
@@ -101,6 +115,12 @@ class RemoveHelper {
             }
             const collection = await resourceLocator.getCollectionAsync({});
             const result = await collection.deleteMany(query, options);
+
+            const operationResult = httpContext.get(ACCESS_LOGS_ENTRY_DATA)?.operationResult || [];
+            operationResult.push(...deletionResult);
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                operationResult: operationResult
+            });
 
             return result.deletedCount;
         } catch (e) {

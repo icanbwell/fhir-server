@@ -9,7 +9,9 @@ const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
 const { get_all_args } = require('../operations/common/get_all_args');
 const { getCircularReplacer } = require('./getCircularReplacer');
-const { OPERATIONS: { READ, WRITE } } = require('../constants');
+const {
+    OPERATIONS: { READ, WRITE }
+} = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { ConfigManager } = require('./configManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
@@ -29,7 +31,7 @@ class AccessLogger {
      *
      * @param {params}
      */
-    constructor ({
+    constructor({
         scopesManager,
         fhirOperationsManager,
         base_version = '4_0_0',
@@ -54,7 +56,11 @@ class AccessLogger {
         /**
          * @type {string|null}
          */
-        this.imageVersion = imageVersion;
+        this.imageVersion = String(imageVersion);
+        /**
+         * @type {string|null}
+         */
+        this.hostname = os.hostname() ? String(os.hostname()) : null;
         /**
          * @type {ConfigManager}
          */
@@ -84,45 +90,37 @@ class AccessLogger {
 
     /**
      * Logs a FHIR operation
-     * @param {Request} req
-     * @param {number} statusCode
-     * @param {number|null} startTime
-     * @param {number|null|undefined} [stopTime]
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [result]
-     * @param {string|undefined} streamRequestBody
+     * @typedef {Object} logAccessLogAsyncParams
+     * @property {Request} req
+     * @property {number} statusCode
+     * @property {number|null} startTime
+     * @property {number|null|undefined} [stopTime]
+     * @property {string|undefined} [query]
+     * @property {object[]} [operationResult]
+     * @property {string|undefined} [streamRequestBody]
+     * @property {boolean} [streamingMerge]
+     *
+     * @param {logAccessLogAsyncParams}
      */
-    async logAccessLogAsync ({
-        req,
-        statusCode,
-        startTime,
-        stopTime = Date.now(),
-        query,
-        result,
-        streamRequestBody
-    }) {
+    async logAccessLogAsync({ req, statusCode, startTime, stopTime = Date.now(), streamRequestBody, streamingMerge, operationResult }) {
         /**
          * @type {string}
          */
-        const resourceType = req.resourceType ? req.resourceType : req.url.split('/')[2];
+        const resourceType = req.resourceType ? req.resourceType : (req.url.split('/')[2]).split('?')[0];
         if (!resourceType) {
             return;
         }
         /**
-         * @type {FhirRequestInfo}
+         * @type {import('./fhirRequestInfo').FhirRequestInfo}
          */
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        /**
-         * @type {boolean}
-         */
         const isError = !(statusCode >= 200 && statusCode < 300);
 
         // Fetching args
         let combined_args = get_all_args(req, req.sanitized_args);
         combined_args = this.fhirOperationsManager.parseParametersFromBody({ req, combined_args });
-        const operation = req.method === 'GET'
-            ? READ
-            : (req.method === 'POST' && req.url.includes('$graph') ? READ : WRITE);
+        const operation =
+            req.method === 'GET' ? READ : req.method === 'POST' && req.url.includes('$graph') ? READ : WRITE;
         if (!combined_args.base_version) {
             combined_args.base_version = '4_0_0';
         }
@@ -130,177 +128,111 @@ class AccessLogger {
          * @type {ParsedArgs}
          */
         const args = await this.fhirOperationsManager.getParsedArgsAsync({
-            args: combined_args, resourceType, operation
+            args: combined_args,
+            resourceType,
+            operation
         });
 
         // Fetching detail
-        const detail = Object.entries(args.getRawArgs()).filter(([k, _]) => k !== 'resource').map(([k, v]) => {
-                return {
-                    type: k,
-                    valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
-                };
-            }
-        );
-        detail.push({
-            type: 'version',
-            valueString: String(this.imageVersion)
-        });
-        if (result) {
-            let resultBuffer = Buffer.from(result);
-            const sizeLimit = this.configManager.accessLogResultLimit
+        const details = {
+            version: this.imageVersion,
+            host: this.hostname
+        };
+
+        if (requestInfo.contentTypeFromHeader) {
+            details['contentType'] = requestInfo.contentTypeFromHeader.type;
+        }
+
+        if (requestInfo.accept) {
+            details['accept'] = Array.isArray(requestInfo.accept) ? requestInfo.accept.join(',') : requestInfo.accept;
+        }
+
+        if (req.headers['origin-service']) {
+            details['originService'] = req.headers['origin-service'];
+        }
+
+        const params = {};
+        Object.entries(args.getRawArgs())
+            .filter(([k, _]) => !['resource', 'base_version'].includes(k))
+            .forEach(([k, v]) => {
+                params[k] = !v || typeof v === 'string' ? v : JSON.stringify(v, getCircularReplacer());
+            });
+        if (Object.keys(params).length > 0) {
+            details['params'] = params;
+        }
+
+        if (operationResult) {
+            let resultBuffer = Buffer.from(JSON.stringify(operationResult));
+            const sizeLimit = this.configManager.accessLogResultLimit;
 
             if (resultBuffer.byteLength > sizeLimit) {
                 resultBuffer = resultBuffer.subarray(0, sizeLimit);
-                detail.push({
-                    type: 'result-truncated',
-                    valueString: 'true'
-                });
+                details['operationResultTruncated'] = 'true';
                 logInfo(
-                    `AccessLogger: result truncated in access log for request id: ${requestInfo.userRequestId}`
+                    `AccessLogger: operationResult truncated in access log for request id: ${requestInfo.userRequestId}`
                 );
             }
-
-            detail.push({
-                type: 'result',
-                valueString: resultBuffer.toString()
-            });
-        }
-        if (os.hostname()) {
-            const hostname = os.hostname();
-            detail.push({
-                type: 'host',
-                valueString: String(hostname)
-            });
-        }
-
-        detail.push({
-            type: 'duration',
-            valuePositiveInt: stopTime - startTime
-        });
-
-        /**
-         * @type {string[]}
-         */
-        const accessCodes = requestInfo.scope
-            ? this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
-            : [];
-        /**
-         * @type {string|null}
-         */
-        let firstAccessCode = null;
-        if (accessCodes && accessCodes.length > 0) {
-            firstAccessCode = accessCodes[0] === '*' ? 'bwell' : accessCodes[0];
-        }
-
-        detail.push({
-            type: 'method',
-            valueString: requestInfo.method
-        });
-
-        if (requestInfo.contentTypeFromHeader) {
-            detail.push({
-                type: 'content-type',
-                valueString: requestInfo.contentTypeFromHeader.type
-            });
+            details['operationResult'] = resultBuffer.toString();
         }
 
         if (requestInfo.body) {
             let body = streamRequestBody
                 ? streamRequestBody
-                : !requestInfo.body || typeof requestInfo.body === 'string'
+                : typeof requestInfo.body === 'string'
                   ? requestInfo.body
                   : JSON.stringify(requestInfo.body, getCircularReplacer());
 
-            if (body) {
-                let bodyBuffer = Buffer.from(body);
-                const sizeLimit = this.configManager.accessLogRequestBodyLimit
+            let bodyBuffer = Buffer.from(body);
+            const sizeLimit = this.configManager.accessLogRequestBodyLimit;
 
-                if (bodyBuffer.byteLength > sizeLimit) {
-                    bodyBuffer = bodyBuffer.subarray(0, sizeLimit);
-                    detail.push({
-                        type: 'body-truncated',
-                        valueString: 'true'
-                    });
-                    logInfo(
-                        `AccessLogger: body truncated in access log for request id: ${requestInfo.userRequestId}`
-                    );
-                }
-                body = bodyBuffer.toString();
+            if (bodyBuffer.byteLength > sizeLimit) {
+                bodyBuffer = bodyBuffer.subarray(0, sizeLimit);
+                details['bodyTruncated'] = 'true';
+                logInfo(`AccessLogger: body truncated in access log for request id: ${requestInfo.userRequestId}`);
             }
-
-            detail.push({
-                type: 'body',
-                valueString: body
-            });
+            details['body'] = bodyBuffer.toString();
         }
 
-        if (query) {
-            detail.push({
-                type: 'query',
-                valueString: query
-            });
+        if (streamingMerge) {
+            details['streamingMerge'] = 'true';
         }
 
         // Creating log entry
         const logEntry = {
-            id: requestInfo.userRequestId,
-            type: {
-                code: 'operation'
-            },
-            period: {
-                start: new Date(startTime).toISOString(),
-                end: new Date(stopTime).toISOString()
-            },
             recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
-            outcome: isError ? 8 : 0,
             outcomeDesc: isError ? 'Error' : 'Success',
-            agent: [
-                {
-                    type: {
-                        text: firstAccessCode
-                    },
-                    altId: (!requestInfo.user || typeof requestInfo.user === 'string')
+            agent: {
+                altId:
+                    !requestInfo.user || typeof requestInfo.user === 'string'
                         ? requestInfo.user
                         : requestInfo.user.name || requestInfo.user.id,
-                    network: {
-                        address: requestInfo.remoteIpAddress
-                    },
-                    policy: this.scopesManager.parseScopes(requestInfo.scope)
-                }
-            ],
-            source: {
-                site: requestInfo.originalUrl
+                networkAddress: requestInfo.remoteIpAddress,
+                scopes: requestInfo.scope
             },
-            entity: [
-                {
-                    name: resourceType,
-                    detail
-                }
-            ],
+            details,
             request: {
                 // represents the id that is passed as header or req.id.
                 id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
                 // represents the server unique requestId and that is used in operations.
-                systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
+                systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID),
+                url: requestInfo.originalUrl,
+                start: new Date(startTime).toISOString(),
+                end: new Date(stopTime).toISOString(),
+                resourceType,
+                operation,
+                duration: stopTime - startTime,
+                method: requestInfo.method
             }
         };
 
-        const accessLogEntry = {
-            message: isError ? 'operationFailed' : 'operationCompleted',
-            level: isError ? 'error' : 'info',
-            timestamp: logEntry.recorded,
-            meta: logEntry
-        };
-
-        this.queue.push({ doc: accessLogEntry, requestInfo });
+        this.queue.push({ doc: logEntry, requestInfo });
     }
-
 
     /**
      * Flush
      * @return {Promise<void>}
      */
-    async flushAsync () {
+    async flushAsync() {
         if (this.queue.length === 0) {
             return;
         }
@@ -354,7 +286,7 @@ class AccessLogger {
             /**
              * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
              */
-            const mergeResultErrors = mergeResults.filter(m => m.issue);
+            const mergeResultErrors = mergeResults.filter((m) => m.issue);
             if (mergeResultErrors.length > 0) {
                 logError('Error creating access-log entries', {
                     error: mergeResultErrors,

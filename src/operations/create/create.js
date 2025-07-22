@@ -189,6 +189,17 @@ class CreateOperation {
                     OperationOutcome: validationOperationOutcome,
                     issue: validationOperationOutcome.issue[0]
                 });
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    operationResult: [{
+                        id: resource.id,
+                        uuid: resource.id,
+                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType,
+                        operationOutcome: validationOperationOutcome,
+                        created: false,
+                        updated: false
+                    }]
+                });
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
@@ -285,7 +296,7 @@ class CreateOperation {
                 action: currentOperationName
             });
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                result: JSON.stringify(doc, getCircularReplacer())
+                operationResult: mergeResults
             });
 
             this.postRequestProcessor.add({

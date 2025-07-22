@@ -1,4 +1,3 @@
-const httpContext = require('express-http-context');
 const { MongoError } = require('../../utils/mongoErrors');
 const { logDebug } = require('../common/logging');
 const { isTrue } = require('../../utils/isTrue');
@@ -15,7 +14,7 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 const { ResourceLocator } = require('../common/resourceLocator');
 
 class SearchBundleOperation {
@@ -365,20 +364,6 @@ class SearchBundleOperation {
                     parsedArgs
                 }
             );
-            const logQuery = mongoQueryAndOptionsStringify({
-                query: new QueryItem({
-                    query,
-                    resourceType,
-                    collectionName
-                }),
-                options
-            });
-            let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
-            if (!existingData) {
-                existingData = { query: [] }
-            }
-            existingData.query = [...existingData.query, logQuery];
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
             await this.fhirLoggingManager.logOperationSuccessAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
@@ -388,20 +373,6 @@ class SearchBundleOperation {
             });
             return bundle;
         } catch (e) {
-            const logQuery = mongoQueryAndOptionsStringify({
-                query: new QueryItem({
-                    query,
-                    resourceType,
-                    collectionName
-                }),
-                options
-            });
-            let existingData = httpContext.get(ACCESS_LOGS_ENTRY_DATA);
-            if (!existingData) {
-                existingData = { query: [] }
-            }
-            existingData.query = [...existingData.query, logQuery];
-            httpContext.set(ACCESS_LOGS_ENTRY_DATA, existingData);
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),

@@ -2,7 +2,6 @@
 
 const { BadRequestError, NotFoundError, NotValidatedError } = require('../../utils/httpErrors');
 const { validate } = require('fast-json-patch');
-const moment = require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -20,11 +19,12 @@ const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
-const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
+const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { logInfo } = require('../common/logging');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
+const httpContext = require('express-http-context');
 
 class PatchOperation {
     /**
@@ -316,6 +316,17 @@ class PatchOperation {
                     created: false,
                     updated: false
                 });
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    operationResult: [{
+                        id: foundResource.id,
+                        uuid: foundResource._uuid,
+                        sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
+                        resourceType: foundResource.resourceType,
+                        operationOutcome: validationOperationOutcome,
+                        created: false,
+                        updated: false
+                    }]
+                });
                 throw new NotValidatedError(validationOperationOutcome);
             }
             const dateColumnHandler = new DateColumnHandler();
@@ -386,6 +397,9 @@ class PatchOperation {
                         ...mergeResults[0]
                     });
                 }
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    operationResult: mergeResults
+                });
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async () => {
