@@ -287,6 +287,17 @@ class UpdateOperation {
                         operationOutcome: validationOperationOutcome,
                         issue: validationOperationOutcome.issue[0]
                     });
+                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                        operationResult: [{
+                            id: resource_incoming_json.id,
+                            uuid: data._uuid,
+                            sourceAssigningAuthority: data._sourceAssigningAuthority,
+                            resourceType: resource_incoming_json.resourceType,
+                            operationOutcome: validationOperationOutcome,
+                            created: false,
+                            updated: false
+                        }]
+                    });
                     throw new NotValidatedError(validationOperationOutcome);
                 }
             }
@@ -346,6 +357,17 @@ class UpdateOperation {
                         updated: false,
                         operationOutcome: validationOperationOutcome,
                         issue: validationOperationOutcome.issue[0]
+                    });
+                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                        operationResult: [{
+                            id: doc.id,
+                            uuid: doc._uuid,
+                            sourceAssigningAuthority: doc._sourceAssigningAuthority,
+                            resourceType: doc.resourceType,
+                            operationOutcome: validationOperationOutcome,
+                            created: false,
+                            updated: false
+                        }]
                     });
                     throw new NotValidatedError(validationOperationOutcome);
                 }
@@ -444,7 +466,7 @@ class UpdateOperation {
                     action: currentOperationName
                 });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    mergeResults: JSON.stringify(mergeResults[0])
+                    operationResult: mergeResults
                 });
                 this.postRequestProcessor.add({
                     requestId,
@@ -485,14 +507,14 @@ class UpdateOperation {
                     action: currentOperationName
                 });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    mergeResults: JSON.stringify({
+                    operationResult: [{
                         created: false,
                         updated: false,
                         id: foundResource.id,
                         uuid: foundResource._uuid,
                         sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
                         resourceType: foundResource.resourceType
-                    })
+                    }]
                 });
 
                 return result;

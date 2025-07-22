@@ -1,8 +1,6 @@
 {
   "_id": "687de8cc06ab5b48cb6f4a15",
-  "recorded": {
-    "$date": "2025-07-21T07:14:20.044Z"
-  },
+  "recorded": "2025-07-21T07:14:20.044Z",
   "outcomeDesc": "Success",
   "agent": {
     "altId": "imran",
@@ -11,12 +9,12 @@
   },
   "details": {
     "version": "undefined",
-    "origin-service": "test-server",
+    "originService": "test-server",
     "host": "36365f1830b9",
-    "content-type": "application/fhir+json",
+    "contentType": "application/fhir+json",
     "accept": "application/fhir+json",
-    "mergeResults": "[{\"operationOutcome\":{\"resourceType\":\"OperationOutcome\",\"issue\":[{\"severity\":\"error\",\"code\":\"invalid\",\"details\":{\"text\":\"/4_0_0/Observation/$merge should have required property 'status' :{\\\"missingProperty\\\":\\\"status\\\"}: at position root\"}},{\"severity\":\"error\",\"code\":\"invalid\",\"details\":{\"text\":\"/4_0_0/Observation/$merge should match exactly one schema in oneOf :{\\\"passingSchemas\\\":null}: at position root\"}}]},\"issue\":{\"severity\":\"error\",\"code\":\"invalid\",\"details\":{\"text\":\"/4_0_0/Observation/$merge should have required property 'status' :{\\\"missingProperty\\\":\\\"status\\\"}: at position root\"}},\"created\":false,\"id\":\"1\",\"uuid\":\"61abdd48-df46-5e98-ac6c-fde3cace4d07\",\"resourceType\":\"Observation\",\"updated\":false,\"sourceAssigningAuthority\":\"bwell\"}]",
-    "body": "{\"resourceType\":\"Observation\",\"id\":\"1\",\"meta\":{\"source\":\"https://www.icanbwell.com\",\"security\":[{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"bwell\"}]},\"text\":{\"status\":\"generated\",\"div\":\"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p>Carbon dioxide in blood</p></div>\"},\"code\":{\"coding\":[{\"system\":\"URN:OID:2.16.840.1.113883.6.96\",\"code\":\"11557-6\",\"display\":\"Carbon dioxide in blood\"}]},\"subject\":{\"reference\":\"Patient/1\",\"display\":\"P. van de Heuvel\"},\"encounter\":{\"reference\":\"Encounter/1\"},\"effectiveDateTime\":\"2013-04-02T10:30:10+01:00\",\"issued\":\"2013-04-03T15:30:10+01:00\",\"performer\":[{\"reference\":\"Practitioner/f005\",\"display\":\"A. Langeveld\"}],\"valueQuantity\":{\"value\":6.2,\"unit\":\"kPa\",\"system\":\"http://unitsofmeasure.org\",\"code\":\"kPa\"},\"interpretation\":[{\"coding\":[{\"system\":\"urn:oid:2.16.840.1.113883.6.96\",\"code\":\"H\",\"display\":\"High\"}]}],\"referenceRange\":[{\"low\":{\"value\":4.8,\"unit\":\"kPa\",\"system\":\"http://unitsofmeasure.org\",\"code\":\"kPa\"},\"high\":{\"value\":6,\"unit\":\"kPa\",\"system\":\"http://unitsofmeasure.org\",\"code\":\"kPa\"}}]}"
+    "operationResult": "[{\"created\":true,\"id\":\"1\",\"uuid\":\"61abdd48-df46-5e98-ac6c-fde3cace4d07\",\"resourceType\":\"Observation\",\"updated\":false,\"sourceAssigningAuthority\":\"bwell\"}]",
+    "body": "{\"resourceType\":\"Observation\",\"id\":\"1\",\"meta\":{\"source\":\"https://www.icanbwell.com\",\"security\":[{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"bwell\"}]},\"status\":\"final\",\"text\":{\"status\":\"generated\",\"div\":\"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p>Carbon dioxide in blood</p></div>\"},\"code\":{\"coding\":[{\"system\":\"URN:OID:2.16.840.1.113883.6.96\",\"code\":\"11557-6\",\"display\":\"Carbon dioxide in blood\"}]},\"subject\":{\"reference\":\"Patient/1\",\"display\":\"P. van de Heuvel\"},\"encounter\":{\"reference\":\"Encounter/1\"},\"effectiveDateTime\":\"2013-04-02T10:30:10+01:00\",\"issued\":\"2013-04-03T15:30:10+01:00\",\"performer\":[{\"reference\":\"Practitioner/f005\",\"display\":\"A. Langeveld\"}],\"valueQuantity\":{\"value\":6.2,\"unit\":\"kPa\",\"system\":\"http://unitsofmeasure.org\",\"code\":\"kPa\"},\"interpretation\":[{\"coding\":[{\"system\":\"urn:oid:2.16.840.1.113883.6.96\",\"code\":\"H\",\"display\":\"High\"}]}],\"referenceRange\":[{\"low\":{\"value\":4.8,\"unit\":\"kPa\",\"system\":\"http://unitsofmeasure.org\",\"code\":\"kPa\"},\"high\":{\"value\":6,\"unit\":\"kPa\",\"system\":\"http://unitsofmeasure.org\",\"code\":\"kPa\"}}]}"
   },
   "request": {
     "id": "test-request-id",

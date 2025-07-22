@@ -56,7 +56,11 @@ class AccessLogger {
         /**
          * @type {string|null}
          */
-        this.imageVersion = imageVersion;
+        this.imageVersion = String(imageVersion);
+        /**
+         * @type {string|null}
+         */
+        this.hostname = os.hostname() ? String(os.hostname()) : null;
         /**
          * @type {ConfigManager}
          */
@@ -86,19 +90,23 @@ class AccessLogger {
 
     /**
      * Logs a FHIR operation
-     * @param {Request} req
-     * @param {number} statusCode
-     * @param {number|null} startTime
-     * @param {number|null|undefined} [stopTime]
-     * @param {string|undefined} [query]
-     * @param {string|undefined} [mergeResults]
-     * @param {string|undefined} [streamRequestBody]
+     * @typedef {Object} logAccessLogAsyncParams
+     * @property {Request} req
+     * @property {number} statusCode
+     * @property {number|null} startTime
+     * @property {number|null|undefined} [stopTime]
+     * @property {string|undefined} [query]
+     * @property {object[]} [operationResult]
+     * @property {string|undefined} [streamRequestBody]
+     * @property {boolean} [streamingMerge]
+     *
+     * @param {logAccessLogAsyncParams}
      */
-    async logAccessLogAsync({ req, statusCode, startTime, stopTime = Date.now(), mergeResults, streamRequestBody }) {
+    async logAccessLogAsync({ req, statusCode, startTime, stopTime = Date.now(), streamRequestBody, streamingMerge, operationResult }) {
         /**
          * @type {string}
          */
-        const resourceType = req.resourceType ? req.resourceType : req.url.split('/')[2];
+        const resourceType = req.resourceType ? req.resourceType : (req.url.split('/')[2]).split('?')[0];
         if (!resourceType) {
             return;
         }
@@ -127,14 +135,12 @@ class AccessLogger {
 
         // Fetching detail
         const details = {
-            version: String(this.imageVersion)
+            version: this.imageVersion,
+            host: this.hostname
         };
-        if (os.hostname()) {
-            details['host'] = String(os.hostname());
-        }
 
         if (requestInfo.contentTypeFromHeader) {
-            details['content-type'] = requestInfo.contentTypeFromHeader.type;
+            details['contentType'] = requestInfo.contentTypeFromHeader.type;
         }
 
         if (requestInfo.accept) {
@@ -142,7 +148,7 @@ class AccessLogger {
         }
 
         if (req.headers['origin-service']) {
-            details['origin-service'] = req.headers['origin-service'];
+            details['originService'] = req.headers['origin-service'];
         }
 
         const params = {};
@@ -155,18 +161,18 @@ class AccessLogger {
             details['params'] = params;
         }
 
-        if (mergeResults) {
-            let resultBuffer = Buffer.from(mergeResults);
+        if (operationResult) {
+            let resultBuffer = Buffer.from(JSON.stringify(operationResult));
             const sizeLimit = this.configManager.accessLogResultLimit;
 
             if (resultBuffer.byteLength > sizeLimit) {
                 resultBuffer = resultBuffer.subarray(0, sizeLimit);
-                details['merge-results-truncated'] = 'true';
+                details['operationResultTruncated'] = 'true';
                 logInfo(
-                    `AccessLogger: mergeResults truncated in access log for request id: ${requestInfo.userRequestId}`
+                    `AccessLogger: operationResult truncated in access log for request id: ${requestInfo.userRequestId}`
                 );
             }
-            details['mergeResults'] = resultBuffer.toString();
+            details['operationResult'] = resultBuffer.toString();
         }
 
         if (requestInfo.body) {
@@ -181,10 +187,14 @@ class AccessLogger {
 
             if (bodyBuffer.byteLength > sizeLimit) {
                 bodyBuffer = bodyBuffer.subarray(0, sizeLimit);
-                details['body-truncated'] = 'true';
+                details['bodyTruncated'] = 'true';
                 logInfo(`AccessLogger: body truncated in access log for request id: ${requestInfo.userRequestId}`);
             }
             details['body'] = bodyBuffer.toString();
+        }
+
+        if (streamingMerge) {
+            details['streamingMerge'] = 'true';
         }
 
         // Creating log entry
