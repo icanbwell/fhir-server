@@ -290,8 +290,8 @@ class UpdateOperation {
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         operationResult: [{
                             id: resource_incoming_json.id,
-                            uuid: data._uuid,
-                            sourceAssigningAuthority: data._sourceAssigningAuthority,
+                            uuid: data ? data._uuid : resource_incoming_json._uuid,
+                            sourceAssigningAuthority: data ? data._sourceAssigningAuthority : resource_incoming_json._sourceAssigningAuthority,
                             resourceType: resource_incoming_json.resourceType,
                             operationOutcome: validationOperationOutcome,
                             created: false,

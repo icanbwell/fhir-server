@@ -100,7 +100,7 @@ Access logs serve several critical purposes in the FHIR Server:
 
 ## Querying Access Logs
 
-Access logs can be retrieved for troubleshooting, auditing, or compliance purposes using the request ID. The JWT token must include admin scope (`access/*.*`) to fetch access logs
+Access logs can be retrieved for troubleshooting, auditing, or compliance purposes using the request ID. The JWT token must include admin scope (`admin/*.*`) to fetch access logs
 
 ### API Endpoint
 ```
