@@ -20,7 +20,7 @@ Currently, access logs are created for the following operations:
 Each access log entry contains the following key information:
 
 ### Root Level Fields
-- **recorded** - Timestamp when the log entry was created
+- **timestamp** - Timestamp when the log entry was created
 - **outcomeDesc** - Result of the operation (Success, Error)
 - **agent** - Information about who performed the operation
 - **details** - Technical details about the operation
@@ -45,7 +45,7 @@ Example access log data:
 
 ```json
 {
-    "recorded": "2025-07-21T07:14:20.044Z",
+    "timestamp": "2025-07-21T07:14:20.044Z",
     "outcomeDesc": "Success",
     "agent": {
         "altId": "imran",

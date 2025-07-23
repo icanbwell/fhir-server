@@ -61,7 +61,7 @@ describe('AccessLogs Tests', () => {
             const resp = await request.get('/admin/searchLogResults?id=test-request-id').set(getJsonHeadersWithAdminToken());
 
             accessLogs1._id = expect.any(String);
-            accessLogs1.recorded = expect.any(String);
+            accessLogs1.timestamp = expect.any(String);
             accessLogs1.request.start = expect.any(String);
             accessLogs1.details.host = expect.any(String);
             accessLogs1.request.end = expect.any(String);

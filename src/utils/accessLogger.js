@@ -199,7 +199,7 @@ class AccessLogger {
 
         // Creating log entry
         const logEntry = {
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+            timestamp: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
             outcomeDesc: isError ? 'Error' : 'Success',
             agent: {
                 altId:
