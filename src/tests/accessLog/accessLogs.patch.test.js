@@ -123,7 +123,7 @@ describe('AccessLogs Tests', () => {
             .set(getJsonHeadersWithAdminToken());
 
         accessLogs4._id = expect.any(String);
-        accessLogs4.recorded = expect.any(String);
+        accessLogs4.timestamp = expect.any(String);
         accessLogs4.request.start = expect.any(String);
         accessLogs4.details.host = expect.any(String);
         accessLogs4.request.end = expect.any(String);

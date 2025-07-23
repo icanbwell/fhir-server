@@ -59,7 +59,7 @@ describe('AccessLogs Tests', () => {
                 .set(getJsonHeadersWithAdminToken());
 
             accessLogs2._id = expect.any(String);
-            accessLogs2.recorded = expect.any(String);
+            accessLogs2.timestamp = expect.any(String);
             accessLogs2.request.start = expect.any(String);
             accessLogs2.details.host = expect.any(String);
             accessLogs2.request.end = expect.any(String);
@@ -103,7 +103,7 @@ describe('AccessLogs Tests', () => {
                 .set(getJsonHeadersWithAdminToken());
 
             accessLogs3._id = expect.any(String);
-            accessLogs3.recorded = expect.any(String);
+            accessLogs3.timestamp = expect.any(String);
             accessLogs3.request.start = expect.any(String);
             accessLogs3.details.host = expect.any(String);
             accessLogs3.request.end = expect.any(String);
