@@ -106,7 +106,7 @@ class AccessLogger {
         /**
          * @type {string}
          */
-        const resourceType = req.resourceType ? req.resourceType : (req.url.split('/')[2]).split('?')[0];
+        const resourceType = req.resourceType ? req.resourceType : (req.url.split('/')[2])?.split('?')[0];
         if (!resourceType) {
             return;
         }
