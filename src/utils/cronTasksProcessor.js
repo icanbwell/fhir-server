@@ -14,7 +14,7 @@ class CronTasksProcessor {
      * @property {AuditLogger} auditLogger
      * @property {AccessLogger} accessLogger
      * @property {ConfigManager} configManager
-     * @param {params}
+     * @param {params} params
      */
     constructor({ postSaveProcessor, auditLogger, accessLogger, configManager }) {
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
