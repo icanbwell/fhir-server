@@ -1,9 +1,6 @@
-const cron = require('node-cron');
-const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { assertTypeEquals } = require('../utils/assertType');
 const { BasePostSaveHandler } = require('../utils/basePostSaveHandler');
 const { RethrownError } = require('../utils/rethrownError');
-const { ConfigManager } = require('../utils/configManager');
-const { logInfo } = require('../operations/common/logging');
 
 /**
  * @classdesc This class holds all the tasks to run after we insert/update a resource
@@ -13,16 +10,10 @@ class PostSaveProcessor {
      * Constructor
      * @typedef params
      * @property {BasePostSaveHandler[]} handlers
-     * @property {ConfigManager} configManager
      *
      * @param {params}
      */
-    constructor (
-        {
-            handlers,
-            configManager
-        }
-    ) {
+    constructor({ handlers }) {
         /**
          * @type {BasePostSaveHandler[]}
          */
@@ -30,24 +21,6 @@ class PostSaveProcessor {
         for (const handler of handlers) {
             assertTypeEquals(handler, BasePostSaveHandler);
         }
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-
-        assertIsValid(cron.validate(this.configManager.postRequestFlushTime), 'Invalid cron expression');
-        const cronTask = cron.schedule(
-            this.configManager.postRequestFlushTime,
-            async () => {
-                await this.flushAsync();
-            },
-            { name: 'PostSaveProcessor Cron' }
-        );
-        cronTask.on('execution:missed', (ctx) => {
-            logInfo('Missed execution of scheduled-cron', { name: ctx.task.name });
-        });
     }
 
     /**

@@ -1,4 +1,3 @@
-const cron = require('node-cron');
 const { jest } = require('@jest/globals');
 
 // const {getToken} = require('../../token');
@@ -87,9 +86,6 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
 module.exports.commonBeforeEach = async () => {
     // noinspection DynamicallyGeneratedCodeJS
     jest.setTimeout(30000);
-    cron.schedule = jest.fn(() => ({
-        on: jest.fn()
-    }));
     process.env.VALIDATE_SCHEMA = true;
     const urlObject = new URL(process.env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
