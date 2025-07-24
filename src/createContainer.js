@@ -428,7 +428,6 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.databaseBulkInserter,
-                configManager: c.configManager,
                 preSaveManager: c.preSaveManager
             }
         )
@@ -845,8 +844,7 @@ const createContainer = function () {
     container.register('postSaveProcessor', (c) => new PostSaveProcessor({
         handlers: [
             c.changeEventProducer
-        ],
-        configManager: c.configManager
+        ]
     }));
 
     container.register('patientQueryCreator', (c) => new PatientQueryCreator({
