@@ -1,6 +1,5 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
-const { ReferenceParser } = require('../../utils/referenceParser');
 const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const { SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM } = require('../../constants')
 
@@ -105,11 +104,8 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * @return {Promise<Reference>}
      */
     async updateReferenceAsync({ reference }) {
-        if (reference.reference) {
-            const { id } = ReferenceParser.parseReference(reference.reference);
-            if (!isUuid(id) && reference._uuid) {
-                reference.reference = reference._uuid;
-            }
+        if (reference.reference && reference._uuid) {
+            reference.reference = reference._uuid;
         }
         return reference;
     }

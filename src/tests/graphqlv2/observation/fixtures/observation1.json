@@ -75,7 +75,7 @@
     ]
   },
   "subject": {
-    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b|client"
   },
   "encounter": {
     "reference": "Encounter/ethu4DWDpM3FWgCtLKz2EDQ3"
