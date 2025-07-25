@@ -4,6 +4,7 @@ const { TestConfigManager } = require('./testConfigManager');
 const { MockKafkaClient } = require('./mocks/mockKafkaClient');
 const { MockAccessLogger } = require('./mocks/mockAccessLogger');
 const { MockAuditLogger } = require('./mocks/mockAuditLogger');
+const { MockCronTasksProcessor } = require('./mocks/mockCronTasksProcessor');
 
 /**
  * Creates a container and sets up all the services
@@ -27,11 +28,17 @@ const createTestContainer = function (fnUpdateContainer) {
             configManager: c.configManager,
             databaseBulkInserter: c.databaseBulkInserter
         }));
+    container.register('cronTasksProcessor', (c) => new MockCronTasksProcessor(
+        {
+            postSaveProcessor: c.postSaveProcessor,
+            auditLogger: c.auditLogger,
+            accessLogger: c.accessLogger,
+            configManager: c.configManager
+        }));
     container.register('auditLogger', (c) => new MockAuditLogger(
         {
             postRequestProcessor: c.postRequestProcessor,
             databaseBulkInserter: c.databaseBulkInserter,
-            configManager: c.configManager,
             preSaveManager: c.preSaveManager
         }));
     container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({

@@ -46,7 +46,6 @@ describe('GraphQL Patient Tests', () => {
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
                             databaseBulkInserter: c.databaseBulkInserter,
-                            configManager: c.configManager,
                             preSaveManager: c.preSaveManager
                         })
                 );

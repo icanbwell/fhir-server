@@ -1,16 +1,15 @@
 /**
  * logs audit entries
  */
-const cron = require('node-cron');
 const moment = require('moment-timezone');
 const { generateUUID } = require('./uid.util');
 const { isTrue } = require('./isTrue');
 const deepcopy = require('deepcopy');
 const { PostRequestProcessor } = require('./postRequestProcessor');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
-const { assertTypeEquals, assertIsValid } = require('./assertType');
+const { assertTypeEquals } = require('./assertType');
 const { SecurityTagSystem } = require('./securityTagSystem');
-const { logError, logInfo } = require('../operations/common/logging');
+const { logError } = require('../operations/common/logging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
@@ -19,7 +18,6 @@ const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEv
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditEventEntity');
 const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
-const { ConfigManager } = require('./configManager');
 const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const mutex = new Mutex();
@@ -30,7 +28,6 @@ class AuditLogger {
      * @typedef {Object} params
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {DatabaseBulkInserter} databaseBulkInserter
-     * @property {ConfigManager} configManager
      * @property {PreSaveManager} preSaveManager
      * @property {string} base_version
      *
@@ -39,13 +36,11 @@ class AuditLogger {
     constructor ({
                     postRequestProcessor,
                     databaseBulkInserter,
-                    configManager,
                     preSaveManager,
                     base_version = '4_0_0'
                 }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        assertTypeEquals(configManager, ConfigManager);
         assertTypeEquals(preSaveManager, PreSaveManager);
         /**
          * @type {PostRequestProcessor}
@@ -55,10 +50,6 @@ class AuditLogger {
          * @type {DatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
         /**
          * @type {PreSaveManager}
          */
@@ -71,18 +62,6 @@ class AuditLogger {
          * @type {string}
          */
         this.base_version = base_version;
-
-        assertIsValid(cron.validate(this.configManager.postRequestFlushTime), 'Invalid cron expression');
-        const cronTask = cron.schedule(
-            this.configManager.postRequestFlushTime,
-            async () => {
-                await this.flushAsync();
-            },
-            { name: 'AuditLogger Cron' }
-        );
-        cronTask.on('execution:missed', (ctx) => {
-            logInfo("Missed execution of scheduled-cron", {name: ctx.task.name});
-        });
     }
 
     /**

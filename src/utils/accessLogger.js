@@ -1,11 +1,10 @@
-const cron = require('node-cron');
 const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
 const { Mutex } = require('async-mutex');
 const os = require('os');
 
 const { ACCESS_LOGS_COLLECTION_NAME, REQUEST_ID_TYPE } = require('../constants');
-const { assertTypeEquals, assertIsValid } = require('./assertType');
+const { assertTypeEquals } = require('./assertType');
 const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
 const { get_all_args } = require('../operations/common/get_all_args');
 const { getCircularReplacer } = require('./getCircularReplacer');
@@ -74,18 +73,6 @@ class AccessLogger {
          * @type {object[]}
          */
         this.queue = [];
-
-        assertIsValid(cron.validate(this.configManager.postRequestFlushTime), 'Invalid cron expression');
-        const cronTask = cron.schedule(
-            this.configManager.postRequestFlushTime,
-            async () => {
-                await this.flushAsync();
-            },
-            { name: 'AccessLogger Cron' }
-        );
-        cronTask.on('execution:missed', (ctx) => {
-            logInfo('Missed execution of scheduled-cron', { name: ctx.task.name });
-        });
     }
 
     /**

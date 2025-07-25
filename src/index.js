@@ -28,9 +28,12 @@ const main = async function () {
         initialize();
         const container = createContainer();
         await createServer(() => container);
+        // Initialize cron tasks processor for processing scheduled tasks
+        await container.cronTasksProcessor.initiateTasks();
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
         console.log(JSON.stringify({ method: 'main', message: e.message, stack: JSON.stringify(e.stack, getCircularReplacer()) }));
+        throw e;
     }
 };
 

@@ -118,6 +118,7 @@ const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
+const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 
 /**
  * Creates a container and sets up all the services
@@ -427,7 +428,6 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.databaseBulkInserter,
-                configManager: c.configManager,
                 preSaveManager: c.preSaveManager
             }
         )
@@ -442,6 +442,16 @@ const createContainer = function () {
             }
         )
     );
+    container.register('cronTasksProcessor', (c) => new CronTasksProcessor(
+            {
+                postSaveProcessor: c.postSaveProcessor,
+                auditLogger: c.auditLogger,
+                accessLogger: c.accessLogger,
+                configManager: c.configManager
+            }
+        )
+    );
+
     container.register('graphHelper', (c) => new GraphHelper(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -834,8 +844,7 @@ const createContainer = function () {
     container.register('postSaveProcessor', (c) => new PostSaveProcessor({
         handlers: [
             c.changeEventProducer
-        ],
-        configManager: c.configManager
+        ]
     }));
 
     container.register('patientQueryCreator', (c) => new PatientQueryCreator({
