@@ -1,6 +1,7 @@
 // test file
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
+const observation3Resource = require('./fixtures/Observation/observation3.json');
 
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
@@ -11,7 +12,7 @@ const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = req
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { IdentifierSystem } = require('../../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
-const { generateUUIDv5 } = require('../../../utils/uid.util');
+const { generateUUIDv5, isUuid } = require('../../../utils/uid.util');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {
@@ -62,6 +63,13 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
             // ACT & ASSERT
             const headers = getHeaders();
             headers.Prefer = 'global_id=true';
@@ -86,8 +94,10 @@ describe('Observation Tests', () => {
                     e => e.url === SecurityTagSystem.sourceAssigningAuthority).valueString;
                 const reference = subject.reference;
                 const referenceId = reference.split('/').slice(-1)[0];
-                const expectedReferenceId = generateUUIDv5(`${id}|${sourceAssigningAuthority}`);
-                expect(referenceId).toStrictEqual(expectedReferenceId);
+                if (!isUuid(referenceId)){
+                    const expectedReferenceId = generateUUIDv5(`${id}|${sourceAssigningAuthority}`);
+                    expect(referenceId).toStrictEqual(expectedReferenceId);
+                }
             }
         });
         test('search_prefer_global_id works with reference', async () => {

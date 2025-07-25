@@ -26,7 +26,7 @@ const {
 } = require('../../../common');
 const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
-const { IdEnrichmentProvider } = require('../../../../enrich/providers/idEnrichmentProvider');
+const { GlobalIdEnrichmentProvider } = require('../../../../enrich/providers/globalIdEnrichmentProvider');
 
 class MockConfigManager extends ConfigManager {
     get enableReturnBundle () {
@@ -48,10 +48,10 @@ describe('Patient Tests', () => {
     });
 
     describe('Resources search_by_proxy_patient Multiple Tests', () => {
-        const idEnrichmentEnrichSpy = jest.spyOn(IdEnrichmentProvider.prototype, 'enrichAsync');
+        const globalIdEnrichmentProvider = jest.spyOn(GlobalIdEnrichmentProvider.prototype, 'enrichAsync');
 
         beforeEach(() => {
-            idEnrichmentEnrichSpy.mockImplementationOnce(() => {
+            globalIdEnrichmentProvider.mockImplementationOnce(() => {
                 throw new Error('Error while enriching');
             });
         });
@@ -96,7 +96,7 @@ describe('Patient Tests', () => {
                 });
                 return resource;
             });
-            expect(idEnrichmentEnrichSpy).toHaveBeenCalledTimes(2);
+            expect(globalIdEnrichmentProvider).toHaveBeenCalledTimes(2);
         });
     });
 });

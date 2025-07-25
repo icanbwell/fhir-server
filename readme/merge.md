@@ -47,6 +47,8 @@ For each resource in the bundle, the FHIR server checks:
     - updated: whether this resource was updated
     - resource_version: current version of the resource after this update
 
+Note: $merge operation performs optimally with payload of 100 resources.
+
 ### Streaming $merge
 The $merge operation also supports streaming, whenever the Content-Type is `application/fhir+ndjson`. Using this, payload can be streamed to FHIR Server and response will also be streamed to the client in ndjson format only.
 

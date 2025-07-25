@@ -147,10 +147,10 @@ const createContainer = function () {
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
             new IdEnrichmentProvider(),
+            new GlobalIdEnrichmentProvider(),
             new ProxyPatientReferenceEnrichmentProvider({
                 configManager: c.configManager
             }),
-            new GlobalIdEnrichmentProvider(),
             new HashReferencesEnrichmentProvider(),
             new MetaUuidEnrichmentProvider()
         ]

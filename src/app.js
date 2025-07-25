@@ -271,18 +271,6 @@ function createApp({fnGetContainer}) {
         next();
     });
 
-    // noinspection SpellCheckingInspection
-    const options = {
-        explorer: true,
-        swaggerOptions: {
-            oauth2RedirectUrl: process.env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
-            oauth: {
-                appName: 'Swagger Doc',
-                usePkceWithAuthorizationCodeGrant: true
-            }
-        }
-    };
-
     // noinspection JSCheckFunctionSignatures
     // http://localhost:3000/api-docs
     if (isTrue(process.env.ENABLE_SWAGGER_DOC)) {
