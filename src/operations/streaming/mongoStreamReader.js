@@ -142,7 +142,7 @@ class MongoReadableStream extends Readable {
                 });
 
                 // Handles operation timeout error in mongodb
-                if (e.statusCode === 50 && !hasRetried && this.lastUUID) {
+                if (e.code === 50 && !hasRetried && this.lastUUID) {
                     logInfo(
                         'MongoReadableStream readAsync: Retrying with new cursor due to mongo query timeout',
                         { e }
@@ -182,7 +182,7 @@ class MongoReadableStream extends Readable {
                     error: {
                         ...error,
                         message:
-                            e.statusCode === 50
+                            e.code === 50
                                 ? 'Timeout while processing'
                                 : 'Error occurred while streaming response'
                     }
