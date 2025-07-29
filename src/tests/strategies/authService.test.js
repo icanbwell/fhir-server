@@ -78,7 +78,7 @@ describe('JWT Bearer Strategy', () => {
                 )
             }
         );
-        authService.clearJwksCache();
+        authService.clearAuthCache();
 
         const result = await authService.getJwksByUrlAsync('https://example.com/jwks');
         expect(result).toEqual({keys: []});
