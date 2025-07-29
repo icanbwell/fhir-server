@@ -4,7 +4,8 @@ const {LRUCache} = require('lru-cache');
 const {
     EXTERNAL_REQUEST_RETRY_COUNT,
     DEFAULT_CACHE_EXPIRY_TIME,
-    DEFAULT_CACHE_MAX_COUNT
+    DEFAULT_CACHE_MAX_COUNT,
+    USER_INFO_CACHE_EXPIRY_TIME
 } = require('../constants');
 const {logDebug, logError} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
@@ -35,6 +36,12 @@ class AuthService {
      * @type {LRUCache<{}, {}, any>}
      */
     static jwksCache;
+
+    /**
+     * Cache for user info data.
+     * @type {LRUCache<{}, {}, any>}
+     */
+    static userInfoCache;
 
     /**
      * Constructor for the AuthService
@@ -74,14 +81,24 @@ class AuthService {
         if (AuthService.jwksCache === undefined) {
         AuthService.jwksCache = new LRUCache(this.cacheOptions);
         }
+
+        if (AuthService.userInfoCache === undefined) {
+            AuthService.userInfoCache = new LRUCache({
+                max: DEFAULT_CACHE_MAX_COUNT,
+                ttl: USER_INFO_CACHE_EXPIRY_TIME
+            });
+        }
     }
 
     /**
      * Clears the JWKS cache.
      */
-    clearJwksCache() {
+    clearAuthCache() {
         if (AuthService.jwksCache) {
             AuthService.jwksCache.clear();
+        }
+        if (AuthService.userInfoCache) {
+            AuthService.userInfoCache.clear();
         }
     }
 
@@ -330,6 +347,10 @@ class AuthService {
      * @returns {Promise<UserInfo|undefined>}
      */
     async getUserInfoFromUserInfoEndpoint({jwt_payload, token}) {
+        const cacheKey = jwt_payload.iss && jwt_payload.sub ? `${jwt_payload.iss}-${jwt_payload.sub}` : null;
+        if (cacheKey && AuthService.userInfoCache.has(cacheKey)) {
+            return AuthService.userInfoCache.get(cacheKey);
+        }
         const wellKnownConfig = await this.wellKnownConfigurationManager.getWellKnownConfigurationForIssuerAsync(
             jwt_payload.iss
         );
@@ -344,8 +365,11 @@ class AuthService {
                 .timeout(this.requestTimeout);
             if (userInfoResponse && userInfoResponse.body) {
                 jwt_payload = userInfoResponse.body;
-                const {scope, isUser, username, subject, clientId} = this.getFieldsFromToken(jwt_payload);
-                return {scope, isUser, username, subject, clientId};
+                const userInfo = this.getFieldsFromToken(jwt_payload);
+                if (cacheKey) {
+                    AuthService.userInfoCache.set(cacheKey, userInfo);
+                }
+                return userInfo;
             }
         }
         return jwt_payload;
