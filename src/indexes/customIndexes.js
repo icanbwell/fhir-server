@@ -1180,6 +1180,28 @@ module.exports = {
                 options: {
                     name: 'subscription.uuid_1_uuid_1'
                 }
+            },
+            {
+                keys: {
+                    'extension.url': 1,
+                    'extension.valueString': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'extension.url_1_extension.valueString_1_uuid_1'
+                }
+            }
+        ],
+        SubscriptionTopic_4_0_0: [
+            {
+                keys: {
+                    'identifier.system': 1,
+                    'identifier.value': 1,
+                    _uuid: 1
+                },
+                options: {
+                    name: 'identifier.system_1_identifier.value_1_uuid_1'
+                }
             }
         ],
         SupplyRequest_4_0_0: [
