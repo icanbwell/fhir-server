@@ -3,7 +3,7 @@
 You will need:
 
 1. Docker Desktop: https://docs.docker.com/desktop/mac/install/
-2. Node.js 24.1: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
+2. Node.js 24.5.0: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
 
 On Macs:
 1. Install brew (https://brew.sh/) if not already installed: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
