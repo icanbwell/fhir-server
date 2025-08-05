@@ -112,6 +112,7 @@
   },
   "resolutions": {
     "cross-spawn": "^7.0.0",
+    "@eslint/plugin-kit": "^0.3.4",
     "on-headers": "1.1.0"
   },
   "dependencies": {
