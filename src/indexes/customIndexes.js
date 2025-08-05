@@ -266,10 +266,10 @@ module.exports = {
         [ACCESS_LOGS_COLLECTION_NAME]: [
             {
                 keys: {
-                    'meta.id': 1
+                    'request.id': 1
                 },
                 options: {
-                    name: 'meta.id_1'
+                    name: 'request.id_1'
                 }
             },
             {
