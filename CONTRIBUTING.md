@@ -78,11 +78,11 @@ This id done only once and in case this needs to be run again `make create_all_c
 
 [src/oauth](src/oauth): HTML page that is shown when the user is redirected by a OAuth provider
 
-[src/operations](src/operations): Each folder implements a particular operation in FHIR (e.g., get all resources, update a resource etc). [FHIR Spec](https://www.hl7.org/fhir/operations.html)
+[src/operations](src/operations): Each folder implements a particular operation in FHIR (e.g., get all resources, update a resource etc). [FHIR Spec](https://www.hl7.org/fhir/R4B/operations.html)
 
 [src/routeHandlers](src/routeHandlers): Non-FHIR routes (e.g., logout, show stats)
 
-[src/searchParameters](src/searchParameters): Code-generated information about all the FHIR search parameters (https://www.hl7.org/fhir/searchparameter-registry.html). Called by r4.js to implement searching. Code-generation script: [generatorScripts/searchParameters/generate_search_parameters.py](generatorScripts/searchParameters/generate_search_parameters.py)
+[src/searchParameters](src/searchParameters): Code-generated information about all the FHIR search parameters (https://www.hl7.org/fhir/R4B/searchparameter-registry.html). Called by r4.js to implement searching. Code-generation script: [generatorScripts/searchParameters/generate_search_parameters.py](generatorScripts/searchParameters/generate_search_parameters.py)
 
 [src/services](src/services): Code-generated route handlers for each FHIR resource. Code generation script: [generatorScripts/generate_services.py](generatorScripts/generate_services.py)
 

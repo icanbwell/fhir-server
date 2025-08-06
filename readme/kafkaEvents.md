@@ -71,11 +71,11 @@ The content is specified in FHIR Audit Event schema.
 ```
 
 See `_createMessage` function for an example:
-[src/utils/changeEventProducer.js](src/utils/changeEventProducer.js)
+[src/utils/changeEventProducer.js](../src/utils/changeEventProducer.js)
 
 ### Contributing
 
-The code for this is at [src/utils/changeEventProducer.js](src/utils/changeEventProducer.js)
+The code for this is at [src/utils/changeEventProducer.js](../src/utils/changeEventProducer.js)
 
 When DatabaseBulkInserter inserts or updates a resource, it calls ChangeEventProducer to fire events
 ```javascript

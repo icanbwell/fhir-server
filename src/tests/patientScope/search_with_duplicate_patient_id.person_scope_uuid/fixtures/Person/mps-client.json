@@ -3,7 +3,7 @@
   "id": "mps-person",
   "meta": {
     "versionId": "1",
-    "source": "https://www.icanbwell.com/enterprise-person-service",
+    "source": "test",
     "lastUpdated": "2023-02-15T01:06:29.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"

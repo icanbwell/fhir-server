@@ -13,7 +13,6 @@ const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOu
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { QueryItem } = require('../graph/queryItem');

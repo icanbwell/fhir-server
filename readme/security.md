@@ -33,7 +33,7 @@ These environment variables allow the FHIR server to interact with the OAuth pro
 
 Helix FHIR server supports the `well-known configuration` feature so you can get the token-url from the FHIR server. (The helix fhir client sdk does this automatically)
 
-https://fhir.icanbwell.com/.well-known/smart-configuration
+http://localhost:3000/.well-known/smart-configuration
 
 ## 2. Authentication
 
@@ -129,7 +129,7 @@ Tokens can be passed in three ways in an HTTP request:
 3. (Note: Step 1 & 2 can be skipped by the caller by acquiring an access token before calling the FHIR server)
 4. Caller calls OAuth server token url specified in well-known configuration and passes in their `client id` and `client secret`.
 5. OAuth server returns Access Token
-6. Caller calls the FHIR server passing the Access Token (e.g., https://fhir.icanbwell.com/4_0_0/Patient)
+6. Caller calls the FHIR server passing the Access Token (e.g., http://localhost:3000/4_0_0/Patient)
 7. FHIR Server decrypts and verifies the Access Token using the public keys from OAuth server. It also checks the Access Token is not expired.
 8. Then we continue with the Authorization flow below
 
@@ -143,14 +143,14 @@ Javascript:
 var request = require('request');
 var options = {
     method: 'POST',
-    url: 'https://fhir-bwell.auth.us-east-1.amazoncognito.com/oauth2/token',
+    url: 'http://localhost:8080/realms/master/protocol/openid-connect/token',
     headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
     },
     form: {
         grant_type: 'client_credentials',
-        scope: 'user/*.read access*/read',
+        scope: 'user/*.read access/*.read',
         client_id: '[put client id here]',
         client_secret: '[put client secret here]',
     },
@@ -184,7 +184,7 @@ Javascript:
 var request = require('request');
 var options = {
     method: 'GET',
-    url: 'https://fhir.icanbwell.com/4_0_0/Patient',
+    url: 'http://localhost:3000/4_0_0/Patient',
     headers: {
         Authorization: 'Bearer [put access token from above here]',
     },
@@ -328,3 +328,60 @@ For resources that are not associated with a Patient, access will be granted or 
 
 The subscription-related resources — Subscription, SubscriptionStatus, and SubscriptionTopic — have custom logic with patient scope. Since these resources do not have a direct patient reference, we manually linked them to the patient using extension and identifier fields.
 For Subscription & SubscriptionStatus resources we match field `url` with value `https://icanbwell.com/codes/client_person_id` along with `valueString` field containing id of person(from JWT token) in `extension`. Whereas in case of SubscriptionTopic we match `system` with value `https://icanbwell.com/codes/client_person_id` along with `value` field containing id of person(from JWT token) in `identifier`.
+
+### 7. Local Authentication
+
+[Keycloak](https://www.keycloak.org/) is used for providing authentication for running FHIR Server on local with all the needed scopes and jwt payload data.
+Keycloak UI can be accessed at [http://localhost:8080](http://localhost:8080) with credentials `admin-user` & `password`.
+
+- For obtaining service account token, following cURL can be used:
+```
+curl --request POST \
+  --url http://localhost:8080/realms/master/protocol/openid-connect/token \
+  --header 'content-type: application/x-www-form-urlencoded' \
+  --data client_id=bwell-client-id \
+  --data client_secret=bwell-secret \
+  --data grant_type=client_credentials
+```
+
+- For user token (patient scoped token):
+Note: for using patient token, corresponding client person and patient must be added in database.
+The patient token have following default payload which can be configured via (docker-compose.yml)[../docker-compose.yml]
+```
+{
+  "clientFhirPatientId": "22aa18af-af51-5799-bc55-367c22c85407",
+  "bwellFhirPatientId": "668d0748-1484-4bba-9cbe-0faf0de8965c",
+  "clientFhirPersonId": "0b2ad38a-20bc-5cf5-9739-13f242b05892",
+  "bwellFhirPersonId": "0eb80391-0f61-5ce6-b221-a5428f2f38a7",
+}
+```
+```
+curl --request POST \
+  --url http://localhost:8080/realms/master/protocol/openid-connect/token \
+  --header 'content-type: application/x-www-form-urlencoded' \
+  --data client_id=bwell-client-id \
+  --data client_secret=bwell-secret \
+  --data username=patient \
+  --data password=password \
+  --data grant_type=password
+```
+
+- For adding any custom scopes to token, following cURL can be used with the scope needed
+```
+curl --request POST \
+  --url http://localhost:8080/realms/master/protocol/openid-connect/token \
+  --header 'content-type: application/x-www-form-urlencoded' \
+  --data client_id=bwell-client-id \
+  --data client_secret=bwell-secret \
+  --data grant_type=client_credentials \
+  --data 'scope=user/*.* access/*.* patient/Observation.read admin/*.*'
+```
+
+#### Using with FHIR UI
+When using with https://github.com/icanbwell/fhir-server.ui
+
+For authentication following credentials can be used, which can be configured from [docker-compose.yml](../docker-compose.yml)
+
+For admin account: `admin` & `password`
+
+For patient account: `patient` & `password`

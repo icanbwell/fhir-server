@@ -3,7 +3,7 @@
 	"id" : "222a029a-ff26-4b16-b36c-1b6375deb433",
 	"meta" : {
 		"versionId" : "1",
-		"source" : "https://www.icanbwell.com/enterprise-person-service",
+		"source" : "test",
 		"security" : [
 			{
 				"system" : "https://www.icanbwell.com/owner",

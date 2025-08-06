@@ -43,6 +43,8 @@ class CreateCollectionsRunner extends BaseScriptRunner {
                 })
                 .filter((collection) => collection !== null);
 
+            resourceCollections.push("ExportStatus_4_0_0");
+
             const mainDb = await this.mongoDatabaseManager.getClientDbAsync();
             const historyDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
             const accessLogsDb = await this.mongoDatabaseManager.getAccessLogsDbAsync();
