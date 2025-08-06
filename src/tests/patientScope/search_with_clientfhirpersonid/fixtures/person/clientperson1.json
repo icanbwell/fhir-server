@@ -2,7 +2,7 @@
   "resourceType": "Person",
   "id": "c123456",
   "meta": {
-    "source": "https://www.icanbwell.com/enterprise-person-service",
+    "source": "test",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",

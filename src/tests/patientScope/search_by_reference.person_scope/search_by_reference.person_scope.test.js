@@ -45,7 +45,6 @@ describe('Patient Tests', () => {
 
     describe('Patient search_by_reference.person_scope Tests', () => {
         test('search_by_reference.person_scope works', async () => {
-            // Verifies https://icanbwell.atlassian.net/browse/EFS-180
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;

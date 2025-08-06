@@ -71,7 +71,7 @@ Note: In streaming $merge, the response is always returned as ndjson only.
 ### Notes:
 
 1. A FHIR resource must be specified in the URL in order for the $merge call to be processed.
-    * ex. https://fhir.icanbwell.com/4_0_0/Encounter/$merge (in this example, 'Encounter' is the FHIR resource) \* The FHIR resource passed in the URL is heterogeneous, although in the example we use 'Encounter' as the FHIR resource, that does not mean we can only pass in Encounters within the FHIR resource bundle. A user can pass in any valid FHIR resources within the bundle. (sample here: https://www.npoint.io/docs/f7efe4bb5e42355aaa1a).
+    * ex. http://localhost:3000/4_0_0/Encounter/$merge (in this example, 'Encounter' is the FHIR resource) \* The FHIR resource passed in the URL is heterogeneous, although in the example we use 'Encounter' as the FHIR resource, that does not mean we can only pass in Encounters within the FHIR resource bundle. A user can pass in any valid FHIR resources within the bundle. (sample here: https://www.npoint.io/docs/f7efe4bb5e42355aaa1a).
 
 2. If 'Bundle' resource containing different resources in entry is sent inside an array in payload, then it is treated as a single bundle resource and its containing entry resources are not treated as individual resources.
 
@@ -147,12 +147,8 @@ Note: In streaming $merge, the response is always returned as ndjson only.
 
 ### Implementation in FHIR server
 
-[src/operations/merge/merge.js](src/operations/merge/merge.js)
+[src/operations/merge/merge.js](../src/operations/merge/merge.js)
 
 ### unit tests
 
-[src/tests/claims](src/tests/claims)
-
-### Performance Analysis
-
-merge v/s patch while updating resources: https://icanbwell.atlassian.net/wiki/spaces/ENTFS/pages/4177133589/
+[src/tests/claims](../src/tests/claims)

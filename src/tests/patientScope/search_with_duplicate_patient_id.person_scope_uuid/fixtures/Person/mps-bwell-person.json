@@ -3,7 +3,7 @@
   "id": "41db6857-b989-4617-ac8b-35d853250449",
   "meta": {
     "versionId": "1",
-    "source": "https://www.icanbwell.com/enterprise-person-service",
+    "source": "test",
     "lastUpdated": "2023-02-15T01:06:29.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"

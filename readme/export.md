@@ -54,7 +54,7 @@ Suppose a client wants to export data of all the patients modified after 2023-10
 ```json
 {
     "transactionTime": "2024-01-01T00:00:00.000Z",
-    "request": "https://fhir.prod.icanbwell.com/4_0_0/Patient/$export?_since=2023-10-10&_type=Patient",
+    "request": "http://localhost:3000/4_0_0/Patient/$export?_since=2023-10-10&_type=Patient",
     "requiresAccessToken": false,
     "output": [
         {

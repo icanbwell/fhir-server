@@ -1,8 +1,8 @@
 # FHIR $graph endpoint
 
-The Helix FHIR server supports the $graph endpoint of FHIR specification (https://www.hl7.org/fhir/resource-operation-graph.html).
+The Helix FHIR server supports the $graph endpoint of FHIR specification (https://www.hl7.org/fhir/R4B/resource-operation-graph.html).
 
-The $graph endpoint accepts a GraphDefinition resource: https://www.hl7.org/fhir/graphdefinition.html.
+The $graph endpoint accepts a GraphDefinition resource: https://www.hl7.org/fhir/R4B/graphdefinition.html.
 
 The $graph endpoint creates a graph per the passed in GraphDefinition and returns the whole graph in one call.
 
@@ -20,7 +20,7 @@ and unit test for it: https://github.com/icanbwell/fhir-server/tree/main/src/tes
 
 #### GraphDefinition
 
-The documentation for GraphDefinition(https://www.hl7.org/fhir/graphdefinition.html) on the FHIR website is not very good so here’s more detail:
+The documentation for GraphDefinition(https://www.hl7.org/fhir/R4B/graphdefinition.html) on the FHIR website is not very good so here’s more detail:
 
 Take an example GraphDefinition below.
 
@@ -223,4 +223,4 @@ However if you pass in the `contained` query parameter then the FHIR server will
 
 For example: https://fhir.icanbwell.com/4_0_0/Organization/$graph?id=733797173,1234&contained=true
 
-FHIR Specification: https://www.hl7.org/fhir/references.html#contained
+FHIR Specification: https://www.hl7.org/fhir/R4B/references.html#contained

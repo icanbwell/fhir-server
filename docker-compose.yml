@@ -2,6 +2,7 @@ services:
   fhir:
     depends_on:
       - mongo
+      - keycloak
     build:
       context: .
       dockerfile: Dockerfile
@@ -16,24 +17,22 @@ services:
       AUDIT_EVENT_MONGO_URL: mongodb://mongo:27017
       RESOURCE_SERVER: http://localhost:3000/
       AUTH_SERVER_URI: http://myauthzserver.com
-      CLIENT_ID: client
-      CLIENT_SECRET: secret
-      AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/openid-configuration
-      AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
-      AUTH_CODE_FLOW_URL: https://bwell-dev.auth.us-east-1.amazoncognito.com
+      AUTH_CONFIGURATION_URI: http://keycloak:8080/realms/master/.well-known/openid-configuration
+      AUTH_JWKS_URL: http://keycloak:8080/realms/master/protocol/openid-connect/certs
+      AUTH_CODE_FLOW_URL: http://keycloak:8080/realms/master/protocol/openid-connect/auth
       MAX_INDEX_NAME_LENGTH: 65
       ENV: local
+      ENVIRONMENT: local
       ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL: 0
       ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2: 0
       MONGO_TIMEOUT: 30000
       LOGLEVEL: 'INFO'
       ENABLE_GRAPHQL: 1
       NODE_ENV: 'development'
-      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json,https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/jwks.json,https://icanbwell.okta.com/oauth2/v1/keys'
-      EXTERNAL_AUTH_WELL_KNOWN_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/openid-configuration,https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/openid-configuration,https://icanbwell.okta.com/.well-known/openid-configuration'
+      EXTERNAL_AUTH_JWKS_URLS: ''
+      EXTERNAL_AUTH_WELL_KNOWN_URLS: ''
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
-      #      HASH_REFERENCE: 1
       RETURN_BUNDLE: '1'
       USE_TWO_STEP_SEARCH_OPTIMIZATION: '0'
       LOG_EXCLUDE_RESOURCES: 'Person,Patient'
@@ -51,8 +50,8 @@ services:
       AUTH_CUSTOM_SCOPE: "custom:scope"
       AUTH_REMOVE_SCOPE_PREFIX: "fhir/dev/"
       VALIDATE_SCHEMA: "1"
-      PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
-      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051,http://localhost:4000"
+      PERSON_MATCHING_SERVICE_URL: ""
+      WHITELIST: "http://localhost:5051"
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
       ENABLE_GRAPHQL_PLAYGROUND: '1'
@@ -71,7 +70,10 @@ services:
       NO_OF_REQUESTS_PER_POD: 10
       ENABLE_VULCAN_IG_QUERY: 'true'
       REQUIRED_AUDIT_EVENT_FILTERS: 'date'
+      CLIENTS_WITH_DATA_CONNECTION_VIEW_CONTROL: 'client'
+      PRE_SAVE_CODING_ID_UPDATE_RESOURCES: 'Binary,Observation'
       ENABLE_SWAGGER_DOC: 1
+      HOST_SERVER: "http://localhost:3000"
     ports:
       - '3000:3000'
     volumes:
@@ -83,7 +85,7 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:8.0.10
+    image: mongo:8.0.12
     ports:
       - '27017:27017'
     environment:
@@ -93,12 +95,45 @@ services:
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
 
-  #  mongoclient:
-  #    image: imranq2/mongoclient-aws:0.1.8
-  #    ports:
-  #      - '3010:3000'
-  #    environment:
-  #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
+  keycloak:
+    # https://github.com/keycloak/keycloak/releases
+    image: quay.io/keycloak/keycloak:26.3.2
+    environment:
+      # Enable HTTP for development
+      KC_HOSTNAME: localhost
+      KC_HTTP_ENABLED: true
+      KC_HTTPS_ENABLED: false
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_FEATURES: dynamic-scopes
+      # Keycloak UI creds
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin-user
+      KC_BOOTSTRAP_ADMIN_PASSWORD: password
+      # This is the service account that will be created in the realm
+      CLIENT_ID: bwell-client-id
+      CLIENT_SECRET: bwell-secret
+      SERVICE_ACCOUNT_NAME: service-account
+      SERVICE_ACCOUNT_PASSWORD: password
+      SERVICE_ACCOUNT_SCOPE: user/*.* access/*.*
+      # This is the user and password that will be created in the realm for patient scope token
+      MY_USER_NAME: patient
+      MY_USER_PASSWORD: password
+      MY_USER_SCOPE: user/*.* access/*.* patient/*.*
+      MY_USER_TOKEN_USERNAME: patient
+      MY_USER_CLIENT_PERSON_ID: 0b2ad38a-20bc-5cf5-9739-13f242b05892
+      MY_USER_CLIENT_PATIENT_ID: 22aa18af-af51-5799-bc55-367c22c85407
+      MY_USER_BWELL_PERSON_ID: 0eb80391-0f61-5ce6-b221-a5428f2f38a7
+      MY_USER_BWELL_PATIENT_ID: 668d0748-1484-4bba-9cbe-0faf0de8965c
+      # This is the user and password that will be created in the realm for admin scope token
+      MY_ADMIN_USER_NAME: admin
+      MY_ADMIN_USER_PASSWORD: password
+      MY_ADMIN_USER_SCOPE: user/*.* access/*.* admin/*.*
+      MY_ADMIN_USER_TOKEN_USERNAME: admin
+    ports:
+      - "8080:8080"
+    command: ["start-dev", "--import-realm", "--verbose"]
+    volumes:
+      - ./keycloak-config/realm-import.json:/opt/keycloak/data/import/realm-import.json
 
   zookeeper:
     image: zookeeper:3.9.1
@@ -154,40 +189,5 @@ services:
   #   ports:
   #     - "3001:8080"
 
-  elasticsearch:
-    #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
-    # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
-    # https://opendistro.github.io/for-elasticsearch/downloads.html
-    image: opensearchproject/opensearch:2.12.0
-    container_name: elasticsearch
-    environment:
-      - cluster.name=odfe-cluster
-      - node.name=elasticsearch
-      - discovery.type=single-node
-      #      - cluster.initial_master_nodes=elasticsearch
-      - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-      - network.host=0.0.0.0 # required if not using the demo security configuration
-      #      - opendistro_security.disabled=true
-      - cluster.routing.allocation.disk.threshold_enabled=false
-      - plugins.security.ssl.http.enabled=false
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=UujbDM76i6ZKjHZn88dN
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
-        hard: 65536
-    volumes:
-      - es_data:/usr/share/opensearch/data:delegated
-    #      - ./conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached
-    ports:
-      - '9200:9200'
-      - '9600:9600' # required for Performance Analyzer
-    healthcheck:
-      test: [ "CMD-SHELL", "curl --silent --fail https://admin:admin@localhost:9200/_cluster/health --insecure || exit 1" ]
-
 volumes:
   mongo_data:
-  es_data:

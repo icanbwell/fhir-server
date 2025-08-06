@@ -1,5 +1,3 @@
-# This schema is temporary until we switch our Cosmo Graph to use federation.
-# See https://icanbwell.atlassian.net/browse/EFS-985
 # import instant from "../simple_types/instant.graphql"
 
 

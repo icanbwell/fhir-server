@@ -7,7 +7,7 @@
         "meta": {
           "versionId": "1",
           "lastUpdated": "2023-08-01T09:54:59.000Z",
-          "source": "https://www.icanbwell.com/enterprise-person-service",
+          "source": "test",
           "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"],
           "security": [
             {
@@ -70,7 +70,7 @@
         "meta": {
           "versionId": "1",
           "lastUpdated": "2023-08-01T09:55:00.000Z",
-          "source": "https://www.icanbwell.com/enterprise-person-service",
+          "source": "test",
           "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"],
           "security": [
             {

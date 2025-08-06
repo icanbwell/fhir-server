@@ -1,5 +1,3 @@
-# This schema is temporary until we switch our Cosmo Graph to use federation.
-# See https://icanbwell.atlassian.net/browse/EFS-985
 # import id from "../simple_types/id.graphql"
 # import Meta from "../complex_types/meta.graphql"
 # import uri from "../simple_types/uri.graphql"

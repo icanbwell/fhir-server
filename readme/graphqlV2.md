@@ -1096,7 +1096,7 @@ query OnObservation {
 
 ## Custom queries in Patient resource
 
-We can fetch the clinical resources of a patient directly in patient resource. Custom fields for patient resources are defines [here](src/graphqlv2/schemas/custom/patient.graphql)
+We can fetch the clinical resources of a patient directly in patient resource. Custom fields for patient resources are defines [here](../src/graphqlv2/schemas/custom/patient.graphql)
 
 Example query for fetching clinical resources for a patient
 ```graphql

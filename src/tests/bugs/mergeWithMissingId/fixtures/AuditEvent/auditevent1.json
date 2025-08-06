@@ -68,7 +68,7 @@
       }
     ],
     "source": {
-      "site": "https://ripple.client.org/#/find-a-doctor/?providerData=%257B%2522search%2522%253Anull%252C%2522userLocation%2522%253A%257B%2522latitude%2522%253A44.183474%252C%2522longitude%2522%253A-89.246141%257D%252C%2522locationSelect%2522%253A%257B%2522id%2522%2",
+      "site": "https://client.site/#/find-a-doctor/?providerData=%257B%2522search%2522%253Anull%252C%2522userLocation%2522%253A%257B%2522latitude%2522%253A44.183474%252C%2522longitude%2522%253A-89.246141%257D%252C%2522locationSelect%2522%253A%257B%2522id%2522%2",
       "observer": {
         "reference": "Organization/Mixpanel"
       },
@@ -226,7 +226,7 @@
           {
             "id": "amp-0",
             "type": "app",
-            "valueString": "Ripple"
+            "valueString": "Code"
           }
         ]
       },
@@ -236,7 +236,7 @@
           {
             "id": "amp-0",
             "type": "client",
-            "valueString": "Ripple by Client"
+            "valueString": "Code by Client"
           }
         ]
       },
@@ -361,7 +361,7 @@
       }
     ],
     "source": {
-      "site": "https://ripple.client.org/#/?params=%257B%257D",
+      "site": "https://client.site/#/?params=%257B%257D",
       "observer": {
         "reference": "Organization/Mixpanel"
       },
@@ -519,7 +519,7 @@
           {
             "id": "amp-0",
             "type": "app",
-            "valueString": "Ripple"
+            "valueString": "Code"
           }
         ]
       },
@@ -529,7 +529,7 @@
           {
             "id": "amp-0",
             "type": "client",
-            "valueString": "Ripple by Client"
+            "valueString": "Code by Client"
           }
         ]
       },
@@ -1006,7 +1006,7 @@
       }
     ],
     "source": {
-      "site": "https://ripple.client.org/#/security/?params=%257B%2522back%2522%253A%2522profile%2522%252C%2522params%2522%253A%257B%2522%2523%2522%253Anull%252C%2522params%2522%253A%2522%25257B%25257D%2522%252C%2522isAddNewSubMember%2522%253Afalse%257D%257D&isAddNew",
+      "site": "https://client.site/#/security/?params=%257B%2522back%2522%253A%2522profile%2522%252C%2522params%2522%253A%257B%2522%2523%2522%253Anull%252C%2522params%2522%253A%2522%25257B%25257D%2522%252C%2522isAddNewSubMember%2522%253Afalse%257D%257D&isAddNew",
       "observer": {
         "reference": "Organization/Mixpanel"
       },
@@ -1164,7 +1164,7 @@
           {
             "id": "amp-0",
             "type": "app",
-            "valueString": "Ripple"
+            "valueString": "Code"
           }
         ]
       },
@@ -4985,7 +4985,7 @@
       }
     ],
     "source": {
-      "site": "https://ripple.client.org/#/",
+      "site": "https://client.site/#/",
       "observer": {
         "reference": "Organization/Mixpanel"
       },
@@ -5143,7 +5143,7 @@
           {
             "id": "amp-0",
             "type": "app",
-            "valueString": "Ripple"
+            "valueString": "Code"
           }
         ]
       },
@@ -5153,7 +5153,7 @@
           {
             "id": "amp-0",
             "type": "client",
-            "valueString": "Ripple by Client"
+            "valueString": "Code by Client"
           }
         ]
       },
@@ -6532,7 +6532,7 @@
       }
     ],
     "source": {
-      "site": "https://ripple.client.org/#/",
+      "site": "https://client.site/#/",
       "observer": {
         "reference": "Organization/Mixpanel"
       },
@@ -6690,7 +6690,7 @@
           {
             "id": "amp-0",
             "type": "app",
-            "valueString": "Ripple"
+            "valueString": "Code"
           }
         ]
       },
@@ -6700,7 +6700,7 @@
           {
             "id": "amp-0",
             "type": "client",
-            "valueString": "Ripple by Client"
+            "valueString": "Code by Client"
           }
         ]
       },
@@ -6825,7 +6825,7 @@
       }
     ],
     "source": {
-      "site": "https://ripple.client.org/#/",
+      "site": "https://client.site/#/",
       "observer": {
         "reference": "Organization/Mixpanel"
       },
@@ -6983,7 +6983,7 @@
           {
             "id": "amp-0",
             "type": "app",
-            "valueString": "Ripple"
+            "valueString": "Code"
           }
         ]
       },
@@ -6993,7 +6993,7 @@
           {
             "id": "amp-0",
             "type": "client",
-            "valueString": "Ripple by Client"
+            "valueString": "Code by Client"
           }
         ]
       },
@@ -8674,7 +8674,7 @@
       }
     ],
     "source": {
-      "site": "app://ripple.client.org/index.html#/covid-19/resources/categories/?params=%257B%257D",
+      "site": "app://client.site/index.html#/covid-19/resources/categories/?params=%257B%257D",
       "observer": {
         "reference": "Organization/Mixpanel"
       },
@@ -8831,7 +8831,7 @@
           {
             "id": "amp-0",
             "type": "app",
-            "valueString": "Ripple"
+            "valueString": "Code"
           }
         ]
       },
