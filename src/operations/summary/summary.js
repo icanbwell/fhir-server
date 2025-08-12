@@ -140,7 +140,7 @@ class SummaryOperation {
         });
 
         try {
-            const {_type: resourceFilter} = parsedArgs;
+            const {_type: resourceFilter, headers} = parsedArgs;
             const supportLegacyId = false;
 
             if (resourceFilter) {
@@ -168,6 +168,12 @@ class SummaryOperation {
                     throw new Error('$summary is not supported for resource: ' + resourceType);
             }
 
+            // set global_id to true
+            const updatedHeaders = {
+                ...headers,
+                prefer: 'global_id=true'
+            };
+            parsedArgs.headers = updatedHeaders;
 
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
@@ -201,8 +207,10 @@ class SummaryOperation {
                 timezone
             );
             if (responseStreamer) {
+                const summaryBundleEntries = summaryBundle.entry;
+                delete summaryBundle.entry;
                 responseStreamer.setBundle({bundle: summaryBundle});
-                for (const entry of summaryBundle.entry) {
+                for (const entry of summaryBundleEntries) {
                     await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: entry
                     });
