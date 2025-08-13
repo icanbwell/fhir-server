@@ -1,6 +1,4 @@
 // test file
-const parentPersonResource = require('./fixtures/Person/parentPerson.json');
-const parentPerson1Resource = require('./fixtures/Person/parentPerson1.json');
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');
@@ -45,13 +43,10 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
-    getHeadersZip
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
 const fs = require("node:fs");
-const {fhirContentTypes} = require("../../../utils/contentTypes");
-const expectedSinglePatientResource = require("../../patient/search_by_id/fixtures/expected/expected_single_patient.json");
 
 describe('Patient $summary Tests', () => {
     beforeEach(async () => {
@@ -189,7 +184,7 @@ describe('Patient $summary Tests', () => {
             expect(resp.status).toBe(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientBundle, (resource) => {
-                // remove the date from the Composite resource
+                // remove the date from the Composition resource
                 if (resource.resourceType === 'Composition') {
                     delete resource.date;
                 }

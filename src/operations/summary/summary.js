@@ -5,7 +5,6 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
-const {ForbiddenError} = require('../../utils/httpErrors');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
 const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
@@ -107,28 +106,10 @@ class SummaryOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'summary';
 
-        const {user, scope, isUser} = requestInfo;
-
         /**
          * @type {number}
          */
         const startTime = Date.now();
-
-        if (isUser && requestInfo.method.toLowerCase() === 'delete') {
-            const forbiddenError = new ForbiddenError(
-                `user ${user} with scopes [${scope}] failed access check to delete ` +
-                '$summary: Access to delete $summary not allowed if patient scope is present'
-            );
-            await this.fhirLoggingManager.logOperationFailureAsync({
-                requestInfo,
-                args: parsedArgs?.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName,
-                error: forbiddenError
-            });
-            throw forbiddenError;
-        }
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -140,7 +121,7 @@ class SummaryOperation {
         });
 
         try {
-            const {_type: resourceFilter} = parsedArgs;
+            const {_type: resourceFilter, headers} = parsedArgs;
             const supportLegacyId = false;
 
             if (resourceFilter) {
@@ -168,6 +149,12 @@ class SummaryOperation {
                     throw new Error('$summary is not supported for resource: ' + resourceType);
             }
 
+            // set global_id to true
+            const updatedHeaders = {
+                ...headers,
+                prefer: 'global_id=true'
+            };
+            parsedArgs.headers = updatedHeaders;
 
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
@@ -201,8 +188,10 @@ class SummaryOperation {
                 timezone
             );
             if (responseStreamer) {
+                const summaryBundleEntries = summaryBundle.entry;
+                delete summaryBundle.entry;
                 responseStreamer.setBundle({bundle: summaryBundle});
-                for (const entry of summaryBundle.entry) {
+                for (const entry of summaryBundleEntries) {
                     await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: entry
                     });
