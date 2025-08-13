@@ -2,9 +2,118 @@
   "entry": [
     {
       "resource": {
+        "id": "Composition-24a5930e-11b4-5525-b482-669174917044",
+        "resourceType": "Composition",
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "60591-5",
+              "display": "Patient summary Document"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+        },
+        "author": [
+          {
+            "reference": "Organization/bwell",
+            "display": "b.well Connected Health"
+          }
+        ],
+        "title": "International Patient Summary",
+        "section": [
+          {
+            "title": "Problem List",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "11450-4",
+                  "display": "Problem List"
+                }
+              ],
+              "text": "Problem List"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available about the subject's health problems or disabilities.</div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "Allergies and Intolerances",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "48765-2",
+                  "display": "Allergies and Intolerances"
+                }
+              ],
+              "text": "Allergies and Intolerances"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available regarding the subject's allergy conditions.</div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "Medication Summary",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "10160-0",
+                  "display": "Medication Summary"
+                }
+              ],
+              "text": "Medication Summary"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available about the subject's medication use or administration.</div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "Results Summary",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "30954-2",
+                  "display": "Results Summary"
+                }
+              ],
+              "text": "Results Summary"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <h5>Observations</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Reference Range</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td>12/31/2020, 7:00 PM EST - 12/30/2021, 7:00 PM EST</td> </tr> </tbody> </table></div>"
+            },
+            "entry": [
+              {
+                "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
+                "display": "Observation"
+              }
+            ]
+          }
+        ],
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <ul> <li><strong>Name(s):</strong><ul><li>t</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Identifier(s):</strong><ul><li>https://www.icanbwell.com/sourceId: patient1</li></ul><ul><li>https://www.icanbwell.com/uuid: 24a5930e-11b4-5525-b482-669174917044</li></ul></li> <li><strong>Telecom:</strong></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
+        }
+      }
+    },
+    {
+      "resource": {
         "birthDate": "2017-01-01",
         "gender": "female",
-        "id": "patient1",
+        "id": "24a5930e-11b4-5525-b482-669174917044",
         "identifier": [
           {
             "id": "sourceId",
@@ -76,7 +185,7 @@
           "end": "2021-12-31T00:00:00.000Z",
           "start": "2021-01-01T00:00:00.000Z"
         },
-        "id": "2354-InAgeCohort",
+        "id": "61886699-c643-5e3b-a074-569e4c43bddf",
         "identifier": [
           {
             "id": "sourceId",
@@ -141,7 +250,7 @@
               "valueString": "healthsystem1"
             }
           ],
-          "reference": "Patient/patient1"
+          "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
         },
         "valueBoolean": false
       }
@@ -152,68 +261,13 @@
         "name": "b.well Connected Health",
         "resourceType": "Organization"
       }
-    },
-    {
-      "resource": {
-        "author": [
-          {
-            "display": "b.well Connected Health",
-            "reference": "Organization/bwell"
-          }
-        ],
-        "id": "Composition-patient1",
-        "resourceType": "Composition",
-        "section": [
-          {
-            "code": {
-              "coding": [
-                {
-                  "code": "30954-2",
-                  "display": "Relevant diagnostic tests/laboratory data Narrative",
-                  "system": "http://loinc.org"
-                }
-              ],
-              "text": "Relevant diagnostic tests/laboratory data Narrative"
-            },
-            "entry": [
-              {
-                "display": "Observation",
-                "reference": "Observation/2354-InAgeCohort"
-              }
-            ],
-            "text": {
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <h5>Diagnostic Results: Observations</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Reference Range</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> </tbody> </table></div>",
-              "status": "generated"
-            },
-            "title": "Relevant diagnostic tests/laboratory data Narrative"
-          }
-        ],
-        "status": "final",
-        "subject": {
-          "reference": "Patient/patient1"
-        },
-        "text": {
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <h2>Patient Summary</h2> <ul> <li><strong>Name(s):</strong><ul><li>t</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Identifier(s):</strong><ul><li>https://www.icanbwell.com/sourceId: patient1</li></ul><ul><li>https://www.icanbwell.com/uuid: 24a5930e-11b4-5525-b482-669174917044</li></ul></li> <li><strong>Telecom:</strong></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div> <h5>Vital Signs</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Component(s)</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> </tbody> </table> <h5>Diagnostic Results: Observations</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Reference Range</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> </tbody> </table> <h5>Social History</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> </tr> </tbody> </table> <h5>Pregnancy</h5> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> </tr> </tbody> </table> <h5>Functional Status</h5> <table> <thead> <tr> <th>Assessment</th> <th>Status</th> <th>Finding</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>final</td> <td></td> <td></td> <td></td> </tr> </tbody> </table></div>",
-          "status": "generated"
-        },
-        "title": "International Patient Summary",
-        "type": {
-          "coding": [
-            {
-              "code": "60591-5",
-              "display": "Patient summary Document",
-              "system": "http://loinc.org"
-            }
-          ]
-        }
-      }
     }
   ],
+  "resourceType": "Bundle",
+  "type": "document",
   "identifier": {
     "system": "urn:ietf:rfc:3986",
     "value": "urn:uuid:4dcfd353-49fd-4ab0-b521-c8d57ced74d6"
   },
-  "resourceType": "Bundle",
-  "total": 4,
-  "type": "document"
+  "total": 4
 }

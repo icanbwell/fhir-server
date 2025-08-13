@@ -5,7 +5,6 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
-const {ForbiddenError} = require('../../utils/httpErrors');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
 const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
@@ -107,28 +106,10 @@ class SummaryOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'summary';
 
-        const {user, scope, isUser} = requestInfo;
-
         /**
          * @type {number}
          */
         const startTime = Date.now();
-
-        if (isUser && requestInfo.method.toLowerCase() === 'delete') {
-            const forbiddenError = new ForbiddenError(
-                `user ${user} with scopes [${scope}] failed access check to delete ` +
-                '$summary: Access to delete $summary not allowed if patient scope is present'
-            );
-            await this.fhirLoggingManager.logOperationFailureAsync({
-                requestInfo,
-                args: parsedArgs?.getRawArgs(),
-                resourceType,
-                startTime,
-                action: currentOperationName,
-                error: forbiddenError
-            });
-            throw forbiddenError;
-        }
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
