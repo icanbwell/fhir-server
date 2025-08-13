@@ -156,6 +156,26 @@ class SummaryOperation {
             };
             parsedArgs.headers = updatedHeaders;
 
+            // apply _lastUpdated to linked resources in graph if passed in parameters
+            if (parsedArgs._lastUpdated) {
+                const lastUpdated = parsedArgs._lastUpdated;
+
+                parsedArgs.remove('_lastUpdated');
+                parsedArgs._lastUpdated = null;
+
+                const lastUpdatedQueryParam = Array.isArray(lastUpdated)
+                    ? `&_lastUpdated=${lastUpdated.join(',')}`
+                    : `&_lastUpdated=${lastUpdated}`;
+
+                parsedArgs.resource.link.forEach((link) => {
+                    link.target.forEach((target) => {
+                        if (target.params) {
+                            target.params += lastUpdatedQueryParam;
+                        }
+                    });
+                });
+            }
+
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
              */
@@ -187,6 +207,10 @@ class SummaryOperation {
                 this.configManager.summaryGeneratorOrganizationBaseUrl,
                 timezone
             );
+
+            // add meta information from $graph result
+            summaryBundle.meta = result.meta;
+
             if (responseStreamer) {
                 const summaryBundleEntries = summaryBundle.entry;
                 delete summaryBundle.entry;
