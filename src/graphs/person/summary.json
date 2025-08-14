@@ -215,7 +215,17 @@
               "target": [
                 {
                   "type": "DeviceUseStatement",
-                  "params": "patient={ref}"
+                  "params": "patient={ref}",
+                  "link": [
+                    {
+                      "path": "device",
+                      "target": [
+                        {
+                          "type": "Device"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -327,7 +337,17 @@
               "target": [
                 {
                   "type": "Immunization",
-                  "params": "patient={ref}"
+                  "params": "patient={ref}",
+                  "link": [
+                    {
+                      "path": "manufacturer",
+                      "target": [
+                        {
+                          "type": "Organization"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -407,7 +427,17 @@
               "target": [
                 {
                   "type": "MedicationRequest",
-                  "params": "patient={ref}"
+                  "params": "patient={ref}",
+                  "link": [
+                    {
+                      "path": "medicationReference",
+                      "target": [
+                        {
+                          "type": "Medication"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -415,7 +445,17 @@
               "target": [
                 {
                   "type": "MedicationStatement",
-                  "params": "patient={ref}"
+                  "params": "patient={ref}",
+                  "link": [
+                    {
+                      "path": "medicationReference",
+                      "target": [
+                        {
+                          "type": "Medication"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },

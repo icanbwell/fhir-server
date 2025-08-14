@@ -138,7 +138,7 @@
         ],
         "text": {
           "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <ul> <li><strong>Name(s):</strong><ul><li>t</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Identifier(s):</strong><ul><li>https://www.icanbwell.com/sourceId: patient1</li></ul><ul><li>https://www.icanbwell.com/uuid: 24a5930e-11b4-5525-b482-669174917044</li></ul></li> <li><strong>Telecom:</strong></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <ul> <li><strong>Name(s):</strong><ul><li>t</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Identifier(s):</strong><ul><li>https://www.icanbwell.com/sourceId: patient1</li></ul><ul><li>https://www.icanbwell.com/uuid: 24a5930e-11b4-5525-b482-669174917044</li></ul></li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
         }
       }
     }
