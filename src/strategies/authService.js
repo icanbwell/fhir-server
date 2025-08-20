@@ -82,12 +82,12 @@ class AuthService {
         AuthService.jwksCache = new LRUCache(this.cacheOptions);
         }
 
-        if (AuthService.userInfoCache === undefined) {
-            AuthService.userInfoCache = new LRUCache({
-                max: DEFAULT_CACHE_MAX_COUNT,
-                ttl: USER_INFO_CACHE_EXPIRY_TIME
-            });
-        }
+        // if (AuthService.userInfoCache === undefined) {
+        //     AuthService.userInfoCache = new LRUCache({
+        //         max: DEFAULT_CACHE_MAX_COUNT,
+        //         ttl: USER_INFO_CACHE_EXPIRY_TIME
+        //     });
+        // }
     }
 
     /**
@@ -97,9 +97,9 @@ class AuthService {
         if (AuthService.jwksCache) {
             AuthService.jwksCache.clear();
         }
-        if (AuthService.userInfoCache) {
-            AuthService.userInfoCache.clear();
-        }
+        // if (AuthService.userInfoCache) {
+        //     AuthService.userInfoCache.clear();
+        // }
     }
 
     /**
@@ -348,9 +348,9 @@ class AuthService {
      */
     async getUserInfoFromUserInfoEndpoint({jwt_payload, token}) {
         const cacheKey = jwt_payload.iss && jwt_payload.sub ? `${jwt_payload.iss}-${jwt_payload.sub}` : null;
-        if (cacheKey && AuthService.userInfoCache.has(cacheKey)) {
-            return AuthService.userInfoCache.get(cacheKey);
-        }
+        // if (cacheKey && AuthService.userInfoCache.has(cacheKey)) {
+        //     return AuthService.userInfoCache.get(cacheKey);
+        // }
         const wellKnownConfig = await this.wellKnownConfigurationManager.getWellKnownConfigurationForIssuerAsync(
             jwt_payload.iss
         );
