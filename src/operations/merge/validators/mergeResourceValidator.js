@@ -100,7 +100,15 @@ class MergeResourceValidator extends BaseValidator {
         const preSaveResults = await async.map(
             resourcesIncomingArray,
             async resource => {
-                if (isUuid(resource.id)) {
+                if (typeof resource.id === 'string' && resource.id.includes('|')) {
+                    return {
+                        resource: null,
+                        mergePreCheckError: MergeResultEntry.createFromError({
+                            error: new Error('Pipe | is not allowed in id field'),
+                            resource
+                        })
+                    };
+                } else if (isUuid(resource.id)) {
                     resource._uuid = resource.id;
                 } else {
                     try {

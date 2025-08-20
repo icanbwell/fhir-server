@@ -8,6 +8,7 @@ const expectedMissingAccessScope = require('./fixtures/expected/expectedMissingA
 const expectedWrongAccessScope = require('./fixtures/expected/expectedWrongAccessScope.json');
 const expectedWrongReferenceValues = require('./fixtures/expected/expectedWrongReferenceValues.json');
 const expectedWrongReferenceValuesCreate = require('./fixtures/expected/expectedWrongReferenceValuesCreate.json');
+const expectedIdValidationError = require('./fixtures/expected/expected_id_validation_error.json')
 
 const {
     commonBeforeEach,
@@ -57,6 +58,23 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
         });
+
+        test('mergeWith_id gives error for id containing pipe', async () => {
+            const request = await createTestRequest();
+            const personResource = deepcopy(person1Resource)
+            personResource[0].meta.source = 'bwell';
+            personResource[0].id = 'person1|bwell';
+
+            // ARRANGE
+            // add the resources to FHIR server
+            const resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(personResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedIdValidationError);
+        });
+
         test('mergeWith_id works with access/*.* (update)', async () => {
             const request = await createTestRequest();
             // Case when meta.source doesn't exist

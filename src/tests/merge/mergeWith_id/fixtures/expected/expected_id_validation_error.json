@@ -1,0 +1,31 @@
+[
+  {
+    "operationOutcome": {
+      "resourceType": "OperationOutcome",
+      "issue": [
+        {
+          "severity": "error",
+          "code": "exception",
+          "details": {
+            "text": "Pipe | is not allowed in id field"
+          },
+          "diagnostics": "Pipe | is not allowed in id field",
+          "expression": ["Person"]
+        }
+      ]
+    },
+    "issue": {
+      "severity": "error",
+      "code": "exception",
+      "details": {
+        "text": "Pipe | is not allowed in id field"
+      },
+      "diagnostics": "Pipe | is not allowed in id field",
+      "expression": ["Person"]
+    },
+    "created": false,
+    "id": "person1|bwell",
+    "resourceType": "Person",
+    "updated": false
+  }
+]
