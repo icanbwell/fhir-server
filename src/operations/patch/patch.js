@@ -22,7 +22,6 @@ const { SearchManager } = require('../search/searchManager');
 const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
-const { logInfo } = require('../common/logging');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 const httpContext = require('express-http-context');
 
@@ -305,17 +304,6 @@ class PatchOperation {
                 });
             }
             if (validationOperationOutcome) {
-                logInfo('Resource Validation Failed', {
-                    operation: currentOperationName,
-                    id: foundResource.id,
-                    _uuid: foundResource._uuid,
-                    _sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
-                    resourceType: foundResource.resourceType,
-                    operationOutcome: validationOperationOutcome,
-                    issue: validationOperationOutcome.issue[0],
-                    created: false,
-                    updated: false
-                });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: [{
                         id: foundResource.id,
@@ -384,18 +372,7 @@ class PatchOperation {
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                    logInfo('Resource neither created or updated', {
-                        operation: currentOperationName,
-                        ...mergeResults[0]
-                    });
                     throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue, getCircularReplacer())));
-                }
-
-                if (mergeResults[0].updated) {
-                    logInfo('Resource Updated', {
-                        operation: currentOperationName,
-                        ...mergeResults[0]
-                    });
                 }
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: mergeResults
@@ -407,16 +384,6 @@ class PatchOperation {
                             requestId, eventType: 'U', resourceType, doc: resource
                         });
                     }
-                });
-            } else {
-                logInfo('Resource neither created or updated', {
-                    operation: currentOperationName,
-                    id: resource.id,
-                    _uuid: resource._uuid,
-                    _sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                    resourceType: resource.resourceType,
-                    created: false,
-                    updated: false
                 });
             }
 
