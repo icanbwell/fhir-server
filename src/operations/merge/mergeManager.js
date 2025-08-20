@@ -23,7 +23,7 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { ScopesManager } = require('../security/scopesManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { logDebug, logError, logWarn, logInfo } = require('../common/logging');
+const { logDebug, logError, logWarn } = require('../common/logging');
 const { groupByLambda } = require('../../utils/list.util');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { mergeObject } = require('../../utils/mergeHelper');
@@ -194,17 +194,6 @@ class MergeManager {
                 });
             }
             if (validationOperationOutcome) {
-                logInfo('Resource Validation Failed', {
-                    operation: 'merge',
-                    id: patched_resource_incoming.id,
-                    _uuid: patched_resource_incoming._uuid,
-                    _sourceAssigningAuthority: patched_resource_incoming._sourceAssigningAuthority,
-                    resourceType: patched_resource_incoming.resourceType,
-                    operationOutcome: validationOperationOutcome,
-                    issue: validationOperationOutcome.issue[0],
-                    created: false,
-                    updated: false
-                });
                 return validationOperationOutcome;
             }
 
@@ -261,17 +250,6 @@ class MergeManager {
         });
 
         if (validationOperationOutcome) {
-            logInfo('Resource Validation Failed', {
-                operation: 'merge',
-                id: resourceToMerge.id,
-                _uuid: resourceToMerge._uuid,
-                _sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                resourceType: resourceToMerge.resourceType,
-                operationOutcome: validationOperationOutcome,
-                issue: validationOperationOutcome.issue[0],
-                created: false,
-                updated: false
-            });
             return validationOperationOutcome;
         }
 

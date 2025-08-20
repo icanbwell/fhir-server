@@ -19,7 +19,7 @@ const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
-const { logInfo, logError } = require('../common/logging');
+const { logError } = require('../common/logging');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isTrue } = require('../../utils/isTrue');
 const { Transform } = require('stream'); // <- for Transform stream class
@@ -141,10 +141,6 @@ class MergeOperation {
                     }
                 );
                 mergeResults.push(mergeResultItem);
-                logInfo('Resource neither created or updated', {
-                    operation: 'merge',
-                    ...mergeResultItem
-                });
             }
         }
         return mergeResults;
@@ -212,13 +208,6 @@ class MergeOperation {
                 requestInfo
             });
 
-            mergePreCheckErrors.forEach(mergeResultEntry => {
-                logInfo('Resource Validation Failed', {
-                    operation: currentOperationName,
-                    ...mergeResultEntry
-                });
-            });
-
             let validResources = resourcesIncomingArray;
 
             // merge the resources
@@ -242,25 +231,6 @@ class MergeOperation {
             let mergeResults = await this.databaseBulkInserter.executeAsync({
                 requestInfo,
                 base_version
-            });
-
-            mergeResults.forEach(mergeResult => {
-                if (mergeResult.created) {
-                    logInfo('Resource Created', {
-                        operation: currentOperationName,
-                        ...mergeResult
-                    });
-                } else if (mergeResult.updated) {
-                    logInfo('Resource Updated', {
-                        operation: currentOperationName,
-                        ...mergeResult
-                    });
-                } else {
-                    logInfo('Resource neither created or updated', {
-                        operation: currentOperationName,
-                        ...mergeResult
-                    });
-                }
             });
 
             // add in any pre-merge failures

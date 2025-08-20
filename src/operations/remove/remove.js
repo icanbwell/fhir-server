@@ -207,21 +207,6 @@ class RemoveOperation {
                 base_version
             });
 
-            resourceArrayToDelete.forEach(r => {
-                const data = {
-                     id: r.id,
-                    _uuid: r._uuid,
-                    _sourceAssigningAuthority: r._sourceAssigningAuthority,
-                    resourceType: r.resourceType,
-                    created: false,
-                    deleted: true
-                }
-                logInfo('Resource Deleted', {
-                    action: currentOperationName,
-                    ...data
-                });
-            });
-
             if (resourceType !== 'AuditEvent') {
                 this.postRequestProcessor.add({
                     requestId,

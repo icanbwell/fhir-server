@@ -1,5 +1,5 @@
 const httpContext = require('express-http-context');
-const { logDebug, logInfo } = require('../common/logging');
+const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
 const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
@@ -178,17 +178,6 @@ class CreateOperation {
                 });
             }
             if (validationOperationOutcome) {
-                logInfo('Resource Validation Failed', {
-                    operation: currentOperationName,
-                    id: resource.id,
-                    _uuid: resource.id,
-                    _sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                    resourceType: resource.resourceType,
-                    created: false,
-                    updated: false,
-                    OperationOutcome: validationOperationOutcome,
-                    issue: validationOperationOutcome.issue[0]
-                });
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: [{
                         id: resource.id,
@@ -268,23 +257,12 @@ class CreateOperation {
             );
 
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                logInfo('Resource neither created or updated', {
-                    operation: currentOperationName,
-                    ...mergeResults[0]
-                });
                 throw new BadRequestError(
                     new Error(mergeResults.length > 0
                         ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
                         : 'No merge result'
                     )
                 );
-            }
-
-            if (mergeResults[0].created) {
-                logInfo('Resource Created', {
-                    operation: currentOperationName,
-                    ...mergeResults[0]
-                });
             }
 
             // log operation

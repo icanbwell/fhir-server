@@ -22,7 +22,6 @@ const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
-const { logInfo } = require('../common/logging');
 const { isUuid } = require('../../utils/uid.util');
 
 /**
@@ -276,17 +275,6 @@ class UpdateOperation {
                     currentResource: data
                 });
                 if (validationOperationOutcome) {
-                    logInfo('Resource Validation Failed', {
-                        operation: currentOperationName,
-                        id: resource_incoming_json.id,
-                        _uuid: resource_incoming_json._uuid,
-                        _sourceAssigningAuthority: resource_incoming_json._sourceAssigningAuthority,
-                        resourceType: resource_incoming_json.resourceType,
-                        created: false,
-                        updated: false,
-                        operationOutcome: validationOperationOutcome,
-                        issue: validationOperationOutcome.issue[0]
-                    });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         operationResult: [{
                             id: resource_incoming_json.id,
@@ -347,17 +335,6 @@ class UpdateOperation {
                     doc
                 );
                 if (validationOperationOutcome) {
-                    logInfo('Resource Validation Failed', {
-                        operation: currentOperationName,
-                        id: doc.id,
-                        _uuid: doc._uuid,
-                        _sourceAssigningAuthority: doc._sourceAssigningAuthority,
-                        resourceType: doc.resourceType,
-                        created: false,
-                        updated: false,
-                        operationOutcome: validationOperationOutcome,
-                        issue: validationOperationOutcome.issue[0]
-                    });
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         operationResult: [{
                             id: doc.id,
@@ -406,28 +383,12 @@ class UpdateOperation {
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                    logInfo('Resource neither created or updated', {
-                        operation: currentOperationName,
-                        ...mergeResults[0]
-                    });
                     throw new BadRequestError(
                         new Error(mergeResults.length > 0
                             ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
                             : 'No merge result'
                         )
                     );
-                }
-
-                if (mergeResults[0].created) {
-                    logInfo('Resource Created', {
-                        operation: currentOperationName,
-                        ...mergeResults[0]
-                    });
-                } else if (mergeResults[0].updated) {
-                    logInfo('Resource Updated', {
-                        operation: currentOperationName,
-                        ...mergeResults[0]
-                    });
                 }
 
                 if (resourceType !== 'AuditEvent') {
@@ -481,15 +442,6 @@ class UpdateOperation {
             } else {
                 await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
 
-                logInfo('Resource neither created or updated', {
-                    operation: currentOperationName,
-                    id: foundResource.id,
-                    _uuid: foundResource._uuid,
-                    _sourceAssigningAuthority: foundResource._sourceAssigningAuthority,
-                    resourceType: foundResource.resourceType,
-                    created: false,
-                    updated: false
-                });
                 const result = {
                     id,
                     created: false,
