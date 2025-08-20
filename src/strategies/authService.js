@@ -366,9 +366,10 @@ class AuthService {
             if (userInfoResponse && userInfoResponse.body) {
                 jwt_payload = userInfoResponse.body;
                 const userInfo = this.getFieldsFromToken(jwt_payload);
-                if (cacheKey) {
-                    AuthService.userInfoCache.set(cacheKey, userInfo);
-                }
+                // disable cache
+                // if (cacheKey) {
+                //     AuthService.userInfoCache.set(cacheKey, userInfo);
+                // }
                 return userInfo;
             }
         }
