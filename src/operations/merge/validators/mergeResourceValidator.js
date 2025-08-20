@@ -100,7 +100,7 @@ class MergeResourceValidator extends BaseValidator {
         const preSaveResults = await async.map(
             resourcesIncomingArray,
             async resource => {
-                if (resource.id.includes('|')) {
+                if (typeof resource.id === 'string' && resource.id.includes('|')) {
                     return {
                         resource: null,
                         mergePreCheckError: MergeResultEntry.createFromError({

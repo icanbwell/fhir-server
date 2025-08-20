@@ -8,7 +8,7 @@ const expectedMissingAccessScope = require('./fixtures/expected/expectedMissingA
 const expectedWrongAccessScope = require('./fixtures/expected/expectedWrongAccessScope.json');
 const expectedWrongReferenceValues = require('./fixtures/expected/expectedWrongReferenceValues.json');
 const expectedWrongReferenceValuesCreate = require('./fixtures/expected/expectedWrongReferenceValuesCreate.json');
-const expectedIdValidationError = require("./fixtures/expected/expected_id_validation_error.json")
+const expectedIdValidationError = require('./fixtures/expected/expected_id_validation_error.json')
 
 const {
     commonBeforeEach,
