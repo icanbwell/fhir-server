@@ -816,6 +816,22 @@ class ConfigManager {
     }
 
     /**
+     * returns issuer for which client id claim needs to be verified
+     * @returns {string}
+     */
+    get authCidCheckIssuer() {
+        return env.AUTH_CID_CHECK_ISSUER || '';
+    }
+
+    /**
+     * return client ids to check against issuer
+     * @returns {string[]}
+     */
+    get authCidCheckClientIds() {
+        return env.AUTH_CID_CHECK_CLIENT_IDS ? env.AUTH_CID_CHECK_CLIENT_IDS.split(',') : [];
+    }
+
+    /**
      * return CACHE_EXPIRY_TIME
      * @returns {number}
      */

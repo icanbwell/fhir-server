@@ -11,9 +11,12 @@ const {ConfigManager} = require("../utils/configManager");
 class MyJwtStrategy extends JwtStrategy {
     /**
      * Constructor for the JWT strategy
-     * @param {Object} [options]
-     * @param {AuthService} authService
-     * @param {ConfigManager} configManager
+     * @typedef {Object} MyJwtStrategyOptions
+     * @property {Object} [options]
+     * @property {AuthService} authService
+     * @property {ConfigManager} configManager
+     *
+     * @param {MyJwtStrategyOptions} options
      */
     constructor({authService, configManager, options = {}}) {
         assertTypeEquals(authService, AuthService);
@@ -60,28 +63,6 @@ class MyJwtStrategy extends JwtStrategy {
          */
         this.configManager = configManager;
     }
-
-    /**
-     * This method is called when the JWT token is extracted from the request
-     * @param {import('http').IncomingMessage} req
-     * @param {Object} options
-     * @returns {*}
-     */
-    authenticate(req, options) {
-        const self = this;
-        const token = this._jwtFromRequest(req);
-
-        // if (!token) {
-        //     return self.fail(new Error('No auth token'));
-        // }
-
-        return super.authenticate(req, options);
-    }
-
-    // noinspection JSUnusedGlobalSymbols
-    // fail(jwt_err) {
-    //     logError(`JWT error`, {user: '', args: {jwt_err}});
-    // }
 }
 
 
