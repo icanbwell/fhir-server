@@ -11,7 +11,6 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
-const { VerifiedCallback } = require("passport-jwt")
 
 /**
  * @typedef {Object} UserInfo
@@ -184,7 +183,7 @@ class AuthService {
      * @param {string|undefined}  subject
      * @param {boolean} isUser
      * @param {Object} jwt_payload
-     * @param {VerifiedCallback} done
+     * @param {import("passport-jwt").VerifiedCallback} done
      * @param {string} client_id
      * @param {string} scope
      * @return {void}
@@ -384,7 +383,7 @@ class AuthService {
      * @property {import('http').IncomingMessage} request
      * @property {Object} jwt_payload
      * @property {string} token
-     * @property {VerifiedCallback} done
+     * @property {import("passport-jwt").VerifiedCallback} done
      *
      * @param {verifyParams} params
      * @return {void}
