@@ -14,13 +14,11 @@ const express = require('express');
 const { FhirRouter } = require('../middleware/fhir/router');
 const { assertTypeEquals } = require('../utils/assertType');
 const passport = require('passport');
-const path = require('path');
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 const { ConfigManager } = require('../utils/configManager');
-const {MyJwtStrategy} = require("../strategies/jwt.bearer.strategy");
 
 class MyFHIRServer {
     /**

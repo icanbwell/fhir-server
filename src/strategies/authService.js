@@ -7,19 +7,11 @@ const {
     DEFAULT_CACHE_MAX_COUNT,
     USER_INFO_CACHE_EXPIRY_TIME
 } = require('../constants');
-const {logDebug, logError} = require('../operations/common/logging');
+const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
-
-/**
- * This callback type is called `requestCallback` and is displayed as a global symbol.
- *
- * @callback requestCallback
- * @param {Object} user
- * @param {Object} info
- * @param {Object} [details]
- */
+const { VerifiedCallback } = require("passport-jwt")
 
 /**
  * @typedef {Object} UserInfo
@@ -78,6 +70,17 @@ class AuthService {
             max: DEFAULT_CACHE_MAX_COUNT,
             ttl: DEFAULT_CACHE_EXPIRY_TIME
         };
+
+        /**
+         * @type {string}
+         */
+        this.cidCheckIssuer = this.configManager.authCidCheckIssuer;
+
+        /**
+         * @type {string[]}
+         */
+        this.cidCheckClientIds = this.configManager.authCidCheckClientIds;
+
         if (AuthService.jwksCache === undefined) {
         AuthService.jwksCache = new LRUCache(this.cacheOptions);
         }
@@ -181,7 +184,7 @@ class AuthService {
      * @param {string|undefined}  subject
      * @param {boolean} isUser
      * @param {Object} jwt_payload
-     * @param {requestCallback} done
+     * @param {VerifiedCallback} done
      * @param {string} client_id
      * @param {string} scope
      * @return {void}
@@ -347,7 +350,7 @@ class AuthService {
      * @returns {Promise<UserInfo|undefined>}
      */
     async getUserInfoFromUserInfoEndpoint({jwt_payload, token}) {
-        const cacheKey = jwt_payload.iss && jwt_payload.sub ? `${jwt_payload.iss}-${jwt_payload.sub}` : null;
+        const cacheKey = jwt_payload.iss && jwt_payload.sub && jwt_payload.cid ? `${jwt_payload.iss}-${jwt_payload.cid}-${jwt_payload.sub}` : null;
         if (cacheKey && AuthService.userInfoCache.has(cacheKey)) {
             return AuthService.userInfoCache.get(cacheKey);
         }
@@ -377,14 +380,26 @@ class AuthService {
 
     /**
      * extracts the client_id and scope from the decoded token
-     * @param {import('http').IncomingMessage} request
-     * @param {Object} jwt_payload
-     * @param {string} token
-     * @param {requestCallback} done
+     * @typedef {object} verifyParams
+     * @property {import('http').IncomingMessage} request
+     * @property {Object} jwt_payload
+     * @property {string} token
+     * @property {VerifiedCallback} done
+     *
+     * @param {verifyParams} params
      * @return {void}
      */
     verify({request, jwt_payload, token, done}) {
         if (jwt_payload) {
+            if (this.cidCheckIssuer && jwt_payload.iss === this.cidCheckIssuer) {
+                if (!this.cidCheckClientIds.includes(jwt_payload.cid)) {
+                    logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
+                        userClaim: jwt_payload.sub
+                    });
+                    return done(null, false);
+                }
+            }
+
             let {scope, isUser, username, subject, clientId} = this.getFieldsFromToken(jwt_payload);
 
             // if there are no scopes try to get the userInfo from userInfo endpoint
@@ -450,12 +465,7 @@ class AuthService {
                 });
             }
         } else {
-            done(
-                null
-                ,
-                false
-            )
-            ;
+            done(null, false);
         }
     }
 
