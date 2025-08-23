@@ -86,7 +86,11 @@ class FhirLogger {
 
         // Compulsory error handling
         logger.on('error', (error) => {
-            console.error(JSON.stringify({ message: 'Error in fhirLogger caught', error }));
+            console.error(JSON.stringify({
+                message: 'Error in fhirLogger caught',
+                error: error.message || error,
+                stack: error.stack || null
+            }));
         });
 
         return logger;

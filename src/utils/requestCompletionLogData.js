@@ -18,6 +18,10 @@ function generateLogDetail ({ authToken, scope, statusCode, username }) {
         } else {
             try {
                 const token = authHeader.split(' ')[1];
+                if (!token){
+                    logDetail = `No token found in authorization header: ${authHeader}`;
+                    return logDetail;
+                }
                 // Attempt to decode the token
                 const decodedToken = JSON.parse(atob(token.split('.')[1]));
                 // Check if token is expired

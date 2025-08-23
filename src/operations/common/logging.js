@@ -55,6 +55,16 @@ const logDebug = (message, args) => {
  */
 const logError = (message, args) => {
     setRequestIdInLog(args);
+    // If args.detail or args.error is an Error, include stack trace
+    if (args) {
+        if (args.detail instanceof Error) {
+            args.stack = args.detail.stack;
+            args.detail = args.detail.message;
+        } else if (args.error instanceof Error) {
+            args.stack = args.error.stack;
+            args.detail = args.error.message;
+        }
+    }
     logger.error(message, args);
 };
 

@@ -16,7 +16,8 @@ function createOperationOutcomeIssue ({ error, internalError }) {
             text: internalError ? 'Internal Server Error' : `Unexpected Error: ${error.message}`
         })
     });
-    if (Object.hasOwn(error, 'stack') && !internalError) {
+    // Only include stack trace in diagnostics if NODE_ENV is development
+    if (process.env.NODE_ENV === 'development' && Object.hasOwn(error, 'stack')) {
         operationOutcomeIssue.diagnostics = error.stack;
     }
     return operationOutcomeIssue;
@@ -35,11 +36,11 @@ function convertErrorToOperationOutcome ({ error, internalError }) {
         });
     }
 
-    return Object.hasOwn(error, 'issue') && error.issue && error.issue.length > 0
-        ? new OperationOutcome({
+    return (Object.hasOwn(error, 'issue') && error.issue && error.issue.length > 0) ?
+        new OperationOutcome({
             issue: error.issue
-        })
-        : new OperationOutcome({
+        }) :
+        new OperationOutcome({
             issue: [
                 createOperationOutcomeIssue({ error })
             ]

@@ -389,11 +389,15 @@ class AuthService {
      * @return {void}
      */
     verify({request, jwt_payload, token, done}) {
+        //logInfo(`Verifying token`, {user: '', args: {tokenSample: token, jwt_payload: jwt_payload}});
         if (jwt_payload) {
             if (this.cidCheckIssuer && jwt_payload.iss === this.cidCheckIssuer) {
                 if (!this.cidCheckClientIds.includes(jwt_payload.cid)) {
-                    logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
-                        userClaim: jwt_payload.sub
+                    logError(`Token rejected: Client ID '${jwt_payload.cid}' is not allowed from issuer '${jwt_payload.iss}'.`, {
+                        userClaim: jwt_payload.sub,
+                        reason: 'disallowed_client_id',
+                        issuer: jwt_payload.iss,
+                        clientId: jwt_payload.cid
                     });
                     return done(null, false);
                 }
@@ -424,6 +428,12 @@ class AuthService {
                             scope: scope1 || scope
                         });
                     } else {
+                        logError('Token rejected: No scope found and userInfo endpoint did not return valid user info.', {
+                            reason: 'missing_scope',
+                            issuer: jwt_payload.iss,
+                            clientId: clientId,
+                            subject: subject
+                        });
                         this.processUserInfo({
                             username: username,
                             subject: subject,
@@ -436,10 +446,24 @@ class AuthService {
                     }
 
                 }).catch((error) => {
-                    logError(`Error while fetching user info: ${error.message}`, {error: error});
+                    logError(`Token rejected: Error while fetching user info from endpoint: ${error.message}`, {
+                        error: error,
+                        reason: 'user_info_fetch_failed',
+                        issuer: jwt_payload.iss,
+                        clientId: clientId,
+                        subject: subject
+                    });
                     done(null, false);
                 });
             } else {
+                if (!scope) {
+                    logError('Token rejected: Missing scope claim.', {
+                        reason: 'missing_scope',
+                        issuer: jwt_payload.iss,
+                        clientId: clientId,
+                        subject: subject
+                    });
+                }
                 logDebug(`JWT result`, {
                     user: '', args: {
                         result: {
@@ -464,6 +488,10 @@ class AuthService {
                 });
             }
         } else {
+            logError('Token rejected: JWT payload is missing or malformed.', {
+                reason: 'missing_jwt_payload',
+                tokenSample: token ? token.substring(0, 10) + '...' : undefined
+            });
             done(null, false);
         }
     }

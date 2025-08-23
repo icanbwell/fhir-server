@@ -15,7 +15,7 @@ const passport = require('passport');
 
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
-const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
+const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js');
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
@@ -130,12 +130,15 @@ function createApp({fnGetContainer}) {
             // Increment the request count
             incrementRequestCount();
 
-            logInfo('Incoming Request', {
-                path: reqPath,
-                method: reqMethod,
-                request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
-                requestCount: getRequestCount()
-            });
+            // Only log if not /health endpoint
+            if (reqPath !== '/health') {
+                logInfo('Incoming Request', {
+                    path: reqPath,
+                    method: reqMethod,
+                    request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
+                    requestCount: getRequestCount()
+                });
+            }
         }
         const startTime = new Date().getTime();
         res.on('finish', () => {
@@ -181,7 +184,9 @@ function createApp({fnGetContainer}) {
                     startTime
                 });
             }
-            logInfo('Request Completed', logData);
+            if (!ignoredUrls.some(url => reqPath.startsWith(url))) {
+                logInfo('Request Completed', logData);
+            }
         });
         res.on('close', () => {
             // Decrement the request count
@@ -289,8 +294,7 @@ function createApp({fnGetContainer}) {
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
     app.get('/authcallback', (req, res) => {
         const state = req.query.state;
-        const resourceUrl = state
-            ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
+        const resourceUrl = state ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
         res.redirect(
             `/oauth/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +

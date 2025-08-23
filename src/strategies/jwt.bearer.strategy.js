@@ -4,19 +4,20 @@
 const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
 const jwksRsa = require('jwks-rsa');
 const {AuthService} = require('./authService');
-const {logDebug} = require("../operations/common/logging");
+const {logDebug, logError} = require("../operations/common/logging");
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+
+/**
+ * @typedef {Object} MyJwtStrategyOptions
+ */
 
 class MyJwtStrategy extends JwtStrategy {
     /**
      * Constructor for the JWT strategy
-     * @typedef {Object} MyJwtStrategyOptions
-     * @property {Object} [options]
-     * @property {AuthService} authService
-     * @property {ConfigManager} configManager
-     *
-     * @param {MyJwtStrategyOptions} options
+     * @param {MyJwtStrategyOptions} [options]
+     * @param {AuthService} authService
+     * @param {ConfigManager} configManager
      */
     constructor({authService, configManager, options = {}}) {
         assertTypeEquals(authService, AuthService);
@@ -37,7 +38,7 @@ class MyJwtStrategy extends JwtStrategy {
                     },
                     handleSigningKeyError: (err, cb) => {
                         if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                            logDebug('No Signing Key found!', {user: ''});
+                            logError('No Signing Key found!', {user: '', err: err});
                             return cb(new Error('No Signing Key found!'));
                         }
                         return cb(err);
