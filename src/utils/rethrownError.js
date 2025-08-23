@@ -24,8 +24,9 @@ class RethrownError extends Error {
          * @type {OperationOutcome[]}
          */
         this.issue = error.issue;
+        // noinspection JSUnusedGlobalSymbols
         this.stack_before_rethrow = this.stack;
-        this.args = args;
+        this.args = args || error.args;
         if (this.args) {
             this.removeExcludedResources(this.args.parentEntities);
         }

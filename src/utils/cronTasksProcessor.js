@@ -44,7 +44,7 @@ class CronTasksProcessor {
         // Validate cron expression
         const validation = validateCronExpression(this.configManager.postRequestFlushTime);
         if (!validation.valid) {
-            logError(`Invalid cron expression: ${this.configManager.postRequestFlushTime}`);
+            logError(`Invalid cron expression: ${this.configManager.postRequestFlushTime}`, {});
             throw validation.error;
         }
 
@@ -52,9 +52,14 @@ class CronTasksProcessor {
             name: 'CronTasksProcessor',
             cronTime: this.configManager.postRequestFlushTime,
             onTick: async () => {
-                await this.postSaveProcessor.flushAsync();
-                await this.auditLogger.flushAsync();
-                await this.accessLogger.flushAsync();
+                try {
+                    await this.postSaveProcessor.flushAsync();
+                    await this.auditLogger.flushAsync();
+                    await this.accessLogger.flushAsync();
+                } catch (error) {
+                    logError(`Error in cron job: ${error.message}`, error);
+                    throw error;
+                }
             },
             start: true,
             waitForCompletion: true,
@@ -63,7 +68,7 @@ class CronTasksProcessor {
                 throw error;
             }
         });
-        logInfo(`Cron job started: ${cronJob.name}`);
+        logInfo(`Cron job started: ${cronJob.name}`, {});
     }
 }
 

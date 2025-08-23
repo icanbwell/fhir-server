@@ -35,6 +35,7 @@ const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const { MongoInvalidArgumentError } = require('mongodb');
+const {BulkResultEntry} = require("./bulkResultEntry");
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -746,7 +747,8 @@ class DatabaseBulkInserter extends EventEmitter {
             );
         } catch (e) {
             throw new RethrownError({
-                error: e
+                error: e,
+                args: e.args
             });
         }
     }
@@ -987,15 +989,17 @@ class DatabaseBulkInserter extends EventEmitter {
                     try {
                         result = await collection.bulkWrite(bulkOperations, options);
                     } catch (error) {
+                        const errorMessage = `databaseBulkInserter: Error bulkWrite to collection ${collectionName} for resourceType ${resourceType} in db ${collection.dbName}: ${error.message}`;
                         await logSystemErrorAsync({
                             event: 'databaseBulkInserter',
-                            message: 'databaseBulkInserter: Error bulkWrite',
+                            message: errorMessage,
                             error,
                             args: {
                                 requestId,
                                 operations: operationsByCollection,
                                 options,
-                                collection: collectionName
+                                collection: collectionName,
+                                dbName: collection.dbName
                             }
                         });
                         /**
@@ -1003,9 +1007,9 @@ class DatabaseBulkInserter extends EventEmitter {
                          */
                         let diagnostics;
                         if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCEEDS) {
-                            diagnostics = error.toString()
+                            diagnostics = error.toString();
                         } else {
-                            throw new RethrownError({ message: 'databaseBulkInserter: Error bulkWrite', error })
+                            throw new RethrownError({ message: errorMessage, error });
                         }
 
                         diagnostics = `Error in one of the resources of ${resourceType}: ` + diagnostics;
@@ -1024,11 +1028,11 @@ class DatabaseBulkInserter extends EventEmitter {
                                     details: new CodeableConcept({ text: bulkWriteResultError.message }),
                                     diagnostics
                                 })
-                            })
+                            });
                             mergeResultEntries.push(mergeResultEntry);
                         }
 
-                        return { resourceType, mergeResult: bulkWriteResult, error: error, mergeResultEntries };
+                        return new BulkResultEntry({ resourceType, mergeResult: bulkWriteResult, error: error, mergeResultEntries });
                     }
                     bulkWriteResult = result;
                     await logTraceSystemEventAsync(
@@ -1136,9 +1140,10 @@ class DatabaseBulkInserter extends EventEmitter {
                         );
                     }
                 } catch (e) {
+                    const errorMessage = `databaseBulkInserter: Error bulkWrite to collection ${collectionName} for resourceType ${resourceType}: ${e.message}`;
                     await logSystemErrorAsync({
                         event: 'databaseBulkInserter',
-                        message: 'databaseBulkInserter: Error bulkWrite',
+                        message: errorMessage,
                         error: e,
                         args: {
                             requestId,
@@ -1152,7 +1157,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     });
                 }
             }
-            return { resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries };
+            return new BulkResultEntry({ resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries });
         } catch (e) {
             throw new RethrownError({
                 error: e
