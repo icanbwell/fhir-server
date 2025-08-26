@@ -15,6 +15,7 @@ const { ScopesManager } = require('../operations/security/scopesManager');
 const { ConfigManager } = require('./configManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
+const { AccessEventProducer } = require('./accessEventProducer');
 const mutex = new Mutex();
 
 class AccessLogger {
@@ -27,6 +28,7 @@ class AccessLogger {
      * @property {string|null} imageVersion
      * @property {ConfigManager} configManager
      * @property {DatabaseBulkInserter} databaseBulkInserter
+     * @property {AccessEventProducer} accessEventProducer
      *
      * @param {params}
      */
@@ -36,7 +38,8 @@ class AccessLogger {
         base_version = '4_0_0',
         imageVersion,
         configManager,
-        databaseBulkInserter
+        databaseBulkInserter,
+        accessEventProducer
     }) {
         /**
          * @type {ScopesManager}
@@ -69,6 +72,11 @@ class AccessLogger {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        /**
+         * @type {AccessEventProducer}
+         */
+        this.accessEventProducer = accessEventProducer;
+        assertTypeEquals(accessEventProducer, AccessEventProducer);
         /**
          * @type {object[]}
          */
@@ -240,9 +248,14 @@ class AccessLogger {
          */
         const operationsMap = new Map();
         operationsMap.set(ACCESS_LOGS_COLLECTION_NAME, []);
+        const accessLogs = [];
 
         for (const { doc, requestInfo } of currentQueue) {
             ({ requestId } = requestInfo);
+            accessLogs.push({
+                log: doc,
+                requestId
+            });
             operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).push(
                 this.databaseBulkInserter.getOperationForResourceAsync({
                     requestId,
@@ -284,6 +297,9 @@ class AccessLogger {
                     }
                 });
             }
+        }
+        if (accessLogs.length > 0) {
+            await this.accessEventProducer.produce(accessLogs);
         }
     }
 }
