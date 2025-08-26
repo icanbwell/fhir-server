@@ -9,6 +9,7 @@ const patientSummaryGraph = require("../../graphs/patient/summary.json");
 const personSummaryGraph = require("../../graphs/person/summary.json");
 const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
 const {ComprehensiveIPSCompositionBuilder, TBundle} = require("@imranq2/fhirpatientsummary");
+const deepcopy = require('deepcopy');
 
 class SummaryOperation {
     /**
@@ -121,7 +122,7 @@ class SummaryOperation {
         });
 
         try {
-            const {_type: resourceFilter, headers} = parsedArgs;
+            const {_type: resourceFilter, headers, id} = parsedArgs;
             const supportLegacyId = false;
 
             if (resourceFilter) {
@@ -151,8 +152,8 @@ class SummaryOperation {
 
             // set global_id to true
             const updatedHeaders = {
-                ...headers,
-                prefer: 'global_id=true'
+                prefer: 'global_id=true',
+                ...headers
             };
             parsedArgs.headers = updatedHeaders;
 
@@ -167,13 +168,17 @@ class SummaryOperation {
                     ? `&_lastUpdated=${lastUpdated.join(',')}`
                     : `&_lastUpdated=${lastUpdated}`;
 
-                parsedArgs.resource.link.forEach((link) => {
+                const summaryGraph = deepcopy(parsedArgs.resource);
+
+                summaryGraph.link.forEach((link) => {
                     link.target.forEach((target) => {
-                        if (target.params) {
+                        if (target.params && target.type !== "Patient") {
                             target.params += lastUpdatedQueryParam;
                         }
                     });
                 });
+
+                parsedArgs.resource = summaryGraph;
             }
 
             /**
@@ -191,11 +196,20 @@ class SummaryOperation {
 
             if (!result || !result.entry || result.entry.length === 0) {
                 // no resources found
-                return undefined;
+                if (responseStreamer) {
+                    responseStreamer.setBundle({bundle: result});
+                    return undefined;
+                }
+                else {
+                    return result;
+                }
             }
 
             const builder = new ComprehensiveIPSCompositionBuilder();
             const timezone = this.configManager.serverTimeZone;
+
+            // set proxy patient id if available
+            const summaryPatientId = id.includes(',') ? id.split(',').filter((id) => id.startsWith('person.'))?.[0] : undefined;
             await builder.readBundleAsync(
                 /** @type {TBundle} */ (result),
                 timezone
@@ -205,7 +219,8 @@ class SummaryOperation {
                 this.configManager.summaryGeneratorOrganizationId,
                 this.configManager.summaryGeneratorOrganizationName,
                 this.configManager.summaryGeneratorOrganizationBaseUrl,
-                timezone
+                timezone,
+                summaryPatientId
             );
 
             // add meta information from $graph result
