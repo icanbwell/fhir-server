@@ -4,7 +4,7 @@
       "resource": {
         "birthDate": "2017-01-01",
         "gender": "female",
-        "id": "person.person2",
+        "id": "24a5930e-11b4-5525-b482-669174917044",
         "identifier": [
           {
             "id": "sourceId",
@@ -174,7 +174,7 @@
               "valueString": "healthsystem1"
             }
           ],
-          "reference": "Patient/person.person2"
+          "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
         },
         "valueBoolean": false
       }
@@ -216,7 +216,7 @@
                   "valueString": "healthsystem1"
                 }
               ],
-              "reference": "Patient/person.person2"
+              "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
             },
             "type": "seealso"
           }
@@ -464,7 +464,7 @@
               "valueString": "healthsystem2"
             }
           ],
-          "reference": "Patient/person.person2"
+          "reference": "Patient/dc1946f6-aed3-599f-8f8d-dd543a094589"
         },
         "valueBoolean": false
       }
@@ -473,7 +473,7 @@
       "resource": {
         "birthDate": "2017-01-01",
         "gender": "female",
-        "id": "person.person2",
+        "id": "dc1946f6-aed3-599f-8f8d-dd543a094589",
         "identifier": [
           {
             "id": "sourceId",
