@@ -5,7 +5,7 @@ const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
 
 /**
- * This class is used to produce kafka events for bulk export
+ * This class is used to produce kafka events for access-logs
  */
 class AccessEventProducer {
     /**
@@ -45,7 +45,7 @@ class AccessEventProducer {
         const message = {
             specversion: '1.0',
             id: generateUUID(),
-            type: "access-log",
+            type: "access-logs",
             datacontenttype: 'application/json',
             data
         };
@@ -59,7 +59,7 @@ class AccessEventProducer {
      */
     async produce(logsData) {
         try {
-            if (!this.configManager.kafkaEnableExportEvents) {
+            if (!this.configManager.kafkaEnableAccessLogEvents) {
                 return;
             }
 

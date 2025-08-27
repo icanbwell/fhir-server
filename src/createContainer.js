@@ -447,7 +447,7 @@ const createContainer = function () {
     container.register('accessEventProducer', (c) => new AccessEventProducer(
             {
                 kafkaClient: c.kafkaClient,
-                accessLogEventsTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
+                accessLogEventsTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events',
                 configManager: c.configManager
             }
         )

@@ -271,6 +271,9 @@ class AccessLogger {
                 })
             );
         }
+        if (accessLogs.length > 0) {
+            await this.accessEventProducer.produce(accessLogs);
+        }
         if (operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).length > 0) {
             const requestInfo = currentQueue[0].requestInfo;
             /**
@@ -297,9 +300,6 @@ class AccessLogger {
                     }
                 });
             }
-        }
-        if (accessLogs.length > 0) {
-            await this.accessEventProducer.produce(accessLogs);
         }
     }
 }

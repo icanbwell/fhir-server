@@ -498,6 +498,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to send access-log events to kafka
+     * @return {boolean}
+     */
+    get kafkaEnableAccessLogEvents() {
+        return isTrue(env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS);
+    }
+
+    /**
      * whether to rewrite patient references to proxy-patient reference
      */
     get rewritePatientReference() {
