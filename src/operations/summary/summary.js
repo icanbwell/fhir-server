@@ -10,6 +10,8 @@ const personSummaryGraph = require("../../graphs/person/summary.json");
 const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
 const {ComprehensiveIPSCompositionBuilder, TBundle} = require("@imranq2/fhirpatientsummary");
 const deepcopy = require('deepcopy');
+const { ParsedArgsItem } = require('../query/parsedArgsItem');
+const { QueryParameterValue } = require('../query/queryParameterValue');
 
 class SummaryOperation {
     /**
@@ -181,6 +183,21 @@ class SummaryOperation {
                 parsedArgs.resource = summaryGraph;
             }
 
+            // disable rewrite proxy patient rewrite by default
+            if (!parsedArgs._rewritePatientReference) {
+                parsedArgs.add(
+                    new ParsedArgsItem({
+                        queryParameter: '_rewritePatientReference',
+                        queryParameterValue: new QueryParameterValue({
+                            value: false,
+                            operator: '$and'
+                        }),
+                        modifiers: [],
+                        patientToPersonMap: undefined
+                    })
+                );
+            }
+
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
              */
@@ -209,7 +226,7 @@ class SummaryOperation {
             const timezone = this.configManager.serverTimeZone;
 
             // set proxy patient id if available
-            const summaryPatientId = id.includes(',') ? id.split(',').filter((id) => id.startsWith('person.'))?.[0] : undefined;
+            const summaryPatientId = Array.isArray(id) && id.length > 1 ? id.filter((id) => id.startsWith('person.'))?.[0] : undefined;
             await builder.readBundleAsync(
                 /** @type {TBundle} */ (result),
                 timezone
