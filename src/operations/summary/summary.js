@@ -183,7 +183,7 @@ class SummaryOperation {
                 parsedArgs.resource = summaryGraph;
             }
 
-            // disable rewrite proxy patient rewrite by default
+            // disable proxy patient rewrite by default
             if (!parsedArgs._rewritePatientReference) {
                 parsedArgs.add(
                     new ParsedArgsItem({
@@ -226,7 +226,10 @@ class SummaryOperation {
             const timezone = this.configManager.serverTimeZone;
 
             // set proxy patient id if available
-            const summaryPatientId = Array.isArray(id) && id.length > 1 ? id.filter((id) => id.startsWith('person.'))?.[0] : undefined;
+            const summaryPatientId =
+                Array.isArray(id) && id.length > 1
+                    ? id.filter((patientId) => patientId.startsWith('person.'))?.[0]
+                    : undefined;
             await builder.readBundleAsync(
                 /** @type {TBundle} */ (result),
                 timezone
