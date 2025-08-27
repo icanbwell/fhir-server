@@ -15,7 +15,7 @@ const { ScopesManager } = require('../operations/security/scopesManager');
 const { ConfigManager } = require('./configManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
-const { AccessEventProducer } = require('./accessEventProducer');
+const { AccessLogsEventProducer } = require('./accessLogsEventProducer');
 const mutex = new Mutex();
 
 class AccessLogger {
@@ -28,7 +28,7 @@ class AccessLogger {
      * @property {string|null} imageVersion
      * @property {ConfigManager} configManager
      * @property {DatabaseBulkInserter} databaseBulkInserter
-     * @property {AccessEventProducer} accessEventProducer
+     * @property {AccessLogsEventProducer} accessLogsEventProducer
      *
      * @param {params}
      */
@@ -39,7 +39,7 @@ class AccessLogger {
         imageVersion,
         configManager,
         databaseBulkInserter,
-        accessEventProducer
+        accessLogsEventProducer
     }) {
         /**
          * @type {ScopesManager}
@@ -73,10 +73,10 @@ class AccessLogger {
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
         /**
-         * @type {AccessEventProducer}
+         * @type {AccessLogsEventProducer}
          */
-        this.accessEventProducer = accessEventProducer;
-        assertTypeEquals(accessEventProducer, AccessEventProducer);
+        this.accessLogsEventProducer = accessLogsEventProducer;
+        assertTypeEquals(accessLogsEventProducer, AccessLogsEventProducer);
         /**
          * @type {object[]}
          */
@@ -272,7 +272,7 @@ class AccessLogger {
             );
         }
         if (accessLogs.length > 0) {
-            await this.accessEventProducer.produce(accessLogs);
+            await this.accessLogsEventProducer.produce(accessLogs);
         }
         if (operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).length > 0) {
             const requestInfo = currentQueue[0].requestInfo;

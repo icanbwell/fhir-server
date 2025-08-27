@@ -36,7 +36,7 @@ describe('AccessLogs Tests', () => {
                             fhirOperationsManager: c.fhirOperationsManager,
                             configManager: c.configManager,
                             databaseBulkInserter: c.databaseBulkInserter,
-                            accessEventProducer: c.accessEventProducer
+                            accessLogsEventProducer: c.accessLogsEventProducer
                         })
                 );
                 return container;
@@ -79,7 +79,7 @@ describe('AccessLogs Tests', () => {
                             fhirOperationsManager: c.fhirOperationsManager,
                             configManager: c.configManager,
                             databaseBulkInserter: c.databaseBulkInserter,
-                            accessEventProducer: c.accessEventProducer
+                            accessLogsEventProducer: c.accessLogsEventProducer
                         })
                 );
                 return container;

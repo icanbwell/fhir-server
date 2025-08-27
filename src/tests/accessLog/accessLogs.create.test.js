@@ -26,7 +26,7 @@ describe('AccessLogs Tests', () => {
 
     describe('AccessLogs create Tests', () => {
         test('Access Log is created', async () => {
-            const kafkaEnableAccessLogEvents = process.env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS;
+            const kafkaEnableAccessLogsEvent = process.env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS;
             process.env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS = 'true';
 
             /**
@@ -39,7 +39,7 @@ describe('AccessLogs Tests', () => {
                     fhirOperationsManager: c.fhirOperationsManager,
                     configManager: c.configManager,
                     databaseBulkInserter: c.databaseBulkInserter,
-                    accessEventProducer: c.accessEventProducer
+                    accessLogsEventProducer: c.accessLogsEventProducer
                 }));
                 container.register(
                     'kafkaClient',
@@ -124,7 +124,7 @@ describe('AccessLogs Tests', () => {
                 }
             });
 
-            process.env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS = kafkaEnableAccessLogEvents;
+            process.env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS = kafkaEnableAccessLogsEvent;
         });
 
         test('AccessLog is called every time as expected', async () => {

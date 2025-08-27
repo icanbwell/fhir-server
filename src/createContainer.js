@@ -119,7 +119,7 @@ const { PatientDataViewControlManager } = require('./utils/patientDataViewContro
 const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
-const { AccessEventProducer } = require('./utils/accessEventProducer');
+const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 
 /**
  * Creates a container and sets up all the services
@@ -440,14 +440,14 @@ const createContainer = function () {
                 imageVersion: getImageVersion(),
                 configManager: c.configManager,
                 databaseBulkInserter: c.databaseBulkInserter,
-                accessEventProducer: c.accessEventProducer
+                accessLogsEventProducer: c.accessLogsEventProducer
             }
         )
     );
-    container.register('accessEventProducer', (c) => new AccessEventProducer(
+    container.register('accessLogsEventProducer', (c) => new AccessLogsEventProducer(
             {
                 kafkaClient: c.kafkaClient,
-                accessLogEventsTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events',
+                accessLogsEventTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events',
                 configManager: c.configManager
             }
         )

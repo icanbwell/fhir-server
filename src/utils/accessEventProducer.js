@@ -7,17 +7,17 @@ const { ConfigManager } = require('./configManager');
 /**
  * This class is used to produce kafka events for access-logs
  */
-class AccessEventProducer {
+class AccessLogsEventProducer {
     /**
      * Constructor
      * @typedef {Object} Params
      * @property {KafkaClient} kafkaClient
-     * @property {string} accessLogEventsTopic
+     * @property {string} accessLogsEventTopic
      * @property {ConfigManager} configManager
      *
      * @param {Params} params
      */
-    constructor({ kafkaClient, accessLogEventsTopic, configManager }) {
+    constructor({ kafkaClient, accessLogsEventTopic, configManager }) {
         /**
          * @type {KafkaClient}
          */
@@ -26,8 +26,8 @@ class AccessEventProducer {
         /**
          * @type {string}
          */
-        this.accessLogEventsTopic = accessLogEventsTopic;
-        assertIsValid(accessLogEventsTopic);
+        this.accessLogsEventTopic = accessLogsEventTopic;
+        assertIsValid(accessLogsEventTopic);
         /**
          * @type {ConfigManager}
          */
@@ -59,7 +59,7 @@ class AccessEventProducer {
      */
     async produce(logsData) {
         try {
-            if (!this.configManager.kafkaEnableAccessLogEvents) {
+            if (!this.configManager.kafkaEnableAccessLogsEvent) {
                 return;
             }
 
@@ -73,10 +73,10 @@ class AccessEventProducer {
                 };
             });
 
-            await this.kafkaClient.sendMessagesAsync(this.accessLogEventsTopic, messages);
+            await this.kafkaClient.sendMessagesAsync(this.accessLogsEventTopic, messages);
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in AccessEventProducer.produce(): ',
+                message: 'Error in AccessLogsEventProducer.produce(): ',
                 error: e.stack,
                 args: {
                     message: e.message
@@ -87,5 +87,5 @@ class AccessEventProducer {
 }
 
 module.exports = {
-    AccessEventProducer
+    AccessLogsEventProducer
 };

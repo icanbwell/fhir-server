@@ -501,7 +501,7 @@ class ConfigManager {
      * whether to send access-log events to kafka
      * @return {boolean}
      */
-    get kafkaEnableAccessLogEvents() {
+    get kafkaEnableAccessLogsEvent() {
         return isTrue(env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS);
     }
 
