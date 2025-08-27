@@ -102,7 +102,7 @@ describe('AccessLogs Tests', () => {
                     },
                     details: {
                         version: 'undefined',
-                        host: 'Shubham-GoelMacBook-Air',
+                        host: expect.any(String),
                         contentType: 'application/fhir+json',
                         accept: 'application/fhir+json',
                         originService: 'test-server',
