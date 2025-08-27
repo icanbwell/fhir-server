@@ -29,9 +29,7 @@ const {shouldStreamResponse} = require('../utils/requestHelpers');
 const {ParametersBodyParser} = require('./common/parametersBodyParser');
 const {
     fhirContentTypes,
-    hasNdJsonContentType,
-    hasCsvContentType,
-    hasExcelContentType
+    hasNdJsonContentType
 } = require('../utils/contentTypes');
 const {ExportByIdOperation} = require('./export/exportById');
 const {FhirResponseNdJsonStreamer} = require('../utils/fhirResponseNdJsonStreamer');
@@ -41,12 +39,9 @@ const {vulcanIgSearchQueries} = require('./query/customQueries');
 const {ParsedArgs} = require('./query/parsedArgs');
 const {getNestedValueByPath} = require('../utils/object');
 const {ConfigManager} = require('../utils/configManager');
-const {FhirResponseCsvStreamer} = require("../utils/fhirResponseCsvStreamer");
-const {FhirResponseExcelStreamer} = require("../utils/fhirResponseExcelStreamer");
 const {SummaryOperation} = require("./summary/summary");
 const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
-
-// const {shouldStreamResponse} = require('../utils/requestHelpers');
+const { BadRequestError } = require('../utils/httpErrors');
 
 class FhirOperationsManager {
     /**
@@ -322,14 +317,20 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @param {Object|undefined} [headers]
      * @param {string} operation
+     * @param {boolean} [allowMultipleIds=true]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({args, resourceType, headers, operation}) {
+    async getParsedArgsAsync({args, resourceType, headers, operation, allowMultipleIds = true}) {
         const {base_version} = args;
         /**
          * @type {ParsedArgs}
          */
         let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+
+        if (!allowMultipleIds && parsedArgs.id?.includes(',')) {
+            throw new BadRequestError(new Error('Multiple IDs are not allowed'));
+        }
+
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
@@ -781,9 +782,12 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
-        );
+            args: combined_args,
+            resourceType,
+            headers: req.headers,
+            operation: READ,
+            allowMultipleIds: false
+        });
 
         /**
          * @type {FhirRequestInfo}
@@ -803,10 +807,7 @@ class FhirOperationsManager {
         await responseStreamer.startAsync();
 
         try {
-            /**
-             * @type {Bundle}
-             */
-            const result = await this.summaryOperation.summaryAsync(
+            await this.summaryOperation.summaryAsync(
                 {
                     requestInfo,
                     res,

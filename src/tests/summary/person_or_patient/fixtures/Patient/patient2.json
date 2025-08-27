@@ -19,8 +19,8 @@
     "name": [
         {
             "use": "usual",
-            "text": "t",
-            "family": "PATIENT1",
+            "text": "patient2",
+            "family": "PATIENT2",
             "given": ["SHYLA"],
             "prefix": [],
             "suffix": []

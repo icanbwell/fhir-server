@@ -19,7 +19,7 @@
     "name": [
         {
             "use": "usual",
-            "text": "t",
+            "text": "patient1",
             "family": "PATIENT1",
             "given": ["SHYLA"],
             "prefix": [],
