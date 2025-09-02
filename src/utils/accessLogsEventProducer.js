@@ -1,8 +1,8 @@
 const { generateUUID } = require('./uid.util');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { KafkaClient } = require('./kafkaClient');
-const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
+const { logError } = require('../operations/common/logging');
 
 /**
  * This class is used to produce kafka events for access-logs
@@ -75,11 +75,10 @@ class AccessLogsEventProducer {
 
             await this.kafkaClient.sendMessagesAsync(this.accessLogsEventTopic, messages);
         } catch (e) {
-            throw new RethrownError({
-                message: 'Error in AccessLogsEventProducer.produce(): ',
-                error: e.stack,
+            logError('Error in AccessLogsEventProducer.produce()', {
                 args: {
-                    message: e.message
+                    message: e.message,
+                    error: e.stack
                 }
             });
         }
