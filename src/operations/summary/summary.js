@@ -226,13 +226,14 @@ class SummaryOperation {
             const timezone = this.configManager.serverTimeZone;
 
             // set proxy patient id if available
-            const summaryPatientId =
+            const proxyPatientId =
                 Array.isArray(id) && id.length > 1
                     ? id.filter((patientId) => patientId.startsWith('person.'))?.[0]
                     : undefined;
             await builder.readBundleAsync(
                 /** @type {TBundle} */ (result),
-                timezone
+                timezone,
+                proxyPatientId ? true : false
             );
             // noinspection JSCheckFunctionSignatures
             const summaryBundle = await builder.buildBundleAsync(
@@ -240,7 +241,7 @@ class SummaryOperation {
                 this.configManager.summaryGeneratorOrganizationName,
                 this.configManager.summaryGeneratorOrganizationBaseUrl,
                 timezone,
-                summaryPatientId
+                proxyPatientId
             );
 
             // add meta information from $graph result
