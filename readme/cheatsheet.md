@@ -260,6 +260,13 @@ FHIR Server uses the SMART on FHIR scopes:
 
 See [Security](security.md) for details.
 
+## 9. Additional Notes for FHIR Server
+
+- The request body sent to FHIR Server is parsed using `express.json()` method which updates the values of decimals in accordance with IEEE 754 floating-point standard.
+    - This provides approximately 15-17 significant decimal digits of precision
+    - The exact number of decimal places preserved depends on the magnitude of the number
+    - This will be updated in future in accordance with FHIR Standard: [https://www.hl7.org/fhir/R4B/json.html#decimal](https://www.hl7.org/fhir/R4B/json.html#decimal)
+
 ## Fhir Client SDK
 
 This is a python package that can make it easier to talk to FHIR servers. Note this is optional; You can talk to our FHIR server using standard HTTP REST API.
