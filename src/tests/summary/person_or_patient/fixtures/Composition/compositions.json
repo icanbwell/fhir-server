@@ -204,6 +204,129 @@
     }
   },
   {
+    "id": "f46e14e8-c523-5f82-8fac-ed44cdf05d27",
+    "status": "final",
+    "date": "2025-01-01",
+    "author": [
+      {
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "subject": {
+        "reference": "Patient/patient1"
+    },
+    "title": "summary",
+    "meta": {
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "entry": [
+          {
+            "reference": "CarePlan/3d6ddb89-9edd-4fec-8553-ebb8ecb338a8"
+          }
+        ],
+        "section": [
+          {
+            "title": "CarePlan Name",
+            "text": {
+              "status": "generated",
+              "div": "Weight management plan"
+            }
+          },
+          {
+            "title": "created"
+          },
+          {
+            "title": "period.start",
+            "text": {
+              "status": "generated",
+              "div": "2012-03-03T01:45:51+00:00"
+            }
+          },
+          {
+            "title": "period.end",
+            "text": {
+              "status": "generated",
+              "div": "2026-06-01T00:00:00+00:00"
+            }
+          },
+          {
+            "title": "status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "reference": "CarePlan/b9ce7293-0b8a-43e5-a884-e208fb6c128d1"
+          }
+        ],
+        "section": [
+          {
+            "title": "CarePlan Name",
+            "text": {
+              "status": "generated",
+              "div": "New Care Plan"
+            }
+          },
+          {
+            "title": "created",
+            "text": {
+              "status": "generated",
+              "div": "2012-03-03T01:45:51+00:00"
+            }
+          },
+          {
+            "title": "period.start",
+            "text": {
+              "status": "generated",
+              "div": "2012-03-03T01:45:51+00:00"
+            }
+          },
+          {
+            "title": "period.end",
+            "text": {
+              "status": "generated",
+              "div": "2013-03-03T01:45:51+00:00"
+            }
+          },
+          {
+            "title": "status",
+            "text": {
+              "status": "generated",
+              "div": "on-hold"
+            }
+          }
+        ]
+      }
+    ],
+    "type": {
+      "coding": [
+        {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+          "code": "careplan_summary_document"
+        }
+      ]
+    }
+  },
+  {
     "id": "a7561966-95de-58f4-a919-1b4964122313",
     "status": "final",
     "date": "2025-01-01",
