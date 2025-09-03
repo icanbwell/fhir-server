@@ -1,0 +1,278 @@
+[
+  {
+    "id": "f46e14e8-c523-5f82-8fac-49ec548a3722",
+    "status": "final",
+    "date": "2025-01-01",
+    "author": [
+      {
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "subject": {
+        "reference": "Patient/patient1"
+    },
+    "title": "summary",
+    "meta": {
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "id": "9463f1fc-fa47-5d25-939a-35c90b63a991",
+        "entry": [
+          {
+            "reference": "Observation/d8d704a7-49c1-4510-b283-3a05ea09e3937"
+          }
+        ],
+        "section": [
+          {
+            "title": "Vital Name",
+            "text": {
+              "div": "Heart rate",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "effectiveDateTime",
+            "text": {
+              "div": "2023-04-05T01:21:00+00:00",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "valueQuantity.value",
+            "text": {
+              "div": "69",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "valueQuantity.unit",
+            "text": {
+              "div": "/min",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "referenceRange.low.value",
+            "text": {
+              "div": "60",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "referenceRange.low.unit",
+            "text": {
+              "div": "/min",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "referenceRange.high.value",
+            "text": {
+              "div": "100",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "referenceRange.high.unit",
+            "text": {
+              "div": "/min",
+              "status": "generated"
+            }
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "reference": "Observation/a8d76bac-8218-459b-a1c5-5866a2910fb1"
+          }
+        ],
+        "section": [
+          {
+            "title": "Vital Name",
+            "text": {
+              "div": "Blood Pressure",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "effectiveDateTime",
+            "text": {
+              "div": "2023-01-01T09:00:00+00:00",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "referenceRange.low.value",
+            "text": {
+              "div": "7.5",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "referenceRange.low.unit",
+            "text": {
+              "div": "g/dl",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "referenceRange.high.value",
+            "text": {
+              "div": "10",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "referenceRange.high.unit",
+            "text": {
+              "div": "g/dl",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "Systolic Blood Pressure",
+            "section": [
+              {
+                "title": "Systolic Blood Pressure",
+                "section": [
+                  {
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "div": "120",
+                      "status": "generated"
+                    }
+                  },
+                  {
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "div": "mmHg",
+                      "status": "generated"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Diastolic Blood Pressure",
+            "section": [
+              {
+                "title": "Diastolic Blood Pressure",
+                "section": [
+                  {
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "div": "80",
+                      "status": "generated"
+                    }
+                  },
+                  {
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "div": "mmHg",
+                      "status": "generated"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "type": {
+      "coding": [
+        {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+          "code": "vital_summary_document"
+        }
+      ]
+    }
+  },
+  {
+    "id": "a7561966-95de-58f4-a919-1b4964122313",
+    "status": "final",
+    "date": "2025-01-01",
+    "author": [
+      {
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "title": "summary",
+    "subject": {
+        "reference": "Patient/patient1"
+    },
+    "meta": {
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "entry": [
+          {
+            "reference": "AllergyIntolerance/eWnSvqVtUdx9Y08zZy-RCwekkG16SLp1A9E5OJknfJX43"
+          },
+          {
+            "reference": "AllergyIntolerance/1242bfe3-7638-4477-a491-cf47403ced91"
+          }
+        ],
+        "section": [
+          {
+            "title": "Allergen Name",
+            "text": {
+              "div": "Cashew",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "Criticality",
+            "text": {
+              "div": "low",
+              "status": "generated"
+            }
+          },
+          {
+            "title": "Recorded Date",
+            "text": {
+              "div": "2012-01-03T00:00:00+00:00",
+              "status": "generated"
+            }
+          }
+        ]
+      }
+    ],
+    "type": {
+      "coding": [
+        {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+          "code": "allergy_summary_document"
+        }
+      ]
+    }
+  }
+]
