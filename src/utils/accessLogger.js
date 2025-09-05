@@ -221,6 +221,10 @@ class AccessLogger {
         };
 
         this.queue.push({ doc: logEntry, requestInfo });
+
+        if (this.queue.length >= this.configManager.accessLogQueueSize) {
+            await this.flushAsync();
+        }
     }
 
     /**

@@ -532,6 +532,10 @@ class ConfigManager {
         return env.POST_REQUEST_FLUSH_TIME || '*/10 * * * * *';
     }
 
+    get accessLogQueueSize() {
+        return parseInt(env.ACCESS_LOG_QUEUE_SIZE) || 100;
+    }
+
     /**
      * returns the buffer size for post request processes
      * @returns {number}
