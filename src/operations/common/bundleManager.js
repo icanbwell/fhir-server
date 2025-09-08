@@ -186,6 +186,86 @@ class BundleManager {
             };
         });
 
+        return this.createRawBundleFromEntries(
+            {
+                requestId,
+                type,
+                originalUrl,
+                host,
+                protocol,
+                last_id,
+                entries,
+                base_version,
+                total_count,
+                parsedArgs,
+                originalQuery,
+                databaseName,
+                originalOptions,
+                columns,
+                stopTime,
+                startTime,
+                useTwoStepSearchOptimization,
+                indexHint,
+                cursorBatchSize,
+                user,
+                explanations,
+                allCollectionsToSearch
+            });
+
+    }
+
+    /**
+     * creates a raw bundle from the given resources
+     * @param {string} requestId
+     * @param {string} type
+     * @param {string | null} originalUrl
+     * @param {string | null} host
+     * @param {string | null} protocol
+     * @param {string | null} [last_id]
+     * @param {BundleEntry[]} entries
+     * @param {number|null} [total_count]
+     * @param {ParsedArgs} parsedArgs
+     * @param {QueryItem|QueryItem[]} originalQuery
+     * @param {string | undefined} [databaseName]
+     * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
+     * @param {Set|undefined} [columns]
+     * @param {number} stopTime
+     * @param {number} startTime
+     * @param {boolean|undefined} [useTwoStepSearchOptimization]
+     * @param {string|undefined} [indexHint]
+     * @param {number | undefined} [cursorBatchSize]
+     * @param {string | null} user
+     * @param {import('mongodb').Document[]} explanations
+     * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {string | null} [lastResourceLastUpdated]
+     * @return {Bundle}
+     */
+    createRawBundleFromEntries (
+        {
+            requestId,
+            type,
+            originalUrl,
+            host,
+            protocol,
+            last_id,
+            entries,
+            total_count,
+            parsedArgs,
+            originalQuery,
+            databaseName,
+            originalOptions,
+            columns,
+            stopTime,
+            startTime,
+            useTwoStepSearchOptimization,
+            indexHint,
+            cursorBatchSize,
+            user,
+            explanations,
+            allCollectionsToSearch,
+            lastResourceLastUpdated
+    }) {
+
         if (Array.isArray(originalQuery)) {
             for (const q of originalQuery) {
                 assertTypeEquals(q, QueryItem);
@@ -200,7 +280,7 @@ class BundleManager {
         let link = null;
         // find id of last resource
         if (originalUrl) {
-            if (last_id) {
+            if (last_id || lastResourceLastUpdated) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';
                 /**
@@ -208,8 +288,13 @@ class BundleManager {
                  * @type {URL}
                  */
                 const nextUrl = new URL(originalUrl, baseUrl);
-                // add or update the id:above param
-                nextUrl.searchParams.set('id:above', `${last_id}`);
+                // add pagination param
+                if (last_id) {
+                    nextUrl.searchParams.set('id:above', `${last_id}`);
+                }
+                else if (lastResourceLastUpdated) {
+                    nextUrl.searchParams.set('_lastUpdated', `lt${lastResourceLastUpdated}`);
+                }
                 // remove the _getpagesoffset param since that will skip again from this id
                 nextUrl.searchParams.delete('_getpagesoffset');
                 link = [

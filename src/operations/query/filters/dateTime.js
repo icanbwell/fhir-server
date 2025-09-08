@@ -9,7 +9,6 @@ const { isColumnDateTimeType } = require('../../common/isColumnDateTimeType');
 const { BaseFilter } = require('./baseFilter');
 const { isTrue } = require('../../../utils/isTrue');
 const { isFalse } = require('../../../utils/isFalse');
-const {BadRequestError} = require("../../../utils/httpErrors");
 
 function isPeriodField (fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';
@@ -58,7 +57,7 @@ class FilterByDateTime extends BaseFilter {
                 );
             } else {
                 // if this is date as a string
-                if (!isColumnDateTimeType(this.resourceType, fieldName)) {
+                if (!isColumnDateTimeType(this.resourceType, fieldName, this.fieldMapper.useHistoryTable)) {
                     const regex = /([a-z]+)(.+)/;
                     const match = value.match(regex);
                     if (match && match[1] && match[1] === 'ap') {
@@ -81,7 +80,7 @@ class FilterByDateTime extends BaseFilter {
         // if this of native Date type
         // this field stores the date as a native date, so we can do faster queries
         if (this.filterType === 'date') {
-            if (isColumnDateTimeType(this.resourceType, fieldName)) {
+            if (isColumnDateTimeType(this.resourceType, fieldName, this.fieldMapper.useHistoryTable)) {
                 dateQuery = {
                     [fieldName]: dateQueryBuilderNative(
                         {
@@ -156,7 +155,7 @@ class FilterByDateTime extends BaseFilter {
             [queryParameterValue.operator]: childQueries
         };
 
-        if (isColumnDateTimeType(this.resourceType, this.fieldMapper.getFieldName(field)) &&
+        if (isColumnDateTimeType(this.resourceType, this.fieldMapper.getFieldName(field), this.fieldMapper.useHistoryTable) &&
             this.filterType === 'date') {
             const simplifiedRangeQuery = {};
             const newChildQueries = [];
