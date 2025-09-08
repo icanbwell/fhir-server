@@ -16,6 +16,7 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY, DB_SEARCH_LIMIT } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { ScopesManager } = require('../security/scopesManager');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 class BaseHistoryOperationProcessor {
     /**
@@ -318,7 +319,6 @@ class BaseHistoryOperationProcessor {
                     if (!historyResource.resource.resourceType) {
                         historyResource.resource.resourceType = resourceType;
                     }
-                    historyResource = new BundleEntry(historyResource);
                 } else {
                     historyResource = new BundleEntry({
                         historyResource,
@@ -328,7 +328,7 @@ class BaseHistoryOperationProcessor {
                             base_version,
                             historyResource
                         })
-                    });
+                    }).toJSONInternal();
                 }
                 historyResource.resource = await this.databaseAttachmentManager.transformAttachments(
                     historyResource.resource,
@@ -360,7 +360,7 @@ class BaseHistoryOperationProcessor {
         //    reason a resource might be missing is that the resource was changed by some other channel
         //    rather than via the RESTful interface.
         //    If the entry.request.method is a PUT or a POST, the entry SHALL contain a resource.
-        return this.bundleManager.createBundleFromEntries(
+        const resultBundle = this.bundleManager.createRawBundleFromEntries(
             {
                 type: 'history',
                 requestId: requestInfo.userRequestId,
@@ -386,6 +386,11 @@ class BaseHistoryOperationProcessor {
                 lastResourceLastUpdated
             }
         );
+
+        // serialize bundle
+        FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
+
+        return resultBundle;
     }
 }
 
