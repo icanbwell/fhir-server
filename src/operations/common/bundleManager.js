@@ -292,7 +292,7 @@ class BundleManager {
                 if (last_id) {
                     nextUrl.searchParams.set('id:above', `${last_id}`);
                 }
-                if (lastResourceLastUpdated) {
+                else if (lastResourceLastUpdated) {
                     nextUrl.searchParams.set('_lastUpdated', `lt${lastResourceLastUpdated}`);
                 }
                 // remove the _getpagesoffset param since that will skip again from this id

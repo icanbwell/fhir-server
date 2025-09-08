@@ -6,6 +6,7 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 const expectedObservationResourceCount1 = require('./fixtures/expected/expected_observation_count1.json');
 const expectedObservationResourceWithNextUrl = require('./fixtures/expected/expected_observation_next.json');
+const expectedObservationResourceSameLastUpdated = require('./fixtures/expected/expected_observation_same_lastUpdated.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -47,7 +48,7 @@ describe('Observation Tests', () => {
             observation1Resource.resource.meta.lastUpdated = new Date(observation1Resource.resource.meta.lastUpdated);
             observation2Resource.resource.meta.lastUpdated = new Date(observation2Resource.resource.meta.lastUpdated);
             await observationHistoryCollection.insertOne(observation1Resource);
-            await observationHistoryCollection.insertOne(observation2Resource);
+            await observationHistoryCollection.insertOne(observation2Resource.resource);
 
             // Both observation's history is returned even second one has hidden tag
             const resp = await request
@@ -61,7 +62,7 @@ describe('Observation Tests', () => {
                 },
                 {
                     relation: 'next',
-                    url: 'http://localhost:3000/4_0_0/Observation/_history?_debug=1&_lastUpdated=lt2023-02-16T01%3A12%3A00.000Z'
+                    url: 'http://localhost:3000/4_0_0/Observation/_history?_debug=1&_lastUpdated=lt2023-03-16T01%3A12%3A00.000Z'
                 }
             ]);
             // noinspection JSUnresolvedFunction
@@ -178,7 +179,7 @@ describe('Observation Tests', () => {
                 }
             ]);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationResources);
+            expect(resp).toHaveResponse(expectedObservationResourceSameLastUpdated);
         });
 
         test('History without id dont work for patient scope', async () => {

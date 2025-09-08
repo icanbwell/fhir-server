@@ -17,6 +17,7 @@ const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { getLastUpdatedISO } = require('../../utils/date.util');
 
 class BaseHistoryOperationProcessor {
     /**
@@ -264,7 +265,8 @@ class BaseHistoryOperationProcessor {
          * @type {string|null}
          */
         let lastResourceLastUpdated = null;
-        const limit = Number(_count) ?? DB_SEARCH_LIMIT;
+        const count = Number(_count);
+        const limit = !isNaN(count) ? count : DB_SEARCH_LIMIT;
 
         while (await cursor.hasNext()) {
             let historyResource = await cursor.next();
@@ -272,8 +274,12 @@ class BaseHistoryOperationProcessor {
                 throw new NotFoundError('Resource not found');
             }
 
+            const currentResourceLastUpdated = historyResource.resource
+                ? getLastUpdatedISO(historyResource.resource?.meta?.lastUpdated)
+                : getLastUpdatedISO(historyResource?.meta?.lastUpdated);
+
             // fetch all resource with same lastUpdated to allow consistent pagination
-            if (historyResources.length >= limit && lastResourceLastUpdated !== historyResource?.resource?.meta?.lastUpdated?.toISOString()) {
+            if (historyResources.length >= limit && lastResourceLastUpdated !== currentResourceLastUpdated) {
                 break;
             } else {
                 // save paths for cloud storage data to fetch in batch
@@ -284,7 +290,9 @@ class BaseHistoryOperationProcessor {
                 }
                 historyResources.push(historyResource);
 
-                lastResourceLastUpdated = historyResource?.resource?.meta?.lastUpdated?.toISOString();
+                lastResourceLastUpdated = historyResource.resource
+                    ? getLastUpdatedISO(historyResource.resource?.meta?.lastUpdated)
+                    : getLastUpdatedISO(historyResource?.meta?.lastUpdated);
             }
         }
 
@@ -320,15 +328,16 @@ class BaseHistoryOperationProcessor {
                         historyResource.resource.resourceType = resourceType;
                     }
                 } else {
-                    historyResource = new BundleEntry({
-                        historyResource,
+                    historyResource = {
+                        id: historyResource.id,
+                        resource: historyResource,
                         fullUrl: this.resourceManager.getFullUrlForResource({
                             protocol,
                             host,
                             base_version,
-                            historyResource
+                            resource: historyResource
                         })
-                    }).toJSONInternal();
+                    };
                 }
                 historyResource.resource = await this.databaseAttachmentManager.transformAttachments(
                     historyResource.resource,
