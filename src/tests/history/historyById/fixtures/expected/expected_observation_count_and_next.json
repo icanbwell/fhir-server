@@ -1,104 +1,80 @@
 {
   "entry": [
     {
-      "id": "0028735c-80ac-4d14-9e35-a097d01b0b28",
+      "id": "007ae95f-1ce4-43af-a881-7eeff3fd264e",
       "request": {
-        "method": "POST",
-        "url": "/4_0_0/Observation/0028735c-80ac-4d14-9e35-a097d01b0b28"
+        "method": "PUT",
+        "url": "/4_0_0/Observation/007ae95f-1ce4-43af-a881-7eeff3fd264e"
       },
       "resource": {
         "code": {
           "coding": [
             {
-              "id": "c57df200-b841-581e-9a6a-0b7067efc296",
-              "code": "APH1",
+              "code": "Rx",
               "system": "http://www.icanbwell.com/cql/library"
             },
             {
               "system": "http://www.icanbwell.com/cql/libraryVersion"
             },
             {
-              "id": "82fb6f97-ee79-52cd-b9b0-07043129e8df",
-              "code": "Completed_Output_Obs",
+              "code": "NoRx_ind_Output_Obs",
               "system": "http://www.icanbwell.com/cql/rule"
             }
           ]
         },
-        "effectiveDateTime": "2023-02-02T03:16:38+00:00",
+        "effectiveDateTime": "2023-02-10T08:34:04+00:00",
         "extension": [
           {
             "url": "https://www.icanbwell.com/sourceType",
             "valueString": "cql-engine"
           }
         ],
-        "id": "0028735c-80ac-4d14-9e35-a097d01b0b28",
+        "id": "007ae95f-1ce4-43af-a881-7eeff3fd264e",
         "identifier": [
           {
             "system": "https://www.icanbwell.com",
-            "value": "0074890c-bcdd-4a8e-9d7e-532e4ea8a702"
+            "value": "007ae95f-1ce4-43af-a881-7eeff3fd264e"
           },
           {
-            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
-            "value": "0028735c-80ac-4d14-9e35-a097d01b0b28"
+            "value": "007ae95f-1ce4-43af-a881-7eeff3fd264e"
           },
           {
-            "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "0028735c-80ac-4d14-9e35-a097d01b0b28"
+            "value": "007ae95f-1ce4-43af-a881-7eeff3fd264e"
           }
         ],
         "meta": {
           "security": [
             {
               "code": "bwell",
-              "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
               "system": "https://www.icanbwell.com/owner"
             },
             {
               "code": "bwell",
-              "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
               "system": "https://www.icanbwell.com/access"
             },
             {
               "code": "bwell",
-              "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://www.icanbwell.com/cql",
-          "versionId": "1"
+          "versionId": "2"
         },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/person.90000000-0000-0000-0000-000000000003"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/person.90000000-0000-0000-0000-000000000003"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "bwell"
-            }
-          ],
-          "reference": "Patient/person.90000000-0000-0000-0000-000000000003"
+          "reference": "Patient/person.14aacd66e74844e48d97571e85009508"
         },
-        "valueBoolean": false
+        "valueBoolean": true
       }
     }
   ],
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0_History.find({'resource._uuid':'0028735c-80ac-4d14-9e35-a097d01b0b28'}, {}).sort({'resource.meta.lastUpdated':-1})",
+        "display": "db.Observation_4_0_0_History.find({'$and':[{'resource.meta.lastUpdated':{'$lt':ISODate('2023-02-18T01:12:00.000Z')}},{'resource._uuid':'007ae95f-1ce4-43af-a881-7eeff3fd264e'}]}, {}).sort({'resource.meta.lastUpdated':-1})",
         "system": "https://www.icanbwell.com/query"
       },
       {

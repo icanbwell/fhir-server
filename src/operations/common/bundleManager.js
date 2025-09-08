@@ -359,6 +359,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {string | null} [lastResourceLastUpdated]
      * @return {Bundle}
      */
     createBundleFromEntries (
@@ -383,7 +384,8 @@ class BundleManager {
             cursorBatchSize,
             user,
             explanations,
-            allCollectionsToSearch
+            allCollectionsToSearch,
+            lastResourceLastUpdated
         }) {
         if (Array.isArray(originalQuery)) {
             for (const q of originalQuery) {
@@ -399,7 +401,7 @@ class BundleManager {
         let link = [];
         // find id of last resource
         if (originalUrl) {
-            if (last_id) {
+            if (last_id || lastResourceLastUpdated) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';
                 /**
@@ -407,8 +409,13 @@ class BundleManager {
                  * @type {URL}
                  */
                 const nextUrl = new URL(originalUrl, baseUrl);
-                // add or update the id:above param
-                nextUrl.searchParams.set('id:above', `${last_id}`);
+                // add pagination param
+                if (last_id) {
+                    nextUrl.searchParams.set('id:above', `${last_id}`);
+                }
+                if (lastResourceLastUpdated) {
+                    nextUrl.searchParams.set('_lastUpdated', `lt${lastResourceLastUpdated}`);
+                }
                 // remove the _getpagesoffset param since that will skip again from this id
                 nextUrl.searchParams.delete('_getpagesoffset');
                 link = [

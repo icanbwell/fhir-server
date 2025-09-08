@@ -19,7 +19,7 @@ class BaseFilter {
         this.parsedArg = filterParameters.parsedArg;
         assertIsValid(filterParameters.parsedArg, 'filterParameters.parsedArg is null');
         /**
-         * @type {FieldMapper}
+         * @type {import('./fieldMapper.js').FieldMapper}
          */
         this.fieldMapper = filterParameters.fieldMapper;
         assertIsValid(filterParameters.fieldMapper, 'filterParameters.fieldMapper is null');

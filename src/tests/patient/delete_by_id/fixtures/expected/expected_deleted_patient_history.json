@@ -64,7 +64,7 @@
             },
             "request": {
                 "id": "54b052c7-ce3d-4580-90f9-6f800b6c34e5",
-                "method": "POST",
+                "method": "DELETE",
                 "url": "/4_0_0/Patient/2"
             }
         },
@@ -122,7 +122,7 @@
             },
             "request": {
                 "id": "89dbb394-4cd1-4419-b32e-7e7160d15f95",
-                "method": "DELETE",
+                "method": "POST",
                 "url": "/4_0_0/Patient/2"
             }
         }

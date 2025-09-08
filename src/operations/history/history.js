@@ -13,11 +13,11 @@ const { ResourceManager } = require('../common/resourceManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY, DB_SEARCH_LIMIT } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { ScopesManager } = require('../security/scopesManager');
 
-class HistoryOperation {
+class BaseHistoryOperationProcessor {
     /**
      * constructor
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
@@ -113,17 +113,23 @@ class HistoryOperation {
     }
 
     /**
-     * does a FHIR History
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * fetch FHIR History
+     * @typedef {Object} FetchHistoryParams
+     * @property {FhirRequestInfo} requestInfo
+     * @property {ParsedArgs} parsedArgs
+     * @property {string} resourceType
+     *
+     * @param {FetchHistoryParams} params
      */
-    async historyAsync ({ requestInfo, parsedArgs, resourceType }) {
+    async fetchHistoryAsync({ requestInfo, parsedArgs, resourceType }) {
+        assertIsValid(this.currentOperationName !== undefined);
+        assertIsValid(this.errorMessagePostfix !== undefined);
         assertIsValid(requestInfo !== undefined);
         assertIsValid(parsedArgs !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
-        const currentOperationName = 'history';
+
+        const { currentOperationName, errorMessagePostfix } = this;
         /**
          * @type {number}
          */
@@ -171,7 +177,7 @@ class HistoryOperation {
         });
 
         // Common search params
-        const { base_version } = parsedArgs;
+        const { base_version, _count } = parsedArgs;
 
         /**
          * @type {boolean}
@@ -204,11 +210,10 @@ class HistoryOperation {
          */
         const options = {
             sort: {
-                'resource.meta.versionId': -1
+                'resource.meta.lastUpdated': -1
             }
         };
 
-        // Query our collection for this observation
         /**
          * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
          */
@@ -254,6 +259,11 @@ class HistoryOperation {
          * @type {object[]}
          */
         let historyResources = [];
+        /**
+         * @type {string|null}
+         */
+        let lastResourceLastUpdated = null;
+        const limit = Number(_count) ?? DB_SEARCH_LIMIT;
 
         while (await cursor.hasNext()) {
             let historyResource = await cursor.next();
@@ -261,16 +271,24 @@ class HistoryOperation {
                 throw new NotFoundError('Resource not found');
             }
 
-            // save paths for cloud storage data to fetch in batch
-            if (historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]) {
-                resourcesCloudStoragePaths.push(
-                    `${collectionName}/${historyResource?.resource?._uuid}/${historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]}.json`
-                );
+            // fetch all resource with same lastUpdated to allow consistent pagination
+            if (historyResources.length >= limit && lastResourceLastUpdated !== historyResource?.resource?.meta?.lastUpdated?.toISOString()) {
+                break;
+            } else {
+                // save paths for cloud storage data to fetch in batch
+                if (historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]) {
+                    resourcesCloudStoragePaths.push(
+                        `${collectionName}/${historyResource?.resource?._uuid}/${historyResource[RESOURCE_CLOUD_STORAGE_PATH_KEY]}.json`
+                    );
+                }
+                historyResources.push(historyResource);
+
+                lastResourceLastUpdated = historyResource?.resource?.meta?.lastUpdated?.toISOString();
             }
-            historyResources.push(historyResource);
         }
+
         if (historyResources.length === 0 && !parsedArgs._explain) {
-            throw new NotFoundError('Resource not found');
+            throw new NotFoundError('History not found ' + errorMessagePostfix);
         }
 
         if (
@@ -364,12 +382,28 @@ class HistoryOperation {
                 stopTime,
                 startTime,
                 user,
-                explanations
+                explanations,
+                lastResourceLastUpdated
             }
         );
     }
 }
 
+class HistoryOperation extends BaseHistoryOperationProcessor {
+    /**
+     * does a FHIR History
+     * @param {FhirRequestInfo} requestInfo
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} resourceType
+     */
+    async historyAsync ({ requestInfo, parsedArgs, resourceType }) {
+        this.currentOperationName = 'history';
+        this.errorMessagePostfix = `for ${resourceType} resources`;
+        return this.fetchHistoryAsync({ requestInfo, parsedArgs, resourceType });
+    }
+};
+
 module.exports = {
+    BaseHistoryOperationProcessor,
     HistoryOperation
 };
