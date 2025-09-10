@@ -66,9 +66,6 @@ Sample $everything result for patient
 - All non-clinical references in a resource are fetched upto recursive depth of 3 in case type is infinitely recursive. Otherwise references are fetched till max depth possible.
   Eg: in case of Consent resource, references upto depth `provision.provision.provision` are fetched but references in `provision.provision.provision.provision` are ignored.
 
-## Resources returned by Patient $everything
-Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, BiologicallyDerivedProduct, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, Linkage, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, PaymentNotice, Person, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, Subscription, SubscriptionStatus, SubscriptionTopic, SupplyDelivery, SupplyRequest, Task, VisionPrescription
-
 ## Search query parameters
 
 ### id
