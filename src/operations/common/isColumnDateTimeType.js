@@ -3,13 +3,18 @@
  * also covers instant type
  * @param {string} resourceType
  * @param {string} columnName
+ * @param {boolean} [isHistoryResource]
  * @returns {boolean}
  */
-function isColumnDateTimeType (resourceType, columnName) {
+function isColumnDateTimeType (resourceType, columnName, isHistoryResource = false) {
     if (!resourceType || !columnName) {
         return false;
     }
     if (columnName === 'meta.lastUpdated') {
+        return true;
+    }
+
+    if (isHistoryResource && columnName === 'resource.meta.lastUpdated') {
         return true;
     }
 

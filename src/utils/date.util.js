@@ -65,10 +65,21 @@ function isUTCDayDifferent (start, end) {
     return start.getUTCDay() !== end.getUTCDay();
 }
 
+/**
+ * Gets the last updated date in ISO format
+ * @param {*} lastUpdated
+ * @param {*} defaultValue
+ */
+const getLastUpdatedISO = (lastUpdated, defaultValue = null) => {
+    if (!lastUpdated) return defaultValue;
+    return lastUpdated instanceof Date ? lastUpdated.toISOString() : defaultValue;
+};
+
 // @TODO Update these, validateDate will always return something truthy and current
 // implementation checks the result to create a query, if given no dates, this could
 // create a query that returns unexpected results
 module.exports = {
+    getLastUpdatedISO,
     validateDate,
     isUTCDayDifferent
 };
