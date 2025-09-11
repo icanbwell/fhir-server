@@ -165,3 +165,14 @@ In `id` field, `uuid` is returned by default for all resources. This behaviour c
     prefer: 'global_id=false'
 }
 ```
+
+### Accept
+Accept header can be used to define the format of response you want to receive. By default `json` is returned if no Accept header is passed. Other possible format is `ndjson` and following values can be used to request the formats:
+- application/fhir+json
+- application/fhir+ndjson
+
+```
+{
+  Accept: 'application/fhir+json'
+}
+```
