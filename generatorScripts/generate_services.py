@@ -77,6 +77,12 @@ def main() -> int:
         }},
         {{
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        }},
+        {{
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'

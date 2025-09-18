@@ -21,6 +21,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -113,6 +119,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -213,6 +225,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -305,6 +323,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -405,6 +429,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -497,6 +527,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -597,6 +633,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -689,6 +731,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -789,6 +837,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -881,6 +935,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -981,6 +1041,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -1073,6 +1139,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -1173,6 +1245,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -1265,6 +1343,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -1365,6 +1449,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -1457,6 +1547,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -1557,6 +1653,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -1649,6 +1751,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -1749,6 +1857,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -1841,6 +1955,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -1941,6 +2061,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -2033,6 +2159,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -2133,6 +2265,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -2225,6 +2363,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -2325,6 +2469,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -2417,6 +2567,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -2517,6 +2673,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -2609,6 +2771,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -2709,6 +2877,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -2801,6 +2975,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -2901,6 +3081,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -2993,6 +3179,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -3093,6 +3285,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -3185,6 +3383,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -3285,6 +3489,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -3377,6 +3587,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -3477,6 +3693,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -3569,6 +3791,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -3669,6 +3897,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -3761,6 +3995,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -3861,6 +4101,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -3953,6 +4199,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -4053,6 +4305,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -4145,6 +4403,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -4245,6 +4509,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -4337,6 +4607,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -4437,6 +4713,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -4529,6 +4811,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -4629,6 +4917,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -4721,6 +5015,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -4821,6 +5121,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -4913,6 +5219,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -5013,6 +5325,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -5105,6 +5423,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -5205,6 +5529,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -5297,6 +5627,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -5397,6 +5733,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -5489,6 +5831,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -5589,6 +5937,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -5681,6 +6035,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -5781,6 +6141,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -5873,6 +6239,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -5973,6 +6345,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -6065,6 +6443,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -6165,6 +6549,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -6257,6 +6647,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -6357,6 +6753,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -6449,6 +6851,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -6549,6 +6957,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -6641,6 +7055,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -6741,6 +7161,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -6833,6 +7259,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -6933,6 +7365,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -7025,6 +7463,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -7125,6 +7569,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -7217,6 +7667,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -7317,6 +7773,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -7409,6 +7871,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -7509,6 +7977,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -7601,6 +8075,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -7701,6 +8181,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -7793,6 +8279,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -7893,6 +8385,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -7985,6 +8483,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -8085,6 +8589,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -8177,6 +8687,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -8277,6 +8793,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -8369,6 +8891,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -8469,6 +8997,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -8561,6 +9095,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -8661,6 +9201,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -8753,6 +9299,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -8853,6 +9405,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -8945,6 +9503,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -9045,6 +9609,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -9137,6 +9707,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -9237,6 +9813,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -9329,6 +9911,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -9429,6 +10017,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -9521,6 +10115,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -9621,6 +10221,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -9713,6 +10319,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -9813,6 +10425,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -9905,6 +10523,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -10005,6 +10629,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -10097,6 +10727,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -10197,6 +10833,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -10289,6 +10931,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -10389,6 +11037,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -10481,6 +11135,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -10581,6 +11241,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -10673,6 +11339,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -10773,6 +11445,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -10865,6 +11543,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -10965,6 +11649,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -11057,6 +11747,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -11157,6 +11853,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -11249,6 +11951,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -11349,6 +12057,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -11441,6 +12155,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -11541,6 +12261,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -11633,6 +12359,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -11733,6 +12465,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -11825,6 +12563,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -11925,6 +12669,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -12017,6 +12767,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -12117,6 +12873,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -12209,6 +12971,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -12309,6 +13077,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -12401,6 +13175,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -12501,6 +13281,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -12593,6 +13379,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -12693,6 +13485,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -12785,6 +13583,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -12885,6 +13689,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -12977,6 +13787,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -13077,6 +13893,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -13169,6 +13991,12 @@ const profiles = {
           name: 'everything',
           route: '/$everything',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
         },
         {
@@ -13269,6 +14097,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -13365,6 +14199,12 @@ const profiles = {
         },
         {
           name: 'everything',
+          route: '/$everything',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
+        },
+        {
+          name: 'everything',
           route: '/:id/$everything',
           method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html'
@@ -13442,7 +14282,7 @@ const profiles = {
           reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
         }
       ]
-    }
+    },
 };
 
 module.exports = {
