@@ -135,40 +135,25 @@ services:
     volumes:
       - ./keycloak-config/realm-import.json:/opt/keycloak/data/import/realm-import.json
 
-  zookeeper:
-    image: zookeeper:3.9.1
-    ports:
-      - '2181:2181'
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-    restart: on-failure
-    healthcheck:
-      test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
-
   kafka:
-    image: apache/kafka:3.5.1
+    image: apache/kafka:latest
     ports:
       - '9092:9092'
     environment:
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKAJS_NO_PARTITIONER_WARNING=1
-    depends_on:
-      - zookeeper
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
     healthcheck:
-      test:
-        [
-          'CMD',
-          'bash',
-          '-c',
-          'unset',
-          'JMX_PORT',
-          ';',
-          'kafka-topics.sh',
-          '--zookeeper',
-          'zookeeper:2181',
-          '--list',
-        ]
+      test: ['CMD-SHELL', '/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   # kafkaUI:
   #   image: provectuslabs/kafka-ui
