@@ -3,6 +3,8 @@
  */
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const { ConfigManager } = require('../../utils/configManager');
 const { BundleManager } = require('../common/bundleManager');
@@ -71,6 +73,8 @@ class EverythingHelper {
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
      * @property {PatientDataViewControlManager} patientDataViewControlManager
+     * @property {AuditLogger} auditLogger
+     * @property {PostRequestProcessor} postRequestProcessor
      *
      * @param {EverythingHelperParams}
      */
@@ -85,7 +89,9 @@ class EverythingHelper {
         searchParametersManager,
         everythingRelatedResourceMapper,
         customTracer,
-        patientDataViewControlManager
+        patientDataViewControlManager,
+        auditLogger,
+        postRequestProcessor
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -146,6 +152,18 @@ class EverythingHelper {
          * */
         this.patientDataViewControlManager = patientDataViewControlManager;
         assertTypeEquals(patientDataViewControlManager, PatientDataViewControlManager);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
 
         /**
          * @type {string[]}
@@ -250,6 +268,11 @@ class EverythingHelper {
              * @type {ResourceProccessedTracker}
              */
             let bundleEntryIdsProcessedTracker = new ResourceProccessedTracker();
+            /**
+             * @type {{id: string, resourceType: string}[]} - Track resource IDs with types for audit logging
+             */
+            let streamedResources = [];
+
 
             for (const idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();
@@ -277,7 +300,8 @@ class EverythingHelper {
                     entries: entries1,
                     queryItems: queryItems1,
                     options: options1,
-                    explanations: explanations1
+                    explanations: explanations1,
+                    streamedResources: streamedRes1
                 } = await this.retrieveEverythingMulipleIdsAsync(
                     {
                     base_version,
@@ -297,8 +321,8 @@ class EverythingHelper {
                 queryItems = queryItems.concat(queryItems1);
                 options = options.concat(options1);
                 explanations = explanations.concat(explanations1);
+                streamedResources = streamedResources.concat(streamedRes1 || []);
             }
-
             /**
              * @type {number}
              */
@@ -331,6 +355,53 @@ class EverythingHelper {
                 explanations
                 }
             );
+
+            // Log audit events for resources accessed (max 1000 per audit event per resource type)
+            // Works for both streaming and non-streaming modes
+            const resourcesToAudit = responseStreamer ? streamedResources : resources.map((r) => ({id: r.id, resourceType: r.resourceType}));
+
+            if (resourcesToAudit.length > 0 && resourceType !== 'AuditEvent') {
+                const requestId = requestInfo.requestId;
+                const maxResourcesPerAudit = 1000;
+
+                // Group resources by type for proper audit logging
+                const resourcesByType = new Map();
+
+                // Group by actual resource type from tracked data
+                resourcesToAudit.forEach(resource => {
+                    const type = resource.resourceType;
+                    if (!resourcesByType.has(type)) {
+                        resourcesByType.set(type, []);
+                    }
+                    resourcesByType.get(type).push(resource.id);
+                });
+
+                // Create audit events for each resource type
+                for (const [type, ids] of resourcesByType.entries()) {
+                    // Split resource IDs into chunks of 1000
+                    for (let i = 0; i < ids.length; i += maxResourcesPerAudit) {
+                        const resourceIdChunk = ids.slice(i, i + maxResourcesPerAudit);
+
+                        this.postRequestProcessor.add({
+                            requestId,
+                            fnTask: async () => {
+                                // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+                                // calling in setImmediate to process it in next iteration of event loop
+                                setImmediate(async () => {
+                                    await this.auditLogger.logAuditEntryAsync({
+                                        requestInfo,
+                                        base_version,
+                                        resourceType: type,
+                                        operation: 'read',
+                                        args: parsedArgs.getRawArgs(),
+                                        ids: resourceIdChunk
+                                    });
+                                });
+                            }
+                        });
+                    }
+                }
+            }
 
             if (responseStreamer) {
                 responseStreamer.setBundle({ bundle });
@@ -431,6 +502,10 @@ class EverythingHelper {
              * @type {Boolean}
             */
             let useUuidProjection = false;
+            /**
+             * @type {{id: string, resourceType: string}[]} - Track resource IDs with types for audit logging
+             */
+            let streamedResources = [];
 
             if (isTrue(parsedArgs._includePatientLinkedUuidOnly)) {
                 useUuidProjection = true;
@@ -509,7 +584,7 @@ class EverythingHelper {
              * @type {import('mongodb').Document[]}
              */
             for (const relatedResourceMapChunk of relatedResourceMapChunks) {
-                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions } = await this.retriveveRelatedResourcesParallelyAsync({
+                let { entities: relatedEntities, queryItems, optionsForQueries: relatedOptions, streamedResources: streamedRes } = await this.retriveveRelatedResourcesParallelyAsync({
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
@@ -530,6 +605,9 @@ class EverythingHelper {
 
                 if (!responseStreamer) {
                     entries.push(...(relatedEntities || []))
+                } else {
+                    // Collect streamed resources with their types
+                    streamedResources.push(...(streamedRes || []));
                 }
 
                 for (const q of queryItems) {
@@ -665,7 +743,8 @@ class EverythingHelper {
                 entries,
                 queryItems: queries,
                 options: optionsForQueries,
-                explanations
+                explanations,
+                streamedResources
             })
         } catch (e) {
             logError(`Error in retrieveEverythingMulipleIdsAsync(): ${e.message}`, { error: e });
@@ -821,7 +900,8 @@ class EverythingHelper {
             entries,
             queryItems: queries,
             options: optionsForQueries,
-            explanations
+            explanations,
+            streamedResources: []  // fetchResourceByArgsAsync doesn't use streaming
         })
 
     }
@@ -845,9 +925,10 @@ class EverythingHelper {
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {Boolean} useUuidProjection
      * @property {{string: string[]}} resourceToExcludeIdsMap
+     * @property {string[]} streamedResourceIds
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
-     * @returns {Promise<QueryItem>}
+     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResourceIds: string[]}>}
      */
     async retriveveRelatedResourcesParallelyAsync({
         requestInfo,
@@ -883,6 +964,10 @@ class EverythingHelper {
          * @type {BundleEntry[]}
          */
         const bundleEntries = [];
+        /**
+         * @type {{id: string, resourceType: string}[]} - Collect streamed resources with types
+         */
+        const streamedResources = [];
 
         /**
          * @type {EverythingRelatedResources[]}
@@ -1106,14 +1191,19 @@ class EverythingHelper {
 
         const result = await Promise.all(parallelProcess);
         result.forEach(entry => {
-            bundleEntries.push(...(entry.bundleEntries || []))
+            bundleEntries.push(...(entry.bundleEntries || []));
+            // Collect streamed resources with their types
+            if (entry.streamedResources) {
+                streamedResources.push(...entry.streamedResources);
+            }
         })
 
 
         return {
             entities: bundleEntries,
             queryItems,
-            optionsForQueries
+            optionsForQueries,
+            streamedResources
         }
     }
 
@@ -1133,7 +1223,7 @@ class EverythingHelper {
      *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
      *  useUuidProjection: boolean,
      * }} options
-     * @return {Promise<{ bundleEntries: BundleEntry[]}>}
+     * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {id: string, resourceType: string}[]}>}
      */
     async processCursorAsync({
         cursor,
@@ -1153,6 +1243,10 @@ class EverythingHelper {
          * @type {BundleEntry[]}
          */
         const bundleEntries = [];
+        /**
+         * @type {{id: string, resourceType: string}[]} - Track resources with types for audit logging
+         */
+        const streamedResources = [];
         while (await cursor.hasNext()) {
             /**
              * element
@@ -1307,6 +1401,11 @@ class EverythingHelper {
                                 await responseStreamer.writeBundleEntryAsync({
                                     bundleEntry: current_entity
                                 });
+                                // Track resource ID and type for audit logging
+                                streamedResources.push({
+                                    id: current_entity.resource.id,
+                                    resourceType: current_entity.resource.resourceType
+                                });
                             // else push it to the bundle entries
                             } else {
                                 bundleEntries.push(current_entity);
@@ -1318,7 +1417,7 @@ class EverythingHelper {
             }
         }
 
-        return { bundleEntries }
+        return { bundleEntries, streamedResources }
     }
 
     /**

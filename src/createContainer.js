@@ -494,7 +494,9 @@ const createContainer = function () {
         searchParametersManager: c.searchParametersManager,
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
         customTracer: c.customTracer,
-        patientDataViewControlManager: c.patientDataViewControlManager
+        patientDataViewControlManager: c.patientDataViewControlManager,
+        auditLogger: c.auditLogger,
+        postRequestProcessor: c.postRequestProcessor
     }));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());

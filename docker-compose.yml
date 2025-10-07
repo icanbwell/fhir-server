@@ -74,13 +74,16 @@ services:
       PRE_SAVE_CODING_ID_UPDATE_RESOURCES: 'Binary,Observation'
       ENABLE_SWAGGER_DOC: 1
       HOST_SERVER: "http://localhost:3000"
+      # MY_ENV: "local_run"
     ports:
       - '3000:3000'
+      - '9229:9229'
     volumes:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
       - ./yarn.lock:/srv/src/yarn.lock
-    command: yarn run dev
+    # command: yarn run dev_debug
+    command: node --trace-warnings --watch --inspect=0.0.0.0 src/index.js
     healthcheck:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
