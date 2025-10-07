@@ -80,6 +80,7 @@ services:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
       - ./yarn.lock:/srv/src/yarn.lock
+    command: yarn run dev
     healthcheck:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
