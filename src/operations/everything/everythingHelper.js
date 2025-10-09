@@ -394,7 +394,8 @@ class EverythingHelper {
                                         resourceType: type,
                                         operation: 'read',
                                         args: parsedArgs.getRawArgs(),
-                                        ids: resourceIdChunk
+                                        ids: resourceIdChunk,
+                                        maxNumberOfIds: maxResourcesPerAudit
                                     });
                                 });
                             }
@@ -515,7 +516,7 @@ class EverythingHelper {
 
             // patient resource don't exist for proxy patient
             if (isFalseWithFallback(parsedArgs._includeProxyPatientLinkedOnly, true)) {
-                ({ options: optionsForQueries, explanations, entries, queryItems: queries } = await this.fetchResourceByArgsAsync({
+                const baseResult = await this.fetchResourceByArgsAsync({
                     resourceType,
                     base_version,
                     explain,
@@ -527,7 +528,15 @@ class EverythingHelper {
                     resourceIdentifiers: baseResourceIdentifiers,
                     requestInfo,
                     useUuidProjection
-                }));
+                });
+
+                optionsForQueries = baseResult.options;
+                explanations = baseResult.explanations;
+                entries = baseResult.entries;
+                queries = baseResult.queryItems;
+
+                // Collect streamed resources from base Patient fetch
+                streamedResources = streamedResources.concat(baseResult.streamedResources || []);
             }
 
             if (isTrue(parsedArgs._excludeProxyPatientLinked)) {
@@ -883,7 +892,7 @@ class EverythingHelper {
 
         explanations.push(...explanations1);
 
-        const { bundleEntries } = await this.processCursorAsync({
+        const { bundleEntries, streamedResources } = await this.processCursorAsync({
             cursor,
             parentParsedArgs: parsedArgs,
             responseStreamer: responseStreamer,
@@ -901,7 +910,7 @@ class EverythingHelper {
             queryItems: queries,
             options: optionsForQueries,
             explanations,
-            streamedResources: []  // fetchResourceByArgsAsync doesn't use streaming
+            streamedResources: streamedResources || []
         })
 
     }

@@ -1,0 +1,22 @@
+{
+  "id": "medicationRequest1",
+  "resourceType": "MedicationRequest",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" }]
+  },
+  "status": "completed",
+  "intent": "plan",
+  "medicationCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+        "code": "1049221",
+        "display": "Lisinopril 10 MG Oral Tablet"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/patient1"
+  }
+}
