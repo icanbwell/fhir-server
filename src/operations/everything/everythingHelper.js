@@ -937,7 +937,7 @@ class EverythingHelper {
      * @property {string[]} streamedResourceIds
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
-     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResourceIds: string[]}>}
+     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {id: string, resourceType: string}[]}>}
      */
     async retriveveRelatedResourcesParallelyAsync({
         requestInfo,
