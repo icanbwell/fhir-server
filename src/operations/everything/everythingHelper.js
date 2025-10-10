@@ -934,7 +934,7 @@ class EverythingHelper {
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {Boolean} useUuidProjection
      * @property {{string: string[]}} resourceToExcludeIdsMap
-     * @property {string[]} streamedResourceIds
+     * @property {{id: string, resourceType: string}[]} streamedResources
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {id: string, resourceType: string}[]}>}
