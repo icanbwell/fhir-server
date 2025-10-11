@@ -1,0 +1,20 @@
+{
+  "id": "condition1",
+  "resourceType": "Condition",
+  "meta": {
+    "source": "test",
+    "security": [{ "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" }]
+  },
+  "subject": {
+    "reference": "Patient/patient1"
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "38341003",
+        "display": "Hypertension"
+      }
+    ]
+  }
+}

@@ -71,12 +71,14 @@ class AuditLogger {
      * @param {string} operation
      * @param {Object} cleanedArgs
      * @param {string[]} ids
+     * @param {number} [maxNumberOfIds] - Optional max number of IDs to include in audit entry
      * @returns {Resource}
      */
     createAuditEntry (
         {
             requestInfo, operation,
-            ids, resourceType, cleanedArgs
+            ids, resourceType, cleanedArgs,
+            maxNumberOfIds
         }
     ) {
         const operationCodeMapping = {
@@ -88,7 +90,7 @@ class AuditLogger {
         };
 
         // Get current record
-        const maxNumberOfIds = process.env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(process.env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
+        const maxIds = maxNumberOfIds !== undefined ? maxNumberOfIds : (process.env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(process.env.AUDIT_MAX_NUMBER_OF_IDS) : 50);
 
         const resource = new AuditEvent({
             id: generateUUID(),
@@ -133,7 +135,7 @@ class AuditLogger {
                 )
             }),
             action: operationCodeMapping[`${operation}`],
-            entity: ids.slice(0, maxNumberOfIds).map((resourceId, index) => {
+            entity: ids.slice(0, maxIds).map((resourceId, index) => {
                 return new AuditEventEntity({
                     what: new Reference({
                         reference: `${resourceType}/${resourceId}`
@@ -160,10 +162,11 @@ class AuditLogger {
      * @param {string} operation
      * @param {Object} args
      * @param {string[]} ids
+     * @param {number} [maxNumberOfIds] - Optional max number of IDs to include in audit entry
      * @return {Promise<void>}
      */
     async logAuditEntryAsync ({
-        requestInfo, base_version, resourceType, operation, args, ids
+        requestInfo, base_version, resourceType, operation, args, ids, maxNumberOfIds
     }) {
         // don't create audit entries for audit entries or if DISABLE_AUDIT_LOGGING is set
         if (isTrue(process.env.DISABLE_AUDIT_LOGGING) || resourceType === 'AuditEvent') {
@@ -186,7 +189,7 @@ class AuditLogger {
          */
         const doc = this.createAuditEntry(
             {
-                base_version, requestInfo, operation, ids, resourceType, cleanedArgs
+                base_version, requestInfo, operation, ids, resourceType, cleanedArgs, maxNumberOfIds
             }
         );
 
