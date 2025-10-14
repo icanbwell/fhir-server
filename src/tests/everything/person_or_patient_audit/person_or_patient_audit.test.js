@@ -2,6 +2,7 @@
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
+const organization1Resource = require('./fixtures/Organization/organization1.json');
 const condition1Resource = require('./fixtures/Condition/Condition1.json');
 const medicationRequest1Resource = require('./fixtures/MedicationRequest/MedicationRequest1.json');
 
@@ -108,6 +109,14 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
+            // Add organnization request
+
+            resp = await request
+                .post('/4_0_0/Organization/org1/$merge?validate=true')
+                .send(organization1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
             // Clear any existing audit events from setup
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
@@ -140,7 +149,8 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
                 "Condition/b805f61e-6087-55be-87f3-2eddffb320e3",
                 "MedicationRequest/9d63064f-8ccc-5452-aad2-2ce6ffd5371a",
                 "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
-                "Observation/a78fb907-0afc-5f47-92bc-aa72cc05cda1"
+                "Observation/a78fb907-0afc-5f47-92bc-aa72cc05cda1",
+                "Organization/2b931c83-3cde-547f-b85c-9ace1819acd1"
             ];
             // Verify exact number of audit events (should be one per resource type)
             // We have: Patient, Observation (2 resources but 1 audit event), Condition, MedicationRequest

@@ -18,5 +18,8 @@
   },
   "subject": {
     "reference": "Patient/patient1"
+  },
+  "performer": {
+    "reference": "Organization/2b931c83-3cde-547f-b85c-9ace1819acd1"
   }
 }
