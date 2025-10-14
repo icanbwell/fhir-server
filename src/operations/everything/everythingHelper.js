@@ -709,6 +709,9 @@ class EverythingHelper {
                                     optionsForQueries.push(...(result.options || []));
                                     if (!responseStreamer) {
                                         entries.push(...(result.entries || []));
+                                    } else {
+                                        // Collect streamed resources for audit logging
+                                        streamedResources.push(...(result.streamedResources || []));
                                     }
                                 });
                                 depthParallelProcess = [];
@@ -724,6 +727,9 @@ class EverythingHelper {
                             optionsForQueries.push(...(result.options || []));
                             if (!responseStreamer) {
                                 entries.push(...(result.entries || []));
+                            } else {
+                                // Collect streamed resources for audit logging
+                                streamedResources.push(...(result.streamedResources || []));
                             }
                         });
                     }
