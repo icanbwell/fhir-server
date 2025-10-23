@@ -210,6 +210,27 @@ class ExternalTimeoutError extends ServerError {
     }
 }
 
+class PreconditionFailedError extends ServerError {
+    constructor(message, options = {}) {
+        super(message, {
+            statusCode: 412,
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'precondition-failed',
+                    details: { text: message }
+                }
+            ]
+        });
+        for (const [key, value] of Object.entries(options)) {
+            this[`${key}`] = value;
+        }
+    }
+    get statusCode() {
+        return 412;
+    }
+}
+
 module.exports = {
     BadRequestError,
     NotFoundError,
@@ -217,5 +238,6 @@ module.exports = {
     NotValidatedError,
     UnauthorizedError,
     ForbiddenError,
-    ExternalTimeoutError
+    ExternalTimeoutError,
+    PreconditionFailedError
 };
