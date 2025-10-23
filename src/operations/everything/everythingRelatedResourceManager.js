@@ -57,6 +57,10 @@ class EverythingRelatedResourceManager {
         this.topLevelResourceType = 'Patient';
     }
 
+    get isOnlyClinicalResourcesRequested() {
+        return !this.sendAllResources && this.nonClinicalResources.size === 0;
+    }
+
     /**
      * @type {boolean}
      */
