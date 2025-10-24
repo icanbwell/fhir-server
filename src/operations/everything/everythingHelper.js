@@ -516,13 +516,11 @@ class EverythingHelper {
             // Handle UUID-only responses:
             if (isTrue(parsedArgs._includeUuidOnly)) {
                 // This is more optimized for clinical resources (uses projection)
-                if (everythingRelatedResourceManager.isOnlyClinicalResourcesRequested) {
+                if (!includeNonClinicalResources || everythingRelatedResourceManager.isOnlyClinicalResourcesRequested) {
                     // Use optimized approach for clinical resources only
                     useUuidProjection = true;
                     includeNonClinicalResources = false;
                     nonClinicalReferencesExtractor = null;
-                } else {
-                    includeNonClinicalResources = true;
                 }
                 resourceMapper = new UuidOnlyMapper();
             } else if (isTrue(parsedArgs._includePatientLinkedUuidOnly)) {

@@ -43,7 +43,7 @@ const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscri
 const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
 const speicimenResource = require('./fixtures/Specimen/specimen.json');
 const specimenAndLinkedPractitioner = require('./fixtures/expected/nonClinicalWithType/specimenAndLinkedPractitioner.json');
-const specimenAndLinkedPractitionerIdOnly = require('./fixtures/expected/nonClinicalWithType/specimentAndLinkedPractitionerUuidOnly.json');
+const specimenAndLinkedPractitionerUuidOnly = require('./fixtures/expected/nonClinicalWithType/specimentAndLinkedPractitionerUuidOnly.json');
 const excludeConsentResource = require('./fixtures/Consent/consent1.json');
 
 // expected
@@ -840,6 +840,6 @@ describe('everything _includeNonClinicalResources Tests', () => {
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner,Specimen&_includeUuidOnly=1')
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(specimenAndLinkedPractitionerIdOnly);
+        expect(resp).toHaveResponse(specimenAndLinkedPractitionerUuidOnly);
     })
 });
