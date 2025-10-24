@@ -156,6 +156,14 @@ Default: false
 
 For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_includePatientLinkedUuidOnly=true
 
+### \_includeUuidOnly
+
+This paramter is used to only include id and resourceType field of resources. It covers clinical as well as linked non clinical resources.
+<br>
+Default: false
+
+For example: <base_url>/4_0_0/Patient/\<patient_id>/$everything?\_includeUuidOnly=true
+
 ## Custom Headers
 
 ### Global ID

@@ -43,6 +43,7 @@ const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscri
 const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
 const speicimenResource = require('./fixtures/Specimen/specimen.json');
 const specimenAndLinkedPractitioner = require('./fixtures/expected/nonClinicalWithType/specimenAndLinkedPractitioner.json');
+const specimenAndLinkedPractitionerUuidOnly = require('./fixtures/expected/nonClinicalWithType/specimentAndLinkedPractitionerUuidOnly.json');
 const excludeConsentResource = require('./fixtures/Consent/consent1.json');
 
 // expected
@@ -52,9 +53,13 @@ const expectedPersonResourcesWithNonClinicalDepthType = require('./fixtures/expe
 const expectedPersonResourcesWithoutNonClinical = require('./fixtures/expected/expected_Person_without_non_clinical.json');
 
 const expectedPractitionerRoles = require('./fixtures/expected/nonClinicalWithType/practitionerRole.json');
+const expectedPractitionerRolesUuidOnly = require('./fixtures/expected/nonClinicalWithType/practitionerRoleUuidOnly.json');
 const expectedPractitioners = require('./fixtures/expected/nonClinicalWithType/practitioner.json');
+const expectedPractitionersUuidOnly = require('./fixtures/expected/nonClinicalWithType/practitionerUuidOnly.json');
 const expectedLocations = require('./fixtures/expected/nonClinicalWithType/location.json');
+const expectedLocationsUuidOnly = require('./fixtures/expected/nonClinicalWithType/locationUuidOnly.json');
 const expectedClinicalAndNonClinicalWithTypeFilter = require('./fixtures/expected/nonClinicalWithType/clinicalAndNonClinical.json');
+const expectedClinicalAndNonClinicalWithTypeFilterUuidOnly = require('./fixtures/expected/nonClinicalWithType/clinicalAndNonClinicalUuidOnly.json');
 const expectedClinicalWithTypeAndUuidOnly = require('./fixtures/expected/nonClinicalWithType/clinicalWithTypeAndUuidOnly.json');
 
 
@@ -66,8 +71,10 @@ const expectedPatientEverythingWithPatientScope = require('./fixtures/expected/e
 const expectedPatientEverythingWithPatientScopeAndExcludeRes = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res.json');
 const expectedPatientEverythingWithPatientScopeSinceAndExcludeRes = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res.json');
 const expectedPatientEverythingWithPatientScopeSinceAndExcludeResUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res_uuid_only.json');
+const expectedPatientEverythingWithPatientScopeSinceAndExcludeResAllUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_since_and_exclude_res_all_uuid_only.json');
 const expectedPatientResourcesWithNonClinicalDepth3GlobalIdAndExcludeRes = require('./fixtures/expected/expected_Patient_with_non_clinical_depth_3_without_graph_global_id_exclude_res.json');
 const expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res_uuid_only.json');
+const expectedPatientEverythingWithPatientScopeAndExcludeResAllUuidOnly = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_exclude_res_all_uuid_only.json');
 const expectedPatientEverythingWithPatientScopeWithoutExclude = require('./fixtures/expected/expected_patient_everything_with_patient_scope_without_exclude.json');
 const expectedPatientEverythingWithPatientScopeAndIncludeHidden = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_without_graph.json');
 const expectedPatientEverythingWithPatientScopeAndIncludeHiddenSince = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_since.json');
@@ -632,6 +639,12 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeAndExcludeResUuidOnly);
 
+        // when resources are excluded using consent, and uuid only is set to true for all resources
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=1')
+            .set(patientHeader);
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeAndExcludeResAllUuidOnly);
+
         // add another person where patient1 is common but exclusion consent is not present for this person
         resp = await request
             .post('/4_0_0/Person/1/$merge?validate=true')
@@ -698,6 +711,14 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeSinceAndExcludeRes);
 
+        // get patient everything with documentReference & Patient excluded with _includeUuidOnly
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-01-02T02:00:00.000%2B02:00&_includeUuidOnly=1')
+            .set(patientHeader);
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingWithPatientScopeSinceAndExcludeResAllUuidOnly);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPatientEverythingWithPatientScopeSinceAndExcludeResAllUuidOnly);
+
         // get patient everything with documentReference & Patient excluded with _includePatientLinkedUuidOnly
         resp = await request
             .get('/4_0_0/Patient/patient1/$everything?_debug=true&_since=2025-01-02T02:00:00.000%2B02:00&_includePatientLinkedUuidOnly=1')
@@ -719,6 +740,13 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
         expect(resp).toHaveResponse(expectedPractitionerRoles);
 
+        // with _includePatientLinkedUuidOnly only ids are returned
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=PractitionerRole&_includeUuidOnly=1')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedPractitionerRolesUuidOnly);
+        expect(resp).toHaveResponse(expectedPractitionerRolesUuidOnly);
+
         resp = await request
             .post('/4_0_0/CarePlan/1/$merge?validate=true')
             .send(carePlanResource2)
@@ -739,6 +767,13 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPractitioners);
         expect(resp).toHaveResponse(expectedPractitioners);
 
+        // practitioner uuid only
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner&_includeUuidOnly=1')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedPractitionersUuidOnly);
+        expect(resp).toHaveResponse(expectedPractitionersUuidOnly);
+
 
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Location')
             .set(getHeaders());
@@ -746,12 +781,25 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedLocations);
         expect(resp).toHaveResponse(expectedLocations);
 
+        // location uuid only
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Location&_includeUuidOnly=1')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedLocationsUuidOnly);
+        expect(resp).toHaveResponse(expectedLocationsUuidOnly);
+
 
         // include clinical as well as non clinical
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_type=Location,Observation,PractitionerRole,Organization')
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedClinicalAndNonClinicalWithTypeFilter);
+
+        // should work with _includeUuidOnly as well
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_type=Location,Observation,PractitionerRole,Organization&_includeUuidOnly=1')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedClinicalAndNonClinicalWithTypeFilterUuidOnly);
 
         // with _includePatientLinkedUuidOnly only clinical resources are returned
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_type=Location,Observation,PractitionerRole,Organization&_includePatientLinkedUuidOnly=1')
@@ -803,5 +851,11 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         // expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
         expect(resp).toHaveResponse(specimenAndLinkedPractitioner);
+
+        // should be able to get ids of practitioner and spiecimen when _includePatientLinkedUuidOnly is set
+        resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner,Specimen&_includeUuidOnly=1')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(specimenAndLinkedPractitionerUuidOnly);
     })
 });
