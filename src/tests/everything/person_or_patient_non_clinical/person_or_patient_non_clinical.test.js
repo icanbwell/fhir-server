@@ -43,7 +43,7 @@ const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscri
 const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
 const speicimenResource = require('./fixtures/Specimen/specimen.json');
 const specimenAndLinkedPractitioner = require('./fixtures/expected/nonClinicalWithType/specimenAndLinkedPractitioner.json');
-const specimenAndLinkedPractitionerUuidOnly = require('./fixtures/expected/nonClinicalWithType/specimentAndLinkedPractitionerUuidOnly.json');
+const specimenAndLinkedPractitionerUuidOnly = require('./fixtures/expected/nonClinicalWithType/specimenAndLinkedPractitionerUuidOnly.json');
 const excludeConsentResource = require('./fixtures/Consent/consent1.json');
 
 // expected
@@ -748,7 +748,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
         expect(resp).toHaveResponse(expectedPractitionerRoles);
 
-        // with _includePatientLinkedUuidOnly only ids are returned
+        // with _includeUuidOnly only ids are returned
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=PractitionerRole&_includeUuidOnly=1')
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -860,7 +860,7 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // expect(resp).toHaveMongoQuery(expectedPractitionerRoles);
         expect(resp).toHaveResponse(specimenAndLinkedPractitioner);
 
-        // should be able to get ids of practitioner and spiecimen when _includePatientLinkedUuidOnly is set
+        // should be able to get ids of practitioner and specimen when _includeUuidOnly is set
         resp = await request.get('/4_0_0/Patient/patient1/$everything?_debug=true&_type=Practitioner,Specimen&_includeUuidOnly=1')
             .set(getHeaders());
         // noinspection JSUnresolvedFunction

@@ -36,7 +36,7 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient_n
 const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');
 const expectedPatientResourcesWithUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_uuid_only.json');
 const expectedPatientResourceWithIncludeAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_all_uuid_only.json');
-const expectedPatientResourcesWithNonClinicalAndAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_include_non_clinical_all_uuid_only.json')
+const expectedPatientResourcesWithNonClinicalAndAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_include_non_clinical_all_uuid_only.json');
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json');
 
