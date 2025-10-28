@@ -81,6 +81,7 @@ const expectedPatientEverythingWithPatientScopeAndIncludeHiddenSince = require('
 const expectedPatientEverythingWithPatientScopeAndIncludeHiddenSinceNonClinical = require('./fixtures/expected/expected_patient_everything_with_patient_scope_and_include_hidden_since_non_clinical.json');
 const expectedPatientEverythingForTwoPatients = require('./fixtures/expected/expected_patient_everything_for_two_patients.json');
 const expectedPatientEverythingForTwoPatientsWithPatientScope = require('./fixtures/expected/expected_patient_everything_for_two_patients_with_patient_scope.json');
+const expectedPatientEverythingForTwoPatientsWithPatientScopeAllUuidOnly = require('./fixtures/expected/expected_patient_everything_for_two_patients_with_patient_scope_all_uuid_only.json');
 const expectedPatientEverythingCarePlan = require('./fixtures/expected/expected_Patient_CarePlan.json');
 
 const {
@@ -434,6 +435,13 @@ describe('everything _includeNonClinicalResources Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMongoQuery(expectedPatientEverythingForTwoPatientsWithPatientScope);
         expect(resp).toHaveResponse(expectedPatientEverythingForTwoPatientsWithPatientScope);
+
+        // should return only uuid of the resources
+       resp = await request.get('/4_0_0/Patient/$everything?_debug=true&id=patient1,patient2&_includeUuidOnly=true')
+            .set(patientHeader);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedPatientEverythingForTwoPatientsWithPatientScopeAllUuidOnly);
+        expect(resp).toHaveResponse(expectedPatientEverythingForTwoPatientsWithPatientScopeAllUuidOnly);
 
         // get person everything with non-clinical resources upto depth 2
         resp = await request

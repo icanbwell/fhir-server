@@ -35,6 +35,8 @@ const expectedPerson1ContainedResources = require('./fixtures/expected/expected_
 const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
 const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');
 const expectedPatientResourcesWithUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_uuid_only.json');
+const expectedPatientResourceWithIncludeAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_all_uuid_only.json');
+const expectedPatientResourcesWithNonClinicalAndAllUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_include_non_clinical_all_uuid_only.json')
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json');
 
@@ -185,6 +187,22 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp).toHaveMongoQuery(expectedPatientResourcesWithUuidOnly);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesWithUuidOnly);
+
+            // with _includeUuidOnly and _includePatientLinkedOnly as true
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=true&_includePatientLinkedOnly=true')
+                .set(getHeaders());
+            expect(resp).toHaveMongoQuery(expectedPatientResourceWithIncludeAllUuidOnly);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientResourceWithIncludeAllUuidOnly);
+
+            // should not use projection when _includePatientLinkedOnly is false
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything?_debug=true&_includeUuidOnly=true&_includePatientLinkedOnly=false')
+                .set(getHeaders());
+            expect(resp).toHaveMongoQuery(expectedPatientResourcesWithNonClinicalAndAllUuidOnly);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientResourcesWithNonClinicalAndAllUuidOnly);
 
             // get patient everything with global_id as false
             resp = await request
