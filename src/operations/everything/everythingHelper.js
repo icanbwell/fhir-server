@@ -516,7 +516,7 @@ class EverythingHelper {
             // Handle UUID-only responses:
             if (isTrue(parsedArgs._includeUuidOnly)) {
                 // This is more optimized for clinical resources (uses projection)
-                if (!includeNonClinicalResources || everythingRelatedResourceManager.isOnlyClinicalResourcesRequested) {
+                if (everythingRelatedResourceManager.isOnlyClinicalResourcesRequested(includeNonClinicalResources)) {
                     // Use optimized approach for clinical resources only
                     useUuidProjection = true;
                     includeNonClinicalResources = false;

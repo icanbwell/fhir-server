@@ -57,8 +57,19 @@ class EverythingRelatedResourceManager {
         this.topLevelResourceType = 'Patient';
     }
 
-    get isOnlyClinicalResourcesRequested() {
-        return !this.sendAllResources && this.nonClinicalResources.size === 0;
+    /**
+     * Checks if only clinical resources are requested
+     * @param {boolean} includeNonClinicalResources
+     * @returns {boolean}
+     */
+    isOnlyClinicalResourcesRequested(includeNonClinicalResources = true) {
+        if (!this.sendAllResources) {
+            // if sending resource filter, then check if non-clinical resources are requested
+            return this.nonClinicalResources.size === 0;
+        } else {
+            // if include non clinical resources is false, then only clinical resources are requested
+            return !includeNonClinicalResources;
+        }
     }
 
     /**
@@ -89,7 +100,7 @@ class EverythingRelatedResourceManager {
         const resourcePool = new Set();
         if (this.nonClinicalResources.size > 0) {
             for (const nonClinicalResource of this.nonClinicalResources) {
-                addElementsToSet(resourcePool,requiredRsourcesMap[nonClinicalResource])
+                addElementsToSet(resourcePool, requiredRsourcesMap[nonClinicalResource]);
             }
         }
 
@@ -118,7 +129,7 @@ class EverythingRelatedResourceManager {
         if (this.clinicalResources || this.nonClinicalResources) {
             resourceSet = new Set();
 
-            addElementsToSet(resourceSet, this.clinicalResources)
+            addElementsToSet(resourceSet, this.clinicalResources);
 
             const resPool = this.getRequiredResourcesForNonClinicalResources();
             addElementsToSet(resourceSet, resPool, (r) => clinicalResourcesSet.has(r));
