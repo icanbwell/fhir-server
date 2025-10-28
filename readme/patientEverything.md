@@ -152,7 +152,7 @@ For example: <base_url>/4_0_0/Patient/person.\<patient_id>/$everything?\_exclude
 
 This parameter is used to only include id and resourceType field of clinical resources in result. Where id field will contain uuid only. Non-clinical resources are excluded when using this param.
 
-:warning: **DEPRECATED** Prefer using _includeUuidOnly as _includePatientLinkedUuidOnly will be removed in future. For getting same result use: `_includeUuidOnly=1&_includeProxyPatientLinkedOnly=1`
+:warning: **DEPRECATED** Prefer using _includeUuidOnly as _includePatientLinkedUuidOnly will be removed in future. For getting same result use: `_includeUuidOnly=1&_includePatientLinkedOnly=1`
 
 <br> 
 Default: false
