@@ -1,0 +1,49 @@
+{
+  "entry": [
+    {
+      "id": "61886699-c643-5e3b-a074-569e4c43bddf",
+      "resource": {
+        "id": "61886699-c643-5e3b-a074-569e4c43bddf",
+        "resourceType": "Observation"
+      }
+    },
+    {
+      "id": "7712bd08-fd99-561d-9324-d2fcd41fb009",
+      "resource": {
+        "id": "7712bd08-fd99-561d-9324-d2fcd41fb009",
+        "resourceType": "Organization"
+      }
+    },
+    {
+      "id": "8143ac7d-ad11-4349-9a3f-da93faae0eae",
+      "resource": {
+        "id": "8143ac7d-ad11-4349-9a3f-da93faae0eae",
+        "resourceType": "PractitionerRole"
+      }
+    },
+    {
+      "id": "9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+      "resource": {
+        "id": "9c1e9c7f-959b-4a53-892a-2760cfd760bf",
+        "resourceType": "Location"
+      }
+    },
+    {
+      "id": "9ec009e4-28f7-4958-86da-256fe0f67c75",
+      "resource": {
+        "id": "9ec009e4-28f7-4958-86da-256fe0f67c75",
+        "resourceType": "PractitionerRole"
+      }
+    },
+    {
+      "id": "d187d5ce-f842-5e13-a4db-961d8e728ebc",
+      "resource": {
+        "id": "d187d5ce-f842-5e13-a4db-961d8e728ebc",
+        "resourceType": "Organization"
+      }
+    }
+  ],
+  "type": "searchset",
+  "resourceType": "Bundle",
+  "total": 6
+}

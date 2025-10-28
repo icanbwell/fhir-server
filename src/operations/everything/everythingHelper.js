@@ -47,6 +47,7 @@ const deepcopy = require('deepcopy');
 const clinicalResources = require('./generated.resource_types.json')['clinicalResources'];
 const { CustomTracer } = require('../../utils/customTracer');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
+const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -504,14 +505,29 @@ class EverythingHelper {
             */
             let useUuidProjection = false;
             /**
+             * @type {ResourceMapper}
+             */
+            let resourceMapper = new ResourceMapper();
+            /**
              * @type {{id: string, resourceType: string}[]} - Track resource IDs with types for audit logging
              */
             let streamedResources = [];
 
-            if (isTrue(parsedArgs._includePatientLinkedUuidOnly)) {
+            // Handle UUID-only responses:
+            if (isTrue(parsedArgs._includeUuidOnly)) {
+                // This is more optimized for clinical resources (uses projection)
+                if (everythingRelatedResourceManager.isOnlyClinicalResourcesRequested(includeNonClinicalResources)) {
+                    // Use optimized approach for clinical resources only
+                    useUuidProjection = true;
+                    includeNonClinicalResources = false;
+                    nonClinicalReferencesExtractor = null;
+                }
+                resourceMapper = new UuidOnlyMapper();
+            } else if (isTrue(parsedArgs._includePatientLinkedUuidOnly)) {
                 useUuidProjection = true;
                 includeNonClinicalResources = false;
                 nonClinicalReferencesExtractor = null;
+                resourceMapper = new UuidOnlyMapper();
             }
 
             // patient resource don't exist for proxy patient
@@ -527,7 +543,8 @@ class EverythingHelper {
                     everythingRelatedResourceManager,
                     resourceIdentifiers: baseResourceIdentifiers,
                     requestInfo,
-                    useUuidProjection
+                    useUuidProjection,
+                    resourceMapper
                 });
 
                 optionsForQueries = baseResult.options;
@@ -609,7 +626,8 @@ class EverythingHelper {
                     nonClinicalReferencesExtractor,
                     everythingRelatedResourceManager,
                     useUuidProjection,
-                    resourceToExcludeIdsMap
+                    resourceToExcludeIdsMap,
+                    resourceMapper
                 });
 
                 if (!responseStreamer) {
@@ -696,7 +714,8 @@ class EverythingHelper {
                                 bundleEntryIdsProcessedTracker,
                                 requestInfo,
                                 nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
-                                everythingRelatedResourceManager
+                                everythingRelatedResourceManager,
+                                resourceMapper
                             });
 
                             depthParallelProcess.push(result);
@@ -794,6 +813,7 @@ class EverythingHelper {
      * @property {boolean} applyPatientFilter
      * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
+     * @property {ResourceMapper} resourceMapper
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -811,7 +831,8 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
-        applyPatientFilter = true
+        applyPatientFilter = true,
+        resourceMapper = new ResourceMapper()
     }) {
 
         /**
@@ -906,7 +927,8 @@ class EverythingHelper {
             resourceIdentifiers,
             nonClinicalReferencesExtractor,
             everythingRelatedResourceManager,
-            useUuidProjection
+            useUuidProjection,
+            resourceMapper
         });
 
         entries.push(...(bundleEntries || []));
@@ -941,6 +963,7 @@ class EverythingHelper {
      * @property {Boolean} useUuidProjection
      * @property {{string: string[]}} resourceToExcludeIdsMap
      * @property {{id: string, resourceType: string}[]} streamedResources
+     * @property {ResourceMapper} resourceMapper
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {id: string, resourceType: string}[]}>}
@@ -961,7 +984,8 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
-        resourceToExcludeIdsMap
+        resourceToExcludeIdsMap,
+        resourceMapper = new ResourceMapper()
         }
     ) {
 
@@ -1191,7 +1215,8 @@ class EverythingHelper {
                 proxyPatientIds: proxyPatientIds || [],
                 everythingRelatedResourceManager,
                 parentResourceType,
-                useUuidProjection
+                useUuidProjection,
+                resourceMapper
             })
 
             parallelProcess.push(promiseResult)
@@ -1237,6 +1262,7 @@ class EverythingHelper {
      *  parentResourceType?: string,
      *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
      *  useUuidProjection: boolean,
+     *  resourceMapper?: ResourceMapper,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {id: string, resourceType: string}[]}>}
      */
@@ -1252,7 +1278,8 @@ class EverythingHelper {
         proxyPatientIds,
         parentResourceType,
         everythingRelatedResourceManager,
-        useUuidProjection
+        useUuidProjection,
+        resourceMapper = new ResourceMapper()
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1406,6 +1433,10 @@ class EverythingHelper {
                             if (useUuidProjection && parentParsedArgs._since) {
                                 current_entity.resource.meta = null; // remove meta to avoid sending lastUpdated
                             }
+
+                            // Apply resource mapper transformation
+                            current_entity.resource = resourceMapper.map(current_entity.resource);
+
                             // if response streamer is present then write the entry to the response streamer
                             if (responseStreamer) {
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
