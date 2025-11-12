@@ -37,18 +37,7 @@ pspYoVt8CNOh1nodfOIj+gqRwxryRw1s4LyzVj7qHOUOQkFDRvqdTm4RGyjtrobE
 3F++jUBK5YjhAFcmdK88fXNPWMkW55WfrQ/hquGraR1HwYBO92qMjw==
 -----END RSA PRIVATE KEY-----`;
 
-const randomPublicKey1 = `-----BEGIN PUBLIC KEY-----
-MIIBITANBgkqhkiG9w0BAQEFAAOCAQ4AMIIBCQKCAQBhJrCBAy4XF8Ym180KuZCZ
-ZFEo5NmpQSPaH1LKmCC3aH9HWPYj8BBC1njrNlN7Jd4nnXgBLUkIDI74Y9iUKTmR
-fWTKfIKOk7LNFfWcE6H0HGmfg8vIkbXWbt9Vv7b9iu5HWQfL32/kcJ1/9d0oia9Q
-HMbuOppqvWcqTjrIvarKOxiOS90wgWRsd9uG48wR95Ven0rHTcvBvr+yolU1FT5v
-Hp7ju+ZE7XI7Cwc2J1UZlUqiKGW3uDWdeTgV+t2gwtoboucSeex5aFwWjek456Qn
-BvHaArI71U7Q/Dsi5Lk1SzAjP2v2NRVtPWVGgf+R9VEXn/K/thok1w8i0F6Pct2n
-AgMBAAE=
------END PUBLIC KEY-----`;
-
 module.exports = {
     publicKey,
-    privateKey,
-    randomPublicKey1
+    privateKey
 };

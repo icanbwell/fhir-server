@@ -9,11 +9,13 @@ services:
       args:
         NODE_ENV: development
     environment:
+      ACCESS_LOGS_CLUSTER_MONGO_URL: mongodb://mongo:27017
+      ACCESS_LOGS_MONGO_DB_NAME: access-logs
       SHUTDOWN_DELAY_MS: 1000
       SERVER_PORT: 3000
       MONGO_DB_NAME: fhir
       MONGO_URL: 'mongodb://mongo:27017?appName=fhir-server'
-      AUDIT_EVENT_MONGO_DB_NAME: fhir
+      AUDIT_EVENT_MONGO_DB_NAME: audit-events
       AUDIT_EVENT_MONGO_URL: mongodb://mongo:27017
       RESOURCE_SERVER: http://localhost:3000/
       AUTH_SERVER_URI: http://myauthzserver.com
@@ -33,6 +35,8 @@ services:
       EXTERNAL_AUTH_WELL_KNOWN_URLS: ''
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
+      RESOURCE_HISTORY_MONGO_URL: mongodb://mongo:27017
+      RESOURCE_HISTORY_MONGO_DB_NAME: resource-history
       RETURN_BUNDLE: '1'
       USE_TWO_STEP_SEARCH_OPTIMIZATION: '0'
       LOG_EXCLUDE_RESOURCES: 'Person,Patient'
@@ -42,6 +46,8 @@ services:
       ENABLE_BULK_EXPORT_KAFKA_EVENTS: '1'
       ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS: 1
       ENABLE_KAFKA_HEALTHCHECK: '1'
+      ENABLE_ACCESS_LOGS_KAFKA_EVENTS: '1'
+      ENABLE_AUDIT_LOGS_KAFKA_EVENTS: '1'
       KAFKA_CLIENT_ID: 'fhir-server'
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
@@ -85,7 +91,7 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:8.0.12
+    image: mongo:8.0.15
     ports:
       - '27017:27017'
     environment:
@@ -107,8 +113,8 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_FEATURES: dynamic-scopes
       # Keycloak UI creds
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin-user
-      KC_BOOTSTRAP_ADMIN_PASSWORD: password
+      ADMIN_USERNAME: admin-user
+      ADMIN_PASSWORD: password
       # This is the service account that will be created in the realm
       CLIENT_ID: bwell-client-id
       CLIENT_SECRET: bwell-secret

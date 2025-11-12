@@ -16,22 +16,6 @@ function createToken (key, kid, payload) {
     });
 }
 
-/**
- * Creates and signs a symmetric token
- * @param {string} key
- * @param {{noTimestamp: boolean, algorithm: string, header: { alg: string, kid: string}}} payload
- * @return {string}
- */
-function createSymmetricToken (key, payload) {
-    return jwt.sign(payload, key, {
-        noTimestamp: true,
-        algorithm: 'HS256',
-        issuer: 'http://foo:80',
-        header: { alg: 'HS256' }
-    });
-}
-
 module.exports = {
-    createToken,
-    createSymmetricToken
+    createToken
 };
