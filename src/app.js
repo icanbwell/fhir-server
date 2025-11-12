@@ -171,7 +171,7 @@ function createApp({fnGetContainer}) {
             }
 
             if (
-                configManager.enableAccessLogsMiddleware &&
+                (configManager.enableAccessLogsMiddleware || configManager.kafkaEnableAccessLogsEvent) &&
                 (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body)
             ) {
                 accessLogger.logAccessLogAsync({

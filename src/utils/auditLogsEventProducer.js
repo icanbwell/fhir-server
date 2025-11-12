@@ -1,21 +1,20 @@
-const { generateUUID } = require('./uid.util');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { KafkaClient } = require('./kafkaClient');
 const { logError } = require('../operations/common/logging');
 
 /**
- * This class is used to produce kafka events for access-logs
+ * This class is used to produce kafka events for AuditEvent
  */
-class AccessLogsEventProducer {
+class AuditLogsEventProducer {
     /**
      * Constructor
      * @typedef {Object} Params
      * @property {KafkaClient} kafkaClient
-     * @property {string} accessLogsEventTopic
+     * @property {string} auditLogsEventTopic
      *
      * @param {Params} params
      */
-    constructor({ kafkaClient, accessLogsEventTopic }) {
+    constructor({ kafkaClient, auditLogsEventTopic }) {
         /**
          * @type {KafkaClient}
          */
@@ -24,29 +23,29 @@ class AccessLogsEventProducer {
         /**
          * @type {string}
          */
-        this.accessLogsEventTopic = accessLogsEventTopic;
-        assertIsValid(accessLogsEventTopic);
+        this.auditLogsEventTopic = auditLogsEventTopic;
+        assertIsValid(auditLogsEventTopic);
     }
 
     /**
-     * Creates access log event message
-     * @param {object} data
+     * Creates audit logs event message
+     * @param {object} auditLogData
      * @return {object}
      * @private
      */
-    _createMessage(data) {
+    _createMessage(auditLogData) {
         const message = {
             specversion: '1.0',
-            id: generateUUID(),
-            type: "access-logs",
+            id: auditLogData.id,
+            type: "FhirAuditEvent",
             datacontenttype: 'application/json',
-            data
+            data: auditLogData
         };
         return message;
     }
 
     /**
-     * Produces kafka events for access logs
+     * Produces kafka events for audit logs
      * @param {{log: object, requestId: string} []} logsData
      * @return {Promise<void>}
      */
@@ -62,9 +61,9 @@ class AccessLogsEventProducer {
                 };
             });
 
-            await this.kafkaClient.sendMessagesAsync(this.accessLogsEventTopic, messages);
+            await this.kafkaClient.sendMessagesAsync(this.auditLogsEventTopic, messages);
         } catch (e) {
-            logError('Error in AccessLogsEventProducer.produce()', {
+            logError('Error in AuditLogsEventProducer.produce()', {
                 args: {
                     message: e.message,
                     error: e.stack
@@ -75,5 +74,5 @@ class AccessLogsEventProducer {
 }
 
 module.exports = {
-    AccessLogsEventProducer
+    AuditLogsEventProducer
 };

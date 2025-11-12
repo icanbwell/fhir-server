@@ -8,7 +8,7 @@ class NdjsonParser extends Transform {
     /**
      * @param {ConfigManager} configManager
      */
-    constructor({configManager}) {
+    constructor({ configManager }) {
         super({ readableObjectMode: true, writableObjectMode: false });
         this._buffer = '';
         this.access_log_request_body = [];
@@ -30,7 +30,8 @@ class NdjsonParser extends Transform {
             if (line.trim()) {
                 try {
                     if (
-                        this.configManager.enableAccessLogsMiddleware &&
+                        (this.configManager.enableAccessLogsMiddleware ||
+                            this.configManager.kafkaEnableAccessLogsEvent) &&
                         this.access_log_request_body.length < STREAM_ACCESS_LOG_BODY_LIMIT
                     ) {
                         this.access_log_request_body.push(line);
@@ -48,7 +49,7 @@ class NdjsonParser extends Transform {
     _flush(callback) {
         if (this._buffer.trim()) {
             try {
-                if (this.configManager.enableAccessLogsMiddleware){
+                if (this.configManager.enableAccessLogsMiddleware || this.configManager.kafkaEnableAccessLogsEvent) {
                     this.access_log_request_body.push(this._buffer);
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         streamRequestBody: 'STREAMED ' + this.access_log_request_body.join('\n')
@@ -66,4 +67,3 @@ class NdjsonParser extends Transform {
 module.exports = {
     NdjsonParser
 };
-
