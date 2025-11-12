@@ -19,7 +19,7 @@ const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditE
 const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
 const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
-const { AuditLogsEventProducer } = require('./auditLogsEventProducer');
+const { AuditEventKafkaProducer } = require('./auditEventKafkaProducer');
 const { ConfigManager } = require('./configManager');
 const mutex = new Mutex();
 
@@ -31,7 +31,7 @@ class AuditLogger {
      * @property {DatabaseBulkInserter} databaseBulkInserter
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
-     * @property {AuditLogsEventProducer} auditLogsEventProducer
+     * @property {AuditEventKafkaProducer} auditEventKafkaProducer
      * @property {string} base_version
      *
      * @param {params}
@@ -41,7 +41,7 @@ class AuditLogger {
                     databaseBulkInserter,
                     preSaveManager,
                     configManager,
-                    auditLogsEventProducer,
+                    auditEventKafkaProducer,
                     base_version = '4_0_0'
                 }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
@@ -65,10 +65,10 @@ class AuditLogger {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
         /**
-         * @type {AuditLogsEventProducer}
+         * @type {AuditEventKafkaProducer}
          */
-        this.auditLogsEventProducer = auditLogsEventProducer;
-        assertTypeEquals(auditLogsEventProducer, AuditLogsEventProducer);
+        this.auditEventKafkaProducer = auditEventKafkaProducer;
+        assertTypeEquals(auditEventKafkaProducer, AuditEventKafkaProducer);
         /**
          * @type {{doc: import('../fhir/classes/4_0_0/resources/resource'), requestInfo: import('./fhirRequestInfo').FhirRequestInfo}[]}
          */
@@ -81,7 +81,7 @@ class AuditLogger {
         /**
          * @type {boolean}
          */
-        this.auditLogsEnabled = this.configManager.enableAuditLogs || this.configManager.kafkaEnableAuditLogsEvent;
+        this.isAuditEventEnabled = this.configManager.enableAuditEventMongoDB || this.configManager.enableAuditEventKafka;
         /**
          * @type {number}
          */
@@ -192,8 +192,8 @@ class AuditLogger {
     async logAuditEntryAsync ({
         requestInfo, base_version, resourceType, operation, args, ids, maxNumberOfIds
     }) {
-        // don't create audit entries for AuditEvent or if audit logs are disabled
-        if (!this.auditLogsEnabled || resourceType === 'AuditEvent') {
+        // don't create audit entries for AuditEvent or if disabled
+        if (!this.isAuditEventEnabled || resourceType === 'AuditEvent') {
             return;
         }
 
@@ -249,16 +249,16 @@ class AuditLogger {
          */
         const operationsMap = new Map();
         operationsMap.set(resourceType, []);
-        const auditLogEvents = [];
+        const kafkaAuditEvents = [];
 
         for (const { doc, requestInfo } of currentQueue) {
             assertTypeEquals(doc, AuditEvent);
             ({ requestId } = requestInfo);
 
-            if (this.configManager.kafkaEnableAuditLogsEvent) {
-                auditLogEvents.push({ log: doc.toJSONInternal(), requestId });
+            if (this.configManager.enableAuditEventKafka) {
+                kafkaAuditEvents.push({ data: doc.toJSONInternal(), requestId });
             }
-            if (this.configManager.enableAuditLogs) {
+            if (this.configManager.enableAuditEventMongoDB) {
                 operationsMap.get(resourceType).push(
                     this.databaseBulkInserter.getOperationForResourceAsync({
                         requestId,
@@ -274,8 +274,8 @@ class AuditLogger {
                 );
             }
         }
-        if (auditLogEvents.length > 0) {
-            await this.auditLogsEventProducer.produce(auditLogEvents);
+        if (kafkaAuditEvents.length > 0) {
+            await this.auditEventKafkaProducer.produce(kafkaAuditEvents);
         }
         if (operationsMap.get(resourceType).length > 0) {
             const requestInfo = currentQueue[0].requestInfo;

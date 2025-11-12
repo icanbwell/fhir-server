@@ -506,22 +506,22 @@ class ConfigManager {
     }
 
     /**
-     * whether to write audit logs to mongoDB
+     * whether to write AuditEvent to mongoDB
      * @return {boolean}
      */
-    get enableAuditLogs() {
-        if (env.ENABLE_AUDIT_LOGS === null || env.ENABLE_AUDIT_LOGS === undefined) {
+    get enableAuditEventMongoDB() {
+        if (env.ENABLE_AUDIT_EVENT_MONGODB === null || env.ENABLE_AUDIT_EVENT_MONGODB === undefined) {
             return true;
         }
-        return isTrue(env.ENABLE_AUDIT_LOGS);
+        return isTrue(env.ENABLE_AUDIT_EVENT_MONGODB);
     }
 
     /**
-     * whether to send audit log events to kafka
+     * whether to send AuditEvent to kafka
      * @return {boolean}
      */
-    get kafkaEnableAuditLogsEvent() {
-        return isTrue(env.ENABLE_AUDIT_LOGS_KAFKA_EVENTS);
+    get enableAuditEventKafka() {
+        return isTrue(env.ENABLE_AUDIT_EVENT_KAFKA);
     }
 
     /**

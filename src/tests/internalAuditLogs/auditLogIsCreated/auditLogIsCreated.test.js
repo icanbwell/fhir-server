@@ -44,7 +44,9 @@ describe('InternalAuditLog Tests', () => {
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
                             databaseBulkInserter: c.databaseBulkInserter,
-                            preSaveManager: c.preSaveManager
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager,
+                            auditEventKafkaProducer: c.auditEventKafkaProducer
                         })
                 );
                 return container;
