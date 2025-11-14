@@ -252,24 +252,28 @@ class AccessLogger {
 
         for (const { doc, requestInfo } of currentQueue) {
             ({ requestId } = requestInfo);
-            accessLogs.push({
-                log: doc,
-                requestId
-            });
-            operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).push(
-                this.databaseBulkInserter.getOperationForResourceAsync({
-                    requestId,
-                    ACCESS_LOGS_COLLECTION_NAME,
-                    doc,
-                    operationType: 'insert',
-                    operation: {
-                        insertOne: {
-                            document: doc
-                        }
-                    },
-                    isAccessLogOperation: true
-                })
-            );
+            if (this.configManager.kafkaEnableAccessLogsEvent){
+                accessLogs.push({
+                    log: doc,
+                    requestId
+                });
+            }
+            if (this.configManager.enableAccessLogsMiddleware){
+                operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).push(
+                    this.databaseBulkInserter.getOperationForResourceAsync({
+                        requestId,
+                        ACCESS_LOGS_COLLECTION_NAME,
+                        doc,
+                        operationType: 'insert',
+                        operation: {
+                            insertOne: {
+                                document: doc
+                            }
+                        },
+                        isAccessLogOperation: true
+                    })
+                );
+            }
         }
         if (accessLogs.length > 0) {
             await this.accessLogsEventProducer.produce(accessLogs);

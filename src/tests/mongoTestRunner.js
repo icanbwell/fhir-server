@@ -10,7 +10,7 @@ let myMongoUrl;
 async function startTestMongoServerAsync () {
     mongoRepl = await MongoMemoryReplSet.create({
         replSet: { count: 1, storageEngine: 'wiredTiger' },
-        binary: { version: '8.0.12' }
+        binary: { version: '8.0.15' }
     });
     await mongoRepl.waitUntilRunning();
     myMongoUrl = mongoRepl.getUri();

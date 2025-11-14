@@ -39,7 +39,7 @@ describe('GraphQL Patient Tests', () => {
     });
 
     describe('GraphQL Update General Practitioner', () => {
-        test('GraphQL Update General Practitioner for Patient', async () => {
+        test('GraphQL Update General Practitioner for Patient only', async () => {
             const request = await createTestRequest((container) => {
                 // Using unmocked audit logger to test creation of audit logs in db
                 container.register(
@@ -48,7 +48,9 @@ describe('GraphQL Patient Tests', () => {
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
                             databaseBulkInserter: c.databaseBulkInserter,
-                            preSaveManager: c.preSaveManager
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager,
+                            auditEventKafkaProducer: c.auditEventKafkaProducer
                         })
                 );
                 return container;
@@ -99,22 +101,31 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders())
                 .expect(200);
+            expect(requestId).not.toBeUndefined();
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerBundleResource)
                 .set(getHeaders())
                 .expect(200);
-
-            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(2);
-
-            resp = await request.get('/4_0_0/Practitioner/').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(2);
-
             expect(requestId).not.toBeUndefined();
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
+
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
+            expect(resp.body.length).toBe(2);
+            expect(requestId).not.toBeUndefined();
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+
+            resp = await request.get('/4_0_0/Practitioner/').set(getHeaders()).expect(200);
+            expect(resp.body.length).toBe(2);
+            expect(requestId).not.toBeUndefined();
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+
             const auditEntries = await internalAuditEventCollection.find({}).toArray();
             console.log(JSON.stringify(auditEntries));
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);

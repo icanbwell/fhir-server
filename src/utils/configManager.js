@@ -505,6 +505,37 @@ class ConfigManager {
         return isTrue(env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS);
     }
 
+    get enableAccessLogs() {
+        return this.enableAccessLogsMiddleware || this.kafkaEnableAccessLogsEvent;
+    }
+
+    /**
+     * whether to write AuditEvent to mongoDB
+     * @return {boolean}
+     */
+    get enableAuditEventMongoDB() {
+        if (env.ENABLE_AUDIT_EVENT_MONGODB === null || env.ENABLE_AUDIT_EVENT_MONGODB === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_AUDIT_EVENT_MONGODB);
+    }
+
+    /**
+     * whether to send AuditEvent to kafka
+     * @return {boolean}
+     */
+    get enableAuditEventKafka() {
+        return isTrue(env.ENABLE_AUDIT_EVENT_KAFKA);
+    }
+
+    /**
+     * returns the maximum number of IDs to include in each audit event
+     * @returns {number}
+     */
+    get maxIdsPerAuditEvent() {
+        return env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
+    }
+
     /**
      * whether to rewrite patient references to proxy-patient reference
      */

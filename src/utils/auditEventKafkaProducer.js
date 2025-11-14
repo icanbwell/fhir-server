@@ -1,21 +1,20 @@
-const { generateUUID } = require('./uid.util');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { KafkaClient } = require('./kafkaClient');
 const { logError } = require('../operations/common/logging');
 
 /**
- * This class is used to produce kafka events for access-logs
+ * This class is used to produce kafka events for AuditEvent
  */
-class AccessLogsEventProducer {
+class AuditEventKafkaProducer {
     /**
      * Constructor
      * @typedef {Object} Params
      * @property {KafkaClient} kafkaClient
-     * @property {string} accessLogsEventTopic
+     * @property {string} auditEventKafkaTopic
      *
      * @param {Params} params
      */
-    constructor({ kafkaClient, accessLogsEventTopic }) {
+    constructor({ kafkaClient, auditEventKafkaTopic }) {
         /**
          * @type {KafkaClient}
          */
@@ -24,36 +23,36 @@ class AccessLogsEventProducer {
         /**
          * @type {string}
          */
-        this.accessLogsEventTopic = accessLogsEventTopic;
-        assertIsValid(accessLogsEventTopic);
+        this.auditEventKafkaTopic = auditEventKafkaTopic;
+        assertIsValid(auditEventKafkaTopic);
     }
 
     /**
-     * Creates access log event message
-     * @param {object} data
+     * Creates audit event message
+     * @param {object} auditEventData
      * @return {object}
      * @private
      */
-    _createMessage(data) {
+    _createMessage(auditEventData) {
         const message = {
             specversion: '1.0',
-            id: generateUUID(),
-            type: "access-logs",
+            id: auditEventData.id,
+            type: 'FhirAuditEvent',
             datacontenttype: 'application/json',
-            data
+            data: auditEventData
         };
         return message;
     }
 
     /**
-     * Produces kafka events for access logs
-     * @param {{log: object, requestId: string} []} logsData
+     * Produces kafka events for audit logs
+     * @param {{data: object, requestId: string} []} eventData
      * @return {Promise<void>}
      */
-    async produce(logsData) {
+    async produce(eventData) {
         try {
-            const messages = logsData.map(({ log, requestId }) => {
-                const messageJson = this._createMessage(log);
+            const messages = eventData.map(({ data, requestId }) => {
+                const messageJson = this._createMessage(data);
                 return {
                     key: messageJson.id,
                     fhirVersion: 'R4',
@@ -62,9 +61,9 @@ class AccessLogsEventProducer {
                 };
             });
 
-            await this.kafkaClient.sendMessagesAsync(this.accessLogsEventTopic, messages);
+            await this.kafkaClient.sendMessagesAsync(this.auditEventKafkaTopic, messages);
         } catch (e) {
-            logError('Error in AccessLogsEventProducer.produce()', {
+            logError('Error in AuditEventKafkaProducer.produce()', {
                 args: {
                     message: e.message,
                     error: e.stack
@@ -75,5 +74,5 @@ class AccessLogsEventProducer {
 }
 
 module.exports = {
-    AccessLogsEventProducer
+    AuditEventKafkaProducer
 };

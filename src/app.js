@@ -171,7 +171,7 @@ function createApp({fnGetContainer}) {
             }
 
             if (
-                configManager.enableAccessLogsMiddleware &&
+                (configManager.enableAccessLogs) &&
                 (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body)
             ) {
                 accessLogger.logAccessLogAsync({

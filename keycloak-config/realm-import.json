@@ -109,6 +109,32 @@
         "token_use": "access",
         "username": "${MY_ADMIN_USER_TOKEN_USERNAME}"
       }
+    },
+    {
+      "id" : "e0a4ec5f-32e8-4716-84f4-caec98f15194",
+      "username" : "${ADMIN_USERNAME}",
+      "firstName" : "Realm",
+      "lastName" : "Admin",
+      "email" : "admin@realm.com",
+      "emailVerified" : true,
+      "attributes" : {
+        "is_temporary_admin" : [ "true" ]
+      },
+      "enabled" : true,
+      "createdTimestamp" : 1759319906912,
+      "totp" : false,
+      "credentials" : [ {
+        "id" : "b8b2b086-8099-496a-a21f-10de55e13a94",
+        "type" : "password",
+        "createdDate" : 1759319906981,
+        "value": "${ADMIN_PASSWORD}",
+        "temporary": false
+      } ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-bwell-realm", "admin" ],
+      "notBefore" : 0,
+      "groups" : [ ]
     }
   ],
   "clients": [

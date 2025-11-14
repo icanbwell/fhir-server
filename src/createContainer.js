@@ -120,6 +120,7 @@ const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
+const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 
 /**
  * Creates a container and sets up all the services
@@ -429,7 +430,16 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.databaseBulkInserter,
-                preSaveManager: c.preSaveManager
+                preSaveManager: c.preSaveManager,
+                configManager: c.configManager,
+                auditEventKafkaProducer: c.auditEventKafkaProducer
+            }
+        )
+    );
+    container.register('auditEventKafkaProducer', (c) => new AuditEventKafkaProducer(
+            {
+                kafkaClient: c.kafkaClient,
+                auditEventKafkaTopic: process.env.AUDIT_EVENT_KAFKA_TOPIC || 'fhir.audit_event.stream'
             }
         )
     );
@@ -447,8 +457,7 @@ const createContainer = function () {
     container.register('accessLogsEventProducer', (c) => new AccessLogsEventProducer(
             {
                 kafkaClient: c.kafkaClient,
-                accessLogsEventTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events',
-                configManager: c.configManager
+                accessLogsEventTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events'
             }
         )
     );
