@@ -178,3 +178,41 @@ Two fields are set in the event:
     "type": "ExportCompleted"
 }
 ```
+
+## 4. Patient/Person Data Change Event (WIP)
+FHIR server can send events to a Kafka whenever any clinical resource linked to Patient/Person is updated.
+
+Whenever any clinical resource is updated, its corresponding Patient is extracted from reference of resource. And then Person is fetched from which Patient is linked to generate event.
+
+### Using change events
+
+This functionality can be enabled by setting the environment variable: 
+- ```ENABLE_PATIENT_DATA_CHANGE_EVENT: "1"```
+- ```ENABLE_PERSON_DATA_CHANGE_EVENT: "1"```
+
+Topic name can be changed using the below environment variable: 
+- ```PATIENT_DATA_CHANGE_EVENT_TOPIC``` (Default: ```fhir.patient_data.change.events```)
+- ```PERSON_DATA_CHANGE_EVENT_TOPIC``` (Default: ```fhir.person_data.change.events```)
+
+### Header of event
+```json
+{
+  "ce_type": "PatientDataChangeEvent",  // or PersonDataChangeEvent
+  "ce_source": "https://www.icanbwell.com/fhir-server",
+  "ce_datacontenttype": "application/json;charset=utf-8",
+  "ce_time": "2025-06-27T07:25:59.377Z",
+  "ce_specversion": "1.0",
+  "content-type": "application/json;charset=utf-8",
+  "ce_id": "c4b754cf-bdc0-4485-a0d4-35d80fbea68b"
+}
+```
+
+### Content of event
+
+```json
+{
+    "id": "302d2283-dac7-4861-a8c7-68d2e56eef69", // uuid of Patient / Person based ce_type
+    "owner": "client1", // owner tag from meta
+    "changedResourceTypes": ["Patient", "Observation"] // List of resources changed
+}
+```
