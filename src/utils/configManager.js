@@ -505,6 +505,10 @@ class ConfigManager {
         return isTrue(env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS);
     }
 
+    get enableAccessLogs() {
+        return this.enableAccessLogsMiddleware || this.kafkaEnableAccessLogsEvent;
+    }
+
     /**
      * whether to write AuditEvent to mongoDB
      * @return {boolean}

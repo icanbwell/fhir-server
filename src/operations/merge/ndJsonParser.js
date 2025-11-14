@@ -30,8 +30,7 @@ class NdjsonParser extends Transform {
             if (line.trim()) {
                 try {
                     if (
-                        (this.configManager.enableAccessLogsMiddleware ||
-                            this.configManager.kafkaEnableAccessLogsEvent) &&
+                        this.configManager.enableAccessLogs &&
                         this.access_log_request_body.length < STREAM_ACCESS_LOG_BODY_LIMIT
                     ) {
                         this.access_log_request_body.push(line);
@@ -49,7 +48,7 @@ class NdjsonParser extends Transform {
     _flush(callback) {
         if (this._buffer.trim()) {
             try {
-                if (this.configManager.enableAccessLogsMiddleware || this.configManager.kafkaEnableAccessLogsEvent) {
+                if (this.configManager.enableAccessLogs) {
                     this.access_log_request_body.push(this._buffer);
                     httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                         streamRequestBody: 'STREAMED ' + this.access_log_request_body.join('\n')
