@@ -224,6 +224,22 @@ class ConfigManager {
         );
     }
 
+    get enablePatientDataChangeEvents() {
+        return isTrue(env.ENABLE_PATIENT_DATA_CHANGE_EVENTS);
+    }
+
+    get enablePersonDataChangeEvents() {
+        return isTrue(env.ENABLE_PERSON_DATA_CHANGE_EVENTS);
+    }
+
+    get patientDataChangeEventTopic() {
+        return env.PATIENT_DATA_CHANGE_EVENT_TOPIC || 'fhir.patient_data.change.events';
+    }
+
+    get personDataChangeEventTopic() {
+        return env.PERSON_DATA_CHANGE_EVENT_TOPIC || 'fhir.person_data.change.events';
+    }
+
     /**
      * gets url to person matching service
      * @return {string|undefined}

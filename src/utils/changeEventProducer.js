@@ -211,6 +211,11 @@ class ChangeEventProducer extends BasePostSaveHandler {
      */
     async afterSaveAsync ({ requestId, eventType, resourceType, doc }) {
         try {
+            if (eventType === 'D') {
+                // do not fire events for delete
+                return;
+            }
+
             /**
              * @type {string}
              */

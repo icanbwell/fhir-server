@@ -179,7 +179,7 @@ Two fields are set in the event:
 }
 ```
 
-## 4. Patient/Person Data Change Event (WIP)
+## 4. Patient/Person Data Change Event
 FHIR server can send events to a Kafka whenever any clinical resource linked to Patient/Person is updated.
 
 Resources for which Patient Data change event is emitted: `Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BiologicallyDerivedProduct, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, Linkage, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, Patient, PaymentNotice, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, SupplyDelivery, SupplyRequest, Task, VisionPrescription`
@@ -193,8 +193,8 @@ Note: For any clinical resource linked via Proxy Patient, only Person data chang
 ### Using change events
 
 This functionality can be enabled by setting the environment variable: 
-- ```ENABLE_PATIENT_DATA_CHANGE_EVENT: "1"```
-- ```ENABLE_PERSON_DATA_CHANGE_EVENT: "1"```
+- ```ENABLE_PATIENT_DATA_CHANGE_EVENTS: "1"```
+- ```ENABLE_PERSON_DATA_CHANGE_EVENTS: "1"```
 
 Topic name can be changed using the below environment variable: 
 - ```PATIENT_DATA_CHANGE_EVENT_TOPIC``` (Default: ```fhir.patient_data.change.events```)

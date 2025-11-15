@@ -8,7 +8,6 @@ const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { ConfigManager } = require('../../utils/configManager');
 const { SearchManager } = require('../search/searchManager');
 const { isTrue } = require('../../utils/isTrue');
-const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const { ResourceManager } = require('../common/resourceManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
