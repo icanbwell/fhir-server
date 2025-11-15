@@ -337,7 +337,7 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
                     );
 
                     if (!referencedResourceId) {
-                        return;
+                        continue;
                     }
 
                     const { id, isPerson } = this._parsePatientReferenceId(referencedResourceId);
