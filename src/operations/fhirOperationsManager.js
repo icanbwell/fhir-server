@@ -41,7 +41,7 @@ const {getNestedValueByPath} = require('../utils/object');
 const {ConfigManager} = require('../utils/configManager');
 const {SummaryOperation} = require("./summary/summary");
 const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
-const { BadRequestError } = require('../utils/httpErrors');
+const { BadRequestError, PreconditionFailedError } = require('../utils/httpErrors');
 
 class FhirOperationsManager {
     /**
@@ -614,6 +614,23 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers, operation: WRITE
             }
         );
+        // If-Match/version check logic (optimistic locking)
+        const ifMatch = req.headers['If-Match'];
+        if (ifMatch && parsedArgs.id) {
+            // Fetch current resource by id
+            const currentResource = await this.searchByIdOperation.searchByIdAsync({
+                requestInfo: this.getRequestInfo(req),
+                parsedArgs: { id: parsedArgs.id, base_version: parsedArgs.base_version },
+                resourceType
+            });
+            if (currentResource && currentResource.meta && currentResource.meta.versionId) {
+                const currentVersionId = currentResource.meta.versionId;
+                const normalizeETag = (etag) => (etag || '').replace(/^W\//, '').replace(/\"/g, '');
+                if (normalizeETag(ifMatch) !== normalizeETag(currentVersionId)) {
+                    throw new PreconditionFailedError('Version conflict: If-Match does not match current resource version.');
+                }
+            }
+        }
         return await this.updateOperation.updateAsync(
             {
                 requestInfo: this.getRequestInfo(req),
