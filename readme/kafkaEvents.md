@@ -182,7 +182,13 @@ Two fields are set in the event:
 ## 4. Patient/Person Data Change Event (WIP)
 FHIR server can send events to a Kafka whenever any clinical resource linked to Patient/Person is updated.
 
-Whenever any clinical resource is updated, its corresponding Patient is extracted from reference of resource. And then Person is fetched from which Patient is linked to generate event.
+Resources for which Patient Data change event is emitted: `Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BiologicallyDerivedProduct, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, Linkage, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, Patient, PaymentNotice, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, SupplyDelivery, SupplyRequest, Task, VisionPrescription`
+
+Whenever any clinical resource mentioned above is updated, its corresponding Patient is extracted from reference in resource and Patient Data Change event is emitted.
+
+For Person Data change event, Person resources are fetched which have link to Patients whose clinical resource is updated. And change event is emitted for them. Person Data change event is emitted for resources mentioned above for Patient Data change event and also for `Person` resource.
+
+Note: For any clinical resource linked via Proxy Patient, only Person data change event is emitted as we don't have corresponding patient.
 
 ### Using change events
 
@@ -212,7 +218,7 @@ Topic name can be changed using the below environment variable:
 ```json
 {
     "id": "302d2283-dac7-4861-a8c7-68d2e56eef69", // uuid of Patient / Person based ce_type
-    "owner": "client1", // owner tag from meta
+    "resourceType": "Patient", // Patient or Person 
     "changedResourceTypes": ["Patient", "Observation"] // List of resources changed
 }
 ```
