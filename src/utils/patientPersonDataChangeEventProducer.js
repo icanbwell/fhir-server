@@ -306,7 +306,7 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
      */
     async afterSaveAsync({ resourceType, doc }) {
         try {
-            if (resourceType === 'AuditEvent') {
+            if (!this.dataChangeEventsEnabled || resourceType === 'AuditEvent') {
                 return;
             }
             if (resourceType === 'Person') {

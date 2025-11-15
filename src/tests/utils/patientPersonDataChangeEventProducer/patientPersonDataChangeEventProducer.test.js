@@ -33,7 +33,7 @@ describe('Patient Person Change Event Producer Tests', () => {
     test('Patient Person Change Event Producer works', async () => {
         const enablePatientDataChangeEvents = process.env.ENABLE_PATIENT_DATA_CHANGE_EVENTS;
         const enablePersonDataChangeEvents = process.env.ENABLE_PERSON_DATA_CHANGE_EVENTS;
-        const enableEventsKakfa = process.env.ENABLE_EVENTS_KAFKA;
+        const enableEventsKafka = process.env.ENABLE_EVENTS_KAFKA;
 
         process.env.ENABLE_EVENTS_KAFKA = 'true';
         process.env.ENABLE_PATIENT_DATA_CHANGE_EVENTS = 'true';
@@ -307,6 +307,6 @@ describe('Patient Person Change Event Producer Tests', () => {
 
         process.env.ENABLE_PATIENT_DATA_CHANGE_EVENTS = enablePatientDataChangeEvents;
         process.env.ENABLE_PERSON_DATA_CHANGE_EVENTS = enablePersonDataChangeEvents;
-        process.env.ENABLE_EVENTS_KAFKA = enableEventsKakfa;
+        process.env.ENABLE_EVENTS_KAFKA = enableEventsKafka;
     });
 });
