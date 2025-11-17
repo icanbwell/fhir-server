@@ -18,6 +18,12 @@ const { ConfigManager } = require('./configManager');
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
+const EVENT_NAME_MAP = {
+    C: 'Create',
+    U: 'Change',
+    D: 'Delete'
+}
+
 /**
  * This class is used to produce change events
  */
@@ -79,7 +85,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} requestId
      * @param {string} id
      * @param {string} timestamp
-     * @param {boolean} isCreate
+     * @param {string} eventType
      * @param {string} resourceType
      * @param {string} eventName
      * @param {string} sourceType
@@ -90,7 +96,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
             requestId,
             id,
             timestamp,
-            isCreate,
+            eventType,
             resourceType,
             eventName,
             sourceType
@@ -100,7 +106,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
         const auditEvent = new AuditEvent(
             {
                 id: generateUUID(),
-                action: isCreate ? 'C' : 'U',
+                action: eventType,
                 type: new Coding({
                     code: '110100'
                 }),
@@ -146,53 +152,34 @@ class ChangeEventProducer extends BasePostSaveHandler {
     }
 
     /**
-     * Fire event for fhir resource create
-     * @param {string} requestId
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {string} timestamp
-     * @param {string} sourceType
-     * @return {Promise<void>}
-     */
-    async onResourceCreateAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
-        const isCreate = true;
-
-        const messageJson = this._createMessage({
-            requestId,
-            id,
-            timestamp,
-            isCreate,
-            resourceType,
-            eventName: `${resourceType} Create`,
-            sourceType
-        });
-        const key = `${id}`;
-        this.getFhirResourceMessageMap().set(key, messageJson);
-    }
-
-    /**
      * Fire event for fhir resource change
      * @param {string} requestId
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
      * @param {string} sourceType
+     * @param {string} eventType
      * @return {Promise<void>}
      */
-    async onResourceChangeAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
-        const isCreate = false;
+    async onResourceChangeAsync ({ requestId, id, resourceType, timestamp, sourceType, eventType }) {
 
         const messageJson = this._createMessage({
             requestId,
             id,
             timestamp,
-            isCreate,
+            eventType,
             resourceType,
-            eventName: `${resourceType} Change`,
+            eventName: `${resourceType} ${EVENT_NAME_MAP[eventType]}`,
             sourceType
         });
 
         const key = `${id}`;
+        if (eventType === 'C') {
+            // if create, just set it
+            this.getFhirResourceMessageMap().set(key, messageJson);
+            return;
+        }
+
         const fhirResourceMessageMap = this.getFhirResourceMessageMap();
         const existingMessageEntry = fhirResourceMessageMap.get(key);
         if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
@@ -204,18 +191,13 @@ class ChangeEventProducer extends BasePostSaveHandler {
     /**
      * Fires events when a resource is changed
      * @param {string} requestId
-     * @param {string} eventType.  Can be C = create or U = update
+     * @param {string} eventType.  Can be C = create or U = update or D = delete
      * @param {string} resourceType
      * @param {Resource} doc
      * @return {Promise<void>}
      */
     async afterSaveAsync ({ requestId, eventType, resourceType, doc }) {
         try {
-            if (eventType === 'D') {
-                // do not fire events for delete
-                return;
-            }
-
             /**
              * @type {string}
              */
@@ -239,15 +221,9 @@ class ChangeEventProducer extends BasePostSaveHandler {
                 }
             );
             if (this.configManager.kafkaEnabledResources.includes(resourceType)) {
-                if (eventType === 'C') {
-                    await this.onResourceCreateAsync({
-                        requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                    });
-                } else {
-                    await this.onResourceChangeAsync({
-                        requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                    });
-                }
+                await this.onResourceChangeAsync({
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType, eventType
+                });
             }
             if (
                 this.getFhirResourceMessageMap().size >= this.configManager.postRequestBatchSize

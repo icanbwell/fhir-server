@@ -64,15 +64,6 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
         this.personDataChangeMap = new Map();
 
         /**
-         * @type {Map}
-         */
-        this.patientDataChangeMapBuffer = new Map();
-        /**
-         * @type {Map}
-         */
-        this.personDataChangeMapBuffer = new Map();
-
-        /**
          * @type {boolean}
          */
         this.enablePersonDataChangeEvents = configManager.enablePersonDataChangeEvents;
@@ -106,42 +97,13 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
     }
 
     /**
-     * This map stores an entry per resource id
-     * @param {boolean} isPerson
-     * @param {boolean} useBuffer - whether to use the buffer maps
-     * @return {Map<string, List[String]>}
-     */
-    getPersonPatientDataChangeMap(isPerson = false, useBuffer = false) {
-        if (useBuffer) {
-            return isPerson ? this.personDataChangeMapBuffer : this.patientDataChangeMapBuffer;
-        }
-        return isPerson ? this.personDataChangeMap : this.patientDataChangeMap;
-    }
-
-    /**
-     * Check if any events are buffered
-     * @return {boolean}
-     */
-    hasBufferedEvents() {
-        return this.patientDataChangeMap.size > 0 || this.personDataChangeMap.size > 0;
-    }
-
-    /**
-     * Get total buffered events count
-     * @return {number}
-     */
-    getBufferedEventsCount() {
-        return this.patientDataChangeMap.size + this.personDataChangeMap.size;
-    }
-
-    /**
      * Populates person data change map based on patient data change map
-     * @param {boolean} useBuffer - whether to use buffer maps
+     * @param {Map<string, string[]>} patientDataMapBuffer
+     * @param {Map<string, string[]>} personDataMapBuffer
      * @private
      */
-    async _populatePersonDataChangeMapAsync(useBuffer = false) {
-        const patientDataMap = this.getPersonPatientDataChangeMap(false, useBuffer);
-        const patientIds = Array.from(patientDataMap.keys());
+    async _populatePersonDataChangeMapAsync(patientDataMapBuffer, personDataMapBuffer) {
+        const patientIds = Array.from(patientDataMapBuffer.keys());
         if (patientIds.length === 0) {
             return;
         }
@@ -157,6 +119,8 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
         const personResources = await personResourcesCursor.toArrayAsync();
 
         for (const personResource of personResources) {
+            const personId = personResource._uuid;
+            const personChangedResourceTypes = new Set(personDataMapBuffer.get(personId) || []);
             for (const link of personResource.link || []) {
                 const targetRef = link.target;
                 if (
@@ -166,35 +130,36 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
                     targetRef._uuid.startsWith('Patient/')
                 ) {
                     const patientId = targetRef._uuid.split('/')[1];
-                    const resourceTypes = patientDataMap.get(patientId);
+                    const resourceTypes = patientDataMapBuffer.get(patientId);
                     if (!resourceTypes) {
                         continue;
                     }
-                    this.addResourceToChangeEventBuffer({
-                        resourceTypes,
-                        id: personResource._uuid,
-                        isPerson: true,
-                        useBuffer
-                    });
+                    for (const resourceType of resourceTypes) {
+                        personChangedResourceTypes.add(resourceType);
+                    }
                 }
             }
+            personDataMapBuffer.set(personId, Array.from(personChangedResourceTypes));
         }
     }
 
     /**
      * Creates message for Patient or Person Data Change event using CloudEvent
+     * @param {string} resourceId
+     * @param {string} resourceType
+     * @param {string[]} changedResourceTypes
      * @return {Object}
      * @private
      */
-    _createCloudEvent({ isPerson, resourceId, resourceTypes }) {
+    _createCloudEvent({ resourceId, resourceType, changedResourceTypes }) {
         const eventPayload = {
             source: CLOUD_EVENT.SOURCE,
-            type: isPerson ? CLOUD_EVENT_TYPES.PERSON : CLOUD_EVENT_TYPES.PATIENT,
+            type: CLOUD_EVENT_TYPES[resourceType.toUpperCase()],
             datacontenttype: 'application/json;charset=utf-8',
             data: JSON.stringify({
                 id: resourceId,
-                resourceType: isPerson ? 'Person' : 'Patient',
-                changedResourceTypes: resourceTypes
+                resourceType,
+                changedResourceTypes
             })
         };
 
@@ -224,25 +189,24 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
     }
 
     /**
-     * Adds resource to change event buffer
-     * @param {string[]} resourceTypes
+     * Adds resource to change event map
      * @param {string} id
-     * @param {boolean} isPerson
-     * @param {boolean} useBuffer - whether to use buffer maps
+     * @param {string} resourceType
+     * @param {string} changedResourceType
      */
-    addResourceToChangeEventBuffer({ resourceTypes, id, isPerson, useBuffer = false }) {
-        if (!id || !resourceTypes?.length || (!this.enablePersonDataChangeEvents && isPerson)) {
+    addResourceToChangeEventMap({ id, resourceType, changedResourceType }) {
+        if (!id || !changedResourceType || (!this.enablePersonDataChangeEvents && resourceType === 'Person')) {
             return;
         }
 
-        const dataChangeMap = this.getPersonPatientDataChangeMap(isPerson, useBuffer);
+        const dataChangeMap = resourceType === 'Person' ? this.personDataChangeMap : this.patientDataChangeMap;
         const existingResourceTypes = dataChangeMap.get(id) || [];
 
-        // Merge resource types, avoiding duplicates
-        const mergedResourceTypes = [
-            ...existingResourceTypes,
-            ...resourceTypes.filter((type) => !existingResourceTypes.includes(type))
-        ];
+        // avoiding duplicates
+        if (existingResourceTypes.includes(changedResourceType)) {
+            return;
+        }
+        const mergedResourceTypes = existingResourceTypes.concat(changedResourceType);
 
         dataChangeMap.set(id, mergedResourceTypes);
     }
@@ -252,17 +216,21 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
      * @param {string} resourceReference
      * @param {string} resourceType
      * @param {string} docId
+     * @param {string} requestId
+     * @param {string} eventType
      * @return {string|null}
      * @private
      */
-    _extractPatientReferenceId(resourceReference, resourceType, docId) {
+    _extractPatientReferenceId(resourceReference, resourceType, docId, requestId, eventType) {
         if (
             !resourceReference ||
             typeof resourceReference !== 'string' ||
             !resourceReference.startsWith(PATIENT_REFERENCE_PREFIX)
         ) {
             logError(`Invalid patient reference for resource ${resourceType} with id ${docId}`, {
-                reference: resourceReference
+                reference: resourceReference,
+                requestId,
+                eventType
             });
             return null;
         }
@@ -271,7 +239,7 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
         if (!referencedResourceId) {
             logError(
                 `Could not extract patient/person id from reference for resource ${resourceType} with id ${docId}`,
-                { reference: resourceReference }
+                { reference: resourceReference, requestId, eventType }
             );
             return null;
         }
@@ -282,37 +250,47 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
     /**
      * Parse resource reference to determine if it's a person or patient
      * @param {string} referencedResourceId
-     * @return {{id: string, isPerson: boolean}}
+     * @return {{id: string, referencedResourceType: string}}
      * @private
      */
     _parsePatientReferenceId(referencedResourceId) {
         if (referencedResourceId.startsWith(PERSON_PROXY_PREFIX)) {
             return {
                 id: referencedResourceId.replace(PERSON_PROXY_PREFIX, ''),
-                isPerson: true
+                referencedResourceType: 'Person'
             };
         }
 
         return {
             id: referencedResourceId,
-            isPerson: false
+            referencedResourceType: 'Patient'
         };
     }
 
     /**
      * Fires events when data of person or patient is changed
+     * @param {string} requestId
+     * @param {string} eventType.  Can be C = create or U = update or D = delete
      * @param {string} resourceType
      * @param {Resource} doc
      */
-    async afterSaveAsync({ resourceType, doc }) {
+    async afterSaveAsync({ requestId, eventType, resourceType, doc }) {
         try {
             if (!this.dataChangeEventsEnabled || resourceType === 'AuditEvent') {
                 return;
             }
             if (resourceType === 'Person') {
-                this.addResourceToChangeEventBuffer({ resourceTypes: [resourceType], id: doc._uuid, isPerson: true });
+                this.addResourceToChangeEventMap({
+                    id: doc._uuid,
+                    resourceType,
+                    changedResourceType: resourceType
+                });
             } else if (resourceType === 'Patient') {
-                this.addResourceToChangeEventBuffer({ resourceTypes: [resourceType], id: doc._uuid, isPerson: false });
+                this.addResourceToChangeEventMap({
+                    id: doc._uuid,
+                    resourceType,
+                    changedResourceType: resourceType
+                });
             } else {
                 // Check if resource is patient related
                 let patientProperty = this.patientFilterManager.getPatientPropertyForResource({ resourceType });
@@ -333,25 +311,27 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
                     const referencedResourceId = this._extractPatientReferenceId(
                         resourceReference,
                         resourceType,
-                        doc._uuid
+                        doc._uuid,
+                        requestId,
+                        eventType
                     );
 
                     if (!referencedResourceId) {
                         continue;
                     }
 
-                    const { id, isPerson } = this._parsePatientReferenceId(referencedResourceId);
+                    const { id, referencedResourceType } = this._parsePatientReferenceId(referencedResourceId);
                     if (id) {
-                        this.addResourceToChangeEventBuffer({
-                            resourceTypes: [resourceType],
+                        this.addResourceToChangeEventMap({
                             id,
-                            isPerson
+                            resourceType: referencedResourceType,
+                            changedResourceType: resourceType
                         });
                     }
                 }
             }
 
-            if (this.getBufferedEventsCount() >= this.maxBufferSize) {
+            if (this.patientDataChangeMap.size + this.personDataChangeMap.size >= this.maxBufferSize) {
                 await this.flushAsync();
             }
         } catch (e) {
@@ -370,31 +350,43 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
      * @return {Promise<void>}
      */
     async flushAsync() {
-        if (!this.hasBufferedEvents()) {
+        if (this.patientDataChangeMap.size === 0 && this.personDataChangeMap.size === 0) {
             return;
         }
 
         await mutex.runExclusive(async () => {
             try {
-                // Swap buffers - move current data to processing buffers
-                this._swapBuffers();
+                // Move current data to processing buffers
+                const patientDataChangeMapBuffer = new Map(this.patientDataChangeMap);
+                this.patientDataChangeMap.clear();
 
-                // Process patient data change events
-                await this._processDataChangeEvents({
-                    isPerson: false,
-                    enabled: this.enablePatientDataChangeEvents,
-                    topic: this.patientDataChangeEventTopic
-                });
+                const personDataChangeMapBuffer = new Map(this.personDataChangeMap);
+                this.personDataChangeMap.clear();
 
-                // Process person data change events
-                await this._processDataChangeEvents({
-                    isPerson: true,
-                    enabled: this.enablePersonDataChangeEvents,
-                    topic: this.personDataChangeEventTopic
-                });
+                if (this.enablePatientDataChangeEvents) {
+                    // Process patient data change events
+                    await this._processDataChangeEvents({
+                        topic: this.patientDataChangeEventTopic,
+                        dataChangeMap: patientDataChangeMapBuffer,
+                        resourceType: 'Patient'
+                    });
+                }
+
+                if (this.enablePersonDataChangeEvents) {
+                    // Populate person data change map from patient data change map
+                    await this._populatePersonDataChangeMapAsync(patientDataChangeMapBuffer, personDataChangeMapBuffer);
+
+                    // Process person data change events
+                    await this._processDataChangeEvents({
+                        topic: this.personDataChangeEventTopic,
+                        dataChangeMap: personDataChangeMapBuffer,
+                        resourceType: 'Person'
+                    });
+                }
 
                 // Clear processing buffers
-                this._clearProcessingBuffers();
+                patientDataChangeMapBuffer.clear();
+                personDataChangeMapBuffer.clear();
             } catch (e) {
                 logError('Error in PatientPersonDataChangeEventProducer.flushAsync(): ', { error: e });
             }
@@ -403,55 +395,22 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
 
     /**
      * Process data change events for patient or person
-     * @param {Object} options
-     * @param {boolean} options.isPerson
-     * @param {boolean} options.enabled
-     * @param {string} options.topic
+     * @param {string} topic
+     * @param {Map<string, string[]>} changeDataMap
+     * @param {string} resourceType
      * @return {Promise<void>}
      * @private
      */
-    async _processDataChangeEvents({ isPerson, enabled, topic }) {
-        if (!enabled) {
-            return;
-        }
-
-        if (isPerson) {
-            await this._populatePersonDataChangeMapAsync(true);
-        }
-
-        const dataChangeMap = this.getPersonPatientDataChangeMap(isPerson, true);
+    async _processDataChangeEvents({ topic, dataChangeMap, resourceType }) {
         if (dataChangeMap.size === 0) {
             return;
         }
 
-        const messages = Array.from(dataChangeMap.entries()).map(([id, resourceTypes]) =>
-            this._createCloudEvent({ isPerson, resourceId: id, resourceTypes })
+        const messages = Array.from(dataChangeMap.entries()).map(([id, changedResourceTypes]) =>
+            this._createCloudEvent({ resourceType, resourceId: id, changedResourceTypes })
         );
 
         await this.kafkaClient.sendCloudEventMessageAsync({ topic, messages });
-    }
-
-    /**
-     * Swap current buffers with processing buffers
-     * @private
-     */
-    _swapBuffers() {
-        // Move current data to processing buffers
-        this.patientDataChangeMapBuffer = new Map(this.patientDataChangeMap);
-        this.personDataChangeMapBuffer = new Map(this.personDataChangeMap);
-
-        // Clear current buffers for new incoming data
-        this.patientDataChangeMap.clear();
-        this.personDataChangeMap.clear();
-    }
-
-    /**
-     * Clear processing buffers only
-     * @private
-     */
-    _clearProcessingBuffers() {
-        this.patientDataChangeMapBuffer.clear();
-        this.personDataChangeMapBuffer.clear();
     }
 }
 

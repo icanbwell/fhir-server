@@ -429,14 +429,6 @@ class UpdateOperation {
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: mergeResults
                 });
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
-                        await this.postSaveProcessor.afterSaveAsync({
-                            requestId, eventType: 'U', resourceType, doc
-                        });
-                    }
-                });
 
                 return result;
             } else {

@@ -277,15 +277,6 @@ class CreateOperation {
                 operationResult: mergeResults
             });
 
-            this.postRequestProcessor.add({
-                requestId,
-                fnTask: async () => {
-                    await this.postSaveProcessor.afterSaveAsync({
-                        requestId, eventType: 'U', resourceType, doc
-                    });
-                }
-            });
-
             return doc;
         } catch (/** @type {Error} */ e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
