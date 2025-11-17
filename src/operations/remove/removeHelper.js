@@ -9,6 +9,8 @@ const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter')
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { DELETE } = require('../../constants').GRIDFS;
 const httpContext = require('express-http-context');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 
 class RemoveHelper {
     /**
@@ -17,12 +19,15 @@ class RemoveHelper {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor({
         resourceLocatorFactory,
         databaseQueryFactory,
         databaseAttachmentManager,
-        databaseBulkInserter
+        databaseBulkInserter,
+        postRequestProcessor,
+        postSaveProcessor
     }) {
         /**
          * @type {ResourceLocatorFactory}
@@ -47,6 +52,18 @@ class RemoveHelper {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -121,6 +138,19 @@ class RemoveHelper {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: operationResult
             });
+
+            if (resourceType !== 'AuditEvent') {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        for (const resource of resources) {
+                            await this.postSaveProcessor.afterSaveAsync({
+                                requestId, eventType: 'D', resourceType, doc: resource
+                            });
+                        }
+                    }
+                });
+            }
 
             return result.deletedCount;
         } catch (e) {

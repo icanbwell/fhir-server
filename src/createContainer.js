@@ -121,6 +121,7 @@ const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageE
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
+const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 
 /**
  * Creates a container and sets up all the services
@@ -224,6 +225,14 @@ const createContainer = function () {
             resourceManager: c.resourceManager,
             fhirResourceChangeTopic: process.env.KAFKA_RESOURCE_CHANGE_TOPIC || 'business.events',
             configManager: c.configManager
+        }
+    ));
+    container.register('patientPersonDataChangeEventProducer', (c) => new PatientPersonDataChangeEventProducer(
+        {
+            kafkaClient: c.kafkaClient,
+            configManager: c.configManager,
+            patientFilterManager: c.patientFilterManager,
+            databaseQueryFactory: c.databaseQueryFactory
         }
     ));
     container.register('bulkExportEventProducer', (c) => new BulkExportEventProducer(
@@ -560,7 +569,6 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                postSaveProcessor: c.postSaveProcessor,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
@@ -575,7 +583,6 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                postSaveProcessor: c.postSaveProcessor,
                 databaseQueryFactory: c.databaseQueryFactory,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
@@ -619,7 +626,9 @@ const createContainer = function () {
         databaseBulkInserter: c.databaseBulkInserter,
         resourceLocatorFactory: c.resourceLocatorFactory,
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseAttachmentManager: c.databaseAttachmentManager
+        databaseAttachmentManager: c.databaseAttachmentManager,
+        postRequestProcessor: c.postRequestProcessor,
+        postSaveProcessor: c.postSaveProcessor
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(
@@ -681,7 +690,6 @@ const createContainer = function () {
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            postSaveProcessor: c.postSaveProcessor,
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
@@ -864,7 +872,8 @@ const createContainer = function () {
 
     container.register('postSaveProcessor', (c) => new PostSaveProcessor({
         handlers: [
-            c.changeEventProducer
+            c.changeEventProducer,
+            c.patientPersonDataChangeEventProducer
         ]
     }));
 
