@@ -1,6 +1,7 @@
 const httpContext = require('express-http-context');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 const { REQUEST_ID_TYPE } = require('../constants');
+const { logError } = require('../operations/common/logging');
 
 /**
  * Handle Uncaught error for routes where error is not handled
@@ -21,6 +22,21 @@ const handleServerError = (
         return res.end();
     } else if (err) {
         const status = err.statusCode || 500;
+        
+        // Log server errors for debugging
+        if (status >= 500) {
+            logError('Server error in handleServerError', {
+                error: err,
+                message: err.message,
+                stack: err.stack,
+                statusCode: status,
+                url: req.url,
+                method: req.method,
+                user: req.user,
+                userAgent: req.headers['user-agent']
+            });
+        }
+        
         /**
          * @type {OperationOutcome}
          */

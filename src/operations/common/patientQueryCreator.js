@@ -7,6 +7,7 @@ const {R4SearchQueryCreator} = require('../query/r4');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const querystring = require('querystring');
+const { logInfo } = require('./logging');
 const { OPERATIONS, RESOURCE_RESTRICTION_TAG } = require('../../constants');
 
 class PatientQueryCreator {
@@ -46,7 +47,15 @@ class PatientQueryCreator {
      * @return {import('mongodb').Document}
      */
     getQueryWithPatientFilter({patientIds, query, resourceType, useHistoryTable, personIds}) {
+        logInfo('[PatientQueryCreator] getQueryWithPatientFilter called', {
+            patientIds,
+            personIds,
+            resourceType,
+            useHistoryTable,
+            query
+        });
         if (!this.patientFilterManager.canAccessResourceWithPatientScope({resourceType})) {
+            logInfo('[PatientQueryCreator] Forbidden: Resource type cannot be accessed via patient scope', { resourceType });
             throw new ForbiddenError(`Resource type ${resourceType} cannot be accessed via a patient scope`);
         }
         const fieldMapper = new FieldMapper({useHistoryTable});
@@ -120,13 +129,19 @@ class PatientQueryCreator {
                     args,
                     useOrFilterForArrays: true
                 });
-                ({ query: patientsUuidQuery } = this.r4SearchQueryCreator.buildR4SearchQuery({
+                const r4Result = this.r4SearchQueryCreator.buildR4SearchQuery({
                     resourceType,
                     parsedArgs,
                     useHistoryTable,
                     operation: OPERATIONS.READ,
                     isUser: true
-                }));
+                });
+                logInfo('[PatientQueryCreator] R4 search query generated for patientUuids', {
+                    patientUuids,
+                    resourceType,
+                    r4Query: r4Result.query
+                });
+                ({ query: patientsUuidQuery } = r4Result);
             }
             if (patientsUuidQuery) {
                 queries.push(patientsUuidQuery);
@@ -197,13 +212,19 @@ class PatientQueryCreator {
                     args,
                     useOrFilterForArrays: true
                 });
-                ({ query: patientsNonUuidQuery } = this.r4SearchQueryCreator.buildR4SearchQuery({
+                const r4Result = this.r4SearchQueryCreator.buildR4SearchQuery({
                     resourceType,
                     parsedArgs,
                     useHistoryTable,
                     operation: OPERATIONS.READ,
                     isUser: true
-                }));
+                });
+                logInfo('[PatientQueryCreator] R4 search query generated for patientNonUuids', {
+                    patientNonUuids,
+                    resourceType,
+                    r4Query: r4Result.query
+                });
+                ({ query: patientsNonUuidQuery } = r4Result);
             }
             if (patientsNonUuidQuery) {
                 queries.push(patientsNonUuidQuery);
@@ -274,13 +295,19 @@ class PatientQueryCreator {
                     args,
                     useOrFilterForArrays: true
                 });
-                ({ query: personsQuery } = this.r4SearchQueryCreator.buildR4SearchQuery({
+                const r4Result = this.r4SearchQueryCreator.buildR4SearchQuery({
                     resourceType,
                     parsedArgs,
                     useHistoryTable,
                     operation: OPERATIONS.READ,
                     isUser: true
-                }));
+                });
+                logInfo('[PatientQueryCreator] R4 search query generated for personIds', {
+                    personIds,
+                    resourceType,
+                    r4Query: r4Result.query
+                });
+                ({ query: personsQuery } = r4Result);
             }
             if (personsQuery) {
                 queries.push(personsQuery);
@@ -288,6 +315,11 @@ class PatientQueryCreator {
         }
         // if no queries found then don't allow access
         if (queries.length === 0) {
+            logInfo('[PatientQueryCreator] No valid patient or person queries found. Returning __invalid__.', {
+                patientIds,
+                personIds,
+                resourceType
+            });
             return {id: '__invalid__'}; // return nothing since no valid query was found
         }
         // Now combine all the queries into one

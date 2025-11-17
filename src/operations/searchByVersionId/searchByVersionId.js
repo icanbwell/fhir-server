@@ -169,9 +169,13 @@ class SearchByVersionIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
+                requestId: requestInfo.userRequestId,
                 parsedArgs,
                 useHistoryTable: true,
-                operation: READ
+                operation: READ,
+                accessRequested: 'read',
+                applyPatientFilter: true,
+                addPersonOwnerToContext: false
             });
 
             const queryForVersionId = {

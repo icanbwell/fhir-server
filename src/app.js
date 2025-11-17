@@ -132,7 +132,7 @@ function createApp({fnGetContainer}) {
 
             // Only log if not /health endpoint
             if (reqPath !== '/health') {
-                logInfo('Incoming Request', {
+                logInfo('Incoming Request2', {
                     path: reqPath,
                     method: reqMethod,
                     request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},

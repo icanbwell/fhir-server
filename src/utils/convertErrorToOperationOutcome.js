@@ -1,6 +1,7 @@
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const { logError } = require('../operations/common/logging');
 
 /**
  * Creates an OperationOutcomeIssue
@@ -30,7 +31,15 @@ function createOperationOutcomeIssue ({ error, internalError }) {
  * @returns {OperationOutcome}
  */
 function convertErrorToOperationOutcome ({ error, internalError }) {
+    // Log internal errors for debugging purposes
     if (internalError) {
+        logError('Converting internal error to OperationOutcome', {
+            error: error,
+            message: error.message,
+            stack: error.stack,
+            errorType: error.constructor?.name
+        });
+        
         return new OperationOutcome({
             issue: [createOperationOutcomeIssue({ error, internalError })]
         });

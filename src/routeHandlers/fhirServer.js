@@ -19,6 +19,7 @@ const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 const { ConfigManager } = require('../utils/configManager');
+const { logError } = require('../operations/common/logging');
 
 class MyFHIRServer {
     /**
@@ -299,6 +300,20 @@ class MyFHIRServer {
                             res1.status(status).json(errorToSend);
                         } else if (err) {
                             const status = err.statusCode || 500;
+                            
+                            // Log error details for debugging
+                            if (status >= 500) {
+                                logError('FHIR server error', {
+                                    error: err,
+                                    message: err.message,
+                                    stack: err.stack,
+                                    statusCode: status,
+                                    url: req.url,
+                                    method: req.method,
+                                    user: req.user
+                                });
+                            }
+                            
                             /**
                              * @type {OperationOutcome}
                              */
@@ -312,7 +327,15 @@ class MyFHIRServer {
                         }
                     }
                 } catch (e) {
-                    // logger.error(e);
+                    logError('Unhandled error in FHIR route handler', {
+                        error: e,
+                        message: e.message,
+                        stack: e.stack,
+                        url: req.url,
+                        method: req.method,
+                        headers: req.headers,
+                        user: req.user
+                    });
                     // Get an operation outcome for this instance
                     const OperationOutcome = resolveSchema(
                         isValidBaseVersion ? base : VERSIONS['4_0_1'],

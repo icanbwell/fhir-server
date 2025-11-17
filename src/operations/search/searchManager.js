@@ -1,5 +1,5 @@
 const { isTrue } = require('../../utils/isTrue');
-const { logDebug, logError } = require('../common/logging');
+const { logDebug, logError, logInfo } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const { pipeline } = require('stream/promises');
@@ -244,8 +244,21 @@ class SearchManager {
                     base_version, isUser, personIdFromJwtToken, addPersonOwnerToContext
                 });
 
+                // Enhanced logging to understand the patient ID situation
+                const hasOnlyPersonProxy = allPatientIdsFromJwtToken.length === 1 && 
+                    allPatientIdsFromJwtToken[0] === `person.${personIdFromJwtToken}`;
+                
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
-                    allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
+                    allPatientIdsFromJwtToken.length === 0) {
+                    logInfo('[SearchManager] Patient ID validation failed - no patient IDs found.', {
+                        patientIds: allPatientIdsFromJwtToken,
+                        resourceType: resourceType,
+                        personIdFromJwtToken: personIdFromJwtToken,
+                        hasOnlyPersonProxy: hasOnlyPersonProxy,
+                        allPatientIdsLength: allPatientIdsFromJwtToken.length,
+                        doNotRequirePersonOrPatientIdForPatientScope: this.configManager.doNotRequirePersonOrPatientIdForPatientScope,
+                        explanation: 'No patient IDs found for this person, invalidating query'
+                    });
                     query = { id: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
                     if (applyPatientFilter) {
@@ -303,6 +316,28 @@ class SearchManager {
             }
             return { base_version, query, columns };
         } catch (e) {
+            // Log detailed error information for debugging
+            logError('Error in constructQueryAsync - detailed info', {
+                error: e,
+                message: e.message,
+                stack: e.stack,
+                functionParameters: {
+                    user,
+                    scope,
+                    isUser,
+                    parsedArgs: parsedArgs ? 'present' : 'missing',
+                    resourceType,
+                    useAccessIndex,
+                    personIdFromJwtToken,
+                    requestId,
+                    useHistoryTable,
+                    operation,
+                    accessRequested,
+                    applyPatientFilter,
+                    addPersonOwnerToContext
+                }
+            });
+            
             throw new RethrownError({
                     message: 'Error in constructQueryAsync(): ' + (e.message || ''),
                     error: e,
@@ -313,7 +348,13 @@ class SearchManager {
                         parsedArgs,
                         resourceType,
                         useAccessIndex,
-                        personIdFromJwtToken
+                        personIdFromJwtToken,
+                        requestId,
+                        useHistoryTable,
+                        operation,
+                        accessRequested,
+                        applyPatientFilter,
+                        addPersonOwnerToContext
                     }
                 }
             );

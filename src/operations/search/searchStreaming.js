@@ -171,8 +171,13 @@ class SearchStreamingOperation {
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
+                    requestId: requestInfo.userRequestId,
                     parsedArgs,
-                    operation: READ
+                    useHistoryTable: false,
+                    operation: READ,
+                    accessRequested: 'read',
+                    applyPatientFilter: true,
+                    addPersonOwnerToContext: false
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({

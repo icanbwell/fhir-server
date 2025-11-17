@@ -179,9 +179,13 @@ class SearchByIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
+                requestId,
                 parsedArgs,
+                useHistoryTable: false,
                 operation: READ,
-                requestId
+                accessRequested: 'read',
+                applyPatientFilter: true,
+                addPersonOwnerToContext: false
             });
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(

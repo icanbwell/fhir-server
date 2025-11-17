@@ -171,6 +171,12 @@ class ResourcePreparerTransform extends Transform {
      * @returns {Promise<Resource[]>}
      */
     async processChunkAsync (chunk1) {
+        logInfo(`ResourcePreparerTransform: Processing chunk ${chunk1.id || 'unknown'}`, {
+            chunkId: chunk1.id,
+            resourceType: this.resourceName,
+            source: 'ResourcePreparerTransform.processChunkAsync'
+        });
+        
         return this.resourcePreparer.prepareResourceAsync(
             {
                 parsedArgs: this.parsedArgs,
@@ -179,15 +185,37 @@ class ResourcePreparerTransform extends Transform {
             })
             .then(
                 /** @type {Resource[]} */resources => {
+                    logInfo(`ResourcePreparerTransform: prepareResourceAsync returned ${resources.length} resources`, {
+                        chunkId: chunk1.id,
+                        resourceCount: resources.length,
+                        resourceType: this.resourceName,
+                        source: 'ResourcePreparerTransform.processChunkAsync'
+                    });
+                    
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
                             if (resource) {
+                                logInfo(`ResourcePreparerTransform: Pushing resource ${resource.id}`, {
+                                    resourceId: resource.id,
+                                    resourceType: resource.resourceType,
+                                    source: 'ResourcePreparerTransform.processChunkAsync'
+                                });
                                 if (this.configManager.logStreamSteps) {
                                     logInfo(`ResourcePreparerTransform: push ${resource.id}`, {});
                                 }
                                 this.push(resource);
+                            } else {
+                                logInfo(`ResourcePreparerTransform: Skipping null/undefined resource`, {
+                                    chunkId: chunk1.id,
+                                    source: 'ResourcePreparerTransform.processChunkAsync'
+                                });
                             }
                         }
+                    } else {
+                        logInfo(`ResourcePreparerTransform: No resources to push for chunk ${chunk1.id}`, {
+                            chunkId: chunk1.id,
+                            source: 'ResourcePreparerTransform.processChunkAsync'
+                        });
                     }
                 }
             );

@@ -81,6 +81,16 @@ class ResourcePreparer {
      * @returns {Promise<Resource[]>}
      */
     async prepareResourceAsync({ parsedArgs, element, resourceType }) {
+        const { logInfo } = require('../common/logging');
+        
+        logInfo(`ResourcePreparer.prepareResourceAsync: Starting processing`, {
+            elementId: element?.id,
+            resourceType,
+            hasElements: parsedArgs.get('_elements') !== null,
+            isGraphQLRequest: parsedArgs.get('_isGraphQLRequest'),
+            source: 'ResourcePreparer.prepareResourceAsync'
+        });
+        
         if (parsedArgs.get('_elements') && !parsedArgs.get('_isGraphQLRequest')) {
             /**
              * @type {Resource}
@@ -90,8 +100,20 @@ class ResourcePreparer {
                 element,
                 resourceType
             });
+            
+            logInfo(`ResourcePreparer.prepareResourceAsync: After selectSpecificElements`, {
+                elementId: element?.id,
+                resourceType,
+                source: 'ResourcePreparer.prepareResourceAsync'
+            });
         }
         if (!parsedArgs.get('_elements') || parsedArgs.get('_isGraphQLRequest')) {
+            logInfo(`ResourcePreparer.prepareResourceAsync: Before enrichmentManager.enrichAsync`, {
+                elementId: element?.id,
+                resourceType,
+                source: 'ResourcePreparer.prepareResourceAsync'
+            });
+            
             /**
              * @type {Resource[]}
              */
@@ -99,7 +121,22 @@ class ResourcePreparer {
                 resources: [element],
                 parsedArgs
             });
+            
+            logInfo(`ResourcePreparer.prepareResourceAsync: After enrichmentManager.enrichAsync`, {
+                elementId: element?.id,
+                elementExists: !!element,
+                resourceType,
+                source: 'ResourcePreparer.prepareResourceAsync'
+            });
         }
+        
+        logInfo(`ResourcePreparer.prepareResourceAsync: Returning result`, {
+            elementId: element?.id,
+            elementExists: !!element,
+            resourceType,
+            source: 'ResourcePreparer.prepareResourceAsync'
+        });
+        
         return [element];
     }
 }
