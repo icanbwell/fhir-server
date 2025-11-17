@@ -569,7 +569,6 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                postSaveProcessor: c.postSaveProcessor,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
@@ -584,7 +583,6 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                postSaveProcessor: c.postSaveProcessor,
                 databaseQueryFactory: c.databaseQueryFactory,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
@@ -692,7 +690,6 @@ const createContainer = function () {
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            postSaveProcessor: c.postSaveProcessor,
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,

@@ -16,7 +16,6 @@ const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
-const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 
 class CreateOperation {
@@ -31,7 +30,6 @@ class CreateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
-     * @param {PostSaveProcessor} postSaveProcessor
      */
     constructor (
         {
@@ -43,8 +41,7 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
-            bwellPersonFinder,
-            postSaveProcessor
+            bwellPersonFinder
         }
     ) {
         /**
@@ -96,12 +93,6 @@ class CreateOperation {
          */
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
-
-        /**
-         * @type {PostSaveProcessor}
-         */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     // noinspection ExceptionCaughtLocallyJS
