@@ -65,17 +65,6 @@ class FhirDataSource {
          */
         this.requestInfo = requestInfo;
         /**
-         * Default DataLoader - uses connection string read preference (typically secondaryPreferred)
-         * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
-         */
-        this.dataLoader = null;
-        /**
-         * DataLoader for queries requiring strong consistency
-         * Uses PRIMARY read preference for read-after-write scenarios
-         * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
-         */
-        this.primaryDataLoader = null;
-        /**
          * @type {Meta[]}
          */
         this.metaList = [];
@@ -133,6 +122,19 @@ class FhirDataSource {
          * @type {{[resourceType: string]: string[]}|null}
          */
         this.patientViewControlResourceExcludeIds = null;
+
+        /**
+         * Default DataLoader - uses connection string read preference (typically secondaryPreferred)
+         * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
+         */
+        this.dataLoader = this.createDataLoader({ readPreference: null });
+
+        /**
+         * DataLoader for queries requiring strong consistency
+         * Uses PRIMARY read preference for read-after-write scenarios
+         * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
+         */
+        this.primaryDataLoader = this.createDataLoader({ readPreference: ReadPreference.PRIMARY });
     }
 
     /**
@@ -352,7 +354,8 @@ class FhirDataSource {
             return null;
         }
         try {
-            const dataLoader = this.getDataLoader(usePrimary, args);
+            // Use appropriate DataLoader based on consistency requirements
+            const dataLoader = usePrimary ? this.primaryDataLoader : this.dataLoader;
             // noinspection JSValidateTypes
             let resource = await dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
             return resource;
@@ -421,9 +424,9 @@ class FhirDataSource {
         }
 
         try {
-            const dataLoader = this.getDataLoader(false, {});
+            // Use default DataLoader (connection string read preference)
             // noinspection JSValidateTypes
-            let resource = await dataLoader.load(
+            let resource = await this.dataLoader.load(
                 ResourceWithId.getReferenceKey(resourceType, id)
             );
             return resource;
@@ -520,8 +523,7 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle (parent, args, context, info, resourceType) {
-        // Ensure dataLoader is created (used for nested queries)
-        this.getDataLoader(false, args);
+        // DataLoader is already created in constructor and available for nested queries
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
@@ -563,50 +565,23 @@ class FhirDataSource {
     }
 
     /**
-     * Creates a data loader with the specified read preference
-     * @param {string|null} readPreference - Read preference ('primary' or null for connection string default)
-     * @param {Object} args - Arguments (e.g., _debug, _explain)
+     * Creates a data loader with the specified configuration
+     * @typedef {Object} DataLoaderConfig
+     * @property {import('mongodb').ReadPreferenceMode|import('mongodb').ReadPreference|null} readPreference - MongoDB read preference or null for connection string default
+     * @param {DataLoaderConfig} config
      * @private
      */
-    createDataLoader (readPreference, args) {
-        const loader = new DataLoader(
+    createDataLoader ({ readPreference }) {
+        return new DataLoader(
             async (keys) => await this.getResourcesInBatch(
                 {
                     keys,
                     requestInfo: this.requestInfo,
-                    args: { // these args should apply to every nested property
-                        _debug: args._debug,
-                        _explain: args._explain
-                    },
+                    args: {}, // Empty args - debug/explain handled elsewhere
                     readPreference: readPreference  // Pass through readPreference if provided
                 }
             )
         );
-        if (args._debug) {
-            this.debugMode = true;
-        }
-        return loader;
-    }
-
-    /**
-     * Gets the appropriate DataLoader based on whether primary read is required
-     * Creates the DataLoader lazily if it doesn't exist
-     * @param {boolean} usePrimary - Whether to use PRIMARY read preference (default: false)
-     * @param {Object} args - Arguments for DataLoader creation (default: {})
-     * @return {DataLoader}
-     */
-    getDataLoader(usePrimary = false, args = {}) {
-        if (usePrimary) {
-            if (!this.primaryDataLoader) {
-                this.primaryDataLoader = this.createDataLoader('primary', args);
-            }
-            return this.primaryDataLoader;
-        } else {
-            if (!this.dataLoader) {
-                this.dataLoader = this.createDataLoader(null, args);
-            }
-            return this.dataLoader;
-        }
     }
 
     /**
@@ -910,9 +885,8 @@ class FhirDataSource {
             // Use PRIMARY read preference for federation to ensure strong consistency
             // This is important for read-after-write scenarios in federated queries
             this.generateResourceProjections(info);
-            const dataLoader = this.getDataLoader(true, {});  // usePrimary = true
             // noinspection JSValidateTypes
-            let resource = await dataLoader.load(
+            let resource = await this.primaryDataLoader.load(
                 ResourceWithId.getReferenceKey(requestedResource, id)
             );
             return resource;
