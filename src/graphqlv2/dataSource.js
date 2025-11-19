@@ -421,9 +421,9 @@ class FhirDataSource {
         }
 
         try {
-            this.createDataLoader({});
+            const dataLoader = this.getDataLoader(false, {});
             // noinspection JSValidateTypes
-            let resource = await this.dataLoader.load(
+            let resource = await dataLoader.load(
                 ResourceWithId.getReferenceKey(resourceType, id)
             );
             return resource;
@@ -520,7 +520,8 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle (parent, args, context, info, resourceType) {
-        this.createDataLoader(args);
+        // Ensure dataLoader is created (used for nested queries)
+        this.getDataLoader(false, args);
         this.generateResourceProjections(info);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
@@ -562,72 +563,48 @@ class FhirDataSource {
     }
 
     /**
-     * Creates the default data loader if it does not exist (lazy init)
-     * Uses connection string read preference (typically secondaryPreferred for better performance)
-     * @param {Object} args
+     * Creates a data loader with the specified read preference
+     * @param {string|null} readPreference - Read preference ('primary' or null for connection string default)
+     * @param {Object} args - Arguments (e.g., _debug, _explain)
+     * @private
      */
-    createDataLoader (args) {
-        if (!this.dataLoader) {
-            // noinspection JSValidateTypes
-            this.dataLoader = new DataLoader(
-                async (keys) => await this.getResourcesInBatch(
-                    {
-                        keys,
-                        requestInfo: this.requestInfo,
-                        args: { // these args should apply to every nested property
-                            _debug: args._debug,
-                            _explain: args._explain
-                        }
-                        // No readPreference - uses connection string default
-                    }
-                )
-            );
-            if (args._debug) {
-                this.debugMode = true;
-            }
+    createDataLoader (readPreference, args) {
+        const loader = new DataLoader(
+            async (keys) => await this.getResourcesInBatch(
+                {
+                    keys,
+                    requestInfo: this.requestInfo,
+                    args: { // these args should apply to every nested property
+                        _debug: args._debug,
+                        _explain: args._explain
+                    },
+                    readPreference: readPreference  // Pass through readPreference if provided
+                }
+            )
+        );
+        if (args._debug) {
+            this.debugMode = true;
         }
-    }
-
-    /**
-     * Creates the primary data loader if it does not exist (lazy init)
-     * Uses PRIMARY read preference for strong consistency (read-after-write scenarios)
-     * Use this when you need to ensure you're reading the latest data from the primary node
-     * @param {Object} args
-     */
-    createPrimaryDataLoader (args) {
-        if (!this.primaryDataLoader) {
-            // noinspection JSValidateTypes
-            this.primaryDataLoader = new DataLoader(
-                async (keys) => await this.getResourcesInBatch(
-                    {
-                        keys,
-                        requestInfo: this.requestInfo,
-                        args: { // these args should apply to every nested property
-                            _debug: args._debug,
-                            _explain: args._explain
-                        },
-                        readPreference: 'primary'  // Force PRIMARY for strong consistency
-                    }
-                )
-            );
-            if (args._debug) {
-                this.debugMode = true;
-            }
-        }
+        return loader;
     }
 
     /**
      * Gets the appropriate DataLoader based on whether primary read is required
-     * @param {boolean} usePrimary - Whether to use primary read preference
-     * @param {Object} args - Arguments for DataLoader creation
+     * Creates the DataLoader lazily if it doesn't exist
+     * @param {boolean} usePrimary - Whether to use PRIMARY read preference (default: false)
+     * @param {Object} args - Arguments for DataLoader creation (default: {})
      * @return {DataLoader}
      */
     getDataLoader(usePrimary = false, args = {}) {
         if (usePrimary) {
-            this.createPrimaryDataLoader(args);
+            if (!this.primaryDataLoader) {
+                this.primaryDataLoader = this.createDataLoader('primary', args);
+            }
             return this.primaryDataLoader;
         } else {
-            this.createDataLoader(args);
+            if (!this.dataLoader) {
+                this.dataLoader = this.createDataLoader(null, args);
+            }
             return this.dataLoader;
         }
     }
