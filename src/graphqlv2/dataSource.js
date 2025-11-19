@@ -127,14 +127,14 @@ class FhirDataSource {
          * Default DataLoader - uses connection string read preference (typically secondaryPreferred)
          * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
          */
-        this.dataLoader = this.createDataLoader({ readPreference: null });
+        this.dataLoader = this.createDataLoader();
 
         /**
          * DataLoader for queries requiring strong consistency
          * Uses PRIMARY read preference for read-after-write scenarios
          * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
          */
-        this.primaryDataLoader = this.createDataLoader({ readPreference: ReadPreference.PRIMARY });
+        this.primaryDataLoader = this.createDataLoader({ usePrimary: true });
     }
 
     /**
@@ -567,18 +567,16 @@ class FhirDataSource {
     /**
      * Creates a data loader with the specified configuration
      * @typedef {Object} DataLoaderConfig
-     * @property {import('mongodb').ReadPreferenceMode|import('mongodb').ReadPreference|null} [readPreference] - MongoDB read preference or null for connection string default
+     * @property {boolean} [usePrimary=false] - Whether to use PRIMARY read preference
      * @property {boolean} [_debug] - Enable debug mode
      * @property {boolean} [_explain] - Enable explain mode
      * @param {DataLoaderConfig} [config={}]
      * @private
      */
-    createDataLoader ({ readPreference = null, _debug = false, _explain = false } = {}) {
+    createDataLoader ({ usePrimary = false, _debug = false, _explain = false } = {}) {
         if (_debug) {
             this.debugMode = true;
         }
-
-        const usePrimary = readPreference === ReadPreference.PRIMARY;
 
         return new DataLoader(
             async (keys) => await this.getResourcesInBatch(
