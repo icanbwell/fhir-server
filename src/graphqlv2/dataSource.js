@@ -1,6 +1,7 @@
 const { logWarn } = require('../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
+const { ReadPreference } = require('mongodb');
 const { OPERATIONS: { READ }, COLLECTION } = require('../constants');
 const { groupByLambda } = require('../utils/list.util');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
@@ -64,9 +65,16 @@ class FhirDataSource {
          */
         this.requestInfo = requestInfo;
         /**
+         * Default DataLoader - uses connection string read preference (typically secondaryPreferred)
          * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
          */
         this.dataLoader = null;
+        /**
+         * DataLoader for queries requiring strong consistency
+         * Uses PRIMARY read preference for read-after-write scenarios
+         * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
+         */
+        this.primaryDataLoader = null;
         /**
          * @type {Meta[]}
          */
@@ -177,9 +185,10 @@ class FhirDataSource {
      * @param {string[]} keys
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {string} readPreference - Optional read preference (e.g., 'primary')
      * @return {Promise<(Resource|null)[]>}>}
      */
-    async getResourcesInBatch ({ keys, requestInfo, args }) {
+    async getResourcesInBatch ({ keys, requestInfo, args, readPreference }) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -250,7 +259,8 @@ class FhirDataSource {
                                 resourceType,
                                 headers: requestInfo.headers
                             }),
-                            useAggregationPipeline: false
+                            useAggregationPipeline: false,
+                            readPreference: readPreference  // Pass through readPreference if provided
                         });
 
                         // Add results from this batch to the combined results array
@@ -296,9 +306,10 @@ class FhirDataSource {
      * @param {GraphQLContext} context
      * @param {Object} info
      * @param {{reference: string, type: string, _uuid: string}} reference
+     * @param {boolean} usePrimary - Whether to use PRIMARY read preference (default: false)
      * @return {Promise<null|Resource>}
      */
-    async findResourceByReference (parent, args, context, info, reference) {
+    async findResourceByReference (parent, args, context, info, reference, usePrimary = false) {
         if (!reference || !reference.reference) {
             return null;
         }
@@ -341,9 +352,9 @@ class FhirDataSource {
             return null;
         }
         try {
-            this.createDataLoader(args);
+            const dataLoader = this.getDataLoader(usePrimary, args);
             // noinspection JSValidateTypes
-            let resource = await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
+            let resource = await dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
             return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
@@ -551,7 +562,8 @@ class FhirDataSource {
     }
 
     /**
-     * Creates the data loader if it does not exist (lazy init)
+     * Creates the default data loader if it does not exist (lazy init)
+     * Uses connection string read preference (typically secondaryPreferred for better performance)
      * @param {Object} args
      */
     createDataLoader (args) {
@@ -566,12 +578,57 @@ class FhirDataSource {
                             _debug: args._debug,
                             _explain: args._explain
                         }
+                        // No readPreference - uses connection string default
                     }
                 )
             );
             if (args._debug) {
                 this.debugMode = true;
             }
+        }
+    }
+
+    /**
+     * Creates the primary data loader if it does not exist (lazy init)
+     * Uses PRIMARY read preference for strong consistency (read-after-write scenarios)
+     * Use this when you need to ensure you're reading the latest data from the primary node
+     * @param {Object} args
+     */
+    createPrimaryDataLoader (args) {
+        if (!this.primaryDataLoader) {
+            // noinspection JSValidateTypes
+            this.primaryDataLoader = new DataLoader(
+                async (keys) => await this.getResourcesInBatch(
+                    {
+                        keys,
+                        requestInfo: this.requestInfo,
+                        args: { // these args should apply to every nested property
+                            _debug: args._debug,
+                            _explain: args._explain
+                        },
+                        readPreference: 'primary'  // Force PRIMARY for strong consistency
+                    }
+                )
+            );
+            if (args._debug) {
+                this.debugMode = true;
+            }
+        }
+    }
+
+    /**
+     * Gets the appropriate DataLoader based on whether primary read is required
+     * @param {boolean} usePrimary - Whether to use primary read preference
+     * @param {Object} args - Arguments for DataLoader creation
+     * @return {DataLoader}
+     */
+    getDataLoader(usePrimary = false, args = {}) {
+        if (usePrimary) {
+            this.createPrimaryDataLoader(args);
+            return this.primaryDataLoader;
+        } else {
+            this.createDataLoader(args);
+            return this.dataLoader;
         }
     }
 
@@ -837,7 +894,9 @@ class FhirDataSource {
     }
 
     /**
-     * Resolves entity by reference
+     * Resolves entity by reference (for GraphQL Federation)
+     * This method is specifically used for __resolveReference and uses PRIMARY read preference
+     * to ensure strong consistency for federation queries (read-after-write scenarios)
      * @param {{__typename: string, id: string}} reference
      * @param {GraphQLContext} context
      * @param {Object} info
@@ -871,10 +930,12 @@ class FhirDataSource {
         }
 
         try {
-            this.createDataLoader({});
+            // Use PRIMARY read preference for federation to ensure strong consistency
+            // This is important for read-after-write scenarios in federated queries
             this.generateResourceProjections(info);
+            const dataLoader = this.getDataLoader(true, {});  // usePrimary = true
             // noinspection JSValidateTypes
-            let resource = await this.dataLoader.load(
+            let resource = await dataLoader.load(
                 ResourceWithId.getReferenceKey(requestedResource, id)
             );
             return resource;
