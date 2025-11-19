@@ -187,10 +187,10 @@ class FhirDataSource {
      * @param {string[]} keys
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {string} readPreference - Optional read preference (e.g., 'primary')
+     * @param {boolean} usePrimary - Whether to use PRIMARY read preference (default: false)
      * @return {Promise<(Resource|null)[]>}>}
      */
-    async getResourcesInBatch ({ keys, requestInfo, args, readPreference }) {
+    async getResourcesInBatch ({ keys, requestInfo, args, usePrimary = false }) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -262,7 +262,7 @@ class FhirDataSource {
                                 headers: requestInfo.headers
                             }),
                             useAggregationPipeline: false,
-                            readPreference: readPreference  // Pass through readPreference if provided
+                            readPreference: usePrimary ? ReadPreference.PRIMARY : undefined
                         });
 
                         // Add results from this batch to the combined results array
@@ -567,18 +567,26 @@ class FhirDataSource {
     /**
      * Creates a data loader with the specified configuration
      * @typedef {Object} DataLoaderConfig
-     * @property {import('mongodb').ReadPreferenceMode|import('mongodb').ReadPreference|null} readPreference - MongoDB read preference or null for connection string default
-     * @param {DataLoaderConfig} config
+     * @property {import('mongodb').ReadPreferenceMode|import('mongodb').ReadPreference|null} [readPreference] - MongoDB read preference or null for connection string default
+     * @property {boolean} [_debug] - Enable debug mode
+     * @property {boolean} [_explain] - Enable explain mode
+     * @param {DataLoaderConfig} [config={}]
      * @private
      */
-    createDataLoader ({ readPreference }) {
+    createDataLoader ({ readPreference = null, _debug = false, _explain = false } = {}) {
+        if (_debug) {
+            this.debugMode = true;
+        }
+
+        const usePrimary = readPreference === ReadPreference.PRIMARY;
+
         return new DataLoader(
             async (keys) => await this.getResourcesInBatch(
                 {
                     keys,
                     requestInfo: this.requestInfo,
-                    args: {}, // Empty args - debug/explain handled elsewhere
-                    readPreference: readPreference  // Pass through readPreference if provided
+                    args: { _debug, _explain },
+                    usePrimary: usePrimary
                 }
             )
         );

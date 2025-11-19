@@ -202,7 +202,7 @@ class SearchBundleOperation {
          */
         const options = {};
         if (readPreference) {
-            options.readPreference = ReadPreference.PRIMARY;
+            options.readPreference = readPreference;
         }
 
         // Query our collection for this observation
