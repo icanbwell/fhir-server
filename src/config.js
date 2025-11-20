@@ -62,8 +62,9 @@ const mongoConfig = {
  * @summary Configurations for our Mongo instance
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
  */
-let auditEventMongoConfig;
-
+let auditEventMongoConfig = {
+    db_name: mongoConfig.db_name
+};
 if (env.AUDIT_EVENT_MONGO_URL) {
     let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL;
     if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
@@ -94,8 +95,6 @@ if (env.AUDIT_EVENT_MONGO_URL) {
             }
         }
     };
-} else {
-    auditEventMongoConfig = mongoConfig;
 }
 
 /**
@@ -103,8 +102,9 @@ if (env.AUDIT_EVENT_MONGO_URL) {
  * @summary Configurations for our Mongo instance
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
  */
-let auditEventReadOnlyMongoConfig;
-
+let auditEventReadOnlyMongoConfig = {
+    db_name: auditEventMongoConfig.db_name
+};
 if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
     let auditEventReadOnlyMongoUrl = env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL;
     if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
@@ -131,8 +131,6 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
             }
         }
     };
-} else {
-    auditEventReadOnlyMongoConfig = auditEventMongoConfig;
 }
 
 /**
@@ -140,7 +138,9 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
  * @summary Configurations of our Mongo instance for access logs
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
  */
-let accessLogsMongoConfig;
+let accessLogsMongoConfig = {
+    db_name: env.ACCESS_LOGS_MONGO_DB_NAME ? String(env.ACCESS_LOGS_MONGO_DB_NAME) : auditEventMongoConfig.db_name
+};
 if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
     let accessLogsMongoUrl = env.ACCESS_LOGS_CLUSTER_MONGO_URL;
     if (env.ACCESS_LOGS_MONGO_USERNAME !== undefined) {
@@ -154,40 +154,35 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
         );
     }
     // url-encode the url
-    accessLogsMongoUrl = accessLogsMongoUrl ? encodeURI(accessLogsMongoUrl) : accessLogsMongoUrl;
+    accessLogsMongoUrl = encodeURI(accessLogsMongoUrl);
+
+    const accessLogsQueryParams = getQueryParams(accessLogsMongoUrl);
+    const accessLogsWriteConcern = accessLogsQueryParams.w ?? 1;
+    delete accessLogsQueryParams.w;
+
     accessLogsMongoConfig = {
         connection: accessLogsMongoUrl,
-        db_name: String(env.ACCESS_LOGS_MONGO_DB_NAME)
+        db_name: String(env.ACCESS_LOGS_MONGO_DB_NAME),
+        options: {
+            ...options,
+            ...accessLogsQueryParams,
+            writeConcern: { w: accessLogsWriteConcern },
+            maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 10,
+            minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1
+        }
     };
-} else {
-    const dbName = env.ACCESS_LOGS_MONGO_DB_NAME
-        ? String(env.ACCESS_LOGS_MONGO_DB_NAME)
-        : auditEventMongoConfig.db_name;
-    accessLogsMongoConfig = {
-        connection: auditEventMongoConfig.connection,
-        db_name: dbName
-    };
+    // This accessLogsMongoConfig is used to access Logs using FHIR Admin only
+    delete accessLogsMongoConfig.options.compressors;
 }
-const accessLogsQueryParams = getQueryParams(accessLogsMongoConfig.connection);
-const accessLogsWriteConcern = accessLogsQueryParams.w ?? 1;
-delete accessLogsQueryParams.w;
-accessLogsMongoConfig.options = {
-    ...options,
-    ...accessLogsQueryParams,
-    writeConcern: { w: accessLogsWriteConcern },
-    maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 10,
-    minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1
-};
-// This accessLogsMongoConfig is used to access Logs using FHIR Admin only
-delete accessLogsMongoConfig.options.compressors;
 
 /**
  * @name mongoConfig
  * @summary Configurations for our Mongo instance
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
  */
-let resourceHistoryMongoConfig;
-
+let resourceHistoryMongoConfig = {
+    db_name: mongoConfig.db_name
+};
 if (env.RESOURCE_HISTORY_MONGO_URL) {
     let resourceHistoryMongoUrl = env.RESOURCE_HISTORY_MONGO_URL;
     if (env.RESOURCE_HISTORY_MONGO_USERNAME !== undefined) {
@@ -218,8 +213,6 @@ if (env.RESOURCE_HISTORY_MONGO_URL) {
             }
         }
     };
-} else {
-    resourceHistoryMongoConfig = mongoConfig;
 }
 
 // Set up whitelist
