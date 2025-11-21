@@ -340,6 +340,24 @@
             "entry": []
           },
           {
+            "title": "Immunizations",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "11369-6",
+                  "display": "Immunizations"
+                }
+              ],
+              "text": "Immunizations"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Immunization</th> <th>Status</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>Flu (Influenza)</td> <td>completed</td> <td>10/1/2024, 6:00 AM EDT</td> </tr> <tr> <td>COVID-19</td> <td>completed</td> <td>8/10/2024, 7:00 AM EDT</td> </tr> </tbody> </table> </div></div>"
+            },
+            "entry": []
+          },
+          {
             "title": "Results Summary",
             "code": {
               "coding": [
