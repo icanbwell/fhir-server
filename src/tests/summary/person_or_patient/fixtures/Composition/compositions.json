@@ -10,7 +10,7 @@
       }
     ],
     "subject": {
-        "reference": "Patient/patient1"
+      "reference": "Patient/patient1"
     },
     "title": "summary",
     "meta": {
@@ -214,7 +214,7 @@
       }
     ],
     "subject": {
-        "reference": "Patient/patient1"
+      "reference": "Patient/patient1"
     },
     "title": "summary",
     "meta": {
@@ -338,7 +338,7 @@
     ],
     "title": "summary",
     "subject": {
-        "reference": "Patient/patient1"
+      "reference": "Patient/patient1"
     },
     "meta": {
       "source": "http://healthsystem1health.org/provider",
@@ -394,6 +394,135 @@
         {
           "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
           "code": "allergy_summary_document"
+        }
+      ]
+    }
+  },
+  {
+    "id": "170d353e-4cad-55a6-863a-193037c65ccc",
+    "status": "final",
+    "date": "2025-01-01",
+    "author": [
+      {
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "title": "summary",
+    "subject": {
+      "reference": "Patient/patient1"
+    },
+    "meta": {
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "entry": [
+          {
+            "reference": "Immunization/9d79c498-d11c-4d4e-ac29-faf4ab499247"
+          }
+        ],
+        "section": [
+          {
+            "title": "Immunization Name",
+            "text": {
+              "status": "generated",
+              "div": "Flu (Influenza)"
+            }
+          },
+          {
+            "title": "occurrenceDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2024-10-01T10:00:00+00:00"
+            }
+          },
+          {
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "completed"
+            }
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "reference": "Immunization/b9ce7293-0b8a-43e5-a884-e208fb6c128d1"
+          }
+        ],
+        "section": [
+          {
+            "title": "Immunization Name",
+            "text": {
+              "status": "generated",
+              "div": "COVID-19"
+            }
+          },
+          {
+            "title": "occurrenceDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2024-08-10T11:00:00+00:00"
+            }
+          },
+          {
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "completed"
+            }
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "reference": "Immunization/b9ce72s3-0b8a-43e5-a884-e208fb6c128d1"
+          }
+        ],
+        "section": [
+          {
+            "title": "Immunization Name",
+            "text": {
+              "status": "generated",
+              "div": "DPT"
+            }
+          },
+          {
+            "title": "occurrenceDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2021-08-09T11:00:00+00:00"
+            }
+          },
+          {
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "not-done"
+            }
+          }
+        ]
+      }
+    ],
+    "type": {
+      "coding": [
+        {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+          "code": "immunization_summary_document"
         }
       ]
     }
