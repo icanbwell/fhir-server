@@ -7,7 +7,6 @@ const { PatientFilterManager } = require('../fhir/patientFilterManager');
 const { logError } = require('../operations/common/logging');
 const { CLOUD_EVENT, PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX } = require('../constants');
 const { CloudEvent, Kafka } = require('cloudevents');
-const { generateUUID } = require('./uid.util');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { NestedPropertyReader } = require('./nestedPropertyReader');
 
@@ -170,7 +169,7 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
         const eventHeaders = this._cleanHeaders(message.headers);
 
         return {
-            key: generateUUID(),
+            key: resourceId,
             value: message.body,
             headers: eventHeaders
         };
