@@ -1,4 +1,5 @@
 const { MongoError } = require('../../utils/mongoErrors');
+const { ReadPreference } = require('mongodb');
 const { logDebug } = require('../common/logging');
 const { isTrue } = require('../../utils/isTrue');
 const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
@@ -103,10 +104,11 @@ class SearchBundleOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAggregationPipeline
+     * @param {string} readPreference
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (
-        { requestInfo, parsedArgs, resourceType, useAggregationPipeline }
+        { requestInfo, parsedArgs, resourceType, useAggregationPipeline, readPreference }
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -199,6 +201,9 @@ class SearchBundleOperation {
          * @type {import('mongodb').FindOneOptions}
          */
         const options = {};
+        if (readPreference) {
+            options.readPreference = readPreference;
+        }
 
         // Query our collection for this observation
         /**
