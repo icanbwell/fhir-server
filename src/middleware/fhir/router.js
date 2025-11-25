@@ -370,6 +370,7 @@ class FhirRouter {
             try {
                 parameters = versions.reduce((all, version) => all.concat(getSearchParameters(lowercaseKey, version, overrideArguments)), []);
             } catch (err) {
+                console.log(err)
                 throw new Error(`${profileName} is an invalid profile configuration, please see the wiki ` + 'for further instruction' + 'https://github.com/icanbwell/fhir-server#cheat-sheet');
             } // Enable all provided operations for this profile
 

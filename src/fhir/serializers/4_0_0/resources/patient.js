@@ -181,6 +181,7 @@ class PatientSerializer {
             initializeSerializers('PatientLink');
             return FhirResourceSerializer.serializeArray(value, PatientLinkSerializer);
         },
+        idWithResourceType: null,
         resourceType: null
     };
 
@@ -222,6 +223,7 @@ class PatientSerializer {
                 delete rawJson[propertyName];
             }
         });
+        rawJson['idWithResourceType'] = `${rawJson.id || ''}|${rawJson.resourceType || 'Patient'}`;
 
         return rawJson;
     }
