@@ -19,6 +19,7 @@ const validateContentTypeMiddleware = require('./middleware/contentType-validati
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
+const {handleRedisRequest} = require('./routeHandlers/redis.js');
 const {handleVersion} = require('./routeHandlers/version');
 const {handleStats} = require('./routeHandlers/stats');
 const {handleLogout} = require('./routeHandlers/logout');
@@ -313,6 +314,12 @@ function createApp({fnGetContainer}) {
     app.get('/full-healthcheck', (req, res) => handleFullHealthCheck(
         fnGetContainer, req, res
     ));
+
+    if (isTrue(process.env.ENABLE_REDIS_ENDPOINT)) {
+        app.route('/redis')
+            .get((req, res) => handleRedisRequest(fnGetContainer, req, res))
+            .post(express.json(), (req, res) => handleRedisRequest(fnGetContainer, req, res));
+    }
 
     app.get('/live', (req, res) => handleLivenessCheck(req, res));
 

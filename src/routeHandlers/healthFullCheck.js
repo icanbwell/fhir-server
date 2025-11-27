@@ -18,12 +18,14 @@ module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
         const results = await Promise.allSettled([
             handleKafkaHealthCheck(container),
             handleLogHealthCheck(),
-            handleHealthCheckQuery(container)
+            handleHealthCheckQuery(container),
+            container.redisClient.checkConnectionHealth()
         ]);
-        if (!Array.isArray(results) || results.length !== 3) {
+        if (!Array.isArray(results) || results.length !== 4) {
             status.kafkaStatus = 'Failed';
             status.logStatus = 'Failed';
             status.mongoDBStatus = 'Failed';
+            status.redisStatus = 'Failed';
         } else {
             if (results[0]) {
                 status.kafkaStatus = 'OK';
@@ -40,11 +42,17 @@ module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
             } else {
                 status.mongoDBStatus = 'Failed';
             }
+            if (results[3]) {
+                status.redisStatus = 'OK';
+            } else {
+                status.redisStatus = 'Failed';
+            }
         }
     } catch (e) {
         status.kafkaStatus = 'Failed';
         status.logStatus = 'Failed';
         status.mongoDBStatus = 'Failed';
+        status.redisStatus = 'Failed';
     }
     return res.json({ status });
 };
