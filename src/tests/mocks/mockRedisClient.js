@@ -1,9 +1,5 @@
-const { RedisClient } = require('../../utils/redisClient');
-
-
-class MockRedisClient extends RedisClient {
+class MockRedisClient {
     constructor() {
-        super();
         this.store = new Map();
         this.connected = false;
     }

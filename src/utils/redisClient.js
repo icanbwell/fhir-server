@@ -9,11 +9,6 @@ const env = process.env;
 
 class RedisClient {
     constructor() {
-        this.maxRetries = env.REDIS_CONNECT_MAX_RETRIES ? parseInt(env.REDIS_CONNECT_MAX_RETRIES) : 3;
-        if (isNaN(this.maxRetries) || this.maxRetries < 0) {
-            this.maxRetries = 3;
-        }
-
         this.client = createClient({
             url: env.REDIS_URL || undefined,
             username: env.REDIS_USERNAME || undefined,
