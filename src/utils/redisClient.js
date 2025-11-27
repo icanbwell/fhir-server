@@ -1,3 +1,4 @@
+const {isTrue} = require('./isTrue')
 const { createClient } = require('redis');
 const { logError, logInfo } = require('../operations/common/logging');
 const { captureException } = require('../operations/common/sentry');
@@ -53,13 +54,15 @@ class RedisClient {
 
     async checkConnectionHealth() {
         let healthy = true;
-        try {
-            await this.connectAsync();
-            await this.client.ping();
-        } catch (e) {
-            logError('Redis health check failed', { error: e });
-            captureException(e);
-            healthy = false;
+        if (isTrue(env.ENABLE_REDIS_IN_HEALTH_CHECK)) {
+            try {
+                await this.connectAsync();
+                await this.client.ping();
+            } catch (e) {
+                logError('Redis health check failed', { error: e });
+                captureException(e);
+                healthy = false;
+            }
         }
         return healthy;
     }

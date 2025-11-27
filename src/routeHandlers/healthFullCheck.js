@@ -2,6 +2,7 @@
  * This route handler implements the /full-healthcheck endpoint which returns the health of the system
  */
 
+const {isTrue} = require('../utils/isTrue')
 const { handleKafkaHealthCheck } = require('../utils/kafkaHealthCheck');
 const { handleLogHealthCheck } = require('../utils/logHealthCheck');
 const { handleHealthCheckQuery } = require('../utils/mongoDBHealthCheck');
@@ -43,7 +44,11 @@ module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
                 status.mongoDBStatus = 'Failed';
             }
             if (results[3]) {
-                status.redisStatus = 'OK';
+                if (isTrue(process.env.ENABLE_REDIS_IN_HEALTH_CHECK)) {
+                    status.redisStatus = 'OK';
+                } else {
+                    status.redisStatus = 'Disabled';
+                }
             } else {
                 status.redisStatus = 'Failed';
             }
