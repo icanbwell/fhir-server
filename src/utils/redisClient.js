@@ -46,7 +46,7 @@ class RedisClient {
 
     async set(key, value, ttlSeconds = env.REDIS_KEY_DEFAULT_TTL_SECONDS) {
         if (ttlSeconds && !isNaN(parseInt(ttlSeconds))) {
-            await this.client.set(key, value, { EX: ttlSeconds });
+            await this.client.set(key, value, { EX: parseInt(ttlSeconds) });
         } else {
             await this.client.set(key, value);
         }
