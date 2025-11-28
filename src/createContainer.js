@@ -122,6 +122,7 @@ const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
+const { RedisClient } = require('./utils/redisClient');
 
 /**
  * Creates a container and sets up all the services
@@ -989,6 +990,8 @@ const createContainer = function () {
             }
         );
     });
+
+    container.register('redisClient', () => new RedisClient());
 
     return container;
 };

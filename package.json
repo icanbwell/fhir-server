@@ -189,7 +189,8 @@
     "winston-transport": "^4.9.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "xss": "^1.0.15",
-    "yargs": "^18.0.0"
+    "yargs": "^18.0.0",
+    "redis": "^5.8.2"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
