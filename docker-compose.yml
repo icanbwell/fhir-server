@@ -83,7 +83,12 @@ services:
       PRE_SAVE_CODING_ID_UPDATE_RESOURCES: 'Binary,Observation'
       ENABLE_SWAGGER_DOC: 1
       HOST_SERVER: "http://localhost:3000"
-      REDIS_URL: 'redis://redis:6379'
+      # REDIS_USERNAME: 'default'
+      # REDIS_PASSWORD: ''
+      REDIS_HOST: 'redis'
+      REDIS_PORT: '6379'
+      REDIS_REJECT_UNAUTHORIZED_FLAG: 'false'
+      REDIS_ENABLE_TLS: 'false'
       ENABLE_REDIS_ENDPOINT: 1
       ENABLE_REDIS_IN_HEALTH_CHECK: 1
       REDIS_KEY_DEFAULT_TTL_SECONDS: 600

@@ -1,5 +1,5 @@
 const {isTrue} = require('./isTrue')
-const { createClient } = require('redis');
+const { createClient, ReconnectStrategyError } = require('redis');
 const { logError, logInfo } = require('../operations/common/logging');
 const { captureException } = require('../operations/common/sentry');
 
@@ -10,14 +10,20 @@ const env = process.env;
 
 class RedisClient {
     constructor() {
-        this.client = createClient({
-            url: env.REDIS_URL || undefined,
-            username: env.REDIS_USERNAME || undefined,
-            password: env.REDIS_PASSWORD || undefined,
+        let redisConfig = {
             socket: {
-                reconnectStrategy: false
+                host: env.REDIS_HOST || undefined,
+                port: parseInt(env.REDIS_PORT) || 6379,
+                tls: isTrue(env.REDIS_ENABLE_TLS),
+                reconnectStrategy: false,
+                rejectUnauthorized: isTrue(env.REDIS_REJECT_UNAUTHORIZED_FLAG)
             }
-        });
+        };
+        if (env.REDIS_USERNAME !== undefined) {
+            redisConfig.username = env.REDIS_USERNAME;
+            redisConfig.password = env.REDIS_PASSWORD || '';
+        }
+        this.client = createClient(redisConfig);
 
         this.client.on('error', (err) => logError('Redis Client Error', err));
         this.client.on('connect', () => {
@@ -32,12 +38,15 @@ class RedisClient {
     }
 
     async connectAsync() {
+        let redisConnected = true;
         if (!this.client.isOpen) {
             await this.client.connect().catch((e) => {
                 logError('Error connecting to Redis', { error: e });
                 captureException(e);
+                redisConnected = false;
             });
         }
+        return redisConnected;
     }
 
     async get(key) {

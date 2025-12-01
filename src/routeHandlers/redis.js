@@ -13,7 +13,11 @@
 module.exports.handleRedisRequest = async (container, req, res) => {
     // Handle the Redis request here
     const redisClient = await container.redisClient;
-    await redisClient.connectAsync();
+    let redisConnected = await redisClient.connectAsync();
+    if (!redisConnected) {
+        res.status(500).json({ message: 'Unable to connect to Redis' });
+        return;
+    }
     const lowercaseMethod = req.method.toLowerCase();
     let key, value;
     switch (lowercaseMethod) {
