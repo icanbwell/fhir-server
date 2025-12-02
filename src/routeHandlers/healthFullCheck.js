@@ -2,6 +2,7 @@
  * This route handler implements the /full-healthcheck endpoint which returns the health of the system
  */
 
+const {isTrue} = require('../utils/isTrue')
 const { handleKafkaHealthCheck } = require('../utils/kafkaHealthCheck');
 const { handleLogHealthCheck } = require('../utils/logHealthCheck');
 const { handleHealthCheckQuery } = require('../utils/mongoDBHealthCheck');
@@ -18,12 +19,14 @@ module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
         const results = await Promise.allSettled([
             handleKafkaHealthCheck(container),
             handleLogHealthCheck(),
-            handleHealthCheckQuery(container)
+            handleHealthCheckQuery(container),
+            container.redisClient.checkConnectionHealth()
         ]);
-        if (!Array.isArray(results) || results.length !== 3) {
+        if (!Array.isArray(results) || results.length !== 4) {
             status.kafkaStatus = 'Failed';
             status.logStatus = 'Failed';
             status.mongoDBStatus = 'Failed';
+            status.redisStatus = 'Failed';
         } else {
             if (results[0]) {
                 status.kafkaStatus = 'OK';
@@ -40,11 +43,21 @@ module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
             } else {
                 status.mongoDBStatus = 'Failed';
             }
+            if (results[3]) {
+                if (isTrue(process.env.ENABLE_REDIS)) {
+                    status.redisStatus = 'OK';
+                } else {
+                    status.redisStatus = 'Disabled';
+                }
+            } else {
+                status.redisStatus = 'Failed';
+            }
         }
     } catch (e) {
         status.kafkaStatus = 'Failed';
         status.logStatus = 'Failed';
         status.mongoDBStatus = 'Failed';
+        status.redisStatus = 'Failed';
     }
     return res.json({ status });
 };

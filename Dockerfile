@@ -32,6 +32,10 @@ ARG NODE_ENV=production
 RUN mkdir -p /srv/src && chown node:node /srv/src
 WORKDIR /srv/src
 
+# Required for Redis integration
+RUN apk add --no-cache ca-certificates
+RUN update-ca-certificates
+
 #RUN apt-get -y install gcc
 
 # Copy our package.json & install our dependencies

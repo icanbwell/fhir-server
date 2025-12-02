@@ -3,6 +3,7 @@ services:
     depends_on:
       - mongo
       - keycloak
+      - redis
     build:
       context: .
       dockerfile: Dockerfile
@@ -82,6 +83,15 @@ services:
       PRE_SAVE_CODING_ID_UPDATE_RESOURCES: 'Binary,Observation'
       ENABLE_SWAGGER_DOC: 1
       HOST_SERVER: "http://localhost:3000"
+      # REDIS_USERNAME: 'default'
+      # REDIS_PASSWORD: ''
+      REDIS_HOST: 'redis'
+      REDIS_PORT: '6379'
+      REDIS_REJECT_UNAUTHORIZED_FLAG: 'false'
+      REDIS_ENABLE_TLS: 'false'
+      ENABLE_REDIS_ENDPOINT: 1
+      ENABLE_REDIS: 1
+      REDIS_KEY_DEFAULT_TTL_SECONDS: 600
     ports:
       - '3000:3000'
     volumes:
@@ -158,6 +168,17 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
     healthcheck:
       test: ['CMD-SHELL', '/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 30s
       timeout: 10s
       retries: 5
