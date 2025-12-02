@@ -1,4 +1,4 @@
-const {isTrue} = require('./isTrue')
+const {isTrue, isTrueWithFallback} = require('./isTrue')
 const { createClient, ReconnectStrategyError } = require('redis');
 const { logError, logInfo } = require('../operations/common/logging');
 const { captureException } = require('../operations/common/sentry');
@@ -14,9 +14,9 @@ class RedisClient {
             socket: {
                 host: env.REDIS_HOST || undefined,
                 port: parseInt(env.REDIS_PORT) || 6379,
-                tls: isTrue(env.REDIS_ENABLE_TLS),
+                tls: isTrueWithFallback(env.REDIS_ENABLE_TLS, true),
                 reconnectStrategy: false,
-                rejectUnauthorized: isTrue(env.REDIS_REJECT_UNAUTHORIZED_FLAG)
+                rejectUnauthorized: isTrueWithFallback(env.REDIS_REJECT_UNAUTHORIZED_FLAG, false)
             }
         };
         if (env.REDIS_USERNAME !== undefined) {
@@ -63,7 +63,7 @@ class RedisClient {
 
     async checkConnectionHealth() {
         let healthy = true;
-        if (isTrue(env.ENABLE_REDIS_IN_HEALTH_CHECK)) {
+        if (isTrue(env.ENABLE_REDIS)) {
             try {
                 await this.connectAsync();
                 await this.client.ping();

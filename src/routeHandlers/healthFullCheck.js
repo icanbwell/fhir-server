@@ -44,7 +44,7 @@ module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
                 status.mongoDBStatus = 'Failed';
             }
             if (results[3]) {
-                if (isTrue(process.env.ENABLE_REDIS_IN_HEALTH_CHECK)) {
+                if (isTrue(process.env.ENABLE_REDIS)) {
                     status.redisStatus = 'OK';
                 } else {
                     status.redisStatus = 'Disabled';
