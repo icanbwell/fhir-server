@@ -123,6 +123,7 @@ const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
+const { RedisStreamManager } = require('./utils/redisStreamManager');
 
 /**
  * Creates a container and sets up all the services
@@ -773,7 +774,8 @@ const createContainer = function () {
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager,
                 configManager: c.configManager,
-                summaryOperation: c.summaryOperation
+                summaryOperation: c.summaryOperation,
+                redisStreamManager: c.redisStreamManager
             }
         )
     );
@@ -992,6 +994,9 @@ const createContainer = function () {
     });
 
     container.register('redisClient', () => new RedisClient());
+    container.register('redisStreamManager', (c) => new RedisStreamManager({
+        redisClient: c.redisClient
+    }));
 
     return container;
 };
