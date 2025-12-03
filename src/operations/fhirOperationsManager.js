@@ -42,6 +42,9 @@ const {ConfigManager} = require('../utils/configManager');
 const {SummaryOperation} = require("./summary/summary");
 const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
 const { BadRequestError } = require('../utils/httpErrors');
+const { CachedFhirResponseStreamer } = require('../utils/cachedFhirResponseStreamer');
+const { RedisStreamManager } = require('../utils/redisStreamManager');
+const {isTrue} = require('../utils/isTrue');
 
 class FhirOperationsManager {
     /**
@@ -90,7 +93,8 @@ class FhirOperationsManager {
             exportByIdOperation,
             r4ArgsParser,
             queryRewriterManager,
-            configManager
+            configManager,
+            redisStreamManager
         }
     ) {
         /**
@@ -201,6 +205,12 @@ class FhirOperationsManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {RedisStreamManager}
+         */
+        this.redisStreamManager = redisStreamManager;
+        assertTypeEquals(redisStreamManager, RedisStreamManager);
     }
 
     /**
@@ -713,6 +723,32 @@ class FhirOperationsManager {
                     requestInfo,
                     parsedArgs
                 });
+            }
+            let enableRedisCache = isTrue(process.env.ENABLE_REDIS);
+            if (enableRedisCache && responseStreamer) {
+                const cacheKey = this.redisStreamManager.generateCacheKey({
+                    resourceType,
+                    parsedArgs: parsedArgs.getRawArgs()
+                });
+                const hasCachedData = await this.redisStreamManager.hasCachedStream(cacheKey);
+                if (hasCachedData) {
+                    console.log(`Serving $everything for ${resourceType} from Redis cache with key ${cacheKey}`);
+                    const cachedStreamer = new CachedFhirResponseStreamer({
+                        response: responseStreamer.response,
+                        requestId: requestInfo.requestId,
+                        redisStreamManager: this.redisStreamManager,
+                        cacheKey
+                    });
+                    await cachedStreamer.streamFromCacheAsync();
+                    return undefined;
+                } else {
+                    responseStreamer = new CachedFhirResponseStreamer({
+                        response: responseStreamer.response,
+                        requestId: requestInfo.requestId,
+                        redisStreamManager: this.redisStreamManager,
+                        cacheKey
+                    });
+                }
             }
             // Start the response streamer
             await responseStreamer.startAsync();
