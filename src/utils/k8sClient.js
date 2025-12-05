@@ -65,7 +65,7 @@ class K8sClient {
             const currentContainer = podDetails.spec.containers[0];
 
             // Extract environment variables from the current Pod but skip any env varible injected by serviceAccount
-            const envVars = currentContainer.env.filter(env => !env.name.startsWith('AWS_')).map(env => {
+            const envVars = currentContainer.env.filter(env => !env.name.startsWith('AWS_') && !env.name.startsWith('OTEL_') && env.name !== 'NODE_OPTIONS').map(env => {
                 const envVar = new k8s.V1EnvVar();
                 envVar.name = env.name;
                 envVar.value = env.value;

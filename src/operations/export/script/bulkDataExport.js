@@ -1,3 +1,6 @@
+// Disable OTEL instrumentation for this script
+process.env.OTEL_SDK_DISABLED = 'true';
+
 const { createContainer } = require('../../../createContainer');
 const { CommandLineParser } = require('../../../admin/scripts/commandLineParser');
 const { BulkDataExportRunner } = require('./bulkDataExportRunner');
