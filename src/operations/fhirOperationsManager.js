@@ -24,7 +24,7 @@ const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperati
 const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
-const {REQUEST_ID_TYPE} = require('../constants');
+const {REQUEST_ID_TYPE, PERSON_PROXY_PREFIX} = require('../constants');
 const {shouldStreamResponse} = require('../utils/requestHelpers');
 const {ParametersBodyParser} = require('./common/parametersBodyParser');
 const {
@@ -778,6 +778,13 @@ class FhirOperationsManager {
          */
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({req, combined_args});
+
+        // map Person $summary to Proxy Patient $summary
+        if (resourceType === 'Person') {
+            resourceType = 'Patient';
+            combined_args.id = `${PERSON_PROXY_PREFIX}${combined_args.id}`;
+        }
+
         /**
          * @type {ParsedArgs}
          */
