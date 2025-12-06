@@ -3,11 +3,8 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
-const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
-const personSummaryGraph = require("../../graphs/person/summary.json");
-const practitionerSummaryGraph = require("../../graphs/practitioner/summary.json");
 const {ComprehensiveIPSCompositionBuilder, TBundle} = require("@imranq2/fhirpatientsummary");
 const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
@@ -134,23 +131,10 @@ class SummaryOperation {
                 parsedArgs.resourceFilterList = resourceFilterList;
             }
 
-            // if an id was passed and we have a graph for that id then use that
-            switch (resourceType) {
-                case 'Person': {
-                    parsedArgs.resource = personSummaryGraph;
-                    break;
-                }
-                case 'Patient': {
-                    parsedArgs.resource = patientSummaryGraph;
-                    break;
-                }
-                case 'Practitioner': {
-                    parsedArgs.resource = practitionerSummaryGraph;
-                    break;
-                }
-                default:
-                    throw new Error('$summary is not supported for resource: ' + resourceType);
+            if (resourceType !== 'Patient') {
+                throw new Error('$summary is not supported for resource: ' + resourceType);
             }
+            parsedArgs.resource = patientSummaryGraph;
 
             // set global_id to true
             const updatedHeaders = {
@@ -207,8 +191,7 @@ class SummaryOperation {
                 parsedArgs,
                 resourceType,
                 responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
-                supportLegacyId,
-                includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources)
+                supportLegacyId
             });
 
             if (!result || !result.entry || result.entry.length === 0) {

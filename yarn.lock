@@ -1493,14 +1493,14 @@
     fflate "^0.8.2"
     xlsx "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 
-"@imranq2/fhirpatientsummary@^1.0.21":
-  version "1.0.21"
-  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.21.tgz#f1ed135105fa98126e762e3dccb25fef7b624385"
-  integrity sha512-7DRBSnqrxbhKk9ooIh3Tp6if/jyOEvPl/7TERX7C0EDLetACFN7dzxA47j/fK+4X215Vvok/DMTrUKSFJN/qEQ==
+"@imranq2/fhirpatientsummary@^1.0.23":
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.23.tgz#fdb39a4f37fba128839255c57b71edd8db260041"
+  integrity sha512-jDYO2mZ0/H02bVDdrR03+vZGW7HiWETzpfnpaMlAK1TNzN8m4qrPiGk8TZ92y0mK2fY27qv+blnVWxGY0D8Fag==
   dependencies:
     html-minifier-terser "^7.2.0"
-    luxon "^3.6.1"
-    turndown "^7.2.0"
+    luxon "^3.7.2"
+    turndown "^7.2.2"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -7034,7 +7034,12 @@ lru-memoizer@^2.2.0:
     lodash.clonedeep "^4.5.0"
     lru-cache "6.0.0"
 
-luxon@^3.6.1, luxon@~3.7.0:
+luxon@^3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.7.2.tgz#d697e48f478553cca187a0f8436aff468e3ba0ba"
+  integrity sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==
+
+luxon@~3.7.0:
   version "3.7.1"
   resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.7.1.tgz#9bd09aa84a56afb00c57ea78a8ec5bd16eb24ec0"
   integrity sha512-RkRWjA926cTvz5rAb1BqyWkKbbjzCGchDUIKMCUvNi17j6f6j8uHGDV82Aqcqtzd+icoYpELmG3ksgGiFNNcNg==
@@ -8600,10 +8605,10 @@ tunnel-agent@^0.6.0:
   dependencies:
     safe-buffer "^5.0.1"
 
-turndown@^7.2.0:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/turndown/-/turndown-7.2.0.tgz#67d614fe8371fb511079a93345abfd156c0ffcf4"
-  integrity sha512-eCZGBN4nNNqM9Owkv9HAtWRYfLA4h909E/WGAWWBpmB275ehNhZyk87/Tpvjbp0jjNl9XwCsbe6bm6CqFsgD+A==
+turndown@^7.2.2:
+  version "7.2.2"
+  resolved "https://registry.yarnpkg.com/turndown/-/turndown-7.2.2.tgz#9557642b54046c5912b3d433f34dd588de455a43"
+  integrity sha512-1F7db8BiExOKxjSMU2b7if62D/XOyQyZbPKq/nUwopfgnHlqXHqQ0lvfUTeUIr1lZJzOPFn43dODyMSIfvWRKQ==
   dependencies:
     "@mixmark-io/domino" "^2.2.0"
 
