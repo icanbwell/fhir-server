@@ -526,5 +526,749 @@
         }
       ]
     }
+  },
+  {
+    "id": "07182dfd-caad-4064-a871-87c3aca10b6b",
+    "status": "final",
+    "date": "2025-01-01",
+    "author": [
+      {
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "title": "summary",
+    "subject": {
+      "reference": "Patient/patient1"
+    },
+    "meta": {
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "entry": [
+          {
+            "reference": "Procedure/14fef4a8-8307-5e67-bedb-70cff47b6e11"
+          }
+        ],
+        "section": [
+          {
+            "id": "c2a69249-0779-5dbc-9029-39d66ee0af03",
+            "title": "Procedure Name",
+            "text": {
+              "status": "generated",
+              "div": "Mammography"
+            }
+          },
+          {
+            "id": "806144b8-39c0-5d45-9b4f-4d3210da8870",
+            "title": "Performed Date",
+            "text": {
+              "status": "generated",
+              "div": "2024-05-26T14:38:28-04:00"
+            }
+          },
+          {
+            "id": "912e9d7f-b5a1-58eb-bc18-b7fed76bfe38",
+            "title": "Performer"
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "reference": "Procedure/14fef4a8-8307-5e67-bedb-70cff47b6e12"
+          }
+        ],
+        "section": [
+          {
+            "id": "044c8675-697e-5d47-ba5a-b039e9de0878",
+            "title": "Procedure Name",
+            "text": {
+              "status": "generated",
+              "div": "Biopsy of suspected melanoma L) arm"
+            }
+          },
+          {
+            "id": "25fa4853-b3a4-57b8-ad61-61308529e413",
+            "title": "Performed Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-02-03T00:00:00+00:00"
+            }
+          },
+          {
+            "id": "4676426c-194a-5ef3-b7ac-c1170a250ea1",
+            "title": "Performer",
+            "text": {
+              "status": "generated",
+              "div": "Dr Bert Biopser"
+            }
+          }
+        ]
+      }
+    ],
+    "type": {
+      "coding": [
+        {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+          "code": "procedure_summary_document"
+        }
+      ]
+    }
+  },
+  {
+    "id": "07182dfd-caad-4064-a871-87c3aca107fs",
+    "status": "final",
+    "date": "2025-01-01",
+    "author": [
+      {
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "title": "DiagnosticReportLab Summary Grouped by DiagnosticReport|Lab Code",
+    "subject": {
+      "reference": "Patient/patient1"
+    },
+    "meta": {
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "entry": [
+          {
+            "id": "c13ec6a3-2108-5994-a39e-4de14533ccd7",
+            "reference": "Observation/d8beeb1d-2978-5694-b3f6-fd9c28a05da7",
+            "type": "Observation"
+          }
+        ],
+        "section": [
+          {
+            "id": "f89f03e1-6e33-58e5-ba69-0ef09042ed43",
+            "title": "Diagnostic Report Name",
+            "text": {
+              "status": "generated",
+              "div": "RBC Count"
+            }
+          },
+          {
+            "id": "33e579d4-b64a-50e9-81b5-2b3767277060",
+            "title": "effectiveDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2023-10-01T09:00:00+00:00"
+            }
+          },
+          {
+            "id": "546e333d-f7b8-5f0f-8205-978f45f0fcb6",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "final"
+            }
+          },
+          {
+            "id": "ee9121ea-3c01-5340-ad17-fbb589275b76",
+            "title": "Issued Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-10-01T10:00:00+00:00"
+            }
+          },
+          {
+            "id": "f478a0c7-4299-5d30-aec9-cb5f7ed088db",
+            "title": "Performer",
+            "text": {
+              "status": "generated",
+              "div": "Romaine Hoppe"
+            }
+          },
+          {
+            "id": "38a1245d-2ec5-55ec-87ab-45fe23cf273a",
+            "title": "Category",
+            "text": {
+              "status": "generated",
+              "div": "Lab"
+            }
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "id": "6bea64f0-b1a4-54eb-a5e3-eb052657f1e3",
+            "reference": "DiagnosticReport/00fdb49f-4ce7-2c8e-8458-21cf5147853f",
+            "type": "DiagnosticReport"
+          }
+        ],
+        "section": [
+          {
+            "id": "d0ae0713-ab96-59e2-b7c2-4fdfb3059bc8",
+            "title": "Diagnostic Report Name",
+            "text": {
+              "status": "generated",
+              "div": "Lipid panel with direct LDL - Serum or Plasma"
+            }
+          },
+          {
+            "id": "0c4d4d38-eac5-56ca-8d15-87945d075a6f",
+            "title": "effectiveDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-29T00:08:54+00:00"
+            }
+          },
+          {
+            "id": "899e0c21-4ef3-58b9-beb2-08f6f8c8236c",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "final"
+            }
+          },
+          {
+            "id": "4bca2e8d-c3c6-5be2-bead-82391b193f20",
+            "title": "Issued Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-29T00:08:54.490000+00:00"
+            }
+          },
+          {
+            "id": "a1a8e179-14b6-5983-b098-6f33e9a02644",
+            "title": "Performer",
+            "text": {
+              "status": "generated",
+              "div": "Fitchburg Outpatient Clinic"
+            }
+          },
+          {
+            "id": "39d31848-f5c8-5673-8765-8611789a07e1",
+            "title": "Category",
+            "text": {
+              "status": "generated",
+              "div": "Lab"
+            }
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "id": "7cdf7031-f132-5dd4-9dec-a4d89a137842",
+            "reference": "DiagnosticReport/00fdb49f-4ce7-2c8e-8458-21cf5147853g",
+            "type": "DiagnosticReport"
+          }
+        ],
+        "section": [
+          {
+            "id": "339d2948-ab30-509a-8b6b-63ef01046e62",
+            "title": "Diagnostic Report Name",
+            "text": {
+              "status": "generated",
+              "div": "Lipid panel with direct LDL - Serum or Plasma"
+            }
+          },
+          {
+            "id": "0bd12426-653d-5b1a-a0a8-930dfda44a4d",
+            "title": "effectiveDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-29T00:08:54+00:00"
+            }
+          },
+          {
+            "id": "f40655c9-5c5b-5430-a34c-edd3d0e1e53b",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "final"
+            }
+          },
+          {
+            "id": "040faa5e-6600-5673-97aa-677320973992",
+            "title": "Issued Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-29T00:08:54.490000+00:00"
+            }
+          },
+          {
+            "id": "58435d27-becd-5383-8901-e38261542d2b",
+            "title": "Performer",
+            "text": {
+              "status": "generated",
+              "div": "Fitchburg Outpatient Clinic"
+            }
+          },
+          {
+            "id": "57a923fa-0a4f-570b-a58e-3150d1e14e89",
+            "title": "Category",
+            "text": {
+              "status": "generated",
+              "div": "Lab"
+            }
+          }
+        ]
+      }
+    ],
+    "type": {
+      "coding": [
+        {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+          "code": "diagnosticreportlab_summary_document"
+        }
+      ]
+    }
+  },
+  {
+    "id": "d8f899b7-7a21-592a-baaa-66aa8f3a0104",
+    "status": "final",
+    "date": "2025-01-01",
+    "author": [
+      {
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "title": "Observation|Labs Summary Grouped by Lab Code",
+    "subject": {
+      "reference": "Patient/patient1"
+    },
+    "meta": {
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "entry": [
+          {
+            "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf"
+          }
+        ],
+        "section": [
+          {
+            "id": "971754ee-8464-5960-b087-7d0fa1653218",
+            "title": "Labs Name",
+            "text": {
+              "status": "generated",
+              "div": "Lipid Panel"
+            }
+          },
+          {
+            "id": "60b3f30a-805a-5948-b309-f3d67798b882",
+            "title": "effectiveDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2025-03-20T09:15:00+00:00"
+            }
+          },
+          {
+            "section": [
+              {
+                "section": [
+                  {
+                    "id": "971754ee-8464-5960-b087-7d0fa1653218",
+                    "title": "Labs Name",
+                    "text": {
+                      "status": "generated",
+                      "div": "Cholesterol, Total"
+                    }
+                  },
+                  {
+                    "id": "ee4a0172-ff17-5c60-b78e-9fc868e36fe8",
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "status": "generated",
+                      "div": "111"
+                    }
+                  },
+                  {
+                    "id": "a4bcb0ed-2c86-5e0c-89e8-e61d25a4be5e",
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "status": "generated",
+                      "div": "MG/DL"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "8fda683a-ade7-5762-8881-9cd3deeaedc8",
+            "title": "HDL Cholesterol",
+            "text": {
+              "status": "generated",
+              "div": "Observation.component"
+            },
+            "section": [
+              {
+                "section": [
+                  {
+                    "id": "971754ee-8464-5960-b087-7d0fa1653218",
+                    "title": "Labs Name",
+                    "text": {
+                      "status": "generated",
+                      "div": "HDL Cholesterol"
+                    }
+                  },
+                  {
+                    "id": "ee4a0172-ff17-5c60-b78e-9fc868e36fe8",
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "status": "generated",
+                      "div": "88"
+                    }
+                  },
+                  {
+                    "id": "a4bcb0ed-2c86-5e0c-89e8-e61d25a4be5e",
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "status": "generated",
+                      "div": "mg/dL"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "section": [
+              {
+                "section": [
+                  {
+                    "id": "971754ee-8464-5960-b087-7d0fa1653218",
+                    "title": "Labs Name",
+                    "text": {
+                      "status": "generated",
+                      "div": "LDL Cholesterol Calc"
+                    }
+                  },
+                  {
+                    "id": "ee4a0172-ff17-5c60-b78e-9fc868e36fe8",
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "status": "generated",
+                      "div": "55"
+                    }
+                  },
+                  {
+                    "id": "a4bcb0ed-2c86-5e0c-89e8-e61d25a4be5e",
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "status": "generated",
+                      "div": "mg/dL"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "section": [
+              {
+                "id": "2959b33b-3d9b-53fe-8420-91c45eb2b855",
+                "title": "Triglycerides",
+                "code": {
+                  "text": "Triglycerides"
+                },
+                "mode": "working",
+                "section": [
+                  {
+                    "id": "971754ee-8464-5960-b087-7d0fa1653218",
+                    "title": "Labs Name",
+                    "text": {
+                      "status": "generated",
+                      "div": "Triglycerides"
+                    }
+                  },
+                  {
+                    "id": "ee4a0172-ff17-5c60-b78e-9fc868e36fe8",
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "status": "generated",
+                      "div": "66"
+                    }
+                  },
+                  {
+                    "id": "a4bcb0ed-2c86-5e0c-89e8-e61d25a4be5e",
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "status": "generated",
+                      "div": "mg/dL"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "text": {
+              "status": "generated",
+              "div": "Observation.component"
+            },
+            "section": [
+              {
+                "section": [
+                  {
+                    "id": "971754ee-8464-5960-b087-7d0fa1653218",
+                    "title": "Labs Name",
+                    "text": {
+                      "status": "generated",
+                      "div": "VLDL Cholesterol Cal"
+                    }
+                  },
+                  {
+                    "id": "ee4a0172-ff17-5c60-b78e-9fc868e36fe8",
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "status": "generated",
+                      "div": "11"
+                    }
+                  },
+                  {
+                    "id": "a4bcb0ed-2c86-5e0c-89e8-e61d25a4be5e",
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "status": "generated",
+                      "div": "mg/dL"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section": [
+          {
+            "id": "a8e110b4-55c0-593e-b940-7c1adeb4111e",
+            "title": "Labs Name",
+            "text": {
+              "status": "generated",
+              "div": "1 minute Apgar Score"
+            }
+          },
+          {
+            "id": "c823b090-60b1-588d-9223-955bc184dd70",
+            "title": "effectivePeriod.start",
+            "text": {
+              "status": "generated",
+              "div": "2019-04-02T09:30:10+01:00"
+            }
+          },
+          {
+            "id": "7cfea5a4-46ce-570d-83fa-eda79d220075",
+            "title": "Apgar color score",
+            "text": {
+              "status": "generated",
+              "div": "Observation.component"
+            },
+            "section": [
+              {
+                "section": [
+                  {
+                    "id": "d1d2e8b5-1d69-5baa-b0ed-8e8e148c02bd",
+                    "title": "Labs Name",
+                    "text": {
+                      "status": "generated",
+                      "div": "Apgar color score"
+                    }
+                  },
+                  {
+                    "id": "9f68d2b8-e4de-5402-95af-5de19363b5af",
+                    "title": "valueCodeableConcept.text",
+                    "text": {
+                      "status": "generated",
+                      "div": "0. The baby's whole body is completely bluish-gray or pale"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "text": {
+              "status": "generated",
+              "div": "Observation.component"
+            },
+            "section": [
+              {
+                "section": [
+                  {
+                    "id": "f1db41ef-40c0-5d85-9d05-d80423978617",
+                    "title": "Labs Name",
+                    "text": {
+                      "status": "generated",
+                      "div": "Apgar respiratory effort score"
+                    }
+                  },
+                  {
+                    "id": "c82c9367-4b32-5c76-9945-659d3e8f0ea2",
+                    "title": "valueCodeableConcept.text",
+                    "text": {
+                      "status": "generated",
+                      "div": "0. No heart rate"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "text": {
+              "status": "generated",
+              "div": "Observation.component"
+            },
+            "section": [
+              {
+                "section": [
+                  {
+                    "id": "1f5cc069-d3a6-5d1b-ac2c-3b9ae39d1e3c",
+                    "title": "Labs Name",
+                    "text": {
+                      "status": "generated",
+                      "div": "Apgar response to stimulus score"
+                    }
+                  },
+                  {
+                    "id": "24b79cbc-88c2-5a06-af90-1183217dfc0b",
+                    "title": "valueCodeableConcept.text",
+                    "text": {
+                      "status": "generated",
+                      "div": "0. No response to airways being suctioned"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "c823b090-60b1-588d-9223-955bc184dd71",
+            "title": "effectivePeriod.end",
+            "text": {
+              "status": "generated",
+              "div": "2019-04-02T10:30:10+01:00"
+            }
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "reference": "Observation/3bbae75d-81c0-450b-a641-cbea24e05bf3"
+          }
+        ],
+        "section": [
+          {
+            "id": "b2b63cfc-a141-5f5c-bf59-ddf0c0acd36f",
+            "title": "Labs Name",
+            "text": {
+              "status": "generated",
+              "div": "AST (SGOT)"
+            }
+          },
+          {
+            "id": "748a5fa7-8f66-5ca5-a39b-7d8b3bdd7274",
+            "title": "effectiveDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2025-01-10T07:45:50+00:00"
+            }
+          },
+          {
+            "id": "48889e00-8373-5f08-8340-119744c4a5fe",
+            "title": "valueQuantity.value",
+            "text": {
+              "status": "generated",
+              "div": "29"
+            }
+          },
+          {
+            "id": "bbddc60d-be0b-5254-8580-ad41c633c99b",
+            "title": "valueQuantity.unit",
+            "text": {
+              "status": "generated",
+              "div": "U/L"
+            }
+          },
+          {
+            "id": "48f14380-3af5-57c9-b8a5-486ca934bf92",
+            "title": "referenceRange.low.value",
+            "text": {
+              "status": "generated",
+              "div": "10"
+            }
+          },
+          {
+            "id": "685d594d-5878-5e6c-84f9-08fb509ec609",
+            "title": "referenceRange.low.unit",
+            "text": {
+              "status": "generated",
+              "div": "U/L"
+            }
+          },
+          {
+            "id": "be185ed1-8fe2-594e-8d09-6d0480821634",
+            "title": "referenceRange.high.value",
+            "text": {
+              "status": "generated",
+              "div": "40"
+            }
+          },
+          {
+            "id": "ad766255-185f-5f00-a936-42a27e683fd6",
+            "title": "referenceRange.high.unit",
+            "text": {
+              "status": "generated",
+              "div": "U/L"
+            }
+          }
+        ]
+      }
+    ],
+    "type": {
+      "coding": [
+        {
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+          "code": "lab_summary_document"
+        }
+      ]
+    }
   }
 ]

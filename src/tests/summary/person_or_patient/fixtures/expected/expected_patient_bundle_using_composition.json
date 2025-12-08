@@ -351,18 +351,36 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <h3>Observations</h3> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Reference Range</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td>12/31/2020, 7:00 PM EST - 12/30/2021, 7:00 PM EST</td> </tr> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td>12/31/2020, 7:00 PM EST - 12/30/2021, 7:00 PM EST</td> </tr> </tbody> </table></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <div> <h3>Observations</h3> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Reference Range</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>Lipid Panel - HDL Cholesterol</td> <td>88 mg/dL</td> <td>-</td> <td>3/20/2025, 5:15 AM EDT</td> </tr> <tr> <td>Lipid Panel - VLDL Cholesterol Cal</td> <td>11 mg/dL</td> <td>-</td> <td>3/20/2025, 5:15 AM EDT</td> </tr> <tr> <td>1 minute Apgar Score - Apgar color score</td> <td>0. The baby's whole body is completely bluish-gray or pale</td> <td>-</td> <td>4/2/2019, 4:30 AM EDT - 4/2/2019, 5:30 AM EDT</td> </tr> <tr> <td>1 minute Apgar Score - Apgar respiratory effort score</td> <td>0. No heart rate</td> <td>-</td> <td>4/2/2019, 4:30 AM EDT - 4/2/2019, 5:30 AM EDT</td> </tr> <tr> <td>1 minute Apgar Score - Apgar response to stimulus score</td> <td>0. No response to airways being suctioned</td> <td>-</td> <td>4/2/2019, 4:30 AM EDT - 4/2/2019, 5:30 AM EDT</td> </tr> <tr> <td>AST (SGOT)</td> <td>29 U/L</td> <td>10 U/L - 40 U/L</td> <td>1/10/2025, 2:45 AM EST</td> </tr> </tbody> </table> </div> <div> <h3>Diagnostic Reports</h3> <table> <thead> <tr> <th>Report</th> <th>Performer</th> <th>Issued</th> </tr> </thead> <tbody> <tr> <td>RBC Count</td> <td>Romaine Hoppe</td> <td>10/1/2023, 6:00 AM EDT</td> </tr> <tr> <td>Lipid panel with direct LDL - Serum or Plasma</td> <td>Fitchburg Outpatient Clinic</td> <td>11/28/2020, 7:08 PM EST</td> </tr> <tr> <td>Lipid panel with direct LDL - Serum or Plasma</td> <td>Fitchburg Outpatient Clinic</td> <td>11/28/2020, 7:08 PM EST</td> </tr> </tbody> </table> </div> </div></div>"
             },
             "entry": [
               {
-                "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
+                "reference": "Observation/d8beeb1d-2978-5694-b3f6-fd9c28a05da7",
                 "display": "Observation"
               },
               {
-                "reference": "Observation/d8beeb1d-2978-5694-b3f6-fd9c28a05da7",
+                "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
                 "display": "Observation"
               }
             ]
+          },
+          {
+            "title": "History of Procedures",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "47519-4",
+                  "display": "History of Procedures"
+                }
+              ],
+              "text": "History of Procedures"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Procedure</th> <th>Performer</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>Mammography</td> <td></td> <td>5/26/2024, 2:38 PM EDT</td> </tr> <tr> <td>Biopsy of suspected melanoma L) arm</td> <td>Dr Bert Biopser</td> <td>2/2/2020, 7:00 PM EST</td> </tr> </tbody> </table> </div></div>"
+            },
+            "entry": []
           },
           {
             "title": "Plan of Care",
