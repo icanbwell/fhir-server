@@ -43,6 +43,7 @@ const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expecte
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getHeadersWithCustomPayload } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
+const deepcopy = require('deepcopy');
 
 describe('Person and Patient $everything Tests', () => {
     beforeEach(async () => {
@@ -551,10 +552,10 @@ describe('Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-                resp = await request
-                    .post('/4_0_0/Person/1/$merge?validate=true')
-                    .send(person1Resource)
-                    .set(getHeaders());
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
@@ -666,8 +667,8 @@ describe('Person and Patient $everything Tests', () => {
                 token_use: 'access'
             };
             let patientHeader = getHeadersWithCustomPayload(jwtPayload);
-            const container = getTestContainer()
-            const streams = container.redisClient.streams
+            const container = getTestContainer();
+            const streams = container.redisClient.streams;
             // Test without redis enabled
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything')
@@ -683,11 +684,11 @@ describe('Person and Patient $everything Tests', () => {
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(patientHeader);
 
-            let cacheKey = 'patientEverything:ID~24a5930e-11b4-5525-b482-669174917044:scopes~access/*.*,patient/*.*,user/*.*:GlobalID~false:clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639'
-            expect(streams.keys()).toContain(cacheKey)
+            let cacheKey = 'patientEverything:ID~24a5930e-11b4-5525-b482-669174917044:scopes~access/*.*,patient/*.*,user/*.*:GlobalID~false:clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639';
+            expect(streams.keys()).toContain(cacheKey);
             expect(resp).toHaveResourceCount(8);
-            expect(streams.get(cacheKey)).toHaveLength(8)
-            streams.clear()
+            expect(streams.get(cacheKey)).toHaveLength(8);
+            streams.clear();
 
             // Test no cache in case of service account
             resp = await request
@@ -703,7 +704,6 @@ describe('Person and Patient $everything Tests', () => {
 
             expect(Array.from(streams.keys())).toHaveLength(0);
 
-            process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '0';
 
             // Test no cache in case of csv/excel content type
             let headers = getHeaders();
@@ -713,6 +713,57 @@ describe('Person and Patient $everything Tests', () => {
                 .set(headers);
 
             expect(Array.from(streams.keys())).toHaveLength(0);
+
+            // Testing Multiple patients linked with same sourceId
+            let patient4Resource = deepcopy(patient1Resource);
+            patient4Resource.meta.security = [
+                {
+                    system: "https://www.icanbwell.com/access",
+                    code: "healthsystem1"
+                },
+                {
+                    system: "https://www.icanbwell.com/owner",
+                    code: "healthsystem2"
+                }
+            ];
+            let person4Resource = deepcopy(person1Resource);
+            person4Resource.link = [
+                {
+                    target: {
+                        reference: "Patient/patient1|healthsystem1",
+                        type: "Patient"
+                    },
+                    assurance: "level4"
+                },
+                {
+                    target: {
+                        reference: "Patient/patient1|healthsystem2",
+                        type: "Patient"
+                    },
+                    assurance: "level4"
+                }
+            ]
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient4Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person4Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: false });
+
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(patientHeader);
+
+            cacheKey = 'patientEverything:ID~01c844f3-a17c-5ad8-a1d4-73031492aa84,24a5930e-11b4-5525-b482-669174917044:scopes~access/*.*,patient/*.*,user/*.*:GlobalID~false:clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639'
+            expect(resp).toHaveResourceCount(9);
+            expect(streams.get(cacheKey)).toHaveLength(9);
+            process.env.ENABLE_REDIS = '0';
+            process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '0';
         });
     });
 });

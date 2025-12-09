@@ -123,7 +123,7 @@ const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
-const { RedisStreamManager } = require('./utils/RedisStreamManager');
+const { RedisStreamManager } = require('./utils/redisStreamManager');
 
 /**
  * Creates a container and sets up all the services

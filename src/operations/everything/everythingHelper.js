@@ -20,6 +20,7 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunksGenerator } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { PatientEverythingCacheKeyGenerator } = require('./patientEverythingCachekeyGenerator')
 const {
     GRIDFS: { RETRIEVE },
     OPERATIONS: { READ },
@@ -50,7 +51,7 @@ const clinicalResources = require('./generated.resource_types.json')['clinicalRe
 const { CustomTracer } = require('../../utils/customTracer');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
-const { RedisStreamManager } = require('../../utils/RedisStreamManager');
+const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 
 /**
@@ -207,34 +208,32 @@ class EverythingHelper {
     }
 
     /**
-     * Normalize scopes for consistent cache keys
-     * @param {string} scope
-     * @returns {string}
-     */
-    normalizeScopesForCaching(scope) {
-        if (!scope) {
-            return '';
-        }
-        return scope.split(' ')
-            .filter(s => s.trim())
-            .sort()
-            .join(',');
-    }
-
-    /*
-    * Get patient UUID for a given ID
-    * @param {string} id
-    * @param {ParsedArgs} parsedArgs
-    * @param {FhirRequestInfo} requestInfo
-    * @param {string} resourceType
-    * @param {string} base_version
+     * Get patient UUID for a given ID
+     * @param {ParsedArgs} parsedArgs
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} base_version
     * @returns {Promise<string[]>}
     */
-    async getPatientUuid(id, parsedArgs, requestInfo, resourceType, base_version) {
+    async getPatientUuid(parsedArgs, requestInfo, resourceType, base_version) {
+        // Get ID and validate
+        const idParam = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
+        if (!idParam?.queryParameterValue?.value) {
+            return undefined;
+        }
+        const id = idParam.queryParameterValue.value;
+        const hasMultipleIds = id.split(',').length > 1;
+
+        if (hasMultipleIds) {
+            return undefined;
+        }
+
         const patientUUIDMap = httpContext.get(HTTP_CONTEXT_KEYS.PATIENT_UUID_MAP);
         let ids = [];
         if (patientUUIDMap !== undefined && patientUUIDMap.get(id)) {
-            ids = patientUUIDMap.get(id);
+            ids = patientUUIDMap.get(id).filter(
+                f => f == requestInfo.personIdFromJwtToken
+            ).map(f => `${PERSON_PROXY_PREFIX}${f}`);
         } else if (isUuid(id)) {
             ids = [id];
         } else {
@@ -268,78 +267,6 @@ class EverythingHelper {
             }
         }
         return ids;
-    }
-
-    /**
-     * Generate cache key for $everything operation
-     * @param {string} resourceType
-     * @param {ParsedArgs} parsedArgs
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} base_version
-     * @returns {string|undefined}
-     */
-    async generateCacheKey({ parsedArgs, requestInfo, resourceType, base_version }) {
-        // Define cacheable parameters that would invalidate cache
-        const cacheInvalidatingParams = [
-            '_since',
-            '_includePatientLinkedOnly',
-            '_rewritePatientReference',
-            '_includeNonClinicalResources',
-            '_debug',
-            '_explain',
-            '_includeHidden',
-            '_includeProxyPatientLinkedOnly',
-            '_excludeProxyPatientLinked',
-            '_includePatientLinkedUuidOnly',
-            '_includeUuidOnly'
-        ];
-
-        const contentType = requestInfo.contentTypeFromHeader?.type;
-        const rawArgs = parsedArgs.getRawArgs();
-
-        // Early return if content type is not cacheable
-        const CACHEABLE_CONTENT_TYPES = ['application/fhir+json', 'application/fhir+ndjson'];
-        if (!CACHEABLE_CONTENT_TYPES.includes(contentType)) {
-            return undefined;
-        }
-
-        if (requestInfo.personIdFromJwtToken === undefined) {
-            return undefined;
-        }
-
-        // Get ID and validate
-        const idParam = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
-        if (!idParam?.queryParameterValue?.value) {
-            return undefined;
-        }
-
-        const idValue = idParam.queryParameterValue.value;
-        const hasMultipleIds = idValue.split(',').length > 1;
-
-        // Don't cache for multiple IDs
-        if (hasMultipleIds) {
-            return undefined;
-        }
-
-        // Don't cache if any cache-invalidating params are present and their value is not false
-        const hasCacheInvalidatingParams = cacheInvalidatingParams.some(param => {
-            if (param in rawArgs) {
-                if (typeof rawArgs[param] === 'boolean') {
-                    return rawArgs[param];
-                }
-                return true;
-            }
-            return false;
-        });
-        if (hasCacheInvalidatingParams) {
-            return undefined;
-        }
-        // Build cache key components
-        const patientId = await this.getPatientUuid(idValue, parsedArgs, requestInfo, resourceType, base_version);
-        const clientPersonId = requestInfo.personIdFromJwtToken || 'NA';
-        const scopes = this.normalizeScopesForCaching(requestInfo.scope);
-        const preferGlobalId = isTrue(requestInfo.preferGlobalId);
-        return `patientEverything:ID~${patientId.sort().join(',')}:scopes~${scopes}:GlobalID~${preferGlobalId}:clientPerson~${clientPersonId}`;
     }
 
     /**
@@ -421,7 +348,11 @@ class EverythingHelper {
              */
             let streamedResources = [];
             const writeCache = isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION);
-            const cacheKey = await this.generateCacheKey({ parsedArgs: parsedArgs, requestInfo, resourceType, base_version });
+            const patientIds = await this.getPatientUuid(parsedArgs, requestInfo, resourceType, base_version)
+            let keyGenerator = new PatientEverythingCacheKeyGenerator();
+            const cacheKey = patientIds && patientIds.length > 0 ? await keyGenerator.generateCacheKey(
+                { ids: patientIds, parsedArgs: parsedArgs, requestInfo }
+            ) : undefined;
             const cachedStreamer = writeCache && cacheKey ? new CachedFhirResponseStreamer({
                 redisStreamManager: this.redisStreamManager,
                 cacheKey,

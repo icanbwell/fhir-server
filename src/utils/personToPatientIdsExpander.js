@@ -205,12 +205,12 @@ class PersonToPatientIdsExpander {
             if (returnOriginalPersonId && toMap) {
                 personId = originalPersonId;
             }
-            let PatientUuidMap = httpContext.get(HTTP_CONTEXT_KEYS.PATIENT_UUID_MAP);
-            if (PatientUuidMap.has(`${personProxyPrefix}${originalPersonId}`)) {
-                PatientUuidMap.get(`${personProxyPrefix}${originalPersonId}`).push(person._uuid)
+            let patientUuidMap = httpContext.get(HTTP_CONTEXT_KEYS.PATIENT_UUID_MAP);
+            if (patientUuidMap.has(`${personProxyPrefix}${originalPersonId}`)) {
+                patientUuidMap.get(`${personProxyPrefix}${originalPersonId}`).push(person._uuid)
             }
             else {
-                PatientUuidMap.set(`${personProxyPrefix}${originalPersonId}`, [person._uuid]);
+                patientUuidMap.set(`${personProxyPrefix}${originalPersonId}`, [person._uuid]);
             }
             const uuidKey = '_uuid';
 

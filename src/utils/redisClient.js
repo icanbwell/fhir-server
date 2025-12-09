@@ -61,6 +61,12 @@ class RedisClient {
         }
     }
 
+    /**
+     * Add an entry to a Redis Stream
+     * @param {string} streamKey
+     * @param {*} data
+     * @param {number} ttlSeconds
+     */
     async addStreamEntry(streamKey, data, ttlSeconds = env.REDIS_KEY_DEFAULT_TTL_SECONDS) {
         await this.client.xAdd(
             streamKey,
@@ -75,6 +81,11 @@ class RedisClient {
         }
     }
 
+    /**
+     * Delete a Redis Stream
+     * @param {string} key
+     * @returns {Promise<void>}
+     */
     async deleteKey(key) {
         await this.client.del(key);
     }

@@ -34,7 +34,7 @@ class RedisStreamManager {
     async deleteStream(cacheKey) {
         try {
             await this.redisClient.connectAsync();
-            await this.redisClient.client.del(cacheKey);
+            await this.redisClient.deleteKey(cacheKey);
         } catch (error) {
             logError('Error deleting Redis stream', { error, cacheKey });
             captureException(error);

@@ -29,7 +29,7 @@ class CachedFhirResponseStreamer {
     async writeBundleEntryToRedis({ bundleEntry }) {
         if (this.redisStreamManager && this.cacheKey) {
             if (this.isFirstEntry) {
-                this.redisStreamManager.deleteStream(this.cacheKey);
+                await this.redisStreamManager.deleteStream(this.cacheKey);
                 this.isFirstEntry = false;
             }
 
