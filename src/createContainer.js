@@ -123,6 +123,7 @@ const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
+const { RedisStreamManager } = require('./utils/RedisStreamManager');
 
 /**
  * Creates a container and sets up all the services
@@ -515,7 +516,8 @@ const createContainer = function () {
         customTracer: c.customTracer,
         patientDataViewControlManager: c.patientDataViewControlManager,
         auditLogger: c.auditLogger,
-        postRequestProcessor: c.postRequestProcessor
+        postRequestProcessor: c.postRequestProcessor,
+        redisStreamManager: c.redisStreamManager
     }));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
@@ -992,6 +994,9 @@ const createContainer = function () {
     });
 
     container.register('redisClient', () => new RedisClient());
+    container.register('redisStreamManager', (c) => new RedisStreamManager({
+        redisClient: c.redisClient
+    }));
 
     return container;
 };

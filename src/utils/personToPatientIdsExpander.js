@@ -192,14 +192,25 @@ class PersonToPatientIdsExpander {
          */
         let patientIds = [];
         let personIdsToRecurse = [];
+        if (httpContext.get(HTTP_CONTEXT_KEYS.PATIENT_UUID_MAP) === undefined) {
+            httpContext.set(HTTP_CONTEXT_KEYS.PATIENT_UUID_MAP, new Map());
+        }
         while (await personResourceCursor.hasNext()) {
             const person = await personResourceCursor.nextObject();
             let personId = person._uuid;
             patientIds.push(`${personProxyPrefix}${personId}`);
             // at first call only, returnOriginalPersonId can be true so that we return the id map for passed personIds not their uuids
             // also, this is only have significance when we want to return map
+            let originalPersonId = personIds.find((id) => id === person._uuid || id === person._sourceId);
             if (returnOriginalPersonId && toMap) {
-                personId = personIds.find((id) => id === person._uuid || id === person._sourceId);
+                personId = originalPersonId;
+            }
+            let PatientUuidMap = httpContext.get(HTTP_CONTEXT_KEYS.PATIENT_UUID_MAP);
+            if (PatientUuidMap.has(`${personProxyPrefix}${originalPersonId}`)) {
+                PatientUuidMap.get(`${personProxyPrefix}${originalPersonId}`).push(person._uuid)
+            }
+            else {
+                PatientUuidMap.set(`${personProxyPrefix}${originalPersonId}`, [person._uuid]);
             }
             const uuidKey = '_uuid';
 

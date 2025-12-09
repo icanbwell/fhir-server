@@ -61,6 +61,24 @@ class RedisClient {
         }
     }
 
+    async addStreamEntry(streamKey, data, ttlSeconds = env.REDIS_KEY_DEFAULT_TTL_SECONDS) {
+        await this.client.xAdd(
+            streamKey,
+            '*',
+            {
+                data: data,
+                timestamp: Date.now().toString()
+            }
+        );
+        if (ttlSeconds && !isNaN(parseInt(ttlSeconds))) {
+            await this.client.expire(streamKey, parseInt(ttlSeconds));
+        }
+    }
+
+    async deleteKey(key) {
+        await this.client.del(key);
+    }
+
     async checkConnectionHealth() {
         let healthy = true;
         if (isTrue(env.ENABLE_REDIS)) {
