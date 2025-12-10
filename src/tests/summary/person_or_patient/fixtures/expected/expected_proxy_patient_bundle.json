@@ -263,7 +263,6 @@
             "display": "b.well Connected Health"
           }
         ],
-        "date": "2025-08-26T08:46:59.769Z",
         "title": "International Patient Summary",
         "section": [
           {
@@ -334,7 +333,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <h3>Observations</h3> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Reference Range</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td>12/31/2020, 7:00 PM EST - 12/30/2021, 7:00 PM EST</td> </tr> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td>12/31/2020, 7:00 PM EST - 12/30/2021, 7:00 PM EST</td> </tr> </tbody> </table></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <h3>Observations</h3> <table> <thead> <tr> <th>Code</th> <th>Result</th> <th>Unit</th> <th>Interpretation</th> <th>Reference Range</th> <th>Comments</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>BMI001</td> <td>false</td> <td></td> <td></td> <td></td> <td></td> <td>12/31/2020, 7:00 PM EST - 12/30/2021, 7:00 PM EST</td> </tr> </tbody> </table></div>"
             },
             "entry": [
               {
