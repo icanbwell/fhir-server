@@ -140,8 +140,8 @@ services:
       MY_USER_PASSWORD: password
       MY_USER_SCOPE: user/*.* access/*.* patient/*.*
       MY_USER_TOKEN_USERNAME: patient
-      MY_USER_CLIENT_PERSON_ID: 8c2fd2a2-024f-5861-bda2-39558e26f44a
-      MY_USER_CLIENT_PATIENT_ID: b540054c-4ef9-56e4-8a4f-2f9de40b657e
+      MY_USER_CLIENT_PERSON_ID: 0b2ad38a-20bc-5cf5-9739-13f242b05892
+      MY_USER_CLIENT_PATIENT_ID: 22aa18af-af51-5799-bc55-367c22c85407
       MY_USER_BWELL_PERSON_ID: 0eb80391-0f61-5ce6-b221-a5428f2f38a7
       MY_USER_BWELL_PATIENT_ID: 668d0748-1484-4bba-9cbe-0faf0de8965c
       # This is the user and password that will be created in the realm for admin scope token
