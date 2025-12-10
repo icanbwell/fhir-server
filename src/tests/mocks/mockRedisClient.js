@@ -61,7 +61,52 @@ class MockRedisClient {
             }
         });
     }
-}
+
+    async hasKey(key) {
+        return this.store.has(key) || this.streams.has(key);
+    }
+
+    async readFromStream(streamKey, lastId = '0-0', count=500) {
+        if (!this.streams.has(streamKey)) {
+            return null;
+        }
+
+        const entries = this.streams.get(streamKey);
+        const startIndex = lastId === '0-0' ? 0 : entries.findIndex(e => e.id === lastId) + 1;
+
+        if (startIndex === -1 || startIndex >= entries.length) {
+            return null;
+        }
+
+        const result = entries.slice(startIndex, startIndex + count);
+
+        if (result.length === 0) {
+            return null;
+        }
+
+        return [{
+            name: streamKey,
+            messages: result
+        }];
+    }
+
+    async getStreamInfo(cacheKey) {
+         if (!this.streams.has(cacheKey)) {
+            throw new Error(`Stream ${cacheKey} does not exist`);
+        }
+
+        const entries = this.streams.get(cacheKey);
+        const firstEntry = entries[0];
+        const lastEntry = entries[entries.length - 1];
+
+        return {
+            length: entries.length,
+            'first-entry': firstEntry ? [firstEntry.id, firstEntry.message] : null,
+            'last-entry': lastEntry ? [lastEntry.id, lastEntry.message] : null,
+            groups: 0
+        };
+    }
+};
 
 module.exports = {
     MockRedisClient

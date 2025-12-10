@@ -388,12 +388,18 @@ class EverythingHelper {
             const cacheKey = writeCache ? await this.getCacheKey(
                 parsedArgs, requestInfo, resourceType, base_version
             ) : undefined;
+            const readFromCache = isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION);
             const cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
                 redisStreamManager: this.redisStreamManager,
                 cacheKey,
                 responseStreamer,
                 ttlSeconds: this.configManager.everythingCacheTtlSeconds
             }) : null;
+
+            if (readFromCache && cacheKey && responseStreamer && await this.redisStreamManager.hasCachedStream(cacheKey)) {
+                await cachedStreamer.streamFromCacheAsync();
+                return undefined;
+            }
             for (const idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();
                 parsedArgsForChunk.id = idChunk;

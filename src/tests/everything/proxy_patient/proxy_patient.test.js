@@ -35,7 +35,7 @@ const {
     getHeadersWithCustomPayload,
     getTestContainer
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 describe('Proxy Patient $everything Tests', () => {
     beforeEach(async () => {
@@ -283,6 +283,7 @@ describe('Proxy Patient $everything Tests', () => {
         process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '1';
         const container = getTestContainer();
         const streams = container.redisClient.streams;
+        const redisReadSpy = jest.spyOn(container.redisStreamManager, 'readBundleEntriesFromStream');
 
         let jwtPayload = {
             scope: 'patient/*.* user/*.* access/*.*',
@@ -316,6 +317,16 @@ describe('Proxy Patient $everything Tests', () => {
             .set(patientHeader);
         expect(resp).toHaveResourceCount(3);
         expect(Array.from(streams.keys())).toHaveLength(0)
+
+        process.env.ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION = '1';
+        resp = await request
+            .get(
+                '/4_0_0/Patient/person.person1/$everything'
+            )
+            .set(patientHeader);
+        expect(redisReadSpy).toHaveBeenCalled();
+        expect(resp).toHaveResourceCount(3);
+        streams.clear();
         process.env.ENABLE_REDIS = '0';
     });
 });

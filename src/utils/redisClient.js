@@ -93,6 +93,30 @@ class RedisClient {
         await this.client.del(key);
     }
 
+    /**
+     * Check if a key exists in Redis
+     * @param {string} key
+     * @returns {Promise<boolean>}
+     */
+    async hasKey(key) {
+        const exists = await this.client.exists(key);
+        return exists === 1;
+    }
+
+    /**
+     * Read entries from a Redis Stream
+     * @param {string} streamKey
+     * @param {string} lastId
+     * @param {number} count
+     * @returns {Promise<Array>}
+     */
+    async readFromStream(streamKey, lastId = '0-0', count=500) {
+        return await this.client.xRead(
+            { key: streamKey, id: lastId },
+            { COUNT: count, BLOCK: 0 }
+        );
+    }
+
     async checkConnectionHealth() {
         let healthy = true;
         if (isTrue(env.ENABLE_REDIS)) {
@@ -106,6 +130,15 @@ class RedisClient {
             }
         }
         return healthy;
+    }
+
+    /**
+     * Get information about a Redis Stream
+     * @param {string} cacheKey
+     * @returns {Promise<Object>}
+     */
+    async getStreamInfo(cacheKey) {
+        return await this.client.xInfoStream(cacheKey);
     }
 
 }

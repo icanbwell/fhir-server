@@ -43,6 +43,24 @@ class CachedFhirResponseStreamer {
             );
         }
     }
+
+    /**
+     * Stream from Redis cache
+     * @returns {Promise<void>}
+     */
+    async streamFromCacheAsync() {
+        await this.responseStreamer.startAsync();
+        let count = 0;
+        let { entries, hasMore, lastId } = {entries: [], hasMore: true, lastId: '0-0'};
+        while (hasMore) {
+            ({ entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, lastId));
+            for (const bundleEntry of entries) {
+                await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
+                count++;
+            }
+        }
+        await this.responseStreamer.endAsync();
+    }
 }
 
 module.exports = {
