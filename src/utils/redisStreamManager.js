@@ -60,7 +60,7 @@ class RedisStreamManager {
             let entries = [];
             const streamInfo = await this.redisClient.getStreamInfo(cacheKey);
             const lastEntryId = streamInfo['last-entry'].id;
-            let streamCount = parseInt(process.env.REDIS_STREAM_READ_COUNT) || 300;
+            const streamCount = parseInt(process.env.REDIS_STREAM_READ_COUNT) || 300;
             const results = await this.redisClient.readFromStream(cacheKey, lastId, streamCount);
             if (!results || results.length === 0) {
                 hasMore = false;

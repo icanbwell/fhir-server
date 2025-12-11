@@ -1,5 +1,7 @@
 const { BaseResponseStreamer } = require('./baseResponseStreamer');
-const { logInfo } = require('../operations/common/logging');
+const {EnrichmentManager} = require('../enrich/enrich');
+const { RedisStreamManager } = require('./redisStreamManager');
+const { ParsedArgs } = require('../operations/query/parsedArgs');
 
 /**
  * Extends BaseResponseStreamer to support Redis Stream caching
@@ -10,17 +12,23 @@ class CachedFhirResponseStreamer {
      * @param {string} cacheKey
      * @param {BaseResponseStreamer} responseStreamer
      * @param {number} ttlSeconds
+     * @param {EnrichmentManager} enrichmentManager
+     * @param {ParsedArgs} parsedArgs
      */
     constructor({
         redisStreamManager,
         cacheKey,
         responseStreamer,
-        ttlSeconds
+        ttlSeconds,
+        enrichmentManager,
+        parsedArgs
     }) {
         this.redisStreamManager = redisStreamManager;
         this.cacheKey = cacheKey;
         this.responseStreamer = responseStreamer;
         this.ttlSeconds = ttlSeconds;
+        this.enrichmentManager = enrichmentManager;
+        this.parsedArgs = parsedArgs;
         this.isFirstEntry = true;
     }
 
@@ -46,20 +54,28 @@ class CachedFhirResponseStreamer {
 
     /**
      * Stream from Redis cache
-     * @returns {Promise<void>}
+     * @returns {Promise<object[]>}
      */
     async streamFromCacheAsync() {
-        await this.responseStreamer.startAsync();
         let count = 0;
         let { entries, hasMore, lastId } = {entries: [], hasMore: true, lastId: '0-0'};
+        let streamedResources = [];
         while (hasMore) {
             ({ entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, lastId));
+            await this.enrichmentManager.enrichBundleEntriesAsync({
+                entries: entries,
+                parsedArgs: this.parsedArgs
+            });
             for (const bundleEntry of entries) {
                 await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
+                streamedResources.push({
+                    id: bundleEntry.resource.id,
+                    resourceType: bundleEntry.resource.resourceType
+                });
                 count++;
             }
         }
-        await this.responseStreamer.endAsync();
+        return streamedResources;
     }
 }
 

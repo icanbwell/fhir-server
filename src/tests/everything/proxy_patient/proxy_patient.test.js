@@ -324,7 +324,7 @@ describe('Proxy Patient $everything Tests', () => {
                 '/4_0_0/Patient/person.person1/$everything'
             )
             .set(patientHeader);
-        expect(redisReadSpy).toHaveBeenCalled();
+        expect(redisReadSpy).not.toHaveBeenCalled();
         expect(resp).toHaveResourceCount(3);
         streams.clear();
         process.env.ENABLE_REDIS = '0';
