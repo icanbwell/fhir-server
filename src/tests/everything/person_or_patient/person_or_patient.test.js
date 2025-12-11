@@ -32,6 +32,8 @@ const expectedPerson1Resources = require('./fixtures/expected/expected_Person_pe
 const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
 const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained_no_graph.json');
 
+const expectedPatientEverythingPatientResource = require('./fixtures/expected/expected_Patient_everything_Patient_resource.json');
+const expectedPatientEverythingPatientScope = require('./fixtures/expected/expected_Patient_everything_Patient_scope.json');
 const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
 const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');
 const expectedPatientResourcesWithUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_uuid_only.json');
@@ -40,7 +42,7 @@ const expectedPatientResourcesWithNonClinicalAndAllUuidOnly = require('./fixture
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomPayload } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 
@@ -328,9 +330,9 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp).toHaveResponse(expectedPatientResourcesTypeNoGraph);
 
             // Check get person everything with specified resources
-                resp = await request
-                    .get('/4_0_0/Person/person1/$everything?_type=Account,Person')
-                    .set(getHeaders());
+            resp = await request
+                .get('/4_0_0/Person/person1/$everything?_type=Account,Person')
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResourcesType);
         });
@@ -420,10 +422,10 @@ describe('Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-                resp = await request
-                    .post('/4_0_0/Person/1/$merge?validate=true')
-                    .send(person1Resource)
-                    .set(getHeaders());
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
@@ -539,5 +541,147 @@ describe('Person and Patient $everything Tests', () => {
 
             expect(serializerSpy).toHaveBeenCalled();
         });
+
+        test('Patient $everything with different resource and scope access', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(accountResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(unlinkedAccountResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+                .send(subscription1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+                .send(subscription2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request.get('/4_0_0/Patient/patient1/$everything').set({
+                ...getHeaders('user/Patient.* access/*.*'),
+                prefer: 'global_id=false'
+            }).expect(200);
+            expect(resp).toHaveResponse(expectedPatientEverythingPatientResource);
+
+            // patient everything with patient scope
+            let jwtPayload = {
+                username: 'test',
+                client_id: 'client',
+                clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
+                clientFhirPatientId: '24a5930e-11b4-5525-b482-669174917044',
+                bwellFhirPersonId: 'master-person',
+                bwellFhirPatientId: 'master-patient',
+                token_use: 'access',
+                scope: 'patient/Patient.* patient/Account.* patient/Observation.* user/Person.* access/access.*'
+            };
+            let patientHeader = getHeadersWithCustomPayload(jwtPayload);
+
+            resp = await request.get('/4_0_0/Patient/patient1/$everything').set({
+                ...patientHeader,
+                prefer: 'global_id=false'
+            }).expect(200);
+            expect(resp).toHaveResponse(expectedPatientEverythingPatientScope);
+        })
     });
 });
