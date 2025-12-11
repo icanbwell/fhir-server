@@ -3,7 +3,7 @@ const { BaseCacheKeyGenerator } = require('../common/baseCacheKeyGenerator');
 class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
     constructor() {
         super();
-        this.prefix = 'patientEverything';
+        this.operation = 'Everything';
         this.invalidParamsForCache = [
             '_since',
             '_includePatientLinkedOnly',

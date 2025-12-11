@@ -303,64 +303,19 @@ describe('Proxy Patient $everything Tests', () => {
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(5);
-        let cacheKey = 'patientEverything:ID~person.7b99904f-2f85-51a3-9398-e2eed6854639:scopes~access/*.*,patient/*.*,user/*.*:GlobalID~false:clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639';
+        let cacheKey = 'clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639::scopes~access/*.*,patient/*.*,user/*.*::Everything';
         expect(streams.keys()).toContain(cacheKey);
         expect(streams.get(cacheKey)).toHaveLength(5);
         streams.clear();
 
-        let person2Resource = deepcopy(person1Resource);
-        person2Resource.meta.security = [
-            {
-                code: 'client2',
-                system: 'https://www.icanbwell.com/access'
-            },
-            {
-                code: 'client2',
-                system: 'https://www.icanbwell.com/owner'
-            }
-        ];
-        person2Resource.link = [
-            {
-                target: {
-                    reference: 'Patient/patient1|healthsystem2',
-                    type: 'Patient'
-                },
-                assurance: 'level4'
-            }
-        ];
-        let patient2Resource = deepcopy(patient1Resource);
-        patient2Resource.meta.security = [
-            {
-                system: 'https://www.icanbwell.com/access',
-                code: 'healthsystem1'
-            },
-            {
-                system: 'https://www.icanbwell.com/owner',
-                code: 'healthsystem2'
-            }
-        ];
-
-        resp = await request
-            .post('/4_0_0/Person/1/$merge?validate=true')
-            .send(person2Resource)
-            .set(getHeaders());
-        expect(resp).toHaveMergeResponse({ created: true });
-
-        resp = await request
-            .post('/4_0_0/Patient/1/$merge?validate=true')
-            .send(patient2Resource)
-            .set(getHeaders());
-        expect(resp).toHaveMergeResponse({ created: true });
-
+        // No cache in case of sourceId for person
         resp = await request
             .get(
                 '/4_0_0/Patient/person.person1/$everything'
             )
             .set(patientHeader);
         expect(resp).toHaveResourceCount(3);
-        cacheKey = 'patientEverything:ID~person.7b99904f-2f85-51a3-9398-e2eed6854639:scopes~access/*.*,patient/*.*,user/*.*:GlobalID~false:clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639';
-        expect(streams.keys()).toContain(cacheKey);
-        expect(streams.get(cacheKey)).toHaveLength(3);
+        expect(Array.from(streams.keys())).toHaveLength(0)
         process.env.ENABLE_REDIS = '0';
     });
 });

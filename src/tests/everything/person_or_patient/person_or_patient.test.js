@@ -684,7 +684,7 @@ describe('Person and Patient $everything Tests', () => {
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(patientHeader);
 
-            let cacheKey = 'patientEverything:ID~24a5930e-11b4-5525-b482-669174917044:scopes~access/*.*,patient/*.*,user/*.*:GlobalID~false:clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639';
+            let cacheKey = 'patient~24a5930e-11b4-5525-b482-669174917044::scopes~access/*.*,patient/*.*,user/*.*::Everything';
             expect(streams.keys()).toContain(cacheKey);
             expect(resp).toHaveResourceCount(8);
             expect(streams.get(cacheKey)).toHaveLength(8);
@@ -759,9 +759,8 @@ describe('Person and Patient $everything Tests', () => {
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(patientHeader);
 
-            cacheKey = 'patientEverything:ID~01c844f3-a17c-5ad8-a1d4-73031492aa84,24a5930e-11b4-5525-b482-669174917044:scopes~access/*.*,patient/*.*,user/*.*:GlobalID~false:clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639'
             expect(resp).toHaveResourceCount(9);
-            expect(streams.get(cacheKey)).toHaveLength(9);
+            expect(Array.from(streams.keys())).toHaveLength(0);
             process.env.ENABLE_REDIS = '0';
             process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '0';
         });

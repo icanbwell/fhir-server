@@ -215,27 +215,29 @@ class EverythingHelper {
      * @param {string} base_version
     * @returns {Promise<string[]>}
     */
-    async getPatientUuid(parsedArgs, requestInfo, resourceType, base_version) {
+    async getCacheIdentifier(parsedArgs, requestInfo, resourceType, base_version) {
         // Get ID and validate
+        if (!requestInfo.personIdFromJwtToken) {
+            return undefined;
+        }
         const idParam = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
         if (!idParam?.queryParameterValue?.value) {
             return undefined;
         }
-        const id = idParam.queryParameterValue.value;
+        let id = idParam.queryParameterValue.value;
         const hasMultipleIds = id.split(',').length > 1;
 
         if (hasMultipleIds) {
             return undefined;
         }
 
-        const patientUUIDMap = httpContext.get(HTTP_CONTEXT_KEYS.PATIENT_UUID_MAP);
-        let ids = [];
-        if (patientUUIDMap !== undefined && patientUUIDMap.get(id)) {
-            ids = patientUUIDMap.get(id).filter(
-                f => f == requestInfo.personIdFromJwtToken
-            ).map(f => `${PERSON_PROXY_PREFIX}${f}`);
-        } else if (isUuid(id)) {
-            ids = [id];
+        let cacheIdentifier = undefined;
+        const isProxyPatient = id.startsWith(PERSON_PROXY_PREFIX);
+        if (isProxyPatient) {
+            id = id.replace(PERSON_PROXY_PREFIX, '');
+            if(isUuid(id) && id == requestInfo.personIdFromJwtToken) {
+                cacheIdentifier = `clientPerson~${id}`;
+            }
         } else {
             const {
                 query
@@ -261,12 +263,14 @@ class EverythingHelper {
                 }
             };
             let cursor = await databaseQueryManager.findAsync({ query, options });
+            let ids = [];
             while (await cursor.hasNext()) {
                 const sourceResource = await cursor.next();
                 ids.push(sourceResource._uuid);
             }
+            cacheIdentifier = ids.length == 1 ? `patient~${ids[0]}` : undefined;
         }
-        return ids;
+        return cacheIdentifier;
     }
 
     /**
@@ -348,10 +352,10 @@ class EverythingHelper {
              */
             let streamedResources = [];
             const writeCache = isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION);
-            const patientIds = await this.getPatientUuid(parsedArgs, requestInfo, resourceType, base_version)
+            const cacheIdentifier = await this.getCacheIdentifier(parsedArgs, requestInfo, resourceType, base_version)
             let keyGenerator = new PatientEverythingCacheKeyGenerator();
-            const cacheKey = patientIds && patientIds.length > 0 ? await keyGenerator.generateCacheKey(
-                { ids: patientIds, parsedArgs: parsedArgs, requestInfo }
+            const cacheKey = writeCache && cacheIdentifier ? await keyGenerator.generateCacheKey(
+                { cacheIdentifier, parsedArgs: parsedArgs, requestInfo }
             ) : undefined;
             const cachedStreamer = writeCache && cacheKey ? new CachedFhirResponseStreamer({
                 redisStreamManager: this.redisStreamManager,
@@ -1537,6 +1541,11 @@ class EverythingHelper {
 
                             // if response streamer is present then write the entry to the response streamer
                             if (responseStreamer) {
+                                if (cachedStreamer) {
+                                    await cachedStreamer.writeBundleEntryToRedis({
+                                        bundleEntry: current_entity
+                                    });
+                                }
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                                     entries: [current_entity],
                                     parsedArgs: parentParsedArgs
@@ -1545,11 +1554,6 @@ class EverythingHelper {
                                 await responseStreamer.writeBundleEntryAsync({
                                     bundleEntry: current_entity
                                 });
-                                if (cachedStreamer) {
-                                    await cachedStreamer.writeBundleEntryToRedis({
-                                        bundleEntry: current_entity
-                                    });
-                                }
                                 // Track resource ID and type for audit logging
                                 streamedResources.push({
                                     id: current_entity.resource.id,

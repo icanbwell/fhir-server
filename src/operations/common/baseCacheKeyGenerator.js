@@ -19,20 +19,16 @@ class BaseCacheKeyGenerator {
 
     /**
      * Generate cache key for $everything operation
-     * @param {string[]} ids
+     * @param {string} cacheIdentifier
      * @param {ParsedArgs} parsedArgs
      * @param {FhirRequestInfo} requestInfo
-     * @returns {string|undefined}
+     * @returns {Promise<string|undefined>}
      */
-    async generateCacheKey({ ids, parsedArgs, requestInfo }) {
+    async generateCacheKey({ cacheIdentifier, parsedArgs, requestInfo }) {
         const contentType = requestInfo.contentTypeFromHeader?.type;
         const rawArgs = parsedArgs.getRawArgs();
 
         if (!this.cacheableContentTypes.includes(contentType)) {
-            return undefined;
-        }
-
-        if (requestInfo.personIdFromJwtToken === undefined) {
             return undefined;
         }
 
@@ -50,10 +46,8 @@ class BaseCacheKeyGenerator {
             return undefined;
         }
         // Build cache key components
-        const clientPersonId = requestInfo.personIdFromJwtToken;
         const scopes = this.normalizeScopesForCaching(requestInfo.scope);
-        const preferGlobalId = isTrue(requestInfo.preferGlobalId);
-        return `${this.prefix}:ID~${ids.sort().join(',')}:scopes~${scopes}:GlobalID~${preferGlobalId}:clientPerson~${clientPersonId}`;
+        return `${cacheIdentifier}::scopes~${scopes}::${this.operation}`;
     };
 }
 
