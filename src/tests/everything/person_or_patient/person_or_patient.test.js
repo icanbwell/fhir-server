@@ -32,8 +32,9 @@ const expectedPerson1Resources = require('./fixtures/expected/expected_Person_pe
 const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
 const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained_no_graph.json');
 
-const expectedPatientEverythingPatientResource = require('./fixtures/expected/expected_Patient_everything_Patient_resource.json');
+const expectedPatientEverythingPatientPersonResource = require('./fixtures/expected/expected_Patient_everything_Patient_Person_resource.json');
 const expectedPatientEverythingPatientScope = require('./fixtures/expected/expected_Patient_everything_Patient_scope.json');
+const expectedPatientEverythingPatientWithSubscription = require('./fixtures/expected/expected_Patient_everything_Patient_with_Subscription.json');
 const expectedPatientResources = require('./fixtures/expected/expected_Patient_no_graph.json');
 const expectedPatientResourcesGlobalId = require('./fixtures/expected/expected_Patient_no_graph_global_id.json');
 const expectedPatientResourcesWithUuidOnly = require('./fixtures/expected/expected_Patient_no_graph_uuid_only.json');
@@ -659,10 +660,10 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient/patient1/$everything').set({
-                ...getHeaders('user/Patient.* access/*.*'),
+                ...getHeaders('user/Patient.* user/Person.* access/*.*'),
                 prefer: 'global_id=false'
             }).expect(200);
-            expect(resp).toHaveResponse(expectedPatientEverythingPatientResource);
+            expect(resp).toHaveResponse(expectedPatientEverythingPatientPersonResource);
 
             // patient everything with patient scope
             let jwtPayload = {
@@ -682,6 +683,26 @@ describe('Person and Patient $everything Tests', () => {
                 prefer: 'global_id=false'
             }).expect(200);
             expect(resp).toHaveResponse(expectedPatientEverythingPatientScope);
+
+            // patient everything with patient scope
+            jwtPayload = {
+                username: 'test',
+                client_id: 'client',
+                clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
+                clientFhirPatientId: '24a5930e-11b4-5525-b482-669174917044',
+                bwellFhirPersonId: 'master-person',
+                bwellFhirPatientId: 'master-patient',
+                token_use: 'access',
+                scope: 'patient/Patient.* patient/Subscription.* patient/SubscriptionTopic.* patient/SubscriptionStatus.* user/Person.* user/Account.* access/*.*'
+            };
+
+            patientHeader = getHeadersWithCustomPayload(jwtPayload);
+
+            resp = await request.get('/4_0_0/Patient/patient1/$everything').set({
+                ...patientHeader,
+                prefer: 'global_id=false'
+            }).expect(200);
+            expect(resp).toHaveResponse(expectedPatientEverythingPatientWithSubscription);
         });
     });
 });

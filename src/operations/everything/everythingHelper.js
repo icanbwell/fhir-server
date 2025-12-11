@@ -933,7 +933,7 @@ class EverythingHelper {
 
             explanations.push(...explanations1);
 
-            const { bundleEntries, streamedResources1 } = await this.processCursorAsync({
+            const { bundleEntries, streamedResources: streamedResources1 } = await this.processCursorAsync({
                 cursor,
                 parentParsedArgs: parsedArgs,
                 responseStreamer: responseStreamer,
