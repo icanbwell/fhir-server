@@ -58,6 +58,7 @@ class CachedFhirResponseStreamer {
      * @returns {Promise<object[]>}
      */
     async streamFromCacheAsync() {
+        this.responseStreamer.response.setHeader('X-CACHE', 'Hit');
         let count = 0;
         let { entries, hasMore, lastId } = {entries: [], hasMore: true, lastId: '0-0'};
         let streamedResources = [];
