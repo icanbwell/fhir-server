@@ -682,6 +682,6 @@ describe('Person and Patient $everything Tests', () => {
                 prefer: 'global_id=false'
             }).expect(200);
             expect(resp).toHaveResponse(expectedPatientEverythingPatientScope);
-        })
+        });
     });
 });
