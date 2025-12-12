@@ -674,7 +674,7 @@ describe('Person and Patient $everything Tests', () => {
                 bwellFhirPersonId: 'master-person',
                 bwellFhirPatientId: 'master-patient',
                 token_use: 'access',
-                scope: 'patient/Patient.* patient/Account.* patient/Observation.* user/Person.* access/access.*'
+                scope: 'patient/Patient.* patient/Account.* patient/Observation.write user/Person.* access/access.*'
             };
             let patientHeader = getHeadersWithCustomPayload(jwtPayload);
 
@@ -693,7 +693,7 @@ describe('Person and Patient $everything Tests', () => {
                 bwellFhirPersonId: 'master-person',
                 bwellFhirPatientId: 'master-patient',
                 token_use: 'access',
-                scope: 'patient/Patient.* patient/Subscription.* patient/SubscriptionTopic.* patient/SubscriptionStatus.* user/Person.* user/Account.* access/*.*'
+                scope: 'patient/Patient.* patient/Subscription.* patient/SubscriptionTopic.* patient/SubscriptionStatus.write user/Person.* user/Account.* access/*.*'
             };
 
             patientHeader = getHeadersWithCustomPayload(jwtPayload);
