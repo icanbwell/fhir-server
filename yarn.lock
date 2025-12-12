@@ -1493,14 +1493,15 @@
     fflate "^0.8.2"
     xlsx "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 
-"@imranq2/fhirpatientsummary@^1.0.28":
-  version "1.0.28"
-  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.28.tgz#bb1e69dc0dccec9d050c9405abb5e31c8854e6c8"
-  integrity sha512-j+8tR3EKD6W8Y0AShb0hm8SbLmxLqHb0bGvPVYwZZXTxlCuQhDYwbFFv9JTQFMoD8vwf0sXIsKnKwQcJyKJugg==
+"@imranq2/fhirpatientsummary@^1.0.29":
+  version "1.0.29"
+  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.29.tgz#bf56f5944a12b21ad4e0b0e7985c4b2693069a90"
+  integrity sha512-wPbsbVFEYN7fEhDimjySDRWgNwXAjsM8J38rKnS0m6RmgKxni5dFq57sFuFdTJg+U/MAc9rNFSZtdUmTa9jLiA==
   dependencies:
     html-minifier-terser "^7.2.0"
     luxon "^3.7.2"
     turndown "^7.2.2"
+    turndown-plugin-gfm "^1.0.2"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -8611,6 +8612,11 @@ turndown@^7.2.2:
   integrity sha512-1F7db8BiExOKxjSMU2b7if62D/XOyQyZbPKq/nUwopfgnHlqXHqQ0lvfUTeUIr1lZJzOPFn43dODyMSIfvWRKQ==
   dependencies:
     "@mixmark-io/domino" "^2.2.0"
+
+turndown-plugin-gfm@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/turndown-plugin-gfm/-/turndown-plugin-gfm-1.0.2.tgz#6f8678a361f35220b2bdf5619e6049add75bf1c7"
+  integrity sha512-vwz9tfvF7XN/jE0dGoBei3FXWuvll78ohzCZQuOb+ZjWrs3a0XhQVomJEb2Qh4VHTPNRO4GPZh0V7VRbiWwkRg==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"
