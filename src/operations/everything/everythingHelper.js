@@ -400,7 +400,8 @@ class EverythingHelper {
                 this.configManager.readFromCacheForEverythingOperation &&
                 responseStreamer &&
                 cachedStreamer &&
-                await this.redisStreamManager.hasCachedStream(cacheKey)
+                await this.redisStreamManager.hasCachedStream(cacheKey) &&
+                requestInfo.canUseCachedResponse()
             );
             // Check if we need to fall back to MongoDB
             let fallbackToMongo = false;
