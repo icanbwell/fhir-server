@@ -869,6 +869,7 @@ describe('Person and Patient $everything Tests', () => {
             expect(redisReadSpy).toHaveBeenCalled();
             expect(resp).toHaveResourceCount(8);
             streams.clear();
+            redisReadSpy.mockClear();
 
             // Test no cache in case of service account
             resp = await request
@@ -947,9 +948,10 @@ describe('Person and Patient $everything Tests', () => {
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(patientHeader);
 
-            expect(redisReadSpy).toHaveBeenCalled();
+            expect(redisReadSpy).not.toHaveBeenCalled();
             expect(resp).toHaveResourceCount(9);
             streams.clear();
+            redisReadSpy.mockClear();
 
             process.env.ENABLE_REDIS = '0';
             process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '0';

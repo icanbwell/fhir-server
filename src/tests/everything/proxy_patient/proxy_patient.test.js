@@ -307,6 +307,15 @@ describe('Proxy Patient $everything Tests', () => {
         let cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639::Scopes:access/*.*,patient/*.*,user/*.*::Everything';
         expect(streams.keys()).toContain(cacheKey);
         expect(streams.get(cacheKey)).toHaveLength(5);
+
+        resp = await request
+            .get(
+                '/4_0_0/Patient/person.' + person1Resp.body.uuid + '/$everything'
+            )
+            .set(patientHeader);
+        expect(redisReadSpy).not.toHaveBeenCalled();
+        expect(resp).toHaveResourceCount(5);
+        redisReadSpy.mockClear();
         streams.clear();
 
         // No cache in case of sourceId for person
