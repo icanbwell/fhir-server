@@ -202,7 +202,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Allergen</th> <th>Criticality</th> <th>Recorded Date</th> </tr> </thead> <tbody> <tr> <td>Cashew</td> <td>low</td> <td>1/2/2012, 7:00 PM EST</td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Allergen</th> <th>Code (System)</th> <th>Criticality</th> <th>Recorded Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Cashew</td> <td></td> <td>low</td> <td>1/2/2012, 7:00 PM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
@@ -238,7 +238,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Immunization</th> <th>Status</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>Flu (Influenza)</td> <td>completed</td> <td>10/1/2024, 6:00 AM EDT</td> </tr> <tr> <td>COVID-19</td> <td>completed</td> <td>8/10/2024, 7:00 AM EDT</td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Immunization</th> <th>Code (System)</th> <th>Status</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Flu (Influenza)</td> <td></td> <td>completed</td> <td>10/1/2024, 6:00 AM EDT</td> <td></td> </tr> <tr> <td>COVID-19</td> <td></td> <td>completed</td> <td>8/10/2024, 7:00 AM EDT</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
@@ -256,7 +256,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Procedure</th> <th>Performer</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>Mammography</td> <td></td> <td>5/26/2024, 2:38 PM EDT</td> </tr> <tr> <td>Biopsy of suspected melanoma L) arm</td> <td>Dr Bert Biopser</td> <td>2/2/2020, 7:00 PM EST</td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Procedure</th> <th>Code (System)</th> <th>Performer</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Mammography</td> <td></td> <td></td> <td>5/26/2024, 2:38 PM EDT</td> <td></td> </tr> <tr> <td>Biopsy of suspected melanoma L) arm</td> <td></td> <td>Dr Bert Biopser</td> <td>2/2/2020, 7:00 PM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
@@ -274,7 +274,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Description</th> <th>Created</th> <th>Planned Start</th> <th>Planned End</th> </tr> </thead> <tbody> <tr> <td>Weight management plan</td> <td></td> <td>3/2/2012, 8:45 PM EST</td> <td>5/31/2026, 8:00 PM EDT</td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Description</th> <th>Created</th> <th>Planned Start</th> <th>Planned End</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Weight management plan</td> <td></td> <td>3/2/2012, 8:45 PM EST</td> <td>5/31/2026, 8:00 PM EDT</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
@@ -292,7 +292,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Vital Name</th> <th>Result</th> <th>Reference Range</th> <th>Date</th> </tr> </thead> <tbody> <tr> <td>Heart rate</td> <td>69 /min</td> <td>60 /min - 100 /min</td> <td>4/4/2023, 9:21 PM EDT</td> </tr> <tr> <td>Blood Pressure</td> <td>120 mmHg / 80 mmHg</td> <td>7.5 g/dl - 10 g/dl</td> <td>1/1/2023, 4:00 AM EST</td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Name</th> <th>Code (System)</th> <th>Result</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Heart rate</td> <td></td> <td>69 /min</td> <td>4/4/2023, 9:21 PM EDT</td> <td></td> </tr> <tr> <td>Blood Pressure</td> <td></td> <td>120 mmHg / 80 mmHg</td> <td>1/1/2023, 4:00 AM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           }
