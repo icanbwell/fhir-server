@@ -507,6 +507,7 @@ const createContainer = function () {
         configManager: c.configManager,
         bundleManager: c.bundleManager,
         searchManager: c.searchManager,
+        scopesValidator: c.scopesValidator,
         enrichmentManager: c.enrichmentManager,
         r4ArgsParser: c.r4ArgsParser,
         databaseAttachmentManager: c.databaseAttachmentManager,
