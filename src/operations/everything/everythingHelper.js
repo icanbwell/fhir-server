@@ -208,6 +208,20 @@ class EverythingHelper {
     }
 
     /**
+     * Get original ids from parsedArgs
+     * @param {ParsedArgs} parsedArgs
+     * @returns {string[]}
+     */
+    fetchOriginalIdsFromParams(parsedArgs) {
+        const idParam = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
+        if (!idParam?.queryParameterValue?.value) {
+            return [];
+        }
+        const id = idParam.queryParameterValue.value;
+        return id.split(',');
+    }
+
+    /**
      * Get patient UUID for a given ID
      * @param {ParsedArgs} parsedArgs
      * @param {FhirRequestInfo} requestInfo
@@ -215,62 +229,72 @@ class EverythingHelper {
      * @param {string} base_version
     * @returns {Promise<string[]>}
     */
-    async getCacheIdentifier(parsedArgs, requestInfo, resourceType, base_version) {
-        // Get ID and validate
+    async fetchPatientUUID(parsedArgs, requestInfo, resourceType, base_version) {
+        const {
+            query
+        } = await this.searchManager.constructQueryAsync({
+            user: requestInfo.user,
+            scope: requestInfo.scope,
+            isUser: requestInfo.isUser,
+            resourceType,
+            useAccessIndex: this.configManager.useAccessIndex,
+            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+            requestId: requestInfo.requestId,
+            parsedArgs,
+            operation: READ,
+            accessRequested: 'read',
+            addPersonOwnerToContext: requestInfo.isUser,
+            applyPatientFilter: true
+        });
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+        const options = {
+            projection: {
+                _uuid: 1,
+                _id: 0
+            }
+        };
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        let ids = [];
+        while (await cursor.hasNext()) {
+            const sourceResource = await cursor.next();
+            ids.push(sourceResource._uuid);
+        }
+        return ids;
+    }
+
+    /**
+     * Get cache key for a given request
+     * @param {ParsedArgs} parsedArgs
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @returns {Promise<string|undefined>}
+     */
+    async getCacheKey(parsedArgs, requestInfo, resourceType, base_version) {
         if (!requestInfo.personIdFromJwtToken) {
             return undefined;
         }
-        const idParam = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
-        if (!idParam?.queryParameterValue?.value) {
+        let paramsIds = this.fetchOriginalIdsFromParams(parsedArgs);
+        // Multiple ids are not supported for now
+        if (paramsIds.length !== 1) {
             return undefined;
         }
-        let id = idParam.queryParameterValue.value;
-        const hasMultipleIds = id.split(',').length > 1;
-
-        if (hasMultipleIds) {
-            return undefined;
-        }
-
-        let cacheIdentifier = undefined;
+        let idForCache;
+        let id = paramsIds[0];
         const isProxyPatient = id.startsWith(PERSON_PROXY_PREFIX);
         if (isProxyPatient) {
             id = id.replace(PERSON_PROXY_PREFIX, '');
-            if(isUuid(id) && id == requestInfo.personIdFromJwtToken) {
-                cacheIdentifier = `clientPerson~${id}`;
+            if (isUuid(id) && id == requestInfo.personIdFromJwtToken) {
+                idForCache = `${PERSON_PROXY_PREFIX}${id}`;
             }
         } else {
-            const {
-                query
-            } = await this.searchManager.constructQueryAsync({
-                user: requestInfo.user,
-                scope: requestInfo.scope,
-                isUser: requestInfo.isUser,
-                resourceType,
-                useAccessIndex: this.configManager.useAccessIndex,
-                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                requestId: requestInfo.requestId,
-                parsedArgs,
-                operation: READ,
-                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
-                addPersonOwnerToContext: requestInfo.isUser,
-                applyPatientFilter: true
-            });
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-            const options = {
-                projection: {
-                    _uuid: 1,
-                    _id: 0
-                }
-            };
-            let cursor = await databaseQueryManager.findAsync({ query, options });
-            let ids = [];
-            while (await cursor.hasNext()) {
-                const sourceResource = await cursor.next();
-                ids.push(sourceResource._uuid);
-            }
-            cacheIdentifier = ids.length == 1 ? `patient~${ids[0]}` : undefined;
+            let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType, base_version);
+            idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
         }
-        return cacheIdentifier;
+        let keyGenerator = new PatientEverythingCacheKeyGenerator();
+        return idForCache ? keyGenerator.generateCacheKey(
+            { id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope, contentType: requestInfo.contentTypeFromHeader?.type }
+        ) : undefined;
     }
 
     /**
@@ -352,12 +376,10 @@ class EverythingHelper {
              */
             let streamedResources = [];
             const writeCache = isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION);
-            const cacheIdentifier = await this.getCacheIdentifier(parsedArgs, requestInfo, resourceType, base_version)
-            let keyGenerator = new PatientEverythingCacheKeyGenerator();
-            const cacheKey = writeCache && cacheIdentifier ? await keyGenerator.generateCacheKey(
-                { cacheIdentifier, parsedArgs: parsedArgs, requestInfo }
+            const cacheKey = writeCache ? await this.getCacheKey(
+                parsedArgs, requestInfo, resourceType, base_version
             ) : undefined;
-            const cachedStreamer = writeCache && cacheKey ? new CachedFhirResponseStreamer({
+            const cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
                 redisStreamManager: this.redisStreamManager,
                 cacheKey,
                 responseStreamer

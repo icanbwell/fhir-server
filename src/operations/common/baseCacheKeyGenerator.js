@@ -21,11 +21,11 @@ class BaseCacheKeyGenerator {
      * Generate cache key for $everything operation
      * @param {string} cacheIdentifier
      * @param {ParsedArgs} parsedArgs
-     * @param {FhirRequestInfo} requestInfo
+     * @param {string} scope
+     * @param {string} contentType
      * @returns {Promise<string|undefined>}
      */
-    async generateCacheKey({ cacheIdentifier, parsedArgs, requestInfo }) {
-        const contentType = requestInfo.contentTypeFromHeader?.type;
+    async generateCacheKey({ id, parsedArgs, scope, contentType }) {
         const rawArgs = parsedArgs.getRawArgs();
 
         if (!this.cacheableContentTypes.includes(contentType)) {
@@ -46,9 +46,18 @@ class BaseCacheKeyGenerator {
             return undefined;
         }
         // Build cache key components
-        const scopes = this.normalizeScopesForCaching(requestInfo.scope);
-        return `${cacheIdentifier}::scopes~${scopes}::${this.operation}`;
+        const cacheIdentifier = this.generateIdComponent(id);
+        const scopes = this.normalizeScopesForCaching(scope);
+        return `${cacheIdentifier}::Scopes:${scopes}::${this.operation}`;
     };
+
+    /**
+     * Generate a cache ID component from the resource ID
+     * @param {string} id
+     */
+    generateIdComponent(id) {
+        throw new Error('Method not implemented.');
+    }
 }
 
 module.exports = {

@@ -303,7 +303,7 @@ describe('Proxy Patient $everything Tests', () => {
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(5);
-        let cacheKey = 'clientPerson~7b99904f-2f85-51a3-9398-e2eed6854639::scopes~access/*.*,patient/*.*,user/*.*::Everything';
+        let cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639::Scopes:access/*.*,patient/*.*,user/*.*::Everything';
         expect(streams.keys()).toContain(cacheKey);
         expect(streams.get(cacheKey)).toHaveLength(5);
         streams.clear();

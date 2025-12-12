@@ -20,6 +20,18 @@ class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
         ];
         this.cacheableContentTypes = ['application/fhir+json', 'application/fhir+ndjson'];
     }
+
+    /**
+     * Generate a cache ID component from the resource ID
+     * @param {string} id
+     * @returns {string}
+     */
+    generateIdComponent(id) {
+        if (id.startsWith('person.')) {
+            return `ClientPerson:${id.slice('person.'.length)}`;
+        }
+        return `Patient:${id}`;
+    }
 }
 
 module.exports = {

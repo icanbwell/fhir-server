@@ -684,9 +684,9 @@ describe('Person and Patient $everything Tests', () => {
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(patientHeader);
 
-            let cacheKey = 'patient~24a5930e-11b4-5525-b482-669174917044::scopes~access/*.*,patient/*.*,user/*.*::Everything';
-            expect(streams.keys()).toContain(cacheKey);
             expect(resp).toHaveResourceCount(8);
+            let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:access/*.*,patient/*.*,user/*.*::Everything';
+            expect(streams.keys()).toContain(cacheKey);
             expect(streams.get(cacheKey)).toHaveLength(8);
             streams.clear();
 
