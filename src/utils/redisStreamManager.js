@@ -10,6 +10,7 @@ class RedisStreamManager {
      */
     constructor({ redisClient }) {
         this.redisClient = redisClient;
+        this.defaultTtlSeconds = parseInt(process.env.REDIS_KEY_DEFAULT_TTL_SECONDS) || 600;
     }
 
     /**
@@ -19,7 +20,8 @@ class RedisStreamManager {
      * @param {number} ttlSeconds
      * @returns {Promise<void>}
      */
-    async writeBundleEntryToStream(cacheKey, bundleEntry, ttlSeconds = process.env.REDIS_KEY_DEFAULT_TTL_SECONDS) {
+    async writeBundleEntryToStream(cacheKey, bundleEntry, ttlSeconds = null) {
+        ttlSeconds = ttlSeconds || this.defaultTtlSeconds;
         try {
             await this.redisClient.connectAsync();
             await this.redisClient.addStreamEntry(

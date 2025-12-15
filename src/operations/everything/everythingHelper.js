@@ -375,14 +375,15 @@ class EverythingHelper {
              * @type {{id: string, resourceType: string}[]} - Track resource IDs with types for audit logging
              */
             let streamedResources = [];
-            const writeCache = isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION);
+            const writeCache = this.configManager.writeToCacheForEverythingOperation;
             const cacheKey = writeCache ? await this.getCacheKey(
                 parsedArgs, requestInfo, resourceType, base_version
             ) : undefined;
             const cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
                 redisStreamManager: this.redisStreamManager,
                 cacheKey,
-                responseStreamer
+                responseStreamer,
+                ttlSeconds: this.configManager.everythingCacheTtlSeconds
             }) : null;
             for (const idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();

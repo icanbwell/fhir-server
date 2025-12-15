@@ -9,15 +9,18 @@ class CachedFhirResponseStreamer {
      * @param {RedisStreamManager} redisStreamManager
      * @param {string} cacheKey
      * @param {BaseResponseStreamer} responseStreamer
+     * @param {number} ttlSeconds
      */
     constructor({
         redisStreamManager,
         cacheKey,
-        responseStreamer
+        responseStreamer,
+        ttlSeconds
     }) {
         this.redisStreamManager = redisStreamManager;
         this.cacheKey = cacheKey;
         this.responseStreamer = responseStreamer;
+        this.ttlSeconds = ttlSeconds;
         this.isFirstEntry = true;
     }
 
@@ -36,7 +39,7 @@ class CachedFhirResponseStreamer {
             await this.redisStreamManager.writeBundleEntryToStream(
                 this.cacheKey,
                 bundleEntry,
-                process.env.EVERYTHING_CACHE_TTL_SECONDS
+                this.ttlSeconds
             );
         }
     }
