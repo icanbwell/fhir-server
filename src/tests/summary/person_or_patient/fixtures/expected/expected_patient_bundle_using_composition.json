@@ -274,7 +274,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Description</th> <th>Created</th> <th>Planned Start</th> <th>Planned End</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Weight management plan</td> <td></td> <td>3/2/2012, 8:45 PM EST</td> <td>5/31/2026, 8:00 PM EDT</td> <td></td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all CarePlan resources, sorted by planned end date (most recent first).</p> <div> <table> <thead> <tr> <th>Description</th> <th>Created</th> <th>Planned Start</th> <th>Planned End</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Weight management plan</td> <td></td> <td>3/2/2012, 8:45 PM EST</td> <td>5/31/2026, 8:00 PM EDT</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
@@ -292,14 +292,14 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Name</th> <th>Code (System)</th> <th>Result</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Heart rate</td> <td></td> <td>69 /min</td> <td>4/4/2023, 9:21 PM EDT</td> <td></td> </tr> <tr> <td>Blood Pressure</td> <td></td> <td>120 mmHg / 80 mmHg</td> <td>1/1/2023, 4:00 AM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes the latest vital signs, sorted by effective date (most recent first).</p> <div> <table> <thead> <tr> <th>Name</th> <th>Code (System)</th> <th>Result</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Heart rate</td> <td></td> <td>69 /min</td> <td>4/4/2023, 9:21 PM EDT</td> <td></td> </tr> <tr> <td>Blood Pressure</td> <td></td> <td>120 mmHg / 80 mmHg</td> <td>1/1/2023, 4:00 AM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           }
         ],
         "text": {
           "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li></ul><ul><li>patient2</li></ul><ul><li>patient3</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This section merges all Patient resources into a single combined patient record, preferring non-empty values for each field.</p><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li></ul><ul><li>patient2</li></ul><ul><li>patient3</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
         }
       }
     },
