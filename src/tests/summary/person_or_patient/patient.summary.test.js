@@ -639,6 +639,21 @@ describe('Patient $summary Tests', () => {
                 delete resource.date;
             }
         });
+
+        // get person $summary returns same as proxy patient summary
+        resp = await request
+            .get('/4_0_0/Person/person2/$summary?_debug=1')
+            .set(getHeaders());
+
+        // Basic response checks
+        expect(resp.status).toBe(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPatientBundleUsingComposition, (resource) => {
+            // remove the date from the Composition resource
+            if (resource.resourceType === 'Composition') {
+                delete resource.date;
+            }
+        });
     });
 
     test('should return error for request with multiple patient ids', async () => {
@@ -678,6 +693,10 @@ describe('Patient $summary Tests', () => {
         expect(JSON.parse(resp.text)).toEqual(multipleIdsError);
 
         resp = await request.get('/4_0_0/Patient/patient1,person.person1/$summary?_debug=1').set(getHeaders());
+        expect(resp.status).toBe(400);
+        expect(JSON.parse(resp.text)).toEqual(multipleIdsError);
+
+        resp = await request.get('/4_0_0/Person/person1,person2/$summary?_debug=1').set(getHeaders());
         expect(resp.status).toBe(400);
         expect(JSON.parse(resp.text)).toEqual(multipleIdsError);
     });

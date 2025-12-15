@@ -11,6 +11,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { BundleManager } = require('../common/bundleManager');
 const { RethrownError } = require('../../utils/rethrownError');
 const { SearchManager } = require('../search/searchManager');
+const { ScopesValidator } = require('../security/scopesValidator');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
@@ -73,6 +74,7 @@ class EverythingHelper {
      * @property {ConfigManager} configManager
      * @property {BundleManager} bundleManager
      * @property {SearchManager} searchManager
+     * @property {ScopesValidator} scopesValidator
      * @property {EnrichmentManager} enrichmentManager
      * @property {R4ArgsParser} r4ArgsParser
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
@@ -90,6 +92,7 @@ class EverythingHelper {
         configManager,
         bundleManager,
         searchManager,
+        scopesValidator,
         enrichmentManager,
         r4ArgsParser,
         databaseAttachmentManager,
@@ -124,6 +127,12 @@ class EverythingHelper {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
         /**
          * @type {EnrichmentManager}
@@ -450,21 +459,21 @@ class EverythingHelper {
              */
             const bundle = this.bundleManager.createRawBundle(
                 {
-                type: 'searchset',
-                requestId: requestInfo.userRequestId,
-                originalUrl: requestInfo.originalUrl,
-                host: requestInfo.host,
-                protocol: requestInfo.protocol,
-                resources,
-                base_version,
-                parsedArgs,
-                originalQuery: queryItems,
-                originalOptions: options,
-                columns: new Set(),
-                stopTime,
-                startTime,
-                user: requestInfo.user,
-                explanations
+                    type: 'searchset',
+                    requestId: requestInfo.userRequestId,
+                    originalUrl: requestInfo.originalUrl,
+                    host: requestInfo.host,
+                    protocol: requestInfo.protocol,
+                    resources,
+                    base_version,
+                    parsedArgs,
+                    originalQuery: queryItems,
+                    originalOptions: options,
+                    columns: new Set(),
+                    stopTime,
+                    startTime,
+                    user: requestInfo.user,
+                    explanations
                 }
             );
 
@@ -784,10 +793,10 @@ class EverythingHelper {
                     let referenceExtractorForNextLevel =
                         i + 1 < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
                             ? new NonClinicalReferencesExtractor({
-                                  resourcesTypeToExclude,
-                                  resourcePool:
-                                  everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
-                              })
+                                resourcesTypeToExclude,
+                                resourcePool:
+                                    everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
+                            })
                             : null;
 
                     for (const res of Object.entries(referenceExtractor.nestedResourceReferences)) {
@@ -969,88 +978,95 @@ class EverythingHelper {
          * @type {import('mongodb').Document[]}
          */
         let explanations = [];
+        /**
+         * @type {{id: string, resourceType: string}[]} - Track resources with types for audit logging
+         */
+        let streamedResources = [];
 
-        // get top level resource
-        const {
-            /** @type {import('mongodb').Document}**/
-            query
-        } = await this.searchManager.constructQueryAsync({
-            user: requestInfo.user,
-            scope: requestInfo.scope,
-            isUser: requestInfo.isUser,
-            resourceType,
-            useAccessIndex: this.configManager.useAccessIndex,
-            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-            requestId: requestInfo.requestId,
-            parsedArgs,
-            operation: READ,
-            accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
-            addPersonOwnerToContext: requestInfo.isUser,
-            applyPatientFilter
-        });
+        if (this.scopesValidator.hasValidScopes({ requestInfo, parsedArgs, resourceType, action: 'everything', accessRequested: 'read' })) {
+            // get top level resource
+            const {
+                /** @type {import('mongodb').Document}**/
+                query
+            } = await this.searchManager.constructQueryAsync({
+                user: requestInfo.user,
+                scope: requestInfo.scope,
+                isUser: requestInfo.isUser,
+                resourceType,
+                useAccessIndex: this.configManager.useAccessIndex,
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                requestId: requestInfo.requestId,
+                parsedArgs,
+                operation: READ,
+                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
+                addPersonOwnerToContext: requestInfo.isUser,
+                applyPatientFilter
+            });
 
 
-        const options = {};
-        let projection = {};
-        if (useUuidProjection) {
-            projection = deepcopy(this.uuidProjection);
-            if (parsedArgs._since) {
-                projection.meta = {
-                    lastUpdated: 1
+            const options = {};
+            let projection = {};
+            if (useUuidProjection) {
+                projection = deepcopy(this.uuidProjection);
+                if (parsedArgs._since) {
+                    projection.meta = {
+                        lastUpdated: 1
+                    }
                 }
             }
+            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+            projection._id = 0;
+            options.projection = projection;
+
+            // this is required to be filled only once
+            optionsForQueries.push(options);
+            /**
+             * @type {number}
+             */
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
+
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+
+            let cursor = await databaseQueryManager.findAsync({ query, options });
+            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
+            const collectionName = cursor.getCollection();
+
+            queries.push(
+                new QueryItem({
+                    query,
+                    resourceType,
+                    collectionName
+                })
+            );
+
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations1 = explain || debug ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then just return one result
+                cursor = cursor.limit(1);
+            }
+
+            explanations.push(...explanations1);
+
+            const { bundleEntries, streamedResources: streamedResources1 } = await this.processCursorAsync({
+                cursor,
+                parentParsedArgs: parsedArgs,
+                responseStreamer: responseStreamer,
+                bundleEntryIdsProcessedTracker,
+                resourceIdentifiers,
+                nonClinicalReferencesExtractor,
+                everythingRelatedResourceManager,
+                useUuidProjection,
+                resourceMapper,
+                cachedStreamer
+            });
+
+            entries.push(...(bundleEntries || []));
+            streamedResources = streamedResources.concat(streamedResources1 || []);
         }
-        // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-        projection._id = 0;
-        options.projection = projection;
-
-        // this is required to be filled only once
-        optionsForQueries.push(options);
-        /**
-         * @type {number}
-         */
-        const maxMongoTimeMS = this.configManager.mongoTimeout;
-
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-
-        let cursor = await databaseQueryManager.findAsync({ query, options });
-        cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-
-        const collectionName = cursor.getCollection();
-
-        queries.push(
-            new QueryItem({
-                query,
-                resourceType,
-                collectionName
-            })
-        );
-
-        /**
-         * @type {import('mongodb').Document[]}
-         */
-        const explanations1 = explain || debug ? await cursor.explainAsync() : [];
-        if (explain) {
-            // if explain is requested then just return one result
-            cursor = cursor.limit(1);
-        }
-
-        explanations.push(...explanations1);
-
-        const { bundleEntries, streamedResources } = await this.processCursorAsync({
-            cursor,
-            parentParsedArgs: parsedArgs,
-            responseStreamer: responseStreamer,
-            bundleEntryIdsProcessedTracker,
-            resourceIdentifiers,
-            nonClinicalReferencesExtractor,
-            everythingRelatedResourceManager,
-            useUuidProjection,
-            resourceMapper,
-            cachedStreamer
-        });
-
-        entries.push(...(bundleEntries || []));
 
         return new ProcessMultipleIdsAsyncResult({
             entries,
@@ -1157,6 +1173,16 @@ class EverythingHelper {
             const filterTemplateCustomQuery = relatedResource.customQuery;
 
             if ((!filterTemplateParam && !filterTemplateCustomQuery) || !relatedResourceType) {
+                continue;
+            }
+
+            if (!this.scopesValidator.hasValidScopes({
+                requestInfo,
+                parsedArgs,
+                resourceType: relatedResourceType,
+                action: 'everything',
+                accessRequested: 'read'
+            })) {
                 continue;
             }
 
@@ -1345,10 +1371,10 @@ class EverythingHelper {
             parallelProcess.push(promiseResult)
 
             queryItems.push(new QueryItem({
-                    query,
-                    resourceType: relatedResourceType,
-                    collectionName,
-                    explanations
+                query,
+                resourceType: relatedResourceType,
+                collectionName,
+                explanations
             }))
         }
 
@@ -1486,7 +1512,7 @@ class EverythingHelper {
                             ) {
                                 references.push(
                                     PERSON_REFERENCE_PREFIX +
-                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
                                 );
                             } else if (
                                 r[
@@ -1495,7 +1521,7 @@ class EverythingHelper {
                             ) {
                                 references.push(
                                     PATIENT_REFERENCE_PREFIX +
-                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
                                 );
                             }
                         });
@@ -1518,8 +1544,8 @@ class EverythingHelper {
                             const parentEntitiesString = Array.from(parentResourcesProcessedTracker.uuidSet).toString()
                             logError(
                                 `No match found for parent entities ${parentEntitiesString} ` +
-                                    `using property ${parentLookupField} in ` +
-                                    'child entity ' +
+                                `using property ${parentLookupField} in ` +
+                                'child entity ' +
                                 `${current_entity.resourceType}/${current_entity._uuid}`, {}
                             );
                         }
@@ -1582,7 +1608,7 @@ class EverythingHelper {
                                     id: current_entity.resource.id,
                                     resourceType: current_entity.resource.resourceType
                                 });
-                            // else push it to the bundle entries
+                                // else push it to the bundle entries
                             } else {
                                 bundleEntries.push(current_entity);
                             }
@@ -1609,8 +1635,8 @@ class EverythingHelper {
         args.base_version = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
             {
-            resourceType,
-            args
+                resourceType,
+                args
             }
         );
     }
