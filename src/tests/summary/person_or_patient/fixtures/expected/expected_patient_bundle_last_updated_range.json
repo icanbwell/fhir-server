@@ -2,145 +2,6 @@
   "entry": [
     {
       "resource": {
-        "birthDate": "2017-01-01",
-        "gender": "female",
-        "id": "24a5930e-11b4-5525-b482-669174917044",
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "patient1"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "24a5930e-11b4-5525-b482-669174917044"
-          }
-        ],
-        "meta": {
-          "versionId": "1",
-          "source": "http://healthsystem1health.org/provider",
-          "security": [
-            {
-              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
-              "system": "https://www.icanbwell.com/access",
-              "code": "healthsystem1"
-            },
-            {
-              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
-              "system": "https://www.icanbwell.com/owner",
-              "code": "healthsystem1"
-            },
-            {
-              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "code": "healthsystem1"
-            }
-          ]
-        },
-        "name": [
-          {
-            "use": "usual",
-            "text": "patient1",
-            "family": "PATIENT1",
-            "given": ["SHYLA"]
-          },
-          {
-            "use": "usual",
-            "text": "patient3",
-            "family": "PATIENT3",
-            "given": ["SHYLA"]
-          }
-        ],
-        "resourceType": "Patient",
-        "telecom": [],
-        "address": [],
-        "communication": []
-      }
-    },
-    {
-      "resource": {
-        "birthDate": "2017-01-01",
-        "gender": "female",
-        "id": "7b45e610-8adb-540e-947a-fe449987f8a9",
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "patient3"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "7b45e610-8adb-540e-947a-fe449987f8a9"
-          }
-        ],
-        "link": [
-          {
-            "other": {
-              "extension": [
-                {
-                  "id": "sourceId",
-                  "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Patient/patient1"
-                },
-                {
-                  "id": "uuid",
-                  "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
-                },
-                {
-                  "id": "sourceAssigningAuthority",
-                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "healthsystem1"
-                }
-              ],
-              "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
-            },
-            "type": "seealso"
-          }
-        ],
-        "meta": {
-          "versionId": "1",
-          "source": "http://healthsystem1health.org/provider",
-          "security": [
-            {
-              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
-              "system": "https://www.icanbwell.com/access",
-              "code": "healthsystem1"
-            },
-            {
-              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
-              "system": "https://www.icanbwell.com/owner",
-              "code": "healthsystem1"
-            },
-            {
-              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "code": "healthsystem1"
-            }
-          ]
-        },
-        "name": [
-          {
-            "use": "usual",
-            "text": "patient3",
-            "family": "PATIENT3",
-            "given": ["SHYLA"]
-          }
-        ],
-        "resourceType": "Patient"
-      }
-    },
-    {
-      "resource": {
-        "resourceType": "Organization",
-        "id": "bwell",
-        "name": "b.well Connected Health"
-      }
-    },
-    {
-      "resource": {
         "id": "Composition-24a5930e-11b4-5525-b482-669174917044",
         "resourceType": "Composition",
         "status": "final",
@@ -221,13 +82,173 @@
         ],
         "text": {
           "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li></ul><ul><li>patient3</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li></ul><ul><li>patient3</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Identifier(s):</strong><ul><li>https://www.icanbwell.com/sourceId: patient1</li></ul><ul><li>https://www.icanbwell.com/uuid: 24a5930e-11b4-5525-b482-669174917044</li></ul><ul><li>https://www.icanbwell.com/sourceId: patient3</li></ul><ul><li>https://www.icanbwell.com/uuid: 7b45e610-8adb-540e-947a-fe449987f8a9</li></ul></li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
         }
+      }
+    },
+    {
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "24a5930e-11b4-5525-b482-669174917044",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "24a5930e-11b4-5525-b482-669174917044"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient3"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7b45e610-8adb-540e-947a-fe449987f8a9"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2025-12-15T10:57:16.633Z",
+          "source": "http://healthsystem1health.org/provider",
+          "security": [
+            {
+              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+              "system": "https://www.icanbwell.com/access",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "healthsystem1"
+            }
+          ]
+        },
+        "name": [
+          {
+            "use": "usual",
+            "text": "patient1",
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ]
+          },
+          {
+            "use": "usual",
+            "text": "patient3",
+            "family": "PATIENT3",
+            "given": [
+              "SHYLA"
+            ]
+          }
+        ],
+        "resourceType": "Patient",
+        "telecom": [],
+        "address": [],
+        "communication": []
+      }
+    },
+    {
+      "fullUrl": "https://bwell.com/summary/Patient/7b45e610-8adb-540e-947a-fe449987f8a9",
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "7b45e610-8adb-540e-947a-fe449987f8a9",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient3"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7b45e610-8adb-540e-947a-fe449987f8a9"
+          }
+        ],
+        "link": [
+          {
+            "other": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/patient1"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "healthsystem1"
+                }
+              ],
+              "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+            },
+            "type": "seealso"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2025-12-15T10:57:16.671Z",
+          "source": "http://healthsystem1health.org/provider",
+          "security": [
+            {
+              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+              "system": "https://www.icanbwell.com/access",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "healthsystem1"
+            }
+          ]
+        },
+        "name": [
+          {
+            "use": "usual",
+            "text": "patient3",
+            "family": "PATIENT3",
+            "given": [
+              "SHYLA"
+            ]
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "fullUrl": "https://bwell.com/summary/Organization/bwell",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "bwell",
+        "name": "b.well Connected Health"
       }
     }
   ],
   "resourceType": "Bundle",
   "type": "document",
+  "timestamp": "2025-12-15T10:57:16.946Z",
   "identifier": {
     "system": "urn:ietf:rfc:3986",
     "value": "urn:uuid:4dcfd353-49fd-4ab0-b521-c8d57ced74d6"
