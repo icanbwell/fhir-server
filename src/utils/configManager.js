@@ -925,6 +925,22 @@ class ConfigManager {
     get summaryGeneratorOrganizationBaseUrl() {
         return env.SUMMARY_GENERATOR_ORGANIZATION_BASE_URL || 'https://bwell.com/summary';
     }
+
+    /**
+     * whether to write to redis cache for every thing operation
+     * @return {boolean}
+     */
+    get writeToCacheForEverythingOperation() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION);
+    }
+
+    /**
+     *  returns ttl seconds for everything cache
+     * @return {number}
+     */
+    get everythingCacheTtlSeconds() {
+        return parseInt(process.env.EVERYTHING_CACHE_TTL_SECONDS) || 300;
+    }
 }
 
 module.exports = {

@@ -24,6 +24,7 @@ class RedisClient {
             redisConfig.password = env.REDIS_PASSWORD || '';
         }
         this.client = createClient(redisConfig);
+        this.defaultTtlSeconds = parseInt(env.REDIS_KEY_DEFAULT_TTL_SECONDS) || 600;
 
         this.client.on('error', (err) => logError('Redis Client Error', err));
         this.client.on('connect', () => {
@@ -53,12 +54,43 @@ class RedisClient {
         return await this.client.get(key);
     }
 
-    async set(key, value, ttlSeconds = env.REDIS_KEY_DEFAULT_TTL_SECONDS) {
+    async set(key, value, ttlSeconds = null) {
+        ttlSeconds = ttlSeconds || this.defaultTtlSeconds;
         if (ttlSeconds && !isNaN(parseInt(ttlSeconds))) {
             await this.client.set(key, value, { EX: parseInt(ttlSeconds) });
         } else {
             await this.client.set(key, value);
         }
+    }
+
+    /**
+     * Add an entry to a Redis Stream
+     * @param {string} streamKey
+     * @param {*} data
+     * @param {number} ttlSeconds
+     */
+    async addStreamEntry(streamKey, data, ttlSeconds = null) {
+        ttlSeconds = ttlSeconds || this.defaultTtlSeconds;
+        await this.client.xAdd(
+            streamKey,
+            '*',
+            {
+                data: data,
+                timestamp: Date.now().toString()
+            }
+        );
+        if (ttlSeconds && !isNaN(parseInt(ttlSeconds))) {
+            await this.client.expire(streamKey, parseInt(ttlSeconds));
+        }
+    }
+
+    /**
+     * Delete a Redis Stream
+     * @param {string} key
+     * @returns {Promise<void>}
+     */
+    async deleteKey(key) {
+        await this.client.del(key);
     }
 
     async checkConnectionHealth() {

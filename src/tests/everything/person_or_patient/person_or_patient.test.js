@@ -43,9 +43,10 @@ const expectedPatientResourcesWithNonClinicalAndAllUuidOnly = require('./fixture
 const expectedPatientResourcesTypeNoGraph = require('./fixtures/expected/expected_Patient_type_no_graph.json');
 const expectedPatientIncludeHiddenResourcesNoGraph = require('./fixtures/expected/expected_Patient_no_graph_include_hidden.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomPayload } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getHeadersWithCustomPayload } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
+const deepcopy = require('deepcopy');
 
 describe('Person and Patient $everything Tests', () => {
     beforeEach(async () => {
@@ -703,6 +704,230 @@ describe('Person and Patient $everything Tests', () => {
                 prefer: 'global_id=false'
             }).expect(200);
             expect(resp).toHaveResponse(expectedPatientEverythingPatientWithSubscription);
+        });
+
+        test('Patient $everything works with redis', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(accountResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(unlinkedAccountResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+                .send(subscription1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+                .send(subscription2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+                .send(subscriptionStatus2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+                .send(subscriptionTopic2Resource)
+                .set(getHeaders());
+
+            expect(resp).toHaveMergeResponse({ created: true });
+            let jwtPayload = {
+                scope: 'patient/*.* user/*.* access/*.*',
+                username: 'test',
+                client_id: 'client',
+                clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
+                clientFhirPatientId: '24a5930e-11b4-5525-b482-669174917044',
+                bwellFhirPersonId: 'master-person',
+                bwellFhirPatientId: 'master-patient',
+                token_use: 'access'
+            };
+            let patientHeader = getHeadersWithCustomPayload(jwtPayload);
+            const container = getTestContainer();
+            const streams = container.redisClient.streams;
+            // Test without redis enabled
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(getHeaders());
+
+            expect(Array.from(streams.keys())).toHaveLength(0);
+            expect(resp).toHaveResourceCount(10);
+
+            // Test with redis enabled
+            process.env.ENABLE_REDIS = '1';
+            process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '1';
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(patientHeader);
+
+            expect(resp).toHaveResourceCount(8);
+            let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:access/*.*,patient/*.*,user/*.*::Everything';
+            expect(streams.keys()).toContain(cacheKey);
+            expect(streams.get(cacheKey)).toHaveLength(8);
+            streams.clear();
+
+            // Test no cache in case of service account
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(getHeaders());
+
+            expect(Array.from(streams.keys())).toHaveLength(0);
+
+            // Test no cache in case of params
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything?_debug=True')
+                .set(patientHeader);
+
+            expect(Array.from(streams.keys())).toHaveLength(0);
+
+
+            // Test no cache in case of csv/excel content type
+            let headers = getHeaders();
+            headers['Accept'] = 'text/csv';
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(headers);
+
+            expect(Array.from(streams.keys())).toHaveLength(0);
+
+            // Testing Multiple patients linked with same sourceId
+            let patient4Resource = deepcopy(patient1Resource);
+            patient4Resource.meta.security = [
+                {
+                    system: "https://www.icanbwell.com/access",
+                    code: "healthsystem1"
+                },
+                {
+                    system: "https://www.icanbwell.com/owner",
+                    code: "healthsystem2"
+                }
+            ];
+            let person4Resource = deepcopy(person1Resource);
+            person4Resource.link = [
+                {
+                    target: {
+                        reference: "Patient/patient1|healthsystem1",
+                        type: "Patient"
+                    },
+                    assurance: "level4"
+                },
+                {
+                    target: {
+                        reference: "Patient/patient1|healthsystem2",
+                        type: "Patient"
+                    },
+                    assurance: "level4"
+                }
+            ]
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient4Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person4Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: false });
+
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(patientHeader);
+
+            expect(resp).toHaveResourceCount(9);
+            expect(Array.from(streams.keys())).toHaveLength(0);
+            process.env.ENABLE_REDIS = '0';
+            process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '0';
         });
     });
 });

@@ -1,4 +1,6 @@
 // test file
+const deepcopy = require('deepcopy');
+
 const person1Resource = require('./fixtures/Person/person1.json');
 
 const patient1Resource = require('./fixtures/Patient/patient1.json');
@@ -30,7 +32,8 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersWithCustomPayload
+    getHeadersWithCustomPayload,
+    getTestContainer
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
@@ -216,5 +219,103 @@ describe('Proxy Patient $everything Tests', () => {
             .get(`/4_0_0/Patient/$everything?_debug=true&id=person.${person1Resp.body.uuid},person.person1&_excludeProxyPatientLinked=1&_includePatientLinkedUuidOnly=1`)
             .set(getHeaders());
         expect(resp).toHaveResponse(expectedPatientResourcesWithExcludeProxyUuidOnly);
+    });
+
+    test('Proxy Patient tests for $everything with redis', async () => {
+        const request = await createTestRequest();
+        // ARRANGE
+        // add the resources to FHIR server
+        let person1Resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(person1Resp).toHaveMergeResponse({ created: true });
+
+        let resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        let proxyPatient1Reference = 'Patient/person.' + person1Resp.body.uuid;
+        accountResource.subject[0].reference = proxyPatient1Reference;
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(accountResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(unlinkedAccountResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        observation1Resource.subject.reference = proxyPatient1Reference;
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation3Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // ACT & ASSERT
+        // get person everything and proxy patient data is also received
+        process.env.ENABLE_REDIS = '1';
+        process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '1';
+        const container = getTestContainer();
+        const streams = container.redisClient.streams;
+
+        let jwtPayload = {
+            scope: 'patient/*.* user/*.* access/*.*',
+            username: 'test',
+            client_id: 'client',
+            clientFhirPersonId: '7b99904f-2f85-51a3-9398-e2eed6854639',
+            clientFhirPatientId: '24a5930e-11b4-5525-b482-669174917044',
+            bwellFhirPersonId: 'master-person',
+            bwellFhirPatientId: 'master-patient',
+            token_use: 'access'
+        };
+        let patientHeader = getHeadersWithCustomPayload(jwtPayload);
+
+        resp = await request
+            .get(
+                '/4_0_0/Patient/person.' + person1Resp.body.uuid + '/$everything'
+            )
+            .set(patientHeader);
+
+        expect(resp).toHaveResourceCount(5);
+        let cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639::Scopes:access/*.*,patient/*.*,user/*.*::Everything';
+        expect(streams.keys()).toContain(cacheKey);
+        expect(streams.get(cacheKey)).toHaveLength(5);
+        streams.clear();
+
+        // No cache in case of sourceId for person
+        resp = await request
+            .get(
+                '/4_0_0/Patient/person.person1/$everything'
+            )
+            .set(patientHeader);
+        expect(resp).toHaveResourceCount(3);
+        expect(Array.from(streams.keys())).toHaveLength(0)
+        process.env.ENABLE_REDIS = '0';
     });
 });

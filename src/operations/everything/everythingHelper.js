@@ -1,6 +1,7 @@
 /**
  * This file contains functions to retrieve all related resources of given resource from the database
  */
+const httpContext = require('express-http-context');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -20,6 +21,7 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunksGenerator } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { PatientEverythingCacheKeyGenerator } = require('./patientEverythingCachekeyGenerator')
 const {
     GRIDFS: { RETRIEVE },
     OPERATIONS: { READ },
@@ -29,7 +31,8 @@ const {
     PERSON_REFERENCE_PREFIX,
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
     PERSON_PROXY_PREFIX,
-    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
+    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH,
+    HTTP_CONTEXT_KEYS
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
@@ -49,6 +52,8 @@ const clinicalResources = require('./generated.resource_types.json')['clinicalRe
 const { CustomTracer } = require('../../utils/customTracer');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
+const { RedisStreamManager } = require('../../utils/redisStreamManager');
+const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -80,6 +85,7 @@ class EverythingHelper {
      * @property {PostRequestProcessor} postRequestProcessor
      *
      * @param {EverythingHelperParams}
+     * @param {RedisStreamManager} redisStreamManager
      */
     constructor({
         databaseQueryFactory,
@@ -95,7 +101,8 @@ class EverythingHelper {
         customTracer,
         patientDataViewControlManager,
         auditLogger,
-        postRequestProcessor
+        postRequestProcessor,
+        redisStreamManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -202,6 +209,101 @@ class EverythingHelper {
          * @type {CustomTracer}
         */
         this.customTracer = customTracer;
+
+        /**
+         * @type {RedisStreamManager}
+         */
+        this.redisStreamManager = redisStreamManager;
+    }
+
+    /**
+     * Get original ids from parsedArgs
+     * @param {ParsedArgs} parsedArgs
+     * @returns {string[]}
+     */
+    fetchOriginalIdsFromParams(parsedArgs) {
+        const idParam = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
+        if (!idParam?.queryParameterValue?.value) {
+            return [];
+        }
+        const id = idParam.queryParameterValue.value;
+        return id.split(',');
+    }
+
+    /**
+     * Get patient UUID for a given ID
+     * @param {ParsedArgs} parsedArgs
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} base_version
+    * @returns {Promise<string[]>}
+    */
+    async fetchPatientUUID(parsedArgs, requestInfo, resourceType, base_version) {
+        const {
+            query
+        } = await this.searchManager.constructQueryAsync({
+            user: requestInfo.user,
+            scope: requestInfo.scope,
+            isUser: requestInfo.isUser,
+            resourceType,
+            useAccessIndex: this.configManager.useAccessIndex,
+            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+            requestId: requestInfo.requestId,
+            parsedArgs,
+            operation: READ,
+            accessRequested: 'read',
+            addPersonOwnerToContext: requestInfo.isUser,
+            applyPatientFilter: true
+        });
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+        const options = {
+            projection: {
+                _uuid: 1,
+                _id: 0
+            }
+        };
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        let ids = [];
+        while (await cursor.hasNext()) {
+            const sourceResource = await cursor.next();
+            ids.push(sourceResource._uuid);
+        }
+        return ids;
+    }
+
+    /**
+     * Get cache key for a given request
+     * @param {ParsedArgs} parsedArgs
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @returns {Promise<string|undefined>}
+     */
+    async getCacheKey(parsedArgs, requestInfo, resourceType, base_version) {
+        if (!requestInfo.personIdFromJwtToken) {
+            return undefined;
+        }
+        let paramsIds = this.fetchOriginalIdsFromParams(parsedArgs);
+        // Multiple ids are not supported for now
+        if (paramsIds.length !== 1) {
+            return undefined;
+        }
+        let idForCache;
+        let id = paramsIds[0];
+        const isProxyPatient = id.startsWith(PERSON_PROXY_PREFIX);
+        if (isProxyPatient) {
+            id = id.replace(PERSON_PROXY_PREFIX, '');
+            if (isUuid(id) && id == requestInfo.personIdFromJwtToken) {
+                idForCache = `${PERSON_PROXY_PREFIX}${id}`;
+            }
+        } else {
+            let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType, base_version);
+            idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
+        }
+        let keyGenerator = new PatientEverythingCacheKeyGenerator();
+        return idForCache ? keyGenerator.generateCacheKey(
+            { id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope, contentType: requestInfo.contentTypeFromHeader?.type }
+        ) : undefined;
     }
 
     /**
@@ -282,8 +384,16 @@ class EverythingHelper {
              * @type {{id: string, resourceType: string}[]} - Track resource IDs with types for audit logging
              */
             let streamedResources = [];
-
-
+            const writeCache = this.configManager.writeToCacheForEverythingOperation;
+            const cacheKey = writeCache ? await this.getCacheKey(
+                parsedArgs, requestInfo, resourceType, base_version
+            ) : undefined;
+            const cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
+                redisStreamManager: this.redisStreamManager,
+                cacheKey,
+                responseStreamer,
+                ttlSeconds: this.configManager.everythingCacheTtlSeconds
+            }) : null;
             for (const idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();
                 parsedArgsForChunk.id = idChunk;
@@ -314,16 +424,17 @@ class EverythingHelper {
                     streamedResources: streamedRes1
                 } = await this.retrieveEverythingMulipleIdsAsync(
                     {
-                        base_version,
-                        requestInfo,
-                        resourceType,
-                        explain: !!parsedArgs._explain,
-                        debug: !!parsedArgs._debug,
-                        parsedArgs: parsedArgsForChunk,
-                        bundleEntryIdsProcessedTracker,
-                        responseStreamer,
-                        includeNonClinicalResources,
-                        proxyPatientIds
+                    base_version,
+                    requestInfo,
+                    resourceType,
+                    explain: !!parsedArgs._explain,
+                    debug: !!parsedArgs._debug,
+                    parsedArgs: parsedArgsForChunk,
+                    bundleEntryIdsProcessedTracker,
+                    responseStreamer,
+                    includeNonClinicalResources,
+                    proxyPatientIds,
+                    cachedStreamer
                     }
                 );
 
@@ -447,6 +558,7 @@ class EverythingHelper {
      * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
      * @property {boolean} includeNonClinicalResources
      * @property {string[]} proxyPatientIds
+     * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -461,7 +573,8 @@ class EverythingHelper {
         responseStreamer,
         bundleEntryIdsProcessedTracker,
         includeNonClinicalResources = false,
-        proxyPatientIds = []
+        proxyPatientIds = [],
+        cachedStreamer = null
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -553,7 +666,8 @@ class EverythingHelper {
                     resourceIdentifiers: baseResourceIdentifiers,
                     requestInfo,
                     useUuidProjection,
-                    resourceMapper
+                    resourceMapper,
+                    cachedStreamer
                 });
 
                 optionsForQueries = baseResult.options;
@@ -636,7 +750,8 @@ class EverythingHelper {
                     everythingRelatedResourceManager,
                     useUuidProjection,
                     resourceToExcludeIdsMap,
-                    resourceMapper
+                    resourceMapper,
+                    cachedStreamer
                 });
 
                 if (!responseStreamer) {
@@ -724,7 +839,8 @@ class EverythingHelper {
                                 requestInfo,
                                 nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
                                 everythingRelatedResourceManager,
-                                resourceMapper
+                                resourceMapper,
+                                cachedStreamer
                             });
 
                             depthParallelProcess.push(result);
@@ -823,6 +939,7 @@ class EverythingHelper {
      * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
      * @property {ResourceMapper} resourceMapper
+     * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -841,7 +958,8 @@ class EverythingHelper {
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
         applyPatientFilter = true,
-        resourceMapper = new ResourceMapper()
+        resourceMapper = new ResourceMapper(),
+        cachedStreamer = null
     }) {
 
         /**
@@ -942,7 +1060,8 @@ class EverythingHelper {
                 nonClinicalReferencesExtractor,
                 everythingRelatedResourceManager,
                 useUuidProjection,
-                resourceMapper
+                resourceMapper,
+                cachedStreamer
             });
 
             entries.push(...(bundleEntries || []));
@@ -980,6 +1099,7 @@ class EverythingHelper {
      * @property {{string: string[]}} resourceToExcludeIdsMap
      * @property {{id: string, resourceType: string}[]} streamedResources
      * @property {ResourceMapper} resourceMapper
+     * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {id: string, resourceType: string}[]}>}
@@ -1001,8 +1121,9 @@ class EverythingHelper {
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
         resourceToExcludeIdsMap,
-        resourceMapper = new ResourceMapper()
-    }
+        resourceMapper = new ResourceMapper(),
+        cachedStreamer = null
+        }
     ) {
 
         /**
@@ -1230,6 +1351,7 @@ class EverythingHelper {
                 cursor = cursor.limit(1);
             }
             const collectionName = cursor.getCollection();
+
             const promiseResult = this.processCursorAsync({
                 cursor,
                 responseStreamer,
@@ -1242,7 +1364,8 @@ class EverythingHelper {
                 everythingRelatedResourceManager,
                 parentResourceType,
                 useUuidProjection,
-                resourceMapper
+                resourceMapper,
+                cachedStreamer
             })
 
             parallelProcess.push(promiseResult)
@@ -1289,6 +1412,7 @@ class EverythingHelper {
      *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
      *  useUuidProjection: boolean,
      *  resourceMapper?: ResourceMapper,
+     *  cachedStreamer?: CachedFhirResponseStreamer|null,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {id: string, resourceType: string}[]}>}
      */
@@ -1305,7 +1429,8 @@ class EverythingHelper {
         parentResourceType,
         everythingRelatedResourceManager,
         useUuidProjection,
-        resourceMapper = new ResourceMapper()
+        resourceMapper = new ResourceMapper(),
+        cachedStreamer = null
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1465,6 +1590,11 @@ class EverythingHelper {
 
                             // if response streamer is present then write the entry to the response streamer
                             if (responseStreamer) {
+                                if (cachedStreamer) {
+                                    await cachedStreamer.writeBundleEntryToRedis({
+                                        bundleEntry: current_entity
+                                    });
+                                }
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                                     entries: [current_entity],
                                     parsedArgs: parentParsedArgs

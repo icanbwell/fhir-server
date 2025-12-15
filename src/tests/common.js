@@ -418,12 +418,19 @@ module.exports.mockHttpContext = ({
                                   } = {}) => {
 
     jest.spyOn(httpContext, 'get');
+    jest.spyOn(httpContext, 'set');
+
     const values = {
         systemGeneratedRequestId: systemGeneratedRequestId || '12345678',
         userRequestId: userRequestId || '1234'
     };
     httpContext.get.mockImplementation((key) => {
         return values[key];
+    });
+    httpContext.set.mockImplementation((key, value) => {
+        if (!['systemGeneratedRequestId', 'userRequestId'].includes(key)) {
+            values[key] = value;
+        }
     });
     return values.systemGeneratedRequestId;
 };
