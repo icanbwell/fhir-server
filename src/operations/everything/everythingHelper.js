@@ -392,57 +392,80 @@ class EverythingHelper {
                 redisStreamManager: this.redisStreamManager,
                 cacheKey,
                 responseStreamer,
-                ttlSeconds: this.configManager.everythingCacheTtlSeconds
+                ttlSeconds: this.configManager.everythingCacheTtlSeconds,
+                enrichmentManager: this.enrichmentManager,
+                parsedArgs
             }) : null;
-            for (const idChunk of idChunks) {
-                const parsedArgsForChunk = parsedArgs.clone();
-                parsedArgsForChunk.id = idChunk;
-                parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
-                /**
-                 * @type {string[]}
-                 */
-                let proxyPatientIds = []
-                if (resourceType === 'Patient') {
-                    proxyPatientIds = idChunk.filter((q) => q && q.startsWith(PERSON_PROXY_PREFIX));
-
-                    // filter proxy patient ids to only include allowed ids for patient scope
-                    if (requestInfo.isUser) {
-                        proxyPatientIds = proxyPatientIds.filter(
-                            (q) => q && q === PERSON_PROXY_PREFIX + requestInfo.personIdFromJwtToken
-                        );
+            const readFromCache = (
+                this.configManager.readFromCacheForEverythingOperation &&
+                responseStreamer &&
+                cachedStreamer &&
+                await this.redisStreamManager.hasCachedStream(cacheKey)
+            );
+            // Check if we need to fall back to MongoDB
+            let fallbackToMongo = false;
+            if (readFromCache) {
+                try {
+                    streamedResources = await cachedStreamer.streamFromCacheAsync();
+                } catch (err) {
+                    fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
+                    logError('Error reading everything response from cache', { error: err, cacheKey });
+                    if (!fallbackToMongo) {
+                        throw err;
                     }
                 }
+            }
+            if(!readFromCache || fallbackToMongo) {
+                for (const idChunk of idChunks) {
+                    const parsedArgsForChunk = parsedArgs.clone();
+                    parsedArgsForChunk.id = idChunk;
+                    parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
+                    /**
+                     * @type {string[]}
+                     */
+                    let proxyPatientIds = []
+                    if (resourceType === 'Patient') {
+                        proxyPatientIds = idChunk.filter((q) => q && q.startsWith(PERSON_PROXY_PREFIX));
 
-                /**
-                 * @type {ProcessMultipleIdsAsyncResult}
-                 */
-                const {
-                    entries: entries1,
-                    queryItems: queryItems1,
-                    options: options1,
-                    explanations: explanations1,
-                    streamedResources: streamedRes1
-                } = await this.retrieveEverythingMulipleIdsAsync(
-                    {
-                    base_version,
-                    requestInfo,
-                    resourceType,
-                    explain: !!parsedArgs._explain,
-                    debug: !!parsedArgs._debug,
-                    parsedArgs: parsedArgsForChunk,
-                    bundleEntryIdsProcessedTracker,
-                    responseStreamer,
-                    includeNonClinicalResources,
-                    proxyPatientIds,
-                    cachedStreamer
+                        // filter proxy patient ids to only include allowed ids for patient scope
+                        if (requestInfo.isUser) {
+                            proxyPatientIds = proxyPatientIds.filter(
+                                (q) => q && q === PERSON_PROXY_PREFIX + requestInfo.personIdFromJwtToken
+                            );
+                        }
                     }
-                );
 
-                entries = entries.concat(entries1);
-                queryItems = queryItems.concat(queryItems1);
-                options = options.concat(options1);
-                explanations = explanations.concat(explanations1);
-                streamedResources = streamedResources.concat(streamedRes1 || []);
+                    /**
+                     * @type {ProcessMultipleIdsAsyncResult}
+                     */
+                    const {
+                        entries: entries1,
+                        queryItems: queryItems1,
+                        options: options1,
+                        explanations: explanations1,
+                        streamedResources: streamedRes1
+                    } = await this.retrieveEverythingMulipleIdsAsync(
+                        {
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        explain: !!parsedArgs._explain,
+                        debug: !!parsedArgs._debug,
+                        parsedArgs: parsedArgsForChunk,
+                        bundleEntryIdsProcessedTracker,
+                        responseStreamer,
+                        includeNonClinicalResources,
+                        proxyPatientIds,
+                        cachedStreamer
+                        }
+                    );
+
+                    entries = entries.concat(entries1);
+                    queryItems = queryItems.concat(queryItems1);
+                    options = options.concat(options1);
+                    explanations = explanations.concat(explanations1);
+                    streamedResources = streamedResources.concat(streamedRes1 || []);
+                }
             }
             /**
              * @type {number}

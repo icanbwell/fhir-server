@@ -834,6 +834,7 @@ describe('Person and Patient $everything Tests', () => {
             let patientHeader = getHeadersWithCustomPayload(jwtPayload);
             const container = getTestContainer();
             const streams = container.redisClient.streams;
+            const redisReadSpy = jest.spyOn(container.redisStreamManager, 'readBundleEntriesFromStream');
             // Test without redis enabled
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything')
@@ -853,7 +854,22 @@ describe('Person and Patient $everything Tests', () => {
             let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:access/*.*,patient/*.*,user/*.*::Everything';
             expect(streams.keys()).toContain(cacheKey);
             expect(streams.get(cacheKey)).toHaveLength(8);
+
+            // Test cache Miss when redis read disabled
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(patientHeader);
+
+            expect(redisReadSpy).not.toHaveBeenCalled();
+
+            process.env.ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION = '1';
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(patientHeader);
+            expect(redisReadSpy).toHaveBeenCalled();
+            expect(resp).toHaveResourceCount(8);
             streams.clear();
+            redisReadSpy.mockClear();
 
             // Test no cache in case of service account
             resp = await request
@@ -926,6 +942,17 @@ describe('Person and Patient $everything Tests', () => {
 
             expect(resp).toHaveResourceCount(9);
             expect(Array.from(streams.keys())).toHaveLength(0);
+
+            // Testing redis
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(patientHeader);
+
+            expect(redisReadSpy).not.toHaveBeenCalled();
+            expect(resp).toHaveResourceCount(9);
+            streams.clear();
+            redisReadSpy.mockClear();
+
             process.env.ENABLE_REDIS = '0';
             process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION = '0';
         });
