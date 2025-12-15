@@ -380,6 +380,37 @@ async function handleAdminPost (
                         return res.status(400).json({ message: 'ExportStatusId was not passed' });
                     }
                 }
+                case 'invalidateCache': {
+                    const resourceType = req.body.resourceType;
+                    const resourceId = req.body.resourceId;
+                    if (resourceType && resourceId) {
+                        const invalidateCacheOperation = container.invalidateCacheOperation;
+                        try {
+                            await invalidateCacheOperation.invalidateCacheAsync({
+                                resourceType,
+                                resourceId
+                            });
+                            return res.json({ message: `Cache invalidated for ${resourceType}/${resourceId}` });
+                        } catch (error) {
+                            logError(`Error invalidating cache for ${resourceType}/${resourceId}`, error);
+                            const operationOutcome = new OperationOutcome({
+                                issue: [
+                                    new OperationOutcomeIssue(
+                                        {
+                                            severity: 'error',
+                                            code: 'exception',
+                                            diagnostics: error.message
+                                        }
+                                    )
+                                ]
+                            });
+                            return res.status(error.statusCode || 500).json(operationOutcome);
+                        }
+                    }
+                    return res.json({
+                        message: `No resourceId: ${resourceId} or resourceType: ${resourceType} passed`
+                    });
+                }
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }

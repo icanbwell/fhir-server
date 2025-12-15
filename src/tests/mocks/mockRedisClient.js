@@ -106,6 +106,36 @@ class MockRedisClient {
             groups: 0
         };
     }
+
+    /**
+     * Invalidates cache keys by prefix
+     * @param {string} prefix
+     * @returns {Promise<void>}
+     */
+    async invalidateByPrefixAsync(prefix) {
+        const pattern = prefix;
+        const keysToDelete = [];
+
+        // Find all keys in store that match the prefix
+        for (const key of this.store.keys()) {
+            if (key.startsWith(pattern)) {
+                keysToDelete.push(key);
+            }
+        }
+
+        // Find all stream keys that match the prefix
+        for (const key of this.streams.keys()) {
+            if (key.startsWith(pattern)) {
+                keysToDelete.push(key);
+            }
+        }
+
+        // Delete all matching keys
+        for (const key of keysToDelete) {
+            this.store.delete(key);
+            this.streams.delete(key);
+        }
+    }
 };
 
 module.exports = {
