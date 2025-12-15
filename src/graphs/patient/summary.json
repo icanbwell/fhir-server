@@ -145,7 +145,7 @@
       "target": [
         {
           "type": "Observation",
-          "params": "patient={ref}"
+          "params": "patient={ref}&date=ge{Last2Years}"
         }
       ]
     },

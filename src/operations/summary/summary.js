@@ -163,7 +163,7 @@ class SummaryOperation {
             summaryGraph.link.forEach((link) => {
                 link.target.forEach((target) => {
                     if (target.params && target.type === "Observation") {
-                        target.params += `&date=ge${pastDateString}`;
+                        target.params = target.params.replace('{Last2Years}', pastDateString);
                     }
                     if (lastUpdatedQueryParam && target.params && target.type !== "Patient") {
                         target.params += lastUpdatedQueryParam;
