@@ -410,6 +410,9 @@ class EverythingHelper {
                 } catch (err) {
                     fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });
+                    if (!fallbackToMongo) {
+                        throw err;
+                    }
                 }
             }
             if(!readFromCache || fallbackToMongo) {
