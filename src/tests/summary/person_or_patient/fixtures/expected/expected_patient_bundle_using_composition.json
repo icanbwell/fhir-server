@@ -202,7 +202,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Allergen</th> <th>Code (System)</th> <th>Criticality</th> <th>Recorded Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Cashew</td> <td></td> <td>low</td> <td>1/2/2012, 7:00 PM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all AllergyIntolerance resources, with no additional filtering, sorted as provided.</p> <div> <table> <thead> <tr> <th>Allergen</th> <th>Code (System)</th> <th>Criticality</th> <th>Recorded Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Cashew</td> <td></td> <td>low</td> <td>1/2/2012, 7:00 PM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
@@ -238,7 +238,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Immunization</th> <th>Code (System)</th> <th>Status</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Flu (Influenza)</td> <td></td> <td>completed</td> <td>10/1/2024, 6:00 AM EDT</td> <td></td> </tr> <tr> <td>COVID-19</td> <td></td> <td>completed</td> <td>8/10/2024, 7:00 AM EDT</td> <td></td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <p>This list includes all vaccinations, sorted by occurrence date (most recent first).</p> <table> <thead> <tr> <th>Immunization</th> <th>Code (System)</th> <th>Status</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Flu (Influenza)</td> <td></td> <td>completed</td> <td>10/1/2024, 6:00 AM EDT</td> <td></td> </tr> <tr> <td>COVID-19</td> <td></td> <td>completed</td> <td>8/10/2024, 7:00 AM EDT</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
@@ -256,7 +256,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <table> <thead> <tr> <th>Procedure</th> <th>Code (System)</th> <th>Performer</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Mammography</td> <td></td> <td></td> <td>5/26/2024, 2:38 PM EDT</td> <td></td> </tr> <tr> <td>Biopsy of suspected melanoma L) arm</td> <td></td> <td>Dr Bert Biopser</td> <td>2/2/2020, 7:00 PM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all Procedure resources, sorted by performed date (most recent first).</p> <div> <table> <thead> <tr> <th>Procedure</th> <th>Code (System)</th> <th>Performer</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Mammography</td> <td></td> <td></td> <td>5/26/2024, 2:38 PM EDT</td> <td></td> </tr> <tr> <td>Biopsy of suspected melanoma L) arm</td> <td></td> <td>Dr Bert Biopser</td> <td>2/2/2020, 7:00 PM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
