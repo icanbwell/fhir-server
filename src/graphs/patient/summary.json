@@ -17,7 +17,7 @@
       "target": [
         {
           "type": "CarePlan",
-          "params": "patient={ref}"
+          "params": "patient={ref}&status=active"
         }
       ]
     },
@@ -25,7 +25,7 @@
       "target": [
         {
           "type": "ClinicalImpression",
-          "params": "patient={ref}"
+          "params": "patient={ref}&status=completed"
         }
       ]
     },
@@ -56,14 +56,6 @@
     {
       "target": [
         {
-          "type": "Device",
-          "params": "patient={ref}"
-        }
-      ]
-    },
-    {
-      "target": [
-        {
           "type": "DeviceUseStatement",
           "params": "patient={ref}",
           "link": [
@@ -83,7 +75,7 @@
       "target": [
         {
           "type": "DiagnosticReport",
-          "params": "patient={ref}"
+          "params": "patient={ref}&status=final"
         }
       ]
     },
@@ -91,7 +83,7 @@
       "target": [
         {
           "type": "Immunization",
-          "params": "patient={ref}",
+          "params": "patient={ref}&status=completed",
           "link": [
             {
               "path": "manufacturer",
@@ -117,7 +109,7 @@
       "target": [
         {
           "type": "MedicationRequest",
-          "params": "patient={ref}",
+          "params": "patient={ref}&status=active",
           "link": [
             {
               "path": "medicationReference",
@@ -135,7 +127,7 @@
       "target": [
         {
           "type": "MedicationStatement",
-          "params": "patient={ref}",
+          "params": "patient={ref}&status=active",
           "link": [
             {
               "path": "medicationReference",
@@ -153,33 +145,7 @@
       "target": [
         {
           "type": "Observation",
-          "params": "patient={ref}"
-        }
-      ]
-    },
-    {
-      "target": [
-        {
-          "type": "Patient",
-          "params": "link={ref}"
-        }
-      ]
-    },
-    {
-      "target": [
-        {
-          "type": "Person",
-          "params": "patient={ref}",
-          "link": [
-            {
-              "target": [
-                {
-                  "type": "Person",
-                  "params": "link={ref}"
-                }
-              ]
-            }
-          ]
+          "params": "patient={ref}&date=ge{Last2Years}"
         }
       ]
     },
@@ -187,7 +153,7 @@
       "target": [
         {
           "type": "Procedure",
-          "params": "patient={ref}"
+          "params": "patient={ref}&status=completed"
         }
       ]
     }

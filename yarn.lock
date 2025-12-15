@@ -1493,10 +1493,10 @@
     fflate "^0.8.2"
     xlsx "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 
-"@imranq2/fhirpatientsummary@^1.0.31":
-  version "1.0.31"
-  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.31.tgz#3b6e2bcb5441ebe583a459d9ed2ab11056b8614c"
-  integrity sha512-KGIl/ooCfDAedGaCBShkym1yll6MN10SVm7J+1X/vaf5TcXG8MGxL84jJw+08rW0k3eljXiUt3f4XgbEpIdpaw==
+"@imranq2/fhirpatientsummary@^1.0.32":
+  version "1.0.32"
+  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.32.tgz#e955acc03e16e02fc55493beb6df3f496b2359df"
+  integrity sha512-rlP7qFFkvFFk8bF/86a9dZK/W4oDrFPv+S34vBYVdH+qXCwSfMKspDSfL4JOinZ+S8WHaoAwtbRsvYQVVDQuHg==
   dependencies:
     html-minifier-terser "^7.2.0"
     luxon "^3.7.2"
@@ -8606,17 +8606,17 @@ tunnel-agent@^0.6.0:
   dependencies:
     safe-buffer "^5.0.1"
 
+turndown-plugin-gfm@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/turndown-plugin-gfm/-/turndown-plugin-gfm-1.0.2.tgz#6f8678a361f35220b2bdf5619e6049add75bf1c7"
+  integrity sha512-vwz9tfvF7XN/jE0dGoBei3FXWuvll78ohzCZQuOb+ZjWrs3a0XhQVomJEb2Qh4VHTPNRO4GPZh0V7VRbiWwkRg==
+
 turndown@^7.2.2:
   version "7.2.2"
   resolved "https://registry.yarnpkg.com/turndown/-/turndown-7.2.2.tgz#9557642b54046c5912b3d433f34dd588de455a43"
   integrity sha512-1F7db8BiExOKxjSMU2b7if62D/XOyQyZbPKq/nUwopfgnHlqXHqQ0lvfUTeUIr1lZJzOPFn43dODyMSIfvWRKQ==
   dependencies:
     "@mixmark-io/domino" "^2.2.0"
-
-turndown-plugin-gfm@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/turndown-plugin-gfm/-/turndown-plugin-gfm-1.0.2.tgz#6f8678a361f35220b2bdf5619e6049add75bf1c7"
-  integrity sha512-vwz9tfvF7XN/jE0dGoBei3FXWuvll78ohzCZQuOb+ZjWrs3a0XhQVomJEb2Qh4VHTPNRO4GPZh0V7VRbiWwkRg==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"

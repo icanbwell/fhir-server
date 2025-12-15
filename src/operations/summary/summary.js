@@ -134,7 +134,6 @@ class SummaryOperation {
             if (resourceType !== 'Patient') {
                 throw new Error('$summary is not supported for resource: ' + resourceType);
             }
-            parsedArgs.resource = patientSummaryGraph;
 
             // set global_id to true
             const updatedHeaders = {
@@ -143,6 +142,7 @@ class SummaryOperation {
             };
             parsedArgs.headers = updatedHeaders;
 
+            let lastUpdatedQueryParam = null;
             // apply _lastUpdated to linked resources in graph if passed in parameters
             if (parsedArgs._lastUpdated) {
                 const lastUpdated = parsedArgs._lastUpdated;
@@ -150,22 +150,28 @@ class SummaryOperation {
                 parsedArgs.remove('_lastUpdated');
                 parsedArgs._lastUpdated = null;
 
-                const lastUpdatedQueryParam = Array.isArray(lastUpdated)
+                lastUpdatedQueryParam = Array.isArray(lastUpdated)
                     ? `&_lastUpdated=${lastUpdated.join(',')}`
                     : `&_lastUpdated=${lastUpdated}`;
-
-                const summaryGraph = deepcopy(parsedArgs.resource);
-
-                summaryGraph.link.forEach((link) => {
-                    link.target.forEach((target) => {
-                        if (target.params && target.type !== "Patient") {
-                            target.params += lastUpdatedQueryParam;
-                        }
-                    });
-                });
-
-                parsedArgs.resource = summaryGraph;
             }
+
+            // apply filter on Observation for last 2 years
+            const summaryGraph = deepcopy(patientSummaryGraph);
+            const pastDate = new Date();
+            pastDate.setFullYear(new Date().getFullYear() - 2);
+            const pastDateString = pastDate.toISOString().split('T')[0];
+            summaryGraph.link.forEach((link) => {
+                link.target.forEach((target) => {
+                    if (target.params && target.type === "Observation") {
+                        target.params = target.params.replace('{Last2Years}', pastDateString);
+                    }
+                    if (lastUpdatedQueryParam && target.params && target.type !== "Patient") {
+                        target.params += lastUpdatedQueryParam;
+                    }
+                });
+            });
+
+            parsedArgs.resource = summaryGraph;
 
             // disable proxy patient rewrite by default
             if (!parsedArgs._rewritePatientReference) {
