@@ -30,6 +30,7 @@ class CachedFhirResponseStreamer {
         this.enrichmentManager = enrichmentManager;
         this.parsedArgs = parsedArgs;
         this.isFirstEntry = true;
+        this.writeFromRedisStarted = false;
     }
 
     /**
@@ -68,6 +69,7 @@ class CachedFhirResponseStreamer {
             });
             for (const bundleEntry of entries) {
                 await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
+                this.writeFromRedisStarted = true;
                 streamedResources.push({
                     id: bundleEntry.resource.id,
                     resourceType: bundleEntry.resource.resourceType

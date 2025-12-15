@@ -397,21 +397,22 @@ class EverythingHelper {
                 parsedArgs
             }) : null;
             const readFromCache = (
-                isTrue(process.env.ENABLE_REDIS) &&
-                isTrue(process.env.ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION) &&
+                this.configManager.readFromCacheForEverythingOperation &&
                 responseStreamer &&
+                cachedStreamer &&
                 await this.redisStreamManager.hasCachedStream(cacheKey)
             );
-            let readErrorFromRedis = false;
+            // Check if we need to fall back to MongoDB
+            let fallbackToMongo = false;
             if (readFromCache) {
                 try {
                     streamedResources = await cachedStreamer.streamFromCacheAsync();
                 } catch (err) {
-                    readErrorFromRedis = true;
+                    fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
                     logError('Error reading everything response from cache', { error: err, cacheKey });
                 }
             }
-            if(!readFromCache || readErrorFromRedis) {
+            if(!readFromCache || fallbackToMongo) {
                 for (const idChunk of idChunks) {
                     const parsedArgsForChunk = parsedArgs.clone();
                     parsedArgsForChunk.id = idChunk;

@@ -935,6 +935,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to read from redis cache for every thing operation
+     * @return {boolean}
+     */
+    get readFromCacheForEverythingOperation() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION);
+    }
+
+    /**
      *  returns ttl seconds for everything cache
      * @return {number}
      */
