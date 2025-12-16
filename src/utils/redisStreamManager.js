@@ -56,18 +56,26 @@ class RedisStreamManager {
     async readBundleEntriesFromStream(cacheKey, lastId) {
         try {
             await this.redisClient.connectAsync();
+            let hasMore = true;
             let entries = [];
+            const streamInfo = await this.redisClient.getStreamInfo(cacheKey);
+            const lastEntryId = streamInfo['last-entry'].id;
             const streamCount = parseInt(process.env.REDIS_STREAM_READ_COUNT) || 100;
             const results = await this.redisClient.readFromStream(cacheKey, lastId, streamCount);
             if (!results || results.length === 0) {
-                return { entries: [], lastId };
+                hasMore = false;
+                return { entries, hasMore, lastId };
             }
             const messages = results[0].messages;
             for (const message of messages) {
                 entries.push(JSON.parse(message.message.data));
                 lastId = message.id;
             }
-            return { entries, lastId };
+
+            if (lastId === lastEntryId) {
+                hasMore = false;
+            }
+            return { entries, hasMore, lastId };
         } catch (error) {
             logError('Error reading from Redis stream', { error, cacheKey });
             captureException(error);
