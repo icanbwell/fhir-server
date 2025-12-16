@@ -143,6 +143,18 @@ class RedisClient {
     }
 
     /**
+     * Bulk delete keys from Redis
+     * @param {string[]} keys
+     */
+    async bulkDeleteKeys(keys) {
+        let deleteCommands = [];
+        if (keys.length > 0) {
+            keys.forEach(key => deleteCommands.push(this.client.del(key)));
+            await Promise.all(deleteCommands);
+        }
+    }
+
+    /**
      * Invalidates cache keys by prefix
      * @param {string} prefix
      * @returns {Promise<void>}
@@ -150,12 +162,22 @@ class RedisClient {
     async invalidateByPrefixAsync(prefix) {
         const pattern = prefix + '*';
         for await (let keys of this.client.scanIterator({ MATCH: pattern, COUNT: this.invalidateCacheKeysBatchSize })) {
-            let deleteCommands = [];
-            if (keys.length > 0) {
-                keys.forEach(key => deleteCommands.push(this.client.del(key)));
-                await Promise.all(deleteCommands);
-            }
+            await this.bulkDeleteKeys(keys);
         }
+    }
+
+    /**
+     * Invalidates cache keys by prefix
+     * @param {string} prefix
+     * @returns {Promise<void>}
+     */
+    async getAllKeysByPrefix(prefix) {
+        const pattern = prefix + '*';
+        const keys = [];
+        for await (let batch of this.client.scanIterator({ MATCH: pattern, COUNT: this.invalidateCacheKeysBatchSize })) {
+            keys.push(...batch);
+        }
+        return keys;
     }
 }
 

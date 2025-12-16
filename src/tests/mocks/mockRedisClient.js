@@ -108,33 +108,57 @@ class MockRedisClient {
     }
 
     /**
-     * Invalidates cache keys by prefix
-     * @param {string} prefix
+     * Bulk delete keys from Redis
+     * @param {string[]} keys
      * @returns {Promise<void>}
      */
-    async invalidateByPrefixAsync(prefix) {
-        const pattern = prefix;
-        const keysToDelete = [];
+    async bulkDeleteKeys(keys) {
+        if (!keys || keys.length === 0) {
+            return;
+        }
+
+        for (const key of keys) {
+            this.store.delete(key);
+            this.streams.delete(key);
+        }
+    }
+
+    /**
+     * Get all keys matching a prefix pattern
+     * @param {string} prefix
+     * @returns {Promise<string[]>}
+     */
+    async getAllKeysByPrefix(prefix) {
+        const matchingKeys = [];
 
         // Find all keys in store that match the prefix
         for (const key of this.store.keys()) {
-            if (key.startsWith(pattern)) {
-                keysToDelete.push(key);
+            if (key.startsWith(prefix)) {
+                matchingKeys.push(key);
             }
         }
 
         // Find all stream keys that match the prefix
         for (const key of this.streams.keys()) {
-            if (key.startsWith(pattern)) {
-                keysToDelete.push(key);
+            if (key.startsWith(prefix)) {
+                matchingKeys.push(key);
             }
         }
 
-        // Delete all matching keys
-        for (const key of keysToDelete) {
-            this.store.delete(key);
-            this.streams.delete(key);
-        }
+        return matchingKeys;
+    }
+
+    /**
+     * Invalidates cache keys by prefix
+     * @param {string} prefix
+     * @returns {Promise<void>}
+     */
+    async invalidateByPrefixAsync(prefix) {
+        // Get all keys matching the prefix
+        const keysToDelete = await this.getAllKeysByPrefix(prefix);
+
+        // Bulk delete them
+        await this.bulkDeleteKeys(keysToDelete);
     }
 };
 
