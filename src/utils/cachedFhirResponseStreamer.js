@@ -58,28 +58,26 @@ class CachedFhirResponseStreamer {
      * @returns {Promise<object[]>}
      */
     async streamFromCacheAsync() {
-        let count = 0;
-        let { entries, hasMore, lastId } = {entries: [], hasMore: true, lastId: '0-0'};
         let streamedResources = [];
-        while (hasMore) {
-            ({ entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, lastId));
+        let { entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, '0-0');
+        this.responseStreamer.response.setHeader('X-Cache', 'Hit');
+        this.writeFromRedisStarted = true;
+        do {
             await this.enrichmentManager.enrichBundleEntriesAsync({
                 entries: entries,
                 parsedArgs: this.parsedArgs
             });
             for (const bundleEntry of entries) {
-                if (!this.writeFromRedisStarted) {
-                    this.responseStreamer.response.setHeader('X-Cache', 'Hit');
-                }
                 await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
-                this.writeFromRedisStarted = true;
                 streamedResources.push({
                     id: bundleEntry.resource.id,
                     resourceType: bundleEntry.resource.resourceType
                 });
-                count++;
             }
-        }
+            if (hasMore) {
+                ({ entries, hasMore, lastId } = await this.redisStreamManager.readBundleEntriesFromStream(this.cacheKey, lastId));
+            }
+        } while (hasMore);
         return streamedResources;
     }
 }
