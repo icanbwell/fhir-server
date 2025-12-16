@@ -69,7 +69,7 @@ class CachedFhirResponseStreamer {
             });
             for (const bundleEntry of entries) {
                 if (!this.writeFromRedisStarted) {
-                    this.responseStreamer.response.setHeader('X-CACHE', 'Hit');
+                    this.responseStreamer.response.setHeader('X-Cache', 'Hit');
                 }
                 await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
                 this.writeFromRedisStarted = true;
