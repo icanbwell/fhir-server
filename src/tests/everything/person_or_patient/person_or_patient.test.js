@@ -953,7 +953,7 @@ describe('Person and Patient $everything Tests', () => {
 
             expect(redisReadSpy).not.toHaveBeenCalled();
             expect(resp).toHaveResourceCount(9);
-            expect(resp.headers).toHaveProperty('x-cache', 'Hit');
+            expect(resp.headers).toHaveProperty('x-cache', 'Miss');
             streams.clear();
             redisReadSpy.mockClear();
 

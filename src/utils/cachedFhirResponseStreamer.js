@@ -58,7 +58,6 @@ class CachedFhirResponseStreamer {
      * @returns {Promise<object[]>}
      */
     async streamFromCacheAsync() {
-        this.responseStreamer.response.setHeader('X-CACHE', 'Hit');
         let count = 0;
         let { entries, hasMore, lastId } = {entries: [], hasMore: true, lastId: '0-0'};
         let streamedResources = [];
@@ -69,6 +68,9 @@ class CachedFhirResponseStreamer {
                 parsedArgs: this.parsedArgs
             });
             for (const bundleEntry of entries) {
+                if (!this.writeFromRedisStarted) {
+                    this.responseStreamer.response.setHeader('X-CACHE', 'Hit');
+                }
                 await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
                 this.writeFromRedisStarted = true;
                 streamedResources.push({
