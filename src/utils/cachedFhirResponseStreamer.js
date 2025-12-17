@@ -71,7 +71,6 @@ class CachedFhirResponseStreamer {
                 resourceType: bundleEntry.resource.resourceType
             });
         }
-        return streamedResources;
     }
 
     /**
