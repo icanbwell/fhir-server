@@ -28,6 +28,7 @@ class BaseCacheKeyGenerator {
     async generateCacheKey({ id, parsedArgs, scope, contentType }) {
         const rawArgs = parsedArgs.getRawArgs();
 
+        contentType = contentType || 'application/fhir+json';
         if (!this.cacheableContentTypes.includes(contentType)) {
             return undefined;
         }

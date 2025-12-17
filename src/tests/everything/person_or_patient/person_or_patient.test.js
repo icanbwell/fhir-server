@@ -842,6 +842,7 @@ describe('Person and Patient $everything Tests', () => {
 
             expect(Array.from(streams.keys())).toHaveLength(0);
             expect(resp).toHaveResourceCount(10);
+            expect(resp.headers).toHaveProperty('x-cache', 'Miss');
 
             // Test with redis enabled
             process.env.ENABLE_REDIS = '1';
@@ -861,12 +862,14 @@ describe('Person and Patient $everything Tests', () => {
                 .set(patientHeader);
 
             expect(redisReadSpy).not.toHaveBeenCalled();
+            expect(resp.headers).toHaveProperty('x-cache', 'Miss');
 
             process.env.ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION = '1';
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(patientHeader);
             expect(redisReadSpy).toHaveBeenCalled();
+            expect(resp.headers).toHaveProperty('x-cache', 'Hit');
             expect(resp).toHaveResourceCount(8);
             streams.clear();
             redisReadSpy.mockClear();
@@ -950,6 +953,7 @@ describe('Person and Patient $everything Tests', () => {
 
             expect(redisReadSpy).not.toHaveBeenCalled();
             expect(resp).toHaveResourceCount(9);
+            expect(resp.headers).toHaveProperty('x-cache', 'Miss');
             streams.clear();
             redisReadSpy.mockClear();
 

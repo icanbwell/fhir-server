@@ -70,6 +70,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('X-Request-ID', String(this.requestId));
+        this.response.setHeader('X-Cache', 'Miss');
     }
 
     /**
