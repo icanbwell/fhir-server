@@ -954,6 +954,17 @@ describe('Person and Patient $everything Tests', () => {
             expect(redisReadSpy).not.toHaveBeenCalled();
             expect(resp).toHaveResourceCount(9);
             expect(resp.headers).toHaveProperty('x-cache', 'Miss');
+
+            // Test no cached response in case of cache-control:no-cache
+            redisReadSpy.mockClear();
+            headers = getHeaders();
+            headers['Cache-Control'] = 'no-cache';
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(headers);
+
+            expect(redisReadSpy).not.toHaveBeenCalled();
+            expect(resp.headers).toHaveProperty('x-cache', 'Miss')
             streams.clear();
             redisReadSpy.mockClear();
 
