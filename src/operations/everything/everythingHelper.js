@@ -401,7 +401,7 @@ class EverythingHelper {
                 responseStreamer &&
                 cachedStreamer &&
                 await this.redisStreamManager.hasCachedStream(cacheKey) &&
-                requestInfo.canUseCachedResponse()
+                !requestInfo.skipCachedData()
             );
             // Check if we need to fall back to MongoDB
             let fallbackToMongo = false;

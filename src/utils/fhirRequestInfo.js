@@ -135,8 +135,8 @@ class FhirRequestInfo {
      * Check if the cached response can be returned
      * @returns {boolean}
      */
-    canUseCachedResponse() {
-        return this.headers?.['cache-control'] !== 'no-cache';
+    skipCachedData() {
+        return this.headers?.['cache-control'] === 'no-cache';
     }
 }
 
