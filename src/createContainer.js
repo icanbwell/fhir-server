@@ -124,6 +124,7 @@ const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
+const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 
 /**
  * Creates a container and sets up all the services
@@ -861,6 +862,10 @@ const createContainer = function () {
             configManager: c.configManager
         }
     ));
+
+    container.register('fhirCacheKeyManager', (c) => new FhirCacheKeyManager({
+        redisClient: c.redisClient
+    }));
 
     container.register('r4ArgsParser', (c) => new R4ArgsParser({
         fhirTypesManager: c.fhirTypesManager,

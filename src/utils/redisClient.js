@@ -25,6 +25,7 @@ class RedisClient {
         }
         this.client = createClient(redisConfig);
         this.defaultTtlSeconds = parseInt(env.REDIS_KEY_DEFAULT_TTL_SECONDS) || 600;
+        this.invalidateCacheKeysBatchSize = parseInt(env.REDIS_INVALIDATE_CACHE_KEYS_BATCH_SIZE) || 500;
 
         this.client.on('error', (err) => logError('Redis Client Error', err));
         this.client.on('connect', () => {
@@ -141,6 +142,43 @@ class RedisClient {
         return await this.client.xInfoStream(cacheKey);
     }
 
+    /**
+     * Bulk delete keys from Redis
+     * @param {string[]} keys
+     */
+    async bulkDeleteKeys(keys) {
+        let deleteCommands = [];
+        if (keys.length > 0) {
+            keys.forEach(key => deleteCommands.push(this.client.del(key)));
+            await Promise.all(deleteCommands);
+        }
+    }
+
+    /**
+     * Invalidates cache keys by prefix
+     * @param {string} prefix
+     * @returns {Promise<void>}
+     */
+    async invalidateByPrefixAsync(prefix) {
+        const pattern = prefix + '*';
+        for await (let keys of this.client.scanIterator({ MATCH: pattern, COUNT: this.invalidateCacheKeysBatchSize })) {
+            await this.bulkDeleteKeys(keys);
+        }
+    }
+
+    /**
+     * Invalidates cache keys by prefix
+     * @param {string} prefix
+     * @returns {Promise<void>}
+     */
+    async getAllKeysByPrefix(prefix) {
+        const pattern = prefix + '*';
+        const keys = [];
+        for await (let batch of this.client.scanIterator({ MATCH: pattern, COUNT: this.invalidateCacheKeysBatchSize })) {
+            keys.push(...batch);
+        }
+        return keys;
+    }
 }
 
 module.exports = {

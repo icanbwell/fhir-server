@@ -195,6 +195,38 @@ async function handleAdminGet (
                     return res.json(await adminExportManager.getExportStatus({ req, res }))
                 }
 
+                case 'getCacheKeys': {
+                    const resourceType = req.query.resourceType;
+                    const resourceId = req.query.resourceId;
+                    if (resourceType && resourceId) {
+                        const fhirCacheKeyManager = container.fhirCacheKeyManager;
+                        try {
+                            const cacheKeys = await fhirCacheKeyManager.getAllKeysForResource({
+                                resourceType,
+                                resourceId
+                            });
+                            return res.json({ cacheKeys: cacheKeys });
+                        } catch (error) {
+                            logError(`Error retrieving cache for ${resourceType}/${resourceId}`, error);
+                            const operationOutcome = new OperationOutcome({
+                                issue: [
+                                    new OperationOutcomeIssue(
+                                        {
+                                            severity: 'error',
+                                            code: 'exception',
+                                            diagnostics: error.message
+                                        }
+                                    )
+                                ]
+                            });
+                            return res.status(error.statusCode || 500).json(operationOutcome);
+                        }
+                    }
+                    return res.json({
+                        message: `No resourceId: ${resourceId} or resourceType: ${resourceType} passed`
+                    });
+                }
+
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }
@@ -378,6 +410,44 @@ async function handleAdminPost (
                     }
                     else {
                         return res.status(400).json({ message: 'ExportStatusId was not passed' });
+                    }
+                }
+                case 'invalidateCache': {
+                    const resourceType = req.body.resourceType;
+                    const resourceId = req.body.resourceId;
+                    const cacheKeys = req.body.cacheKeys;
+                    const fhirCacheKeyManager = container.fhirCacheKeyManager;
+                    try {
+                        if (resourceType && resourceId) {
+                            await fhirCacheKeyManager.invalidateCacheKeysForResource({
+                                resourceType,
+                                resourceId
+                            });
+                            return res.json({ message: `Cache invalidated for ${resourceType}/${resourceId}` });
+                        }
+                        else if (cacheKeys && Array.isArray(cacheKeys) && cacheKeys.length > 0) {
+                            await fhirCacheKeyManager.invalidateCacheKeys({ cacheKeys });
+                            return res.json({ message: `Cache invalidated successfully` });
+                        }
+                        else {
+                            return res.status(400).json({
+                                message: `Either cacheKeys or resourceType and resourceId must be provided`
+                            });
+                        }
+                    } catch (error) {
+                        logError(`Error invalidating cache`, error);
+                        const operationOutcome = new OperationOutcome({
+                            issue: [
+                                new OperationOutcomeIssue(
+                                    {
+                                        severity: 'error',
+                                        code: 'exception',
+                                        diagnostics: error.message
+                                    }
+                                )
+                            ]
+                        });
+                        return res.status(error.statusCode || 500).json(operationOutcome);
                     }
                 }
                 default: {
