@@ -9,7 +9,7 @@ if (process.env.OPENTELEMETRY_IGNORE_URLS) {
 
 let instrumentationConfigs = {
     '@opentelemetry/instrumentation-http': {
-        ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
+        ignoreIncomingRequestHook: (req) => ignoreUrls.some(url => req.url?.startsWith(url)),
         applyCustomAttributesOnSpan: (span) => {
             // For graphql urls we are using middlewares to process the graphql request, there is no route
             // attached with any http method so we have to add the route in the 'span' to aggregate
