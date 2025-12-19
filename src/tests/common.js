@@ -365,10 +365,10 @@ const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => 
 /**
  * Creates a token with delegated actor (act claim)
  * @param {Object} params
- * @param {string | undefined} params.delegatedActorReference - The actor reference (e.g., "Person/practitioner-123" or "PractitionerRole/role-456")
- * @param {string | undefined} [params.scope] - Optional scope for the token (default: 'patient/*.read user/*.* access/*.*')
- * @param {string | undefined} [params.personId] - Optional person ID to use in token (default: 'clientFhirPerson')
- * @param {Object | undefined} [params.customPayload] - Optional custom payload to merge into the token
+ * @param {string} [params.delegatedActorReference] - The actor reference (e.g., "Person/practitioner-123" or "PractitionerRole/role-456")
+ * @param {string} [params.scope] - Optional scope for the token (default: 'patient/*.read user/*.* access/*.*')
+ * @param {string} [params.personId] - Optional person ID to use in token (default: 'clientFhirPerson')
+ * @param {Object} [params.customPayload] - Optional custom payload to merge into the token
  * @return {string}
  */
 const getTokenWithDelegatedActor = (module.exports.getTokenWithDelegatedActor = ({

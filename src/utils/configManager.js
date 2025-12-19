@@ -887,10 +887,10 @@ class ConfigManager {
     }
 
     /**
-     * Enable the delegated access of patient by an actor
+     * Enable the delegated access filtering
      * @returns {boolean}
      */
-    get enabledDelegatedAccessFiltering() {
+    get enableDelegatedAccessFiltering() {
         return isTrue(env.ENABLE_DELEGATED_ACCESS_FILTERING);
     }
 

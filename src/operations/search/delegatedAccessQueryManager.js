@@ -31,6 +31,7 @@ class DelegatedAccessQueryManager {
      * Update the query to exclude sensitive data based on consent filtering rules
      * @param {Object} options Options object
      * @param {string} options.base_version Base Version
+     * @param {string} options.resourceType Resource Type
      * @param {import('mongodb').Filter<import('mongodb').Document>} options.query
      * @param {string} options.requestId Request ID
      * @param {boolean} options.isUser whether request is with patient scope

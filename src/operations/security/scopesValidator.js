@@ -64,7 +64,7 @@ class ScopesValidator {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
-     * @returns {Promise<ForbiddenError>}
+     * @returns {Promise<ForbiddenError | null>}
      */
     async isScopesValidAsync({requestInfo, resourceType, accessRequested}) {
         // eslint-disable-next-line no-useless-catch
@@ -79,11 +79,10 @@ class ScopesValidator {
             });
             if (!hasValidConsentIfDelegatedAccess) {
                 forbiddenError = new ForbiddenError(
-                    `user does not have valid permission for delegated access`
+                    `User does not have valid permission for delegated access`
                 );
                 return forbiddenError;
             }
-
 
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
             if (scope) {

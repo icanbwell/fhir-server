@@ -49,7 +49,7 @@ class DelegatedActorRulesManager {
 
     /**
      * Returns the filtering rules for a delegated actor
-     * If no delegated actor present, then return nulls.
+     * If no delegated actor present, then return null.
      * If delegated actor doesn't have valid consent, then return empty filtering rules.
      *
      * @param {Object} params
@@ -64,9 +64,9 @@ class DelegatedActorRulesManager {
      * } | null>}
      */
     async getFilteringRulesAsync({ delegatedActor, personIdFromJwtToken, base_version = '4_0_0' }) {
-        return await this.customTracer.trace(
-            'DelegatedActorRulesManager.getFilteringRulesAsync',
-            async () => {
+        return await this.customTracer.trace({
+            name: 'DelegatedActorRulesManager.getFilteringRulesAsync',
+            func: async () => {
                 if (!this.isUserDelegatedActor({ delegatedActor })) {
                     return null;
                 }
@@ -85,17 +85,17 @@ class DelegatedActorRulesManager {
                     actorConsentQueryOptions: []
                 };
             }
-        );
+        });
     }
 
     /**
-     * Check if the user is delegated actor
+     * Check if the user is a delegated actor
      * @param {Object} params
      * @param {string | null} params.delegatedActor
      * @returns {boolean}
      */
     isUserDelegatedActor({ delegatedActor }) {
-        return this.configManager.enabledDelegatedAccessFiltering && !!delegatedActor;
+        return this.configManager.enableDelegatedAccessFiltering && !!delegatedActor;
     }
 }
 

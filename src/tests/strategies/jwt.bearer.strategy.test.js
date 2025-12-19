@@ -310,7 +310,7 @@ describe('JWT Bearer Strategy', () => {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
 
-            get enabledDelegatedAccessFiltering() {
+            get enableDelegatedAccessFiltering() {
                 return true;
             }
         }

@@ -11,7 +11,6 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
-const { ReferenceParser } = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -474,7 +473,7 @@ class AuthService {
      * @returns {string|null}
      */
     _getDelegatedActor({jwt_payload}) {
-        if (this.configManager.enabledDelegatedAccessFiltering) {
+        if (this.configManager.enableDelegatedAccessFiltering) {
             const actor = jwt_payload.act;
             if (actor && actor.sub) {
                 logInfo(`Actor is delegating access to patient with sub ${actor.sub}`);

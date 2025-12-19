@@ -17,33 +17,33 @@ class FilteringRulesCacheManager {
     }
 
     /**
-     * @param {string} personFromJwtToken
+     * @param {string} personIdFromJwtToken
      * @param {string} delegatedActor
      * @param {import('./delegatedActorRulesManager').DelegatedActorFilteringRules} value
      * @param {number} [ttlSeconds=this.defaultTtlSeconds]
      */
-    setKeyAsync(
-        personFromJwtToken,
+    async setKeyAsync(
+        personIdFromJwtToken,
         delegatedActor,
         value,
         ttlSeconds = this.defaultTtlSeconds
     ) {
-        const key = this._getKey(personFromJwtToken, delegatedActor);
+        const key = this._getKey(personIdFromJwtToken, delegatedActor);
         return this.redisClient.set(key, value, ttlSeconds);
     }
 
-    hasKeyAsync(personFromJwtToken, delegatedActor) {
-        const key = this._getKey(personFromJwtToken, delegatedActor);
+    async hasKeyAsync(personIdFromJwtToken, delegatedActor) {
+        const key = this._getKey(personIdFromJwtToken, delegatedActor);
         return this.redisClient.hasKey(key);
     }
 
-    deleteKeyAsync(personFromJwtToken, delegatedActor) {
-        const key = this._getKey(personFromJwtToken, delegatedActor);
+    async deleteKeyAsync(personIdFromJwtToken, delegatedActor) {
+        const key = this._getKey(personIdFromJwtToken, delegatedActor);
         return this.redisClient.deleteKey(key);
     }
 
-    _getKey(personFromJwtToken, delegatedActor) {
-        return `delegatedAccessFilteringRules:${personFromJwtToken}:${delegatedActor}`;
+    _getKey(personIdFromJwtToken, delegatedActor) {
+        return `delegatedAccessFilteringRules:${personIdFromJwtToken}:${delegatedActor}`;
     }
 }
 
