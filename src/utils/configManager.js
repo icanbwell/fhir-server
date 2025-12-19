@@ -887,6 +887,14 @@ class ConfigManager {
     }
 
     /**
+     * Enable the delegated access of patient by an actor
+     * @returns {boolean}
+     */
+    get enabledDelegatedAccessFiltering() {
+        return isTrue(env.ENABLE_DELEGATED_ACCESS_FILTERING);
+    }
+
+    /**
      * return CACHE_EXPIRY_TIME
      * @returns {number}
      */
@@ -948,6 +956,14 @@ class ConfigManager {
      */
     get everythingCacheTtlSeconds() {
         return parseInt(process.env.EVERYTHING_CACHE_TTL_SECONDS) || 300;
+    }
+
+    /**
+     * returns ttl seconds for delegated access filtering rules cache
+     * @return {number}
+     */
+    get delegatedAccessFilteringRulesCacheTtlSeconds() {
+        return parseInt(process.env.DELEGATED_ACCESS_FILTERING_RULES_CACHE_TTL_SECONDS) || 300;
     }
 }
 

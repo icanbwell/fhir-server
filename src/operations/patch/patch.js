@@ -145,6 +145,8 @@ class PatchOperation {
             isUser,
             /** @type {string} */
             personIdFromJwtToken,
+            /** @type {string | null} */
+            delegatedActor,
             /** @type {string} */
             path
         } = requestInfo;
@@ -208,6 +210,7 @@ class PatchOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
+                delegatedActor,
                 parsedArgs,
                 operation: WRITE,
                 accessRequested: 'write'

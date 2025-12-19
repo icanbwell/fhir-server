@@ -11,6 +11,7 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const { ReferenceParser } = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -212,6 +213,7 @@ class AuthService {
             context.personIdFromJwtToken = jwt_payload[this.requiredJWTFields.clientFhirPersonId];
             context.masterPersonIdFromJwtToken = jwt_payload[this.requiredJWTFields.bwellFhirPersonId];
             context.managingOrganizationId = jwt_payload[this.optionalJWTFields.bwellManagingOrganizationId];
+            context.delegatedActor = this._getDelegatedActor({ jwt_payload });
         }
         logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
         done(null, {id: client_id, isUser, name: username, username}, {scope, context});
@@ -466,6 +468,20 @@ class AuthService {
         } else {
             done(null, false);
         }
+    }
+
+    /**
+     * @returns {string|null}
+     */
+    _getDelegatedActor({jwt_payload}) {
+        if (this.configManager.enabledDelegatedAccessFiltering) {
+            const actor = jwt_payload.act;
+            if (actor && actor.sub) {
+                logInfo(`Actor is delegating access to patient with sub ${actor.sub}`);
+                return actor.sub;
+            }
+        }
+        return null;
     }
 
 }

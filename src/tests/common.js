@@ -362,6 +362,40 @@ const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => 
     });
 });
 
+/**
+ * Creates a token with delegated actor (act claim)
+ * @param {Object} params
+ * @param {string | undefined} params.delegatedActorReference - The actor reference (e.g., "Person/practitioner-123" or "PractitionerRole/role-456")
+ * @param {string | undefined} [params.scope] - Optional scope for the token (default: 'patient/*.read user/*.* access/*.*')
+ * @param {string | undefined} [params.personId] - Optional person ID to use in token (default: 'clientFhirPerson')
+ * @param {Object | undefined} [params.customPayload] - Optional custom payload to merge into the token
+ * @return {string}
+ */
+const getTokenWithDelegatedActor = (module.exports.getTokenWithDelegatedActor = ({
+    delegatedActorReference,
+    scope,
+    personId,
+    customPayload
+}) => {
+    const payload = {
+        sub: 'john',
+        username: 'patient-123@example.com',
+        client_id: 'my_client_id',
+        scope: scope || 'patient/*.read user/*.* access/*.*',
+        clientFhirPersonId: personId || 'clientFhirPerson',
+        clientFhirPatientId: 'clientFhirPatient',
+        bwellFhirPersonId: personId || 'root-person',
+        bwellFhirPatientId: 'bwellFhirPatient',
+        managingOrganization: 'managingOrganization',
+        token_use: 'access',
+        act: {
+            sub: delegatedActorReference || 'RelatedPerson/delegated-actor'
+        },
+        ...(customPayload || {})
+    };
+    return createToken(privateKey, '123', payload);
+});
+
 module.exports.getJsonHeadersWithAdminToken = () => {
     return {
         'Content-Type': 'application/fhir+json',
@@ -375,6 +409,28 @@ module.exports.getHtmlHeadersWithAdminToken = () => {
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         Authorization: `Bearer ${getTokenWithAdminClaims()}`,
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
+    };
+};
+
+/**
+ * Get FHIR JSON headers with delegated actor token
+ * @param {Object} params
+ * @param {string} params.delegatedActorReference - The actor reference (e.g., "Person/practitioner-123")
+ * @param {string} [params.scope] - Optional scope for the token
+ * @param {string} [params.personId] - Optional person ID
+ * @param {Object} [params.customPayload] - Optional custom payload
+ * @return {Object}
+ */
+module.exports.getJsonHeadersWithDelegatedActor = ({
+    delegatedActorReference,
+    scope,
+    personId,
+    customPayload
+}) => {
+    return {
+        'Content-Type': 'application/fhir+json',
+        Accept: 'application/fhir+json',
+        Authorization: `Bearer ${getTokenWithDelegatedActor({ delegatedActorReference, scope, personId, customPayload })}`
     };
 };
 

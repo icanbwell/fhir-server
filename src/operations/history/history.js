@@ -200,6 +200,7 @@ class BaseHistoryOperationProcessor {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
+            delegatedActor: requestInfo.delegatedActor,
             parsedArgs,
             useHistoryTable: true,
             operation: READ

@@ -771,7 +771,7 @@ class MergeManager {
                 );
             }
 
-            const forbiddenError = this.scopesValidator.verifyHasValidScopes({
+            const forbiddenError = await this.scopesValidator.isScopesValidAsync({
                 requestInfo,
                 resourceType: resourceToMerge.resourceType,
                 accessRequested: 'write'
