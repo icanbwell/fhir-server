@@ -50,16 +50,36 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
 const fs = require("node:fs");
 
 describe('Patient $summary Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        jest.useFakeTimers({
+            doNotFake: [
+                'hrtime',
+                'nextTick',
+                'performance',
+                'queueMicrotask',
+                'requestAnimationFrame',
+                'cancelAnimationFrame',
+                'requestIdleCallback',
+                'cancelIdleCallback',
+                'setImmediate',
+                'clearImmediate',
+                'setInterval',
+                'clearInterval',
+                'setTimeout',
+                'clearTimeout'
+            ]
+        });
+        jest.setSystemTime(new Date('2025-12-15T12:00:00Z'));
     });
 
     afterEach(async () => {
         await commonAfterEach();
+        jest.useRealTimers();
     });
 
     test('Patient $summary works', async () => {

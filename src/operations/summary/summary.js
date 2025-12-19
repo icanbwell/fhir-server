@@ -9,6 +9,7 @@ const {ComprehensiveIPSCompositionBuilder, TBundle} = require("@imranq2/fhirpati
 const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
+const { logInfo, logError } = require('../common/logging');
 
 class SummaryOperation {
     /**
@@ -222,7 +223,11 @@ class SummaryOperation {
             await builder.readBundleAsync(
                 /** @type {TBundle} */ (result),
                 timezone,
-                proxyPatientId ? true : false
+                proxyPatientId ? true : false,
+                {
+                    info: (msg, args = {}) => logInfo(msg, args),
+                    error: (msg, args = {}) => logError(msg, args)
+                }
             );
             // noinspection JSCheckFunctionSignatures
             const summaryBundle = await builder.buildBundleAsync(
