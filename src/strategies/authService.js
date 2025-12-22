@@ -11,6 +11,7 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const { ReferenceParser } = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -475,7 +476,11 @@ class AuthService {
     _getDelegatedActor({jwt_payload}) {
         if (this.configManager.enableDelegatedAccessFiltering) {
             const actor = jwt_payload.act;
-            if (actor && actor.sub) {
+            if (actor && typeof actor === 'object' && actor.sub) {
+                const { id, resourceType } = ReferenceParser.parseReference(actor.sub);
+                if (!id || !resourceType) {
+                    throw new Error(`Invalid actor.sub reference: ${actor.sub}`);
+                }
                 logInfo(`Actor is delegating access to patient with sub ${actor.sub}`);
                 return actor.sub;
             }
