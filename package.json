@@ -145,6 +145,7 @@
     "@opentelemetry/instrumentation-mongodb": "0.56.0",
     "@opentelemetry/instrumentation-router": "0.48.0",
     "@opentelemetry/instrumentation-winston": "0.48.0",
+    "@opentelemetry/instrumentation-redis": "0.57.2",
     "@opentelemetry/resources": "2.0.1",
     "@opentelemetry/sdk-metrics": "2.0.1",
     "@opentelemetry/sdk-node": "0.203.0",

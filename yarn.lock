@@ -1905,6 +1905,13 @@
   dependencies:
     "@opentelemetry/api" "^1.3.0"
 
+"@opentelemetry/api-logs@0.208.0":
+  version "0.208.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/api-logs/-/api-logs-0.208.0.tgz#56d3891010a1fa1cf600ba8899ed61b43ace511c"
+  integrity sha512-CjruKY9V6NMssL/T1kAFgzosF1v9o6oeN+aX5JB/C/xPNtmgIJqcXHG7fA82Ou1zCpWGl4lROQUKwUNE1pMCyg==
+  dependencies:
+    "@opentelemetry/api" "^1.3.0"
+
 "@opentelemetry/api-logs@0.57.2":
   version "0.57.2"
   resolved "https://registry.yarnpkg.com/@opentelemetry/api-logs/-/api-logs-0.57.2.tgz#d4001b9aa3580367b40fe889f3540014f766cc87"
@@ -2746,6 +2753,15 @@
     "@opentelemetry/redis-common" "^0.37.0"
     "@opentelemetry/semantic-conventions" "^1.27.0"
 
+"@opentelemetry/instrumentation-redis@0.57.2":
+  version "0.57.2"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-redis/-/instrumentation-redis-0.57.2.tgz#20e17f797f7ea536a88ff30d60577f3d41c3cfde"
+  integrity sha512-vD1nzOUDOPjnvDCny7fmRSX/hMTFzPUCZKADF5tQ5DvBqlOEV/de/tOkwvIwo9YX956EBMT+8qSjhd7qPXFkRw==
+  dependencies:
+    "@opentelemetry/instrumentation" "^0.208.0"
+    "@opentelemetry/redis-common" "^0.38.2"
+    "@opentelemetry/semantic-conventions" "^1.27.0"
+
 "@opentelemetry/instrumentation-redis@^0.49.1":
   version "0.49.1"
   resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-redis/-/instrumentation-redis-0.49.1.tgz#713857a5ce33001e97f8314df350690f695c448f"
@@ -2875,6 +2891,15 @@
     semver "^7.5.2"
     shimmer "^1.2.1"
 
+"@opentelemetry/instrumentation@^0.208.0":
+  version "0.208.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation/-/instrumentation-0.208.0.tgz#d764f8e4329dad50804e2e98f010170c14c4ce8f"
+  integrity sha512-Eju0L4qWcQS+oXxi6pgh7zvE2byogAkcsVv0OjHF/97iOz1N/aKE6etSGowYkie+YA1uo6DNwdSxaaNnLvcRlA==
+  dependencies:
+    "@opentelemetry/api-logs" "0.208.0"
+    import-in-the-middle "^2.0.0"
+    require-in-the-middle "^8.0.0"
+
 "@opentelemetry/otlp-exporter-base@0.202.0":
   version "0.202.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/otlp-exporter-base/-/otlp-exporter-base-0.202.0.tgz#f5d9904c2f37a6eed31d73178485138dbe6cb1f1"
@@ -2970,6 +2995,11 @@
   version "0.38.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/redis-common/-/redis-common-0.38.0.tgz#87d2a792dcbcf466a41bb7dfb8a7cd094d643d0b"
   integrity sha512-4Wc0AWURII2cfXVVoZ6vDqK+s5n4K5IssdrlVrvGsx6OEOKdghKtJZqXAHWFiZv4nTDLH2/2fldjIHY8clMOjQ==
+
+"@opentelemetry/redis-common@^0.38.2":
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/redis-common/-/redis-common-0.38.2.tgz#cefa4f3e79db1cd54f19e233b7dfb56621143955"
+  integrity sha512-1BCcU93iwSRZvDAgwUxC/DV4T/406SkMfxGqu5ojc3AvNI+I9GhV7v0J1HljsczuuhcnFLYqD5VmwVXfCGHzxA==
 
 "@opentelemetry/resource-detector-alibaba-cloud@^0.31.2":
   version "0.31.3"
@@ -6103,6 +6133,16 @@ import-in-the-middle@^1.14.2, import-in-the-middle@^1.8.1:
     cjs-module-lexer "^1.2.2"
     module-details-from-path "^1.0.3"
 
+import-in-the-middle@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/import-in-the-middle/-/import-in-the-middle-2.0.1.tgz#8d1aa2db18374f2c811de2aa4756ebd6e9859243"
+  integrity sha512-bruMpJ7xz+9jwGzrwEhWgvRrlKRYCRDBrfU+ur3FcasYXLJDxTruJ//8g2Noj+QFyRBeqbpj8Bhn4Fbw6HjvhA==
+  dependencies:
+    acorn "^8.14.0"
+    acorn-import-attributes "^1.9.5"
+    cjs-module-lexer "^1.2.2"
+    module-details-from-path "^1.0.3"
+
 import-local@^3.0.2:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/import-local/-/import-local-3.2.0.tgz#c3d5c745798c02a6f8b897726aba5100186ee260"
@@ -7932,6 +7972,14 @@ require-in-the-middle@^7.1.1:
     debug "^4.3.5"
     module-details-from-path "^1.0.3"
     resolve "^1.22.8"
+
+require-in-the-middle@^8.0.0:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/require-in-the-middle/-/require-in-the-middle-8.0.1.tgz#dbde2587f669398626d56b20c868ab87bf01cce4"
+  integrity sha512-QT7FVMXfWOYFbeRBF6nu+I6tr2Tf3u0q8RIEjNob/heKY/nh7drD/k7eeMFmSQgnTtCzLDcCu/XEnpW2wk4xCQ==
+  dependencies:
+    debug "^4.3.5"
+    module-details-from-path "^1.0.3"
 
 resolve-cwd@^3.0.0:
   version "3.0.0"

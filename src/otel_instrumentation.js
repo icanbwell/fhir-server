@@ -42,9 +42,11 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
      */
     const { registerInstrumentations } = require('@opentelemetry/instrumentation');
     const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
+    const { RedisInstrumentation } = require('@opentelemetry/instrumentation-redis');
     registerInstrumentations({
         instrumentations: [
-            getNodeAutoInstrumentations(instrumentationConfigs)
+            getNodeAutoInstrumentations(instrumentationConfigs),
+            new RedisInstrumentation()
         ]
     });
 } else {
@@ -67,6 +69,7 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     const { WinstonInstrumentation } = require('@opentelemetry/instrumentation-winston');
     const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
     const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
+    const { RedisInstrumentation } = require('@opentelemetry/instrumentation-redis');
 
     const sdk = new opentelemetry.NodeSDK({
         traceExporter: new OTLPTraceExporter(),
@@ -81,7 +84,8 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
             new LruMemoizerInstrumentation(),
             new WinstonInstrumentation(),
             new GraphQLInstrumentation(),
-            new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb'])
+            new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb']),
+            new RedisInstrumentation()
         ],
         // Config needed for Sentry integration
         // https://docs.sentry.io/platforms/javascript/guides/node/opentelemetry/custom-setup/
