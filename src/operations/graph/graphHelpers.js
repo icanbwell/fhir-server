@@ -373,6 +373,7 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                delegatedActor: requestInfo.delegatedActor,
                 requestId: requestInfo.requestId,
                 parsedArgs: childParseArgs,
                 operation: READ
@@ -654,6 +655,7 @@ class GraphHelper {
                     resourceType: relatedResourceType,
                     useAccessIndex,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                    delegatedActor: requestInfo.delegatedActor,
                     requestId: requestInfo.requestId,
                     parsedArgs: relatedResourceParsedArgs,
                     operation: READ
@@ -993,7 +995,7 @@ class GraphHelper {
                 if (this.isPropertyAReference({
                     entities: parentEntities, property, filterProperty, filterValue, supportLegacyId
                 })) {
-                    if (this.scopesValidator.hasValidScopes({
+                    if (await this.scopesValidator.hasValidScopesAsync({
                         requestInfo,
                         parsedArgs,
                         resourceType,
@@ -1064,7 +1066,7 @@ class GraphHelper {
 
                 if (target.type) { // if caller has requested this entity or just wants a nested entity
                     // reverse link
-                    if (this.scopesValidator.hasValidScopes({
+                    if (await this.scopesValidator.hasValidScopesAsync({
                         requestInfo,
                         parsedArgs,
                         resourceType,
@@ -1583,6 +1585,7 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                delegatedActor: requestInfo.delegatedActor,
                 requestId: requestInfo.requestId,
                 parsedArgs,
                 operation: READ,

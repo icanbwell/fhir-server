@@ -248,6 +248,7 @@ class EverythingHelper {
             resourceType,
             useAccessIndex: this.configManager.useAccessIndex,
             personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+            delegatedActor: requestInfo.delegatedActor,
             requestId: requestInfo.requestId,
             parsedArgs,
             operation: READ,
@@ -1007,7 +1008,7 @@ class EverythingHelper {
          */
         let streamedResources = [];
 
-        if (this.scopesValidator.hasValidScopes({ requestInfo, parsedArgs, resourceType, action: 'everything', accessRequested: 'read' })) {
+        if (await this.scopesValidator.hasValidScopesAsync({ requestInfo, parsedArgs, resourceType, action: 'everything', accessRequested: 'read' })) {
             // get top level resource
             const {
                 /** @type {import('mongodb').Document}**/
@@ -1019,6 +1020,7 @@ class EverythingHelper {
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                delegatedActor: requestInfo.delegatedActor,
                 requestId: requestInfo.requestId,
                 parsedArgs,
                 operation: READ,
@@ -1200,13 +1202,13 @@ class EverythingHelper {
                 continue;
             }
 
-            if (!this.scopesValidator.hasValidScopes({
+            if (!(await this.scopesValidator.hasValidScopesAsync({
                 requestInfo,
                 parsedArgs,
                 resourceType: relatedResourceType,
                 action: 'everything',
                 accessRequested: 'read'
-            })) {
+            }))) {
                 continue;
             }
 
@@ -1262,6 +1264,7 @@ class EverythingHelper {
                 resourceType: relatedResourceType,
                 useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                delegatedActor: requestInfo.delegatedActor,
                 requestId: requestInfo.requestId,
                 parsedArgs: relatedResourceParsedArgs,
                 operation: READ,
