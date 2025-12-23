@@ -959,6 +959,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to read from redis cache for summary operation
+     * @return {boolean}
+     */
+    get readFromCacheForSummaryOperation() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION);
+    }
+
+    /**
      *  returns ttl seconds for summary cache
      * @return {number}
      */
