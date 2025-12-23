@@ -10,6 +10,14 @@ const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
 const { logInfo, logError } = require('../common/logging');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { SearchManager } = require('../search/searchManager');
+const { isUuid } = require('../../utils/uid.util');
+const { PERSON_PROXY_PREFIX } = require('../../constants');
+const { READ } = require('../../constants').OPERATIONS;
+const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
+const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
+const { RedisStreamManager } = require('../../utils/redisStreamManager');
 
 class SummaryOperation {
     /**
@@ -18,8 +26,11 @@ class SummaryOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {SearchManager} searchManager
+     * @param {RedisStreamManager} redisStreamManager
      */
-    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager}) {
+    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager}) {
         /**
          * @type {GraphOperation}
          */
@@ -42,6 +53,110 @@ class SummaryOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {RedisStreamManager}
+         */
+        this.redisStreamManager = redisStreamManager;
+        assertTypeEquals(redisStreamManager, RedisStreamManager);
+    }
+
+    /**
+     * Get original ids from parsedArgs
+     * @param {ParsedArgs} parsedArgs
+     * @returns {string[]}
+     */
+    fetchOriginalIdsFromParams(parsedArgs) {
+        const idParam = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
+        if (!idParam?.queryParameterValue?.value) {
+            return [];
+        }
+        const id = idParam.queryParameterValue.value;
+        return id.split(',');
+    }
+
+    /**
+     * Get patient UUID for a given ID
+     * @param {ParsedArgs} parsedArgs
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+    * @returns {Promise<string[]>}
+    */
+    async fetchPatientUUID(parsedArgs, requestInfo, resourceType ) {
+        const {
+            query
+        } = await this.searchManager.constructQueryAsync({
+            user: requestInfo.user,
+            scope: requestInfo.scope,
+            isUser: requestInfo.isUser,
+            resourceType,
+            useAccessIndex: this.configManager.useAccessIndex,
+            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+            requestId: requestInfo.requestId,
+            parsedArgs,
+            operation: READ,
+            accessRequested: 'read',
+            addPersonOwnerToContext: requestInfo.isUser,
+            applyPatientFilter: true
+        });
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version: parsedArgs.base_version });
+        const options = {
+            projection: {
+                _uuid: 1,
+                _id: 0
+            }
+        };
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        let ids = [];
+        while (await cursor.hasNext()) {
+            const sourceResource = await cursor.next();
+            ids.push(sourceResource._uuid);
+        }
+        return ids;
+    }
+
+    /**
+     * Get cache key for a given request
+     * @param {ParsedArgs} parsedArgs
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @returns {Promise<string|undefined>}
+     */
+    async getCacheKey(parsedArgs, requestInfo, resourceType ) {
+        let paramsIds = this.fetchOriginalIdsFromParams(parsedArgs);
+        // Multiple ids are not supported for now
+        if (paramsIds.length !== 1) {
+            return undefined;
+        }
+        let idForCache;
+        let id = paramsIds[0];
+        const isProxyPatient = id.startsWith(PERSON_PROXY_PREFIX);
+        if (isProxyPatient) {
+            id = id.replace(PERSON_PROXY_PREFIX, '');
+            if (isUuid(id) && (requestInfo.personIdFromJwtToken === undefined || id == requestInfo.personIdFromJwtToken)) {
+                idForCache = `${PERSON_PROXY_PREFIX}${id}`;
+            }
+        } else {
+            let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType);
+            idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
+        }
+        let keyGenerator = new SummaryCacheKeyGenerator();
+        return idForCache ? keyGenerator.generateCacheKey(
+            { id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope, contentType: requestInfo.contentTypeFromHeader?.type }
+        ) : undefined;
     }
 
     /**
@@ -120,6 +235,19 @@ class SummaryOperation {
             action: currentOperationName,
             accessRequested: 'read'
         });
+
+        const writeCache = this.configManager.writeToCacheForSummaryOperation;
+        const cacheKey = writeCache ? await this.getCacheKey(
+            parsedArgs, requestInfo, resourceType
+        ) : undefined;
+        const cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
+            redisStreamManager: this.redisStreamManager,
+            cacheKey,
+            responseStreamer,
+            ttlSeconds: this.configManager.summaryCacheTtlSeconds,
+            enrichmentManager: null,
+            parsedArgs
+        }) : null;
 
         try {
             const {_type: resourceFilter, headers, id} = parsedArgs;
@@ -249,6 +377,11 @@ class SummaryOperation {
                     await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: entry
                     });
+                    if (cachedStreamer) {
+                        await cachedStreamer.writeBundleEntryToRedis({
+                            bundleEntry: entry
+                        });
+                    }
                 }
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
