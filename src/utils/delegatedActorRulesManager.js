@@ -196,6 +196,8 @@ class DelegatedActorRulesManager {
                     { status: 'active' },
                     { $or: patientReferenceFilter },
                     { $or: actorReferenceFilter },
+                    // Provision type must be permit
+                    { 'provision.type': 'permit' },
                     // Period start must not be in the future OR not exist (consent has already begun or is open-ended)
                     {
                         $or: [

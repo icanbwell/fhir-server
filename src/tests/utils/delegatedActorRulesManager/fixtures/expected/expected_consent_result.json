@@ -150,6 +150,9 @@
                 "provision.actor.reference._uuid": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7"
             },
             {
+                "provision.type": "permit"
+            },
+            {
                 "$or": [
                     {
                         "provision.period.start": {
