@@ -18,8 +18,6 @@ const {
     fakeTimerBeforeEach,
     resetTimerAfterEach
 } = require('../../common');
-const { logInfo } = require('../../../operations/common/logging');
-const deepcopy = require('deepcopy');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 const { DelegatedActorRulesManager } = require('../../../utils/delegatedActorRulesManager');
 
@@ -30,6 +28,7 @@ const inactiveConsent = require('./fixtures/inactiveConsent.json');
 const aboutToExpireConsent = require('./fixtures/aboutToExpireConsent.json');
 const futureStartConsent = require('./fixtures/futureStartConsent.json');
 const noStartDateConsent = require('./fixtures/noStartDateConsent.json');
+const noEndDateConsent = require('./fixtures/noEndDateConsent.json');
 
 describe('DelegatedActorRulesManager Tests', () => {
     let requestId;
@@ -203,6 +202,29 @@ describe('DelegatedActorRulesManager Tests', () => {
             // This will show us whether the query handles missing start date properly
             expect(result.consentResources).toHaveLength(1);
             expect(result.consentResources[0].id).toBe('8c7d6e5f-4a3b-2c1d-0e9f-8a7b6c5d4e3f');
+        });
+
+        test('should return consent when period.end is not defined (open-ended expiration)', async () => {
+            const request = await createTestRequest();
+            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+
+            // Insert consent without end date (never expires, open-ended)
+            let resp = await request
+                .post('/4_0_0/Consent/$merge/?validate=true')
+                .send(noEndDateConsent)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Fetch consent resources - should return the consent (no end date means never expires)
+            const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
+                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                base_version: '4_0_0',
+                _debug: false
+            });
+
+            expect(result.consentResources).toHaveLength(1);
+            expect(result.consentResources[0].id).toBe('7d8e9f0a-6b5c-4d3e-2a1b-0c9d8e7f6a5b');
         });
 
         test('should return multiple consents when multiple valid consents exist', async () => {

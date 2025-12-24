@@ -123,11 +123,11 @@ module.exports.fakeTimerBeforeEach = async () => {
             'clearTimeout'
         ]
     });
-}
+};
 
 module.exports.resetTimerAfterEach = async () => {
     jest.useRealTimers();
-}
+};
 
 /**
  * cleans up the mongo db

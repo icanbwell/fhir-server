@@ -1,0 +1,133 @@
+{
+    "category": [
+        {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                    "code": "IDSCL",
+                    "display": "Information Disclosure"
+                }
+            ]
+        }
+    ],
+    "dateTime": "2025-12-23T20:00:00.000Z",
+    "extension": [
+        {
+            "url": "https://www.icanbwell.com/fhir/extension/grantee-reference",
+            "valueReference": {
+                "reference": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7",
+                "display": "Data sharing relationship grantee"
+            }
+        }
+    ],
+    "id": "7d8e9f0a-6b5c-4d3e-2a1b-0c9d8e7f6a5b",
+    "meta": {
+        "source": "https://www.icanbwell.com/personal-access-relationship-service",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "bwell"
+            }
+        ],
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/uuid",
+                "code": "7d8e9f0a-6b5c-4d3e-2a1b-0c9d8e7f6a5b"
+            }
+        ]
+    },
+    "patient": {
+        "reference": "Patient/person.d5ad4ef0-1a68-4e8c-9871-819cdfa25da9",
+        "display": "Data sharing relationship grantor"
+    },
+    "provision": {
+        "type": "permit",
+        "period": {
+            "start": "2025-12-23T20:00:00.000Z"
+        },
+        "actor": [
+            {
+                "role": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "IRCP",
+                            "display": "information recipient"
+                        }
+                    ]
+                },
+                "reference": {
+                    "reference": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7"
+                }
+            }
+        ],
+        "action": [
+            {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/consentaction",
+                        "code": "correct",
+                        "display": "Access and Correct"
+                    }
+                ]
+            },
+            {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/consentaction",
+                        "code": "access",
+                        "display": "Access"
+                    }
+                ]
+            }
+        ],
+        "class": [
+            {
+                "system": "http://hl7.org/fhir/resource-types",
+                "code": "Patient",
+                "display": "Patient"
+            },
+            {
+                "system": "http://hl7.org/fhir/resource-types",
+                "code": "Observation",
+                "display": "Observation"
+            },
+            {
+                "system": "http://hl7.org/fhir/resource-types",
+                "code": "MedicationRequest",
+                "display": "Medication Request"
+            }
+        ],
+        "provision": [
+            {
+                "type": "deny",
+                "securityLabel": [
+                    {
+                        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category",
+                        "code": "SUBSTANCE_ABUSE",
+                        "display": "Substance Abuse"
+                    }
+                ]
+            }
+        ]
+    },
+    "resourceType": "Consent",
+    "scope": {
+        "coding": [
+            {
+                "system": "http://terminology.hl7.org/CodeSystem/consentscope",
+                "code": "patient-privacy",
+                "display": "Privacy Consent"
+            }
+        ]
+    },
+    "status": "active"
+}

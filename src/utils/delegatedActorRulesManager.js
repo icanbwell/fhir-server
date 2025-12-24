@@ -186,7 +186,7 @@ class DelegatedActorRulesManager {
                 'provision.actor.reference'
             );
 
-            const currDate = new Date().toISOString()
+            const currDate = new Date().toISOString();
             /**
              * @type {import('mongodb').Document}
              */
@@ -210,12 +210,17 @@ class DelegatedActorRulesManager {
                             { 'provision.period.start': { $exists: false } }
                         ]
                     },
-                    // Period end must be in the future (consent not yet expired)
+                    // Period end must be in the future OR not exist (consent not yet expired or open-ended)
                     {
-                        'provision.period.end': dateQueryBuilder({
-                            date: `ge${currDate}`,
-                            type: 'dateTime'
-                        })
+                        $or: [
+                            {
+                                'provision.period.end': dateQueryBuilder({
+                                    date: `ge${currDate}`,
+                                    type: 'dateTime'
+                                })
+                            },
+                            { 'provision.period.end': { $exists: false } }
+                        ]
                     }
                 ]
             };
