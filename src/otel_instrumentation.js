@@ -42,11 +42,9 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
      */
     const { registerInstrumentations } = require('@opentelemetry/instrumentation');
     const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
-    const { RedisInstrumentation } = require('@opentelemetry/instrumentation-redis');
     registerInstrumentations({
         instrumentations: [
-            getNodeAutoInstrumentations(instrumentationConfigs),
-            new RedisInstrumentation()
+            getNodeAutoInstrumentations(instrumentationConfigs)
         ]
     });
 } else {
