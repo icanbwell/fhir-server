@@ -5,7 +5,7 @@ services:
     environment:
       NODE_OPTIONS: '--require /otel-auto-instrumentation-nodejs/autoinstrumentation.js'
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4317
-      OTEL_NODE_ENABLED_INSTRUMENTATIONS: dataloader,express,graphql,lru-memoizer,router,winston,http,mongodb
+      OTEL_NODE_ENABLED_INSTRUMENTATIONS: dataloader,express,graphql,lru-memoizer,router,winston,http,mongodb,redis
     volumes:
     - autoinstrumentation:/otel-auto-instrumentation-nodejs
 
