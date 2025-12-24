@@ -746,7 +746,8 @@ const createContainer = function () {
             configManager: c.configManager,
             databaseQueryFactory: c.databaseQueryFactory,
             searchManager: c.searchManager,
-            redisStreamManager: c.redisStreamManager
+            redisStreamManager: c.redisStreamManager,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
 

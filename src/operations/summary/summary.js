@@ -18,6 +18,7 @@ const { READ } = require('../../constants').OPERATIONS;
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 
 class SummaryOperation {
     /**
@@ -29,8 +30,9 @@ class SummaryOperation {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {SearchManager} searchManager
      * @param {RedisStreamManager} redisStreamManager
+     * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager}) {
+    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager, postRequestProcessor}) {
         /**
          * @type {GraphOperation}
          */
@@ -71,6 +73,12 @@ class SummaryOperation {
          */
         this.redisStreamManager = redisStreamManager;
         assertTypeEquals(redisStreamManager, RedisStreamManager);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -377,11 +385,18 @@ class SummaryOperation {
                     await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: entry
                     });
-                    if (cachedStreamer) {
-                        await cachedStreamer.writeBundleEntryToRedis({
-                            bundleEntry: entry
-                        });
-                    }
+                }
+                if (cachedStreamer) {
+                    this.postRequestProcessor.add({
+                        requestId: requestInfo.requestId,
+                        fnTask: async () => {
+                            for (const entry of summaryBundleEntries) {
+                                await cachedStreamer.writeBundleEntryToRedis({
+                                    bundleEntry: entry
+                                });
+                            }
+                        }
+                    });
                 }
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
