@@ -104,6 +104,31 @@ module.exports.commonBeforeEach = async () => {
     });
 };
 
+module.exports.fakeTimerBeforeEach = async () => {
+    jest.useFakeTimers({
+        doNotFake: [
+            'hrtime',
+            'nextTick',
+            'performance',
+            'queueMicrotask',
+            'requestAnimationFrame',
+            'cancelAnimationFrame',
+            'requestIdleCallback',
+            'cancelIdleCallback',
+            'setImmediate',
+            'clearImmediate',
+            'setInterval',
+            'clearInterval',
+            'setTimeout',
+            'clearTimeout'
+        ]
+    });
+}
+
+module.exports.resetTimerAfterEach = async () => {
+    jest.useRealTimers();
+}
+
 /**
  * cleans up the mongo db
  * @return {Promise<void>}

@@ -11,6 +11,7 @@ const {
 const { ReferenceParser } = require('./referenceParser');
 const { QueryItem } = require('../operations/graph/queryItem');
 const { CONSENT_OF_LINKED_PERSON_INDEX, PERSON_PROXY_PREFIX } = require('../constants');
+const { dateQueryBuilder } = require('./querybuilder.util');
 
 /**
  * @typedef DelegatedActorFilteringRules
@@ -123,8 +124,14 @@ class DelegatedActorRulesManager {
                     });
                 }
 
-                // TODO: Parse consents to extract filtering rules
-                const filteringRules = null;
+                /**
+                 * TODO: Parse consents to extract filtering rules
+                 * @type {DelegatedActorFilteringRules}
+                 */
+                const filteringRules = {
+                    allowedResourceTypes: ['*'],
+                    deniedSensitiveCategories: []
+                };
                 // TODO: Cache the result
                 return {
                     filteringRules,
@@ -179,6 +186,7 @@ class DelegatedActorRulesManager {
                 'provision.actor.reference'
             );
 
+            const currDate = new Date().toISOString()
             /**
              * @type {import('mongodb').Document}
              */
@@ -188,9 +196,24 @@ class DelegatedActorRulesManager {
                     { status: 'active' },
                     { $or: patientReferenceFilter },
                     { $or: actorReferenceFilter },
-                    // Period end must be in the future
+                    // Period start must not be in the future OR not exist (consent has already begun or is open-ended)
                     {
-                        'provision.period.end': { $gte: new Date() }
+                        $or: [
+                            {
+                                'provision.period.start': dateQueryBuilder({
+                                    date: `le${currDate}`,
+                                    type: 'dateTime'
+                                })
+                            },
+                            { 'provision.period.start': { $exists: false } }
+                        ]
+                    },
+                    // Period end must be in the future (consent not yet expired)
+                    {
+                        'provision.period.end': dateQueryBuilder({
+                            date: `ge${currDate}`,
+                            type: 'dateTime'
+                        })
                     }
                 ]
             };
