@@ -147,7 +147,7 @@
         ],
         "text": {
           "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This section merges all Patient resources into a single combined patient record, preferring non-empty values for each field.</p><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li><li>patient2</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This section merges all Patient resources into a single combined patient record, preferring non-empty values for each field.</p><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li><li>patient2</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
         }
       }
     },
