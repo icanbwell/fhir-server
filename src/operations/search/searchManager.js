@@ -32,6 +32,7 @@ const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { PatientScopeManager } = require('../security/patientScopeManager');
 const { PatientQueryCreator } = require('../common/patientQueryCreator');
+const { DelegatedAccessQueryManager } = require('./delegatedAccessQueryManager');
 const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
@@ -57,6 +58,7 @@ class SearchManager {
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {PatientScopeManager} patientScopeManager
      * @param {PatientQueryCreator} patientQueryCreator
+     * @param {DelegatedAccessQueryManager} delegatedAccessQueryManager
      */
     constructor (
         {
@@ -74,7 +76,8 @@ class SearchManager {
             dataSharingManager,
             searchQueryBuilder,
             patientScopeManager,
-            patientQueryCreator
+            patientQueryCreator,
+            delegatedAccessQueryManager
         }
     ) {
         /**
@@ -161,24 +164,32 @@ class SearchManager {
          */
         this.patientQueryCreator = patientQueryCreator;
         assertTypeEquals(patientQueryCreator, PatientQueryCreator);
+
+        /**
+         * @type {DelegatedAccessQueryManager}
+         */
+        this.delegatedAccessQueryManager = delegatedAccessQueryManager;
+        assertTypeEquals(delegatedAccessQueryManager, DelegatedAccessQueryManager);
     }
 
     // noinspection ExceptionCaughtLocallyJS
     /**
      * constructs a mongo query
-     * @param {string | null} user
-     * @param {string | null} scope
-     * @param {boolean | null} isUser
-     * @param {string} resourceType
-     * @param {boolean} useAccessIndex
-     * @param {string} personIdFromJwtToken
-     * @param {string|null} requestId
-     * @param {ParsedArgs} parsedArgs
-     * @param {boolean|undefined} [useHistoryTable]
-     * @param {'READ'|'WRITE'} operation
-     * @param {string} accessRequested
-     * @param {boolean} applyPatientFilter
-     * @param {boolean} addPersonOwnerToContext
+     * @param {Object} options
+     * @param {string | null} options.user
+     * @param {string | null} options.scope
+     * @param {boolean | null} options.isUser
+     * @param { string | null} options.delegatedActor
+     * @param {string} options.resourceType
+     * @param {boolean} options.useAccessIndex
+     * @param {string} options.personIdFromJwtToken
+     * @param {string|null} options.requestId
+     * @param {ParsedArgs} options.parsedArgs
+     * @param {boolean|undefined} options.useHistoryTable
+     * @param {'READ'|'WRITE'} options.operation
+     * @param {string} options.accessRequested
+     * @param {boolean} options.applyPatientFilter
+     * @param {boolean} options.addPersonOwnerToContext
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync (
@@ -189,6 +200,7 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
+            delegatedActor,
             requestId,
             parsedArgs,
             useHistoryTable,
@@ -285,6 +297,17 @@ class SearchManager {
                     });
                 }
             }
+
+            // Apply delegated access filtering if required
+            query = this.delegatedAccessQueryManager.updateQueryForSensitiveData({
+                base_version,
+                resourceType,
+                query,
+                requestId,
+                isUser,
+                delegatedActor,
+                personIdFromJwtToken
+            });
 
             if (shouldUpdateColumns) {
                 // update the columns set
@@ -1272,6 +1295,7 @@ class SearchManager {
             resourceType,
             useAccessIndex: this.configManager.useAccessIndex,
             personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+            delegatedActor: requestInfo.delegatedActor,
             requestId: requestInfo.requestId,
             parsedArgs,
             operation: READ,

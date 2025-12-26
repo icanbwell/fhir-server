@@ -99,10 +99,11 @@ class SearchBundleOperation {
 
     /**
      * does a FHIR Search
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
-     * @param {boolean} useAggregationPipeline
+     * @param {Object} options
+     * @param {FhirRequestInfo} options.requestInfo
+     * @param {ParsedArgs} options.parsedArgs
+     * @param {string} options.resourceType
+     * @param {boolean} options.useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (
@@ -137,7 +138,9 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            requestId
+            requestId,
+            /** @type {string | null} */
+            delegatedActor
         } = requestInfo;
 
         assertIsValid(requestId, 'requestId is null');
@@ -181,6 +184,7 @@ class SearchBundleOperation {
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
+                    delegatedActor,
                     parsedArgs,
                     operation: READ
                 }));

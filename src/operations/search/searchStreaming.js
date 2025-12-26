@@ -121,6 +121,8 @@ class SearchStreamingOperation {
             host,
             /** @type {string} */
             personIdFromJwtToken,
+            /** @type {string | null} */
+            delegatedActor,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -171,6 +173,7 @@ class SearchStreamingOperation {
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
+                    delegatedActor,
                     parsedArgs,
                     operation: READ
                 }));
