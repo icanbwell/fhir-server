@@ -1270,5 +1270,3355 @@
         }
       ]
     }
+  },
+  {
+    "id": "c6104bb5-d10b-5c18-8917-810561d2fcc6",
+    "status": "final",
+    "date": "2025-01-01",
+    "author": [
+      {
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "subject": {
+      "reference": "Patient/patient1"
+    },
+    "title": "summary",
+    "meta": {
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "id": "42af5515-a8ed-5e52-915f-b29e086008bf",
+        "title": "Acute viral pharyngitis (disorder)",
+        "code": {
+          "coding": [
+            {
+              "id": "4df1613a-1f5b-5c1b-88e1-5ad56c6af9a3",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "195662009",
+              "display": "Acute viral pharyngitis (disorder)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "7c81de95-3398-52b2-9590-e1335993aa0d",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-326d-b6467a10b941"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-326d-b6467a10b941"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-326d-b6467a10b941",
+            "type": "Condition"
+          },
+          {
+            "id": "5527ab8e-409c-5238-b772-572a68e6192e",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-75ea-1fb354f634aa"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-75ea-1fb354f634aa"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-75ea-1fb354f634aa",
+            "type": "Condition"
+          },
+          {
+            "id": "047d0526-4d2b-52c6-8201-bf3e7c6c1d04",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-af27-546088ebc7dc"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-af27-546088ebc7dc"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-af27-546088ebc7dc",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "633b2484-763d-5ee2-b702-c6bf1b8262aa",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Acute viral pharyngitis (disorder)"
+            }
+          },
+          {
+            "id": "556afbdd-4cda-5875-96ce-be5cdef71239",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-1",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "inactive"
+            }
+          },
+          {
+            "id": "is-chronic-1",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "d24decc5-819f-5ce3-ad82-b0246d64676b",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2016-07-26T17:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-1",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2016-07-26T17:58:10+00:00"
+            }
+          },
+          {
+            "id": "c49885ee-aa6c-59b6-b138-e8eca3c0b923",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2016-07-26T17:58:10+00:00"
+            }
+          },
+          {
+            "id": "db549a8e-6dd2-546a-a041-90a9c6638587",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2025-09-08T02:58:10+00:00"
+            }
+          },
+          {
+            "id": "6f26eb32-5917-5d00-b36d-35b55eedd436",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "7cc01255-74ca-55d0-b8c1-34e1118a9799",
+        "title": "Stress (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "d691cf92-20ea-50d7-9989-78430713a406",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "73595000",
+              "display": "Stress (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "223c9e0f-a688-5f88-b462-241245a86598",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-68d4-5606241e3cf5"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-68d4-5606241e3cf5"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-68d4-5606241e3cf5",
+            "type": "Condition"
+          },
+          {
+            "id": "6a43f232-3547-5954-bf93-3ccc59620ddd",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-7345-abfbeb81b5c0"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-7345-abfbeb81b5c0"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-7345-abfbeb81b5c0",
+            "type": "Condition"
+          },
+          {
+            "id": "82f82288-66a0-5a26-b0da-0eba9f2b43b9",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-53d8-886d31d04307"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-53d8-886d31d04307"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-53d8-886d31d04307",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "1df5a582-1c9a-5656-bbeb-b6293982f181",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Stress (finding)"
+            }
+          },
+          {
+            "id": "f1dbae2e-7bff-5ef9-8141-a7a134996401",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-2",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-2",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "Yes"
+            }
+          },
+          {
+            "id": "8e40b8bb-31ca-5d61-b832-3ea876c4b33f",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-2",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "38757c11-a758-549d-8def-abc5f587b260",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "bcce8e4c-e7a8-5f72-a6b9-cff2e60109ea",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "d8c6556b-e4b3-5beb-b9b2-00eccc01b762",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "69fa8068-4d98-5945-b2f6-1ea2e12f9fb9",
+        "title": "Medication review due (situation)",
+        "code": {
+          "coding": [
+            {
+              "id": "9c2e0c01-df76-5f84-a056-279bfc28e97b",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "314529007",
+              "display": "Medication review due (situation)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "1f035fe1-aba7-5a03-a53f-5c89fb614017",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-8908-4e1c3103f684"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-8908-4e1c3103f684"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-8908-4e1c3103f684",
+            "type": "Condition"
+          },
+          {
+            "id": "313a88b5-51e7-50c9-925e-23fe1db7cdb7",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-a231-08bdfe84c370"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-a231-08bdfe84c370"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-a231-08bdfe84c370",
+            "type": "Condition"
+          },
+          {
+            "id": "8737ebf9-fc9f-534f-a61c-ffeef9da16e6",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-e449-0854dbb527c6"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-e449-0854dbb527c6"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-e449-0854dbb527c6",
+            "type": "Condition"
+          },
+          {
+            "id": "6b716d1b-09e8-5529-ab72-bd89b9f8e7f7",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-eda3-f661f537838f"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-eda3-f661f537838f"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-eda3-f661f537838f",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "189fb633-e986-5baf-81a9-1bdba9ee15e7",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Medication review due (situation)"
+            }
+          },
+          {
+            "id": "41787576-137c-5ea5-84b4-fbddac55db60",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-3",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "inactive"
+            }
+          },
+          {
+            "id": "is-chronic-3",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "d0f9d06e-8a9a-5933-8964-07a785eac5a5",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2013-09-28T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-3",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2013-09-28T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "6b01971b-8a23-512d-8470-8a8ac3dd358a",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2013-09-28T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "f539a768-95bb-538f-8d0f-2752bbe745e6",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2024-11-30T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "resolved-3",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2024-11-30T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "703eb4b8-7d2b-5d88-b869-8b387de33b8b",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "d639059b-2a92-536d-8074-94cfe5e8bbc1",
+        "title": "Fracture of bone (disorder)",
+        "code": {
+          "coding": [
+            {
+              "id": "03d1484d-59bc-5dfc-b95b-5795e54b9525",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "125605004",
+              "display": "Fracture of bone (disorder)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "76e14b45-8405-5f90-991d-b19a6cef8a69",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-3ce8-39c301b39ab9"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-3ce8-39c301b39ab9"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-3ce8-39c301b39ab9",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "9a1b3949-dd69-51e6-9e87-bf76d9e68182",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Fracture of bone (disorder)"
+            }
+          },
+          {
+            "id": "04808e2f-488a-5b0c-a145-fc019c0ee7d6",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-4",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "inactive"
+            }
+          },
+          {
+            "id": "is-chronic-4",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "fcfea0e1-94ce-5676-b343-4ce7fcfeef38",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-09-21T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-4",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-09-21T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "fc90b131-f4ca-55b2-9d4c-7a6acd122108",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-09-21T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "60da713f-c992-5394-a446-570f470996c7",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-12-30T22:19:04+00:00"
+            }
+          },
+          {
+            "id": "resolved-4",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-12-30T22:19:04+00:00"
+            }
+          },
+          {
+            "id": "e0225b5c-d316-50ea-bda9-e1144bf7eceb",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "4c831cf2-b09e-5295-85c1-3197dd944e78",
+        "title": "Fracture of ankle (disorder)",
+        "code": {
+          "coding": [
+            {
+              "id": "70775844-9bc3-5605-93dc-7f478591d891",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "16114001",
+              "display": "Fracture of ankle (disorder)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "5450b1ad-09fb-5f56-a8ff-5e82cb6afc6a",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-15e4-c307e09628a2"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-15e4-c307e09628a2"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-15e4-c307e09628a2",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "7eb6fbae-0243-5e31-8d0e-a035a9465080",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Fracture of ankle (disorder)"
+            }
+          },
+          {
+            "id": "5a9d4f68-a8ea-53f8-a7a3-51c8e343676d",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-5",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "inactive"
+            }
+          },
+          {
+            "id": "is-chronic-5",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "670b6df0-570f-5442-81c8-39ca5f601acc",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-09-21T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-5",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-09-21T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "20a4a70e-a628-54e7-b866-71b6877783bb",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-09-21T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "f0c8170c-f6b6-55f5-85ca-ba8af525d0fb",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-12-30T22:19:04+00:00"
+            }
+          },
+          {
+            "id": "resolved-5",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-12-30T22:19:04+00:00"
+            }
+          },
+          {
+            "id": "0064d042-95f1-565f-b5fd-207b0553ecde",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "8fff3f16-4b48-5a93-8d40-253dab2e67c1",
+        "title": "Limited social contact (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "b0ef34ce-4108-56ec-afc2-c3976508339f",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "423315002",
+              "display": "Limited social contact (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "7e3e6af6-63a2-598a-8691-781288a99f49",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-512b-ca0c1e02595e"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-512b-ca0c1e02595e"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-512b-ca0c1e02595e",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "15724328-244b-5b6f-b39e-89790e113c19",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Limited social contact (finding)"
+            }
+          },
+          {
+            "id": "63555bac-94cf-5867-a058-ae2529c29f01",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-6",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-6",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "Yes"
+            }
+          },
+          {
+            "id": "fdf5a85d-70a6-53c3-b6fc-388799c5d810",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2022-11-19T21:57:22+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-6",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2022-11-19T21:57:22+00:00"
+            }
+          },
+          {
+            "id": "aba76a6e-19b5-58a4-aa44-ea0c8da6eda7",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2022-11-19T21:57:22+00:00"
+            }
+          },
+          {
+            "id": "7860a09b-7a5b-528a-ae81-011230375547",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-11-25T21:48:06+00:00"
+            }
+          },
+          {
+            "id": "resolved-6",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2023-11-25T21:48:06+00:00"
+            }
+          },
+          {
+            "id": "5f2ffebd-4ae1-59b9-bef2-63ba5bfe92fd",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "4d58e673-2a37-5846-b64f-f1897dee7f10",
+        "title": "Reports of violence in the environment (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "3a53658f-244b-59aa-8392-d48058ccd87e",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "424393004",
+              "display": "Reports of violence in the environment (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "ca132689-1a78-593c-87d6-66d9373f06b7",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-4657-dc391b0289fc"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-4657-dc391b0289fc"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-4657-dc391b0289fc",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "10f83289-d3f8-57e4-9fa2-200be0beeaef",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Reports of violence in the environment (finding)"
+            }
+          },
+          {
+            "id": "bd047c99-f660-57bd-83bd-f2c084c396f7",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-7",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "inactive"
+            }
+          },
+          {
+            "id": "is-chronic-7",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "b170720b-5d55-55d0-866e-b0d473f37672",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-07T21:57:33+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-7",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-07T21:57:33+00:00"
+            }
+          },
+          {
+            "id": "d8175a3e-e319-59c8-a2f0-4788980ec4ff",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-07T21:57:33+00:00"
+            }
+          },
+          {
+            "id": "1bd18d83-61f8-5149-a5dd-b0e56fab12ec",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2021-11-13T21:51:44+00:00"
+            }
+          },
+          {
+            "id": "resolved-7",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2021-11-13T21:51:44+00:00"
+            }
+          },
+          {
+            "id": "e72d85dc-4476-54ca-b825-5e275f002b8d",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "3377e65c-befd-5e58-8118-9d95f7bb5a54",
+        "title": "Viral sinusitis (disorder)",
+        "code": {
+          "coding": [
+            {
+              "id": "2ca3b5af-e5d1-5b53-a08d-3ee262350f96",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "444814009",
+              "display": "Viral sinusitis (disorder)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "c711059e-ed8a-5f59-b8a0-1bc7c443246d",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-00d2-5ed6f2fded70"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-00d2-5ed6f2fded70"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-00d2-5ed6f2fded70",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "113d4dba-8aa7-577f-8f29-3556944352d7",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Viral sinusitis (disorder)"
+            }
+          },
+          {
+            "id": "825751a2-ad66-52ae-9b73-d68c9d3f2f22",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-8",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "inactive"
+            }
+          },
+          {
+            "id": "is-chronic-8",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "8200ea75-5bdc-570e-929e-d9fbaae71523",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-10-26T03:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-8",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-10-26T03:58:10+00:00"
+            }
+          },
+          {
+            "id": "c65db12d-053a-51ea-abd3-a4b1b82f0174",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-10-26T03:58:10+00:00"
+            }
+          },
+          {
+            "id": "3be90055-cfe1-55ab-9e1f-b31e304f9c51",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-05T03:58:10+00:00"
+            }
+          },
+          {
+            "id": "resolved-8",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2020-11-05T03:58:10+00:00"
+            }
+          },
+          {
+            "id": "53fa5bee-b2aa-5d1d-90a8-d2ba1f9756c6",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "97765935-1e0f-506c-b733-50475cc39581",
+        "title": "Gingival disease (disorder)",
+        "code": {
+          "coding": [
+            {
+              "id": "f7d28ca1-bc3f-5ea7-b213-54cf50f9a159",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "18718003",
+              "display": "Gingival disease (disorder)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "dfe5adc1-1f7c-5657-8c6a-c6c8cc42c9d7",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-f3bd-26ece8997fcb"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-f3bd-26ece8997fcb"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-f3bd-26ece8997fcb",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "bc762fd0-8a73-510f-907f-eb906fd56def",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Gingival disease (disorder)"
+            }
+          },
+          {
+            "id": "2d6a10c5-129d-5a4d-9344-f2bf1a9103e7",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-9",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-9",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "3bf8bcad-d1e8-5618-99bf-29f4cc27b673",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-11-16T23:30:41+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-9",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-11-16T23:30:41+00:00"
+            }
+          },
+          {
+            "id": "209e8fa4-5b65-59dd-ac5c-b419dc5e164c",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-11-16T23:30:41+00:00"
+            }
+          },
+          {
+            "id": "3857512b-eacf-5a82-8131-22969fcd6c60",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-11-17T01:11:36+00:00"
+            }
+          },
+          {
+            "id": "resolved-9",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-11-17T01:11:36+00:00"
+            }
+          },
+          {
+            "id": "f31cd62c-a5b4-5f0a-a522-4f60595d3e3e",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "1f1d8761-b713-5356-9e2b-a2a986cdb0c7",
+        "title": "Victim of intimate partner abuse (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "56ba3d93-53d5-545f-8827-1ed9351e18d0",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "706893006",
+              "display": "Victim of intimate partner abuse (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "ebb6e917-2ec5-5d25-a9e7-9d93fc39cfab",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-1869-fc6f5365e24e"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-1869-fc6f5365e24e"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-1869-fc6f5365e24e",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "9a218c2d-aaf7-5068-b06f-8390cbfa0420",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Victim of intimate partner abuse (finding)"
+            }
+          },
+          {
+            "id": "4b788728-2818-5089-83d2-eeafc9a06e2e",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-10",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-10",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "b473875e-55b6-58c6-9bc1-3273da82a9c6",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-11-02T21:38:15+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-10",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-11-02T21:38:15+00:00"
+            }
+          },
+          {
+            "id": "056291d8-892e-58a0-8947-2784e2b2623b",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-11-02T21:38:15+00:00"
+            }
+          },
+          {
+            "id": "daf10cb4-daff-59ef-bb09-ab9c478c64e6",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "resolved-10",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": ""
+            }
+          },
+          {
+            "id": "fdc73f91-d41d-5314-b521-df8e334c957e",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "e3e50da1-9b0f-59ac-97b1-06ac14717b72",
+        "title": "Sprain (morphologic abnormality)",
+        "code": {
+          "coding": [
+            {
+              "id": "32c5ea25-33e9-56b3-aef3-19367ecb0c18",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "384709000",
+              "display": "Sprain (morphologic abnormality)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "235d8850-f8e7-5cc0-92d4-7058862b9785",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-2332-79e0b09683c6"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-2332-79e0b09683c6"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-2332-79e0b09683c6",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "07a4906b-5805-5316-b074-28de321ed364",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Sprain (morphologic abnormality)"
+            }
+          },
+          {
+            "id": "c9496368-c211-5b60-9c31-e4ceae0fb6c2",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-11",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "inactive"
+            }
+          },
+          {
+            "id": "is-chronic-11",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "5e631c0a-70e8-53d4-b478-0ecb3072b15c",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-06-27T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-11",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-06-27T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "b0c3559b-7e59-5299-b8e2-a9aa490314ca",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-06-27T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "29d644b2-b1ab-56ee-8395-15766e9d7904",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-07-18T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "resolved-11",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-07-18T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "8016f447-ec2a-537c-8bc8-1b1641b5a124",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "8b2f05d4-94b5-5d8b-9959-d0f9a89b3b5f",
+        "title": "Sprain of wrist (disorder)",
+        "code": {
+          "coding": [
+            {
+              "id": "6e426fde-aa0c-51d5-83b4-0cd02f5711be",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "70704007",
+              "display": "Sprain of wrist (disorder)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "7d3dd98d-b120-51bf-acba-a181cab1e36d",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-5c33-6cecf7e2d6a0"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-5c33-6cecf7e2d6a0"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-5c33-6cecf7e2d6a0",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "b8a90a44-3dc2-5b2f-8db2-8efdf2fa0ecc",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Sprain of wrist (disorder)"
+            }
+          },
+          {
+            "id": "2614917b-19fa-56ac-abd7-b88d1619af08",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-12",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "inactive"
+            }
+          },
+          {
+            "id": "is-chronic-12",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "3002c50d-e779-5e62-ae1d-5a0984bedb73",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-06-27T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-12",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-06-27T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "0e3c3d1f-d19c-5a9f-9878-b28f78d01cd3",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-06-27T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "f351bde3-df6d-57be-a5a5-cda4ef4cd580",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-07-18T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "resolved-12",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2019-07-18T21:39:36+00:00"
+            }
+          },
+          {
+            "id": "f3d2e8b9-b3a5-564c-8bd3-b8694d54f6d1",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "378040eb-9781-5812-8fac-035096e35eaa",
+        "title": "Gingivitis (disorder)",
+        "code": {
+          "coding": [
+            {
+              "id": "2843db09-492c-5d3b-abd0-76bafbf2e8a7",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "66383009",
+              "display": "Gingivitis (disorder)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "c2eb1924-8f2c-5564-bdc1-fd08d6188c6a",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-cc1a-7cd9da808f73"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-cc1a-7cd9da808f73"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-cc1a-7cd9da808f73",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "cf972d35-0473-5f5e-bf5d-e6346789949e",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Gingivitis (disorder)"
+            }
+          },
+          {
+            "id": "2d9cf522-643a-5a24-8664-817c57f1d6f2",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-13",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-13",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "14a4a2b7-e764-5eaa-bf05-2e08301f2ad4",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2018-10-27T23:05:02+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-13",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2018-10-27T23:05:02+00:00"
+            }
+          },
+          {
+            "id": "1a8e3878-7e3c-5acf-87c3-93128ad94def",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2018-10-27T23:05:02+00:00"
+            }
+          },
+          {
+            "id": "ca19fd52-8f18-5105-911b-32935b4a194f",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2018-11-10T23:40:56+00:00"
+            }
+          },
+          {
+            "id": "resolved-13",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2018-11-10T23:40:56+00:00"
+            }
+          },
+          {
+            "id": "e98aadfa-b41c-57c3-8a39-dcfc6e7bc133",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "340f8447-735e-5a66-95e6-62412b611738",
+        "title": "Full-time employment (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "0e0ed256-6d6b-5097-9976-a31b77de7570",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "160903007",
+              "display": "Full-time employment (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "a1e37051-5241-53d8-9e94-e2d791f23f34",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-b828-e03b75d28aa7"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-b828-e03b75d28aa7"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-b828-e03b75d28aa7",
+            "type": "Condition"
+          },
+          {
+            "id": "2b0a526b-9160-5a35-8d14-227770ebd5d2",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-68af-ef573117fc9b"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-68af-ef573117fc9b"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-68af-ef573117fc9b",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "cdb4ecb5-3b45-5e22-b17b-9a1455593ca4",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Full-time employment (finding)"
+            }
+          },
+          {
+            "id": "08576966-ad23-5f34-a428-2f859872075c",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-14",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-14",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "a69484a4-ba4d-5d82-92e4-46a8d4f33ffd",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2013-09-28T21:41:13+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-14",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2013-09-28T21:41:13+00:00"
+            }
+          },
+          {
+            "id": "aa74451d-81b2-50f3-989e-eff1a4ca1792",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2013-09-28T21:41:13+00:00"
+            }
+          },
+          {
+            "id": "1d7f6a16-a229-52c3-a5f1-e8702a05b770",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "resolved-14",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": ""
+            }
+          },
+          {
+            "id": "bf3b6eb6-3ba1-5af9-92cb-ebe81bc7f6b7",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "73cb9ba1-6178-51c0-b052-125f1f91b8ea",
+        "title": "Part-time employment (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "b31d86e0-44a5-59b2-8472-930ca0f21e79",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "160904001",
+              "display": "Part-time employment (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "ca9db94a-bb2d-5aa3-9a44-33dbde3e770b",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-6067-c364986f297b"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-6067-c364986f297b"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-6067-c364986f297b",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "8d0613f3-54a8-5896-bd79-b52468765357",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Part-time employment (finding)"
+            }
+          },
+          {
+            "id": "8d6b5b74-ca44-5d71-b64a-aa4a9007fba4",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-15",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-15",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "9edc7bad-88d7-5fc8-a1df-e0c8a35e2345",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-15",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "3978c920-09f6-5a62-a586-4eb7616c8d70",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "44fbe187-6f52-5b50-9a4f-51d6c0754322",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2018-10-27T21:51:25+00:00"
+            }
+          },
+          {
+            "id": "resolved-15",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2018-10-27T21:51:25+00:00"
+            }
+          },
+          {
+            "id": "91369ed6-6941-523a-adf6-e9ab52fa423b",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "d7c24f2d-8c28-59eb-a6b1-fe8e558c8212",
+        "title": "Has a criminal record (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "427be099-a7aa-5957-a839-eaaa43e2ac99",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "266948004",
+              "display": "Has a criminal record (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "9b4a9521-cb22-5018-af33-24bdad11593d",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-af09-3d3e7efeb72b"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-af09-3d3e7efeb72b"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-af09-3d3e7efeb72b",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "38745784-d1d9-5707-8e89-41d054dbd5cd",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Has a criminal record (finding)"
+            }
+          },
+          {
+            "id": "ee1d799a-1fba-5efb-81e4-a53f189193d1",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-16",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-16",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "ab8a5280-dfc7-55cb-8128-47aa8240697c",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-16",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "b99b3116-d314-5ea1-849e-5068e1126201",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2017-10-21T21:32:58+00:00"
+            }
+          },
+          {
+            "id": "3299a209-2e1d-5c63-b9ce-f551e3ca14a7",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "resolved-16",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": ""
+            }
+          },
+          {
+            "id": "0943f94f-59f4-515a-9082-f8967d089c4d",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "dd50bf59-a301-529b-825b-062e3102e79d",
+        "title": "Social isolation (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "685ff77f-037e-5cc9-a430-b2650c5ce48f",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "422650009",
+              "display": "Social isolation (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "28c9e077-087d-5f32-ba9b-d74a6dd58ec2",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-6c29-1fe88e9437ec"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-6c29-1fe88e9437ec"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-6c29-1fe88e9437ec",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "718ca8cf-8bf0-5e8d-80fc-3682cc529337",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Social isolation (finding)"
+            }
+          },
+          {
+            "id": "219bd5b0-da20-5be9-ae8c-f5d80064825e",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-17",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-17",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "Yes"
+            }
+          },
+          {
+            "id": "070c779e-22da-5144-8882-ec72d93f0dda",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2015-10-10T21:55:22+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-17",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2015-10-10T21:55:22+00:00"
+            }
+          },
+          {
+            "id": "c0bd501f-a258-55d0-a352-d58fdad38abc",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2015-10-10T21:55:22+00:00"
+            }
+          },
+          {
+            "id": "b5261b7d-bafb-535b-99a4-4e7604419ce3",
+            "title": "Abatement Date",
+            "text": {
+              "status": "generated",
+              "div": "2016-10-15T21:30:15+00:00"
+            }
+          },
+          {
+            "id": "resolved-17",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": "2016-10-15T21:30:15+00:00"
+            }
+          },
+          {
+            "id": "f223b2cc-b83e-576d-9d28-64f61dd67e00",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "4a4232d7-1371-5787-a3df-1e063b132043",
+        "title": "Chronic low back pain (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "a39c9b05-abfa-5a5d-a556-38d3dff24320",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "278860009",
+              "display": "Chronic low back pain (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "a5955b92-ad13-5c0b-98c6-419ea1cd5865",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-cf6e-675dee4d44ff"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-cf6e-675dee4d44ff"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-cf6e-675dee4d44ff",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "afee9831-bdfb-5480-b69a-15a001f730fe",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Chronic low back pain (finding)"
+            }
+          },
+          {
+            "id": "f3a19c3c-0338-50a9-8811-efd6f952d7b9",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-18",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-18",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "Yes"
+            }
+          },
+          {
+            "id": "5e3c6d10-557e-5edd-997e-62b7d61aab81",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2014-02-03T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-18",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2014-02-03T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "5fa19dd6-4c60-56d4-bd71-74ea4d167b14",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2014-02-03T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "56df7113-bdb4-584e-b158-7a36ce7d4cce",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "8585f62b-9b2f-59a9-81a3-8f060a0a9e62",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "2377e2d5-b630-53b7-9840-2980f85fd426",
+        "title": "Chronic pain (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "6e95ce4d-2ebf-5ab7-afec-7e312521ac5e",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "82423001",
+              "display": "Chronic pain (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "a68139ae-2c5f-535b-aa7b-a587bc065574",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-c24a-497afe33fb1e"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-c24a-497afe33fb1e"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-c24a-497afe33fb1e",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "f831e1bf-97b0-51ee-9e51-ce643c3ef26b",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Chronic pain (finding)"
+            }
+          },
+          {
+            "id": "f968980f-b4e6-53c0-b98e-a1b887f46bf4",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-19",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-19",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "Yes"
+            }
+          },
+          {
+            "id": "3a52107e-82ef-50f3-9912-7dffc4073f84",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "2014-02-03T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-19",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "2014-02-03T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "37b6042d-a541-563d-8754-4a7dff8c3dba",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "2014-02-03T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "8ec98fe6-1029-56c8-a180-9b7a2b9f8f55",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "f462f147-935c-5039-a251-282a8243153e",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "ec925c60-e53f-5974-8367-63b0a715ca1c",
+        "title": "Anemia (disorder)",
+        "code": {
+          "coding": [
+            {
+              "id": "27092be5-e9f3-599a-84ee-b1ec1d4420a9",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "271737000",
+              "display": "Anemia (disorder)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "038dfe69-d299-5dc8-913c-b639ebf235e5",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-585e-c06e543cfbf2"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-585e-c06e543cfbf2"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-585e-c06e543cfbf2",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "b75ab03d-5e00-5946-9af2-a3f8be7e644f",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Anemia (disorder)"
+            }
+          },
+          {
+            "id": "b0fce19c-4ff5-5ad6-a9a0-f679f5433244",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-20",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-20",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "Yes"
+            }
+          },
+          {
+            "id": "e7613abe-bdae-5dcd-b4c0-d35a6d3b488a",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "1998-12-05T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-20",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "1998-12-05T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "c10af753-48fe-5e46-bae9-164e3ee223e0",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "1998-12-05T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "29a77d16-414f-512e-8152-0c19e992a975",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "cfba9767-eace-5f36-b4f3-8c438b02f601",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "33aae769-8fd8-53f8-91bd-d7ce26c42253",
+        "title": "Prediabetes (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "7acd866b-23aa-5c47-bfac-993f518c4a0f",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "714628002",
+              "display": "Prediabetes (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "633e04e9-15e4-5b73-8a83-323fd5a23b6e",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-ae6c-c01882f9f3be"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-ae6c-c01882f9f3be"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-ae6c-c01882f9f3be",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "cc8ac4b8-119b-5698-bb7b-b5b8b98f0bf8",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Prediabetes (finding)"
+            }
+          },
+          {
+            "id": "4b6d0840-13b5-5742-85ae-3f996dadbc0e",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-21",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-21",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "Yes"
+            }
+          },
+          {
+            "id": "8bc220cb-0078-5d1d-8b42-66536825f8b8",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "1998-12-05T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-21",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "1998-12-05T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "497127b0-3e04-5f18-a7bd-41014fb934ab",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "1998-12-05T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "77b0b734-7b03-5351-aab2-fc9838f8cb46",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "266906ff-ff29-5a29-87c5-59ffb519dfa3",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "dba2187a-bf89-5fd7-b107-97d9cedf839d",
+        "title": "Body mass index 30+ - obesity (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "8e5659f9-7f46-5e0c-bddb-2abdba4cde7d",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "162864005",
+              "display": "Body mass index 30+ - obesity (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "ed252e57-2175-5121-8b38-bae6d164ce86",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-5a1f-3ded18fa3edd"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-5a1f-3ded18fa3edd"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-5a1f-3ded18fa3edd",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "9ec1199d-b866-5056-a3c5-441bbef828b5",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Body mass index 30+ - obesity (finding)"
+            }
+          },
+          {
+            "id": "032504dd-dc9f-571e-a0c1-63e51a751379",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-22",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-22",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "Yes"
+            }
+          },
+          {
+            "id": "b3daeec4-fa27-5bd3-910c-940b3ac31ef1",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "1992-11-28T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-22",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "1992-11-28T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "0bf05711-5758-5857-98ac-28d74b3af481",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "1992-11-28T20:58:10+00:00"
+            }
+          },
+          {
+            "id": "071b26b4-9a73-569a-8181-cabfdf1ee0a5",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "5e786e7b-b90b-55c7-ab3c-980e6683611d",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "720c3c21-0e8a-56db-838c-b404ec20d497",
+        "title": "Past pregnancy history of miscarriage (situation)",
+        "code": {
+          "coding": [
+            {
+              "id": "63aa217c-a034-5bf2-9d9f-2ab466149cb3",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "161744009",
+              "display": "Past pregnancy history of miscarriage (situation)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "d34ae89b-aafe-5da9-ac1c-b866dfeb0144",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-04f9-8ad7a5c1762c"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-04f9-8ad7a5c1762c"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-04f9-8ad7a5c1762c",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "17c450bd-cab7-5472-8c9d-7c87a4dd9f96",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Past pregnancy history of miscarriage (situation)"
+            }
+          },
+          {
+            "id": "8ae57ea2-3b79-5d29-aece-d8481748181b",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-23",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-23",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "41020df4-d528-5f5f-a8a5-450cff3b23b3",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "1986-11-25T09:58:10+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-23",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "1986-11-25T09:58:10+00:00"
+            }
+          },
+          {
+            "id": "23d3b936-f468-5af1-8b34-6ffa6e9f9b50",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "1986-11-25T09:58:10+00:00"
+            }
+          },
+          {
+            "id": "c80aed05-6426-5900-976b-8a0b877ab675",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "resolved-23",
+            "title": "Resolved Date",
+            "text": {
+              "status": "generated",
+              "div": ""
+            }
+          },
+          {
+            "id": "4014eba4-b5b5-56d9-a3c9-f7c67790869c",
+            "title": "Stage"
+          }
+        ]
+      },
+      {
+        "id": "adcd4cff-8521-5b3e-b238-d31d8e71884c",
+        "title": "Received higher education (finding)",
+        "code": {
+          "coding": [
+            {
+              "id": "2f4259b2-eb45-5d7d-9947-dbd3dc0529b5",
+              "extension": [
+                {
+                  "id": "preferred",
+                  "url": "https://fhir.icanbwell.com/4_0_0/StructureDefinition/intelligence",
+                  "valueCode": "preferred"
+                }
+              ],
+              "system": "http://snomed.info/sct",
+              "code": "224299000",
+              "display": "Received higher education (finding)"
+            }
+          ]
+        },
+        "mode": "working",
+        "orderedBy": {
+          "coding": [
+            {
+              "id": "e7508d4d-398b-560a-9385-d256c4e26835",
+              "system": "http://terminology.hl7.org/CodeSystem/list-order",
+              "code": "event-date",
+              "display": "Sorted by Event Date"
+            }
+          ],
+          "text": "Sorted by recordedDate DESC"
+        },
+        "entry": [
+          {
+            "id": "728e63f1-0955-5f93-bec7-6c3e826a0675",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Condition/ac59c2e9-d108-03bd-f1fc-a9672fdd72c0"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Condition/ac59c2e9-d108-03bd-f1fc-a9672fdd72c0"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+              }
+            ],
+            "reference": "Condition/ac59c2e9-d108-03bd-f1fc-a9672fdd72c0",
+            "type": "Condition"
+          }
+        ],
+        "section": [
+          {
+            "id": "49e8acb6-bf89-5370-841c-27cc1dbeea3f",
+            "title": "Condition Name",
+            "text": {
+              "status": "generated",
+              "div": "Received higher education (finding)"
+            }
+          },
+          {
+            "id": "dee9f3ec-f561-5a1d-be7d-f82c0b92e894",
+            "title": "Source",
+            "text": {
+              "status": "generated",
+              "div": "synthea"
+            }
+          },
+          {
+            "id": "status-24",
+            "title": "Status",
+            "text": {
+              "status": "generated",
+              "div": "active"
+            }
+          },
+          {
+            "id": "is-chronic-24",
+            "title": "Is Chronic",
+            "text": {
+              "status": "generated",
+              "div": "No"
+            }
+          },
+          {
+            "id": "f6662d70-7fc0-5c58-a5c9-9c8e503b08fb",
+            "title": "Recorded Date",
+            "text": {
+              "status": "generated",
+              "div": "1979-11-10T21:34:47+00:00"
+            }
+          },
+          {
+            "id": "last-confirmed-24",
+            "title": "Last Confirmed Date",
+            "text": {
+              "status": "generated",
+              "div": "1979-11-10T21:34:47+00:00"
+            }
+          },
+          {
+            "id": "445640dd-b5c7-5581-9eca-9bef88380555",
+            "title": "Onset Date",
+            "text": {
+              "status": "generated",
+              "div": "1979-11-10T21:34:47+00:00"
+            }
+          },
+          {
+            "id": "9b3a3f81-c148-5791-a8e5-e0da7cb74ceb",
+            "title": "Abatement Date"
+          },
+          {
+            "id": "76c873c7-02d0-5a8a-95e3-709d85c2691b",
+            "title": "Stage"
+          }
+        ]
+      }
+    ],
+    "type": {
+      "coding": [
+        {
+          "id": "d459919f-305d-52ac-90ed-3df6f2c01138",
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+          "code": "condition_summary_document",
+          "display": "b.Well Condition Summary Composition Document"
+        }
+      ],
+      "text": "Condition Summary Composition Document"
+    }
   }
 ]
