@@ -486,7 +486,6 @@ class EverythingHelper {
                 {
                     type: 'searchset',
                     requestId: requestInfo.userRequestId,
-                    originalUrl: requestInfo.originalUrl,
                     host: requestInfo.host,
                     protocol: requestInfo.protocol,
                     resources,

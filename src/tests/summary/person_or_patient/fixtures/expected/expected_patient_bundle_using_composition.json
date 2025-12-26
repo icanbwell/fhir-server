@@ -104,7 +104,7 @@
             },
             "text": {
               "status": "generated",
-              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available about the subject's health problems or disabilities.</div>"
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes patient problems, sorted by recorded date (most recent first)</p> <div> <table> <thead> <tr> <th>Problem</th> <th>Code (System)</th> <th>Is Chronic</th> <th>Onset Date</th> <th>Last Confirmed Date</th> </tr> </thead> <tbody> <tr> <td>Stress (finding)</td> <td>73595000 (SNOMED CT)</td> <td>Yes</td> <td>10/21/2017, 5:32 PM EDT</td> <td>10/21/2017, 5:32 PM EDT</td> </tr> <tr> <td>Limited social contact (finding)</td> <td>423315002 (SNOMED CT)</td> <td>Yes</td> <td>11/19/2022, 4:57 PM EST</td> <td>11/19/2022, 4:57 PM EST</td> </tr> <tr> <td>Gingival disease (disorder)</td> <td>18718003 (SNOMED CT)</td> <td>No</td> <td>11/16/2019, 6:30 PM EST</td> <td>11/16/2019, 6:30 PM EST</td> </tr> <tr> <td>Victim of intimate partner abuse (finding)</td> <td>706893006 (SNOMED CT)</td> <td>No</td> <td>11/2/2019, 5:38 PM EDT</td> <td>11/2/2019, 5:38 PM EDT</td> </tr> <tr> <td>Gingivitis (disorder)</td> <td>66383009 (SNOMED CT)</td> <td>No</td> <td>10/27/2018, 7:05 PM EDT</td> <td>10/27/2018, 7:05 PM EDT</td> </tr> <tr> <td>Full-time employment (finding)</td> <td>160903007 (SNOMED CT)</td> <td>No</td> <td>9/28/2013, 5:41 PM EDT</td> <td>9/28/2013, 5:41 PM EDT</td> </tr> <tr> <td>Part-time employment (finding)</td> <td>160904001 (SNOMED CT)</td> <td>No</td> <td>10/21/2017, 5:32 PM EDT</td> <td>10/21/2017, 5:32 PM EDT</td> </tr> <tr> <td>Has a criminal record (finding)</td> <td>266948004 (SNOMED CT)</td> <td>No</td> <td>10/21/2017, 5:32 PM EDT</td> <td>10/21/2017, 5:32 PM EDT</td> </tr> <tr> <td>Social isolation (finding)</td> <td>422650009 (SNOMED CT)</td> <td>Yes</td> <td>10/10/2015, 5:55 PM EDT</td> <td>10/10/2015, 5:55 PM EDT</td> </tr> <tr> <td>Chronic low back pain (finding)</td> <td>278860009 (SNOMED CT)</td> <td>Yes</td> <td>2/3/2014, 3:58 PM EST</td> <td>2/3/2014, 3:58 PM EST</td> </tr> <tr> <td>Chronic pain (finding)</td> <td>82423001 (SNOMED CT)</td> <td>Yes</td> <td>2/3/2014, 3:58 PM EST</td> <td>2/3/2014, 3:58 PM EST</td> </tr> <tr> <td>Anemia (disorder)</td> <td>271737000 (SNOMED CT)</td> <td>Yes</td> <td>12/5/1998, 3:58 PM EST</td> <td>12/5/1998, 3:58 PM EST</td> </tr> <tr> <td>Prediabetes (finding)</td> <td>714628002 (SNOMED CT)</td> <td>Yes</td> <td>12/5/1998, 3:58 PM EST</td> <td>12/5/1998, 3:58 PM EST</td> </tr> <tr> <td>Body mass index 30+ - obesity (finding)</td> <td>162864005 (SNOMED CT)</td> <td>Yes</td> <td>11/28/1992, 3:58 PM EST</td> <td>11/28/1992, 3:58 PM EST</td> </tr> <tr> <td>Past pregnancy history of miscarriage (situation)</td> <td>161744009 (SNOMED CT)</td> <td>No</td> <td>11/25/1986, 4:58 AM EST</td> <td>11/25/1986, 4:58 AM EST</td> </tr> <tr> <td>Received higher education (finding)</td> <td>224299000 (SNOMED CT)</td> <td>No</td> <td>11/10/1979, 4:34 PM EST</td> <td>11/10/1979, 4:34 PM EST</td> </tr> </tbody> </table> </div></div>"
             },
             "entry": []
           },
@@ -199,6 +199,24 @@
             "entry": []
           },
           {
+            "title": "History of Past Illness",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "11348-0",
+                  "display": "History of Past Illness"
+                }
+              ],
+              "text": "History of Past Illness"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes past problems for the patient with a recorded date within the last 5 years, sorted by recorded date (most recent first).</p> <div> <table> <thead> <tr> <th>Problem</th> <th>Code (System)</th> <th>Is Chronic</th> <th>Onset Date</th> <th>Last Confirmed Date</th> <th>Resolved Date</th> </tr> </thead> <tbody> <tr> <td>Fracture of bone (disorder)</td> <td>125605004 (SNOMED CT)</td> <td>No</td> <td>9/21/2023, 5:39 PM EDT</td> <td>9/21/2023, 5:39 PM EDT</td> <td>12/30/2023, 5:19 PM EST</td> </tr> <tr> <td>Fracture of ankle (disorder)</td> <td>16114001 (SNOMED CT)</td> <td>No</td> <td>9/21/2023, 5:39 PM EDT</td> <td>9/21/2023, 5:39 PM EDT</td> <td>12/30/2023, 5:19 PM EST</td> </tr> </tbody> </table> <p><em>6 additional past illnesses older than 5 years ago are present</em></p></div></div>"
+            },
+            "entry": []
+          },
+          {
             "title": "Vital Signs",
             "code": {
               "coding": [
@@ -219,7 +237,7 @@
         ],
         "text": {
           "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This section merges all Patient resources into a single combined patient record, preferring non-empty values for each field.</p><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li><li>patient2</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Marital Status:</strong> </li> <li><strong>Deceased:</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This section merges all Patient resources into a single combined patient record, preferring non-empty values for each field.</p><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li><li>patient2</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
         }
       }
     },
