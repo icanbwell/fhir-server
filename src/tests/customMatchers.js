@@ -62,13 +62,18 @@ function cleanRequestId (request) {
  * @param {boolean} ignoreMetaTags
  * @returns {boolean}
  */
-function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = false }) {
-    // logInfo(body);
+function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = false, isEverythingOperation = false }) {
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
     delete body.timestamp;
     delete expected.timestamp;
-    delete body.link;
+    /**
+     * remove links for non-everything operation
+     * because links will be not present for everything operation
+     */
+    if(!isEverythingOperation) {
+        delete body.link;
+    }
     delete body.id; // This is uniquely created each time
     delete expected.id;
 
@@ -152,17 +157,17 @@ function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = fal
  * @param [fnCleanResource]
  * @returns {{actual, pass: boolean, expected, message: {(): string, (): string}}}
  */
-function checkContent ({ actual, expected, utils, options, expand, fnCleanResource }) {
+function checkContent ({ actual, expected, utils, options, expand, fnCleanResource, isEverythingOperation = false }) {
     let pass = false;
     if (!(Array.isArray(actual)) && actual.resourceType === 'Bundle') {
         if (!Array.isArray(expected)) {
-            pass = compareBundles({ body: actual, expected, fnCleanResource });
+            pass = compareBundles({ body: actual, expected, fnCleanResource, isEverythingOperation });
         } else {
             pass = deepEqual(actual.entry.map(e => e.resource), expected);
         }
     } else if (!(Array.isArray(expected)) && expected.resourceType === 'Bundle') {
         if (!Array.isArray(actual)) {
-            pass = compareBundles({ body: actual, expected, fnCleanResource });
+            pass = compareBundles({ body: actual, expected, fnCleanResource, isEverythingOperation });
         } else {
             pass = deepEqual(actual, expected.entry.map(e => e.resource));
         }
@@ -253,6 +258,7 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
      */
     const utils = this.utils;
     const contentType = resp.headers['content-type'];
+    const isEverythingOperation = resp.request?.url && resp.request.url.includes('$everything');
     let body;
     let expected;
     if (contentType === fhirContentTypes.csv) {
@@ -311,7 +317,8 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
             utils,
             options,
             expand: this.expand,
-            fnCleanResource
+            fnCleanResource,
+            isEverythingOperation
         });
     } else if (body.data && !(expected.body && expected.body.data) && !(expected.data)) {
         // GraphQL response
@@ -338,7 +345,8 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
             utils,
             options,
             expand: this.expand,
-            fnCleanResource
+            fnCleanResource,
+            isEverythingOperation
         });
     } else {
         if (Array.isArray(body)) {
@@ -400,7 +408,8 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
         utils,
         options,
         expand: this.expand,
-        fnCleanResource
+        fnCleanResource,
+        isEverythingOperation
     });
 }
 
