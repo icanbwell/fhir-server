@@ -743,7 +743,11 @@ const createContainer = function () {
             graphOperation: c.graphOperation,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            configManager: c.configManager
+            configManager: c.configManager,
+            databaseQueryFactory: c.databaseQueryFactory,
+            searchManager: c.searchManager,
+            redisStreamManager: c.redisStreamManager,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
 
