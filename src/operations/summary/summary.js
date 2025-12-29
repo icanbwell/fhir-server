@@ -259,6 +259,7 @@ class SummaryOperation {
             this.configManager.readFromCacheForSummaryOperation &&
             responseStreamer &&
             cachedStreamer &&
+            !requestInfo.skipCachedData() &&
             await this.redisStreamManager.hasCachedStream(cacheKey)
         );
         // Check if we need to fall back to MongoDB
