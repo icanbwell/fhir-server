@@ -102,7 +102,7 @@ class SummaryOperation {
      * @param {string} resourceType
     * @returns {Promise<string[]>}
     */
-    async fetchPatientUUID(parsedArgs, requestInfo, resourceType ) {
+    async fetchPatientUUID(parsedArgs, requestInfo, resourceType) {
         const {
             query
         } = await this.searchManager.constructQueryAsync({
@@ -140,10 +140,9 @@ class SummaryOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
-     * @param {string} base_version
      * @returns {Promise<string|undefined>}
      */
-    async getCacheKey(parsedArgs, requestInfo, resourceType ) {
+    async getCacheKey(parsedArgs, requestInfo, resourceType) {
         let paramsIds = this.fetchOriginalIdsFromParams(parsedArgs);
         // Multiple ids are not supported for now
         if (paramsIds.length !== 1) {
@@ -154,12 +153,12 @@ class SummaryOperation {
         const isProxyPatient = id.startsWith(PERSON_PROXY_PREFIX);
         if (isProxyPatient) {
             id = id.replace(PERSON_PROXY_PREFIX, '');
-            if (isUuid(id) && (requestInfo.personIdFromJwtToken === undefined || id == requestInfo.personIdFromJwtToken)) {
+            if (isUuid(id) && (requestInfo.personIdFromJwtToken === undefined || id === requestInfo.personIdFromJwtToken)) {
                 idForCache = `${PERSON_PROXY_PREFIX}${id}`;
             }
         } else {
             let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType);
-            idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
+            idForCache = patientIds && patientIds.length === 1 ? patientIds[0] : undefined;
         }
         let keyGenerator = new SummaryCacheKeyGenerator();
         return idForCache ? keyGenerator.generateCacheKey(
@@ -390,10 +389,15 @@ class SummaryOperation {
                     this.postRequestProcessor.add({
                         requestId: requestInfo.requestId,
                         fnTask: async () => {
-                            for (const entry of summaryBundleEntries) {
-                                await cachedStreamer.writeBundleEntryToRedis({
-                                    bundleEntry: entry
-                                });
+                            try {
+                                for (const entry of summaryBundleEntries) {
+                                    await cachedStreamer.writeBundleEntryToRedis({
+                                        bundleEntry: entry
+                                    });
+                                }
+                            } catch (error) {
+                                logError(`Error in caching summary bundle: ${error.message}`, { error });
+                                await this.redisStreamManager.deleteStream(cacheKey);
                             }
                         }
                     });

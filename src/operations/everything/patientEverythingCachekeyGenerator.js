@@ -1,4 +1,7 @@
 const { BaseCacheKeyGenerator } = require('../common/baseCacheKeyGenerator');
+const {
+    PERSON_PROXY_PREFIX
+} = require('../../constants');
 
 class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
     constructor() {
@@ -27,8 +30,8 @@ class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
      * @returns {string}
      */
     generateIdComponent(id) {
-        if (id.startsWith('person.')) {
-            return `ClientPerson:${id.slice('person.'.length)}`;
+        if (id.startsWith(PERSON_PROXY_PREFIX)) {
+            return `ClientPerson:${id.slice(PERSON_PROXY_PREFIX.length)}`;
         }
         return `Patient:${id}`;
     }
