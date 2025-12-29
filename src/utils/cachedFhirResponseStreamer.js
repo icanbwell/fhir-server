@@ -12,7 +12,7 @@ class CachedFhirResponseStreamer {
      * @param {string} cacheKey
      * @param {BaseResponseStreamer} responseStreamer
      * @param {number} ttlSeconds
-     * @param {EnrichmentManager} enrichmentManager
+     * @param {EnrichmentManager|null} enrichmentManager
      * @param {ParsedArgs} parsedArgs
      */
     constructor({

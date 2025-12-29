@@ -553,6 +553,10 @@ class EverythingHelper {
             }
             return bundle;
         } catch (error) {
+            // Deleting cached stream if any error occurs during processing
+            if (cachedStreamer && !cachedStreamer.isFirstEntry) {
+                await this.redisStreamManager.deleteStream(cacheKey);
+            }
             logError(`Error in retriveEverythingAsync(): ${error.message}`, { error });
             throw new RethrownError({
                 message: 'Error in retriveEverythingAsync(): ' + `resourceType: ${resourceType} , ` + error.message,
