@@ -965,6 +965,22 @@ class ConfigManager {
     get delegatedAccessFilteringRulesCacheTtlSeconds() {
         return parseInt(process.env.DELEGATED_ACCESS_FILTERING_RULES_CACHE_TTL_SECONDS) || 300;
     }
+
+    /**
+     * whether to write to redis cache for summary operation
+     * @return {boolean}
+     */
+    get writeToCacheForSummaryOperation() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION);
+    }
+
+    /**
+     *  returns ttl seconds for summary cache
+     * @return {number}
+     */
+    get summaryCacheTtlSeconds() {
+        return parseInt(process.env.SUMMARY_CACHE_TTL_SECONDS) || 300;
+    }
 }
 
 module.exports = {

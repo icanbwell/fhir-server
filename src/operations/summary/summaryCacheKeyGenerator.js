@@ -3,10 +3,10 @@ const {
     PERSON_PROXY_PREFIX
 } = require('../../constants');
 
-class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
+class SummaryCacheKeyGenerator extends BaseCacheKeyGenerator {
     constructor() {
         super();
-        this.operation = 'Everything';
+        this.operation = 'Summary';
         this.invalidParamsForCache = [
             '_since',
             '_includePatientLinkedOnly',
@@ -21,7 +21,7 @@ class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
             '_includeUuidOnly',
             'contained'
         ];
-        this.cacheableContentTypes = ['application/fhir+json', 'application/fhir+ndjson'];
+        this.cacheableContentTypes = ['application/fhir+json'];
     }
 
     /**
@@ -38,5 +38,5 @@ class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
 }
 
 module.exports = {
-    PatientEverythingCacheKeyGenerator
+    SummaryCacheKeyGenerator
 };
