@@ -860,6 +860,7 @@ describe('Patient $summary Tests', () => {
         // Test with redis enabled
         process.env.ENABLE_REDIS = '1';
         process.env.ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION = '1';
+        const redisReadSpy = jest.spyOn(container.redisStreamManager, 'readBundleEntriesFromStream');
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary')
             .set(getHeaders());
@@ -868,6 +869,36 @@ describe('Patient $summary Tests', () => {
         let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:access/*.*,user/*.read,user/*.write::Summary';
         expect(streams.keys()).toContain(cacheKey);
         expect(streams.get(cacheKey)).toHaveLength(3);
+        expect(resp.headers).toHaveProperty('x-cache', 'Miss');
+
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$summary')
+            .set(getHeaders());
+
+        expect(resp).toHaveResourceCount(3);
+        expect(redisReadSpy).not.toHaveBeenCalled();
+        expect(resp.headers).toHaveProperty('x-cache', 'Miss');
+
+        process.env.ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION = '1';
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$summary')
+            .set(getHeaders());
+
+        expect(resp).toHaveResourceCount(3);
+        expect(redisReadSpy).toHaveBeenCalled();
+        redisReadSpy.mockClear();
+        expect(resp.headers).toHaveProperty('x-cache', 'Hit');
+        streams.clear();
+
+        process.env.ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION = '1';
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$summary?_debug=true')
+            .set(getHeaders());
+
+        expect(resp).toHaveResourceCount(3);
+        expect(redisReadSpy).not.toHaveBeenCalled();
+        expect(Array.from(streams.keys())).toHaveLength(0);
+        redisReadSpy.mockClear();
         streams.clear();
 
         // test patient uuid case
@@ -966,5 +997,20 @@ describe('Patient $summary Tests', () => {
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(4);
+        redisReadSpy.mockClear();
+
+        let headers = getHeaders();
+        headers['Cache-Control'] = 'no-cache';
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$summary')
+            .set(headers);
+
+        expect(redisReadSpy).not.toHaveBeenCalled();
+        expect(resp.headers).toHaveProperty('x-cache', 'Miss')
+        streams.clear();
+        redisReadSpy.mockClear();
+
+        process.env.ENABLE_REDIS = '0';
+        process.env.ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION = '0';
     });
 });
