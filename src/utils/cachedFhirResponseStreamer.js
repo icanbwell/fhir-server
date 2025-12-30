@@ -60,10 +60,12 @@ class CachedFhirResponseStreamer {
      * @returns {Promise<void>}
      */
     async processEntriesBatch({ entries, streamedResources }) {
-        await this.enrichmentManager.enrichBundleEntriesAsync({
-            entries: entries,
-            parsedArgs: this.parsedArgs
-        });
+        if (this.enrichmentManager) {
+            await this.enrichmentManager.enrichBundleEntriesAsync({
+                entries: entries,
+                parsedArgs: this.parsedArgs
+            });
+        }
         for (const bundleEntry of entries) {
             await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
             streamedResources.push({

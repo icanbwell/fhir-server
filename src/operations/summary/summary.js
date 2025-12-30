@@ -255,6 +255,34 @@ class SummaryOperation {
             enrichmentManager: null,
             parsedArgs
         }) : null;
+        const readFromCache = (
+            this.configManager.readFromCacheForSummaryOperation &&
+            responseStreamer &&
+            cachedStreamer &&
+            !requestInfo.skipCachedData() &&
+            await this.redisStreamManager.hasCachedStream(cacheKey)
+        );
+        // Check if we need to fall back to MongoDB
+        let fallbackToMongo = false;
+        if (readFromCache) {
+            try {
+                await cachedStreamer.streamFromCacheAsync();
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
+                return undefined;
+            } catch (err) {
+                fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
+                logError('Error reading summary response from cache', { error: err, cacheKey });
+                if (!fallbackToMongo) {
+                    throw err;
+                }
+            }
+        }
 
         try {
             const {_type: resourceFilter, headers, id} = parsedArgs;
