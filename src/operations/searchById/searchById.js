@@ -129,6 +129,8 @@ class SearchByIdOperation {
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {string | null} */
+            delegatedActor,
+            /** @type {string | null} */
             user,
             /** @type {string | null} */
             scope,
@@ -179,6 +181,7 @@ class SearchByIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
+                delegatedActor,
                 parsedArgs,
                 operation: READ,
                 requestId
