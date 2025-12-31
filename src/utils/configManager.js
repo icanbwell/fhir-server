@@ -895,6 +895,16 @@ class ConfigManager {
     }
 
     /**
+     * Sensitive data category system identifiers for consent filtering (partial match)
+     * @returns {string[]}
+     */
+    get sensitiveCategorySystemIdentifiers() {
+        return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIERS
+            ? env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIERS.split(',').map(s => s.trim())
+            : ['CodeSystem/sensitive-data-category'];
+    }
+
+    /**
      * return CACHE_EXPIRY_TIME
      * @returns {number}
      */

@@ -73,11 +73,13 @@ class ScopesValidator {
             let errorMessage, forbiddenError;
 
             // Check for delegated actor consent before scope validation
-            const hasValidConsentIfDelegatedAccess = await this.delegatedActorScopeManager.hasValidConsentAsync({
+            const canAccessIfDelegatedActor = await this.delegatedActorScopeManager.isAccessAllowedAsync({
                 delegatedActor,
-                personIdFromJwtToken
+                personIdFromJwtToken,
+                accessRequested
             });
-            if (!hasValidConsentIfDelegatedAccess) {
+
+            if (!canAccessIfDelegatedActor) {
                 forbiddenError = new ForbiddenError(
                     `User does not have valid permission for delegated access`
                 );

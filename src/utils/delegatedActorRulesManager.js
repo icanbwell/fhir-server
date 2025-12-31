@@ -15,7 +15,9 @@ const { dateQueryBuilder } = require('./querybuilder.util');
 
 /**
  * @typedef DelegatedActorFilteringRules
- * @property {string[]} allowedResourceTypes - List of resource types allowed
+ * @property {string} consentId - ID of the consent resource
+ * @property {string | null} provisionPeriodStart - Start date of the provision period
+ * @property {string | null} provisionPeriodEnd - End date of the provision period
  * @property {string[]} deniedSensitiveCategories - List of sensitive categories denied
  */
 
@@ -124,14 +126,10 @@ class DelegatedActorRulesManager {
                     });
                 }
 
-                /**
-                 * TODO: Parse consents to extract filtering rules
-                 * @type {DelegatedActorFilteringRules}
-                 */
-                const filteringRules = {
-                    allowedResourceTypes: ['*'],
-                    deniedSensitiveCategories: []
-                };
+                // Parse the single consent resource to extract filtering rules
+                const consent = consentResources[0];
+                const filteringRules = this.parseConsentFilteringRules({ consent });
+
                 // TODO: Cache the result
                 return {
                     filteringRules,
@@ -140,6 +138,41 @@ class DelegatedActorRulesManager {
                 };
             }
         });
+    }
+
+    /**
+     * Parses a Consent resource to extract filtering rules
+     * @param {Object} params
+     * @param {Object} params.consent - The Consent resource
+     * @returns {DelegatedActorFilteringRules}
+     */
+    parseConsentFilteringRules({ consent }) {
+        /**
+         * @type {string[]}
+         */
+        const deniedSensitiveCategories = [];
+
+        // Extract denied sensitive categories from nested provisions
+        if (consent.provision?.provision && Array.isArray(consent.provision.provision)) {
+            const sensitiveCategoryIdentifiers = this.configManager.sensitiveCategorySystemIdentifiers;
+            for (const nestedProvision of consent.provision.provision) {
+                if (nestedProvision.type === 'deny' && nestedProvision.securityLabel) {
+                    for (const securityLabel of nestedProvision.securityLabel) {
+                        if (securityLabel.code && securityLabel.system &&
+                            sensitiveCategoryIdentifiers.some(identifier => securityLabel.system.includes(identifier))) {
+                            deniedSensitiveCategories.push(securityLabel.code);
+                        }
+                    }
+                }
+            }
+        }
+
+        return {
+            consentId: consent.id,
+            provisionPeriodStart: consent.provision?.period?.start || null,
+            provisionPeriodEnd: consent.provision?.period?.end || null,
+            deniedSensitiveCategories
+        };
     }
 
     /**

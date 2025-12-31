@@ -18,6 +18,32 @@ class DelegatedActorScopeManager {
     }
 
     /**
+     * Checks whether access is allowed based on delegated actor and requested access type
+     * @param {Object} param
+     * @param {string | null} param.delegatedActor
+     * @param {string} param.personIdFromJwtToken
+     * @param {'read'|'write'} param.accessRequested
+     * @returns
+     */
+    async isAccessAllowedAsync({ delegatedActor, personIdFromJwtToken, accessRequested }) {
+        const hasValidConsentIfDelegatedAccess = await this.hasValidConsentAsync({
+            delegatedActor,
+            personIdFromJwtToken
+        });
+
+        if (!hasValidConsentIfDelegatedAccess) {
+            return false;
+        }
+
+        if (delegatedActor && accessRequested !== 'read') {
+            // for now: delegated actors can only have read access
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Returns whether the delegated actor has valid consent to access resources
      * @param {Object} params
      * @param {string | null} params.delegatedActor
