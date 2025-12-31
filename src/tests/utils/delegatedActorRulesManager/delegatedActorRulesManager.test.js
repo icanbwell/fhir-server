@@ -8,6 +8,7 @@ const {
     expect,
     jest
 } = require('@jest/globals');
+const deepcopy = require('deepcopy');
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -292,6 +293,64 @@ describe('DelegatedActorRulesManager Tests', () => {
             expect(result.actorConsentQueryOptions).toHaveLength(1);
         });
 
+        test('should parse filtering rules from consent with denied categories', async () => {
+            const request = await createTestRequest();
+            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+
+            // Insert consent with filtering rules
+            let resp = await request
+                .post('/4_0_0/Consent/$merge/?validate=true')
+                .send(activeConsent)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Get filtering rules
+            const result = await delegatedActorRulesManager.getFilteringRulesAsync({
+                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                base_version: '4_0_0',
+                _debug: false
+            });
+
+            expect(result).toBeDefined();
+            expect(result.filteringRules).toBeDefined();
+            expect(result.filteringRules).toStrictEqual({
+                consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
+                provisionPeriodStart: '2025-12-23T20:00:00.000Z',
+                provisionPeriodEnd: '2026-01-01T00:00:00.000Z',
+                deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
+            });
+        });
+
+        test('should return only active consent when multiple consents with different statuses exist', async () => {
+            const request = await createTestRequest();
+            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+
+            // Insert multiple consents: active, expired, and inactive
+            let resp = await request
+                .post('/4_0_0/Consent/$merge/?validate=true')
+                .send([activeConsent, expiredConsent, inactiveConsent, futureStartConsent])
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // Get filtering rules - should return only the active consent
+            const result = await delegatedActorRulesManager.getFilteringRulesAsync({
+                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                base_version: '4_0_0',
+                _debug: false
+            });
+
+            expect(result).toBeDefined();
+            expect(result.filteringRules).toBeDefined();
+            expect(result.filteringRules).toStrictEqual({
+                consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
+                provisionPeriodStart: '2025-12-23T20:00:00.000Z',
+                provisionPeriodEnd: '2026-01-01T00:00:00.000Z',
+                deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
+            });
+        });
+
         test('should throw 503 error when multiple consents found', async () => {
             const request = await createTestRequest();
             /**
@@ -329,6 +388,62 @@ describe('DelegatedActorRulesManager Tests', () => {
                 expect(error.message).toContain('Multiple active Consent resources found');
                 expect(error.message).toContain('found 2');
             }
+        });
+    });
+
+    describe('parseConsentFilteringRules', () => {
+        test('should extract denied categories', async () => {
+            await createTestRequest();
+            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+
+            const filteringRules = delegatedActorRulesManager.parseConsentFilteringRules({
+                consent: activeConsent
+            });
+
+            expect(filteringRules).toStrictEqual({
+                consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
+                provisionPeriodStart: '2025-12-23T20:00:00.000Z',
+                provisionPeriodEnd: '2026-01-01T00:00:00.000Z',
+                deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
+            });
+        });
+
+        test('should handle consent without nested provisions', async () => {
+            await createTestRequest();
+            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+
+            const consentWithoutNestedProvisions = deepcopy(activeConsent);
+            consentWithoutNestedProvisions.provision.provision = [];
+
+            const filteringRules = delegatedActorRulesManager.parseConsentFilteringRules({
+                consent: consentWithoutNestedProvisions
+            });
+
+            expect(filteringRules).toStrictEqual({
+                consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
+                provisionPeriodStart: '2025-12-23T20:00:00.000Z',
+                provisionPeriodEnd: '2026-01-01T00:00:00.000Z',
+                deniedSensitiveCategories: []
+            });
+        });
+
+        test('should return null for period dates when not present', async () => {
+            await createTestRequest();
+            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+
+            const consentWithoutPeriod = deepcopy(activeConsent);
+            delete consentWithoutPeriod.provision.period;
+
+            const filteringRules = delegatedActorRulesManager.parseConsentFilteringRules({
+                consent: consentWithoutPeriod
+            });
+
+            expect(filteringRules).toStrictEqual({
+                consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
+                provisionPeriodStart: null,
+                provisionPeriodEnd: null,
+                deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
+            });
         });
     });
 
