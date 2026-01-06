@@ -46,6 +46,14 @@ class SourceIdColumnHandler extends PreSaveHandler {
                 const currentSourceIdResource = resource.identifier.find(s => s.system === IdentifierSystem.sourceId);
                 currentSourceIdResource.id = 'sourceId';
                 currentSourceIdResource.value = resource._sourceId;
+
+                // Remove if more than one sourceId exists
+                const sourceIdIdentifiers = resource.identifier.filter(s => s.system === IdentifierSystem.sourceId);
+                if (sourceIdIdentifiers.length > 1) {
+                    resource.identifier = resource.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                    resource.identifier.push(currentSourceIdResource);
+                }
+
             } else if (!resource.identifier) {
                 resource.identifier = [
                     new Identifier(

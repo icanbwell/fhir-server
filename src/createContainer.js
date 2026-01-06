@@ -696,6 +696,7 @@ const createContainer = function () {
         {
             databaseQueryFactory: c.databaseQueryFactory,
             postRequestProcessor: c.postRequestProcessor,
+            preSaveManager: c.preSaveManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
