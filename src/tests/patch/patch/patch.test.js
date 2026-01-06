@@ -4,7 +4,7 @@ const activitydefinition4Resource = require('./fixtures/ActivityDefinition/activ
 const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activitydefinition5.json');
 
 // expected
-const expectedPersondUUIDPatchedResources = require('./fixtures/expected/expected_person_uuid_patch.json');
+const expectedPersonUUIDPatchedResources = require('./fixtures/expected/expected_person_uuid_patch.json');
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 const patch1 = require('./fixtures/patches/patch1.json');
 const patch2 = require('./fixtures/patches/patch2.json');
@@ -307,7 +307,7 @@ describe('Person Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersondUUIDPatchedResources);
+            expect(resp).toHaveResponse(expectedPersonUUIDPatchedResources);
         });
     });
 });
