@@ -4,7 +4,6 @@ const { compare, applyPatch } = require('fast-json-patch');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
-const { ScopesManager } = require('../security/scopesManager');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { getFirstElementOrNull } = require('../../utils/list.util');
 const { isUuid } = require('../../utils/uid.util');
@@ -68,6 +67,12 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
  */
 
 /**
+ * @typedef {Object} RemoveOwnerTagIfDisplayFieldMissingProp
+ * @property {Object} currentResource
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ */
+
+/**
  * @description This class merges two resources
  */
 class ResourceMerger {
@@ -75,7 +80,6 @@ class ResourceMerger {
      * constructor
      * @typedef {Object} Params
      * @property {PreSaveManager} preSaveManager
-     * @property {ScopesManager} scopesManager
      *
      * @param {Params}
      */
@@ -85,11 +89,6 @@ class ResourceMerger {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(this.scopesManager, ScopesManager);
     }
 
     /**
@@ -320,25 +319,27 @@ class ResourceMerger {
         return currentResource.create(patched_incoming_data);
     }
 
-    updateDisplayFieldInOwnerSecurityTag ({currentResource, resourceToMerge, mergedObject}) {
-        // if resourceToMerge has display field in the owner security tag, but merged object has multiple owner tags,
-        // we need to remove the owner tag which does not have display field
+    /**
+     * Removes owner tag if display field exists in resourceToMerge but missing in currentResource
+     * @param {RemoveOwnerTagIfDisplayFieldMissingProp}
+     * @return {Object}
+     */
+    removeOwnerTagIfDisplayFieldMissing({currentResource, resourceToMerge}) {
+        // if resourceToMerge has display field in the owner security tag, but the current resource
+        // does not have the display field, then remove the owner tag from currentResourceWithAttachment
         const isDisplayFieldExistsInResourceToMerge = resourceToMerge.meta?.security?.some(s => {
             return s.system === SecurityTagSystem.owner && s.display;
         });
         const isDisplayFieldExistsInCurrentResource = currentResource.meta?.security?.some(s => {
             return s.system === SecurityTagSystem.owner && s.display;
         });
-
-        if(isDisplayFieldExistsInResourceToMerge && (!isDisplayFieldExistsInCurrentResource) && (this.scopesManager.doesResourceHaveMultipleOwnerTags(mergedObject))) {
-            // Remove the owner tag which does not have display field
-            mergedObject.meta.security = mergedObject.meta.security.filter(s => {
-                if(s.system === SecurityTagSystem.owner) {
-                    return s.display;
-                }
-                return true;
-            });
+        if (isDisplayFieldExistsInResourceToMerge && (!isDisplayFieldExistsInCurrentResource)) {
+            currentResource.meta.security = currentResource.meta.security.filter(
+                s => s.system !== SecurityTagSystem.owner
+            );
         }
+
+        return currentResource;
     }
 
     /**
@@ -398,12 +399,15 @@ class ResourceMerger {
          * @type {Object}
          */
         let mergedObject;
-        mergedObject = smartMerge
-            ? mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON())
-            : resourceToMerge.toJSON();
-
-        if(smartMerge) {
-            this.updateDisplayFieldInOwnerSecurityTag({currentResource, resourceToMerge, mergedObject});
+        if (smartMerge) {
+            const currentResourceWithAttachmentDataObject = this.removeOwnerTagIfDisplayFieldMissing({
+                currentResource: currentResourceWithAttachmentData.toJSON(),
+                resourceToMerge
+            });
+            mergedObject = mergeObject(currentResourceWithAttachmentDataObject, resourceToMerge.toJSON());
+        }
+        else {
+            mergedObject = resourceToMerge.toJSON();
         }
 
         // now create a patch between the document in db and the incoming document

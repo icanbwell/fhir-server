@@ -144,7 +144,7 @@ describe('Put Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Patch to create the resource as it does not exist
+            // Patch to update the resource
             resp = await request
                 .patch('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
                 .send(ownerDisplayPatch1)
@@ -171,7 +171,7 @@ describe('Put Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Patch to create the resource as it does not exist
+            // Patch to update the resource
             resp = await request
                 .patch('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
                 .send(ownerDisplayPatch2)
@@ -198,7 +198,7 @@ describe('Put Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Patch to create the resource as it does not exist
+            // Patch to update the resource
             resp = await request
                 .patch('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
                 .send(ownerDisplayPatch3)

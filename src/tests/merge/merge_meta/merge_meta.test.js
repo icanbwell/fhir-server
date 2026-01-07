@@ -235,7 +235,6 @@ describe('Merge Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: false, updated: false });
         });
-    });
 
         test('Merge the display field in the owner security tag if does not exist', async () => {
             const request = await createTestRequest();
@@ -248,7 +247,6 @@ describe('Merge Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Patch to create the resource as it does not exist
             resp = await request
                 .post('/4_0_0/Person/$merge')
                 .send(person2Resource)
@@ -275,7 +273,6 @@ describe('Merge Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Patch to create the resource as it does not exist
             resp = await request
                 .post('/4_0_0/Person/$merge')
                 .send(person3Resource)
@@ -302,7 +299,6 @@ describe('Merge Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Patch to create the resource as it does not exist
             resp = await request
                 .post('/4_0_0/Person/$merge')
                 .send(person3Resource)
@@ -317,4 +313,5 @@ describe('Merge Meta Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonOwnerDisplayMerge3);
         });
+    });
 });
