@@ -895,13 +895,13 @@ class ConfigManager {
     }
 
     /**
-     * Sensitive data category system identifiers for consent filtering (partial match)
-     * @returns {string[]}
+     * Sensitive data category system identifier for consent filtering
+     * @returns {string}
      */
-    get sensitiveCategorySystemIdentifiers() {
-        return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIERS
-            ? env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIERS.split(',').map(s => s.trim())
-            : ['CodeSystem/sensitive-data-category'];
+    get sensitiveCategorySystemIdentifier() {
+        return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER
+            ? env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER.trim()
+            : 'https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category';
     }
 
     /**

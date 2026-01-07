@@ -154,12 +154,13 @@ class DelegatedActorRulesManager {
 
         // Extract denied sensitive categories from nested provisions
         if (consent.provision?.provision && Array.isArray(consent.provision.provision)) {
-            const sensitiveCategoryIdentifiers = this.configManager.sensitiveCategorySystemIdentifiers;
+            const sensitiveCategoryIdentifier = this.configManager.sensitiveCategorySystemIdentifier;
             for (const nestedProvision of consent.provision.provision) {
                 if (nestedProvision.type === 'deny' && nestedProvision.securityLabel) {
                     for (const securityLabel of nestedProvision.securityLabel) {
                         if (securityLabel.code && securityLabel.system &&
-                            sensitiveCategoryIdentifiers.some(identifier => securityLabel.system.includes(identifier))) {
+                            // match with case insensitive
+                            securityLabel.system.toLowerCase() === sensitiveCategoryIdentifier.toLowerCase()) {
                             deniedSensitiveCategories.push(securityLabel.code);
                         }
                     }

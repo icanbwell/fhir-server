@@ -2,6 +2,7 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { DelegatedActorRulesManager } = require('../../utils/delegatedActorRulesManager');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 
 class DelegatedAccessQueryManager {
     /**
@@ -31,29 +32,76 @@ class DelegatedAccessQueryManager {
      * Update the query to exclude sensitive data based on consent filtering rules
      * @param {Object} options Options object
      * @param {string} options.base_version Base Version
-     * @param {string} options.resourceType Resource Type
      * @param {import('mongodb').Filter<import('mongodb').Document>} options.query
-     * @param {string} options.requestId Request ID
-     * @param {boolean} options.isUser whether request is with patient scope
      * @param {string|null} options.delegatedActor delegated actor from request info
      * @param {string} options.personIdFromJwtToken Person ID from JWT token
+     * @returns {Promise<import('mongodb').Filter<import('mongodb').Document>>}
      */
-    updateQueryForSensitiveData({
+    async updateQueryForSensitiveDataAsync({
         base_version,
-        resourceType,
         query,
-        requestId,
-        isUser,
         delegatedActor,
         personIdFromJwtToken
     }) {
-        if (!this.delegatedActorRulesManager.isUserDelegatedActor({ delegatedActor })) {
+
+        const filteringRuleObj = await this.delegatedActorRulesManager.getFilteringRulesAsync({
+            base_version,
+            delegatedActor,
+            personIdFromJwtToken
+        });
+
+        // In this case return original query
+        if (!filteringRuleObj) {
             return query;
         }
-        // TODO: Implement filtering logic based on delegatedActor and delegatedActorFilteringRules
 
-        // return same query for now
-        return query;
+
+        const filteringRules = filteringRuleObj?.filteringRules;
+        // No filtering rules, return invalid query to block access
+        // This will never occur since it will be caught which validating scopes
+        if (filteringRules === null) {
+            return { id: '__invalid__' };
+        }
+
+        const deniedSensitiveCategories = filteringRules?.deniedSensitiveCategories || [];
+        if (deniedSensitiveCategories.length === 0) {
+            return query;
+        }
+
+        const sensitiveCategorySystemIdentifier = this.configManager.sensitiveCategorySystemIdentifier;
+        if (!sensitiveCategorySystemIdentifier || sensitiveCategorySystemIdentifier.length === 0) {
+            return query;
+        }
+
+        // Include resources with no sensitive-category tags,
+        // OR include resources with sensitive-category tags as long as their code is NOT denied.
+        const sensitiveDataExclusionFilter = {
+            $or: [
+                {
+                    'meta.security': {
+                        $not: {
+                            $elemMatch: {
+                                system: sensitiveCategorySystemIdentifier
+                            }
+                        }
+                    }
+                },
+                {
+                    'meta.security': {
+                        $elemMatch: {
+                            system: sensitiveCategorySystemIdentifier,
+                            code: { $nin: deniedSensitiveCategories }
+                        }
+                    }
+                }
+            ]
+        };
+
+        const updatedQuery = {
+            $and: [query, sensitiveDataExclusionFilter]
+        };
+
+        return MongoQuerySimplifier.simplifyFilter({ filter: updatedQuery });
     }
 }
 
