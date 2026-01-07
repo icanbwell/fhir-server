@@ -1,0 +1,16 @@
+[
+  {
+    "op": "replace",
+    "path": "/meta/security/0/display",
+    "value": "New Health Service"
+  },
+  {
+    "op": "add",
+    "path": "/meta/security/0",
+    "value": {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell",
+        "display": "New Health Service"
+    }
+  }
+]

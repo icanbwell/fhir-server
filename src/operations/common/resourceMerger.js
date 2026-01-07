@@ -4,6 +4,7 @@ const { compare, applyPatch } = require('fast-json-patch');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { ScopesManager } = require('../security/scopesManager');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { getFirstElementOrNull } = require('../../utils/list.util');
 const { isUuid } = require('../../utils/uid.util');
@@ -74,15 +75,21 @@ class ResourceMerger {
      * constructor
      * @typedef {Object} Params
      * @property {PreSaveManager} preSaveManager
+     * @property {ScopesManager} scopesManager
      *
      * @param {Params}
      */
-    constructor ({ preSaveManager }) {
+    constructor ({ preSaveManager, scopesManager }) {
         /**
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(this.scopesManager, ScopesManager);
     }
 
     /**
@@ -91,12 +98,21 @@ class ResourceMerger {
      * @returns {import('../../fhir/classes/4_0_0/resources/resource') | undefined}
      */
     updateSecurityTag ({ system, resourceToMerge, currentResource }) {
-        const currentValue = currentResource.meta.security.find(
+        let currentValue = currentResource.meta.security.find(
             s => s.system === system
         );
         if (!currentValue) {
             return;
         }
+
+        // For owner security tag, merge display field only if not already present in current resource
+        if (system === SecurityTagSystem.owner && !currentValue.display) {
+            const incomingValue = resourceToMerge.meta?.security?.find(s => s.system === system);
+            if (incomingValue?.display) {
+                currentValue = { ...currentValue, display: incomingValue.display };
+            }
+        }
+
         if (system === SecurityTagSystem.sourceAssigningAuthority) {
             resourceToMerge._sourceAssigningAuthority = currentValue.code;
         }
@@ -304,6 +320,27 @@ class ResourceMerger {
         return currentResource.create(patched_incoming_data);
     }
 
+    updateDisplayFieldInOwnerSecurityTag ({currentResource, resourceToMerge, mergedObject}) {
+        // if resourceToMerge has display field in the owner security tag, but merged object has multiple owner tags,
+        // we need to remove the owner tag which does not have display field
+        const isDisplayFieldExistsInResourceToMerge = resourceToMerge.meta?.security?.some(s => {
+            return s.system === SecurityTagSystem.owner && s.display;
+        });
+        const isDisplayFieldExistsInCurrentResource = currentResource.meta?.security?.some(s => {
+            return s.system === SecurityTagSystem.owner && s.display;
+        });
+
+        if(isDisplayFieldExistsInResourceToMerge && (!isDisplayFieldExistsInCurrentResource) && (this.scopesManager.doesResourceHaveMultipleOwnerTags(mergedObject))) {
+            // Remove the owner tag which does not have display field
+            mergedObject.meta.security = mergedObject.meta.security.filter(s => {
+                if(s.system === SecurityTagSystem.owner) {
+                    return s.display;
+                }
+                return true;
+            });
+        }
+    }
+
     /**
      * Merges two resources and returns either a merged resource or null (if there were no changes)
      * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
@@ -364,6 +401,10 @@ class ResourceMerger {
         mergedObject = smartMerge
             ? mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON())
             : resourceToMerge.toJSON();
+
+        if(smartMerge) {
+            this.updateDisplayFieldInOwnerSecurityTag({currentResource, resourceToMerge, mergedObject});
+        }
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources
