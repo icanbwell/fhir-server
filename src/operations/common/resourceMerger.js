@@ -67,6 +67,12 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
  */
 
 /**
+ * @typedef {Object} RemoveOwnerTagIfDisplayFieldMissingProp
+ * @property {Object} currentResource
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ */
+
+/**
  * @description This class merges two resources
  */
 class ResourceMerger {
@@ -77,7 +83,7 @@ class ResourceMerger {
      *
      * @param {Params}
      */
-    constructor ({ preSaveManager }) {
+    constructor ({ preSaveManager, scopesManager }) {
         /**
          * @type {PreSaveManager}
          */
@@ -91,12 +97,21 @@ class ResourceMerger {
      * @returns {import('../../fhir/classes/4_0_0/resources/resource') | undefined}
      */
     updateSecurityTag ({ system, resourceToMerge, currentResource }) {
-        const currentValue = currentResource.meta.security.find(
+        let currentValue = currentResource.meta.security.find(
             s => s.system === system
         );
         if (!currentValue) {
             return;
         }
+
+        // For owner security tag, merge display field only if not already present in current resource
+        if (system === SecurityTagSystem.owner && !currentValue.display) {
+            const incomingValue = resourceToMerge.meta?.security?.find(s => s.system === system);
+            if (incomingValue?.display) {
+                currentValue = { ...currentValue, display: incomingValue.display };
+            }
+        }
+
         if (system === SecurityTagSystem.sourceAssigningAuthority) {
             resourceToMerge._sourceAssigningAuthority = currentValue.code;
         }
@@ -305,6 +320,29 @@ class ResourceMerger {
     }
 
     /**
+     * Removes owner tag if display field exists in resourceToMerge but missing in currentResource
+     * @param {RemoveOwnerTagIfDisplayFieldMissingProp}
+     * @return {Object}
+     */
+    removeOwnerTagIfDisplayFieldMissing({currentResource, resourceToMerge}) {
+        // if resourceToMerge has display field in the owner security tag, but the current resource
+        // does not have the display field, then remove the owner tag from currentResourceWithAttachment
+        const isDisplayFieldExistsInResourceToMerge = resourceToMerge.meta?.security?.some(s => {
+            return s.system === SecurityTagSystem.owner && s.display;
+        });
+        const isDisplayFieldExistsInCurrentResource = currentResource.meta?.security?.some(s => {
+            return s.system === SecurityTagSystem.owner && s.display;
+        });
+        if (isDisplayFieldExistsInResourceToMerge && (!isDisplayFieldExistsInCurrentResource)) {
+            currentResource.meta.security = currentResource.meta.security.filter(
+                s => s.system !== SecurityTagSystem.owner
+            );
+        }
+
+        return currentResource;
+    }
+
+    /**
      * Merges two resources and returns either a merged resource or null (if there were no changes)
      * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
      * @param {string} base_version
@@ -361,9 +399,16 @@ class ResourceMerger {
          * @type {Object}
          */
         let mergedObject;
-        mergedObject = smartMerge
-            ? mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON())
-            : resourceToMerge.toJSON();
+        if (smartMerge) {
+            const currentResourceWithAttachmentDataObject = this.removeOwnerTagIfDisplayFieldMissing({
+                currentResource: currentResourceWithAttachmentData.toJSON(),
+                resourceToMerge
+            });
+            mergedObject = mergeObject(currentResourceWithAttachmentDataObject, resourceToMerge.toJSON());
+        }
+        else {
+            mergedObject = resourceToMerge.toJSON();
+        }
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources
