@@ -267,7 +267,12 @@ class FhirOperationsManager {
         /**
          * @type {string | null}
          */
-        const host = req.headers.host || req.hostname; // use req.headers.host to preserve port number
+        let host = req.hostname;
+        // Add port if protocol is not https and port exists
+        if (protocol !== 'https' && req.headers.host && req.headers.host.includes(':')) {
+            const port = req.headers.host.split(':')[1];
+            host = `${req.hostname}:${port}`;
+        }
         /**
          * @type {Object | Object[] | null}
          */
