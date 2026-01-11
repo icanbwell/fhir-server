@@ -267,7 +267,7 @@ class FhirOperationsManager {
         /**
          * @type {string | null}
          */
-        const host = process.env.ENVIRONMENT === 'local' ? req.headers.host : req.hostname; // local will append port number to host
+        const host = req.headers.host || req.hostname; // use req.headers.host to preserve port number
         /**
          * @type {Object | Object[] | null}
          */
