@@ -24,6 +24,10 @@ const subscriptionStatus2Resource = require('./fixtures/SubscriptionStatus/subsc
 const subscriptionTopic1Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic1.json');
 const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscriptionTopic2.json');
 
+const condition1Resource = require('./fixtures/Condition/condition1.json');
+const condition2Resource = require('./fixtures/Condition/condition2.json');
+const clinicalImpression1Resource = require('./fixtures/ClinicalImpression/clinicalImpression1.json');
+
 
 // expected
 const expectedPatientBundle = require('./fixtures/expected/expected_patient_bundle.json');
@@ -32,6 +36,7 @@ const expectedPatientBundleUsingComposition = require('./fixtures/expected/expec
 const expectedPatientBundleLastUpdated = require('./fixtures/expected/expected_patient_bundle_last_updated.json');
 const expectedPatientBundleLastUpdatedRange = require('./fixtures/expected/expected_patient_bundle_last_updated_range.json');
 const expectedCompositionDivPath = `${__dirname}/fixtures/expected/expected_composition_div.html`;
+const expectedFunctionalStatusDivPath = `${__dirname}/fixtures/expected/expected_functional_status_div.html`;
 
 
 // Helper function to normalize HTML for comparison
@@ -1012,5 +1017,53 @@ describe('Patient $summary Tests', () => {
 
         process.env.ENABLE_REDIS = '0';
         process.env.ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION = '0';
+    });
+
+    test('Patient $summary works functional status', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(condition1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(condition2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(clinicalImpression1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        // get person $summary returns same as proxy patient summary
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$summary?_debug=1')
+            .set(getHeaders());
+
+        // Basic response checks
+        expect(resp.status).toBe(200);
+
+        const compositionResource = resp.body.entry.find((entry) => entry.resource.resourceType === 'Composition');
+        const functionalStatusSection = compositionResource.resource.section.find((section) => section.title === 'Functional Status');
+
+        const expectedFunctionalStatusDiv = fs.readFileSync(expectedFunctionalStatusDivPath, 'utf8');
+
+        // Compare the text.div from the Composition resource with the expected HTML
+        expect(normalizeHtml(functionalStatusSection.text.div)).toBe(normalizeHtml(expectedFunctionalStatusDiv));
     });
 });
