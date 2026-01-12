@@ -50,7 +50,6 @@ function createFhirApp(fnGetContainer, app1) {
         .configureHelmet()
         .configurePassport()
         .setPublicDirectory()
-        .setCustomRoutes()
         .setProfileRoutes()
         .setErrorRoutes();
 }
