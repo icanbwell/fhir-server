@@ -1,0 +1,185 @@
+{
+    "consentResources": [
+        {
+            "id": "6db13a4f-fee5-485a-b245-18881c0232ac",
+            "patient": {
+                "_sourceAssigningAuthority": "bwell",
+                "_sourceId": "Patient/person.d5ad4ef0-1a68-4e8c-9871-819cdfa25da9",
+                "_uuid": "Patient/person.d5ad4ef0-1a68-4e8c-9871-819cdfa25da9",
+                "display": "Data sharing relationship grantor",
+                "reference": "Patient/person.d5ad4ef0-1a68-4e8c-9871-819cdfa25da9"
+            },
+            "provision": {
+                "action": [
+                    {
+                        "coding": [
+                            {
+                                "code": "correct",
+                                "display": "Access and Correct",
+                                "id": "2e6ee71a-d16c-5f0d-8d38-8b8593151309",
+                                "system": "http://terminology.hl7.org/CodeSystem/consentaction"
+                            }
+                        ]
+                    },
+                    {
+                        "coding": [
+                            {
+                                "code": "access",
+                                "display": "Access",
+                                "id": "1e379b9c-72ff-511d-be1b-40612e857011",
+                                "system": "http://terminology.hl7.org/CodeSystem/consentaction"
+                            }
+                        ]
+                    }
+                ],
+                "actor": [
+                    {
+                        "reference": {
+                            "_sourceAssigningAuthority": "bwell",
+                            "_sourceId": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7",
+                            "_uuid": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7",
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "bwell"
+                                }
+                            ],
+                            "reference": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7"
+                        },
+                        "role": {
+                            "coding": [
+                                {
+                                    "code": "IRCP",
+                                    "display": "information recipient",
+                                    "id": "526f0724-b0a3-58f4-95d2-bf345a5b7603",
+                                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "class": [
+                    {
+                        "code": "Patient",
+                        "display": "Patient",
+                        "id": "815bff2c-fca1-585a-be87-4cf7b18f0943",
+                        "system": "http://hl7.org/fhir/resource-types"
+                    },
+                    {
+                        "code": "Observation",
+                        "display": "Observation",
+                        "id": "02929c28-113f-521e-8a76-b0e7d70f1b2b",
+                        "system": "http://hl7.org/fhir/resource-types"
+                    },
+                    {
+                        "code": "MedicationRequest",
+                        "display": "Medication Request",
+                        "id": "adc2dd9c-60ad-53d0-8116-9fb192688020",
+                        "system": "http://hl7.org/fhir/resource-types"
+                    }
+                ],
+                "period": {
+                    "end": "2026-01-01T00:00:00.000Z",
+                    "start": "2025-12-23T20:00:00.000Z"
+                },
+                "provision": [
+                    {
+                        "securityLabel": [
+                            {
+                                "code": "MENTAL_HEALTH",
+                                "display": "Mental Health/Behavioral Health",
+                                "id": "5b29f6f9-420f-5a52-91fc-e7d3745f42d5",
+                                "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category"
+                            }
+                        ],
+                        "type": "deny"
+                    },
+                    {
+                        "securityLabel": [
+                            {
+                                "code": "HIV_AIDS",
+                                "display": "HIV/AIDS",
+                                "id": "49cbcabc-1809-509e-a04c-405e87d32f0d",
+                                "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category"
+                            }
+                        ],
+                        "type": "deny"
+                    }
+                ],
+                "type": "permit"
+            },
+            "resourceType": "Consent",
+            "scope": {
+                "coding": [
+                    {
+                        "code": "patient-privacy",
+                        "display": "Privacy Consent",
+                        "id": "402a7d2e-3eb0-5e9a-9af5-cf374c9ca561",
+                        "system": "http://terminology.hl7.org/CodeSystem/consentscope"
+                    }
+                ]
+            },
+            "status": "active"
+        }
+    ],
+    "options": {
+        "projection": {
+            "_id": 0
+        }
+    },
+    "query": {
+        "$and": [
+            {
+                "status": "active"
+            },
+            {
+                "patient._uuid": "Patient/person.d5ad4ef0-1a68-4e8c-9871-819cdfa25da9"
+            },
+            {
+                "provision.actor.reference._uuid": "RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7"
+            },
+            {
+                "provision.type": "permit"
+            },
+            {
+                "$or": [
+                    {
+                        "provision.period.start": {
+                            "$lte": "2025-12-24T20:00:00+00:00"
+                        }
+                    },
+                    {
+                        "provision.period.start": {
+                            "$exists": false
+                        }
+                    }
+                ]
+            },
+            {
+                "$or": [
+                    {
+                        "provision.period.end": {
+                            "$gte": "2025-12-24T20:00:00+00:00"
+                        }
+                    },
+                    {
+                        "provision.period.end": {
+                            "$exists": false
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
