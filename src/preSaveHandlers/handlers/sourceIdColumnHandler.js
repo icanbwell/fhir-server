@@ -41,19 +41,17 @@ class SourceIdColumnHandler extends PreSaveHandler {
                     )
                 );
             } else if (resource.identifier && // sourceId exists but is wrong
-                Array.isArray(resource.identifier) &&
-                resource.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
-                const currentSourceIdResource = resource.identifier.find(s => s.system === IdentifierSystem.sourceId);
-                currentSourceIdResource.id = 'sourceId';
-                currentSourceIdResource.value = resource._sourceId;
-
+                Array.isArray(resource.identifier)) {
+                const currentSourceIdResource = new Identifier(
+                    {
+                        id: 'sourceId',
+                        system: IdentifierSystem.sourceId,
+                        value: resource._sourceId
+                    }
+                );
                 // Remove if more than one sourceId exists
-                const sourceIdIdentifiers = resource.identifier.filter(s => s.system === IdentifierSystem.sourceId);
-                if (sourceIdIdentifiers.length > 1) {
-                    resource.identifier = resource.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
-                    resource.identifier.push(currentSourceIdResource);
-                }
-
+                resource.identifier = resource.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                resource.identifier.push(currentSourceIdResource);
             } else if (!resource.identifier) {
                 resource.identifier = [
                     new Identifier(
