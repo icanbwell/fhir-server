@@ -19,7 +19,6 @@ const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 const { ConfigManager } = require('../utils/configManager');
-const {handleRedisRequest} = require('./redis.js');
 
 class MyFHIRServer {
     /**
@@ -373,14 +372,6 @@ class MyFHIRServer {
      */
     setProfileRoutes () {
         this.fhirRouter.setRoutes(this); // return self for chaining
-        return this;
-    } // Setup custom logging
-
-    setCustomRoutes () {
-        if (isTrue(process.env.ENABLE_REDIS_ENDPOINT)) {
-            this.app.get('/redis', (req, res) => handleRedisRequest(this.container, req, res))
-            this.app.post('/redis', (req, res) => handleRedisRequest(this.container, req, res));
-        }
         return this;
     }
 }
