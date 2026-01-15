@@ -87,7 +87,7 @@ class PatientPersonManualLinkingEventProducer {
             });
 
             const message = Kafka.binary(cloudEvent);
-            // Kafka.binary adds extra headers with value undefined we do not required. Kafkajs package
+            // Kafka.binary adds extra headers with value undefined that we do not require. Kafkajs package
             // does not allow the headers with undefined  value. This code removes undefined headers
             const eventHeaders = Object.keys(message.headers).reduce((acc, key) => {
                 return message.headers[key] === undefined
