@@ -10,8 +10,9 @@ const expectedTest1Result = require('./fixtures/expected/test1Result.json');
 const expectedTest2Result = require('./fixtures/expected/test2Result.json');
 const expectedTest3Result = require('./fixtures/expected/test3Result.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken, getTestContainer } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { MockKafkaClient } = require('../../mocks/mockKafkaClient');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -23,8 +24,26 @@ describe('Person Tests', () => {
     });
 
     describe('Remove person to patient link test', () => {
-        test('person to patient link is removed using id', async () => {
-            const request = await createTestRequest();
+        test('person to patient link is removed & added using id', async () => {
+            const ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS = process.env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS;
+            process.env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS = '1';
+
+            /**
+             * @type {MockKafkaClient}
+             */
+            let mockKafkaClient;
+            const request = await createTestRequest((c) => {
+                c.register(
+                    'kafkaClient',
+                    () =>
+                        new MockKafkaClient({
+                            configManager: c.configManager
+                        })
+                );
+                mockKafkaClient = c.kafkaClient;
+                return c;
+            });
+
             // add the person resource to FHIR server
             let resp = await request
                 .post('/4_0_0/Person/$merge?validate=true')
@@ -71,6 +90,58 @@ describe('Person Tests', () => {
 
             // The history collection is created.
             expect(resp).toHaveResponse(expectedPersonAfterTest1);
+
+            let mockHeaders = {
+                'content-type': 'application/json;charset=utf-8',
+                ce_type: 'PatientPersonManuallyUnlinked',
+                ce_source: 'https://www.icanbwell.com/fhir-server',
+                ce_specversion: '1.0',
+                ce_datacontenttype: 'application/json;charset=utf-8'
+            };
+            expect(mockKafkaClient.cloudEventMessages.length).toBe(1);
+            expect(mockKafkaClient.cloudEventMessages[0].value).toBe(
+                JSON.stringify({
+                    personId: 'cb7e34dd-2684-55ac-a1ad-bb926123ffa1',
+                    patientId: '1'
+                })
+            );
+            delete mockKafkaClient.cloudEventMessages[0].headers['ce_time'];
+            delete mockKafkaClient.cloudEventMessages[0].headers['ce_id'];
+            expect(mockKafkaClient.cloudEventMessages[0].headers).toStrictEqual(mockHeaders);
+
+            mockKafkaClient.cloudEventMessages = [];
+
+            // Add person to patient link using admin panel
+            resp = await request
+                .post('/admin/createPersonToPatientLink')
+                .send({
+                    externalPersonId: 'Person/1',
+                    patientId: 'Patient/1'
+                })
+                .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'))
+                .expect(200);
+
+            mockHeaders = {
+                'content-type': 'application/json;charset=utf-8',
+                ce_type: 'PatientPersonManuallyLinked',
+                ce_source: 'https://www.icanbwell.com/fhir-server',
+                ce_specversion: '1.0',
+                ce_datacontenttype: 'application/json;charset=utf-8'
+            };
+            expect(mockKafkaClient.cloudEventMessages.length).toBe(1);
+            expect(mockKafkaClient.cloudEventMessages[0].value).toBe(
+                JSON.stringify({
+                    personId: 'cb7e34dd-2684-55ac-a1ad-bb926123ffa1',
+                    patientId: '1'
+                })
+            );
+            delete mockKafkaClient.cloudEventMessages[0].headers['ce_time'];
+            delete mockKafkaClient.cloudEventMessages[0].headers['ce_id'];
+            expect(mockKafkaClient.cloudEventMessages[0].headers).toStrictEqual(mockHeaders);
+
+            mockKafkaClient.cloudEventMessages = [];
+
+            process.env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS = ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS;
         });
 
         test('person to patient link is removed using id and sourceAssigningAuthority', async () => {

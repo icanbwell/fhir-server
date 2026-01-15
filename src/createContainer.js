@@ -118,6 +118,7 @@ const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
+const { PatientPersonManualLinkingEventProducer } = require('./utils/patientPersonManualLinkingEventProducer');
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
@@ -248,6 +249,11 @@ const createContainer = function () {
     container.register('fhirOperationUsageEventProducer', (c) => new FhirOperationUsageEventProducer({
        configManager: c.configManager,
        fhirOperationAccessEventTopic: process.env.KAFKA_FHIR_OPERATION_USAGE_EVENT_TOPIC || 'fhir.operation.usage.events',
+       kafkaClient: c.kafkaClient
+    }));
+    container.register('patientPersonManualLinkingEventProducer', (c) => new PatientPersonManualLinkingEventProducer({
+       configManager: c.configManager,
+       patientPersonLinkEventTopic: process.env.KAFKA_PATIENT_PERSON_LINK_EVENT_TOPIC || 'fhir.manual.person.linking.events',
        kafkaClient: c.kafkaClient
     }));
 
@@ -844,7 +850,8 @@ const createContainer = function () {
         fhirOperationsManager: c.fhirOperationsManager,
         postSaveProcessor: c.postSaveProcessor,
         patientFilterManager: c.patientFilterManager,
-        removeHelper: c.removeHelper
+        removeHelper: c.removeHelper,
+        patientPersonManualLinkingEventProducer: c.patientPersonManualLinkingEventProducer
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
