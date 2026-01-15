@@ -51,7 +51,11 @@ class SourceIdColumnHandler extends PreSaveHandler {
                 );
                 // Remove if more than one sourceId exists
                 resource.identifier = resource.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
-                resource.identifier.push(currentSourceIdResource);
+                if (resource.identifier && Array.isArray(resource.identifier)) {
+                    resource.identifier.push(currentSourceIdResource);
+                } else {
+                    resource.identifier = [currentSourceIdResource];
+                }
             } else if (!resource.identifier) {
                 resource.identifier = [
                     new Identifier(
