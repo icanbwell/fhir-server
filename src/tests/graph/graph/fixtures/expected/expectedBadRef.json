@@ -148,13 +148,13 @@
                         },
                         "identifier": [
                             {
-                                "id": "uuid",
-                                "system": "https://www.icanbwell.com/uuid",
+                                "id": "sourceId",
+                                "system": "https://www.icanbwell.com/sourceId",
                                 "value": "5d171fb0-75e7-4b7e-af6d-5db5402ce778"
                             },
                             {
-                                "id": "sourceId",
-                                "system": "https://www.icanbwell.com/sourceId",
+                                "id": "uuid",
+                                "system": "https://www.icanbwell.com/uuid",
                                 "value": "5d171fb0-75e7-4b7e-af6d-5db5402ce778"
                             }
                         ],

@@ -1,0 +1,12 @@
+[
+  {
+    "op": "add",
+    "path": "/meta/security/0/display",
+    "value": "Health Service"
+  },
+  {
+    "op": "replace",
+    "path": "/meta/security/0/code",
+    "value": "client-1"
+  }
+]

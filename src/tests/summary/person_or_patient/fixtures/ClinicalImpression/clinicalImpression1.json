@@ -1,0 +1,27 @@
+{
+    "id": "2",
+    "resourceType": "ClinicalImpression",
+    "meta": {
+        "source": "test",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "healthsystem1"
+            }
+        ]
+    },
+    "code": {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "386053000",
+                "display": "Cognitive Status Assessment"
+            }
+        ],
+        "text": "Cognitive Status Assessment"
+    },
+    "status": "completed",
+    "subject": {
+        "reference": "Patient/patient1"
+    }
+}

@@ -4,11 +4,13 @@ const activitydefinition4Resource = require('./fixtures/ActivityDefinition/activ
 const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activitydefinition5.json');
 
 // expected
+const expectedPersonUUIDPatchedResources = require('./fixtures/expected/expected_person_uuid_patch.json');
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 const patch1 = require('./fixtures/patches/patch1.json');
 const patch2 = require('./fixtures/patches/patch2.json');
 const patch3 = require('./fixtures/patches/patch3.json');
 const patch4 = require('./fixtures/patches/patch4.json');
+const patch5 = require('./fixtures/patches/patch5.json');
 
 const {
     commonBeforeEach,
@@ -280,6 +282,32 @@ describe('Person Tests', () => {
             expect(collectionNames).toEqual(expect.arrayContaining([
                 'Person_4_0_0', 'Person_4_0_0_History'
             ]));
+        });
+
+        test('Patch response works if identifier system is updated except source id and uuid', async () => {
+            const request = await createTestRequest();
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/client.*');
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .patch('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .send(patch5)
+                .set(getHeadersJsonPatch())
+                .expect(200);
+
+            resp = await request
+                .get('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonUUIDPatchedResources);
         });
     });
 });

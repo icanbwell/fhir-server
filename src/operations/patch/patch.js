@@ -5,6 +5,7 @@ const { validate } = require('fast-json-patch');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
@@ -29,6 +30,7 @@ class PatchOperation {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {PreSaveManager} preSaveManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
@@ -43,6 +45,7 @@ class PatchOperation {
         {
             databaseQueryFactory,
             postRequestProcessor,
+            preSaveManager,
             fhirLoggingManager,
             scopesValidator,
             databaseBulkInserter,
@@ -64,6 +67,11 @@ class PatchOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -279,6 +287,8 @@ class PatchOperation {
                     currentResource: foundResource, resourceToMerge: resource
                 });
             }
+
+            resource = await this.preSaveManager.preSaveAsync({ resource });
 
             /**
              * @type {OperationOutcome|null}
