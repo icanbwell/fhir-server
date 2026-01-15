@@ -43,13 +43,66 @@ When a single matching `Consent` is found, the server extracts filtering rules u
 
 In particular, it walks **nested provisions** under `Consent.provision.provision` and looks for `deny` provisions that contain `securityLabel` entries.
 
-- Each `securityLabel` whose `system` matches one of the configured `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIERS` contributes a sensitive category code to an **excluded list**.
+- Each `securityLabel` whose `system` matches the configured `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER` contributes a sensitive category code to an **excluded list**.
 - That excluded list becomes the delegated-access filtering rules (used downstream to filter out data tagged with those sensitive categories).
 
-## Updating MongoQuery based on filtering rules
-TODO
+## Applying Filtering Rules to Search Queries
+
+When filtering rules contain denied sensitive categories, the server modifies the MongoDB search query to exclude resources tagged with those categories.
+
+This logic is implemented in [src/operations/search/delegatedAccessQueryManager.js](../src/operations/search/delegatedAccessQueryManager.js) via `updateQueryForSensitiveDataAsync()`.
+
+### Filter Logic
+
+The sensitive data exclusion filter is appended to the search query using `$and` composition:
+
+```javascript
+{
+  $and: [
+    originalQuery,
+    sensitiveDataExclusionFilter
+  ]
+}
+```
+
+The `sensitiveDataExclusionFilter` includes resources that either:
+
+1. **Have no sensitive-category tags** (no `meta.security` entry matching the sensitive category system), OR
+2. **Have sensitive-category tags** but the `code` is **not in the denied list**
+
+```javascript
+{
+  $or: [
+    // Case 1: No sensitive-category tag at all
+    {
+      'meta.security': {
+        $not: {
+          $elemMatch: {
+            system: sensitiveCategorySystemIdentifier
+          }
+        }
+      }
+    },
+    // Case 2: Has sensitive-category tag, but code is allowed
+    {
+      'meta.security': {
+        $elemMatch: {
+          system: sensitiveCategorySystemIdentifier,
+          code: { $nin: deniedSensitiveCategories }
+        }
+      }
+    }
+  ]
+}
+```
+
+### Behavior
+
+- If **no delegated actor** is present (normal user request): the original query is returned unchanged.
+- If **no denied categories** exist: the original query is returned unchanged.
+- If **denied categories** exist: the filter is applied to exclude those resources.
 
 ## Config
 
 - `ENABLE_DELEGATED_ACCESS_FILTERING`: enables delegated access filtering.
-- `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIERS`: optional list of substrings used when reading denied categories from nested provisions (default includes `CodeSystem/sensitive-data-category`).
+- `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER`: the system URI used to identify sensitive data categories in `meta.security` codings (default: `https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category`).
