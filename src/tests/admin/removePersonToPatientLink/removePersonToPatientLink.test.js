@@ -93,7 +93,7 @@ describe('Person Tests', () => {
 
             let mockHeaders = {
                 'content-type': 'application/json;charset=utf-8',
-                ce_type: 'PersonPatientManuallyUnlinked',
+                ce_type: 'PatientPersonManuallyUnlinked',
                 ce_source: 'https://www.icanbwell.com/fhir-server',
                 ce_specversion: '1.0',
                 ce_datacontenttype: 'application/json;charset=utf-8'
@@ -123,7 +123,7 @@ describe('Person Tests', () => {
 
             mockHeaders = {
                 'content-type': 'application/json;charset=utf-8',
-                ce_type: 'PersonPatientManuallyLinked',
+                ce_type: 'PatientPersonManuallyLinked',
                 ce_source: 'https://www.icanbwell.com/fhir-server',
                 ce_specversion: '1.0',
                 ce_datacontenttype: 'application/json;charset=utf-8'
