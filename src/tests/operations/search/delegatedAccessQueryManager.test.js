@@ -41,9 +41,10 @@ describe('DelegatedAccessQueryManager', () => {
         jest.spyOn(container.delegatedActorRulesManager, 'getFilteringRulesAsync')
             .mockResolvedValue({ filteringRules: null });
 
+        const query = { resourceType: 'Observation' };
         const updatedQuery = await delegatedAccessQueryManager.updateQueryForSensitiveDataAsync({
             base_version: '4_0_0',
-            query: {},
+            query,
             delegatedActor: `Practitioner/${practitionerUuid}`,
             personIdFromJwtToken: personUuid
         });
@@ -109,25 +110,14 @@ describe('DelegatedAccessQueryManager', () => {
                     subject: `Patient/${patientUuid}`
                 },
                 {
-                    $or: [
-                        {
-                            'meta.security': {
-                                $not: {
-                                    $elemMatch: {
-                                        system: sensitiveCategorySystemIdentifier
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            'meta.security': {
-                                $elemMatch: {
-                                    system: sensitiveCategorySystemIdentifier,
-                                    code: { $nin: ['MENTAL_HEALTH'] }
-                                }
+                    'meta.security': {
+                        $not: {
+                            $elemMatch: {
+                                system: sensitiveCategorySystemIdentifier,
+                                code: "MENTAL_HEALTH"
                             }
                         }
-                    ]
+                    }
                 }
             ]
         });

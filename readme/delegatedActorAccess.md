@@ -65,34 +65,20 @@ The sensitive data exclusion filter is appended to the search query using `$and`
 }
 ```
 
-The `sensitiveDataExclusionFilter` includes resources that either:
+The `sensitiveDataExclusionFilter` **excludes any resource that contains at least one denied sensitive category**.
 
-1. **Have no sensitive-category tags** (no `meta.security` entry matching the sensitive category system), OR
-2. **Have sensitive-category tags** but the `code` is **not in the denied list**
+This correctly handles resources that may have **multiple** sensitive-category codings in `meta.security`: if **any** coding is denied, the entire resource is excluded.
 
 ```javascript
 {
-  $or: [
-    // Case 1: No sensitive-category tag at all
-    {
-      'meta.security': {
-        $not: {
-          $elemMatch: {
-            system: sensitiveCategorySystemIdentifier
-          }
-        }
-      }
-    },
-    // Case 2: Has sensitive-category tag, but code is allowed
-    {
-      'meta.security': {
-        $elemMatch: {
-          system: sensitiveCategorySystemIdentifier,
-          code: { $nin: deniedSensitiveCategories }
-        }
+  'meta.security': {
+    $not: {
+      $elemMatch: {
+        system: sensitiveCategorySystemIdentifier,
+        code: { $in: deniedSensitiveCategories }
       }
     }
-  ]
+  }
 }
 ```
 

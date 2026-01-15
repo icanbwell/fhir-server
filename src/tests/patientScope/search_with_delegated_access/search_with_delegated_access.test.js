@@ -24,6 +24,7 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 const observation3Resource = require('./fixtures/Observation/observation3.json');
 const observation4Resource = require('./fixtures/Observation/observation4.json');
+const observationWithMultipleSensitiveCategory = require('./fixtures/Observation/observationWithMultipleSensitiveCategory.json')
 
 const activeConsent = require('./fixtures/Consent/consentWithSensitiveCategoriesExcluded.json');
 const inactiveConsent = require('./fixtures/Consent/inactiveConsent.json');
@@ -37,6 +38,7 @@ const expectedObservationPerson1WithDelegatedAccessAllSensitiveExcluded = requir
 
 const { ConfigManager } = require('../../../utils/configManager');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
+const deepcopy = require('deepcopy');
 
 class MockConfigManager extends ConfigManager {
     get enableReturnBundle() {
@@ -249,8 +251,10 @@ describe('Delegated Access Streaming Search Tests', () => {
                 Accept: 'application/fhir+json'
             });
 
-            expect(resp).toHaveMongoQuery(expectedObservationPerson1WithDelegatedAccess);
-            expect(resp).toHaveResponse(expectedObservationPerson1WithDelegatedAccess);
+            let expectedResp = deepcopy(expectedObservationPerson1WithDelegatedAccess);
+
+            expect(resp).toHaveMongoQuery(expectedResp);
+            expect(resp).toHaveResponse(expectedResp);
 
             // delete the consent
             resp = await request
@@ -266,14 +270,63 @@ describe('Delegated Access Streaming Search Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
+            expectedResp = deepcopy(expectedObservationPerson1WithDelegatedAccessAllSensitiveExcluded);
             // access using delegated token should return nothing now
             resp = await request.get('/4_0_0/Observation/?_debug=1').set({
                 Authorization: `Bearer ${delegatedAccessToken}`,
                 Accept: 'application/fhir+json'
             });
 
+            expect(resp).toHaveMongoQuery(expectedResp);
             expect(resp).toHaveResponse(
-                expectedObservationPerson1WithDelegatedAccessAllSensitiveExcluded
+                expectedResp
+            );
+
+            // Now, test for multiple sensitive categories in observation
+            // create a new observation with multiple sensitive categories
+            resp = await request
+                .post('/4_0_0/Observation/$merge?validate=true')
+                .send(observationWithMultipleSensitiveCategory)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // access using delegated token should return sensitive excluded observations including the one with multiple categories
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
+                Authorization: `Bearer ${delegatedAccessToken}`,
+                Accept: 'application/fhir+json'
+            });
+
+            expectedResp = deepcopy(expectedObservationPerson1WithDelegatedAccessAllSensitiveExcluded);
+            expect(resp).toHaveMongoQuery(expectedResp);
+            expect(resp).toHaveResponse(
+                expectedResp
+            );
+
+            // clean up - delete the consent
+            resp = await request
+                .delete('/4_0_0/Consent/6db13a4f-fee5-485a-b245-18881c0232ac')
+                .set(getHeaders());
+            expect(resp.status).toBe(204);
+
+            // consent with partial senstive categories
+            resp = await request
+                .post('/4_0_0/Consent/$merge?validate=true')
+                .send(activeConsent)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // should exclude only HIV_AIDS tagged observation now even with multiple sensitive categories
+            resp = await request.get('/4_0_0/Observation/?_debug=1').set({
+                Authorization: `Bearer ${delegatedAccessToken}`,
+                Accept: 'application/fhir+json'
+            });
+
+            expectedResp = deepcopy(expectedObservationPerson1WithDelegatedAccess);
+            expect(resp).toHaveMongoQuery(expectedResp);
+            expect(resp).toHaveResponse(
+                expectedResp
             );
         });
     });

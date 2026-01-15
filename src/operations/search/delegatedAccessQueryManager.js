@@ -73,28 +73,18 @@ class DelegatedAccessQueryManager {
             return query;
         }
 
-        // Include resources with no sensitive-category tags,
-        // OR include resources with sensitive-category tags as long as their code is NOT denied.
+        // Include resources that do NOT have any denied sensitive-category tags.
+        // This correctly handles resources with multiple sensitive-category codings:
+        // if ANY coding is denied, the resource is excluded.
         const sensitiveDataExclusionFilter = {
-            $or: [
-                {
-                    'meta.security': {
-                        $not: {
-                            $elemMatch: {
-                                system: sensitiveCategorySystemIdentifier
-                            }
-                        }
-                    }
-                },
-                {
-                    'meta.security': {
-                        $elemMatch: {
-                            system: sensitiveCategorySystemIdentifier,
-                            code: { $nin: deniedSensitiveCategories }
-                        }
+            'meta.security': {
+                $not: {
+                    $elemMatch: {
+                        system: sensitiveCategorySystemIdentifier,
+                        code: { $in: deniedSensitiveCategories }
                     }
                 }
-            ]
+            }
         };
 
         const updatedQuery = {
