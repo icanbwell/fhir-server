@@ -102,7 +102,7 @@ class PatientPersonManualLinkingEventProducer {
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in PatientPersonManualLinkingEventProducer.produce(): ',
+                message: 'Error in PatientPersonManualLinkingEventProducer.produceEventAsync(): ',
                 error: e,
                 args: {
                     personId,
