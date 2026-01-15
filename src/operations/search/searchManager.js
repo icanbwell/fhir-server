@@ -299,12 +299,9 @@ class SearchManager {
             }
 
             // Apply delegated access filtering if required
-            query = this.delegatedAccessQueryManager.updateQueryForSensitiveData({
+            query = await this.delegatedAccessQueryManager.updateQueryForSensitiveDataAsync({
                 base_version,
-                resourceType,
                 query,
-                requestId,
-                isUser,
                 delegatedActor,
                 personIdFromJwtToken
             });
