@@ -58,7 +58,7 @@ class DelegatedAccessQueryManager {
 
         const filteringRules = filteringRuleObj?.filteringRules;
         // No filtering rules, return invalid query to block access
-        // This will never occur since it will be caught which validating scopes
+        // This will never occur since it will be caught when validating scopes
         if (filteringRules === null) {
             return { id: '__invalid__' };
         }

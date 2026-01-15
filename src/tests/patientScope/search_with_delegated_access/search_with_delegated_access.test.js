@@ -182,7 +182,7 @@ describe('Delegated Access Streaming Search Tests', () => {
             };
             const delegatedAccessToken = getTokenWithCustomPayload(delegatedPayload);
 
-            // should not be able to accesss since no consent
+            // should not be able to access since no consent
             resp = await request.get('/4_0_0/Observation/?_debug=1').set({
                 Authorization: `Bearer ${delegatedAccessToken}`,
                 Accept: 'application/fhir+json'
@@ -258,7 +258,7 @@ describe('Delegated Access Streaming Search Tests', () => {
                 .set(getHeaders());
             expect(resp.status).toBe(204);
 
-            // crate an consent with all sensitive categories excluded
+            // create a consent with all sensitive categories excluded
             resp = await request
                 .post('/4_0_0/Consent/$merge?validate=true')
                 .send(consentWithAllSensitiveCategoriesExcluded)
