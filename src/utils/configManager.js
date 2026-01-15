@@ -212,6 +212,13 @@ class ConfigManager {
     }
 
     /**
+     *  whether to send fhir person patient manual linking/unlinking events to kafka
+     */
+    get kafkaEnablePersonPatientManualLinkingEvents() {
+        return isTrue(env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS);
+    }
+
+    /**
      * list of resources for which kafka events are enabled
      * @return {boolean}
      */
