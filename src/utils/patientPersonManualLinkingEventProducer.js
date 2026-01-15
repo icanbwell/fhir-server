@@ -78,7 +78,7 @@ class PatientPersonManualLinkingEventProducer {
                 return;
             }
 
-            const operationType = isLinking ? 'PersonPatientManuallyLinked' : 'PersonPatientManuallyUnlinked';
+            const operationType = isLinking ? 'PatientPersonManuallyLinked' : 'PatientPersonManuallyUnlinked';
 
             const cloudEvent = this._createCloudEvent({
                 operationType,
