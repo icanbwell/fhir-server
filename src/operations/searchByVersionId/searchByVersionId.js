@@ -112,6 +112,8 @@ class SearchByVersionIdOperation {
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {string | null} */
+            delegatedActor,
+            /** @type {string | null} */
             user,
             /** @type {string | null} */
             scope
@@ -169,6 +171,7 @@ class SearchByVersionIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
+                delegatedActor,
                 parsedArgs,
                 useHistoryTable: true,
                 operation: READ

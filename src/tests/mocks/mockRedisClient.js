@@ -1,5 +1,8 @@
-class MockRedisClient {
+const { RedisClient } = require("../../utils/redisClient");
+
+class MockRedisClient extends RedisClient {
     constructor() {
+        super();
         this.store = new Map();
         this.streams = new Map();
         this.connected = false;

@@ -93,9 +93,10 @@ class RemoveOperation {
 
     /**
      * does a FHIR Remove (DELETE)
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @param {Object} options
+     * @param {FhirRequestInfo} options.requestInfo
+     * @param {ParsedArgs} options.parsedArgs
+     * @param {string} options.resourceType
      * @returns {Promise<{deleted: number}>}
      */
     async removeAsync({requestInfo, parsedArgs, resourceType}) {
@@ -119,6 +120,8 @@ class RemoveOperation {
             isUser,
             /** @type {string} */
             personIdFromJwtToken,
+            /** @type {string | null} */
+            delegatedActor,
             /** @type {boolean} */
             useAccessIndex
         } = requestInfo;
@@ -162,6 +165,7 @@ class RemoveOperation {
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
+                    delegatedActor,
                     parsedArgs,
                     operation: DELETE,
                     accessRequested: 'write'

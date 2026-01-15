@@ -160,7 +160,9 @@ class UpdateOperation {
             /** @type {boolean | null} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            /** @type {string | null} */
+            delegatedActor
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -215,6 +217,7 @@ class UpdateOperation {
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
+                        delegatedActor,
                         parsedArgs,
                         operation: WRITE,
                         accessRequested: 'write'

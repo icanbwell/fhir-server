@@ -27,6 +27,10 @@ For example:
 
 [Security](readme/security.md)
 
+## Delegated Actor Access
+
+[Delegated Actor Access](readme/delegatedActorAccess.md)
+
 ## Optimizing Performance
 
 [Performance](readme/performance.md)
