@@ -74,7 +74,11 @@ class UuidColumnHandler extends PreSaveHandler {
             );
             // Remove if more than one uuid exists
             resource.identifier = resource.identifier.filter(s => s.system !== IdentifierSystem.uuid);
-            resource.identifier.push(currentUuidResource);
+            if (resource.identifier && Array.isArray(resource.identifier)) {
+                resource.identifier.push(currentUuidResource);
+            } else {
+                resource.identifier = [currentUuidResource];
+            }
         } else if (!resource.identifier) {
             resource.identifier = [
                 new Identifier(
