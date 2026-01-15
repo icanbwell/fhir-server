@@ -10,8 +10,9 @@ const {
 } = require('../operations/query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('./referenceParser');
 const { QueryItem } = require('../operations/graph/queryItem');
-const { CONSENT_OF_LINKED_PERSON_INDEX, PERSON_PROXY_PREFIX } = require('../constants');
+const { CONSENT_OF_LINKED_PERSON_INDEX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS } = require('../constants');
 const { dateQueryBuilder } = require('./querybuilder.util');
+const httpContext = require('express-http-context');
 
 /**
  * @typedef DelegatedActorFilteringRules
@@ -86,12 +87,30 @@ class DelegatedActorRulesManager {
             return null;
         }
 
-        return await this.customTracer.trace({
+        assertIsValid(personIdFromJwtToken, 'personIdFromJwtToken is required');
+        assertIsValid(delegatedActor, 'delegatedActor is required');
+        const cacheKey = `${HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_FILTERING_RULES_PREFIX}${base_version}-${personIdFromJwtToken}-${delegatedActor}`;
+
+        // If _debug is enabled, force a fresh DB fetch (no cache read).
+        // Still cache the computed filteringRules so subsequent non-debug code paths can reuse it.
+        if (!_debug) {
+            /**
+             * @type {DelegatedActorFilteringRules | null | undefined}
+             */
+            const cachedFilteringRulesObj = httpContext.get(cacheKey);
+            if (cachedFilteringRulesObj !== undefined) {
+                return {
+                    filteringRules: cachedFilteringRulesObj,
+                    // since using cache, return empty arrays for queries
+                    actorConsentQueries: [],
+                    actorConsentQueryOptions: []
+                };
+            }
+        }
+
+        const filteringRulesObj = await this.customTracer.trace({
             name: 'DelegatedActorRulesManager.getFilteringRulesAsync',
             func: async () => {
-                assertIsValid(personIdFromJwtToken, 'personIdFromJwtToken is required');
-                assertIsValid(delegatedActor, 'delegatedActor is required');
-
                 // Fetch Consent resources from database
                 const { consentResources, queryItem, options } =
                     await this.fetchConsentResourcesAsync({
@@ -129,8 +148,6 @@ class DelegatedActorRulesManager {
                 // Parse the single consent resource to extract filtering rules
                 const consent = consentResources[0];
                 const filteringRules = this.parseConsentFilteringRules({ consent });
-
-                // TODO: Cache the result
                 return {
                     filteringRules,
                     actorConsentQueries: [queryItem],
@@ -138,6 +155,9 @@ class DelegatedActorRulesManager {
                 };
             }
         });
+
+        httpContext.set(cacheKey, filteringRulesObj.filteringRules);
+        return filteringRulesObj;
     }
 
     /**
