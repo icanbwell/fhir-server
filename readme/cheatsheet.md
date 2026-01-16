@@ -59,7 +59,7 @@ print(response.text)
 You can search for resources by going to the /4_0_0/{resource} url e.g.,
 http://localhost:3000/4_0_0/Patient
 
-**Note**: The server will return only 10 records unless the \_count query parameter is specified per below.
+**Note**: The server will return only 100 records by default unless the \_count query parameter is specified per below.
 
 ### 1.1 Specifying how many records to return
 
@@ -102,9 +102,11 @@ When you get no resources back then this means you've reached the end.
 
 **Note**: Do not use _getpagesoffset based paging if a recource have millions of records. If FHIR Server is not able read 1st record from MongoDB within 1 minute then it will return as error with 500 status code.
 
-#### 1.4.2 cursor(_next url) based pagination
+#### 1.4.2 cursor(next url) based pagination
 
-Each REST Search to FHIR Server returns `_next` url in bundle that can be used to fetch next set of data for search and `_count` can specify the no. of records that can be returned in each API call. When you get no resources back then this means you've reached the end.
+Each REST Search to FHIR Server returns `next` url in bundle that can be used to fetch next set of data for search and `_count` can specify the no. of records that can be returned in each API call. 
+
+`next` url is always added to the bundle response (even if number of resources are less than or equal to limit specified using _count) of Search operation to allow fetching result after the last resource in bundle. After using the next url, if you get no resources back then this means you've reached the end of Search operation for given filters.
 
 We do not have any maximum number for `_count`. It can be anything but `_count=0` in this query parameter is equivalent to no limit and return all the records that can be transfered in 1 hours.
 
@@ -123,7 +125,6 @@ Helix FHIR Server supports all the standard FHIR search parameters: https://www.
 | By extension             | extension={system}&#124;{value} | http://localhost:3000/4_0_0/Practitioner/?extension=http://hl7.org/fhir/sid/us-npi&#124;1487831681  | All                                                                               |     |
 | By source                 | source=url                                                                                                                         | http://localhost:3000/4_0_0/Practitioner?source=http://somehealth.org/insurance                                                                                                                             | All                                                                               |     |
 | By security tag           | \_security=[https://www.icanbwell.com/{access/owner/vendor}&#124;{value}](https://www.icanbwell.com/{access/owner/vendor}\|{value}) | [http://localhost:3000/4_0_0/Organization?\_security=https://www.icanbwell.com/access&#124;somehealth](http://localhost:3000/4_0_0/Organization?_security=https://www.icanbwell.com/access\|somehealth) | All                                                                               |     |
-| By versionId              | versionId=x                                                                                                                        | http://localhost:3000/4_0_0/Practitioner?versionId=2                                                                                                                                                        | All                                                                               |     |
 | Updated after a datetime  | \_lastUpdated=gt{date}                                                                                                             | http://localhost:3000/4_0_0/QuestionnaireResponse?_lastUpdated=gt2021-01-18                                                                                                                                 | All                                                                               |     |
 | Updated before a datetime | \_lastUpdated=lt{date}                                                                                                             | http://localhost:3000/4_0_0/QuestionnaireResponse?_lastUpdated=lt2021-01-18                                                                                                                                 | All                                                                               |     |
 | Updated between dates     | \_lastUpdated=lt{date}&\_lastUpdated=gt{date}                                                                                      | http://localhost:3000/4_0_0/QuestionnaireResponse?_lastUpdated=gt2021-01-16&_lastUpdated=lt2021-01-17                                                                                                       | All                                                                               |     |
