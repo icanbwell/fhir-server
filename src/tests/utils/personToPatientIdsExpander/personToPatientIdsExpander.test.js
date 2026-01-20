@@ -7,13 +7,17 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer
+    createTestRequest,
+    getTestContainer,
+    mockHttpContext
 } = require('../../common');
 const { describe, test, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('personToPatientIdsExpanders Test', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {

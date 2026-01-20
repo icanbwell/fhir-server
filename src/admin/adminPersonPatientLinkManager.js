@@ -15,6 +15,7 @@ const { COLLECTION } = require('../constants');
 const { SecurityTagSystem } = require('../utils/securityTagSystem');
 const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const { RemoveHelper } = require('../operations/remove/removeHelper');
+const { PatientPersonManualLinkingEventProducer } = require('../utils/patientPersonManualLinkingEventProducer');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
@@ -31,6 +32,7 @@ class AdminPersonPatientLinkManager {
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {PatientFilterManager} patientFilterManager
      * @param {RemoveHelper} removeHelper
+     * @param {PatientPersonManualLinkingEventProducer} patientPersonManualLinkingEventProducer
      */
     constructor (
         {
@@ -39,7 +41,8 @@ class AdminPersonPatientLinkManager {
             fhirOperationsManager,
             postSaveProcessor,
             patientFilterManager,
-            removeHelper
+            removeHelper,
+            patientPersonManualLinkingEventProducer
         }
     ) {
         /**
@@ -77,6 +80,12 @@ class AdminPersonPatientLinkManager {
          */
         this.removeHelper = removeHelper;
         assertTypeEquals(removeHelper, RemoveHelper);
+
+        /**
+         * @type {PatientPersonManualLinkingEventProducer}
+         */
+        this.patientPersonManualLinkingEventProducer = patientPersonManualLinkingEventProducer;
+        assertTypeEquals(patientPersonManualLinkingEventProducer, PatientPersonManualLinkingEventProducer);
     }
 
     /**
@@ -354,6 +363,12 @@ class AdminPersonPatientLinkManager {
                 doc: sourcePerson
             });
 
+            await this.patientPersonManualLinkingEventProducer.produceEventAsync({
+                personId: sourcePerson._uuid,
+                patientId: patient._uuid,
+                isLinking: true
+            });
+
             return {
                 message: `Created Person and added link from Person/${externalPersonId} to Patient/${patientId}`,
                 patientId,
@@ -408,6 +423,12 @@ class AdminPersonPatientLinkManager {
                 eventType: 'U',
                 resourceType: 'Person',
                 doc: sourcePerson
+            });
+
+            await this.patientPersonManualLinkingEventProducer.produceEventAsync({
+                personId: sourcePerson._uuid,
+                patientId,
+                isLinking: true
             });
 
             return {
@@ -495,6 +516,12 @@ class AdminPersonPatientLinkManager {
                 eventType: 'U',
                 resourceType: 'Person',
                 doc: person
+            });
+
+            await this.patientPersonManualLinkingEventProducer.produceEventAsync({
+                personId: person._uuid,
+                patientId,
+                isLinking: false
             });
 
             return {

@@ -10,9 +10,15 @@ const activitydefinition8Resource = require('./fixtures/ActivityDefinition/activ
 const activitydefinition9Resource = require('./fixtures/ActivityDefinition/activitydefinition9.json');
 const activitydefinition10Resource = require('./fixtures/ActivityDefinition/activitydefinition10.json');
 const activitydefinition11Resource = require('./fixtures/ActivityDefinition/activitydefinition11.json');
+const person1Resource = require('./fixtures/Person/person1.json');
+const person2Resource = require('./fixtures/Person/person2.json');
+const person3Resource = require('./fixtures/Person/person3.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
+const expectedPersonOwnerDisplayMerge1 = require('./fixtures/expected/expected_person_owner_display_merge1.json');
+const expectedPersonOwnerDisplayMerge2 = require('./fixtures/expected/expected_person_owner_display_merge2.json');
+const expectedPersonOwnerDisplayMerge3 = require('./fixtures/expected/expected_person_owner_display_merge3.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -228,6 +234,84 @@ describe('Merge Meta Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: false, updated: false });
+        });
+
+        test('Merge the display field in the owner security tag if does not exist', async () => {
+            const request = await createTestRequest();
+            // ARRANGE & ACT
+            // Create a valid resource
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+
+            // ASSERT
+            resp = await request
+                .get('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonOwnerDisplayMerge1);
+        });
+
+        test('Merge the display field in the owner security tag if already exist', async () => {
+            const request = await createTestRequest();
+            // ARRANGE & ACT
+            // Create a valid resource
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(person3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+
+            // ASSERT
+            resp = await request
+                .get('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonOwnerDisplayMerge2);
+        });
+
+        test('Merge the code and display field in the owner security tag if display does not exist', async () => {
+            const request = await createTestRequest();
+            // ARRANGE & ACT
+            // Create a valid resource
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(person3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+
+            // ASSERT
+            resp = await request
+                .get('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonOwnerDisplayMerge3);
         });
     });
 });

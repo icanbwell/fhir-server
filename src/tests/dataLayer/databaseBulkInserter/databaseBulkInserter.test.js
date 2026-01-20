@@ -67,11 +67,6 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             // noinspection JSCheckFunctionSignatures
-            const onResourceCreateAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onResourceCreateAsync')
-                .mockImplementation(() => {
-                });
-            // noinspection JSCheckFunctionSignatures
             const onResourceChangeAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onResourceChangeAsync')
                 .mockImplementation(() => {
@@ -131,8 +126,7 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
-            expect(onResourceCreateAsync).toBeCalledTimes(1);
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(onResourceChangeAsync).toBeCalledTimes(1);
         });
 
         test('execAsync handles mongo error', async () => {
@@ -151,11 +145,6 @@ describe('databaseBulkInserter Tests', () => {
                 return container1;
             });
 
-            // noinspection JSCheckFunctionSignatures
-            const onResourceCreateAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onResourceCreateAsync')
-                .mockImplementation(() => {
-                });
             // noinspection JSCheckFunctionSignatures
             const onResourceChangeAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onResourceChangeAsync')
@@ -232,8 +221,7 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onResourceCreateAsync).toBeCalledTimes(1);
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(onResourceChangeAsync).toBeCalledTimes(1);
         });
 
         test('execAsync handles thrown mongo error', async () => {
@@ -253,10 +241,6 @@ describe('databaseBulkInserter Tests', () => {
                 return container1;
             });
 
-            // noinspection JSCheckFunctionSignatures
-            const onResourceCreateAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onResourceCreateAsync')
-                .mockImplementation(() => {});
             // noinspection JSCheckFunctionSignatures
             const onResourceChangeAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onResourceChangeAsync')
@@ -356,7 +340,6 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onResourceCreateAsync).toBeCalledTimes(0);
             expect(onResourceChangeAsync).toBeCalledTimes(0);
             expect(mockBulkWrite).toHaveBeenCalledTimes(2);
         });

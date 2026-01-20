@@ -1,6 +1,7 @@
 /**
  * This file contains functions to retrieve all related resources of given resource from the database
  */
+const httpContext = require('express-http-context');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -10,6 +11,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { BundleManager } = require('../common/bundleManager');
 const { RethrownError } = require('../../utils/rethrownError');
 const { SearchManager } = require('../search/searchManager');
+const { ScopesValidator } = require('../security/scopesValidator');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
@@ -19,6 +21,7 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunksGenerator } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { PatientEverythingCacheKeyGenerator } = require('./patientEverythingCachekeyGenerator')
 const {
     GRIDFS: { RETRIEVE },
     OPERATIONS: { READ },
@@ -28,7 +31,8 @@ const {
     PERSON_REFERENCE_PREFIX,
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
     PERSON_PROXY_PREFIX,
-    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
+    EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH,
+    HTTP_CONTEXT_KEYS
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
@@ -48,6 +52,8 @@ const clinicalResources = require('./generated.resource_types.json')['clinicalRe
 const { CustomTracer } = require('../../utils/customTracer');
 const { PatientDataViewControlManager } = require('../../utils/patientDataViewController');
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
+const { RedisStreamManager } = require('../../utils/redisStreamManager');
+const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -68,6 +74,7 @@ class EverythingHelper {
      * @property {ConfigManager} configManager
      * @property {BundleManager} bundleManager
      * @property {SearchManager} searchManager
+     * @property {ScopesValidator} scopesValidator
      * @property {EnrichmentManager} enrichmentManager
      * @property {R4ArgsParser} r4ArgsParser
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
@@ -78,12 +85,14 @@ class EverythingHelper {
      * @property {PostRequestProcessor} postRequestProcessor
      *
      * @param {EverythingHelperParams}
+     * @param {RedisStreamManager} redisStreamManager
      */
     constructor({
         databaseQueryFactory,
         configManager,
         bundleManager,
         searchManager,
+        scopesValidator,
         enrichmentManager,
         r4ArgsParser,
         databaseAttachmentManager,
@@ -92,7 +101,8 @@ class EverythingHelper {
         customTracer,
         patientDataViewControlManager,
         auditLogger,
-        postRequestProcessor
+        postRequestProcessor,
+        redisStreamManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -117,6 +127,12 @@ class EverythingHelper {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
         /**
          * @type {EnrichmentManager}
@@ -193,6 +209,101 @@ class EverythingHelper {
          * @type {CustomTracer}
         */
         this.customTracer = customTracer;
+
+        /**
+         * @type {RedisStreamManager}
+         */
+        this.redisStreamManager = redisStreamManager;
+    }
+
+    /**
+     * Get original ids from parsedArgs
+     * @param {ParsedArgs} parsedArgs
+     * @returns {string[]}
+     */
+    fetchOriginalIdsFromParams(parsedArgs) {
+        const idParam = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
+        if (!idParam?.queryParameterValue?.value) {
+            return [];
+        }
+        const id = idParam.queryParameterValue.value;
+        return id.split(',');
+    }
+
+    /**
+     * Get patient UUID for a given ID
+     * @param {ParsedArgs} parsedArgs
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} base_version
+    * @returns {Promise<string[]>}
+    */
+    async fetchPatientUUID(parsedArgs, requestInfo, resourceType, base_version) {
+        const {
+            query
+        } = await this.searchManager.constructQueryAsync({
+            user: requestInfo.user,
+            scope: requestInfo.scope,
+            isUser: requestInfo.isUser,
+            resourceType,
+            useAccessIndex: this.configManager.useAccessIndex,
+            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+            requestId: requestInfo.requestId,
+            parsedArgs,
+            operation: READ,
+            accessRequested: 'read',
+            addPersonOwnerToContext: requestInfo.isUser,
+            applyPatientFilter: true
+        });
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+        const options = {
+            projection: {
+                _uuid: 1,
+                _id: 0
+            }
+        };
+        let cursor = await databaseQueryManager.findAsync({ query, options });
+        let ids = [];
+        while (await cursor.hasNext()) {
+            const sourceResource = await cursor.next();
+            ids.push(sourceResource._uuid);
+        }
+        return ids;
+    }
+
+    /**
+     * Get cache key for a given request
+     * @param {ParsedArgs} parsedArgs
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @returns {Promise<string|undefined>}
+     */
+    async getCacheKey(parsedArgs, requestInfo, resourceType, base_version) {
+        if (!requestInfo.personIdFromJwtToken) {
+            return undefined;
+        }
+        let paramsIds = this.fetchOriginalIdsFromParams(parsedArgs);
+        // Multiple ids are not supported for now
+        if (paramsIds.length !== 1) {
+            return undefined;
+        }
+        let idForCache;
+        let id = paramsIds[0];
+        const isProxyPatient = id.startsWith(PERSON_PROXY_PREFIX);
+        if (isProxyPatient) {
+            id = id.replace(PERSON_PROXY_PREFIX, '');
+            if (isUuid(id) && id == requestInfo.personIdFromJwtToken) {
+                idForCache = `${PERSON_PROXY_PREFIX}${id}`;
+            }
+        } else {
+            let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType, base_version);
+            idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
+        }
+        let keyGenerator = new PatientEverythingCacheKeyGenerator();
+        return idForCache ? keyGenerator.generateCacheKey(
+            { id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope, contentType: requestInfo.contentTypeFromHeader?.type }
+        ) : undefined;
     }
 
     /**
@@ -273,56 +384,89 @@ class EverythingHelper {
              * @type {{id: string, resourceType: string}[]} - Track resource IDs with types for audit logging
              */
             let streamedResources = [];
-
-
-            for (const idChunk of idChunks) {
-                const parsedArgsForChunk = parsedArgs.clone();
-                parsedArgsForChunk.id = idChunk;
-                parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
-                /**
-                 * @type {string[]}
-                 */
-                let proxyPatientIds = []
-                if (resourceType === 'Patient') {
-                    proxyPatientIds = idChunk.filter((q) => q && q.startsWith(PERSON_PROXY_PREFIX));
-
-                    // filter proxy patient ids to only include allowed ids for patient scope
-                    if (requestInfo.isUser) {
-                        proxyPatientIds = proxyPatientIds.filter(
-                            (q) => q && q === PERSON_PROXY_PREFIX + requestInfo.personIdFromJwtToken
-                        );
+            const writeCache = this.configManager.writeToCacheForEverythingOperation;
+            const cacheKey = writeCache ? await this.getCacheKey(
+                parsedArgs, requestInfo, resourceType, base_version
+            ) : undefined;
+            const cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
+                redisStreamManager: this.redisStreamManager,
+                cacheKey,
+                responseStreamer,
+                ttlSeconds: this.configManager.everythingCacheTtlSeconds,
+                enrichmentManager: this.enrichmentManager,
+                parsedArgs
+            }) : null;
+            const readFromCache = (
+                this.configManager.readFromCacheForEverythingOperation &&
+                responseStreamer &&
+                cachedStreamer &&
+                await this.redisStreamManager.hasCachedStream(cacheKey) &&
+                !requestInfo.skipCachedData()
+            );
+            // Check if we need to fall back to MongoDB
+            let fallbackToMongo = false;
+            if (readFromCache) {
+                try {
+                    streamedResources = await cachedStreamer.streamFromCacheAsync();
+                } catch (err) {
+                    fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
+                    logError('Error reading everything response from cache', { error: err, cacheKey });
+                    if (!fallbackToMongo) {
+                        throw err;
                     }
                 }
+            }
+            if(!readFromCache || fallbackToMongo) {
+                for (const idChunk of idChunks) {
+                    const parsedArgsForChunk = parsedArgs.clone();
+                    parsedArgsForChunk.id = idChunk;
+                    parsedArgsForChunk.resourceFilterList = parsedArgs.resourceFilterList;
+                    /**
+                     * @type {string[]}
+                     */
+                    let proxyPatientIds = []
+                    if (resourceType === 'Patient') {
+                        proxyPatientIds = idChunk.filter((q) => q && q.startsWith(PERSON_PROXY_PREFIX));
 
-                /**
-                 * @type {ProcessMultipleIdsAsyncResult}
-                 */
-                const {
-                    entries: entries1,
-                    queryItems: queryItems1,
-                    options: options1,
-                    explanations: explanations1,
-                    streamedResources: streamedRes1
-                } = await this.retrieveEverythingMulipleIdsAsync(
-                    {
-                    base_version,
-                    requestInfo,
-                    resourceType,
-                    explain: !!parsedArgs._explain,
-                    debug: !!parsedArgs._debug,
-                    parsedArgs: parsedArgsForChunk,
-                    bundleEntryIdsProcessedTracker,
-                    responseStreamer,
-                    includeNonClinicalResources,
-                    proxyPatientIds
+                        // filter proxy patient ids to only include allowed ids for patient scope
+                        if (requestInfo.isUser) {
+                            proxyPatientIds = proxyPatientIds.filter(
+                                (q) => q && q === PERSON_PROXY_PREFIX + requestInfo.personIdFromJwtToken
+                            );
+                        }
                     }
-                );
 
-                entries = entries.concat(entries1);
-                queryItems = queryItems.concat(queryItems1);
-                options = options.concat(options1);
-                explanations = explanations.concat(explanations1);
-                streamedResources = streamedResources.concat(streamedRes1 || []);
+                    /**
+                     * @type {ProcessMultipleIdsAsyncResult}
+                     */
+                    const {
+                        entries: entries1,
+                        queryItems: queryItems1,
+                        options: options1,
+                        explanations: explanations1,
+                        streamedResources: streamedRes1
+                    } = await this.retrieveEverythingMulipleIdsAsync(
+                        {
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        explain: !!parsedArgs._explain,
+                        debug: !!parsedArgs._debug,
+                        parsedArgs: parsedArgsForChunk,
+                        bundleEntryIdsProcessedTracker,
+                        responseStreamer,
+                        includeNonClinicalResources,
+                        proxyPatientIds,
+                        cachedStreamer
+                        }
+                    );
+
+                    entries = entries.concat(entries1);
+                    queryItems = queryItems.concat(queryItems1);
+                    options = options.concat(options1);
+                    explanations = explanations.concat(explanations1);
+                    streamedResources = streamedResources.concat(streamedRes1 || []);
+                }
             }
             /**
              * @type {number}
@@ -339,21 +483,20 @@ class EverythingHelper {
              */
             const bundle = this.bundleManager.createRawBundle(
                 {
-                type: 'searchset',
-                requestId: requestInfo.userRequestId,
-                originalUrl: requestInfo.originalUrl,
-                host: requestInfo.host,
-                protocol: requestInfo.protocol,
-                resources,
-                base_version,
-                parsedArgs,
-                originalQuery: queryItems,
-                originalOptions: options,
-                columns: new Set(),
-                stopTime,
-                startTime,
-                user: requestInfo.user,
-                explanations
+                    type: 'searchset',
+                    requestId: requestInfo.userRequestId,
+                    host: requestInfo.host,
+                    protocol: requestInfo.protocol,
+                    resources,
+                    base_version,
+                    parsedArgs,
+                    originalQuery: queryItems,
+                    originalOptions: options,
+                    columns: new Set(),
+                    stopTime,
+                    startTime,
+                    user: requestInfo.user,
+                    explanations
                 }
             );
 
@@ -410,6 +553,10 @@ class EverythingHelper {
             }
             return bundle;
         } catch (error) {
+            // Deleting cached stream if any error occurs during processing
+            if (cachedStreamer && !cachedStreamer.isFirstEntry) {
+                await this.redisStreamManager.deleteStream(cacheKey);
+            }
             logError(`Error in retriveEverythingAsync(): ${error.message}`, { error });
             throw new RethrownError({
                 message: 'Error in retriveEverythingAsync(): ' + `resourceType: ${resourceType} , ` + error.message,
@@ -438,6 +585,7 @@ class EverythingHelper {
      * @property {ResourceProccessedTracker} bundleEntryIdsProcessedTracker
      * @property {boolean} includeNonClinicalResources
      * @property {string[]} proxyPatientIds
+     * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -452,7 +600,8 @@ class EverythingHelper {
         responseStreamer,
         bundleEntryIdsProcessedTracker,
         includeNonClinicalResources = false,
-        proxyPatientIds = []
+        proxyPatientIds = [],
+        cachedStreamer = null
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -544,7 +693,8 @@ class EverythingHelper {
                     resourceIdentifiers: baseResourceIdentifiers,
                     requestInfo,
                     useUuidProjection,
-                    resourceMapper
+                    resourceMapper,
+                    cachedStreamer
                 });
 
                 optionsForQueries = baseResult.options;
@@ -627,7 +777,8 @@ class EverythingHelper {
                     everythingRelatedResourceManager,
                     useUuidProjection,
                     resourceToExcludeIdsMap,
-                    resourceMapper
+                    resourceMapper,
+                    cachedStreamer
                 });
 
                 if (!responseStreamer) {
@@ -669,10 +820,10 @@ class EverythingHelper {
                     let referenceExtractorForNextLevel =
                         i + 1 < EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH
                             ? new NonClinicalReferencesExtractor({
-                                  resourcesTypeToExclude,
-                                  resourcePool:
-                                  everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
-                              })
+                                resourcesTypeToExclude,
+                                resourcePool:
+                                    everythingRelatedResourceManager.getRequiredResourcesForNonClinicalResources()
+                            })
                             : null;
 
                     for (const res of Object.entries(referenceExtractor.nestedResourceReferences)) {
@@ -715,7 +866,8 @@ class EverythingHelper {
                                 requestInfo,
                                 nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
                                 everythingRelatedResourceManager,
-                                resourceMapper
+                                resourceMapper,
+                                cachedStreamer
                             });
 
                             depthParallelProcess.push(result);
@@ -814,6 +966,7 @@ class EverythingHelper {
      * @property {NonClinicalReferencesExtractor | null} nonClinicalReferencesExtractor
      * @property {Boolean} useUuidProjection
      * @property {ResourceMapper} resourceMapper
+     * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      *
      * @param {FetchResourceByArgsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -832,7 +985,8 @@ class EverythingHelper {
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
         applyPatientFilter = true,
-        resourceMapper = new ResourceMapper()
+        resourceMapper = new ResourceMapper(),
+        cachedStreamer = null
     }) {
 
         /**
@@ -851,87 +1005,95 @@ class EverythingHelper {
          * @type {import('mongodb').Document[]}
          */
         let explanations = [];
+        /**
+         * @type {{id: string, resourceType: string}[]} - Track resources with types for audit logging
+         */
+        let streamedResources = [];
 
-        // get top level resource
-        const {
-            /** @type {import('mongodb').Document}**/
-            query
-        } = await this.searchManager.constructQueryAsync({
-            user: requestInfo.user,
-            scope: requestInfo.scope,
-            isUser: requestInfo.isUser,
-            resourceType,
-            useAccessIndex: this.configManager.useAccessIndex,
-            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-            requestId: requestInfo.requestId,
-            parsedArgs,
-            operation: READ,
-            accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
-            addPersonOwnerToContext: requestInfo.isUser,
-            applyPatientFilter
-        });
+        if (this.scopesValidator.hasValidScopes({ requestInfo, parsedArgs, resourceType, action: 'everything', accessRequested: 'read' })) {
+            // get top level resource
+            const {
+                /** @type {import('mongodb').Document}**/
+                query
+            } = await this.searchManager.constructQueryAsync({
+                user: requestInfo.user,
+                scope: requestInfo.scope,
+                isUser: requestInfo.isUser,
+                resourceType,
+                useAccessIndex: this.configManager.useAccessIndex,
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                requestId: requestInfo.requestId,
+                parsedArgs,
+                operation: READ,
+                accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
+                addPersonOwnerToContext: requestInfo.isUser,
+                applyPatientFilter
+            });
 
 
-        const options = {};
-        let projection = {};
-        if (useUuidProjection) {
-            projection = deepcopy(this.uuidProjection);
-            if (parsedArgs._since) {
-                projection.meta = {
-                    lastUpdated: 1
+            const options = {};
+            let projection = {};
+            if (useUuidProjection) {
+                projection = deepcopy(this.uuidProjection);
+                if (parsedArgs._since) {
+                    projection.meta = {
+                        lastUpdated: 1
+                    }
                 }
             }
+            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+            projection._id = 0;
+            options.projection = projection;
+
+            // this is required to be filled only once
+            optionsForQueries.push(options);
+            /**
+             * @type {number}
+             */
+            const maxMongoTimeMS = this.configManager.mongoTimeout;
+
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
+
+            let cursor = await databaseQueryManager.findAsync({ query, options });
+            cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
+            const collectionName = cursor.getCollection();
+
+            queries.push(
+                new QueryItem({
+                    query,
+                    resourceType,
+                    collectionName
+                })
+            );
+
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations1 = explain || debug ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then just return one result
+                cursor = cursor.limit(1);
+            }
+
+            explanations.push(...explanations1);
+
+            const { bundleEntries, streamedResources: streamedResources1 } = await this.processCursorAsync({
+                cursor,
+                parentParsedArgs: parsedArgs,
+                responseStreamer: responseStreamer,
+                bundleEntryIdsProcessedTracker,
+                resourceIdentifiers,
+                nonClinicalReferencesExtractor,
+                everythingRelatedResourceManager,
+                useUuidProjection,
+                resourceMapper,
+                cachedStreamer
+            });
+
+            entries.push(...(bundleEntries || []));
+            streamedResources = streamedResources.concat(streamedResources1 || []);
         }
-        // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-        projection._id = 0;
-        options.projection = projection;
-
-        // this is required to be filled only once
-        optionsForQueries.push(options);
-        /**
-         * @type {number}
-         */
-        const maxMongoTimeMS = this.configManager.mongoTimeout;
-
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version });
-
-        let cursor = await databaseQueryManager.findAsync({ query, options });
-        cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
-
-        const collectionName = cursor.getCollection();
-
-        queries.push(
-            new QueryItem({
-                query,
-                resourceType,
-                collectionName
-            })
-        );
-
-        /**
-         * @type {import('mongodb').Document[]}
-         */
-        const explanations1 = explain || debug ? await cursor.explainAsync() : [];
-        if (explain) {
-            // if explain is requested then just return one result
-            cursor = cursor.limit(1);
-        }
-
-        explanations.push(...explanations1);
-
-        const { bundleEntries, streamedResources } = await this.processCursorAsync({
-            cursor,
-            parentParsedArgs: parsedArgs,
-            responseStreamer: responseStreamer,
-            bundleEntryIdsProcessedTracker,
-            resourceIdentifiers,
-            nonClinicalReferencesExtractor,
-            everythingRelatedResourceManager,
-            useUuidProjection,
-            resourceMapper
-        });
-
-        entries.push(...(bundleEntries || []));
 
         return new ProcessMultipleIdsAsyncResult({
             entries,
@@ -964,6 +1126,7 @@ class EverythingHelper {
      * @property {{string: string[]}} resourceToExcludeIdsMap
      * @property {{id: string, resourceType: string}[]} streamedResources
      * @property {ResourceMapper} resourceMapper
+     * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {id: string, resourceType: string}[]}>}
@@ -985,7 +1148,8 @@ class EverythingHelper {
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
         resourceToExcludeIdsMap,
-        resourceMapper = new ResourceMapper()
+        resourceMapper = new ResourceMapper(),
+        cachedStreamer = null
         }
     ) {
 
@@ -1036,6 +1200,16 @@ class EverythingHelper {
             const filterTemplateCustomQuery = relatedResource.customQuery;
 
             if ((!filterTemplateParam && !filterTemplateCustomQuery) || !relatedResourceType) {
+                continue;
+            }
+
+            if (!this.scopesValidator.hasValidScopes({
+                requestInfo,
+                parsedArgs,
+                resourceType: relatedResourceType,
+                action: 'everything',
+                accessRequested: 'read'
+            })) {
                 continue;
             }
 
@@ -1204,6 +1378,7 @@ class EverythingHelper {
                 cursor = cursor.limit(1);
             }
             const collectionName = cursor.getCollection();
+
             const promiseResult = this.processCursorAsync({
                 cursor,
                 responseStreamer,
@@ -1216,16 +1391,17 @@ class EverythingHelper {
                 everythingRelatedResourceManager,
                 parentResourceType,
                 useUuidProjection,
-                resourceMapper
+                resourceMapper,
+                cachedStreamer
             })
 
             parallelProcess.push(promiseResult)
 
             queryItems.push(new QueryItem({
-                    query,
-                    resourceType: relatedResourceType,
-                    collectionName,
-                    explanations
+                query,
+                resourceType: relatedResourceType,
+                collectionName,
+                explanations
             }))
         }
 
@@ -1263,6 +1439,7 @@ class EverythingHelper {
      *  everythingRelatedResourceManager: EverythingRelatedResourceManager,
      *  useUuidProjection: boolean,
      *  resourceMapper?: ResourceMapper,
+     *  cachedStreamer?: CachedFhirResponseStreamer|null,
      * }} options
      * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {id: string, resourceType: string}[]}>}
      */
@@ -1279,7 +1456,8 @@ class EverythingHelper {
         parentResourceType,
         everythingRelatedResourceManager,
         useUuidProjection,
-        resourceMapper = new ResourceMapper()
+        resourceMapper = new ResourceMapper(),
+        cachedStreamer = null
     }) {
         /**
          * @type {BundleEntry[]}
@@ -1361,7 +1539,7 @@ class EverythingHelper {
                             ) {
                                 references.push(
                                     PERSON_REFERENCE_PREFIX +
-                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
                                 );
                             } else if (
                                 r[
@@ -1370,7 +1548,7 @@ class EverythingHelper {
                             ) {
                                 references.push(
                                     PATIENT_REFERENCE_PREFIX +
-                                        r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
+                                    r[SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP[parentLookupField]['value']]
                                 );
                             }
                         });
@@ -1393,8 +1571,8 @@ class EverythingHelper {
                             const parentEntitiesString = Array.from(parentResourcesProcessedTracker.uuidSet).toString()
                             logError(
                                 `No match found for parent entities ${parentEntitiesString} ` +
-                                    `using property ${parentLookupField} in ` +
-                                    'child entity ' +
+                                `using property ${parentLookupField} in ` +
+                                'child entity ' +
                                 `${current_entity.resourceType}/${current_entity._uuid}`, {}
                             );
                         }
@@ -1439,6 +1617,11 @@ class EverythingHelper {
 
                             // if response streamer is present then write the entry to the response streamer
                             if (responseStreamer) {
+                                if (cachedStreamer) {
+                                    await cachedStreamer.writeBundleEntryToRedis({
+                                        bundleEntry: current_entity
+                                    });
+                                }
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                                     entries: [current_entity],
                                     parsedArgs: parentParsedArgs
@@ -1452,7 +1635,7 @@ class EverythingHelper {
                                     id: current_entity.resource.id,
                                     resourceType: current_entity.resource.resourceType
                                 });
-                            // else push it to the bundle entries
+                                // else push it to the bundle entries
                             } else {
                                 bundleEntries.push(current_entity);
                             }
@@ -1479,8 +1662,8 @@ class EverythingHelper {
         args.base_version = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
             {
-            resourceType,
-            args
+                resourceType,
+                args
             }
         );
     }

@@ -1,10 +1,14 @@
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const person1DuplicatePhoneNumber = require('./fixtures/Person/person1_duplicate_phone.json');
+const person1UpdateIdentifier = require('./fixtures/Person/person1_update_identifier.json');
+const person2UpdateIdentifier = require('./fixtures/Person/person2_update_identifier.json');
 
 // expected
 const expectedReplacedPersonResources = require('./fixtures/expected/expected_Replaced_Phone.json');
 const expectedMergedPersonResources = require('./fixtures/expected/expected_merged_Phone.json');
+const expectedPerson1MergedIdentifier = require('./fixtures/expected/expected_person1_merged_identifier.json');
+const expectedPerson2MergedIdentifier = require('./fixtures/expected/expected_person2_merged_identifier.json');
 
 const {
     commonBeforeEach,
@@ -15,6 +19,7 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
+const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
 describe('Person Tests', () => {
     let requestId;
@@ -64,4 +69,137 @@ describe('Person Tests', () => {
         expect(resp5).toHaveResponse(expectedReplacedPersonResources);
 
     });
+
+    test('Merge updates all the identifier values except the sourceId and uuid', async () => {
+        const request = await createTestRequest();
+
+        // Create the resource
+        let resp = await request
+            .post('/4_0_0/Person/$merge')
+            .send(person1Resource)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Now update the resource
+        resp =  await request
+            .post('/4_0_0/Person/$merge')
+            .send(person1UpdateIdentifier)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: false });
+
+        // Now read the resource and verify
+        resp = await request
+            .get('/4_0_0/Person/?_bundle=1')
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPerson1MergedIdentifier);
+    });
+
+    test('Merge with no identifiers in the update request retains existing sourceId and uuid identifiers', async () => {
+        const request = await createTestRequest();
+
+        // Create the resource
+        let resp = await request
+            .post('/4_0_0/Person/$merge')
+            .send(person2UpdateIdentifier)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Now update the resource with no identifiers
+        const person2UpdateNoIdentifier = {...person2UpdateIdentifier};
+        delete person2UpdateNoIdentifier.identifier;
+
+        resp =  await request
+            .post('/4_0_0/Person/$merge')
+            .send(person2UpdateNoIdentifier)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: false });
+
+        // Now read the resource and verify
+        resp = await request
+            .get('/4_0_0/Person/?_bundle=1')
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPerson2MergedIdentifier);
+    });
+
+    test('Merge with only uuid as identifier retains existing sourceId identifier', async () => {
+        const request = await createTestRequest();
+
+        // Create the resource
+        let resp = await request
+            .post('/4_0_0/Person/$merge')
+            .send(person2UpdateIdentifier)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Now update the resource with only uuid as identifier
+        const person2UpdateOnlyUuidIdentifier = {...person2UpdateIdentifier};
+        person2UpdateOnlyUuidIdentifier.identifier = person2UpdateOnlyUuidIdentifier.identifier.filter(
+            id => id.system === IdentifierSystem.uuid
+        );
+
+        resp =  await request
+            .post('/4_0_0/Person/$merge')
+            .send(person2UpdateOnlyUuidIdentifier)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: false });
+
+        // Now read the resource and verify
+        resp = await request
+            .get('/4_0_0/Person/?_bundle=1')
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPerson2MergedIdentifier);
+    });
+
+    test('Merge with only sourceId as identifier retains existing uuid identifier', async () => {
+        const request = await createTestRequest();
+
+        // Create the resource
+        let resp = await request
+            .post('/4_0_0/Person/$merge')
+            .send(person2UpdateIdentifier)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Now update the resource with only sourceId as identifier
+        const person2UpdateOnlySourceIdIdentifier = {...person2UpdateIdentifier};
+        person2UpdateOnlySourceIdIdentifier.identifier = person2UpdateOnlySourceIdIdentifier.identifier.filter(
+            id => id.system === IdentifierSystem.sourceId
+        );
+
+        resp =  await request
+            .post('/4_0_0/Person/$merge')
+            .send(person2UpdateOnlySourceIdIdentifier)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: false });
+        // Now read the resource and verify
+        resp = await request
+            .get('/4_0_0/Person/?_bundle=1')
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedPerson2MergedIdentifier);
+    });
+
 });

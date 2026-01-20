@@ -1,6 +1,7 @@
 const { createContainer } = require('../createContainer');
 const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const { TestConfigManager } = require('./testConfigManager');
+const { MockRedisClient } = require('./mocks/mockRedisClient');
 const { MockKafkaClient } = require('./mocks/mockKafkaClient');
 const { MockAccessLogger } = require('./mocks/mockAccessLogger');
 const { MockAuditLogger } = require('./mocks/mockAuditLogger');
@@ -21,6 +22,8 @@ const createTestContainer = function (fnUpdateContainer) {
         {
             configManager: c.configManager
         }));
+
+    container.register('redisClient', () => new MockRedisClient());
     container.register('accessLogger', (c) => new MockAccessLogger(
         {
             scopesManager: c.scopesManager,
@@ -40,7 +43,9 @@ const createTestContainer = function (fnUpdateContainer) {
         {
             postRequestProcessor: c.postRequestProcessor,
             databaseBulkInserter: c.databaseBulkInserter,
-            preSaveManager: c.preSaveManager
+            preSaveManager: c.preSaveManager,
+            configManager: c.configManager,
+            auditEventKafkaProducer: c.auditEventKafkaProducer
         }));
     container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({
         configManager: c.configManager

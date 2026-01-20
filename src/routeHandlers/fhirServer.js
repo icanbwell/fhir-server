@@ -373,7 +373,7 @@ class MyFHIRServer {
     setProfileRoutes () {
         this.fhirRouter.setRoutes(this); // return self for chaining
         return this;
-    } // Setup custom logging
+    }
 }
 
 module.exports = {

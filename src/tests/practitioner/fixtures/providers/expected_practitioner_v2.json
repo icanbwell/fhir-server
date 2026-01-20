@@ -48,16 +48,6 @@
         "value": "1679033641"
       },
       {
-        "id": "sourceId",
-        "system": "https://www.icanbwell.com/sourceId",
-        "value": "4657"
-      },
-      {
-        "id": "uuid",
-        "system": "https://www.icanbwell.com/uuid",
-        "value": "1f6ed023-74f6-5f26-9772-0c7409f3b755"
-      },
-      {
         "system": "clienthealth.org",
         "type": {
           "coding": [
@@ -70,6 +60,16 @@
         },
         "use": "usual",
         "value": "4657v2"
+      },
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "4657"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "1f6ed023-74f6-5f26-9772-0c7409f3b755"
       }
     ],
     "meta": {

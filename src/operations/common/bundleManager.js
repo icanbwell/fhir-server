@@ -278,8 +278,11 @@ class BundleManager {
          * array of links
          */
         let link = null;
+
+        const isEverythingOperation = originalUrl && originalUrl.includes('$everything');
+
         // find id of last resource
-        if (originalUrl) {
+        if (originalUrl && !isEverythingOperation) {
             if (last_id || lastResourceLastUpdated) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';

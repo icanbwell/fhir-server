@@ -212,6 +212,13 @@ class ConfigManager {
     }
 
     /**
+     *  whether to send fhir person patient manual linking/unlinking events to kafka
+     */
+    get kafkaEnablePersonPatientManualLinkingEvents() {
+        return isTrue(env.ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS);
+    }
+
+    /**
      * list of resources for which kafka events are enabled
      * @return {boolean}
      */
@@ -222,6 +229,22 @@ class ConfigManager {
                     .map((col) => col.trim())
             ) || ['Consent', 'ExportStatus']
         );
+    }
+
+    get enablePatientDataChangeEvents() {
+        return isTrue(env.ENABLE_PATIENT_DATA_CHANGE_EVENTS);
+    }
+
+    get enablePersonDataChangeEvents() {
+        return isTrue(env.ENABLE_PERSON_DATA_CHANGE_EVENTS);
+    }
+
+    get patientDataChangeEventTopic() {
+        return env.PATIENT_DATA_CHANGE_EVENT_TOPIC || 'fhir.patient_data.change.events';
+    }
+
+    get personDataChangeEventTopic() {
+        return env.PERSON_DATA_CHANGE_EVENT_TOPIC || 'fhir.person_data.change.events';
     }
 
     /**
@@ -503,6 +526,37 @@ class ConfigManager {
      */
     get kafkaEnableAccessLogsEvent() {
         return isTrue(env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS);
+    }
+
+    get enableAccessLogs() {
+        return this.enableAccessLogsMiddleware || this.kafkaEnableAccessLogsEvent;
+    }
+
+    /**
+     * whether to write AuditEvent to mongoDB
+     * @return {boolean}
+     */
+    get enableAuditEventMongoDB() {
+        if (env.ENABLE_AUDIT_EVENT_MONGODB === null || env.ENABLE_AUDIT_EVENT_MONGODB === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_AUDIT_EVENT_MONGODB);
+    }
+
+    /**
+     * whether to send AuditEvent to kafka
+     * @return {boolean}
+     */
+    get enableAuditEventKafka() {
+        return isTrue(env.ENABLE_AUDIT_EVENT_KAFKA);
+    }
+
+    /**
+     * returns the maximum number of IDs to include in each audit event
+     * @returns {number}
+     */
+    get maxIdsPerAuditEvent() {
+        return env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
     }
 
     /**
@@ -877,6 +931,54 @@ class ConfigManager {
      */
     get summaryGeneratorOrganizationBaseUrl() {
         return env.SUMMARY_GENERATOR_ORGANIZATION_BASE_URL || 'https://bwell.com/summary';
+    }
+
+    /**
+     * whether to write to redis cache for every thing operation
+     * @return {boolean}
+     */
+    get writeToCacheForEverythingOperation() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION);
+    }
+
+    /**
+     * whether to read from redis cache for every thing operation
+     * @return {boolean}
+     */
+    get readFromCacheForEverythingOperation() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION);
+    }
+
+    /**
+     *  returns ttl seconds for everything cache
+     * @return {number}
+     */
+    get everythingCacheTtlSeconds() {
+        return parseInt(process.env.EVERYTHING_CACHE_TTL_SECONDS) || 300;
+    }
+
+    /**
+     * whether to write to redis cache for summary operation
+     * @return {boolean}
+     */
+    get writeToCacheForSummaryOperation() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION);
+    }
+
+    /**
+     * whether to read from redis cache for summary operation
+     * @return {boolean}
+     */
+    get readFromCacheForSummaryOperation() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION);
+    }
+
+    /**
+     *  returns ttl seconds for summary cache
+     * @return {number}
+     */
+    get summaryCacheTtlSeconds() {
+        return parseInt(process.env.SUMMARY_CACHE_TTL_SECONDS) || 300;
     }
 }
 

@@ -3,17 +3,20 @@ services:
     depends_on:
       - mongo
       - keycloak
+      - redis
     build:
       context: .
       dockerfile: Dockerfile
       args:
         NODE_ENV: development
     environment:
+      ACCESS_LOGS_CLUSTER_MONGO_URL: mongodb://mongo:27017
+      ACCESS_LOGS_MONGO_DB_NAME: access-logs
       SHUTDOWN_DELAY_MS: 1000
       SERVER_PORT: 3000
       MONGO_DB_NAME: fhir
       MONGO_URL: 'mongodb://mongo:27017?appName=fhir-server'
-      AUDIT_EVENT_MONGO_DB_NAME: fhir
+      AUDIT_EVENT_MONGO_DB_NAME: audit-events
       AUDIT_EVENT_MONGO_URL: mongodb://mongo:27017
       RESOURCE_SERVER: http://localhost:3000/
       AUTH_SERVER_URI: http://myauthzserver.com
@@ -33,6 +36,8 @@ services:
       EXTERNAL_AUTH_WELL_KNOWN_URLS: ''
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
+      RESOURCE_HISTORY_MONGO_URL: mongodb://mongo:27017
+      RESOURCE_HISTORY_MONGO_DB_NAME: resource-history
       RETURN_BUNDLE: '1'
       USE_TWO_STEP_SEARCH_OPTIMIZATION: '0'
       LOG_EXCLUDE_RESOURCES: 'Person,Patient'
@@ -41,7 +46,12 @@ services:
       ENABLE_EVENTS_KAFKA: '1'
       ENABLE_BULK_EXPORT_KAFKA_EVENTS: '1'
       ENABLE_FHIR_OPERATION_USAGE_KAFKA_EVENTS: 1
+      ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS: 1
       ENABLE_KAFKA_HEALTHCHECK: '1'
+      ENABLE_ACCESS_LOGS_KAFKA_EVENTS: '1'
+      ENABLE_AUDIT_EVENT_KAFKA: '1'
+      ENABLE_PATIENT_DATA_CHANGE_EVENTS: '1'
+      ENABLE_PERSON_DATA_CHANGE_EVENTS: '1'
       KAFKA_CLIENT_ID: 'fhir-server'
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
@@ -74,6 +84,23 @@ services:
       PRE_SAVE_CODING_ID_UPDATE_RESOURCES: 'Binary,Observation'
       ENABLE_SWAGGER_DOC: 1
       HOST_SERVER: "http://localhost:3000"
+      # REDIS_USERNAME: 'default'
+      # REDIS_PASSWORD: ''
+      REDIS_HOST: 'redis'
+      REDIS_PORT: '6379'
+      REDIS_REJECT_UNAUTHORIZED_FLAG: 'false'
+      REDIS_ENABLE_TLS: 'false'
+      ENABLE_REDIS_ENDPOINT: 1
+      ENABLE_REDIS: 1
+      REDIS_KEY_DEFAULT_TTL_SECONDS: 600
+      ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION: 1
+      ENABLE_REDIS_CACHE_READ_FOR_EVERYTHING_OPERATION: 1
+      EVERYTHING_CACHE_TTL_SECONDS: 300
+      REDIS_STREAM_READ_COUNT: 100
+      REDIS_INVALIDATE_CACHE_KEYS_BATCH_SIZE: 300
+      ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION: 1
+      ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION: 1
+      SUMMARY_CACHE_TTL_SECONDS: 300
     ports:
       - '3000:3000'
     volumes:
@@ -85,7 +112,7 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:8.0.12
+    image: mongo:8.0.15
     ports:
       - '27017:27017'
     environment:
@@ -107,8 +134,8 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_FEATURES: dynamic-scopes
       # Keycloak UI creds
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin-user
-      KC_BOOTSTRAP_ADMIN_PASSWORD: password
+      ADMIN_USERNAME: admin-user
+      ADMIN_PASSWORD: password
       # This is the service account that will be created in the realm
       CLIENT_ID: bwell-client-id
       CLIENT_SECRET: bwell-secret
@@ -150,6 +177,17 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
     healthcheck:
       test: ['CMD-SHELL', '/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 30s
       timeout: 10s
       retries: 5

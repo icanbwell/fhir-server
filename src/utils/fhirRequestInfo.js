@@ -130,6 +130,14 @@ class FhirRequestInfo {
          */
         this.preferGlobalId = headers.Prefer && isTrue(headers.Prefer.replace('global_id=', ''));
     }
+
+    /**
+     * Check if the cached response can be returned
+     * @returns {boolean}
+     */
+    skipCachedData() {
+        return this.headers?.['cache-control'] === 'no-cache';
+    }
 }
 
 module.exports = {

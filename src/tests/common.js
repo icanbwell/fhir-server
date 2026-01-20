@@ -16,10 +16,6 @@ const { TestConfigManager } = require('./testConfigManager');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 
 /**
- * @type {import('http').Server}
- */
-let server;
-/**
  * @type {import('supertest').Test}
  */
 let tester;
@@ -128,20 +124,11 @@ module.exports.commonAfterEach = async () => {
         // testContainer = null;
     }
     nock.cleanAll();
-    // nock.restore(); // nock.activate()
 
     const configManager = testContainer?.configManager ?? new TestConfigManager();
-
     const testMongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
     await testMongoDatabaseManager.dropDatabasesAsync();
-    if (server) {
-        await server.close();
-        server = null;
-    }
     tester = null;
-    // app = null;
-    // global.gc();
-    // globals.clear();
 };
 
 /**
@@ -431,12 +418,19 @@ module.exports.mockHttpContext = ({
                                   } = {}) => {
 
     jest.spyOn(httpContext, 'get');
+    jest.spyOn(httpContext, 'set');
+
     const values = {
         systemGeneratedRequestId: systemGeneratedRequestId || '12345678',
         userRequestId: userRequestId || '1234'
     };
     httpContext.get.mockImplementation((key) => {
         return values[key];
+    });
+    httpContext.set.mockImplementation((key, value) => {
+        if (!['systemGeneratedRequestId', 'userRequestId'].includes(key)) {
+            values[key] = value;
+        }
     });
     return values.systemGeneratedRequestId;
 };

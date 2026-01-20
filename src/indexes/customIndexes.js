@@ -656,16 +656,6 @@ module.exports = {
                 options: {
                     name: 'category_coding_code.effectiveDateTime._uuid_1'
                 }
-            },
-            {
-                keys: {
-                    '_access.bwell': 1,
-                    'meta.lastUpdated': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: '_access.bwell_1_meta.lastUpdated_1__uuid_1'
-                }
             }
         ],
         Organization_4_0_0: [
@@ -1178,6 +1168,14 @@ module.exports = {
                 options: {
                     name: 'extension.url_1_extension.valueString_1_uuid_1'
                 }
+            },
+            {
+                keys: {
+                    criteria: 1
+                },
+                options: {
+                    name: 'criteria_1'
+                }
             }
         ],
         SubscriptionStatus_4_0_0: [
@@ -1252,15 +1250,6 @@ module.exports = {
                 },
                 options: {
                     name: 'for_reference_status_uuid'
-                }
-            },
-            {
-                keys: {
-                    'identifier.system': 1,
-                    'identifier.value': 1
-                },
-                options: {
-                    name: 'identifier.system_1_identifier.value_1'
                 }
             },
             {

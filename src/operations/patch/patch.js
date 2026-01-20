@@ -5,6 +5,7 @@ const { validate } = require('fast-json-patch');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
@@ -15,7 +16,6 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
-const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
@@ -29,8 +29,8 @@ class PatchOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {PostSaveProcessor} postSaveProcessor
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {PreSaveManager} preSaveManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
@@ -44,8 +44,8 @@ class PatchOperation {
     constructor (
         {
             databaseQueryFactory,
-            postSaveProcessor,
             postRequestProcessor,
+            preSaveManager,
             fhirLoggingManager,
             scopesValidator,
             databaseBulkInserter,
@@ -63,15 +63,15 @@ class PatchOperation {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
-         * @type {PostSaveProcessor}
-         */
-        this.postSaveProcessor = postSaveProcessor;
-        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
-        /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
         /**
          * @type {FhirLoggingManager}
          */
@@ -285,6 +285,8 @@ class PatchOperation {
                 });
             }
 
+            resource = await this.preSaveManager.preSaveAsync({ resource });
+
             /**
              * @type {OperationOutcome|null}
              */
@@ -376,14 +378,6 @@ class PatchOperation {
                 }
                 httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                     operationResult: mergeResults
-                });
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
-                        await this.postSaveProcessor.afterSaveAsync({
-                            requestId, eventType: 'U', resourceType, doc: resource
-                        });
-                    }
                 });
             }
 

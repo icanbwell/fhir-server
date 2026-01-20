@@ -118,8 +118,14 @@ const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
+const { PatientPersonManualLinkingEventProducer } = require('./utils/patientPersonManualLinkingEventProducer');
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
+const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
+const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
+const { RedisClient } = require('./utils/redisClient');
+const { RedisStreamManager } = require('./utils/redisStreamManager');
+const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 
 /**
  * Creates a container and sets up all the services
@@ -225,6 +231,14 @@ const createContainer = function () {
             configManager: c.configManager
         }
     ));
+    container.register('patientPersonDataChangeEventProducer', (c) => new PatientPersonDataChangeEventProducer(
+        {
+            kafkaClient: c.kafkaClient,
+            configManager: c.configManager,
+            patientFilterManager: c.patientFilterManager,
+            databaseQueryFactory: c.databaseQueryFactory
+        }
+    ));
     container.register('bulkExportEventProducer', (c) => new BulkExportEventProducer(
         {
             kafkaClient: c.kafkaClient,
@@ -235,6 +249,11 @@ const createContainer = function () {
     container.register('fhirOperationUsageEventProducer', (c) => new FhirOperationUsageEventProducer({
        configManager: c.configManager,
        fhirOperationAccessEventTopic: process.env.KAFKA_FHIR_OPERATION_USAGE_EVENT_TOPIC || 'fhir.operation.usage.events',
+       kafkaClient: c.kafkaClient
+    }));
+    container.register('patientPersonManualLinkingEventProducer', (c) => new PatientPersonManualLinkingEventProducer({
+       configManager: c.configManager,
+       patientPersonLinkEventTopic: process.env.KAFKA_PATIENT_PERSON_LINK_EVENT_TOPIC || 'fhir.manual.person.linking.events',
        kafkaClient: c.kafkaClient
     }));
 
@@ -429,7 +448,16 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.databaseBulkInserter,
-                preSaveManager: c.preSaveManager
+                preSaveManager: c.preSaveManager,
+                configManager: c.configManager,
+                auditEventKafkaProducer: c.auditEventKafkaProducer
+            }
+        )
+    );
+    container.register('auditEventKafkaProducer', (c) => new AuditEventKafkaProducer(
+            {
+                kafkaClient: c.kafkaClient,
+                auditEventKafkaTopic: process.env.AUDIT_EVENT_KAFKA_TOPIC || 'fhir.audit_event.stream'
             }
         )
     );
@@ -447,8 +475,7 @@ const createContainer = function () {
     container.register('accessLogsEventProducer', (c) => new AccessLogsEventProducer(
             {
                 kafkaClient: c.kafkaClient,
-                accessLogsEventTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events',
-                configManager: c.configManager
+                accessLogsEventTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events'
             }
         )
     );
@@ -488,6 +515,7 @@ const createContainer = function () {
         configManager: c.configManager,
         bundleManager: c.bundleManager,
         searchManager: c.searchManager,
+        scopesValidator: c.scopesValidator,
         enrichmentManager: c.enrichmentManager,
         r4ArgsParser: c.r4ArgsParser,
         databaseAttachmentManager: c.databaseAttachmentManager,
@@ -496,7 +524,8 @@ const createContainer = function () {
         customTracer: c.customTracer,
         patientDataViewControlManager: c.patientDataViewControlManager,
         auditLogger: c.auditLogger,
-        postRequestProcessor: c.postRequestProcessor
+        postRequestProcessor: c.postRequestProcessor,
+        redisStreamManager: c.redisStreamManager
     }));
 
     container.register('everythingRelatedResourceMapper', (c) => new EverythingRelatedResourcesMapper());
@@ -551,7 +580,6 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                postSaveProcessor: c.postSaveProcessor,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
@@ -566,7 +594,6 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                postSaveProcessor: c.postSaveProcessor,
                 databaseQueryFactory: c.databaseQueryFactory,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
@@ -610,7 +637,9 @@ const createContainer = function () {
         databaseBulkInserter: c.databaseBulkInserter,
         resourceLocatorFactory: c.resourceLocatorFactory,
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseAttachmentManager: c.databaseAttachmentManager
+        databaseAttachmentManager: c.databaseAttachmentManager,
+        postRequestProcessor: c.postRequestProcessor,
+        postSaveProcessor: c.postSaveProcessor
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(
@@ -672,8 +701,8 @@ const createContainer = function () {
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            postSaveProcessor: c.postSaveProcessor,
             postRequestProcessor: c.postRequestProcessor,
+            preSaveManager: c.preSaveManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
@@ -721,7 +750,11 @@ const createContainer = function () {
             graphOperation: c.graphOperation,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            configManager: c.configManager
+            configManager: c.configManager,
+            databaseQueryFactory: c.databaseQueryFactory,
+            searchManager: c.searchManager,
+            redisStreamManager: c.redisStreamManager,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
 
@@ -817,7 +850,8 @@ const createContainer = function () {
         fhirOperationsManager: c.fhirOperationsManager,
         postSaveProcessor: c.postSaveProcessor,
         patientFilterManager: c.patientFilterManager,
-        removeHelper: c.removeHelper
+        removeHelper: c.removeHelper,
+        patientPersonManualLinkingEventProducer: c.patientPersonManualLinkingEventProducer
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
@@ -841,6 +875,10 @@ const createContainer = function () {
         }
     ));
 
+    container.register('fhirCacheKeyManager', (c) => new FhirCacheKeyManager({
+        redisClient: c.redisClient
+    }));
+
     container.register('r4ArgsParser', (c) => new R4ArgsParser({
         fhirTypesManager: c.fhirTypesManager,
         configManager: c.configManager,
@@ -855,7 +893,8 @@ const createContainer = function () {
 
     container.register('postSaveProcessor', (c) => new PostSaveProcessor({
         handlers: [
-            c.changeEventProducer
+            c.changeEventProducer,
+            c.patientPersonDataChangeEventProducer
         ]
     }));
 
@@ -971,6 +1010,11 @@ const createContainer = function () {
             }
         );
     });
+
+    container.register('redisClient', () => new RedisClient());
+    container.register('redisStreamManager', (c) => new RedisStreamManager({
+        redisClient: c.redisClient
+    }));
 
     return container;
 };

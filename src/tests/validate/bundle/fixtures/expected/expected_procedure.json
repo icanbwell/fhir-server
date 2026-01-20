@@ -69,14 +69,14 @@
             "value": "32416"
           },
           {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "5da8ccf6-420d-5e64-892e-6635ed95bb19"
-          },
-          {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "efF4v-zsK5NG3Am.Yjlo5DXePlSj77DRUgD.6wgkKIM3ljriDnAYavum4QKIJaQ9y3"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "5da8ccf6-420d-5e64-892e-6635ed95bb19"
           }
         ],
         "location": {

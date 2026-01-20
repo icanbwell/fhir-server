@@ -244,24 +244,30 @@ class MongoDatabaseManager {
         clientDb = client.db(clientConfig.db_name);
 
         const auditConfig = await this.getAuditConfigAsync();
-        const auditEventClient = await this.createClientAsync(auditConfig);
+        const auditEventClient = auditConfig.connection ? await this.createClientAsync(auditConfig) : client;
         auditClientDb = auditEventClient.db(auditConfig.db_name);
 
         // if enabled then use auditEventReadOnlyMongoConfig else use same instance on audit event db
         if (this.configManager.enableAuditEventArchiveRead) {
             const auditReadOnlyConfig = await this.getAuditReadOnlyConfigAsync();
-            const auditEventReadOnlyClient = await this.createClientAsync(auditReadOnlyConfig);
+            const auditEventReadOnlyClient = auditReadOnlyConfig.connection
+                ? await this.createClientAsync(auditReadOnlyConfig)
+                : auditEventClient;
             auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
         } else {
             auditReadOnlyClientDb = auditClientDb;
         }
 
         const accessLogsConfig = await this.getAccessLogsConfigAsync();
-        const accessLogsClient = await this.createClientAsync(accessLogsConfig);
+        const accessLogsClient = accessLogsConfig.connection
+            ? await this.createClientAsync(accessLogsConfig)
+            : auditEventClient;
         accessLogsDb = accessLogsClient.db(accessLogsConfig.db_name);
 
         const resourceHistoryConfig = await this.getResourceHistoryConfigAsync();
-        const resourceHistoryClient = await this.createClientAsync(resourceHistoryConfig);
+        const resourceHistoryClient = resourceHistoryConfig.connection
+            ? await this.createClientAsync(resourceHistoryConfig)
+            : client;
         resourceHistoryDb = resourceHistoryClient.db(resourceHistoryConfig.db_name);
     }
 

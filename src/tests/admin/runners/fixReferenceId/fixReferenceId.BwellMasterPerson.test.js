@@ -11,7 +11,8 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders
+    getHeaders,
+    mockHttpContext
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdRunner } = require('../../../../admin/runners/fixReferenceIdRunner');
@@ -21,8 +22,10 @@ const { IdentifierSystem } = require('../../../../utils/identifierSystem');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {

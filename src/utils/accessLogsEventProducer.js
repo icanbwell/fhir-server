@@ -1,7 +1,6 @@
 const { generateUUID } = require('./uid.util');
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { KafkaClient } = require('./kafkaClient');
-const { ConfigManager } = require('./configManager');
 const { logError } = require('../operations/common/logging');
 
 /**
@@ -13,11 +12,10 @@ class AccessLogsEventProducer {
      * @typedef {Object} Params
      * @property {KafkaClient} kafkaClient
      * @property {string} accessLogsEventTopic
-     * @property {ConfigManager} configManager
      *
      * @param {Params} params
      */
-    constructor({ kafkaClient, accessLogsEventTopic, configManager }) {
+    constructor({ kafkaClient, accessLogsEventTopic }) {
         /**
          * @type {KafkaClient}
          */
@@ -28,11 +26,6 @@ class AccessLogsEventProducer {
          */
         this.accessLogsEventTopic = accessLogsEventTopic;
         assertIsValid(accessLogsEventTopic);
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -59,10 +52,6 @@ class AccessLogsEventProducer {
      */
     async produce(logsData) {
         try {
-            if (!this.configManager.kafkaEnableAccessLogsEvent) {
-                return;
-            }
-
             const messages = logsData.map(({ log, requestId }) => {
                 const messageJson = this._createMessage(log);
                 return {
