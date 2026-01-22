@@ -542,16 +542,16 @@ args: {
         // for backward compatability in case clientDB and resourceHistoryDB are same
         const collection_names = new Set();
 
-        for await (const collection of db.listCollections({ type: { $ne: 'view' } })) {
+        for await (const collection of db.listCollections()) {
+            if (collection.type === 'view') continue;
             if (isNotSystemCollection(collection.name)) {
                 collection_names.add(collection.name);
             }
         }
 
         if (!audit && !accessLogs) {
-            for await (const collection of resourceHistoryDb.listCollections({
-                type: { $ne: 'view' }
-            })) {
+            for await (const collection of resourceHistoryDb.listCollections()) {
+                if (collection.type === 'view') continue;
                 if (isNotSystemCollection(collection.name)) {
                     collection_names.add(collection.name);
                 }
