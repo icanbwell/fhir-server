@@ -20,7 +20,7 @@ const { QueryParameterValue } = require('../query/queryParameterValue');
 const { FhirOperationUsageEventProducer } = require('../../utils/fhirOperationUsageEventProducer');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { REGEX } = require('../../constants');
-const { filterResources } = require('../../utils/resourceFilter');
+const { filterGraphResources } = require('../../utils/filterGraphResources');
 
 class EverythingOperation {
     /**
@@ -282,7 +282,7 @@ class EverythingOperation {
                 }
 
                 if (resourceFilter) {
-                    parsedArgs.resource = filterResources(
+                    parsedArgs.resource = filterGraphResources(
                         deepcopy(parsedArgs.resource),
                         parsedArgs.resourceFilterList
                     );

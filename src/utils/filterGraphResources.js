@@ -6,7 +6,7 @@ const deepcopy = require('deepcopy');
  * @param {Array} resourceFilterList
  * @return {Object}
  */
-function filterResources(resourceEverythingGraph, resourceFilterList) {
+function filterGraphResources(resourceEverythingGraph, resourceFilterList) {
     let result = deepcopy(resourceEverythingGraph);
     result['link'] = [];
 
@@ -15,7 +15,7 @@ function filterResources(resourceEverythingGraph, resourceFilterList) {
         link.target.forEach((target) => {
             let targetCopy = target;
             if (Object.hasOwn(target, 'link')) {
-                targetCopy = filterResources(target, resourceFilterList);
+                targetCopy = filterGraphResources(target, resourceFilterList);
             }
             if (targetCopy['link'] || resourceFilterList.includes(targetCopy['type'])) {
                 linksList.push(targetCopy);
@@ -33,5 +33,5 @@ function filterResources(resourceEverythingGraph, resourceFilterList) {
 }
 
 module.exports = {
-    filterResources
+    filterGraphResources
 };

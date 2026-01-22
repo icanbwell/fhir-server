@@ -19,7 +19,7 @@ const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { filterResources } = require('../../utils/resourceFilter');
+const { filterGraphResources } = require('../../utils/filterGraphResources');
 const { mergeBundleMetaTags } = require('./mergeBundleMetaTags');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchBundleOperation } = require('../search/searchBundle');
@@ -410,7 +410,7 @@ class SummaryOperation {
                     compositionResult
                 );
                 if (requiredResourcesList.length > 0) {
-                    parsedArgs.resource = filterResources(
+                    parsedArgs.resource = filterGraphResources(
                         deepcopy(summaryGraph),
                         requiredResourcesList
                     );
