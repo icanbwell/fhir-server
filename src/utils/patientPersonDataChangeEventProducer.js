@@ -226,11 +226,6 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
             typeof resourceReference !== 'string' ||
             !resourceReference.startsWith(PATIENT_REFERENCE_PREFIX)
         ) {
-            logError(`Invalid patient reference for resource ${resourceType} with id ${docId}`, {
-                reference: resourceReference,
-                requestId,
-                eventType
-            });
             return null;
         }
 
