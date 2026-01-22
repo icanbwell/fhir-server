@@ -385,7 +385,7 @@ class SummaryOperation {
                 const compostionParsedArgs = this.r4ArgsParser.parseArgs({
                     resourceType: 'Composition',
                     args: {
-                        _rewritePatientReference: false,
+                        _rewritePatientReference:false,
                         _debug: parsedArgs._debug,
                         _explain: parsedArgs._explain,
                         headers: parsedArgs.headers,
@@ -434,8 +434,11 @@ class SummaryOperation {
             let combinedResult = result;
 
             if (includeSummaryCompositionOnly) {
-
-                combinedResult.entry = combinedResult.entry.concat(e);
+                if (compositionResult && Array.isArray(compositionResult.entry) && compositionResult.entry.length > 0) {
+                    for (const e of compositionResult.entry) {
+                            combinedResult.entry = combinedResult.entry.concat(e);
+                    }
+                }
                 combinedResult = mergeBundleMetaTags(combinedResult, compositionResult);
             }
 
