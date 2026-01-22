@@ -1,11 +1,11 @@
-const {GraphOperation} = require('../graph/graph');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {ConfigManager} = require('../../utils/configManager');
+const { GraphOperation } = require('../graph/graph');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { ConfigManager } = require('../../utils/configManager');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
-const {ComprehensiveIPSCompositionBuilder, TBundle} = require("@imranq2/fhirpatientsummary");
+const { ComprehensiveIPSCompositionBuilder, TBundle } = require("@imranq2/fhirpatientsummary");
 const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
@@ -18,7 +18,10 @@ const { READ } = require('../../constants').OPERATIONS;
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { filterResources } = require('../../utils/resourceFilter');
+const { mergeBundleMetaTags } = require('./mergeBundleMetaTags');
+const { isTrue } = require('../../utils/isTrue');
 
 class SummaryOperation {
     /**
@@ -32,7 +35,7 @@ class SummaryOperation {
      * @param {RedisStreamManager} redisStreamManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager, postRequestProcessor}) {
+    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager, postRequestProcessor }) {
         /**
          * @type {GraphOperation}
          */
@@ -178,7 +181,7 @@ class SummaryOperation {
      * @param {summaryAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async summaryAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+    async summaryAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -222,7 +225,7 @@ class SummaryOperation {
      * @param {summaryBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async summaryBundleAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+    async summaryBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -285,7 +288,7 @@ class SummaryOperation {
         }
 
         try {
-            const {_type: resourceFilter, headers, id} = parsedArgs;
+            const { _type: resourceFilter, headers, id } = parsedArgs;
             const supportLegacyId = false;
 
             if (resourceFilter) {
@@ -335,8 +338,6 @@ class SummaryOperation {
                 });
             });
 
-            parsedArgs.resource = summaryGraph;
-
             // disable proxy patient rewrite by default
             if (!parsedArgs._rewritePatientReference) {
                 parsedArgs.add(
@@ -352,6 +353,48 @@ class SummaryOperation {
                 );
             }
 
+            // Compute proxy patient id once and reuse
+            const proxyPatientId =
+                Array.isArray(id) && id.length > 1
+                    ? id.filter((patientId) => patientId.startsWith('person.'))?.[0]
+                    : undefined;
+
+            const builder = new ComprehensiveIPSCompositionBuilder();
+            const timezone = this.configManager.serverTimeZone;
+
+            const includeSummaryCompositionOnly = isTrue(parsedArgs._includeSummaryCompositionOnly) && proxyPatientId;
+
+            let compositionResult;
+            let requiredResourcesList;
+            if (includeSummaryCompositionOnly) {
+                parsedArgs.resource = filterResources(
+                    deepcopy(summaryGraph),
+                    ["Composition"]
+                );
+                /**
+                 * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+                 */
+                compositionResult = await this.graphOperation.graph({
+                    requestInfo,
+                    res,
+                    parsedArgs,
+                    resourceType,
+                    responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
+                    supportLegacyId
+                });
+
+                requiredResourcesList = builder.getRemainingResourcesFromCompositionBundle(
+                    compositionResult
+                );
+
+                parsedArgs.resource = filterResources(
+                    deepcopy(summaryGraph),
+                    requiredResourcesList
+                );
+            } else {
+                parsedArgs.resource = summaryGraph;
+            }
+
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
              */
@@ -364,29 +407,40 @@ class SummaryOperation {
                 supportLegacyId
             });
 
-            if (!result || !result.entry || result.entry.length === 0) {
+            let combinedResult = deepcopy(result);
+
+            if (includeSummaryCompositionOnly) {
+                if (compositionResult && Array.isArray(compositionResult.entry) && compositionResult.entry.length>0) {
+                    const addedResourcesSet = new Set();
+                    combinedResult.entry.forEach((e) => {
+                        addedResourcesSet.add(e.fullUrl);
+                    });
+                    for (const e of compositionResult.entry) {
+                        if (!addedResourcesSet.has(e.fullUrl)) {
+                            combinedResult.entry.push(e);
+                            addedResourcesSet.add(e.fullUrl);
+                        }
+                    }
+                }
+                combinedResult = mergeBundleMetaTags(combinedResult, compositionResult);
+            }
+
+            if (!combinedResult || !combinedResult.entry || combinedResult.entry.length === 0) {
                 // no resources found
                 if (responseStreamer) {
-                    responseStreamer.setBundle({bundle: result});
+                    responseStreamer.setBundle({ bundle: combinedResult });
                     return undefined;
                 }
                 else {
-                    return result;
+                    return combinedResult;
                 }
             }
 
-            const builder = new ComprehensiveIPSCompositionBuilder();
-            const timezone = this.configManager.serverTimeZone;
-
-            // set proxy patient id if available
-            const proxyPatientId =
-                Array.isArray(id) && id.length > 1
-                    ? id.filter((patientId) => patientId.startsWith('person.'))?.[0]
-                    : undefined;
             await builder.readBundleAsync(
-                /** @type {TBundle} */ (result),
+                /** @type {TBundle} */(combinedResult),
                 timezone,
                 proxyPatientId ? true : false,
+                includeSummaryCompositionOnly,
                 {
                     info: (msg, args = {}) => logInfo(msg, args),
                     error: (msg, args = {}) => logError(msg, args)
@@ -398,16 +452,17 @@ class SummaryOperation {
                 this.configManager.summaryGeneratorOrganizationName,
                 this.configManager.summaryGeneratorOrganizationBaseUrl,
                 timezone,
+                includeSummaryCompositionOnly,
                 proxyPatientId
             );
 
-            // add meta information from $graph result
-            summaryBundle.meta = result.meta;
+            // add meta information from merged bundle
+            summaryBundle.meta = combinedResult.meta;
 
             if (responseStreamer) {
                 const summaryBundleEntries = summaryBundle.entry;
                 delete summaryBundle.entry;
-                responseStreamer.setBundle({bundle: summaryBundle});
+                responseStreamer.setBundle({ bundle: summaryBundle });
                 for (const entry of summaryBundleEntries) {
                     await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: entry

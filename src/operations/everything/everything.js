@@ -20,6 +20,7 @@ const { QueryParameterValue } = require('../query/queryParameterValue');
 const { FhirOperationUsageEventProducer } = require('../../utils/fhirOperationUsageEventProducer');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { REGEX } = require('../../constants');
+const { filterResources } = require('../../utils/resourceFilter');
 
 class EverythingOperation {
     /**
@@ -281,7 +282,7 @@ class EverythingOperation {
                 }
 
                 if (resourceFilter) {
-                    parsedArgs.resource = this.filterResources(
+                    parsedArgs.resource = filterResources(
                         deepcopy(parsedArgs.resource),
                         parsedArgs.resourceFilterList
                     );
@@ -339,38 +340,6 @@ class EverythingOperation {
             });
             throw err;
         }
-    }
-
-    /**
-     * filters resources to be fetched based on the list provided
-     * @param {Object} resourceEverythingGraph
-     * @param {Array} resourceFilterList
-     * @return {Object}
-     */
-    filterResources(resourceEverythingGraph, resourceFilterList) {
-        let result = deepcopy(resourceEverythingGraph);
-        result['link'] = [];
-
-        resourceEverythingGraph.link.forEach((link) => {
-            let linksList = [];
-            link.target.forEach((target) => {
-                let targetCopy = target;
-                if (Object.hasOwn(target, 'link')) {
-                    targetCopy = this.filterResources(target, resourceFilterList);
-                }
-                if (targetCopy['link'] || resourceFilterList.includes(targetCopy['type'])) {
-                    linksList.push(targetCopy);
-                }
-            });
-            if (linksList.length > 0) {
-                link.target = linksList;
-                result['link'] = result['link'].concat(link);
-            }
-        });
-        if (result['link'].length === 0) {
-            delete result['link'];
-        }
-        return result;
     }
 }
 
