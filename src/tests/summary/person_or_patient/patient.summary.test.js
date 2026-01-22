@@ -35,6 +35,7 @@ const expectedProxyPatientBundle = require('./fixtures/expected/expected_proxy_p
 const expectedPatientBundleUsingComposition = require('./fixtures/expected/expected_patient_bundle_using_composition.json');
 const expectedPatientBundleLastUpdated = require('./fixtures/expected/expected_patient_bundle_last_updated.json');
 const expectedPatientBundleLastUpdatedRange = require('./fixtures/expected/expected_patient_bundle_last_updated_range.json');
+const expectedSummaryCompositionOnlyBundle = require('./fixtures/expected/expected_summary_bundle_with_only_composition.json');
 const expectedCompositionDivPath = `${__dirname}/fixtures/expected/expected_composition_div.html`;
 const expectedFunctionalStatusDivPath = `${__dirname}/fixtures/expected/expected_functional_status_div.html`;
 
@@ -1065,5 +1066,133 @@ describe('Patient $summary Tests', () => {
 
         // Compare the text.div from the Composition resource with the expected HTML
         expect(normalizeHtml(functionalStatusSection.text.div)).toBe(normalizeHtml(expectedFunctionalStatusDiv));
+    });
+
+    test('Patient $summary should return summary bundle only when _includeSummaryComposition=true', async () => {
+        const request = await createTestRequest();
+        // ARRANGE
+        // add the resources to FHIR server
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(topLevelPersonResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient3Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(accountResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(unlinkedAccountResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Subscription/subscription1/$merge?validate=true')
+            .send(subscription1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Subscription/subscription2/$merge?validate=true')
+            .send(subscription2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+            .send(subscriptionStatus1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/SubscriptionStatus/1/$merge?validate=true')
+            .send(subscriptionStatus2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+            .send(subscriptionTopic1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/SubscriptionTopic/1/$merge?validate=true')
+            .send(subscriptionTopic2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        // ACT & ASSERT
+        // get proxy patient $summary
+        resp = await request
+            .get('/4_0_0/Patient/person.person2/$summary?_includeSummaryCompositionOnly=1&_debug=1')
+            .set(getHeaders());
+
+        // Basic response checks
+        expect(resp.status).toBe(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedSummaryCompositionOnlyBundle);
     });
 });

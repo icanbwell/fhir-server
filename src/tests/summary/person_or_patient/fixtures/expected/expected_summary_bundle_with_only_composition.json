@@ -1,0 +1,131 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "id": "Composition-person.person2",
+                "resourceType": "Composition",
+                "status": "final",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "60591-5",
+                            "display": "Patient summary Document"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/person.person2"
+                },
+                "author": [
+                    {
+                        "reference": "Organization/bwell",
+                        "display": "b.well Connected Health"
+                    }
+                ],
+                "date": "2025-12-15T12:00:00.000Z",
+                "title": "International Patient Summary",
+                "section": [
+                    {
+                        "title": "Problem List",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "11450-4",
+                                    "display": "Problem List"
+                                }
+                            ],
+                            "text": "Problem List"
+                        },
+                        "text": {
+                            "status": "generated",
+                            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available about the subject's health problems or disabilities.</div>"
+                        },
+                        "entry": []
+                    },
+                    {
+                        "title": "Allergies and Intolerances",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "48765-2",
+                                    "display": "Allergies and Intolerances"
+                                }
+                            ],
+                            "text": "Allergies and Intolerances"
+                        },
+                        "text": {
+                            "status": "generated",
+                            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available regarding the subject's allergy conditions.</div>"
+                        },
+                        "entry": []
+                    },
+                    {
+                        "title": "Medication Summary",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "10160-0",
+                                    "display": "Medication Summary"
+                                }
+                            ],
+                            "text": "Medication Summary"
+                        },
+                        "text": {
+                            "status": "generated",
+                            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available about the subject's medication use or administration.</div>"
+                        },
+                        "entry": []
+                    }
+                ],
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This section merges all Patient resources into a single combined patient record, preferring non-empty values for each field.</p><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li><li>patient2</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
+                }
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "type": "document",
+    "identifier": {
+        "system": "urn:ietf:rfc:3986",
+        "value": "urn:uuid:4dcfd353-49fd-4ab0-b521-c8d57ced74d6"
+    },
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Patient_4_0_0.find({'$or':[{'_uuid':{'$in':['24a5930e-11b4-5525-b482-669174917044','dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'_sourceId':'person.person2'}]}, {'_id':0})  | db.AllergyIntolerance_4_0_0.find({'$and':[{'$or':[{'patient._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'patient._sourceId':'Patient/person.person2'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.CarePlan_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'status':'active'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.ClinicalImpression_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'status':'completed'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.Condition_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.Consent_4_0_0.find({'$and':[{'$or':[{'patient._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'patient._sourceId':'Patient/person.person2'}]},{'status':'active'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.DeviceUseStatement_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.DiagnosticReport_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'status':'final'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.Immunization_4_0_0.find({'$and':[{'$or':[{'patient._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'patient._sourceId':'Patient/person.person2'}]},{'status':'completed'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.MedicationRequest_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'status':'active'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.MedicationStatement_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'status':'active'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.Observation_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'$or':[{'effectiveDateTime':{'$gte':'2023-12-15T00:00:00+00:00'}},{'$and':[{'effectivePeriod.start':{'$ne':null}},{'$or':[{'effectivePeriod.end':{'$gte':'2023-12-15T00:00:00+00:00'}},{'effectivePeriod.end':null}]}]},{'effectiveTiming.event':{'$ne':null}},{'effectiveInstant':{'$gte':ISODate('2023-12-15T00:00:00.000Z')}}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.Procedure_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Patient/24a5930e-11b4-5525-b482-669174917044','Patient/dc1946f6-aed3-599f-8f8d-dd543a094589']}},{'subject._sourceId':'Patient/person.person2'}]},{'status':'completed'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}) | db.Composition_4_0_0.find({'$and':[{'subject._sourceId':'Patient/person.person2'},{'$or':[{'$and':[{'identifier.system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell'},{'identifier.value':'bwell_composition_for_health_data_summary'}]},{'$and':[{'identifier.system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell'},{'identifier.value':'bwell_composition_for_international_patient_summary'}]}]},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Patient_4_0_0|AllergyIntolerance_4_0_0|CarePlan_4_0_0|ClinicalImpression_4_0_0|Condition_4_0_0|Consent_4_0_0|DeviceUseStatement_4_0_0|DiagnosticReport_4_0_0|Immunization_4_0_0|MedicationRequest_4_0_0|MedicationStatement_4_0_0|Observation_4_0_0|Procedure_4_0_0|Composition_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "[{'projection':{'_id':0}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "[]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':undefined}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple"
+            }
+        ]
+    },
+    "total": 1
+}

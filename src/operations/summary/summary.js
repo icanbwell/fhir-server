@@ -1,11 +1,11 @@
-const {GraphOperation} = require('../graph/graph');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {ConfigManager} = require('../../utils/configManager');
+const { GraphOperation } = require('../graph/graph');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { ConfigManager } = require('../../utils/configManager');
 const patientSummaryGraph = require("../../graphs/patient/summary.json");
-const {ComprehensiveIPSCompositionBuilder, TBundle} = require("@imranq2/fhirpatientsummary");
+const { ComprehensiveIPSCompositionBuilder, TBundle } = require("@imranq2/fhirpatientsummary");
 const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
@@ -18,12 +18,19 @@ const { READ } = require('../../constants').OPERATIONS;
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { filterGraphResources } = require('../../utils/filterGraphResources');
+const { mergeBundleMetaTags } = require('./mergeBundleMetaTags');
+const { isTrue } = require('../../utils/isTrue');
+const { SearchBundleOperation } = require('../search/searchBundle');
+const { R4ArgsParser } = require('../query/r4ArgsParser');
 
 class SummaryOperation {
     /**
      * constructor
      * @param {GraphOperation} graphOperation
+     * @param {SearchBundleOperation} searchBundleOperation
+     * @param {R4ArgsParser} r4ArgsParser
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
@@ -32,12 +39,22 @@ class SummaryOperation {
      * @param {RedisStreamManager} redisStreamManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor({graphOperation, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager, postRequestProcessor}) {
+    constructor({ graphOperation, searchBundleOperation, r4ArgsParser, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager, postRequestProcessor }) {
         /**
          * @type {GraphOperation}
          */
         this.graphOperation = graphOperation;
         assertTypeEquals(graphOperation, GraphOperation);
+        /**
+         * @type {SearchBundleOperation}
+         */
+        this.searchBundleOperation = searchBundleOperation;
+        assertTypeEquals(searchBundleOperation, SearchBundleOperation);
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
         /**
          * @type {FhirLoggingManager}
          */
@@ -178,7 +195,7 @@ class SummaryOperation {
      * @param {summaryAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async summaryAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+    async summaryAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -222,7 +239,7 @@ class SummaryOperation {
      * @param {summaryBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async summaryBundleAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+    async summaryBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -285,7 +302,7 @@ class SummaryOperation {
         }
 
         try {
-            const {_type: resourceFilter, headers, id} = parsedArgs;
+            const { _type: resourceFilter, headers, id } = parsedArgs;
             const supportLegacyId = false;
 
             if (resourceFilter) {
@@ -335,8 +352,6 @@ class SummaryOperation {
                 });
             });
 
-            parsedArgs.resource = summaryGraph;
-
             // disable proxy patient rewrite by default
             if (!parsedArgs._rewritePatientReference) {
                 parsedArgs.add(
@@ -352,41 +367,99 @@ class SummaryOperation {
                 );
             }
 
-            /**
-             * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
-             */
-            const result = await this.graphOperation.graph({
-                requestInfo,
-                res,
-                parsedArgs,
-                resourceType,
-                responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
-                supportLegacyId
-            });
-
-            if (!result || !result.entry || result.entry.length === 0) {
-                // no resources found
-                if (responseStreamer) {
-                    responseStreamer.setBundle({bundle: result});
-                    return undefined;
-                }
-                else {
-                    return result;
-                }
-            }
-
-            const builder = new ComprehensiveIPSCompositionBuilder();
-            const timezone = this.configManager.serverTimeZone;
-
-            // set proxy patient id if available
+            // Compute proxy patient id once and reuse
             const proxyPatientId =
                 Array.isArray(id) && id.length > 1
                     ? id.filter((patientId) => patientId.startsWith('person.'))?.[0]
                     : undefined;
+
+            const builder = new ComprehensiveIPSCompositionBuilder();
+            const timezone = this.configManager.serverTimeZone;
+
+            const includeSummaryCompositionOnly = isTrue(parsedArgs._includeSummaryCompositionOnly) && proxyPatientId;
+
+            let compositionResult;
+            let requiredResourcesList;
+            if (includeSummaryCompositionOnly) {
+
+                const compositionParsedArgs = this.r4ArgsParser.parseArgs({
+                    resourceType: 'Composition',
+                    args: {
+                        _rewritePatientReference: false,
+                        _debug: parsedArgs._debug,
+                        _explain: parsedArgs._explain,
+                        headers: parsedArgs.headers,
+                        base_version: parsedArgs.base_version,
+                        patient: proxyPatientId,
+                        identifier: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary'
+                    }
+                })
+
+
+                /**
+                 * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+                 */
+                compositionResult = await this.searchBundleOperation.searchBundleAsync({
+                    requestInfo,
+                    res,
+                    parsedArgs: compositionParsedArgs,
+                    resourceType: 'Composition'
+                });
+
+                requiredResourcesList = builder.getRemainingResourcesFromCompositionBundle(
+                    compositionResult
+                );
+                if (requiredResourcesList.length > 0) {
+                    parsedArgs.resource = filterGraphResources(
+                        deepcopy(summaryGraph),
+                        requiredResourcesList
+                    );
+                } else {
+                    parsedArgs.resource = {};
+                }
+            } else {
+                parsedArgs.resource = summaryGraph;
+            }
+
+            /**
+             * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+             */
+            let combinedResult;
+            if (parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0) {
+                combinedResult = await this.graphOperation.graph({
+                    requestInfo,
+                    res,
+                    parsedArgs,
+                    resourceType,
+                    responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
+                    supportLegacyId
+                });
+            }
+
+            if (includeSummaryCompositionOnly) {
+                if (compositionResult && Array.isArray(compositionResult.entry) && compositionResult.entry.length > 0) {
+                    combinedResult.entry = combinedResult.entry || [];
+                    combinedResult.entry = combinedResult.entry.concat(compositionResult.entry);
+                }
+                combinedResult = mergeBundleMetaTags(combinedResult, compositionResult);
+            }
+
+            if (!combinedResult || !combinedResult.entry || combinedResult.entry.length === 0) {
+                // no resources found
+                if (responseStreamer) {
+                    responseStreamer.setBundle({ bundle: combinedResult });
+                    return undefined;
+                }
+                else {
+                    return combinedResult;
+                }
+            }
+
             await builder.readBundleAsync(
-                /** @type {TBundle} */ (result),
+                /** @type {TBundle} */(combinedResult),
                 timezone,
                 proxyPatientId ? true : false,
+                includeSummaryCompositionOnly,
                 {
                     info: (msg, args = {}) => logInfo(msg, args),
                     error: (msg, args = {}) => logError(msg, args)
@@ -398,16 +471,17 @@ class SummaryOperation {
                 this.configManager.summaryGeneratorOrganizationName,
                 this.configManager.summaryGeneratorOrganizationBaseUrl,
                 timezone,
+                includeSummaryCompositionOnly,
                 proxyPatientId
             );
 
-            // add meta information from $graph result
-            summaryBundle.meta = result.meta;
+            // add meta information from merged bundle
+            summaryBundle.meta = combinedResult.meta;
 
             if (responseStreamer) {
                 const summaryBundleEntries = summaryBundle.entry;
                 delete summaryBundle.entry;
-                responseStreamer.setBundle({bundle: summaryBundle});
+                responseStreamer.setBundle({ bundle: summaryBundle });
                 for (const entry of summaryBundleEntries) {
                     await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: entry

@@ -33,7 +33,7 @@
       "target": [
         {
           "type": "Composition",
-          "params": "patient={ref}"
+          "params": "patient={ref}&identifier=https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary"
         }
       ]
     },
@@ -49,7 +49,7 @@
       "target": [
         {
           "type": "Consent",
-          "params": "patient={ref}"
+          "params": "patient={ref}&status=active"
         }
       ]
     },
