@@ -14,7 +14,7 @@ function mergeBundleMetaTags(bundle1, bundle2) {
     if (!bundle1) return bundle2;
     if (!bundle2) return bundle1;
 
-    const mergedBundle = deepcopy(bundle1) || {};
+    const mergedBundle = bundle1 || {};
 
     const tags1 = bundle1?.meta?.tag || [];
     const tags2 = bundle2?.meta?.tag || [];
@@ -55,31 +55,23 @@ function mergeBundleMetaTags(bundle1, bundle2) {
  * @returns {Object} - Merged tag
  */
 function mergeTag(tag1, tag2, system) {
-    if (system.includes('query') && !system.includes('queryCollection') &&
-        !system.includes('queryOptions') && !system.includes('queryFields') &&
-        !system.includes('queryTime') && !system.includes('queryOptimization') &&
-        !system.includes('queryExplain')) {
+    if (system==="https://www.icanbwell.com/query") {
         return mergeQueryTag(tag1, tag2);
     }
 
-    if (system.includes('queryCollection')) {
+    if (system === 'https://www.icanbwell.com/queryCollection') {
         return mergeQueryCollectionTag(tag1, tag2);
     }
 
-    if (system.includes('queryOptions') || system.includes('queryFields') ||
-        system.includes('queryOptimization')) {
-        return tag1;
-    }
-
-    if (system.includes('queryTime')) {
+    if (system === 'https://www.icanbwell.com/queryTime') {
         return mergeQueryTimeTag(tag1, tag2);
     }
 
-    if (system.includes('queryExplain') && !system.includes('queryExplainSimple')) {
+    if (system === 'https://www.icanbwell.com/queryExplain') {
         return mergeQueryExplainTag(tag1, tag2);
     }
 
-    if (system.includes('queryExplainSimple')) {
+    if (system === 'https://www.icanbwell.com/queryExplainSimple') {
         return mergeQueryExplainTag(tag1, tag2);
     }
 

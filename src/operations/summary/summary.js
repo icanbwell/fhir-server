@@ -424,23 +424,24 @@ class SummaryOperation {
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
              */
-            const result = await this.graphOperation.graph({
-                requestInfo,
-                res,
-                parsedArgs,
-                resourceType,
-                responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
-                supportLegacyId
-            });
+            let result;
+            if (parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0) {
+                result = await this.graphOperation.graph({
+                    requestInfo,
+                    res,
+                    parsedArgs,
+                    resourceType,
+                    responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
+                    supportLegacyId
+                });
+            }
 
             let combinedResult = result;
 
             if (includeSummaryCompositionOnly) {
                 if (compositionResult && Array.isArray(compositionResult.entry) && compositionResult.entry.length > 0) {
                     combinedResult.entry = combinedResult.entry || [];
-                    for (const e of compositionResult.entry) {
-                        combinedResult.entry.push(e);
-                    }
+                    combinedResult.entry = combinedResult.entry.concat(compositionResult.entry);
                 }
                 combinedResult = mergeBundleMetaTags(combinedResult, compositionResult);
             }
