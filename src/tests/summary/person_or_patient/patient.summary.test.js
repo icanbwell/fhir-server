@@ -35,7 +35,7 @@ const expectedProxyPatientBundle = require('./fixtures/expected/expected_proxy_p
 const expectedPatientBundleUsingComposition = require('./fixtures/expected/expected_patient_bundle_using_composition.json');
 const expectedPatientBundleLastUpdated = require('./fixtures/expected/expected_patient_bundle_last_updated.json');
 const expectedPatientBundleLastUpdatedRange = require('./fixtures/expected/expected_patient_bundle_last_updated_range.json');
-const expectedSummarCompositionOnlyBundle = require('./fixtures/expected/expected_summary_bundle_with_only_composition.json');
+const expectedSummaryCompositionOnlyBundle = require('./fixtures/expected/expected_summary_bundle_with_only_composition.json');
 const expectedCompositionDivPath = `${__dirname}/fixtures/expected/expected_composition_div.html`;
 const expectedFunctionalStatusDivPath = `${__dirname}/fixtures/expected/expected_functional_status_div.html`;
 
@@ -1193,6 +1193,6 @@ describe('Patient $summary Tests', () => {
         // Basic response checks
         expect(resp.status).toBe(200);
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedSummarCompositionOnlyBundle);
+        expect(resp).toHaveResponse(expectedSummaryCompositionOnlyBundle);
     });
 });

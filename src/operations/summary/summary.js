@@ -382,10 +382,10 @@ class SummaryOperation {
             let requiredResourcesList;
             if (includeSummaryCompositionOnly) {
 
-                const compostionParsedArgs = this.r4ArgsParser.parseArgs({
+                const compositionParsedArgs = this.r4ArgsParser.parseArgs({
                     resourceType: 'Composition',
                     args: {
-                        _rewritePatientReference:false,
+                        _rewritePatientReference: false,
                         _debug: parsedArgs._debug,
                         _explain: parsedArgs._explain,
                         headers: parsedArgs.headers,
@@ -402,7 +402,7 @@ class SummaryOperation {
                 compositionResult = await this.searchBundleOperation.searchBundleAsync({
                     requestInfo,
                     res,
-                    parsedArgs: compostionParsedArgs,
+                    parsedArgs: compositionParsedArgs,
                     resourceType: 'Composition'
                 });
 
@@ -414,6 +414,8 @@ class SummaryOperation {
                         deepcopy(summaryGraph),
                         requiredResourcesList
                     );
+                } else {
+                    parsedArgs.resource = {};
                 }
             } else {
                 parsedArgs.resource = summaryGraph;
@@ -435,8 +437,9 @@ class SummaryOperation {
 
             if (includeSummaryCompositionOnly) {
                 if (compositionResult && Array.isArray(compositionResult.entry) && compositionResult.entry.length > 0) {
+                    combinedResult.entry = combinedResult.entry || [];
                     for (const e of compositionResult.entry) {
-                            combinedResult.entry = combinedResult.entry.concat(e);
+                        combinedResult.entry.push(e);
                     }
                 }
                 combinedResult = mergeBundleMetaTags(combinedResult, compositionResult);
