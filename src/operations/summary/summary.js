@@ -424,9 +424,9 @@ class SummaryOperation {
             /**
              * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
              */
-            let result;
+            let combinedResult;
             if (parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0) {
-                result = await this.graphOperation.graph({
+                combinedResult = await this.graphOperation.graph({
                     requestInfo,
                     res,
                     parsedArgs,
@@ -435,8 +435,6 @@ class SummaryOperation {
                     supportLegacyId
                 });
             }
-
-            let combinedResult = result;
 
             if (includeSummaryCompositionOnly) {
                 if (compositionResult && Array.isArray(compositionResult.entry) && compositionResult.entry.length > 0) {
