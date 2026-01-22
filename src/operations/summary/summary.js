@@ -22,11 +22,15 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { filterResources } = require('../../utils/resourceFilter');
 const { mergeBundleMetaTags } = require('./mergeBundleMetaTags');
 const { isTrue } = require('../../utils/isTrue');
+const { SearchBundleOperation } = require('../search/searchBundle');
+const { R4ArgsParser } = require('../query/r4ArgsParser');
 
 class SummaryOperation {
     /**
      * constructor
      * @param {GraphOperation} graphOperation
+     * @param {SearchBundleOperation} searchBundleOperation
+     * @param {R4ArgsParser} r4ArgsParser
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
@@ -35,12 +39,22 @@ class SummaryOperation {
      * @param {RedisStreamManager} redisStreamManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager, postRequestProcessor }) {
+    constructor({ graphOperation, searchBundleOperation, r4ArgsParser, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager, postRequestProcessor }) {
         /**
          * @type {GraphOperation}
          */
         this.graphOperation = graphOperation;
         assertTypeEquals(graphOperation, GraphOperation);
+        /**
+         * @type {SearchBundleOperation}
+         */
+        this.searchBundleOperation = searchBundleOperation;
+        assertTypeEquals(searchBundleOperation, SearchBundleOperation);
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
         /**
          * @type {FhirLoggingManager}
          */
@@ -367,30 +381,40 @@ class SummaryOperation {
             let compositionResult;
             let requiredResourcesList;
             if (includeSummaryCompositionOnly) {
-                parsedArgs.resource = filterResources(
-                    deepcopy(summaryGraph),
-                    ["Composition"]
-                );
+
+                const compostionParsedArgs = this.r4ArgsParser.parseArgs({
+                    resourceType: 'Composition',
+                    args: {
+                        _rewritePatientReference: false,
+                        _debug: parsedArgs._debug,
+                        _explain: parsedArgs._explain,
+                        headers: parsedArgs.headers,
+                        base_version: parsedArgs.base_version,
+                        patient: proxyPatientId,
+                        identifier: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary'
+                    }
+                })
+
+
                 /**
                  * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
                  */
-                compositionResult = await this.graphOperation.graph({
+                compositionResult = await this.searchBundleOperation.searchBundleAsync({
                     requestInfo,
                     res,
-                    parsedArgs,
-                    resourceType,
-                    responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
-                    supportLegacyId
+                    parsedArgs: compostionParsedArgs,
+                    resourceType: 'Composition'
                 });
 
                 requiredResourcesList = builder.getRemainingResourcesFromCompositionBundle(
                     compositionResult
                 );
-
-                parsedArgs.resource = filterResources(
-                    deepcopy(summaryGraph),
-                    requiredResourcesList
-                );
+                if (requiredResourcesList.length > 0) {
+                    parsedArgs.resource = filterResources(
+                        deepcopy(summaryGraph),
+                        requiredResourcesList
+                    );
+                }
             } else {
                 parsedArgs.resource = summaryGraph;
             }
@@ -407,21 +431,11 @@ class SummaryOperation {
                 supportLegacyId
             });
 
-            let combinedResult = deepcopy(result);
+            let combinedResult = result;
 
             if (includeSummaryCompositionOnly) {
-                if (compositionResult && Array.isArray(compositionResult.entry) && compositionResult.entry.length>0) {
-                    const addedResourcesSet = new Set();
-                    combinedResult.entry.forEach((e) => {
-                        addedResourcesSet.add(e.fullUrl);
-                    });
-                    for (const e of compositionResult.entry) {
-                        if (!addedResourcesSet.has(e.fullUrl)) {
-                            combinedResult.entry.push(e);
-                            addedResourcesSet.add(e.fullUrl);
-                        }
-                    }
-                }
+
+                combinedResult.entry = combinedResult.entry.concat(e);
                 combinedResult = mergeBundleMetaTags(combinedResult, compositionResult);
             }
 

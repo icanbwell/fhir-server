@@ -748,6 +748,8 @@ const createContainer = function () {
     container.register('summaryOperation', (c) => new SummaryOperation(
         {
             graphOperation: c.graphOperation,
+            searchBundleOperation: c.searchBundleOperation,
+            r4ArgsParser: c.r4ArgsParser,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             configManager: c.configManager,
