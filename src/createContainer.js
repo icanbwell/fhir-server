@@ -126,6 +126,10 @@ const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonD
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
+const { DelegatedActorRulesManager } = require('./utils/delegatedActorRulesManager');
+const { FilteringRulesCacheManager } = require('./utils/filteringRulesCacheManager');
+const { DelegatedAccessQueryManager } = require('./operations/search/delegatedAccessQueryManager');
+const { DelegatedActorScopeManager } = require('./operations/security/delegatedActorScopeManager');
 
 /**
  * Creates a container and sets up all the services
@@ -199,7 +203,8 @@ const createContainer = function () {
         fhirLoggingManager: c.fhirLoggingManager,
         configManager: c.configManager,
         patientScopeManager: c.patientScopeManager,
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        delegatedActorScopeManager: c.delegatedActorScopeManager
     }));
     container.register('profileUrlMapper', (_c) => new ProfileUrlMapper());
 
@@ -366,7 +371,8 @@ const createContainer = function () {
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
-                patientQueryCreator: c.patientQueryCreator
+                patientQueryCreator: c.patientQueryCreator,
+                delegatedAccessQueryManager: c.delegatedAccessQueryManager
             }
         )
     );
@@ -984,6 +990,36 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             r4ArgsParser: c.r4ArgsParser
+        });
+    });
+
+    container.register('filteringRulesCacheManager', (c) => {
+        return new FilteringRulesCacheManager({
+            redisClient: c.redisClient,
+            configManager: c.configManager
+        });
+    });
+
+    container.register('delegatedActorRulesManager', (c) => {
+        return new DelegatedActorRulesManager({
+            configManager: c.configManager,
+            databaseQueryFactory: c.databaseQueryFactory,
+            filteringRulesCacheManager: c.filteringRulesCacheManager,
+            customTracer: c.customTracer
+        });
+    });
+
+    container.register('delegatedActorScopeManager', (c) => {
+        return new DelegatedActorScopeManager({
+            delegatedActorRulesManager: c.delegatedActorRulesManager
+        });
+    });
+
+    container.register('delegatedAccessQueryManager', (c) => {
+        return new DelegatedAccessQueryManager({
+            databaseQueryFactory: c.databaseQueryFactory,
+            configManager: c.configManager,
+            delegatedActorRulesManager: c.delegatedActorRulesManager
         });
     });
 

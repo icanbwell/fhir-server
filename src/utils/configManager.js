@@ -894,6 +894,24 @@ class ConfigManager {
     }
 
     /**
+     * Enable the delegated access filtering
+     * @returns {boolean}
+     */
+    get enableDelegatedAccessFiltering() {
+        return isTrue(env.ENABLE_DELEGATED_ACCESS_FILTERING);
+    }
+
+    /**
+     * Sensitive data category system identifiers for consent filtering (partial match)
+     * @returns {string[]}
+     */
+    get sensitiveCategorySystemIdentifiers() {
+        return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIERS
+            ? env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIERS.split(',').map(s => s.trim())
+            : ['CodeSystem/sensitive-data-category'];
+    }
+
+    /**
      * return CACHE_EXPIRY_TIME
      * @returns {number}
      */
@@ -955,6 +973,14 @@ class ConfigManager {
      */
     get everythingCacheTtlSeconds() {
         return parseInt(process.env.EVERYTHING_CACHE_TTL_SECONDS) || 300;
+    }
+
+    /**
+     * returns ttl seconds for delegated access filtering rules cache
+     * @return {number}
+     */
+    get delegatedAccessFilteringRulesCacheTtlSeconds() {
+        return parseInt(process.env.DELEGATED_ACCESS_FILTERING_RULES_CACHE_TTL_SECONDS) || 300;
     }
 
     /**

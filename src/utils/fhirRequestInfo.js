@@ -23,6 +23,7 @@ class FhirRequestInfo {
      * @param {string | null} params.personIdFromJwtToken
      * @param {string | null} params.masterPersonIdFromJwtToken
      * @param {string | null} params.managingOrganizationId
+     * @param {string | null} params.delegatedActor
      * @param {Object} params.headers
      * @param {string} params.method
      * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
@@ -41,6 +42,7 @@ class FhirRequestInfo {
             body,
             accept,
             isUser,
+            delegatedActor,
             personIdFromJwtToken,
             masterPersonIdFromJwtToken,
             managingOrganizationId,
@@ -129,6 +131,12 @@ class FhirRequestInfo {
          * @type {boolean}
          */
         this.preferGlobalId = headers.Prefer && isTrue(headers.Prefer.replace('global_id=', ''));
+
+        /**
+         * Delegated Actor
+         * @type {string | null}
+         */
+        this.delegatedActor = delegatedActor;
     }
 
     /**

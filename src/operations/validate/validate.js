@@ -95,6 +95,8 @@ class ValidateOperation {
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {string | null} */
+            delegatedActor,
+            /** @type {string | null} */
             user,
             /** @type {string | null} */
             scope,
@@ -137,6 +139,7 @@ class ValidateOperation {
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
+                        delegatedActor,
                         parsedArgs,
                         operation: READ
                     }
