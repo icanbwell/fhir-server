@@ -127,7 +127,7 @@ class MergeOperation {
         for (const resource of resourcesIncomingArray) {
             // if this resourceType,id is not in the merge results then add it as an unchanged entry
             if (currentMergeResults.filter(
-                i => i._uuid === resource._uuid).length === 0) {
+                i => i._uuid === resource._uuid && i.resourceType === resource.resourceType).length === 0) {
                 /**
                  * @type {MergeResultEntry}
                  */

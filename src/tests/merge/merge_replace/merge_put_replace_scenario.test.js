@@ -3,6 +3,7 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const person1DuplicatePhoneNumber = require('./fixtures/Person/person1_duplicate_phone.json');
 const person1UpdateIdentifier = require('./fixtures/Person/person1_update_identifier.json');
 const person2UpdateIdentifier = require('./fixtures/Person/person2_update_identifier.json');
+const bundleWithSameUuid = require('./fixtures/merge_bundle_with_same_uuid.json');
 
 // expected
 const expectedReplacedPersonResources = require('./fixtures/expected/expected_Replaced_Phone.json');
@@ -83,7 +84,7 @@ describe('Person Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         // Now update the resource
-        resp =  await request
+        resp = await request
             .post('/4_0_0/Person/$merge')
             .send(person1UpdateIdentifier)
             .set(getHeaders())
@@ -113,10 +114,10 @@ describe('Person Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         // Now update the resource with no identifiers
-        const person2UpdateNoIdentifier = {...person2UpdateIdentifier};
+        const person2UpdateNoIdentifier = { ...person2UpdateIdentifier };
         delete person2UpdateNoIdentifier.identifier;
 
-        resp =  await request
+        resp = await request
             .post('/4_0_0/Person/$merge')
             .send(person2UpdateNoIdentifier)
             .set(getHeaders())
@@ -146,12 +147,12 @@ describe('Person Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         // Now update the resource with only uuid as identifier
-        const person2UpdateOnlyUuidIdentifier = {...person2UpdateIdentifier};
+        const person2UpdateOnlyUuidIdentifier = { ...person2UpdateIdentifier };
         person2UpdateOnlyUuidIdentifier.identifier = person2UpdateOnlyUuidIdentifier.identifier.filter(
             id => id.system === IdentifierSystem.uuid
         );
 
-        resp =  await request
+        resp = await request
             .post('/4_0_0/Person/$merge')
             .send(person2UpdateOnlyUuidIdentifier)
             .set(getHeaders())
@@ -181,12 +182,12 @@ describe('Person Tests', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         // Now update the resource with only sourceId as identifier
-        const person2UpdateOnlySourceIdIdentifier = {...person2UpdateIdentifier};
+        const person2UpdateOnlySourceIdIdentifier = { ...person2UpdateIdentifier };
         person2UpdateOnlySourceIdIdentifier.identifier = person2UpdateOnlySourceIdIdentifier.identifier.filter(
             id => id.system === IdentifierSystem.sourceId
         );
 
-        resp =  await request
+        resp = await request
             .post('/4_0_0/Person/$merge')
             .send(person2UpdateOnlySourceIdIdentifier)
             .set(getHeaders())
@@ -200,6 +201,60 @@ describe('Person Tests', () => {
             .expect(200);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPerson2MergedIdentifier);
+    });
+
+    test('Merge different resources with same uuid should return the return correct merge result entries', async () => {
+        const request = await createTestRequest();
+
+        // Create resources
+        let resp = await request
+            .post('/4_0_0/Person/$merge')
+            .send(bundleWithSameUuid)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse([
+            {
+                created: true,
+                updated: false
+            },
+            {
+                created: true,
+                updated: false
+            },
+            {
+                created: true,
+                updated: false
+            }
+        ]);
+
+        // Update one resource and verify only that resource is updated
+        const updatedBundle = bundleWithSameUuid;
+        updatedBundle[1].gender = 'female';
+        resp = await request
+            .post('/4_0_0/Person/$merge')
+            .send(updatedBundle)
+            .set(getHeaders())
+            .expect(200);
+        // noinspection JSUnresolvedFunction
+
+        // check length of response should be 3
+        expect(resp.body.length).toBe(3);
+
+        expect(resp).toHaveMergeResponse([
+            {
+                created: false,
+                updated: true
+            },
+            {
+                created: false,
+                updated: false
+            },
+            {
+                created: false,
+                updated: false
+            }
+        ]);
     });
 
 });
