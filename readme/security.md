@@ -114,11 +114,11 @@ These attributes define the person accessing the FHIR server.
 FHIR server will restrict the data returned to only data belonging to that Person by looking at the Person id in the provided token.
 
 #### 2.4.3.1 Actor accessing on behalf of Person Auth
-This is used when an actor (like RelatedPerson, CareTeam, Person) acts on behlaf of the actual person. 
+This is used when an actor (like RelatedPerson, CareTeam, Person) acts on behalf of the actual person.
 
-This will give actor access to the person data with some restrictions as mentioned in thier consent.
+This will give actor access to the person data with some restrictions as mentioned in their consent.
 
-- Scopes will work same as of patient token with restrictions
+- Scopes will work the same as for a patient token, with restrictions
 - No active consent will lead to unauthorized error
 - Access only to non-sensitive and specific sensitive category resources mentioned in Consent
 - Write Operation not allowed irrespective of scopes

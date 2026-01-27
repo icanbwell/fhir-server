@@ -64,8 +64,8 @@ In particular, it walks **nested provisions** under `Consent.provision.provision
 
 When filtering rules contain denied sensitive categories, the server modifies the MongoDB search query to exclude resources tagged with those categories.
 
-- Resource doens't contain any sensitive tag
-- Resource conatins sensitive tag which is not present in excluded categories
+- Resources that don't contain any sensitive tag are included.
+- Resources that contain sensitive tags which are not present in excluded categories are included.
 
 ### Filter Logic
 
@@ -103,7 +103,7 @@ This correctly handles resources that may have **multiple** sensitive-category c
 - If **no denied categories** exist: the original query is returned unchanged.
 - If **denied categories** exist: the filter is applied to exclude those resources.
 
-## Audit Loggging
+## Audit Logging
 Audit logs will have the delegated actor as the requester.
 
 ## Config
