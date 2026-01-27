@@ -203,7 +203,7 @@ describe('Person Tests', () => {
         expect(resp).toHaveResponse(expectedPerson2MergedIdentifier);
     });
 
-    test('Merge different resources with same uuid should return the return correct merge result entries', async () => {
+    test('Merge different resources with same uuid should return the correct merge result entries', async () => {
         const request = await createTestRequest();
 
         // Create resources
