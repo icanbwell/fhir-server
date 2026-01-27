@@ -109,7 +109,7 @@ The client app can then pass this token to the FHIR server as a bearer token in 
 The access token must have all of the following attributes:
 1. clientFhirPatientId
 
-These attributes define the person accessing the FHIR server.
+This attribute defines the person accessing the FHIR server.
 
 FHIR server will restrict the data returned to only data belonging to that Person by looking at the Person id in the provided token.
 
@@ -121,7 +121,7 @@ This will give actor access to the person data with some restrictions as mention
 - Scopes will work the same as for a patient token, with restrictions
 - No active consent will lead to unauthorized error
 - Access only to non-sensitive and specific sensitive category resources mentioned in Consent
-- Write Operation not allowed irrespective of scopes
+- write Operation not allowed irrespective of scopes
 
 For more info check: [Delegated Access](./delegatedActorAccess.md)
 

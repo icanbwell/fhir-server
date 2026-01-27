@@ -1,24 +1,24 @@
 # Delegated Actor Consent Based Filtering (Upcoming Changes)
 
-A delegated access token is a patient scoped token which have an `act` field indicating actor acting of behalf of `clientFhirPersonId`.
+A delegated access token is a patient-scoped token which has an `act` field indicating an actor acting on behalf of `clientFhirPersonId`.
 
 ```
 // JWT Payload
 {
   "clientFhirPersonId": <personId>,
   "act": {
-    "reference": <Reference to delegated actor>◊
+    "reference": <Reference to delegated actor>
   }
   // rest of the payload
 }
 ```
 
-When we access the patient data using a delegated access token, it will look up for an consent related to grantor and grantee and based on it
+When we access the patient data using a delegated access token, it will look up a consent related to grantor and grantee and based on it
 - Add restrictions to accessing data
 - Hiding sensitive tagged resources
 - Generate audit logs for the actor
 
-Geven below is the detailed proccess that will happen once a delegated token is detected.
+Given below is the detailed process that will happen once a delegated token is detected.
 
 ## Delegated Actor Consent Fetching
 
