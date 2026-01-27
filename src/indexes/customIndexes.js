@@ -380,6 +380,15 @@ module.exports = {
                 options: {
                     name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
+            },
+            {
+                keys: {
+                    'identifier.system': 1,
+                    'identifier.value': 1
+                },
+                options: {
+                    name: 'identifier.system_1_identifier.value_1'
+                }
             }
         ],
         DocumentReference_4_0_0: [
