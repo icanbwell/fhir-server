@@ -108,13 +108,23 @@ The client app can then pass this token to the FHIR server as a bearer token in 
 
 The access token must have all of the following attributes:
 1. clientFhirPatientId
-2. clientFhirPersonId
-3. bwellFhirPatientId
-4. bwellFhirPersonId
 
-These attributes define the person or patient accessing the FHIR server.
+These attributes define the person accessing the FHIR server.
 
-FHIR server will restrict the data returned to only data belonging to that person or patient by looking at the Person or Patient id in the provided token.
+FHIR server will restrict the data returned to only data belonging to that Person by looking at the Person id in the provided token.
+
+#### 2.4.3.1 Actor accessing on behalf of Person Auth
+This is used when an actor (like RelatedPerson, CareTeam, Person) acts on behlaf of the actual person. 
+
+This will give actor access to the person data with some restrictions as mentioned in thier consent.
+
+- Scopes will work same as of patient token with restrictions
+- No active consent will lead to unauthorized error
+- Access only to non-sensitive and specific sensitive category resources mentioned in Consent
+- Write Operation not allowed irrespective of scopes
+
+For more info check: [Delegated Access](./delegatedActorAccess.md)
+
 
 #### 2.5 How to pass tokens
 Tokens can be passed in three ways in an HTTP request:
@@ -347,6 +357,9 @@ curl --request POST \
 - For user token (patient scoped token):
 Note: for using patient token, corresponding client person and patient must be added in database.
 The patient token have following default payload which can be configured via (docker-compose.yml)[../docker-compose.yml]
+
+
+TODO: This will change since we are deprecating other fields
 ```
 {
   "clientFhirPatientId": "22aa18af-af51-5799-bc55-367c22c85407",
