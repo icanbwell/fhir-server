@@ -20,6 +20,7 @@ if (env.MONGO_USERNAME !== undefined) {
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
 const queryParams = getQueryParams(mongoUrl);
+const isElasticDocDb = process.env.ELASTIC_DOCDB === 'true';
 const writeConcern = queryParams.w ?? 'majority';
 delete queryParams.w;
 // noinspection JSValidateTypes
@@ -38,9 +39,7 @@ const options = {
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
     minPoolSize: env.MONGO_MIN_POOL_SIZE ? parseInt(env.MONGO_MIN_POOL_SIZE) : 10,
     maxPoolSize: env.MONGO_MAX_POOL_SIZE ? parseInt(env.MONGO_MAX_POOL_SIZE) : 100,
-    writeConcern: {
-        w: writeConcern
-    }
+    ...(isElasticDocDb ? {} : { writeConcern: { w: writeConcern } })
     // keepAliveInitialDelay: 0,
     // heartbeatFrequencyMS: 30 * 1000,
     // serverSelectionTimeoutMS: 30 * 1000,
@@ -90,9 +89,7 @@ if (env.AUDIT_EVENT_MONGO_URL) {
             ...auditQueryParams,
             minPoolSize: env.AUDIT_EVENT_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MIN_POOL_SIZE) : options.minPoolSize,
             maxPoolSize: env.AUDIT_EVENT_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MAX_POOL_SIZE) : options.maxPoolSize,
-            writeConcern: {
-                w: auditWriteConcern
-            }
+            ...(isElasticDocDb ? {} : { writeConcern: { w: auditWriteConcern } })
         }
     };
 }
@@ -126,9 +123,7 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
             ...auditReadOnlyQueryParams,
             minPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE) : 0,
             maxPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE) : 100,
-            writeConcern: {
-                w: auditReadOnlyWriteConcern
-            }
+            ...(isElasticDocDb ? {} : { writeConcern: { w: auditReadOnlyWriteConcern } })
         }
     };
 }
@@ -208,9 +203,7 @@ if (env.RESOURCE_HISTORY_MONGO_URL) {
             ...resourceHistoryQueryParams,
             minPoolSize: env.RESOURCE_HISTORY_MIN_POOL_SIZE ? parseInt(env.RESOURCE_HISTORY_MIN_POOL_SIZE) : options.minPoolSize,
             maxPoolSize: env.RESOURCE_HISTORY_MAX_POOL_SIZE ? parseInt(env.RESOURCE_HISTORY_MAX_POOL_SIZE) : options.maxPoolSize,
-            writeConcern: {
-                w: resourceHistoryWriteConcern
-            }
+            ...(isElasticDocDb ? {} : { writeConcern: { w: resourceHistoryWriteConcern } })
         }
     };
 }
