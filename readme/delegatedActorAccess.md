@@ -13,10 +13,11 @@ A delegated access token is a patient-scoped token which has an `act` field indi
 }
 ```
 
-When we access the patient data using a delegated access token, it will look up a consent related to grantor and grantee and based on it
+When we access the patient data using a delegated access token, it will look up a consent related to grantor and grantee and based on that:
+
 - Add restrictions to accessing data
 - Hiding sensitive tagged resources
-- Generate audit logs for the actor
+- Generate audit logs for the delegated actor
 
 Given below is the detailed process that will happen once a delegated token is detected.
 
@@ -49,7 +50,7 @@ After the query returns:
 - If **no Consent** is found: delegated access is treated as **not permitted** (request fails authorization).
 - If **exactly one Consent** is found: it is used to build delegated-access filtering rules.
 - If **multiple Consents** are found: access is rejected as ambiguous.
-  - The code throws a `503` error ("Multiple active Consent resources found...") to avoid choosing an arbitrary Consent.
+  - The code throws a `500` error ("Multiple active Consent resources found...") which indicates a data issue.
 
 ## Building Filtering Rules
 
@@ -104,7 +105,7 @@ This correctly handles resources that may have **multiple** sensitive-category c
 - If **denied categories** exist: the filter is applied to exclude those resources.
 
 ## Audit Logging
-Audit logs will have the delegated actor as the requester.
+Audit logs will have the reference of delegated actor as the auditEvent.agent.
 
 ## Config
 

@@ -114,7 +114,7 @@ This attribute defines the person accessing the FHIR server.
 FHIR server will restrict the data returned to only data belonging to that Person by looking at the Person id in the provided token.
 
 #### 2.4.3.1 Actor accessing on behalf of Person Auth
-This is used when an actor (like RelatedPerson, CareTeam, Person) acts on behalf of the actual person.
+This is used when an actor (like RelatedPerson, CareTeam) acts on behalf of the actual person.
 
 This will give actor access to the person data with some restrictions as mentioned in their consent.
 
