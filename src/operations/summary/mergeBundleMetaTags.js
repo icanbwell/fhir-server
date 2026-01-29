@@ -1,5 +1,3 @@
-const deepcopy = require('deepcopy');
-
 /**
  * Merges meta tags from two FHIR bundles according to specific rules
  * @param {Object} bundle1 - First FHIR bundle

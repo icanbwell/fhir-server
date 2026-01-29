@@ -854,27 +854,26 @@ describe('Patient $summary Tests', () => {
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
         const container = getTestContainer();
-        const streams = container.redisClient.streams;
+        const redisData = container.redisClient.store;
         // Test without redis enabled
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary')
             .set(getHeaders());
 
-        expect(Array.from(streams.keys())).toHaveLength(0);
+        expect(Array.from(redisData.keys())).toHaveLength(0);
         expect(resp).toHaveResourceCount(3);
 
         // Test with redis enabled
         process.env.ENABLE_REDIS = '1';
         process.env.ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION = '1';
-        const redisReadSpy = jest.spyOn(container.redisStreamManager, 'readBundleEntriesFromStream');
+        const redisReadSpy = jest.spyOn(container.redisManager, 'readBundleFromCacheAsync');
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary')
             .set(getHeaders());
 
         expect(resp).toHaveResourceCount(3);
-        let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:access/*.*,user/*.read,user/*.write::Summary';
-        expect(streams.keys()).toContain(cacheKey);
-        expect(streams.get(cacheKey)).toHaveLength(3);
+        let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:6331e158-f666-5ee2-9e13-15282da7ba75::Summary';
+        expect(redisData.keys()).toContain(cacheKey);
         expect(resp.headers).toHaveProperty('x-cache', 'Miss');
 
         resp = await request
@@ -894,7 +893,7 @@ describe('Patient $summary Tests', () => {
         expect(redisReadSpy).toHaveBeenCalled();
         redisReadSpy.mockClear();
         expect(resp.headers).toHaveProperty('x-cache', 'Hit');
-        streams.clear();
+        redisData.clear();
 
         process.env.ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION = '1';
         resp = await request
@@ -903,9 +902,9 @@ describe('Patient $summary Tests', () => {
 
         expect(resp).toHaveResourceCount(3);
         expect(redisReadSpy).not.toHaveBeenCalled();
-        expect(Array.from(streams.keys())).toHaveLength(0);
+        expect(Array.from(redisData.keys())).toHaveLength(0);
         redisReadSpy.mockClear();
-        streams.clear();
+        redisData.clear();
 
         // test patient uuid case
         resp = await request
@@ -913,9 +912,10 @@ describe('Patient $summary Tests', () => {
             .set(getHeaders());
 
         expect(resp).toHaveResourceCount(3);
-        expect(streams.keys()).toContain(cacheKey);
-        expect(streams.get(cacheKey)).toHaveLength(3);
-        streams.clear();
+        expect(redisData.keys()).toContain(cacheKey);
+        let cachedBundle = JSON.parse(redisData.get(cacheKey));
+        expect(cachedBundle.entry).toHaveLength(9);
+        redisData.clear();
 
         // test with patient scopes
         let jwtPayload = {
@@ -934,20 +934,22 @@ describe('Patient $summary Tests', () => {
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(3);
-        cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:access/*.*,patient/*.*,user/*.*::Summary';
-        expect(streams.keys()).toContain(cacheKey);
-        expect(streams.get(cacheKey)).toHaveLength(3);
-        streams.clear();
+        cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:41b78b54-0a8e-5477-af30-d99864d04833::Summary';
+        expect(cacheKey).toBeDefined();
+        cachedBundle = JSON.parse(redisData.get(cacheKey));
+        expect(cachedBundle.entry).toHaveLength(9);
+        redisData.clear();
 
         resp = await request
             .get('/4_0_0/Patient/patient1/$summary')
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(3);
-        cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:access/*.*,patient/*.*,user/*.*::Summary';
-        expect(streams.keys()).toContain(cacheKey);
-        expect(streams.get(cacheKey)).toHaveLength(3);
-        streams.clear();
+        // Cache key should be the same for the same patient
+        expect(redisData.keys()).toContain(cacheKey);
+        cachedBundle = JSON.parse(redisData.get(cacheKey));
+        expect(cachedBundle.entry).toHaveLength(9);
+        redisData.clear();
 
         // Testing Multiple patients linked with same sourceId
         let patient4Resource = deepcopy(patient1Resource);
@@ -995,7 +997,7 @@ describe('Patient $summary Tests', () => {
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(4);
-        expect(Array.from(streams.keys())).toHaveLength(0);
+        expect(Array.from(redisData.keys())).toHaveLength(0);
 
         // Testing redis
         resp = await request
@@ -1013,7 +1015,7 @@ describe('Patient $summary Tests', () => {
 
         expect(redisReadSpy).not.toHaveBeenCalled();
         expect(resp.headers).toHaveProperty('x-cache', 'Miss')
-        streams.clear();
+        redisData.clear();
         redisReadSpy.mockClear();
 
         process.env.ENABLE_REDIS = '0';

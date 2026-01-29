@@ -4,8 +4,8 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
-const patientSummaryGraph = require("../../graphs/patient/summary.json");
-const { ComprehensiveIPSCompositionBuilder, TBundle } = require("@imranq2/fhirpatientsummary");
+const patientSummaryGraph = require('../../graphs/patient/summary.json');
+const { ComprehensiveIPSCompositionBuilder, TBundle } = require('@imranq2/fhirpatientsummary');
 const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
@@ -13,17 +13,19 @@ const { logInfo, logError } = require('../common/logging');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { SearchManager } = require('../search/searchManager');
 const { isUuid } = require('../../utils/uid.util');
-const { PERSON_PROXY_PREFIX } = require('../../constants');
+const { PERSON_PROXY_PREFIX, CACHE_STATUS } = require('../../constants');
 const { READ } = require('../../constants').OPERATIONS;
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
-const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
-const { RedisStreamManager } = require('../../utils/redisStreamManager');
+const { RedisManager } = require('../../utils/redisManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { filterGraphResources } = require('../../utils/filterGraphResources');
 const { mergeBundleMetaTags } = require('./mergeBundleMetaTags');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchBundleOperation } = require('../search/searchBundle');
 const { R4ArgsParser } = require('../query/r4ArgsParser');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { BaseResponseHandler } = require('../../utils/responseHandler/baseResponseHandler');
+const { EnrichmentManager } = require('../../enrich/enrich');
 
 class SummaryOperation {
     /**
@@ -36,10 +38,23 @@ class SummaryOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {SearchManager} searchManager
-     * @param {RedisStreamManager} redisStreamManager
+     * @param {RedisManager} redisManager
+     * @param {EnrichmentManager} enrichmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor({ graphOperation, searchBundleOperation, r4ArgsParser, fhirLoggingManager, scopesValidator, configManager, databaseQueryFactory, searchManager, redisStreamManager, postRequestProcessor }) {
+    constructor({
+        graphOperation,
+        searchBundleOperation,
+        r4ArgsParser,
+        fhirLoggingManager,
+        scopesValidator,
+        configManager,
+        databaseQueryFactory,
+        searchManager,
+        redisManager,
+        enrichmentManager,
+        postRequestProcessor
+    }) {
         /**
          * @type {GraphOperation}
          */
@@ -86,10 +101,16 @@ class SummaryOperation {
         assertTypeEquals(searchManager, SearchManager);
 
         /**
-         * @type {RedisStreamManager}
+         * @type {RedisManager}
          */
-        this.redisStreamManager = redisStreamManager;
-        assertTypeEquals(redisStreamManager, RedisStreamManager);
+        this.redisManager = redisManager;
+        assertTypeEquals(redisManager, RedisManager);
+
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
 
         /**
          * @type {PostRequestProcessor}
@@ -117,12 +138,10 @@ class SummaryOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
-    * @returns {Promise<string[]>}
-    */
+     * @returns {Promise<string[]>}
+     */
     async fetchPatientUUID(parsedArgs, requestInfo, resourceType) {
-        const {
-            query
-        } = await this.searchManager.constructQueryAsync({
+        const { query } = await this.searchManager.constructQueryAsync({
             user: requestInfo.user,
             scope: requestInfo.scope,
             isUser: requestInfo.isUser,
@@ -136,7 +155,10 @@ class SummaryOperation {
             addPersonOwnerToContext: requestInfo.isUser,
             applyPatientFilter: true
         });
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({ resourceType, base_version: parsedArgs.base_version });
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType,
+            base_version: parsedArgs.base_version
+        });
         const options = {
             projection: {
                 _uuid: 1,
@@ -165,22 +187,30 @@ class SummaryOperation {
         if (paramsIds.length !== 1) {
             return undefined;
         }
+        const keyGenerator = new SummaryCacheKeyGenerator();
+        if (!keyGenerator.isResponseTypeCacheable(requestInfo.accept, parsedArgs)) {
+            return undefined;
+        }
+
         let idForCache;
         let id = paramsIds[0];
         const isProxyPatient = id.startsWith(PERSON_PROXY_PREFIX);
         if (isProxyPatient) {
             id = id.replace(PERSON_PROXY_PREFIX, '');
-            if (isUuid(id) && (requestInfo.personIdFromJwtToken === undefined || id === requestInfo.personIdFromJwtToken)) {
+            if (
+                isUuid(id) &&
+                (requestInfo.personIdFromJwtToken === undefined || id === requestInfo.personIdFromJwtToken)
+            ) {
                 idForCache = `${PERSON_PROXY_PREFIX}${id}`;
             }
         } else {
             let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType);
             idForCache = patientIds && patientIds.length === 1 ? patientIds[0] : undefined;
         }
-        let keyGenerator = new SummaryCacheKeyGenerator();
-        return idForCache ? keyGenerator.generateCacheKey(
-            { id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope, contentType: requestInfo.contentTypeFromHeader?.type }
-        ) : undefined;
+
+        return idForCache
+            ? keyGenerator.generateCacheKey({ id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope })
+            : undefined;
     }
 
     /**
@@ -190,12 +220,12 @@ class SummaryOperation {
      * @property {import('http').ServerResponse} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
-     * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     * @property {BaseResponseHandler} responseHandler
      *
      * @param {summaryAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async summaryAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async summaryAsync({ requestInfo, res, parsedArgs, resourceType, responseHandler }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -212,7 +242,7 @@ class SummaryOperation {
                 res,
                 parsedArgs,
                 resourceType,
-                responseStreamer // disable response streaming if we are answering a question
+                responseHandler
             });
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
@@ -234,12 +264,12 @@ class SummaryOperation {
      * @property {import('express').Response} res
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
-     * @property {BaseResponseStreamer|undefined} [responseStreamer]
+     * @property {BaseResponseHandler} responseHandler
      *
      * @param {summaryBundleAsyncParams}
      * @return {Promise<Bundle>}
      */
-    async summaryBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseStreamer }) {
+    async summaryBundleAsync({ requestInfo, res, parsedArgs, resourceType, responseHandler }) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -260,57 +290,8 @@ class SummaryOperation {
             accessRequested: 'read'
         });
 
-        const writeCache = this.configManager.writeToCacheForSummaryOperation;
-        const cacheKey = writeCache ? await this.getCacheKey(
-            parsedArgs, requestInfo, resourceType
-        ) : undefined;
-        const cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
-            redisStreamManager: this.redisStreamManager,
-            cacheKey,
-            responseStreamer,
-            ttlSeconds: this.configManager.summaryCacheTtlSeconds,
-            enrichmentManager: null,
-            parsedArgs
-        }) : null;
-        const readFromCache = (
-            this.configManager.readFromCacheForSummaryOperation &&
-            responseStreamer &&
-            cachedStreamer &&
-            !requestInfo.skipCachedData() &&
-            await this.redisStreamManager.hasCachedStream(cacheKey)
-        );
-        // Check if we need to fall back to MongoDB
-        let fallbackToMongo = false;
-        if (readFromCache) {
-            try {
-                await cachedStreamer.streamFromCacheAsync();
-                await this.fhirLoggingManager.logOperationSuccessAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-                return undefined;
-            } catch (err) {
-                fallbackToMongo = !cachedStreamer.writeFromRedisStarted;
-                logError('Error reading summary response from cache', { error: err, cacheKey });
-                if (!fallbackToMongo) {
-                    throw err;
-                }
-            }
-        }
-
         try {
-            const { _type: resourceFilter, headers, id } = parsedArgs;
-            const supportLegacyId = false;
-
-            if (resourceFilter) {
-                // _type and contained parameter are not supported together
-                parsedArgs.contained = 0;
-                let resourceFilterList = resourceFilter.split(',');
-                parsedArgs.resourceFilterList = resourceFilterList;
-            }
+            const { headers, id } = parsedArgs;
 
             if (resourceType !== 'Patient') {
                 throw new Error('$summary is not supported for resource: ' + resourceType);
@@ -322,35 +303,6 @@ class SummaryOperation {
                 ...headers
             };
             parsedArgs.headers = updatedHeaders;
-
-            let lastUpdatedQueryParam = null;
-            // apply _lastUpdated to linked resources in graph if passed in parameters
-            if (parsedArgs._lastUpdated) {
-                const lastUpdated = parsedArgs._lastUpdated;
-
-                parsedArgs.remove('_lastUpdated');
-                parsedArgs._lastUpdated = null;
-
-                lastUpdatedQueryParam = Array.isArray(lastUpdated)
-                    ? `&_lastUpdated=${lastUpdated.join(',')}`
-                    : `&_lastUpdated=${lastUpdated}`;
-            }
-
-            // apply filter on Observation for last 2 years
-            const summaryGraph = deepcopy(patientSummaryGraph);
-            const pastDate = new Date();
-            pastDate.setFullYear(new Date().getFullYear() - 2);
-            const pastDateString = pastDate.toISOString().split('T')[0];
-            summaryGraph.link.forEach((link) => {
-                link.target.forEach((target) => {
-                    if (target.params && target.type === "Observation") {
-                        target.params = target.params.replace('{Last2Years}', pastDateString);
-                    }
-                    if (lastUpdatedQueryParam && target.params && target.type !== "Patient") {
-                        target.params += lastUpdatedQueryParam;
-                    }
-                });
-            });
 
             // disable proxy patient rewrite by default
             if (!parsedArgs._rewritePatientReference) {
@@ -367,162 +319,206 @@ class SummaryOperation {
                 );
             }
 
+            let patientDataBundle = null;
+
             // Compute proxy patient id once and reuse
             const proxyPatientId =
                 Array.isArray(id) && id.length > 1
                     ? id.filter((patientId) => patientId.startsWith('person.'))?.[0]
                     : undefined;
-
             const builder = new ComprehensiveIPSCompositionBuilder();
             const timezone = this.configManager.serverTimeZone;
+            const includeSummaryCompositionOnly = proxyPatientId && isTrue(parsedArgs._includeSummaryCompositionOnly);
 
-            const includeSummaryCompositionOnly = isTrue(parsedArgs._includeSummaryCompositionOnly) && proxyPatientId;
+            const cacheKey = this.configManager.writeToCacheForSummaryOperation
+                ? await this.getCacheKey(parsedArgs, requestInfo, resourceType)
+                : undefined;
 
-            let compositionResult;
-            let requiredResourcesList;
-            if (includeSummaryCompositionOnly) {
+            let readFromCache =
+                cacheKey &&
+                this.configManager.readFromCacheForSummaryOperation &&
+                !requestInfo.skipCachedData() &&
+                (await this.redisManager.hasCacheKeyAsync(cacheKey));
 
-                const compositionParsedArgs = this.r4ArgsParser.parseArgs({
-                    resourceType: 'Composition',
-                    args: {
-                        _rewritePatientReference: false,
-                        _debug: parsedArgs._debug,
-                        _explain: parsedArgs._explain,
-                        headers: parsedArgs.headers,
-                        base_version: parsedArgs.base_version,
-                        patient: proxyPatientId,
-                        identifier: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary'
+            if (readFromCache) {
+                try {
+                    patientDataBundle = await this.redisManager.readBundleFromCacheAsync(cacheKey);
+                } catch (err) {
+                    logError('Error reading summary response from cache', { error: err, cacheKey });
+                    readFromCache = false;
+                    patientDataBundle = null;
+                }
+            }
+
+            // fetch data using graph if not read from cache
+            if (!patientDataBundle) {
+                let lastUpdatedQueryParam = null;
+                // apply _lastUpdated to linked resources in graph if passed in parameters
+                if (parsedArgs._lastUpdated) {
+                    const lastUpdated = parsedArgs._lastUpdated;
+
+                    parsedArgs.remove('_lastUpdated');
+                    parsedArgs._lastUpdated = null;
+
+                    lastUpdatedQueryParam = Array.isArray(lastUpdated)
+                        ? `&_lastUpdated=${lastUpdated.join(',')}`
+                        : `&_lastUpdated=${lastUpdated}`;
+                }
+
+                // apply filter on Observation for last 2 years
+                const summaryGraph = deepcopy(patientSummaryGraph);
+                const pastDate = new Date();
+                pastDate.setFullYear(new Date().getFullYear() - 2);
+                const pastDateString = pastDate.toISOString().split('T')[0];
+                summaryGraph.link.forEach((link) => {
+                    link.target.forEach((target) => {
+                        if (target.params && target.type === 'Observation') {
+                            target.params = target.params.replace('{Last2Years}', pastDateString);
+                        }
+                        if (lastUpdatedQueryParam && target.params && target.type !== 'Patient') {
+                            target.params += lastUpdatedQueryParam;
+                        }
+                    });
+                });
+
+                let compositionResult;
+                if (includeSummaryCompositionOnly) {
+                    const compositionParsedArgs = this.r4ArgsParser.parseArgs({
+                        resourceType: 'Composition',
+                        args: {
+                            _rewritePatientReference: false,
+                            _debug: parsedArgs._debug,
+                            _explain: parsedArgs._explain,
+                            headers: parsedArgs.headers,
+                            base_version: parsedArgs.base_version,
+                            patient: proxyPatientId,
+                            identifier:
+                                'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary'
+                        }
+                    });
+
+                    /**
+                     * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
+                     */
+                    compositionResult = await this.searchBundleOperation.searchBundleAsync({
+                        requestInfo,
+                        res,
+                        parsedArgs: compositionParsedArgs,
+                        resourceType: 'Composition'
+                    });
+
+                    const requiredResourcesList = builder.getRemainingResourcesFromCompositionBundle(compositionResult);
+                    if (requiredResourcesList.length > 0) {
+                        parsedArgs.resource = filterGraphResources(deepcopy(summaryGraph), requiredResourcesList);
+                    } else {
+                        parsedArgs.resource = {};
                     }
-                })
-
-
-                /**
-                 * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
-                 */
-                compositionResult = await this.searchBundleOperation.searchBundleAsync({
-                    requestInfo,
-                    res,
-                    parsedArgs: compositionParsedArgs,
-                    resourceType: 'Composition'
-                });
-
-                requiredResourcesList = builder.getRemainingResourcesFromCompositionBundle(
-                    compositionResult
-                );
-                if (requiredResourcesList.length > 0) {
-                    parsedArgs.resource = filterGraphResources(
-                        deepcopy(summaryGraph),
-                        requiredResourcesList
-                    );
                 } else {
-                    parsedArgs.resource = {};
+                    parsedArgs.resource = summaryGraph;
                 }
-            } else {
-                parsedArgs.resource = summaryGraph;
-            }
 
-            /**
-             * @type {import('../../fhir/classes/4_0_0/resources/bundle')}
-             */
-            let combinedResult;
-            if (parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0) {
-                combinedResult = await this.graphOperation.graph({
-                    requestInfo,
-                    res,
-                    parsedArgs,
-                    resourceType,
-                    responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
-                    supportLegacyId
-                });
-            }
+                if (parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0) {
+                    const graphArgs = this.r4ArgsParser.parseArgs({
+                        resourceType: 'Patient',
+                        args: {
+                            _debug: parsedArgs._debug,
+                            _explain: parsedArgs._explain,
+                            base_version: parsedArgs.base_version,
+                            resource: parsedArgs.resource,
+                            _rewritePatientReference: false
+                        }
+                    });
+                    graphArgs.add(parsedArgs.get('_id'));
+                    graphArgs.headers = {
+                        prefer: 'global_id=false'
+                    };
 
-            if (includeSummaryCompositionOnly) {
-                if (compositionResult && Array.isArray(compositionResult.entry) && compositionResult.entry.length > 0) {
-                    combinedResult.entry = combinedResult.entry || [];
-                    combinedResult.entry = combinedResult.entry.concat(compositionResult.entry);
-                }
-                combinedResult = mergeBundleMetaTags(combinedResult, compositionResult);
-            }
-
-            if (!combinedResult || !combinedResult.entry || combinedResult.entry.length === 0) {
-                // no resources found
-                if (responseStreamer) {
-                    responseStreamer.setBundle({ bundle: combinedResult });
-                    return undefined;
-                }
-                else {
-                    return combinedResult;
-                }
-            }
-
-            await builder.readBundleAsync(
-                /** @type {TBundle} */(combinedResult),
-                timezone,
-                proxyPatientId ? true : false,
-                includeSummaryCompositionOnly,
-                {
-                    info: (msg, args = {}) => logInfo(msg, args),
-                    error: (msg, args = {}) => logError(msg, args)
-                }
-            );
-            // noinspection JSCheckFunctionSignatures
-            const summaryBundle = await builder.buildBundleAsync(
-                this.configManager.summaryGeneratorOrganizationId,
-                this.configManager.summaryGeneratorOrganizationName,
-                this.configManager.summaryGeneratorOrganizationBaseUrl,
-                timezone,
-                includeSummaryCompositionOnly,
-                proxyPatientId
-            );
-
-            // add meta information from merged bundle
-            summaryBundle.meta = combinedResult.meta;
-
-            if (responseStreamer) {
-                const summaryBundleEntries = summaryBundle.entry;
-                delete summaryBundle.entry;
-                responseStreamer.setBundle({ bundle: summaryBundle });
-                for (const entry of summaryBundleEntries) {
-                    await responseStreamer.writeBundleEntryAsync({
-                        bundleEntry: entry
+                    patientDataBundle = await this.graphOperation.graph({
+                        requestInfo,
+                        res,
+                        parsedArgs: graphArgs,
+                        resourceType,
+                        responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
+                        supportLegacyId: false
                     });
                 }
-                if (cachedStreamer) {
+
+                if (includeSummaryCompositionOnly) {
+                    if (
+                        compositionResult &&
+                        Array.isArray(compositionResult.entry) &&
+                        compositionResult.entry.length > 0
+                    ) {
+                        patientDataBundle.entry = patientDataBundle.entry || [];
+                        patientDataBundle.entry = patientDataBundle.entry.concat(compositionResult.entry);
+                    }
+                    patientDataBundle = mergeBundleMetaTags(patientDataBundle, compositionResult);
+                }
+
+                if (cacheKey) {
+                    const patientDataBundleForCache = deepcopy(patientDataBundle);
                     this.postRequestProcessor.add({
                         requestId: requestInfo.requestId,
                         fnTask: async () => {
                             try {
-                                for (const entry of summaryBundleEntries) {
-                                    await cachedStreamer.writeBundleEntryToRedis({
-                                        bundleEntry: entry
-                                    });
-                                }
+                                await this.redisManager.writeBundleAsync(cacheKey, patientDataBundleForCache);
                             } catch (error) {
                                 logError(`Error in caching summary bundle: ${error.message}`, { error });
-                                await this.redisStreamManager.deleteStream(cacheKey);
+                                await this.redisManager.deleteKeyAsync(cacheKey);
                             }
                         }
                     });
                 }
-                await this.fhirLoggingManager.logOperationSuccessAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-                // data was already written to the response streamer
-                return undefined;
-            } else {
-                await this.fhirLoggingManager.logOperationSuccessAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-                return summaryBundle;
             }
+
+            if (!patientDataBundle || !patientDataBundle.entry || patientDataBundle.entry.length === 0) {
+                // no resources found
+                await responseHandler.sendResponseAsync(
+                    patientDataBundle,
+                    readFromCache ? CACHE_STATUS.HIT : CACHE_STATUS.MISS
+                );
+            } else {
+                patientDataBundle.entry = await this.enrichmentManager.enrichBundleEntriesAsync({
+                    entries: patientDataBundle.entry,
+                    parsedArgs
+                });
+
+                await builder.readBundleAsync(
+                    /** @type {TBundle} */ (patientDataBundle),
+                    timezone,
+                    proxyPatientId ? true : false,
+                    includeSummaryCompositionOnly,
+                    {
+                        info: (msg, args = {}) => logInfo(msg, args),
+                        error: (msg, args = {}) => logError(msg, args)
+                    }
+                );
+                // noinspection JSCheckFunctionSignatures
+                const summaryBundle = await builder.buildBundleAsync(
+                    this.configManager.summaryGeneratorOrganizationId,
+                    this.configManager.summaryGeneratorOrganizationName,
+                    this.configManager.summaryGeneratorOrganizationBaseUrl,
+                    timezone,
+                    includeSummaryCompositionOnly,
+                    proxyPatientId
+                );
+
+                // add meta information from merged bundle
+                summaryBundle.meta = patientDataBundle.meta;
+                await responseHandler.sendResponseAsync(
+                    summaryBundle,
+                    readFromCache ? CACHE_STATUS.HIT : CACHE_STATUS.MISS
+                );
+            }
+
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
+            return;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

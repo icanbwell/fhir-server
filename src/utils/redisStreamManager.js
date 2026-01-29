@@ -1,5 +1,6 @@
-const { logError, logInfo } = require('../operations/common/logging');
+const { logError } = require('../operations/common/logging');
 const { captureException } = require('../operations/common/sentry');
+const { RedisClient } = require('./redisClient');
 
 /**
  * Manages Redis Streams for caching FHIR resources
@@ -9,6 +10,9 @@ class RedisStreamManager {
      * @param {RedisClient} redisClient
      */
     constructor({ redisClient }) {
+        /**
+         * @type {RedisClient}
+         */
         this.redisClient = redisClient;
         this.defaultTtlSeconds = parseInt(process.env.REDIS_KEY_DEFAULT_TTL_SECONDS) || 600;
     }

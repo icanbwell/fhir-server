@@ -1,27 +1,26 @@
 const { BaseCacheKeyGenerator } = require('../common/baseCacheKeyGenerator');
-const {
-    PERSON_PROXY_PREFIX
-} = require('../../constants');
+const { PERSON_PROXY_PREFIX } = require('../../constants');
+const { fhirContentTypes } = require('../../utils/contentTypes');
 
 class SummaryCacheKeyGenerator extends BaseCacheKeyGenerator {
     constructor() {
         super();
         this.operation = 'Summary';
         this.invalidParamsForCache = [
-            '_since',
-            '_includePatientLinkedOnly',
             '_rewritePatientReference',
-            '_includeNonClinicalResources',
             '_debug',
             '_explain',
-            '_includeHidden',
-            '_includeProxyPatientLinkedOnly',
-            '_excludeProxyPatientLinked',
-            '_includePatientLinkedUuidOnly',
-            '_includeUuidOnly',
-            'contained'
+            '_lastUpdated'
         ];
-        this.cacheableContentTypes = ['application/fhir+json'];
+        this.cacheableResponseTypes = [
+            fhirContentTypes.fhirJson,
+            fhirContentTypes.fhirJson2,
+            fhirContentTypes.fhirJson3
+        ];
+        // params to be included in cache key
+        this.keyParamsforCache = [
+            '_includeSummaryCompositionOnly'
+        ]
     }
 
     /**
