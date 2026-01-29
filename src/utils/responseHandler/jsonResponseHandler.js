@@ -28,7 +28,7 @@ class JsonResponseHandler extends BaseResponseHandler {
         const cleanObject = FhirResourceSerializer.serialize(bundle, BundleSerializer);
 
         // write json
-        this.response.send(cleanObject).end();
+        this.response.send(cleanObject);
     }
 }
 

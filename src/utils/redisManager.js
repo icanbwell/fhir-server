@@ -74,7 +74,7 @@ class RedisManager {
             }
             return null;
         } catch (error) {
-            logError('Error reading from Redis stream', { error, cacheKey });
+            logError('Error reading bundle from Redis', { error, cacheKey });
             captureException(error);
         }
     }

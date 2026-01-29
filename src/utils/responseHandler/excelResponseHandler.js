@@ -13,7 +13,7 @@ class ExcelResponseHandler extends BaseResponseHandler {
      */
     async sendResponseAsync(bundle, cacheStatus) {
         try {
-            if (bundle !== undefined && bundle.get('entries').length > 0) {
+            if (bundle && Array.isArray(bundle.entry) && bundle.entry.length > 0) {
                 const filename = (bundle.id || String(this.requestId)) + '.xlsx';
                 this.response.setHeader('Content-Type', fhirContentTypes.excel);
                 this.response.setHeader('X-Request-ID', String(this.requestId));
