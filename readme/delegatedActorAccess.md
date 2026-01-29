@@ -111,13 +111,6 @@ This correctly handles resources that may have **multiple** sensitive-category c
 ## Audit Logging
 Audit logs will have the reference of delegated actor as the auditEvent.agent.
 
-## Note
-
-System will reject any jwt with `act` field in following cases
-  - invalid structure
-  - (temp) detected and `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled but `ENABLE_DELEGATED_ACCESS_FILTERING` disabled
-  - (future) detected but `ENABLE_DELEGATED_ACCESS_FILTERING` not enabled.
-
 ## Config
 
 - `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false (enables delegated access filtering).
