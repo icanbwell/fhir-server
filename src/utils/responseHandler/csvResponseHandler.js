@@ -6,6 +6,17 @@ const { BaseResponseHandler } = require('./baseResponseHandler');
 
 class CsvResponseHandler extends BaseResponseHandler {
     /**
+     * sanitizes filename to be used in content-disposition header
+     * @param {string} input
+     * @return {string}
+     */
+    sanitizeFilename(input) {
+        // Remove control characters and quotes that could break header
+        // eslint-disable-next-line no-control-regex
+        return String(input).replace(/[\r\n\x00-\x1f"]/g, '_');
+    }
+
+    /**
      * sends response
      * @param {Bundle} bundle
      * @param {string} cacheStatus
@@ -14,7 +25,8 @@ class CsvResponseHandler extends BaseResponseHandler {
     async sendResponseAsync(bundle, cacheStatus) {
         try {
             if (bundle !== undefined && bundle.entry && bundle.entry.length > 0) {
-                const filename = (bundle.id || String(this.requestId)) + '.zip';
+                const rawFilename = bundle.id || String(this.requestId);
+                const filename = this.sanitizeFilename(rawFilename) + '.zip';
                 this.response.setHeader('Content-Type', fhirContentTypes.zip);
                 this.response.setHeader('X-Request-ID', String(this.requestId));
                 this.response.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

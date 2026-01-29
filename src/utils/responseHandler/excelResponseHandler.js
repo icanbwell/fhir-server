@@ -13,6 +13,7 @@ class ExcelResponseHandler extends BaseResponseHandler {
      */
     sanitizeFilename(input) {
         // Remove control characters and quotes that could break header
+        // eslint-disable-next-line no-control-regex
         return String(input).replace(/[\r\n\x00-\x1f"]/g, '_');
     }
 
