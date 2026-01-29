@@ -54,7 +54,7 @@ After the query returns:
 ### Error Cases
 - No active Consent Found: Forbidden 403 with error message: "actor {actor} doesn't have enough permissions to perform this action"
 - Multiple Conset Found: Forbidden 403 with error message: "ambiguous permissions found for the actor {actor}" 
-- Feature Flag `ENABLE_DELEGATED_ACCESS_FILTERING` disabled but still detecting any `act` field: 401 `Unauthorized: Delegated access not allowed`
+- Feature Flag `ENABLE_DELEGATED_ACCESS_FILTERING` disabled but still detecting any `act` field: 401 `Unauthorized: Delegated access not allowed` (Temporarily this error will only be thrown when `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled)
 
 ## Building Filtering Rules
 
@@ -115,9 +115,11 @@ Audit logs will have the reference of delegated actor as the auditEvent.agent.
 
 System will reject any jwt with `act` field in following cases
   - invalid structure
-  - detected but `ENABLE_DELEGATED_ACCESS_FILTERING` not enabled.
+  - (temp) detected and `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled but `ENABLE_DELEGATED_ACCESS_FILTERING` disabled
+  - (future) detected but `ENABLE_DELEGATED_ACCESS_FILTERING` not enabled.
 
 ## Config
 
 - `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false (enables delegated access filtering).
+- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false (temporary: when enabled start detecting the `act` field. This is temporary to avoid any services to get impacted which are currently using `act` field in jwt)
 - sensitiveCategorySystemIdentifier: https://terminology.hl7.org/7.0.1/CodeSystem-v3-Confidentiality.html
