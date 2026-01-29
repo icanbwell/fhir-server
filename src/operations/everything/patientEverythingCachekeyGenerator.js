@@ -1,7 +1,6 @@
 const { BaseCacheKeyGenerator } = require('../common/baseCacheKeyGenerator');
-const {
-    PERSON_PROXY_PREFIX
-} = require('../../constants');
+const { PERSON_PROXY_PREFIX } = require('../../constants');
+const { fhirContentTypes } = require('../../utils/contentTypes');
 
 class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
     constructor() {
@@ -21,7 +20,14 @@ class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
             '_includeUuidOnly',
             'contained'
         ];
-        this.cacheableContentTypes = ['application/fhir+json', 'application/fhir+ndjson'];
+        this.cacheableResponseTypes = [
+            fhirContentTypes.fhirJson,
+            fhirContentTypes.fhirJson2,
+            fhirContentTypes.fhirJson3,
+            fhirContentTypes.ndJson,
+            fhirContentTypes.ndJson2,
+            fhirContentTypes.ndJson3
+        ];
     }
 
     /**

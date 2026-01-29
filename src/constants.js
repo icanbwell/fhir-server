@@ -265,5 +265,9 @@ module.exports = {
     STREAM_ACCESS_LOG_BODY_LIMIT: 100,
     CLOUD_EVENT: {
         SOURCE: 'https://www.icanbwell.com/fhir-server'
+    },
+    CACHE_STATUS: {
+        HIT: 'Hit',
+        MISS: 'Miss'
     }
 };

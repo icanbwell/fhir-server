@@ -42,6 +42,8 @@ const {ConfigManager} = require('../utils/configManager');
 const {SummaryOperation} = require("./summary/summary");
 const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
 const { BadRequestError } = require('../utils/httpErrors');
+const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHandlerFactory');
+const { BaseResponseHandler } = require('../utils/responseHandler/baseResponseHandler');
 
 class FhirOperationsManager {
     /**
@@ -807,16 +809,14 @@ class FhirOperationsManager {
         const requestInfo = this.getRequestInfo(req);
         /**
          * response streamer to use
-         * @type {BaseResponseStreamer}
+         * @type {BaseResponseHandler}
          */
-        let responseStreamer = ResponseStreamerFactory.create({
+        let responseHandler = ResponseHandlerFactory.create({
             res,
             requestId: req.id,
             requestInfo,
             parsedArgs
         });
-
-        await responseStreamer.startAsync();
 
         try {
             await this.summaryOperation.summaryAsync(
@@ -825,25 +825,13 @@ class FhirOperationsManager {
                     res,
                     parsedArgs,
                     resourceType,
-                    responseStreamer
+                    responseHandler
                 });
-            await responseStreamer.endAsync();
             return undefined;
         } catch (err) {
-            const status = err.statusCode || 500;
-            /**
-             * @type {OperationOutcome}
-             */
             const operationOutcome = convertErrorToOperationOutcome({error: err});
-            await responseStreamer.writeBundleEntryAsync({
-                    bundleEntry: new BundleEntry({
-                            resource: operationOutcome
-                        }
-                    )
-                }
-            );
-            await responseStreamer.setStatusCodeAsync({statusCode: status});
-            await responseStreamer.endAsync();
+            await responseHandler.setStatusCodeAsync({statusCode: err.statusCode || 500});
+            await responseHandler.writeOperationOutcomeAsync(operationOutcome);
         }
     }
 
