@@ -5,6 +5,17 @@ const { fhirContentTypes } = require('../contentTypes');
 const { BaseResponseHandler } = require('./baseResponseHandler');
 
 class ExcelResponseHandler extends BaseResponseHandler {
+
+    /**
+     * sanitizes filename to be used in content-disposition header
+     * @param {string} input
+     * @return {string}
+     */
+    sanitizeFilename(input) {
+        // Remove control characters and quotes that could break header
+        return String(input).replace(/[\r\n\x00-\x1f"]/g, '_');
+    }
+
     /**
      * sends response
      * @param {Bundle} bundle
@@ -14,7 +25,8 @@ class ExcelResponseHandler extends BaseResponseHandler {
     async sendResponseAsync(bundle, cacheStatus) {
         try {
             if (bundle && Array.isArray(bundle.entry) && bundle.entry.length > 0) {
-                const filename = (bundle.id || String(this.requestId)) + '.xlsx';
+                const rawFilename = bundle.id || String(this.requestId);
+                const filename = this.sanitizeFilename(rawFilename) + '.xlsx';
                 this.response.setHeader('Content-Type', fhirContentTypes.excel);
                 this.response.setHeader('X-Request-ID', String(this.requestId));
                 this.response.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
