@@ -50,12 +50,11 @@ After the query returns:
 - If **no Consent** is found: delegated access is treated as **not permitted** (request fails authorization).
 - If **exactly one Consent** is found: it is used to build delegated-access filtering rules.
 - If **multiple Consents** are found: access is rejected as ambiguous.
-  - The code throws a `403` error ("Multiple active Consent resources found...") which indicates a data issue.
 
 ### Error Cases
-- No active Consent Found: Forbidden 403
-- Multiple Conset Found: Forbidden 403
-
+- No active Consent Found: Forbidden 403 with error message: "actor {actor} doesn't have enough permissions to perform this action"
+- Multiple Conset Found: Forbidden 403 with error message: "ambiguous permissions found for the actor {actor}" 
+- Feature Flag `ENABLE_DELEGATED_ACCESS_FILTERING` disabled but still detecting any `act` field: 401 `Unauthorized: Delegated access not allowed`
 
 ## Building Filtering Rules
 
@@ -112,7 +111,13 @@ This correctly handles resources that may have **multiple** sensitive-category c
 ## Audit Logging
 Audit logs will have the reference of delegated actor as the auditEvent.agent.
 
+## Note
+
+System will reject any jwt with `act` field in following cases
+  - invalid structure
+  - detected but `ENABLE_DELEGATED_ACCESS_FILTERING` not enabled.
+
 ## Config
 
-- `ENABLE_DELEGATED_ACCESS_FILTERING`: enables delegated access filtering.
-- `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER`: the system URI used to identify sensitive data categories in `meta.security` codings (default: `https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category`).
+- `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false (enables delegated access filtering).
+- sensitiveCategorySystemIdentifier: https://terminology.hl7.org/7.0.1/CodeSystem-v3-Confidentiality.html
