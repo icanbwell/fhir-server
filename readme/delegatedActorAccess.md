@@ -50,7 +50,12 @@ After the query returns:
 - If **no Consent** is found: delegated access is treated as **not permitted** (request fails authorization).
 - If **exactly one Consent** is found: it is used to build delegated-access filtering rules.
 - If **multiple Consents** are found: access is rejected as ambiguous.
-  - The code throws a `500` error ("Multiple active Consent resources found...") which indicates a data issue.
+  - The code throws a `403` error ("Multiple active Consent resources found...") which indicates a data issue.
+
+### Error Cases
+- No active Consent Found: Forbidden 403
+- Multiple Conset Found: Forbidden 403
+
 
 ## Building Filtering Rules
 
