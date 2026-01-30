@@ -53,7 +53,7 @@ class SummaryOperation {
         searchManager,
         redisManager,
         enrichmentManager,
-        postRequestProcessor
+        postRequestProcessor,
     }) {
         /**
          * @type {GraphOperation}
@@ -153,17 +153,17 @@ class SummaryOperation {
             operation: READ,
             accessRequested: 'read',
             addPersonOwnerToContext: requestInfo.isUser,
-            applyPatientFilter: true
+            applyPatientFilter: true,
         });
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType,
-            base_version: parsedArgs.base_version
+            base_version: parsedArgs.base_version,
         });
         const options = {
             projection: {
                 _uuid: 1,
-                _id: 0
-            }
+                _id: 0,
+            },
         };
         let cursor = await databaseQueryManager.findAsync({ query, options });
         let ids = [];
@@ -199,7 +199,8 @@ class SummaryOperation {
             id = id.replace(PERSON_PROXY_PREFIX, '');
             if (
                 isUuid(id) &&
-                (requestInfo.personIdFromJwtToken === undefined || id === requestInfo.personIdFromJwtToken)
+                (requestInfo.personIdFromJwtToken === undefined ||
+                    id === requestInfo.personIdFromJwtToken)
             ) {
                 idForCache = `${PERSON_PROXY_PREFIX}${id}`;
             }
@@ -209,7 +210,11 @@ class SummaryOperation {
         }
 
         return idForCache
-            ? keyGenerator.generateCacheKey({ id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope })
+            ? keyGenerator.generateCacheKey({
+                  id: idForCache,
+                  parsedArgs: parsedArgs,
+                  scope: requestInfo.scope,
+              })
             : undefined;
     }
 
@@ -242,7 +247,7 @@ class SummaryOperation {
                 res,
                 parsedArgs,
                 resourceType,
-                responseHandler
+                responseHandler,
             });
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync({
@@ -251,7 +256,7 @@ class SummaryOperation {
                 resourceType,
                 startTime,
                 action: 'summary',
-                error: err
+                error: err,
             });
             throw err;
         }
@@ -287,7 +292,7 @@ class SummaryOperation {
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested: 'read',
         });
 
         try {
@@ -300,7 +305,7 @@ class SummaryOperation {
             // set global_id to true
             const updatedHeaders = {
                 prefer: 'global_id=true',
-                ...headers
+                ...headers,
             };
             parsedArgs.headers = updatedHeaders;
 
@@ -311,10 +316,10 @@ class SummaryOperation {
                         queryParameter: '_rewritePatientReference',
                         queryParameterValue: new QueryParameterValue({
                             value: false,
-                            operator: '$and'
+                            operator: '$and',
                         }),
                         modifiers: [],
-                        patientToPersonMap: undefined
+                        patientToPersonMap: undefined,
                     })
                 );
             }
@@ -328,7 +333,8 @@ class SummaryOperation {
                     : undefined;
             const builder = new ComprehensiveIPSCompositionBuilder();
             const timezone = this.configManager.serverTimeZone;
-            const includeSummaryCompositionOnly = proxyPatientId && isTrue(parsedArgs._includeSummaryCompositionOnly);
+            const includeSummaryCompositionOnly =
+                proxyPatientId && isTrue(parsedArgs._includeSummaryCompositionOnly);
 
             const cacheKey = this.configManager.writeToCacheForSummaryOperation
                 ? await this.getCacheKey(parsedArgs, requestInfo, resourceType)
@@ -365,6 +371,11 @@ class SummaryOperation {
                         : `&_lastUpdated=${lastUpdated}`;
                 }
 
+                const profileParam = parsedArgs.profile || parsedArgs._profile;
+                const profileQueryParam = profileParam
+                    ? `&profile=${Array.isArray(profileParam) ? profileParam.join(',') : profileParam}`
+                    : null;
+
                 // apply filter on Observation for last 2 years
                 const summaryGraph = deepcopy(patientSummaryGraph);
                 const pastDate = new Date();
@@ -378,8 +389,38 @@ class SummaryOperation {
                         if (lastUpdatedQueryParam && target.params && target.type !== 'Patient') {
                             target.params += lastUpdatedQueryParam;
                         }
+                        if (profileQueryParam && target.params && target.type === 'Composition') {
+                            target.params += profileQueryParam;
+                        }
                     });
                 });
+
+                // disable proxy patient rewrite by default
+                if (!parsedArgs._rewritePatientReference) {
+                    parsedArgs.add(
+                        new ParsedArgsItem({
+                            queryParameter: '_rewritePatientReference',
+                            queryParameterValue: new QueryParameterValue({
+                                value: false,
+                                operator: '$and',
+                            }),
+                            modifiers: [],
+                            patientToPersonMap: undefined,
+                        })
+                    );
+                }
+
+                // Compute proxy patient id once and reuse
+                const proxyPatientId =
+                    Array.isArray(id) && id.length > 1
+                        ? id.filter((patientId) => patientId.startsWith('person.'))?.[0]
+                        : undefined;
+
+                const builder = new ComprehensiveIPSCompositionBuilder();
+                const timezone = this.configManager.serverTimeZone;
+
+                const includeSummaryCompositionOnly =
+                    isTrue(parsedArgs._includeSummaryCompositionOnly) && proxyPatientId;
 
                 let compositionResult;
                 if (includeSummaryCompositionOnly) {
@@ -393,8 +434,8 @@ class SummaryOperation {
                             base_version: parsedArgs.base_version,
                             patient: proxyPatientId,
                             identifier:
-                                'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary'
-                        }
+                                'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary',
+                        },
                     });
 
                     /**
@@ -404,12 +445,16 @@ class SummaryOperation {
                         requestInfo,
                         res,
                         parsedArgs: compositionParsedArgs,
-                        resourceType: 'Composition'
+                        resourceType: 'Composition',
                     });
 
-                    const requiredResourcesList = builder.getRemainingResourcesFromCompositionBundle(compositionResult);
+                    const requiredResourcesList =
+                        builder.getRemainingResourcesFromCompositionBundle(compositionResult);
                     if (requiredResourcesList.length > 0) {
-                        parsedArgs.resource = filterGraphResources(deepcopy(summaryGraph), requiredResourcesList);
+                        parsedArgs.resource = filterGraphResources(
+                            deepcopy(summaryGraph),
+                            requiredResourcesList
+                        );
                     } else {
                         parsedArgs.resource = {};
                     }
@@ -425,12 +470,12 @@ class SummaryOperation {
                             _explain: parsedArgs._explain,
                             base_version: parsedArgs.base_version,
                             resource: parsedArgs.resource,
-                            _rewritePatientReference: false
-                        }
+                            _rewritePatientReference: false,
+                        },
                     });
                     graphArgs.add(parsedArgs.get('_id'));
                     graphArgs.headers = {
-                        prefer: 'global_id=false'
+                        prefer: 'global_id=false',
                     };
 
                     patientDataBundle = await this.graphOperation.graph({
@@ -439,7 +484,7 @@ class SummaryOperation {
                         parsedArgs: graphArgs,
                         resourceType,
                         responseStreamer: null, // don't stream the response for $summary since we will generate a summary bundle
-                        supportLegacyId: false
+                        supportLegacyId: false,
                     });
                 }
 
@@ -450,7 +495,9 @@ class SummaryOperation {
                         compositionResult.entry.length > 0
                     ) {
                         patientDataBundle.entry = patientDataBundle.entry || [];
-                        patientDataBundle.entry = patientDataBundle.entry.concat(compositionResult.entry);
+                        patientDataBundle.entry = patientDataBundle.entry.concat(
+                            compositionResult.entry
+                        );
                     }
                     patientDataBundle = mergeBundleMetaTags(patientDataBundle, compositionResult);
                 }
@@ -461,17 +508,26 @@ class SummaryOperation {
                         requestId: requestInfo.requestId,
                         fnTask: async () => {
                             try {
-                                await this.redisManager.writeBundleAsync(cacheKey, patientDataBundleForCache);
+                                await this.redisManager.writeBundleAsync(
+                                    cacheKey,
+                                    patientDataBundleForCache
+                                );
                             } catch (error) {
-                                logError(`Error in caching summary bundle: ${error.message}`, { error });
+                                logError(`Error in caching summary bundle: ${error.message}`, {
+                                    error,
+                                });
                                 await this.redisManager.deleteKeyAsync(cacheKey);
                             }
-                        }
+                        },
                     });
                 }
             }
 
-            if (!patientDataBundle || !patientDataBundle.entry || patientDataBundle.entry.length === 0) {
+            if (
+                !patientDataBundle ||
+                !patientDataBundle.entry ||
+                patientDataBundle.entry.length === 0
+            ) {
                 // no resources found
                 await responseHandler.sendResponseAsync(
                     patientDataBundle,
@@ -480,7 +536,7 @@ class SummaryOperation {
             } else {
                 patientDataBundle.entry = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries: patientDataBundle.entry,
-                    parsedArgs
+                    parsedArgs,
                 });
 
                 await builder.readBundleAsync(
@@ -490,7 +546,7 @@ class SummaryOperation {
                     includeSummaryCompositionOnly,
                     {
                         info: (msg, args = {}) => logInfo(msg, args),
-                        error: (msg, args = {}) => logError(msg, args)
+                        error: (msg, args = {}) => logError(msg, args),
                     }
                 );
                 // noinspection JSCheckFunctionSignatures
@@ -516,7 +572,7 @@ class SummaryOperation {
                 args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
-                action: currentOperationName
+                action: currentOperationName,
             });
             return;
         } catch (err) {
@@ -526,7 +582,7 @@ class SummaryOperation {
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                error: err
+                error: err,
             });
             throw err;
         }
@@ -534,5 +590,5 @@ class SummaryOperation {
 }
 
 module.exports = {
-    SummaryOperation
+    SummaryOperation,
 };
