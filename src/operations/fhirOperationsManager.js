@@ -687,6 +687,13 @@ class FhirOperationsManager {
          */
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({req, combined_args});
+
+        // map Person GET $everything to Patient GET $everything
+        if (resourceType === 'Person' && req.method === 'GET') {
+            resourceType = 'Patient';
+            combined_args.id = `${PERSON_PROXY_PREFIX}${combined_args.id}`;
+        }
+
         /**
          * @type {ParsedArgs}
          */

@@ -65,8 +65,6 @@ class GraphOperation {
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {boolean} supportLegacyId
-     * @param {boolean} includeNonClinicalResources
-     * @param {number} nonClinicalResourcesDepth
      * @return {Promise<Bundle>}
      */
     async graph({
@@ -74,9 +72,7 @@ class GraphOperation {
         parsedArgs,
         resourceType,
         responseStreamer,
-        supportLegacyId = true,
-        includeNonClinicalResources = false,
-        nonClinicalResourcesDepth = 1
+        supportLegacyId = true
     }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -194,9 +190,7 @@ class GraphOperation {
                         contained,
                         responseStreamer,
                         parsedArgs,
-                        supportLegacyId,
-                        includeNonClinicalResources,
-                        nonClinicalResourcesDepth
+                        supportLegacyId
                     }
                 );
 

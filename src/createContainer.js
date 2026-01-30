@@ -492,19 +492,14 @@ const createContainer = function () {
     container.register('graphHelper', (c) => new GraphHelper(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
-                securityTagManager: c.securityTagManager,
-                scopesManager: c.scopesManager,
                 scopesValidator: c.scopesValidator,
                 configManager: c.configManager,
                 bundleManager: c.bundleManager,
-                resourceLocatorFactory: c.resourceLocatorFactory,
-                r4SearchQueryCreator: c.r4SearchQueryCreator,
                 searchManager: c.searchManager,
                 enrichmentManager: c.enrichmentManager,
                 r4ArgsParser: c.r4ArgsParser,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 searchParametersManager: c.searchParametersManager,
-                searchBundleOperation: c.searchBundleOperation,
                 removeHelper: c.removeHelper
             }
         )
