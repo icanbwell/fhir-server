@@ -135,7 +135,7 @@ For example: <base_url>/4_0_0/Practitioner/$everything?id=prac1,prac2
 By default, the FHIR returns all the related resources in the top level bundle.  
 However if you pass the `contained` search query parameter then the FHIR server will put the related resources in a `contained` field under each resource.
 
-For example: <base_url>/4_0_0/PePractitionerrson/\<prac1>/$everything?contained=true
+For example: <base_url>/4_0_0/Practitioner/\<prac1>/$everything?contained=true
 
 ```
 {
