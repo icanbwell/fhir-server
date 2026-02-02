@@ -371,10 +371,18 @@ class SummaryOperation {
                         : `&_lastUpdated=${lastUpdated}`;
                 }
 
-                const profileParam = parsedArgs.profile || parsedArgs._profile;
+                // Get _profile parameter for filtering Composition resources
+                // Per FHIR spec, we use _profile as the search parameter
+                const profileParam = parsedArgs._profile;
                 const profileQueryParam = profileParam
-                    ? `&profile=${Array.isArray(profileParam) ? profileParam.join(',') : profileParam}`
+                    ? `&_profile=${Array.isArray(profileParam) ? profileParam.join(',') : profileParam}`
                     : null;
+
+                // Remove _profile from parsedArgs so it doesn't apply to other resource types
+                if (profileParam) {
+                    parsedArgs.remove('_profile');
+                    parsedArgs._profile = null;
+                }
 
                 // apply filter on Observation for last 2 years
                 const summaryGraph = deepcopy(patientSummaryGraph);
@@ -424,18 +432,24 @@ class SummaryOperation {
 
                 let compositionResult;
                 if (includeSummaryCompositionOnly) {
+                    const compositionSearchArgs = {
+                        _rewritePatientReference: false,
+                        _debug: parsedArgs._debug,
+                        _explain: parsedArgs._explain,
+                        headers: parsedArgs.headers,
+                        base_version: parsedArgs.base_version,
+                        patient: proxyPatientId,
+                        identifier:
+                            'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary',
+                    };
+
+                    if (profileParam) {
+                        compositionSearchArgs._profile = profileParam;
+                    }
+
                     const compositionParsedArgs = this.r4ArgsParser.parseArgs({
                         resourceType: 'Composition',
-                        args: {
-                            _rewritePatientReference: false,
-                            _debug: parsedArgs._debug,
-                            _explain: parsedArgs._explain,
-                            headers: parsedArgs.headers,
-                            base_version: parsedArgs.base_version,
-                            patient: proxyPatientId,
-                            identifier:
-                                'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary',
-                        },
+                        args: compositionSearchArgs,
                     });
 
                     /**
