@@ -107,7 +107,7 @@ The following scopes are allowed in the access token:
 The client app can then pass this token to the FHIR server as a bearer token in the Authorization header.
 
 The access token must have all of the following attributes:
-1. clientFhirPatientId
+1. clientFhirPersonId
 
 This attribute defines the person accessing the FHIR server.
 
