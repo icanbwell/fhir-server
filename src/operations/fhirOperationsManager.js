@@ -693,7 +693,14 @@ class FhirOperationsManager {
         // map Person GET $everything to Patient GET $everything
         if (resourceType === 'Person' && req.method === 'GET') {
             resourceType = 'Patient';
-            combined_args.id = `${PERSON_PROXY_PREFIX}${combined_args.id}`;
+            if (combined_args._id) {
+                combined_args.id = combined_args._id;
+                delete combined_args._id;
+            }
+            if (combined_args.id) {
+                const ids = combined_args.id.split(',').map(id => `${PERSON_PROXY_PREFIX}${id}`);
+                combined_args.id = ids.join(',');
+            }
         }
 
         /**
