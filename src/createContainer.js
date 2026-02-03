@@ -125,6 +125,7 @@ const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
+const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 
 /**
@@ -492,19 +493,14 @@ const createContainer = function () {
     container.register('graphHelper', (c) => new GraphHelper(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
-                securityTagManager: c.securityTagManager,
-                scopesManager: c.scopesManager,
                 scopesValidator: c.scopesValidator,
                 configManager: c.configManager,
                 bundleManager: c.bundleManager,
-                resourceLocatorFactory: c.resourceLocatorFactory,
-                r4SearchQueryCreator: c.r4SearchQueryCreator,
                 searchManager: c.searchManager,
                 enrichmentManager: c.enrichmentManager,
                 r4ArgsParser: c.r4ArgsParser,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 searchParametersManager: c.searchParametersManager,
-                searchBundleOperation: c.searchBundleOperation,
                 removeHelper: c.removeHelper
             }
         )
@@ -755,7 +751,8 @@ const createContainer = function () {
             configManager: c.configManager,
             databaseQueryFactory: c.databaseQueryFactory,
             searchManager: c.searchManager,
-            redisStreamManager: c.redisStreamManager,
+            redisManager: c.redisManager,
+            enrichmentManager: c.enrichmentManager,
             postRequestProcessor: c.postRequestProcessor
         }
     ));
@@ -1015,6 +1012,9 @@ const createContainer = function () {
 
     container.register('redisClient', () => new RedisClient());
     container.register('redisStreamManager', (c) => new RedisStreamManager({
+        redisClient: c.redisClient
+    }));
+    container.register('redisManager', (c) => new RedisManager({
         redisClient: c.redisClient
     }));
 

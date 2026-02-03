@@ -1,7 +1,6 @@
 const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
-const personEverythingGraph = require('../../graphs/person/everything.json');
 const personEverythingForDeletionGraph = require('../../graphs/person/everything_for_deletion.json');
 const patientEverythingForDeletionGraph = require('../../graphs/patient/everything_for_deletion.json');
 const { GraphOperation } = require('../graph/graph');
@@ -10,7 +9,6 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const deepcopy = require('deepcopy');
-const { isTrue } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 const { EverythingHelper } = require('./everythingHelper');
 const { ForbiddenError } = require('../../utils/httpErrors');
@@ -141,8 +139,9 @@ class EverythingOperation {
          * @type {number}
          */
         const startTime = Date.now();
+        const requestMethod = requestInfo.method.toLowerCase();
 
-        if (isUser && requestInfo.method.toLowerCase() === 'delete') {
+        if (isUser && requestMethod === 'delete') {
             const forbiddenError = new ForbiddenError(
                 `user ${user} with scopes [${scope}] failed access check to delete ` +
                 '$everything: Access to delete $everything not allowed if patient scope is present'
@@ -231,24 +230,6 @@ class EverythingOperation {
                     includeNonClinicalResources: isFalseWithFallback(parsedArgs._includePatientLinkedOnly, true)
                 });
             } else {
-                if (isTrue(parsedArgs._includeNonClinicalResources)) {
-                    if (!['Person', 'Patient'].includes(resourceType)) {
-                        throw new Error(
-                            '_includeNonClinicalResources parameter can only be used with Person and Patient resource type'
-                        );
-                    }
-                    if (
-                        parsedArgs._nonClinicalResourcesDepth &&
-                        (isNaN(Number(parsedArgs._nonClinicalResourcesDepth)) ||
-                            parsedArgs._nonClinicalResourcesDepth > 3 ||
-                            parsedArgs._nonClinicalResourcesDepth < 1)
-                    ) {
-                        throw new Error(
-                            '_nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
-                        );
-                    }
-                }
-
                 // Grab an instance of our DB and collection
                 switch (resourceType) {
                     case 'Practitioner': {
@@ -265,14 +246,14 @@ class EverythingOperation {
                     }
                     case 'Person': {
                         parsedArgs.resource =
-                            requestInfo.method.toLowerCase() === 'delete'
+                            requestMethod === 'delete'
                                 ? personEverythingForDeletionGraph
-                                : personEverythingGraph;
+                                : null;
                         break;
                     }
                     case 'Patient': {
                         parsedArgs.resource =
-                            requestInfo.method.toLowerCase() === 'delete'
+                            requestMethod === 'delete'
                                 ? patientEverythingForDeletionGraph
                                 : null;
                         break;
@@ -293,9 +274,7 @@ class EverythingOperation {
                     parsedArgs,
                     resourceType,
                     responseStreamer,
-                    supportLegacyId,
-                    includeNonClinicalResources: isTrue(parsedArgs._includeNonClinicalResources),
-                    nonClinicalResourcesDepth: parsedArgs._nonClinicalResourcesDepth
+                    supportLegacyId
                 });
             }
 

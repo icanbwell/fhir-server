@@ -1,0 +1,22 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "invalid",
+            "details": {
+              "text": "No id was passed either in path param or query param"
+            },
+            "diagnostics": ""
+          }
+        ]
+      }
+    }
+  ],
+  "type": "searchset",
+  "resourceType": "Bundle",
+  "total": 1
+}

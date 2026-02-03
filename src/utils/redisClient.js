@@ -40,15 +40,12 @@ class RedisClient {
     }
 
     async connectAsync() {
-        let redisConnected = true;
         if (!this.client.isOpen) {
             await this.client.connect().catch((e) => {
                 logError('Error connecting to Redis', { error: e });
                 captureException(e);
-                redisConnected = false;
             });
         }
-        return redisConnected;
     }
 
     async get(key) {

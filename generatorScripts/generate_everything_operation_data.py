@@ -13,7 +13,6 @@ sys.path.insert(0, str(project_root))
 
 from generatorScripts.fhir_xml_schema_parser import FhirEntity, FhirProperty, FhirXmlSchemaParser
 
-patient_graphs: Path = Path("src/graphs/patient")
 everything_operation: Path = Path("src/operations/everything")
 
 reference_type_list = FhirXmlSchemaParser.get_types_for_references(only_resources=True)
@@ -43,38 +42,170 @@ log_fields_with_any_reference = True
 ###############
 
 
-def get_clinical_resources_and_filters(
-    obj: dict, field_names=None, patient_filter_map={}
-):
+def get_clinical_resources_and_filters():
     """
     Returns list of resources which are directly linked to patient resource
     Note: this function is used in GraphQLv2 generator for making custom patient queries. After changes
     run `make graphqlv2` to confirm changes
     """
 
-    if field_names is None:
-        field_names = set()
+    clinical_resources = [
+        "Account",
+        "AdverseEvent",
+        "AllergyIntolerance",
+        "Appointment",
+        "AppointmentResponse",
+        "Basic",
+        "BiologicallyDerivedProduct",
+        "BodyStructure",
+        "CarePlan",
+        "CareTeam",
+        "ChargeItem",
+        "Claim",
+        "ClaimResponse",
+        "ClinicalImpression",
+        "Communication",
+        "CommunicationRequest",
+        "Composition",
+        "Condition",
+        "Consent",
+        "Contract",
+        "Coverage",
+        "CoverageEligibilityRequest",
+        "CoverageEligibilityResponse",
+        "DetectedIssue",
+        "Device",
+        "DeviceRequest",
+        "DeviceUseStatement",
+        "DiagnosticReport",
+        "DocumentManifest",
+        "DocumentReference",
+        "Encounter",
+        "EnrollmentRequest",
+        "EpisodeOfCare",
+        "ExplanationOfBenefit",
+        "FamilyMemberHistory",
+        "Flag",
+        "Goal",
+        "Group",
+        "GuidanceResponse",
+        "ImagingStudy",
+        "Immunization",
+        "ImmunizationEvaluation",
+        "ImmunizationRecommendation",
+        "Invoice",
+        "Linkage",
+        "List",
+        "MeasureReport",
+        "Media",
+        "MedicationAdministration",
+        "MedicationDispense",
+        "MedicationRequest",
+        "MedicationStatement",
+        "MolecularSequence",
+        "NutritionOrder",
+        "Observation",
+        "Patient",
+        "PaymentNotice",
+        "Person",
+        "Procedure",
+        "Provenance",
+        "QuestionnaireResponse",
+        "RelatedPerson",
+        "RequestGroup",
+        "ResearchSubject",
+        "RiskAssessment",
+        "Schedule",
+        "ServiceRequest",
+        "Specimen",
+        "Subscription",
+        "SubscriptionStatus",
+        "SubscriptionTopic",
+        "SupplyDelivery",
+        "SupplyRequest",
+        "Task",
+        "VisionPrescription",
+    ]
+    patient_filter_map = {
+        "Account": "patient",
+        "AdverseEvent": "subject",
+        "AllergyIntolerance": "patient",
+        "Appointment": "patient",
+        "AppointmentResponse": "patient",
+        "Basic": "patient",
+        "BodyStructure": "patient",
+        "CarePlan": "patient",
+        "CareTeam": "patient",
+        "ChargeItem": "patient",
+        "Claim": "patient",
+        "ClaimResponse": "patient",
+        "ClinicalImpression": "patient",
+        "Communication": "patient",
+        "CommunicationRequest": "patient",
+        "Composition": "patient",
+        "Condition": "patient",
+        "Consent": "patient",
+        "Contract": "patient",
+        "Coverage": "patient",
+        "CoverageEligibilityRequest": "patient",
+        "CoverageEligibilityResponse": "patient",
+        "DetectedIssue": "patient",
+        "Device": "patient",
+        "DeviceRequest": "patient",
+        "DeviceUseStatement": "patient",
+        "DiagnosticReport": "patient",
+        "DocumentManifest": "patient",
+        "DocumentReference": "patient",
+        "Encounter": "patient",
+        "EnrollmentRequest": "patient",
+        "EpisodeOfCare": "patient",
+        "ExplanationOfBenefit": "patient",
+        "FamilyMemberHistory": "patient",
+        "Flag": "patient",
+        "Goal": "patient",
+        "Group": "member",
+        "GuidanceResponse": "patient",
+        "ImagingStudy": "patient",
+        "Immunization": "patient",
+        "ImmunizationEvaluation": "patient",
+        "ImmunizationRecommendation": "patient",
+        "Invoice": "patient",
+        "Linkage": "item",
+        "List": "patient",
+        "MeasureReport": "patient",
+        "Media": "patient",
+        "MedicationAdministration": "patient",
+        "MedicationDispense": "patient",
+        "MedicationRequest": "patient",
+        "MedicationStatement": "patient",
+        "MolecularSequence": "patient",
+        "NutritionOrder": "patient",
+        "Observation": "patient",
+        "Patient": "link",
+        "PaymentNotice": "request",
+        "Person": "link",
+        "Procedure": "patient",
+        "Provenance": "patient",
+        "QuestionnaireResponse": "patient",
+        "RelatedPerson": "patient",
+        "RequestGroup": "patient",
+        "ResearchSubject": "patient",
+        "RiskAssessment": "patient",
+        "Schedule": "actor",
+        "ServiceRequest": "patient",
+        "Specimen": "patient",
+        "Subscription": "extension",
+        "SubscriptionStatus": "extension",
+        "SubscriptionTopic": "identifier",
+        "SupplyDelivery": "patient",
+        "SupplyRequest": "requester",
+        "Task": "patient",
+        "VisionPrescription": "patient",
+    }
 
-    if "params" in obj.keys():
-        patient_filter_map[obj["type"]] = obj["params"].split("=")[0]
-    for key, value in obj.items():
-        if key in ["type", "start"]:
-            field_names.add(value)
-        elif isinstance(value, dict):
-            get_clinical_resources_and_filters(value, field_names)
-        elif isinstance(value, list):
-            for item in value:
-                if isinstance(item, dict):
-                    get_clinical_resources_and_filters(item, field_names)
+    return clinical_resources, patient_filter_map
 
-    return field_names, patient_filter_map
-
-
-json_file_path = patient_graphs.joinpath("everything.json")
-with open(json_file_path, "r") as json_file:
-    patient_everything_graph = json.load(json_file)
-
-clinical_resources, _ = get_clinical_resources_and_filters(patient_everything_graph)
+clinical_resources, _ = get_clinical_resources_and_filters()
 clinical_resources = list(clinical_resources)
 
 ###############
@@ -229,8 +360,6 @@ def get_non_clinical_resources_fields(resources_to_exclude=[], use_uuid=False):
 ###############
 
 
-
-
 def get_non_clinical_rechability_map(
     *,
     level: int = 3,
@@ -284,10 +413,6 @@ def get_non_clinical_rechability_map(
 
 
 def main():
-    # TODO: Find a better way to do this
-    clinical_resources.append("BiologicallyDerivedProduct")
-    clinical_resources.sort()
-
     non_clinical_data = NonClinicalFieldsData()
     non_clinical_data.generate_non_clinical_resource_fields_data()
 
@@ -295,18 +420,6 @@ def main():
     non_clinical_resources = sorted(list(non_clininical_to_required_resources.keys()))
 
     print_non_clinical_stats(non_clininical_to_required_resources)
-
-    json_file_path = patient_graphs.joinpath("generated.clinical_resources.json")
-    with open(json_file_path, "w") as json_file:
-        json.dump(
-            {
-                "clinicalResources": clinical_resources,
-                "nonClinicalResources": non_clinical_resources,
-            },
-            json_file,
-            indent=2,
-        )
-        json_file.write("\n")
 
     json_file_path = everything_operation.joinpath("generated.resource_types.json")
     with open(json_file_path, "w") as json_file:
@@ -332,16 +445,6 @@ def main():
             indent=2,
         )
 
-    clinical_resources_for_graph_flow = clinical_resources
-    # to prevent duplicate fields where reference type is 'Resource' as we have V2 with list of all resources
-    # generatorScripts/fhir_xml_schema_parser.py (line 985)
-    clinical_resources_for_graph_flow.append("Resource")
-
-    non_clinical_resource_fields_list = get_non_clinical_resources_fields(
-        clinical_resources_for_graph_flow
-    )
-
-
     # add custom field for accessing Binary resource from DocumentReference
     non_clinical_data.non_clinical_map_uuid["DocumentReference"].append(
         "content.attachment.url"
@@ -350,13 +453,6 @@ def main():
     json_file_path = everything_operation.joinpath("generated.non_clinical_resources_fields.json")
     with open(json_file_path, "w") as json_file:
         json.dump(non_clinical_data.non_clinical_map_uuid, json_file, indent=2)
-        json_file.write("\n")
-
-    json_file_path = patient_graphs.joinpath(
-        "generated.non_clinical_resources_fields.json"
-    )
-    with open(json_file_path, "w") as json_file:
-        json.dump(non_clinical_resource_fields_list, json_file, indent=2)
         json_file.write("\n")
 
     print(

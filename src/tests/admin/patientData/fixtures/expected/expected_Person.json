@@ -1,328 +1,120 @@
 {
   "entry": [
     {
-      "id": "person1",
+      "id": "241ba7c0-ce2e-50ac-a4fd-780c7ccdd9b3",
+      "resource": {
+        "code": {
+          "coding": [
+            {
+              "id": "62186514-8c23-5680-85fd-b6898c99eacb",
+              "system": "http://www.icanbwell.com/cql/library",
+              "code": "BMI001"
+            },
+            {
+              "id": "77b3739c-725f-5833-a93e-cce825fb7b4a",
+              "system": "http://www.icanbwell.com/cql/libraryVersion",
+              "code": "1.0.0"
+            },
+            {
+              "id": "977380c4-aca5-57a2-9eab-03eea0c1941d",
+              "system": "http://www.icanbwell.com/cql/rule",
+              "code": "InAgeCohort"
+            }
+          ]
+        },
+        "effectivePeriod": {
+          "start": "2021-01-01T00:00:00.000Z",
+          "end": "2021-12-31T00:00:00.000Z"
+        },
+        "id": "241ba7c0-ce2e-50ac-a4fd-780c7ccdd9b3",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "observation1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "241ba7c0-ce2e-50ac-a4fd-780c7ccdd9b3"
+          }
+        ],
+        "issued": "2021-01-01T12:00:00.000Z",
+        "meta": {
+          "versionId": "1",
+          "source": "/patients",
+          "security": [
+            {
+              "id": "7b13402a-1b1b-5e3e-b61f-70065e56e2cc",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "A"
+            },
+            {
+              "id": "8a3c1bdc-8709-50d1-a170-c8f58b896d79",
+              "system": "https://www.icanbwell.com/access",
+              "code": "A"
+            },
+            {
+              "id": "675ab9a9-9fb6-5a48-8406-dce8c95a100b",
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "B"
+            },
+            {
+              "id": "073d5d2a-f3b8-5458-a152-5746f24b5488",
+              "system": "https://www.icanbwell.com/access",
+              "code": "B"
+            },
+            {
+              "id": "004d3e80-9ed1-529b-9c67-637257a0e9e4",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "A"
+            }
+          ]
+        },
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/patient1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "client"
+            }
+          ],
+          "reference": "Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
+        },
+        "valueBoolean": false
+      }
+    },
+    {
+      "id": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
       "resource": {
         "active": true,
         "address": [
           {
-            "city": "Austin",
-            "country": "Some country",
             "id": "2011-10-05T14:48:00.000Z",
-            "line": [
-              "301 W, in a yellow submarine"
-            ],
+            "line": ["301 W, in a yellow submarine"],
+            "city": "Austin",
+            "state": "Texas",
+            "postalCode": "78701",
+            "country": "Some country",
             "period": {
               "id": "2011-10-05T14:48:00.000Z"
-            },
-            "postalCode": "78701",
-            "state": "Texas"
-          }
-        ],
-        "contained": [
-          {
-            "code": {
-              "coding": [
-                {
-                  "id": "62186514-8c23-5680-85fd-b6898c99eacb",
-                  "code": "BMI001",
-                  "system": "http://www.icanbwell.com/cql/library"
-                },
-                {
-                  "id": "77b3739c-725f-5833-a93e-cce825fb7b4a",
-                  "code": "1.0.0",
-                  "system": "http://www.icanbwell.com/cql/libraryVersion"
-                },
-                {
-                  "id": "977380c4-aca5-57a2-9eab-03eea0c1941d",
-                  "code": "InAgeCohort",
-                  "system": "http://www.icanbwell.com/cql/rule"
-                }
-              ]
-            },
-            "effectivePeriod": {
-              "end": "2021-12-31T00:00:00.000Z",
-              "start": "2021-01-01T00:00:00.000Z"
-            },
-            "id": "observation1",
-            "identifier": [
-              {
-                "id": "sourceId",
-                "system": "https://www.icanbwell.com/sourceId",
-                "value": "observation1"
-              },
-              {
-                "id": "uuid",
-                "system": "https://www.icanbwell.com/uuid",
-                "value": "241ba7c0-ce2e-50ac-a4fd-780c7ccdd9b3"
-              }
-            ],
-            "issued": "2021-01-01T12:00:00.000Z",
-            "meta": {
-              "security": [
-                {
-                  "code": "A",
-                  "id": "7b13402a-1b1b-5e3e-b61f-70065e56e2cc",
-                  "system": "https://www.icanbwell.com/owner"
-                },
-                {
-                  "code": "A",
-                  "id": "8a3c1bdc-8709-50d1-a170-c8f58b896d79",
-                  "system": "https://www.icanbwell.com/access"
-                },
-                {
-                  "code": "B",
-                  "id": "675ab9a9-9fb6-5a48-8406-dce8c95a100b",
-                  "system": "https://www.icanbwell.com/vendor"
-                },
-                {
-                  "code": "B",
-                  "id": "073d5d2a-f3b8-5458-a152-5746f24b5488",
-                  "system": "https://www.icanbwell.com/access"
-                },
-                {
-                  "code": "A",
-                  "id": "004d3e80-9ed1-529b-9c67-637257a0e9e4",
-                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-                }
-              ],
-              "source": "/patients",
-              "versionId": "1"
-            },
-            "resourceType": "Observation",
-            "status": "final",
-            "subject": {
-              "extension": [
-                {
-                  "id": "sourceId",
-                  "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Patient/patient1"
-                },
-                {
-                  "id": "uuid",
-                  "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
-                },
-                {
-                  "id": "sourceAssigningAuthority",
-                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "client"
-                }
-              ],
-              "reference": "Patient/patient1|client"
-            },
-            "valueBoolean": false
-          },
-          {
-            "birthDate": "2017-01-01",
-            "gender": "female",
-            "id": "patient1",
-            "identifier": [
-              {
-                "id": "sourceId",
-                "system": "https://www.icanbwell.com/sourceId",
-                "value": "patient1"
-              },
-              {
-                "id": "uuid",
-                "system": "https://www.icanbwell.com/uuid",
-                "value": "8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
-              }
-            ],
-            "meta": {
-              "security": [
-                {
-                  "code": "client",
-                  "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
-                  "system": "https://www.icanbwell.com/access"
-                },
-                {
-                  "code": "client",
-                  "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
-                  "system": "https://www.icanbwell.com/owner"
-                },
-                {
-                  "code": "client",
-                  "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
-                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-                }
-              ],
-              "source": "http://clienthealth.org/provider",
-              "versionId": "1"
-            },
-            "name": [
-              {
-                "family": "PATIENT1",
-                "given": [
-                  "SHYLA"
-                ],
-                "text": "t",
-                "use": "usual"
-              }
-            ],
-            "resourceType": "Patient"
-          },
-          {
-            "active": true,
-            "address": [
-              {
-                "city": "Austin",
-                "country": "Some country",
-                "id": "2011-10-05T14:48:00.000Z",
-                "line": [
-                  "301 W, in a yellow submarine"
-                ],
-                "period": {
-                  "id": "2011-10-05T14:48:00.000Z"
-                },
-                "postalCode": "78701",
-                "state": "Texas"
-              }
-            ],
-            "gender": "male",
-            "id": "person1",
-            "identifier": [
-              {
-                "system": "http://www.client.com/profileid",
-                "value": "1000000-a-02"
-              },
-              {
-                "id": "sourceId",
-                "system": "https://www.icanbwell.com/sourceId",
-                "value": "person1"
-              },
-              {
-                "id": "uuid",
-                "system": "https://www.icanbwell.com/uuid",
-                "value": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
-              }
-            ],
-            "implicitRules": "some-implicit-rule",
-            "language": "english",
-            "link": [
-              {
-                "assurance": "level4",
-                "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
-                "target": {
-                  "extension": [
-                    {
-                      "id": "sourceId",
-                      "url": "https://www.icanbwell.com/sourceId",
-                      "valueString": "Patient/patient1"
-                    },
-                    {
-                      "id": "uuid",
-                      "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
-                    },
-                    {
-                      "id": "sourceAssigningAuthority",
-                      "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "client"
-                    }
-                  ],
-                  "reference": "Patient/patient1|client"
-                }
-              }
-            ],
-            "managingOrganization": {
-              "display": "some-text-to-display",
-              "extension": [
-                {
-                  "id": "sourceId",
-                  "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab"
-                },
-                {
-                  "id": "uuid",
-                  "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab"
-                },
-                {
-                  "id": "sourceAssigningAuthority",
-                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "healthsystem1"
-                }
-              ],
-              "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
-              "reference": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab",
-              "type": "foo://example.com:8042/over/there?name=ferret#"
-            },
-            "meta": {
-              "extension": [
-                {
-                  "id": "2011-10-05T14:48:00.000Z",
-                  "url": "someurl",
-                  "valueCodeableConcept": {
-                    "coding": [
-                      {
-                        "id": "b765b00c-29bd-5ad0-a2b1-f42d7849e68c",
-                        "code": "code-1",
-                        "display": "some-display",
-                        "system": "foo://example.com:8042/over/there?name=ferret#"
-                      }
-                    ],
-                    "id": "2011-10-05T14:48:00.000Z",
-                    "text": "some-text"
-                  }
-                }
-              ],
-              "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
-              "profile": [
-                "some-profile"
-              ],
-              "security": [
-                {
-                  "code": "healthsystem1",
-                  "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
-                  "system": "https://www.icanbwell.com/owner"
-                },
-                {
-                  "code": "healthsystem1",
-                  "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
-                  "system": "https://www.icanbwell.com/access"
-                },
-                {
-                  "code": "healthsystem1",
-                  "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
-                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-                }
-              ],
-              "source": "https://www.icanbwell.com",
-              "versionId": "1"
-            },
-            "name": [
-              {
-                "family": "Azamar",
-                "given": [
-                  "Daniel"
-                ],
-                "use": "nickname"
-              }
-            ],
-            "photo": {
-              "contentType": "image/jpeg",
-              "data": "R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7",
-              "hash": "R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7",
-              "id": "2011-10-05T14:48:00.000Z",
-              "language": "english",
-              "size": 1024,
-              "title": "what a nice picture!",
-              "url": "someurl.com"
-            },
-            "resourceType": "Person",
-            "telecom": [
-              {
-                "id": "2011-10-05T14:48:00.000Z",
-                "system": "phone",
-                "use": "home",
-                "value": "+52123456789"
-              }
-            ]
+            }
           }
         ],
         "gender": "male",
-        "id": "person1",
+        "id": "5f3ca115-8630-5e55-a97d-4d6ee26c0adc",
         "identifier": [
           {
             "system": "http://www.client.com/profileid",
@@ -343,7 +135,6 @@
         "language": "english",
         "link": [
           {
-            "assurance": "level4",
             "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
             "target": {
               "extension": [
@@ -363,12 +154,13 @@
                   "valueString": "client"
                 }
               ],
-              "reference": "Patient/patient1|client"
-            }
+              "reference": "Patient/8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
+            },
+            "assurance": "level4"
           }
         ],
         "managingOrganization": {
-          "display": "some-text-to-display",
+          "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
           "extension": [
             {
               "id": "sourceId",
@@ -386,85 +178,131 @@
               "valueString": "healthsystem1"
             }
           ],
-          "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
           "reference": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab",
-          "type": "foo://example.com:8042/over/there?name=ferret#"
+          "type": "foo://example.com:8042/over/there?name=ferret#",
+          "display": "some-text-to-display"
         },
         "meta": {
+          "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
           "extension": [
             {
               "id": "2011-10-05T14:48:00.000Z",
               "url": "someurl",
               "valueCodeableConcept": {
+                "id": "2011-10-05T14:48:00.000Z",
                 "coding": [
                   {
                     "id": "b765b00c-29bd-5ad0-a2b1-f42d7849e68c",
+                    "system": "foo://example.com:8042/over/there?name=ferret#",
                     "code": "code-1",
-                    "display": "some-display",
-                    "system": "foo://example.com:8042/over/there?name=ferret#"
+                    "display": "some-display"
                   }
                 ],
-                "id": "2011-10-05T14:48:00.000Z",
                 "text": "some-text"
               }
             }
           ],
-          "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
-          "profile": [
-            "some-profile"
-          ],
-              "security": [
-                {
-                  "code": "healthsystem1",
-                  "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
-                  "system": "https://www.icanbwell.com/owner"
-                },
-                {
-                  "code": "healthsystem1",
-                  "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
-                  "system": "https://www.icanbwell.com/access"
-                },
-                {
-                  "code": "healthsystem1",
-                  "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
-                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-                }
-              ],
+          "versionId": "1",
           "source": "https://www.icanbwell.com",
-          "versionId": "1"
+          "profile": ["some-profile"],
+          "security": [
+            {
+              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+              "system": "https://www.icanbwell.com/access",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "healthsystem1"
+            }
+          ]
         },
         "name": [
           {
+            "use": "nickname",
             "family": "Azamar",
-            "given": [
-              "Daniel"
-            ],
-            "use": "nickname"
+            "given": ["Daniel"]
           }
         ],
         "photo": {
-          "contentType": "image/jpeg",
-          "data": "R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7",
-          "hash": "R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7",
           "id": "2011-10-05T14:48:00.000Z",
+          "contentType": "image/jpeg",
           "language": "english",
+          "data": "R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7",
+          "url": "someurl.com",
           "size": 1024,
-          "title": "what a nice picture!",
-          "url": "someurl.com"
+          "hash": "R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7",
+          "title": "what a nice picture!"
         },
         "resourceType": "Person",
         "telecom": [
           {
             "id": "2011-10-05T14:48:00.000Z",
             "system": "phone",
-            "use": "home",
-            "value": "+52123456789"
+            "value": "+52123456789",
+            "use": "home"
           }
         ]
       }
+    },
+    {
+      "id": "8c164262-c5a9-5d78-a0f2-8c6255a12ad0",
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "8c164262-c5a9-5d78-a0f2-8c6255a12ad0",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "8c164262-c5a9-5d78-a0f2-8c6255a12ad0"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "source": "http://clienthealth.org/provider",
+          "security": [
+            {
+              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+              "system": "https://www.icanbwell.com/access",
+              "code": "client"
+            },
+            {
+              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client"
+            },
+            {
+              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client"
+            }
+          ]
+        },
+        "name": [
+          {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": ["SHYLA"]
+          }
+        ],
+        "resourceType": "Patient"
+      }
     }
   ],
+  "type": "searchset",
   "resourceType": "Bundle",
-  "total": 1,
-  "type": "searchset"
+  "total": 3
 }

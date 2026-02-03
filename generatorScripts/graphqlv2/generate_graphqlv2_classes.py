@@ -416,14 +416,10 @@ def main() -> int:
             print(f"{resource_name}: {fhir_entity.type_} is not supported")
         # print(result)
 
-    # write custom patient schema using patient everything.json graph definition
-    patient_graphs: Path = Path("src/graphs/patient")
-    json_file_path = patient_graphs.joinpath("everything.json")
-    with open(json_file_path, "r") as json_file:
-        patient_everything_graph = json.load(json_file)
-
-    clinical_resources, patient_resources_search_param_dict = list(get_clinical_resources_and_filters(patient_everything_graph))
+    # write custom patient schema
+    clinical_resources, patient_resources_search_param_dict = list(get_clinical_resources_and_filters())
     clinical_resources.remove("Patient")
+    clinical_resources.remove("BiologicallyDerivedProduct")
 
     patient_entities = [fhir_entity for fhir_entity in fhir_entities if fhir_entity.is_resource and fhir_entity.fhir_name in clinical_resources]
     with open(data_dir.joinpath("schema/template.patient_custom.jinja2"), "r") as file:

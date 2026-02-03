@@ -105,7 +105,7 @@ describe('Person Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/4_0_0/Person/person1/$everything?contained=true')
+                .get('/4_0_0/Person/person1/$everything')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);

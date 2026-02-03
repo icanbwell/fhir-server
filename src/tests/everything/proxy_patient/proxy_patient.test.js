@@ -1,6 +1,4 @@
 // test file
-const deepcopy = require('deepcopy');
-
 const person1Resource = require('./fixtures/Person/person1.json');
 
 const patient1Resource = require('./fixtures/Patient/patient1.json');
@@ -15,7 +13,6 @@ const observation3Resource = require('./fixtures/Observation/observation3.json')
 // expected
 const expectedPersonResourcesWithProxyPatient = require('./fixtures/expected/expected_person_everything.json');
 const expectedPersonResourcesWithProxyPatientSourceId = require('./fixtures/expected/expected_person_everything_sourceid.json');
-const expectedPersonResourcesContained = require('./fixtures/expected/expected_person_everything_contained.json');
 const expectedPatientResourcesWithProxyPatient = require('./fixtures/expected/expected_patient_everything_without_graph.json');
 const expectedPatientResourcesWithProxyPatientAndUuidOnly = require('./fixtures/expected/expected_patient_everything_without_graph_and_uuid_only.json');
 const expectedPatientResourcesWithProxyPatientAndPatientScope = require('./fixtures/expected/expected_patient_everything_without_graph_with_patient_scope.json');
@@ -106,18 +103,11 @@ describe('Proxy Patient $everything Tests', () => {
         // get person everything and proxy patient data is also received
         resp = await request
             .get('/4_0_0/Person/' + person1Resp.body.uuid + '/$everything?_debug=true')
-            .set(getHeaders());
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         expect(resp).toHaveResponse(expectedPersonResourcesWithProxyPatient);
-
-        // get person everything with contained and _rewritePatientReference as false
-        resp = await request
-            .get(
-                '/4_0_0/Person/' +
-                    person1Resp.body.uuid +
-                    '/$everything?contained=true&_rewritePatientReference=false'
-            )
-            .set(getHeaders());
-        expect(resp).toHaveResponse(expectedPersonResourcesContained);
 
         // get person everything with search on proxy patient data using sourceId
         resp = await request
@@ -304,7 +294,7 @@ describe('Proxy Patient $everything Tests', () => {
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(5);
-        let cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639::Scopes:access/*.*,patient/*.*,user/*.*::Everything';
+        let cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639::Scopes:41b78b54-0a8e-5477-af30-d99864d04833::Everything';
         expect(streams.keys()).toContain(cacheKey);
         expect(streams.get(cacheKey)).toHaveLength(5);
 

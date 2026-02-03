@@ -27,10 +27,10 @@ const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscri
 
 // expected
 const expectedPersonTopLevelResources = require('./fixtures/expected/expected_Person_personTopLevel.json');
-const expectedPersonTopLevelContainedResources = require('./fixtures/expected/expected_Person_personTopLevel_contained.json');
 const expectedPerson1Resources = require('./fixtures/expected/expected_Person_person1_no_graph.json');
+const expectedMultiplePersonResources = require('./fixtures/expected/expected_multiple_person_response.json');
+const expectedNoIdResponse = require('./fixtures/expected/expected_no_id_response.json');
 const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
-const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained_no_graph.json');
 
 const expectedPatientEverythingPatientPersonResource = require('./fixtures/expected/expected_Patient_everything_Patient_Person_resource.json');
 const expectedPatientEverythingPatientScope = require('./fixtures/expected/expected_Patient_everything_Patient_scope.json');
@@ -222,14 +222,12 @@ describe('Person and Patient $everything Tests', () => {
             // Second get person everything from topLevel
             resp = await request
                 .get('/4_0_0/Person/personTopLevel/$everything')
-                .set(getHeaders());
+                .set({
+                    ...getHeaders(),
+                    prefer: 'global_id=false'
+                });
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonTopLevelResources);
-            resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything?contained=true')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonTopLevelContainedResources);
 
             // Third get person everything from person1
             resp = await request
@@ -237,11 +235,40 @@ describe('Person and Patient $everything Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1Resources);
+
             resp = await request
-                .get('/4_0_0/Person/person1/$everything?contained=true')
+                .get('/4_0_0/Person/person1,personTopLevel/$everything?_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPerson1ContainedResources);
+            expect(resp).toHaveResponse(expectedMultiplePersonResources);
+
+            resp = await request
+                .get('/4_0_0/Person/$everything?id=person1,personTopLevel&_debug=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMultiplePersonResources);
+
+            resp = await request
+                .get('/4_0_0/Person/$everything?_id=person1,personTopLevel&_debug=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMultiplePersonResources);
+
+            resp = await request
+                .get('/4_0_0/Person/$everything')
+                .set(getHeaders());
+            // set diagnostic from response as empty string
+            resp.body.entry[0].resource.issue[0].diagnostics = '';
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedNoIdResponse);
+
+            resp = await request
+                .get('/4_0_0/Patient/$everything')
+                .set(getHeaders());
+            // set diagnostic from response as empty string
+            resp.body.entry[0].resource.issue[0].diagnostics = '';
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedNoIdResponse);
 
             expect(serializerSpy).toHaveBeenCalled();
         });
@@ -321,7 +348,7 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
-            // Check get patient everything with specified resources and check contained is ignored with _type
+            // Check get patient everything with specified resources
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_type=Account,Observation,Person&_includePatientLinkedOnly=true&_debug=true')
                 .set({
@@ -852,7 +879,7 @@ describe('Person and Patient $everything Tests', () => {
                 .set(patientHeader);
 
             expect(resp).toHaveResourceCount(8);
-            let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:access/*.*,patient/*.*,user/*.*::Everything';
+            let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:41b78b54-0a8e-5477-af30-d99864d04833::Everything';
             expect(streams.keys()).toContain(cacheKey);
             expect(streams.get(cacheKey)).toHaveLength(8);
 
