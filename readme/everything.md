@@ -7,51 +7,59 @@ Note - If loading the result of each resource for $everything to node.js takes m
 It is mandatory to provide `id` either in search query parameter or in path parameter.
 For example:
 
--   <base_url>/4_0_0/Person/<person1>/$everything
--   <base_url>/4_0_0/Person/$everything?id=<person1>
+-   <base_url>/4_0_0/Practitioner/<pract1>/$everything
+-   <base_url>/4_0_0/Practitioner/$everything?id=<pract1>
 
-Sample $everything result for person
+Sample $everything result for Practitioner
 
 ```
 {
   "entry": [
     {
-      "id": "person1",
+      "id": "pract1",
       "resource": {
-        "resourceType": "Person",
-        "id": "person1"
+        "resourceType": "Practitioner",
+        "id": "pract1"
         // <rest of resource fields>
       }
     },
     {
-      "id": "patient1",
+      "id": "practRole1",
       "resource": {
-        "resourceType": "Patient",
-        "id": "patient1"
+        "resourceType": "PractitionerRole",
+        "id": "practRole1"
         // <rest of resource fields>
       }
     },
     {
-      "id": "example",
+      "id": "org1",
       "resource": {
-        "resourceType": "Account",
-        "id": "example"
+        "resourceType": "Organization",
+        "id": "org1"
         // <rest of resource fields>
       }
     },
     {
-      "id": "2354-InAgeCohort",
+      "id": "loc1",
       "resource": {
-        "resourceType": "Observation",
-        "id": "2354-InAgeCohort"
+        "resourceType": "Location",
+        "id": "loc1"
         // <rest of resource fields>
       }
     },
     {
-      "id": "personTopLevel",
+      "id": "healthcareService1",
       "resource": {
-        "resourceType": "Person",
-        "id": "personTopLevel"
+        "resourceType": "HealthcareService",
+        "id": "healthcareService1"
+        // <rest of resource fields>
+      }
+    },
+    {
+      "id": "insurancePlan1",
+      "resource": {
+        "resourceType": "InsurancePlan",
+        "id": "insurancePlan1"
         // <rest of resource fields>
       }
     }
@@ -59,12 +67,12 @@ Sample $everything result for person
   ],
   "resourceType": "Bundle",
   "type": "searchset",
-  "timestamp": "2023-12-20T03:31:07.077Z",
-  "total": 4,
+  "timestamp": "2026-01-20T03:31:07.077Z",
+  "total": 6,
   "link": [
     {
       "relation": "self",
-      "url": "<base_url>/4_0_0/Person/person1/$everything"
+      "url": "<base_url>/4_0_0/Practitioner/pract1/$everything"
     }
   ]
 }
@@ -93,11 +101,13 @@ URL: <base_url>/4_0_0/Slot/<slot_id>/$everything
 Resources returned/deleted:
 Slot, Schedule, PractitionerRole, Practitioner
 
-### Person
+### Person DELETE
+
+NOTE: Details for Person GET $everything [patientEverything.md](patientEverything.md)
 
 URL: <base_url>/4_0_0/Person/<person_id>/$everything
 
-Resources returned/deleted:
+Resources deleted:
 Person, Patient, Account, AdverseEvent, AllergyIntolerance, Appointment, AppointmentResponse, Basic, BodyStructure, CarePlan, CareTeam, ChargeItem, Claim, ClaimResponse, ClinicalImpression, Communication, CommunicationRequest, Composition, Condition, Consent, Contract, Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, DetectedIssue, Device, DeviceRequest, DeviceUseStatement, DiagnosticReport, DocumentManifest, DocumentReference, Encounter, EnrollmentRequest, EpisodeOfCare, ExplanationOfBenefit, FamilyMemberHistory, Flag, Goal, Group, GuidanceResponse, ImagingStudy, Immunization, ImmunizationEvaluation, ImmunizationRecommendation, Invoice, Linkage, List, MeasureReport, Media, MedicationAdministration, MedicationDispense, MedicationRequest, MedicationStatement, MolecularSequence, NutritionOrder, Observation, PaymentNotice, Procedure, Provenance, QuestionnaireResponse, RelatedPerson, RequestGroup, ResearchSubject, RiskAssessment, Schedule, ServiceRequest, Specimen, Subscription, SubscriptionStatus, SubscriptionTopic, SupplyDelivery, SupplyRequest, Task, VisionPrescription
 
 ### Patient DELETE
@@ -118,72 +128,80 @@ Currently [BiologicallyDerivedProduct]((https://www.hl7.org/fhir/r4b/Biologicall
 
 It can be used if data related to more than one resource provided needs to be fetched. If `id` search query parameter is passed, then the path parameter is ignored.
 
-For example: <base_url>/4_0_0/Person/$everything?id=person1,person2
+For example: <base_url>/4_0_0/Practitioner/$everything?id=prac1,prac2
 
 ### contained
 
 By default, the FHIR returns all the related resources in the top level bundle.  
 However if you pass the `contained` search query parameter then the FHIR server will put the related resources in a `contained` field under each resource.
 
-For example: <base_url>/4_0_0/Person/\<person1>/$everything?contained=true
+For example: <base_url>/4_0_0/Practitioner/\<prac1>/$everything?contained=true
 
 ```
 {
-    "entry": [
-        {
-            "id": "person1",
+  "entry": [
+    {
+      "id": "pract1",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "pract1"
+        // <rest of resource fields>
+        "contained": [
+          {
+            "id": "practRole1",
             "resource": {
-                "resourceType": "Person",
-                "id": "person1",
-                // <rest of resource fields>
-                "contained": [
-                    {
-                        "id": "example",
-                        "resource": {
-                            "resourceType": "Account",
-                            "id": "example"
-                            // <rest of resource fields>
-                        }
-                    },
-                    {
-                        "id": "2354-InAgeCohort",
-                        "resource": {
-                            "resourceType": "Observation",
-                            "id": "2354-InAgeCohort"
-                            // <rest of resource fields>
-                        }
-                    },
-                    {
-                        "id": "patient1",
-                        "resource": {
-                            "resourceType": "Patient",
-                            "id": "patient1"
-                            // <rest of resource fields>
-                        }
-                    },
-                    {
-                        "id": "personTopLevel",
-                        "resource": {
-                            "resourceType": "Person",
-                            "id": "personTopLevel"
-                            // <rest of resource fields>
-                        }
-                    }
-                    // rest of resources
-                ]
+              "resourceType": "PractitionerRole",
+              "id": "practRole1"
+              // <rest of resource fields>
             }
-        }
-    ],
-    "resourceType": "Bundle",
-    "type": "searchset",
-    "timestamp": "2023-12-20T03:31:07.077Z",
-    "total": 4,
-    "link": [
-        {
-            "relation": "self",
-            "url": "<base_url>/4_0_0/Person/person1/$everything?contained=true"
-        }
-    ]
+          },
+          {
+            "id": "org1",
+            "resource": {
+              "resourceType": "Organization",
+              "id": "org1"
+              // <rest of resource fields>
+            }
+          },
+          {
+            "id": "loc1",
+            "resource": {
+              "resourceType": "Location",
+              "id": "loc1"
+              // <rest of resource fields>
+            }
+          },
+          {
+            "id": "healthcareService1",
+            "resource": {
+              "resourceType": "HealthcareService",
+              "id": "healthcareService1"
+              // <rest of resource fields>
+            }
+          },
+          {
+            "id": "insurancePlan1",
+            "resource": {
+              "resourceType": "InsurancePlan",
+              "id": "insurancePlan1"
+              // <rest of resource fields>
+            }
+          }
+          // rest of resources
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "timestamp": "2026-01-20T03:31:07.077Z",
+  "total": 6,
+  "link": [
+    {
+      "relation": "self",
+      "url": "<base_url>/4_0_0/Practitioner/pract1/$everything?contained=true"
+    }
+  ]
 }
 ```
 
@@ -191,7 +209,7 @@ For example: <base_url>/4_0_0/Person/\<person1>/$everything?contained=true
 
 The `_debug` parameter is used to get debugging information with the result.
 
-For example: <base_url>/4_0_0/Person/\<person1>/$everything?\_debug=true
+For example: <base_url>/4_0_0/Practitioner/\<pract1>/$everything?\_debug=true
 
 ### \_explain
 
@@ -203,20 +221,7 @@ For example: <base_url>/4_0_0/Organization/<organization1>/$everything?\_explain
 
 This parameter can be used to narrow down the result of resources to the provided list of resources.
 
-For example: <base_url>/4_0_0/Person/\<person1>/$everything?\_type=Person,Account,Observation
+For example: <base_url>/4_0_0/Practitioner/\<pract1>/$everything?\_type=Practitioner,Organization
 
 Note:
 When `_type` parameter is used then the `contained` parameter is ignored.
-
-### \_includeNonClinicalResources
-
-This parameter is used to find all linked non-clinical resources. It can only be used with Patient and Person resources and in GET request only. Default depth for which linked non-clinical resources can be fetched is 1 and it can be configured using `_nonClinicalResourcesDepth` parameter.
-When used along with `_type`, the result of only top level resources will be narrowed and it will not affect linked non-clinical resources.
-
-For example: <base_url>/4_0_0/Person/\<person_id>/$everything?\_includeNonClinicalResources=true
-
-### \_nonClinicalResourcesDepth
-
-This parameter is used to define depth for which linked non-clinical resources needs to be fetched. The parameter is optional with default value of 1. And its maximum value can be 3 as more depth will make request very slow.
-
-For example: <base_url>/4_0_0/Person/\<person_id>/$everything?\_includeNonClinicalResources=true&\_nonClinicalResourcesDepth=3

@@ -1,6 +1,4 @@
 // test file
-const parentPersonResource = require('./fixtures/Person/parentPerson.json');
-const parentPerson1Resource = require('./fixtures/Person/parentPerson1.json');
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');
@@ -26,15 +24,6 @@ const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscri
 
 
 // expected
-const expectedPersonTopLevelResources = require('./fixtures/expected/expected_Person_personTopLevel.json');
-const expectedPersonTopLevelContainedResources = require('./fixtures/expected/expected_Person_personTopLevel_contained.json');
-const expectedPerson1Resources = require('./fixtures/expected/expected_Person_person1.json');
-const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
-const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained.json');
-
-const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
-const expectedPatientResourcesType = require('./fixtures/expected/expected_Patient_type.json');
-const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 const {unzipSync, strFromU8} = require('fflate');
 
 const {
@@ -42,8 +31,7 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersCsv,
-    getHeadersZip
+    getHeadersCsv
 } = require('../../../common');
 const {describe, beforeEach, afterEach, test, expect, jest} = require('@jest/globals');
 const fs = require("node:fs");

@@ -27,10 +27,8 @@ const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscri
 
 // expected
 const expectedPersonTopLevelResources = require('./fixtures/expected/expected_Person_personTopLevel.json');
-const expectedPersonTopLevelContainedResources = require('./fixtures/expected/expected_Person_personTopLevel_contained.json');
 const expectedPerson1Resources = require('./fixtures/expected/expected_Person_person1_no_graph.json');
 const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
-const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained_no_graph.json');
 
 const expectedPatientEverythingPatientPersonResource = require('./fixtures/expected/expected_Patient_everything_Patient_Person_resource.json');
 const expectedPatientEverythingPatientScope = require('./fixtures/expected/expected_Patient_everything_Patient_scope.json');
@@ -222,14 +220,12 @@ describe('Person and Patient $everything Tests', () => {
             // Second get person everything from topLevel
             resp = await request
                 .get('/4_0_0/Person/personTopLevel/$everything')
-                .set(getHeaders());
+                .set({
+                    ...getHeaders(),
+                    prefer: 'global_id=false'
+                });
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonTopLevelResources);
-            resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything?contained=true')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonTopLevelContainedResources);
 
             // Third get person everything from person1
             resp = await request
@@ -237,11 +233,6 @@ describe('Person and Patient $everything Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1Resources);
-            resp = await request
-                .get('/4_0_0/Person/person1/$everything?contained=true')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPerson1ContainedResources);
 
             expect(serializerSpy).toHaveBeenCalled();
         });
@@ -321,7 +312,7 @@ describe('Person and Patient $everything Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
-            // Check get patient everything with specified resources and check contained is ignored with _type
+            // Check get patient everything with specified resources
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything?_type=Account,Observation,Person&_includePatientLinkedOnly=true&_debug=true')
                 .set({

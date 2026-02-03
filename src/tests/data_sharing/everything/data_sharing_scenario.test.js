@@ -85,7 +85,10 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
-                .set(headers);
+                .set({
+                    ...headers,
+                    prefer: 'global_id=false'
+                });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMongoQuery(expectedResponse1Resource);
@@ -112,7 +115,10 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything')
-                .set(headers);
+                .set({
+                    ...headers,
+                    prefer: 'global_id=false'
+                });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse2Resource);
@@ -136,13 +142,16 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Person/c12345/$everything?_debug=true')
-                .set(headers);
+                .set({
+                    ...headers,
+                    prefer: 'global_id=false'
+                });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse3Resource);
         });
 
-        test('Everything operation on client person: Get no data when access token of proa patient provided & no consent provided', async () => {
+        test('Everything operation on client person: Get data only for proa patient when access token of proa patient provided & no consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });

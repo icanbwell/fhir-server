@@ -1,12 +1,14 @@
 # FHIR GET Patient $everything endpoint
 
-The FHIR server supports the Patient GET $everything endpoint of the FHIR specification (https://www.hl7.org/fhir/R4B/patient-operation-everything.html). This operation is used to retrieve all resources related to the provided patient. Along with the linked non-clinical resources upto depth 3.
+The FHIR server supports the Patient/Person GET $everything endpoint of the FHIR specification (https://www.hl7.org/fhir/R4B/patient-operation-everything.html). This operation is used to retrieve all resources related to the provided patient. Along with the linked non-clinical resources upto depth 3.
 
 It is mandatory to provide `id` either in search query parameter or in path parameter.
 For example:
 
 -   <base_url>/4_0_0/Patient/\<patient1>/$everything
 -   <base_url>/4_0_0/Patient/$everything?id=\<patient1>
+-   <base_url>/4_0_0/Person/\<person1>/$everything
+-   <base_url>/4_0_0/Person/$everything?id=\<person1>
 
 Sample $everything result for patient
 
@@ -59,6 +61,11 @@ Sample $everything result for patient
   ]
 }
 ```
+
+## Person $everything
+Person $everything operation is mapped to Patient $everything under the hood as proxy Patient $everything
+
+`<base_url>/4_0_0/Person/\<person1>/$everything` is same as `<base_url>/4_0_0/Patient/person.\<person1>/$everything`
 
 ## Notes
 - If loading the result of each resource for $everything to node.js takes more than the specified time in MONGO_TIMEOUT (default 2 mins), a error is returned.

@@ -47,9 +47,8 @@ const specimenAndLinkedPractitionerUuidOnly = require('./fixtures/expected/nonCl
 const excludeConsentResource = require('./fixtures/Consent/consent1.json');
 
 // expected
-const expectedPersonResourcesWithNonClinicalDepth1 = require('./fixtures/expected/expected_Person_with_non_clinical_depth_1.json');
-const expectedPersonResourcesWithNonClinicalDepth2 = require('./fixtures/expected/expected_Person_with_non_clinical_depth_2.json');
-const expectedPersonResourcesWithNonClinicalDepthType = require('./fixtures/expected/expected_Person_with_non_clinical_depth_type.json');
+const expectedPersonResourcesWithNonClinical = require('./fixtures/expected/expected_Person_with_non_clinical_depth_2.json');
+const expectedPersonResourcesWithNonClinicalType = require('./fixtures/expected/expected_Person_with_non_clinical_depth_type.json');
 const expectedPersonResourcesWithoutNonClinical = require('./fixtures/expected/expected_Person_without_non_clinical.json');
 
 const expectedPractitionerRoles = require('./fixtures/expected/nonClinicalWithType/practitionerRole.json');
@@ -443,62 +442,38 @@ describe('everything _includeNonClinicalResources Tests', () => {
         expect(resp).toHaveMongoQuery(expectedPatientEverythingForTwoPatientsWithPatientScopeAllUuidOnly);
         expect(resp).toHaveResponse(expectedPatientEverythingForTwoPatientsWithPatientScopeAllUuidOnly);
 
-        // get person everything with non-clinical resources upto depth 2
+        // get person everything with non-clinical resources
         resp = await request
             .get(
-                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=true&_nonClinicalResourcesDepth=2'
+                '/4_0_0/Person/person1/$everything'
             )
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalDepth2);
+        expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinical);
 
-        // get person everything with non-clinical resources upto default depth 1 with _type param as CarePlan
+        // get person everything _type param as CarePlan
         resp = await request
             .get(
                 '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=true&_type=CarePlan'
             )
-            .set(getHeaders());
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalDepthType);
-
-        // get person everything with non-clinical resources upto default depth 1
-        resp = await request
-            .get(
-                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=true'
-            )
-            .set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalDepth1);
+        expect(resp).toHaveResponse(expectedPersonResourcesWithNonClinicalType);
 
         // get person everything without non-clinical resources
         resp = await request
             .get(
-                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=false'
+                '/4_0_0/Person/person1/$everything?_includePatientLinkedOnly=true'
             )
-            .set(getHeaders());
+            .set({
+                ...getHeaders(),
+                prefer: 'global_id=false'
+            });
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPersonResourcesWithoutNonClinical);
-
-        // get person everything without non-clinical resources when only depth param is ignored
-        resp = await request
-            .get(
-                '/4_0_0/Person/person1/$everything?_nonClinicalResourcesDepth=2'
-            )
-            .set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveResponse(expectedPersonResourcesWithoutNonClinical);
-
-
-        // get person everything when _nonClinicalResourcesDepth is invalid
-        resp = await request
-            .get(
-                '/4_0_0/Person/person1/$everything?_includeNonClinicalResources=true&_nonClinicalResourcesDepth=abc'
-            )
-            .set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp.body.entry[0].resource.issue[0].details.text).toEqual(
-            'Unexpected Error: _nonClinicalResourcesDepth: Depth for linked non-clinical resources must be a number between 1 and 3'
-        );
 
         expect(serializerSpy).toHaveBeenCalled();
 

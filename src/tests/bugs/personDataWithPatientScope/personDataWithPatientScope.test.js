@@ -151,7 +151,7 @@ describe('Client person access test using patient scope', () => {
         expect(resp).toHaveResponse(expectedEverythingCommonProaPatient);
 
         // person everything for client person A using client patient A token
-        resp = await request.get('/4_0_0/Person/a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0/$everything?_debug=1').set(headersClientA);
+        resp = await request.get('/4_0_0/Person/a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0/$everything?_debug=1').set({...headersClientA, prefer: 'global_id=false'});
         expect(resp).toHaveResponse(expectedEverythingClientPersonA);
 
         // patient to person graph test, starting from client patient A

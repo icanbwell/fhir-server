@@ -2,18 +2,14 @@
  * This file contains functions to retrieve a graph of data from the database
  */
 const async = require('async');
-const {R4SearchQueryCreator} = require('../query/r4');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
 const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained');
-const {ScopesManager} = require('../security/scopesManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ConfigManager} = require('../../utils/configManager');
 const {BundleManager} = require('../common/bundleManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
@@ -44,13 +40,8 @@ const {
 } = require('../../constants');
 const {isValidResource} = require('../../utils/validResourceCheck');
 const {SearchParametersManager} = require('../../searchParameters/searchParametersManager');
-const {NestedPropertyReader} = require('../../utils/nestedPropertyReader');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const nonClinicalDataFields = require('../../graphs/patient/generated.non_clinical_resources_fields.json');
-const {SearchBundleOperation} = require('../search/searchBundle');
 const { RemoveHelper } = require('../remove/removeHelper');
-const clinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['clinicalResources'];
-const nonClinicalResources = require('../../graphs/patient/generated.clinical_resources.json')['nonClinicalResources'];
 
 /**
  * This class helps with creating graph responses
@@ -58,36 +49,26 @@ const nonClinicalResources = require('../../graphs/patient/generated.clinical_re
 class GraphHelper {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {SecurityTagManager} securityTagManager
-     * @param {ScopesManager} scopesManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
      * @param {BundleManager} bundleManager
-     * @param {ResourceLocatorFactory} resourceLocatorFactory
-     * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {SearchManager} searchManager
      * @param {EnrichmentManager} enrichmentManager
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchParametersManager} searchParametersManager
-     * @param {SearchBundleOperation} searchParametersOperation
      * @param {RemoveHelper} removeHelper
      */
     constructor({
                     databaseQueryFactory,
-                    securityTagManager,
-                    scopesManager,
                     scopesValidator,
                     configManager,
                     bundleManager,
-                    resourceLocatorFactory,
-                    r4SearchQueryCreator,
                     searchManager,
                     enrichmentManager,
                     r4ArgsParser,
                     databaseAttachmentManager,
                     searchParametersManager,
-                    searchBundleOperation,
                     removeHelper
                 }) {
         /**
@@ -95,17 +76,7 @@ class GraphHelper {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        /**
-         * @type {SecurityTagManager}
-         */
-        this.securityTagManager = securityTagManager;
-        assertTypeEquals(securityTagManager, SecurityTagManager);
 
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
         /**
          * @type {ScopesValidator}
          */
@@ -124,17 +95,6 @@ class GraphHelper {
         this.bundleManager = bundleManager;
         assertTypeEquals(bundleManager, BundleManager);
 
-        /**
-         * @type {ResourceLocatorFactory}
-         */
-        this.resourceLocatorFactory = resourceLocatorFactory;
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
-
-        /**
-         * @type {R4SearchQueryCreator}
-         */
-        this.r4SearchQueryCreator = r4SearchQueryCreator;
-        assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
         /**
          * @type {SearchManager}
          */
@@ -164,12 +124,6 @@ class GraphHelper {
          */
         this.searchParametersManager = searchParametersManager;
         assertTypeEquals(searchParametersManager, SearchParametersManager);
-
-        /**
-         * @type {SearchBundleOperation}
-         */
-        this.searchBundleOperation = searchBundleOperation;
-        assertTypeEquals(searchBundleOperation, SearchBundleOperation);
 
         /**
          * @type {RemoveHelper}
@@ -1384,148 +1338,6 @@ class GraphHelper {
     }
 
     /**
-     * get all the non-clinical resources whose references are in the provided entity list
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Resource[]} resourceList
-     * @param {string[]} resourcesToExclude
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} base_version
-     * @param {boolean} explain
-     * @param {boolean} debug
-     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[]}>}
-     */
-    async getLinkedNonClinicalResources(
-        requestInfo,
-        resourceList,
-        resourcesToExclude,
-        parsedArgs,
-        base_version,
-        explain,
-        debug
-    ) {
-        try {
-            /**
-             * @type {BundleEntry[]}
-             */
-            let entities = [];
-            /**
-             * @type {QueryItem[]}
-             */
-            let queryItems = [];
-
-            let nestedResourceReferences = {};
-
-            for (const resource of resourceList) {
-                let resourceNonClinicalDataFields = nonClinicalDataFields[resource.resourceType];
-                for (const path of resourceNonClinicalDataFields ?? []) {
-                    let references = NestedPropertyReader.getNestedProperty({
-                        obj: resource,
-                        path: path
-                    });
-                    if (references) {
-                        if (!Array.isArray(references)) {
-                            references = [references];
-                        }
-                        for (const reference of references) {
-                            const {id: referenceId, resourceType: referenceResourceType} =
-                                ReferenceParser.parseReference(reference);
-                            if (
-                                !resourcesToExclude.includes(referenceResourceType) &&
-                                nonClinicalResources.includes(referenceResourceType)
-                            ) {
-                                if (nestedResourceReferences[referenceResourceType]) {
-                                    nestedResourceReferences[referenceResourceType] =
-                                        nestedResourceReferences[referenceResourceType].add(
-                                            referenceId
-                                        );
-                                } else {
-                                    nestedResourceReferences[referenceResourceType] = new Set([
-                                        referenceId
-                                    ]);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (const [resourceType, ids] of Object.entries(nestedResourceReferences)) {
-                const args = {
-                    base_version: base_version,
-                    id: Array.from(ids).join(','),
-                    _debug: debug,
-                    _includeHidden: parsedArgs._includeHidden
-                };
-                if (explain) {
-                    args['_count'] = 1;
-                }
-
-                const childParseArgs = this.r4ArgsParser.parseArgs({
-                    resourceType,
-                    args
-                });
-
-                const bundle = await this.searchBundleOperation.searchBundleAsync({
-                    requestInfo,
-                    resourceType,
-                    parsedArgs: childParseArgs,
-                    useAggregationPipeline: false
-                });
-
-                for (let entry of bundle.entry || []) {
-                    entities.push({
-                        id: entry.id,
-                        resource: entry.resource
-                    });
-                }
-
-                if (debug || explain) {
-                    // making query items from meta of bundle
-                    let query = bundle.meta.tag.find((obj) => {
-                        return obj.system.endsWith('query');
-                    }).display;
-                    let collectionName = query.split('.')[1];
-                    query = query.split('.find(')[1].split(', {}')[0];
-                    query = JSON.parse(query.replace(/'/g, '"'));
-                    let explanations = bundle.meta.tag.find((obj) => {
-                        return obj.system.endsWith('queryExplain');
-                    }).system;
-                    queryItems.push(
-                        new QueryItem({
-                            query,
-                            resourceType,
-                            collectionName,
-                            explanations
-                        })
-                    );
-                }
-            }
-
-            entities = await this.enrichmentManager.enrichBundleEntriesAsync({
-                entries: entities,
-                parsedArgs
-            });
-
-            return {entities, queryItems};
-        } catch (e) {
-            logError(`Error in getLinkedNonClinicalResources(): ${e.message}`, {error: e});
-            throw new RethrownError({
-                message: `Error in getLinkedNonClinicalResources()`,
-                error: e,
-                args: {
-                    requestInfo,
-                    resourceList,
-                    resourcesToExclude,
-                    parsedArgs,
-                    base_version,
-                    explain,
-                    debug
-                }
-            });
-        }
-    }
-
-    /**
      * processing multiple ids
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
@@ -1538,8 +1350,6 @@ class GraphHelper {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ResourceIdentifier[]} idsAlreadyProcessed
      * @param {boolean} supportLegacyId
-     * @param {boolean} includeNonClinicalResources
-     * @param {number} nonClinicalResourcesDepth
      * @param {string[]} proxyPatientIds
      * @param {ResourceEntityAndContained[]} proxyPatientResources
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -1557,8 +1367,6 @@ class GraphHelper {
             responseStreamer,
             idsAlreadyProcessed,
             supportLegacyId = true,
-            includeNonClinicalResources = false,
-            nonClinicalResourcesDepth = 1,
             proxyPatientIds = [],
             proxyPatientResources = []
         }
@@ -1765,57 +1573,6 @@ class GraphHelper {
                     );
                 }
 
-                if (includeNonClinicalResources) {
-                    let resourceTypesToExclude = clinicalResources;
-                    let resourcesList = bundleEntriesForTopLevelResource.map((e) => e.resource);
-                    if (contained) {
-                        resourcesList = [resourcesList[0], ...resourcesList[0].contained];
-                    }
-
-                    for (let i = 1; i <= nonClinicalResourcesDepth; i++) {
-                        // finding non clinical resources in depth using previous result as input
-                        let {entities, queryItems} = await this.getLinkedNonClinicalResources(
-                            requestInfo,
-                            resourcesList,
-                            resourceTypesToExclude,
-                            parsedArgs,
-                            base_version,
-                            explain,
-                            debug
-                        );
-
-                        if (contained) {
-                            bundleEntriesForTopLevelResource[0].resource.contained =
-                                bundleEntriesForTopLevelResource[0].resource.contained.concat(
-                                    entities.flatMap((c) => c.resource)
-                                );
-                        } else {
-                            bundleEntriesForTopLevelResource =
-                                bundleEntriesForTopLevelResource.concat(entities);
-                        }
-
-                        // will be used for next depth
-                        resourcesList = entities.map((e) => e.resource);
-
-                        for (const q of queryItems) {
-                            if (q) {
-                                queries.push(q);
-                            }
-                            if (q.explanations) {
-                                for (const e of q.explanations) {
-                                    explanations.push(e);
-                                }
-                            }
-                        }
-
-                        // in case of explain, currently we are fetching one document of each resource type
-                        if (explain) {
-                            let resourceTypes = resourcesList.map((e) => e.resourceType);
-                            resourceTypesToExclude = resourceTypesToExclude.concat(resourceTypes);
-                        }
-                    }
-                }
-
                 if (responseStreamer) {
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
                         const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
@@ -1889,8 +1646,6 @@ class GraphHelper {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ParsedArgs} parsedArgs
      * @param {boolean} supportLegacyId
-     * @param {boolean} includeNonClinicalResources
-     * @param {number} nonClinicalResourcesDepth
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
@@ -1902,9 +1657,7 @@ class GraphHelper {
             contained,
             responseStreamer,
             parsedArgs,
-            supportLegacyId = true,
-            includeNonClinicalResources = false,
-            nonClinicalResourcesDepth = 1
+            supportLegacyId = true
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1997,8 +1750,6 @@ class GraphHelper {
                         responseStreamer,
                         idsAlreadyProcessed: bundleEntryIdsProcessed,
                         supportLegacyId,
-                        includeNonClinicalResources,
-                        nonClinicalResourcesDepth,
                         proxyPatientIds,
                         proxyPatientResources
                     }
