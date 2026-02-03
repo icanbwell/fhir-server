@@ -125,6 +125,7 @@ const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
+const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 
 /**
@@ -755,7 +756,8 @@ const createContainer = function () {
             configManager: c.configManager,
             databaseQueryFactory: c.databaseQueryFactory,
             searchManager: c.searchManager,
-            redisStreamManager: c.redisStreamManager,
+            redisManager: c.redisManager,
+            enrichmentManager: c.enrichmentManager,
             postRequestProcessor: c.postRequestProcessor
         }
     ));
@@ -1015,6 +1017,9 @@ const createContainer = function () {
 
     container.register('redisClient', () => new RedisClient());
     container.register('redisStreamManager', (c) => new RedisStreamManager({
+        redisClient: c.redisClient
+    }));
+    container.register('redisManager', (c) => new RedisManager({
         redisClient: c.redisClient
     }));
 

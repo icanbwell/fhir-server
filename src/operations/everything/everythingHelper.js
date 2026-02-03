@@ -1,7 +1,6 @@
 /**
  * This file contains functions to retrieve all related resources of given resource from the database
  */
-const httpContext = require('express-http-context');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -283,6 +282,11 @@ class EverythingHelper {
         if (!requestInfo.personIdFromJwtToken) {
             return undefined;
         }
+        const keyGenerator = new PatientEverythingCacheKeyGenerator();
+        if (!keyGenerator.isResponseTypeCacheable(requestInfo.accept, parsedArgs)) {
+            return undefined;
+        }
+
         let paramsIds = this.fetchOriginalIdsFromParams(parsedArgs);
         // Multiple ids are not supported for now
         if (paramsIds.length !== 1) {
@@ -300,9 +304,9 @@ class EverythingHelper {
             let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType, base_version);
             idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
         }
-        let keyGenerator = new PatientEverythingCacheKeyGenerator();
+
         return idForCache ? keyGenerator.generateCacheKey(
-            { id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope, contentType: requestInfo.contentTypeFromHeader?.type }
+            { id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope }
         ) : undefined;
     }
 
@@ -332,6 +336,8 @@ class EverythingHelper {
         }
 
         assertTypeEquals(parsedArgs, ParsedArgs);
+        let cachedStreamer = undefined;
+        let cacheKey = undefined;
 
         try {
             /**
@@ -385,17 +391,17 @@ class EverythingHelper {
              */
             let streamedResources = [];
             const writeCache = this.configManager.writeToCacheForEverythingOperation;
-            const cacheKey = writeCache ? await this.getCacheKey(
+            cacheKey = writeCache ? await this.getCacheKey(
                 parsedArgs, requestInfo, resourceType, base_version
             ) : undefined;
-            const cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
+            cachedStreamer = cacheKey ? new CachedFhirResponseStreamer({
                 redisStreamManager: this.redisStreamManager,
                 cacheKey,
                 responseStreamer,
                 ttlSeconds: this.configManager.everythingCacheTtlSeconds,
                 enrichmentManager: this.enrichmentManager,
                 parsedArgs
-            }) : null;
+            }) : undefined;
             const readFromCache = (
                 this.configManager.readFromCacheForEverythingOperation &&
                 responseStreamer &&
