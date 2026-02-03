@@ -28,6 +28,8 @@ const subscriptionTopic2Resource = require('./fixtures/SubscriptionTopic/subscri
 // expected
 const expectedPersonTopLevelResources = require('./fixtures/expected/expected_Person_personTopLevel.json');
 const expectedPerson1Resources = require('./fixtures/expected/expected_Person_person1_no_graph.json');
+const expectedMultiplePersonResources = require('./fixtures/expected/expected_multiple_person_response.json');
+const expectedNoIdResponse = require('./fixtures/expected/expected_no_id_response.json');
 const expectedPersonResourcesType = require('./fixtures/expected/expected_Person_type.json');
 
 const expectedPatientEverythingPatientPersonResource = require('./fixtures/expected/expected_Patient_everything_Patient_Person_resource.json');
@@ -233,6 +235,40 @@ describe('Person and Patient $everything Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1Resources);
+
+            resp = await request
+                .get('/4_0_0/Person/person1,personTopLevel/$everything?_debug=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMultiplePersonResources);
+
+            resp = await request
+                .get('/4_0_0/Person/$everything?id=person1,personTopLevel&_debug=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMultiplePersonResources);
+
+            resp = await request
+                .get('/4_0_0/Person/$everything?_id=person1,personTopLevel&_debug=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMultiplePersonResources);
+
+            resp = await request
+                .get('/4_0_0/Person/$everything')
+                .set(getHeaders());
+            // set diagnostic from response as empty string
+            resp.body.entry[0].resource.issue[0].diagnostics = '';
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedNoIdResponse);
+
+            resp = await request
+                .get('/4_0_0/Patient/$everything')
+                .set(getHeaders());
+            // set diagnostic from response as empty string
+            resp.body.entry[0].resource.issue[0].diagnostics = '';
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedNoIdResponse);
 
             expect(serializerSpy).toHaveBeenCalled();
         });
