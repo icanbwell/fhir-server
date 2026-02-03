@@ -1493,10 +1493,10 @@
     fflate "^0.8.2"
     xlsx "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 
-"@imranq2/fhirpatientsummary@^1.0.40":
-  version "1.0.40"
-  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.40.tgz#6299acd80a9cd2388271620b4a10ba91999ca896"
-  integrity sha512-VuvYhcd9zU2aWGJr28jPtt2z8DGLulQHZX5RyiYfCGPMM5aC62EJ5CcrQ5mSdck8cquExWAsFp8sSknZEqWxPg==
+"@imranq2/fhirpatientsummary@^1.0.41":
+  version "1.0.41"
+  resolved "https://registry.yarnpkg.com/@imranq2/fhirpatientsummary/-/fhirpatientsummary-1.0.41.tgz#470683d3a3b1f81d7c0cff2c396543ec7d687eaa"
+  integrity sha512-fZFSnopnLcwHHTtSoDIT49Wn0bayxqfiGVbYJ9c0Bp0/72QEMg1iHwJYuBEmXc+OHR6+5I+wRckDEtcbpNyGPg==
   dependencies:
     html-minifier-terser "^7.2.0"
     luxon "^3.7.2"
