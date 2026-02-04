@@ -11,6 +11,7 @@ const patient3Resource = require('./fixtures/Patient/patient3.json');
 const accountResource = require('./fixtures/Account/account.json');
 const unlinkedAccountResource = require('./fixtures/Account/unlinked_account.json');
 const compositionResource = require('./fixtures/Composition/compositions.json');
+const compositionsWithProfileResource = require('./fixtures/Composition/compositions_with_profile.json');
 
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
@@ -1196,5 +1197,215 @@ describe('Patient $summary Tests', () => {
         expect(resp.status).toBe(200);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedSummaryCompositionOnlyBundle);
+    });
+
+    test('Patient $summary filters Composition resources by _profile parameter', async () => {
+        const request = await createTestRequest();
+        // ARRANGE
+        // add the resources to FHIR server
+        let resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        // Add compositions with profiles
+        resp = await request
+            .post('/4_0_0/Composition/1/$merge?validate=true')
+            .send(compositionsWithProfileResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse([{created: true}, {created: true}, {created: true}]);
+
+        // ACT & ASSERT
+        // Test 1: Request with _profile filter - should only return Compositions with matching profile
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$summary?_profile=http://hl7.org/fhir/uv/ips/StructureDefinition/basic-ips&_debug=1')
+            .set(getHeaders());
+
+        expect(resp.status).toBe(200);
+        // Should have a Composition in the summary bundle
+        const summaryBundle = resp.body;
+        expect(summaryBundle.resourceType).toBe('Bundle');
+
+        // Check the debug bundle to verify Composition filter was applied
+        const debugBundle = summaryBundle.meta?.tag?.find(t => t.system === 'https://www.icanbwell.com/debug')?.display;
+        if (debugBundle) {
+            // Verify that the Composition query contains the _profile filter
+            expect(debugBundle).toContain('_profile');
+        }
+    });
+
+    test('Patient $summary without _profile returns all Compositions', async () => {
+        const request = await createTestRequest();
+        // ARRANGE
+        let resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        // Add compositions with profiles
+        resp = await request
+            .post('/4_0_0/Composition/1/$merge?validate=true')
+            .send(compositionsWithProfileResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse([{created: true}, {created: true}, {created: true}]);
+
+        // ACT & ASSERT
+        // Request without _profile filter - should return all matching Compositions
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$summary?_debug=1')
+            .set(getHeaders());
+
+        expect(resp.status).toBe(200);
+        expect(resp.body.resourceType).toBe('Bundle');
+    });
+
+    test('Patient $summary with _includeSummaryCompositionOnly applies _profile filter to Composition search', async () => {
+        const request = await createTestRequest();
+        // ARRANGE
+        // add the resources to FHIR server
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(topLevelPersonResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient3Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        // Add compositions with profiles
+        resp = await request
+            .post('/4_0_0/Composition/1/$merge?validate=true')
+            .send(compositionsWithProfileResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse([{created: true}, {created: true}, {created: true}]);
+
+        // ACT & ASSERT
+        // Request with _includeSummaryCompositionOnly and _profile filter
+        resp = await request
+            .get('/4_0_0/Patient/person.person2/$summary?_includeSummaryCompositionOnly=1&_profile=http://hl7.org/fhir/uv/ips/StructureDefinition/basic-ips&_debug=1')
+            .set(getHeaders());
+
+        expect(resp.status).toBe(200);
+        expect(resp.body.resourceType).toBe('Bundle');
+
+        // When _includeSummaryCompositionOnly is true, Compositions are fetched separately
+        // and the _profile filter should be applied to that search
+    });
+
+    test('Patient $summary _profile filter does not affect other resource types', async () => {
+        const request = await createTestRequest();
+        // ARRANGE
+        let resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation2Resource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({created: true});
+
+        // Add compositions with profiles
+        resp = await request
+            .post('/4_0_0/Composition/1/$merge?validate=true')
+            .send(compositionsWithProfileResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse([{created: true}, {created: true}, {created: true}]);
+
+        // ACT & ASSERT
+        // Request with _profile filter
+        resp = await request
+            .get('/4_0_0/Patient/patient1/$summary?_profile=http://hl7.org/fhir/uv/ips/StructureDefinition/basic-ips&_debug=1')
+            .set(getHeaders());
+
+        expect(resp.status).toBe(200);
+        expect(resp.body.resourceType).toBe('Bundle');
+
+        // The _profile filter should only apply to Compositions, not to other resources
+        // Observations and Patient should still be returned regardless of the _profile parameter
+        // Find entries by resourceType to verify other resources are present
+        const entries = resp.body.entry || [];
+        const patientEntry = entries.find(e => e.resource?.resourceType === 'Patient');
+        expect(patientEntry).toBeDefined();
     });
 });

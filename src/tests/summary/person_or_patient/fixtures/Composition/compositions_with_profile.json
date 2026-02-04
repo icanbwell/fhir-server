@@ -1,0 +1,187 @@
+[
+    {
+        "id": "composition-with-profile-1",
+        "status": "final",
+        "date": "2025-01-01",
+        "identifier": {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+            "value": "bwell_composition_for_health_data_summary"
+        },
+        "author": [
+            {
+                "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+                "type": "Organization"
+            }
+        ],
+        "subject": {
+            "reference": "Patient/patient1"
+        },
+        "title": "summary",
+        "meta": {
+            "source": "http://healthsystem1health.org/provider",
+            "profile": ["http://hl7.org/fhir/uv/ips/StructureDefinition/basic-ips"],
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "healthsystem1"
+                },
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "healthsystem1"
+                }
+            ]
+        },
+        "resourceType": "Composition",
+        "section": [
+            {
+                "id": "section-1",
+                "entry": [
+                    {
+                        "reference": "Observation/observation1"
+                    }
+                ],
+                "section": [
+                    {
+                        "title": "Vital Name",
+                        "text": {
+                            "div": "Heart rate",
+                            "status": "generated"
+                        }
+                    }
+                ]
+            }
+        ],
+        "type": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "60591-5",
+                    "display": "Patient summary Document"
+                }
+            ]
+        }
+    },
+    {
+        "id": "composition-with-profile-2",
+        "status": "final",
+        "date": "2025-01-01",
+        "identifier": {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+            "value": "bwell_composition_for_international_patient_summary"
+        },
+        "author": [
+            {
+                "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+                "type": "Organization"
+            }
+        ],
+        "subject": {
+            "reference": "Patient/patient1"
+        },
+        "title": "IPS summary",
+        "meta": {
+            "source": "http://healthsystem1health.org/provider",
+            "profile": ["http://hl7.org/fhir/uv/ips/StructureDefinition/comprehensive-ips"],
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "healthsystem1"
+                },
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "healthsystem1"
+                }
+            ]
+        },
+        "resourceType": "Composition",
+        "section": [
+            {
+                "id": "section-2",
+                "entry": [
+                    {
+                        "reference": "Observation/observation2"
+                    }
+                ],
+                "section": [
+                    {
+                        "title": "Vital Name",
+                        "text": {
+                            "div": "Blood pressure",
+                            "status": "generated"
+                        }
+                    }
+                ]
+            }
+        ],
+        "type": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "60591-5",
+                    "display": "Patient summary Document"
+                }
+            ]
+        }
+    },
+    {
+        "id": "composition-no-profile",
+        "status": "final",
+        "date": "2025-01-01",
+        "identifier": {
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+            "value": "bwell_composition_for_health_data_summary"
+        },
+        "author": [
+            {
+                "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+                "type": "Organization"
+            }
+        ],
+        "subject": {
+            "reference": "Patient/patient1"
+        },
+        "title": "summary no profile",
+        "meta": {
+            "source": "http://healthsystem1health.org/provider",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "healthsystem1"
+                },
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "healthsystem1"
+                }
+            ]
+        },
+        "resourceType": "Composition",
+        "section": [
+            {
+                "id": "section-3",
+                "entry": [
+                    {
+                        "reference": "Observation/observation1"
+                    }
+                ],
+                "section": [
+                    {
+                        "title": "Vital Name",
+                        "text": {
+                            "div": "Weight",
+                            "status": "generated"
+                        }
+                    }
+                ]
+            }
+        ],
+        "type": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "60591-5",
+                    "display": "Patient summary Document"
+                }
+            ]
+        }
+    }
+]

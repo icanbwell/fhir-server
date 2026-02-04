@@ -199,7 +199,8 @@ class SummaryOperation {
             id = id.replace(PERSON_PROXY_PREFIX, '');
             if (
                 isUuid(id) &&
-                (requestInfo.personIdFromJwtToken === undefined || id === requestInfo.personIdFromJwtToken)
+                (requestInfo.personIdFromJwtToken === undefined ||
+                    id === requestInfo.personIdFromJwtToken)
             ) {
                 idForCache = `${PERSON_PROXY_PREFIX}${id}`;
             }
@@ -209,7 +210,11 @@ class SummaryOperation {
         }
 
         return idForCache
-            ? keyGenerator.generateCacheKey({ id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope })
+            ? keyGenerator.generateCacheKey({
+                  id: idForCache,
+                  parsedArgs: parsedArgs,
+                  scope: requestInfo.scope
+              })
             : undefined;
     }
 
@@ -328,7 +333,8 @@ class SummaryOperation {
                     : undefined;
             const builder = new ComprehensiveIPSCompositionBuilder();
             const timezone = this.configManager.serverTimeZone;
-            const includeSummaryCompositionOnly = proxyPatientId && isTrue(parsedArgs._includeSummaryCompositionOnly);
+            const includeSummaryCompositionOnly =
+                proxyPatientId && isTrue(parsedArgs._includeSummaryCompositionOnly);
 
             const cacheKey = this.configManager.writeToCacheForSummaryOperation
                 ? await this.getCacheKey(parsedArgs, requestInfo, resourceType)
@@ -365,6 +371,19 @@ class SummaryOperation {
                         : `&_lastUpdated=${lastUpdated}`;
                 }
 
+                // Get _profile parameter for filtering Composition resources
+                // Per FHIR spec, we use _profile as the search parameter
+                const profileParam = parsedArgs._profile;
+                const profileQueryParam = profileParam
+                    ? `&_profile=${Array.isArray(profileParam) ? profileParam.join(',') : profileParam}`
+                    : null;
+
+                // Remove _profile from parsedArgs so it doesn't apply to other resource types
+                if (profileParam) {
+                    parsedArgs.remove('_profile');
+                    parsedArgs._profile = null;
+                }
+
                 // apply filter on Observation for last 2 years
                 const summaryGraph = deepcopy(patientSummaryGraph);
                 const pastDate = new Date();
@@ -378,23 +397,32 @@ class SummaryOperation {
                         if (lastUpdatedQueryParam && target.params && target.type !== 'Patient') {
                             target.params += lastUpdatedQueryParam;
                         }
+                        if (profileQueryParam && target.params && target.type === 'Composition') {
+                            target.params += profileQueryParam;
+                        }
                     });
                 });
 
                 let compositionResult;
                 if (includeSummaryCompositionOnly) {
+                    const compositionSearchArgs = {
+                        _rewritePatientReference: false,
+                        _debug: parsedArgs._debug,
+                        _explain: parsedArgs._explain,
+                        headers: parsedArgs.headers,
+                        base_version: parsedArgs.base_version,
+                        patient: proxyPatientId,
+                        identifier:
+                            'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary'
+                    };
+
+                    if (profileParam) {
+                        compositionSearchArgs._profile = profileParam;
+                    }
+
                     const compositionParsedArgs = this.r4ArgsParser.parseArgs({
                         resourceType: 'Composition',
-                        args: {
-                            _rewritePatientReference: false,
-                            _debug: parsedArgs._debug,
-                            _explain: parsedArgs._explain,
-                            headers: parsedArgs.headers,
-                            base_version: parsedArgs.base_version,
-                            patient: proxyPatientId,
-                            identifier:
-                                'https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_health_data_summary,https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell|bwell_composition_for_international_patient_summary'
-                        }
+                        args: compositionSearchArgs
                     });
 
                     /**
@@ -407,9 +435,13 @@ class SummaryOperation {
                         resourceType: 'Composition'
                     });
 
-                    const requiredResourcesList = builder.getRemainingResourcesFromCompositionBundle(compositionResult);
+                    const requiredResourcesList =
+                        builder.getRemainingResourcesFromCompositionBundle(compositionResult);
                     if (requiredResourcesList.length > 0) {
-                        parsedArgs.resource = filterGraphResources(deepcopy(summaryGraph), requiredResourcesList);
+                        parsedArgs.resource = filterGraphResources(
+                            deepcopy(summaryGraph),
+                            requiredResourcesList
+                        );
                     } else {
                         parsedArgs.resource = {};
                     }
@@ -450,7 +482,9 @@ class SummaryOperation {
                         compositionResult.entry.length > 0
                     ) {
                         patientDataBundle.entry = patientDataBundle.entry || [];
-                        patientDataBundle.entry = patientDataBundle.entry.concat(compositionResult.entry);
+                        patientDataBundle.entry = patientDataBundle.entry.concat(
+                            compositionResult.entry
+                        );
                     }
                     patientDataBundle = mergeBundleMetaTags(patientDataBundle, compositionResult);
                 }
@@ -461,9 +495,14 @@ class SummaryOperation {
                         requestId: requestInfo.requestId,
                         fnTask: async () => {
                             try {
-                                await this.redisManager.writeBundleAsync(cacheKey, patientDataBundleForCache);
+                                await this.redisManager.writeBundleAsync(
+                                    cacheKey,
+                                    patientDataBundleForCache
+                                );
                             } catch (error) {
-                                logError(`Error in caching summary bundle: ${error.message}`, { error });
+                                logError(`Error in caching summary bundle: ${error.message}`, {
+                                    error
+                                });
                                 await this.redisManager.deleteKeyAsync(cacheKey);
                             }
                         }
@@ -471,7 +510,11 @@ class SummaryOperation {
                 }
             }
 
-            if (!patientDataBundle || !patientDataBundle.entry || patientDataBundle.entry.length === 0) {
+            if (
+                !patientDataBundle ||
+                !patientDataBundle.entry ||
+                patientDataBundle.entry.length === 0
+            ) {
                 // no resources found
                 await responseHandler.sendResponseAsync(
                     patientDataBundle,
