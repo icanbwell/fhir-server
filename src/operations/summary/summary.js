@@ -403,32 +403,6 @@ class SummaryOperation {
                     });
                 });
 
-                // disable proxy patient rewrite by default
-                if (!parsedArgs._rewritePatientReference) {
-                    parsedArgs.add(
-                        new ParsedArgsItem({
-                            queryParameter: '_rewritePatientReference',
-                            queryParameterValue: new QueryParameterValue({
-                                value: false,
-                                operator: '$and'
-                            }),
-                            modifiers: [],
-                            patientToPersonMap: undefined
-                        })
-                    );
-                }
-
-                // Compute proxy patient id once and reuse
-                const proxyPatientId =
-                    Array.isArray(id) && id.length > 1
-                        ? id.filter((patientId) => patientId.startsWith('person.'))?.[0]
-                        : undefined;
-
-                const builder = new ComprehensiveIPSCompositionBuilder();
-
-                const includeSummaryCompositionOnly =
-                    isTrue(parsedArgs._includeSummaryCompositionOnly) && proxyPatientId;
-
                 let compositionResult;
                 if (includeSummaryCompositionOnly) {
                     const compositionSearchArgs = {
