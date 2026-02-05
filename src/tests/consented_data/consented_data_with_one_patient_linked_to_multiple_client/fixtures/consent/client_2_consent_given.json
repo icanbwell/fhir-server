@@ -20,8 +20,8 @@
     {
       "coding": [
         {
-          "system": "http://loinc.org",
-          "code": "59284-0"
+          "system": "http://www.icanbwell.com/consent-category",
+          "code": "dataSharing"
         }
       ]
     }
@@ -40,11 +40,6 @@
   "dateTime": "2022-09-08T14:05:07.350Z",
   "provision": {
     "type": "permit",
-    "class": [
-      {
-        "code": "/dataSharingConsent"
-      }
-    ],
     "actor": [
       {
         "role": {

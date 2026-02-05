@@ -256,9 +256,9 @@
                     {
                         "coding": [
                             {
-                                "id": "7ef3140f-b442-5347-a6d3-50454da9fb7a",
-                                "system": "http://loinc.org",
-                                "code": "59284-0"
+                                "id": "1e6aaed1-2da2-5477-b697-515e4b974c40",
+                                "system": "http://www.icanbwell.com/consent-category",
+                                "code": "dataSharing"
                             }
                         ]
                     }
@@ -348,11 +348,6 @@
                                 ],
                                 "reference": "Patient/person.33226ded-51e8-590e-8342-1197955a2af7"
                             }
-                        }
-                    ],
-                    "class": [
-                        {
-                            "code": "/dataSharingConsent"
                         }
                     ]
                 }
