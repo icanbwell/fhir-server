@@ -387,7 +387,7 @@ class ConfigManager {
      * @return {string[]}
      */
     get getDataSharingConsentCodes() {
-        return env.DATA_SHARING_CONSENT_CODES ? env.DATA_SHARING_CONSENT_CODES.split(',') : ['/dataSharingConsent', '/hipaaConsent'];
+        return env.DATA_SHARING_CONSENT_CODES ? env.DATA_SHARING_CONSENT_CODES.split(',') : ['dataSharing'];
     }
 
     /**
