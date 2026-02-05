@@ -1,11 +1,7 @@
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
-const { PatientFilterManager } = require('../../fhir/patientFilterManager');
-const { CONSENT_OF_LINKED_PERSON_INDEX, PATIENT_REFERENCE_PREFIX } = require('../../constants');
-const { SearchQueryBuilder } = require('./searchQueryBuilder');
-const { IdentifierSystem } = require('../../utils/identifierSystem');
-const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const { CONSENT_OF_LINKED_PERSON_INDEX, PATIENT_REFERENCE_PREFIX, CONSENT_CATEGORY } = require('../../constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
 class ProaConsentManager {
@@ -13,19 +9,8 @@ class ProaConsentManager {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
-     * @param {PatientFilterManager} patientFilterManager
-     * @param {SearchQueryBuilder} searchQueryBuilder
-     * @param {BwellPersonFinder} bwellPersonFinder
      */
-    constructor (
-        {
-            databaseQueryFactory,
-            configManager,
-            patientFilterManager,
-            searchQueryBuilder,
-            bwellPersonFinder
-        }
-    ) {
+    constructor({ databaseQueryFactory, configManager }) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -36,24 +21,6 @@ class ProaConsentManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {PatientFilterManager}
-         */
-        this.patientFilterManager = patientFilterManager;
-        assertTypeEquals(patientFilterManager, PatientFilterManager);
-
-        /**
-         * @type {SearchQueryBuilder}
-         */
-        this.searchQueryBuilder = searchQueryBuilder;
-        assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
-
-        /**
-         * @type {BwellPersonFinder}
-         */
-        this.bwellPersonFinder = bwellPersonFinder;
-        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
     /**
@@ -64,22 +31,28 @@ class ProaConsentManager {
      * @param {ConsentQueryOptions}
      * @returns Consent resource list
      */
-    async getConsentResources ({ ownerTags, patientIds }) {
-        const query =
-        {
+    async getConsentResources({ ownerTags, patientIds }) {
+        const query = {
             $and: [
                 { status: 'active' },
                 { 'patient._uuid': { $in: patientIds } },
-                { 'provision.class.code': { $in: this.configManager.getDataSharingConsentCodes } },
+                {
+                    'category.coding': {
+                        $elemMatch: {
+                            system: CONSENT_CATEGORY.DATA_CONNECTION_VIEW_CONTROL.SYSTEM,
+                            code: { $in: this.configManager.getDataSharingConsentCodes }
+                        }
+                    }
+                },
                 { 'provision.type': 'permit' },
                 {
-'meta.security': {
-                    $elemMatch: {
-                        system: 'https://www.icanbwell.com/owner',
-                        code: { $in: ownerTags }
+                    'meta.security': {
+                        $elemMatch: {
+                            system: 'https://www.icanbwell.com/owner',
+                            code: { $in: ownerTags }
+                        }
                     }
                 }
-}
             ]
         };
 
@@ -113,8 +86,8 @@ class ProaConsentManager {
      */
     async getPatientIdsWithConsent ({ patientIdToImmediatePersonUuid, securityTags, personToLinkedPatientsMap }) {
         /**
-        * @type {Set<string>}
-        */
+         * @type {Set<string>}
+         */
         const immediatePersonUuids = new Set();
         /**
          * Reverse map
@@ -145,7 +118,7 @@ class ProaConsentManager {
          */
         const allowedPatientIds = new Set();
         consentResources.forEach((consent) => {
-            const patientId = consent.patient?.extension?.find(extension => extension.url === IdentifierSystem.uuid)?.valueString || consent.patient?._sourceId;
+            const patientId = consent.patient?._uuid || consent.patient?._sourceId;
             if (!patientId) {
                 return;
             }
@@ -176,8 +149,8 @@ class ProaConsentManager {
      */
     async getAllPatientsForPersons (personSet, personPatientMap) {
         /**
-        * @type {Set<string>}
-        */
+         * @type {Set<string>}
+         */
         const allPatients = new Set();
         for (const personId of personSet) {
             if (personPatientMap.has(personId)) {

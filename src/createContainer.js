@@ -263,10 +263,7 @@ const createContainer = function () {
     }));
     container.register('proaConsentManager', (c) => new ProaConsentManager({
         databaseQueryFactory: c.databaseQueryFactory,
-        configManager: c.configManager,
-        patientFilterManager: c.patientFilterManager,
-        searchQueryBuilder: c.searchQueryBuilder,
-        bwellPersonFinder: c.bwellPersonFinder
+        configManager: c.configManager
     }));
     container.register('dataSharingManager', (c) => new DataSharingManager({
         databaseQueryFactory: c.databaseQueryFactory,
@@ -363,7 +360,6 @@ const createContainer = function () {
                 scopesManager: c.scopesManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
-                proaConsentManager: c.proaConsentManager,
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
                 patientScopeManager: c.patientScopeManager,
