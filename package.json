@@ -123,12 +123,12 @@
     "express": "4.22.0"
   },
   "dependencies": {
-    "@apollo/server": "^4.12.2",
+    "@apollo/server": "4.13.0",
     "@apollo/subgraph": "^2.11.0",
     "@as-integrations/express5": "^1.1.0",
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
-    "@aws-sdk/client-s3": "^3.824.0",
+    "@aws-sdk/client-s3": "3.894.0",
     "@aws-sdk/lib-storage": "^3.824.0",
     "@godaddy/terminus": "^4.12.1",
     "@graphql-tools/load-files": "^7.0.1",
@@ -149,9 +149,9 @@
     "@opentelemetry/instrumentation-http": "0.203.0",
     "@opentelemetry/instrumentation-lru-memoizer": "0.48.0",
     "@opentelemetry/instrumentation-mongodb": "0.56.0",
+    "@opentelemetry/instrumentation-redis": "0.57.2",
     "@opentelemetry/instrumentation-router": "0.48.0",
     "@opentelemetry/instrumentation-winston": "0.48.0",
-    "@opentelemetry/instrumentation-redis": "0.57.2",
     "@opentelemetry/resources": "2.0.1",
     "@opentelemetry/sdk-metrics": "2.0.1",
     "@opentelemetry/sdk-node": "0.203.0",
@@ -189,6 +189,7 @@
     "object-sizeof": "^2.6.5",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "redis": "^5.8.2",
     "superagent": "^10.2.1",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0",
@@ -196,8 +197,7 @@
     "winston-transport": "^4.9.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "xss": "^1.0.15",
-    "yargs": "^18.0.0",
-    "redis": "^5.8.2"
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
