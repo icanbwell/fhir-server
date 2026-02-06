@@ -1,0 +1,246 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    MICROSERVICES ARCHITECTURE WITH CENTRALIZED AUTH
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  CLIENT                                     │
+│                                                                             │
+│  Mobile App, Web App, or Service sending FHIR requests                     │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+                                   │ HTTPS + JWT Token
+                                   │ GET /4_0_0/Observation?subject=Patient/123
+                                   │ Authorization: Bearer <jwt-token>
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         MAIN FHIR SERVER (Port 3000)                        │
+│                        ═══════════════════════════════                      │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ 1. AUTHENTICATION MIDDLEWARE                                        │   │
+│  │    • Validates JWT token with OAuth provider                        │   │
+│  │    • Checks token signature using JWKS                              │   │
+│  │    • Verifies token expiration                                      │   │
+│  │    • Extracts user context (username, scopes, access codes)         │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                   ↓                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ 2. AUTHORIZATION MIDDLEWARE                                         │   │
+│  │    • Checks user scopes (user/Observation.read, user/*.*, etc.)     │   │
+│  │    • Validates access codes (access/myhealth.*, etc.)               │   │
+│  │    • Ensures user has permission for the operation                  │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                   ↓                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ 3. RESOURCE PROXY MIDDLEWARE  ← NEW!                                │   │
+│  │    • Detects resource type from path (/4_0_0/Observation)           │   │
+│  │    • Checks if backend service is configured                        │   │
+│  │    • If YES: Proxies to backend service                             │   │
+│  │    • If NO: Handles locally (normal flow)                           │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└──────────────┬─────────────────────────────────┬────────────────────────────┘
+               │                                 │
+               │ Observation?                    │ Other resources
+               │ → Route to backend              │ → Handle locally
+               │                                 │
+               ▼                                 ▼
+┌──────────────────────────────┐    ┌──────────────────────────────┐
+│   OBSERVATION SERVICE        │    │   LOCAL RESOURCE HANDLERS    │
+│      (Port 3001)             │    │                              │
+│   ═══════════════════        │    │   • Patient                  │
+│                              │    │   • Practitioner             │
+│  Backend handles:            │    │   • Organization             │
+│  • Observation search        │    │   • And more...              │
+│  • Observation read          │    │                              │
+│  • Observation create        │    └──────────────────────────────┘
+│  • Observation update        │
+│  • Observation delete        │
+│                              │
+│  Security:                   │
+│  • Validates internal secret │
+│  • Respects user scopes      │
+│  • Applies access codes      │
+│                              │
+└──────────────┬───────────────┘
+               │
+               │
+               ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                            MONGODB (Port 27017)                          │
+│                                                                          │
+│  Collections:                                                            │
+│  • Observation_4_0_0  ← Accessed by Observation Service                 │
+│  • Patient_4_0_0      ← Accessed by Main Server                         │
+│  • Practitioner_4_0_0 ← Accessed by Main Server                         │
+│  • ... other resources                                                   │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                              SECURITY LAYERS
+═══════════════════════════════════════════════════════════════════════════════
+
+Layer 1: OAuth JWT Authentication
+├── Main FHIR server validates JWT token
+├── Checks token signature with JWKS from OAuth provider
+├── Verifies token expiration
+└── Extracts user information
+
+Layer 2: Scope Authorization
+├── Validates user/*.read, user/*.write scopes
+├── Checks resource-specific scopes (user/Observation.read)
+└── Enforces operation permissions (read vs write)
+
+Layer 3: Access Tag Authorization
+├── Validates access codes (access/*.*)
+├── Checks resource security tags
+└── Ensures user can only see their data
+
+Layer 4: Internal Service Authentication
+├── Backend validates requests from main server
+├── Uses shared secret (INTERNAL_SERVICE_SECRET)
+├── Trusts user context forwarded by main server
+└── Additional validation layer for defense in depth
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                            REQUEST FLOW EXAMPLE
+═══════════════════════════════════════════════════════════════════════════════
+
+Step 1: Client Request
+┌─────────────────────────────────────────────────────────────────────┐
+│ GET /4_0_0/Observation?subject=Patient/123                         │
+│ Authorization: Bearer eyJhbGci...                                   │
+└─────────────────────────────────────────────────────────────────────┘
+
+Step 2: Main Server - Authentication
+┌─────────────────────────────────────────────────────────────────────┐
+│ ✓ JWT token validated                                              │
+│ ✓ User: service-account-123                                        │
+│ ✓ Scopes: [user/Observation.read, access/myhealth.*]              │
+└─────────────────────────────────────────────────────────────────────┘
+
+Step 3: Main Server - Authorization
+┌─────────────────────────────────────────────────────────────────────┐
+│ ✓ Has user/Observation.read scope                                  │
+│ ✓ Can perform read operation                                       │
+└─────────────────────────────────────────────────────────────────────┘
+
+Step 4: Main Server - Proxy Decision
+┌─────────────────────────────────────────────────────────────────────┐
+│ Resource type: Observation                                          │
+│ Backend URL: http://observation-service:3001                        │
+│ → Route to backend service                                          │
+└─────────────────────────────────────────────────────────────────────┘
+
+Step 5: Forward to Backend
+┌─────────────────────────────────────────────────────────────────────┐
+│ POST http://observation-service:3001/4_0_0/Observation             │
+│ Headers:                                                            │
+│   Authorization: Bearer eyJhbGci...                                 │
+│   X-User-Scopes: ["user/Observation.read", "access/myhealth.*"]    │
+│   X-Access-Codes: ["myhealth"]                                      │
+│   X-Internal-Secret: shared-secret-123                              │
+└─────────────────────────────────────────────────────────────────────┘
+
+Step 6: Backend Processing
+┌─────────────────────────────────────────────────────────────────────┐
+│ ✓ Validate internal secret                                         │
+│ ✓ Build MongoDB query                                              │
+│ ✓ Apply access code filter (security tags)                         │
+│ ✓ Fetch observations                                               │
+│ ✓ Return FHIR Bundle                                               │
+└─────────────────────────────────────────────────────────────────────┘
+
+Step 7: Response
+┌─────────────────────────────────────────────────────────────────────┐
+│ {                                                                   │
+│   "resourceType": "Bundle",                                         │
+│   "type": "searchset",                                              │
+│   "total": 5,                                                       │
+│   "entry": [...]                                                    │
+│ }                                                                   │
+└─────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                            CONFIGURATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Main FHIR Server Environment Variables:
+┌─────────────────────────────────────────────────────────────────────┐
+│ # Enable microservices mode                                        │
+│ ENABLE_RESOURCE_PROXY=true                                         │
+│                                                                     │
+│ # Backend service URLs                                             │
+│ OBSERVATION_SERVICE_URL=http://observation-service:3001            │
+│ DEVICE_SERVICE_URL=http://device-service:3002                      │
+│                                                                     │
+│ # Security                                                          │
+│ INTERNAL_SERVICE_SECRET=your-strong-secret-here                    │
+│                                                                     │
+│ # OAuth configuration                                               │
+│ AUTH_JWKS_URL=https://auth-provider/.well-known/jwks.json         │
+│ AUTH_CODE_FLOW_CLIENT_ID=your-client-id                           │
+└─────────────────────────────────────────────────────────────────────┘
+
+Backend Service Environment Variables:
+┌─────────────────────────────────────────────────────────────────────┐
+│ # Database                                                          │
+│ MONGO_URL=mongodb://mongo:27017/fhir                               │
+│                                                                     │
+│ # Security (must match main server)                                │
+│ INTERNAL_SERVICE_SECRET=your-strong-secret-here                    │
+│                                                                     │
+│ # Server                                                            │
+│ PORT=3001                                                           │
+│ NODE_ENV=production                                                 │
+└─────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                        ADDING MORE BACKEND SERVICES
+═══════════════════════════════════════════════════════════════════════════════
+
+Want to add Device service? Easy!
+
+1. Copy the example:
+   cp -r examples/observation-backend-service examples/device-service
+
+2. Update to handle Device resources
+
+3. Add configuration:
+   DEVICE_SERVICE_URL=http://device-service:3002
+
+4. Deploy and it works automatically!
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                              KEY BENEFITS
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ Centralized Authentication       ✓ Independent Scaling
+✓ Distributed Resources             ✓ Technology Flexibility
+✓ Security Maintained               ✓ Easy Deployment
+✓ No Breaking Changes               ✓ Production Ready
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                            GETTING STARTED
+═══════════════════════════════════════════════════════════════════════════════
+
+Quick Start:
+  docker-compose -f docker-compose-microservices.yml up -d
+
+Full Documentation:
+  • QUICKSTART.md - 5 minute setup
+  • MICROSERVICES_SETUP.md - Complete guide
+  • readme/microservices-architecture.md - Architecture patterns
+
+Example Backend:
+  examples/observation-backend-service/
+
+═══════════════════════════════════════════════════════════════════════════════
