@@ -19,11 +19,11 @@ function createResourceProxyMiddleware(configManager) {
     // Map of resource types to their backend service URLs
     // Read from environment variables
     const serviceMapping = {};
-    
+
     if (configManager.observationServiceUrl) {
         serviceMapping['Observation'] = configManager.observationServiceUrl;
     }
-    
+
     if (configManager.patientServiceUrl) {
         serviceMapping['Patient'] = configManager.patientServiceUrl;
     }
@@ -36,7 +36,7 @@ function createResourceProxyMiddleware(configManager) {
             // Extract resource type from the request path
             // Assumes path format: /4_0_0/ResourceType/... or /4_0_0/ResourceType
             const pathParts = req.path.split('/').filter(p => p);
-            
+
             if (pathParts.length < 2) {
                 // Not a resource request, continue normally
                 return next();
@@ -46,7 +46,7 @@ function createResourceProxyMiddleware(configManager) {
 
             // Check if this resource should be proxied to a backend service
             const backendServiceUrl = serviceMapping[resourceType];
-            
+
             if (!backendServiceUrl) {
                 // No backend service configured for this resource, handle locally
                 return next();
@@ -131,7 +131,7 @@ function createResourceProxyMiddleware(configManager) {
                     data: error.response.data,
                     user: req.user?.username || 'anonymous'
                 });
-                
+
                 res.status(error.response.status).send(error.response.data);
             } else if (error.code === 'ECONNREFUSED') {
                 // Backend service is not available
@@ -139,7 +139,7 @@ function createResourceProxyMiddleware(configManager) {
                     error: error.message,
                     user: req.user?.username || 'anonymous'
                 });
-                
+
                 res.status(503).send({
                     resourceType: 'OperationOutcome',
                     issue: [{
@@ -154,7 +154,7 @@ function createResourceProxyMiddleware(configManager) {
                     error: error.message,
                     user: req.user?.username || 'anonymous'
                 });
-                
+
                 res.status(504).send({
                     resourceType: 'OperationOutcome',
                     issue: [{
@@ -170,7 +170,7 @@ function createResourceProxyMiddleware(configManager) {
                     stack: error.stack,
                     user: req.user?.username || 'anonymous'
                 });
-                
+
                 res.status(502).send({
                     resourceType: 'OperationOutcome',
                     issue: [{
