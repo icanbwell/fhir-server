@@ -1,0 +1,132 @@
+version: '3.8'
+
+# Docker Compose configuration for Microservices Architecture
+# This demonstrates a setup with:
+# - Main FHIR Server (handles auth and routing)
+# - Observation Backend Service (handles Observation resources)
+# - MongoDB (shared database)
+# - Keycloak (authentication provider)
+
+services:
+  # Main FHIR Server - Authentication Gateway
+  main-fhir-server:
+    image: imranq2/node-fhir-server-mongo:latest
+    container_name: main-fhir-server
+    ports:
+      - "3000:3000"
+    environment:
+      # Database
+      - MONGO_URL=mongodb://mongo:27017/fhir
+      - MONGO_DB_NAME=fhir
+      
+      # Authentication (Keycloak)
+      - AUTH_JWKS_URL=http://keycloak:8080/realms/master/protocol/openid-connect/certs
+      - AUTH_CODE_FLOW_URL=http://localhost:8080/realms/master/protocol/openid-connect/auth
+      - AUTH_CODE_FLOW_CLIENT_ID=bwell-client-id
+      - AUTH_CONFIGURATION_URI=http://keycloak:8080/realms/master/.well-known/openid-configuration
+      
+      # Microservices Configuration
+      - ENABLE_RESOURCE_PROXY=true
+      - OBSERVATION_SERVICE_URL=http://observation-service:3001
+      - INTERNAL_SERVICE_SECRET=change-this-secret-in-production
+      
+      # Server Configuration
+      - NODE_ENV=development
+      - LOG_LEVEL=info
+      - ENABLE_GRAPHQL=true
+      - STREAM_RESPONSE=true
+      
+    depends_on:
+      - mongo
+      - keycloak
+      - observation-service
+    networks:
+      - fhir-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Observation Backend Service
+  observation-service:
+    build: ./examples/observation-backend-service
+    container_name: observation-service
+    ports:
+      - "3001:3001"
+    environment:
+      # Database
+      - MONGO_URL=mongodb://mongo:27017/fhir
+      - MONGO_DB_NAME=fhir
+      
+      # Security
+      - INTERNAL_SERVICE_SECRET=change-this-secret-in-production
+      
+      # Server Configuration
+      - PORT=3001
+      - NODE_ENV=development
+      - LOG_LEVEL=info
+      
+    depends_on:
+      - mongo
+    networks:
+      - fhir-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # MongoDB Database
+  mongo:
+    image: mongo:6
+    container_name: fhir-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=fhir
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - fhir-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Keycloak for Authentication
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: fhir-keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin-user
+      - KEYCLOAK_ADMIN_PASSWORD=password
+      - KC_HTTP_ENABLED=true
+      - KC_HOSTNAME_STRICT=false
+    command:
+      - start-dev
+      - --import-realm
+    volumes:
+      - ./keycloak-config:/opt/keycloak/data/import
+    networks:
+      - fhir-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  fhir-network:
+    driver: bridge

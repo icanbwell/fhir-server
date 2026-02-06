@@ -1,0 +1,21 @@
+{
+  "name": "observation-backend-service",
+  "version": "1.0.0",
+  "description": "Backend service for handling FHIR Observation resources",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node --watch index.js",
+    "test": "jest"
+  },
+  "keywords": ["fhir", "observation", "microservices"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongodb": "6.17.0",
+    "cors": "^2.8.5",
+    "winston": "^3.17.0",
+    "helmet": "^8.1.0"
+  }
+}

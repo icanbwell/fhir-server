@@ -980,6 +980,38 @@ class ConfigManager {
     get summaryCacheTtlSeconds() {
         return parseInt(process.env.SUMMARY_CACHE_TTL_SECONDS) || 300;
     }
+
+    /**
+     * Enable microservices proxy mode
+     * @return {boolean}
+     */
+    get enableResourceProxy() {
+        return isTrue(env.ENABLE_RESOURCE_PROXY);
+    }
+
+    /**
+     * URL for Observation backend service
+     * @return {string|null}
+     */
+    get observationServiceUrl() {
+        return env.OBSERVATION_SERVICE_URL || null;
+    }
+
+    /**
+     * URL for Patient backend service
+     * @return {string|null}
+     */
+    get patientServiceUrl() {
+        return env.PATIENT_SERVICE_URL || null;
+    }
+
+    /**
+     * Shared secret for internal service authentication
+     * @return {string|null}
+     */
+    get internalServiceSecret() {
+        return env.INTERNAL_SERVICE_SECRET || null;
+    }
 }
 
 module.exports = {

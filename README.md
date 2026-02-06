@@ -71,6 +71,14 @@ For example:
 
 [Proxy Patient](readme/proxyPatient.md)
 
+## Microservices Architecture
+
+Learn how to set up a microservices architecture with centralized authentication/authorization and separate backend services for specific resources.
+
+[Microservices Setup Guide](MICROSERVICES_SETUP.md)
+
+[Microservices Architecture Documentation](readme/microservices-architecture.md)
+
 ## Optimistic Concurrency Support
 [Optimistic Concurrency](readme/concurrency.md)
 
