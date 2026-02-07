@@ -1074,7 +1074,11 @@ class EverythingHelper {
             let cursor = await databaseQueryManager.findAsync({ query, options });
             cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
 
-            if (isQueryById && httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED)) {
+            if (
+                isQueryById &&
+                resourceType !== 'Practitioner' &&
+                httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED)
+            ) {
                 // set index hint for non-clinical resources when consented proa data is accessed
                 cursor = cursor.hint({ indexHint: 'uuid' });
             }
