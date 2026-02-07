@@ -53,6 +53,7 @@ const { PatientDataViewControlManager } = require('../../utils/patientDataViewCo
 const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
+const httpContext = require('express-http-context');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -192,6 +193,13 @@ class EverythingHelper {
          */
         this.relatedResourceNeedingPatientScopeFilter = {
             Patient: ['Subscription', 'SubscriptionTopic', 'SubscriptionStatus', 'Person']
+        };
+
+        /**
+         * @type {string[]}
+         */
+        this.relatedResourceExcludingConsentedProaDataAccess = {
+            Patient: ['Subscription', 'SubscriptionTopic', 'SubscriptionStatus']
         };
 
         /**
@@ -1016,6 +1024,8 @@ class EverythingHelper {
          */
         let streamedResources = [];
 
+        let isQueryById = !!parsedArgs.get('id') || !!parsedArgs.get('_id');
+
         if (this.scopesValidator.hasValidScopes({ requestInfo, parsedArgs, resourceType, action: 'everything', accessRequested: 'read' })) {
             // get top level resource
             const {
@@ -1033,7 +1043,8 @@ class EverythingHelper {
                 operation: READ,
                 accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
                 addPersonOwnerToContext: requestInfo.isUser,
-                applyPatientFilter
+                applyPatientFilter,
+                allowConsentedProaDataAccess: true
             });
 
 
@@ -1062,6 +1073,11 @@ class EverythingHelper {
 
             let cursor = await databaseQueryManager.findAsync({ query, options });
             cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
+            if (isQueryById && httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED)) {
+                // set index hint for non-clinical resources when consented proa data is accessed
+                cursor = cursor.hint({ indexHint: 'uuid' });
+            }
 
             const collectionName = cursor.getCollection();
 
@@ -1276,7 +1292,8 @@ class EverythingHelper {
                 operation: READ,
                 applyPatientFilter:
                     requestInfo.isUser &&
-                    this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType)
+                    this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType),
+                allowConsentedProaDataAccess: !this.relatedResourceExcludingConsentedProaDataAccess[parentResourceType].includes(relatedResourceType)
             });
 
             if (filterTemplateCustomQuery) {
@@ -1374,6 +1391,13 @@ class EverythingHelper {
 
             let cursor = await databaseQueryManager.findAsync({ query, options });
             cursor = cursor.maxTimeMS({ milliSecs: maxMongoTimeMS });
+
+            if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED)) {
+                // set index hint for patient filter
+                if (relatedResource.indexHintName) {
+                    cursor = cursor.hint({ indexHint: relatedResource.indexHintName });
+                }
+            }
 
             /**
              * @type {import('mongodb').Document[]}

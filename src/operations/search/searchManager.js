@@ -179,6 +179,7 @@ class SearchManager {
      * @param {string} accessRequested
      * @param {boolean} applyPatientFilter
      * @param {boolean} addPersonOwnerToContext
+     * @param {boolean} allowConsentedProaDataAccess
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync (
@@ -195,7 +196,8 @@ class SearchManager {
             operation,
             accessRequested = 'read',
             applyPatientFilter = true,
-            addPersonOwnerToContext = false
+            addPersonOwnerToContext = false,
+            allowConsentedProaDataAccess = false
         }
     ) {
         try {
@@ -281,7 +283,8 @@ class SearchManager {
                         query,
                         useHistoryTable,
                         requestId,
-                        isUser
+                        isUser,
+                        allowConsentedProaDataAccess
                     });
                 }
             }
