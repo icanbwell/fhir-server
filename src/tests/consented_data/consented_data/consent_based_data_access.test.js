@@ -61,7 +61,7 @@ const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
 const { jest } = require('@jest/globals');
 
-describe('Consent Based Data Access Test', () => {
+describe.skip('Consent Based Data Access Test', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {

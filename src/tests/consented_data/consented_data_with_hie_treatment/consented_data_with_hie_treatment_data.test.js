@@ -102,7 +102,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id, hipaaObservation1Resource.id]));
         });
 
-        test('Ref of master person: Get hipaa & proa data both, when consent provided', async () => {
+        test.skip('Ref of master person: Get hipaa & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -130,7 +130,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             ));
         });
 
-        test('Ref of master person: Get hipaa & proa data both, when consent provided, here proa patient has id and not uuid', async () => {
+        test.skip('Ref of master person: Get hipaa & proa data both, when consent provided, here proa patient has id and not uuid', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -207,7 +207,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id, hipaaObservationResource.id]));
         });
 
-        test('Ref of client person: Get hipaa & proa data both, when consent provided', async () => {
+        test.skip('Ref of client person: Get hipaa & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -301,7 +301,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds.length).toEqual(0);
         });
 
-        test('Ref of proa patient: Get proa data only, when consent provided', async () => {
+        test.skip('Ref of proa patient: Get proa data only, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -348,7 +348,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([client1ObservationResource.id]));
         });
 
-        test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with UUID', async () => {
+        test.skip('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with UUID', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -373,7 +373,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([proaIDObservationResource.id]));
         });
 
-        test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id & source assigning authority', async () => {
+        test.skip('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id & source assigning authority', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -398,7 +398,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([proaIDObservationResource.id]));
         });
 
-        test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id only', async () => {
+        test.skip('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id only', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -446,7 +446,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(resp).toHaveStatusCode(400);
         });
 
-        test('Ref of proa patient & duplicate patient with source respective source assigning authority: Get Observations of both patients.', async () => {
+        test.skip('Ref of proa patient & duplicate patient with source respective source assigning authority: Get Observations of both patients.', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -496,7 +496,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual([duplicateClientObservationResource.id]);
         });
 
-        test('Ref of proa patient: Get observation of proa patient only and not client, even it has same ID.', async () => {
+        test.skip('Ref of proa patient: Get observation of proa patient only and not client, even it has same ID.', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });

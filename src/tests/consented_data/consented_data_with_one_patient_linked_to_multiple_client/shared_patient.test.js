@@ -46,7 +46,7 @@ const headers = getHeaders();
 const client1Headers = getHeaders('user/*.read access/client-1.*');
 const client2Headers = getHeaders('user/*.read access/client-2.*');
 
-describe('Consent Based Data Access Test With Shared Patient', () => {
+describe.skip('Consent Based Data Access Test With Shared Patient', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {

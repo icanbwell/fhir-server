@@ -4,7 +4,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('../common/logging');
@@ -15,6 +15,7 @@ const { IdParser } = require('../../utils/idParser');
 const { ProaConsentManager } = require('./proaConsentManager');
 const { isUuid } = require('../../utils/uid.util');
 const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
+const httpContext = require('express-http-context');
 
 class DataSharingManager {
     /**
@@ -100,6 +101,7 @@ class DataSharingManager {
      * @property {import('mongodb').Filter<import('mongodb').Document>} query
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {boolean} isUser whether request is with patient scope
+     * @property {boolean} allowConsentedProaDataAccess whether to allow consented PROA data access
      * @param {RewriteDataSharingQuery} param
      */
     async updateQueryConsideringDataSharing({
@@ -110,7 +112,8 @@ class DataSharingManager {
         query,
         useHistoryTable,
         requestId,
-        isUser
+        isUser,
+        allowConsentedProaDataAccess
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let everythingCacheMap;
@@ -172,7 +175,7 @@ class DataSharingManager {
         let queryWithHIETreatmentData;
 
         // Case when consented proa data access is enabled.
-        if (this.configManager.enableConsentedProaDataAccess) {
+        if (allowConsentedProaDataAccess && this.configManager.enableConsentedProaDataAccess) {
             if (everythingCacheMap?.has('allowedPatientIds')) {
                 allowedPatientIds = everythingCacheMap.get('allowedPatientIds');
             } else {
@@ -227,6 +230,10 @@ class DataSharingManager {
                     isUser
                 });
             }
+        }
+
+        if (queryWithConsentedData) {
+            httpContext.set(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED, true);
         }
 
         // Logic to update original query to consider above 2 cases.
