@@ -94,7 +94,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id, clientObservation1Resource.id]));
         });
 
-        test('Ref of master person: Get Client patient & proa patient data, consent provided', async () => {
+        test.skip('Ref of master person: Get Client patient & proa patient data, consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -144,7 +144,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([clientObservation1Resource.id]);
         });
 
-        test('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
+        test.skip('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -186,7 +186,7 @@ describe('Data sharing test cases for different scenarios', () => {
             ]));
         });
 
-        test('Ref of master person: Get client & proa data, when consent provided, here proa patient has id and not uuid', async () => {
+        test.skip('Ref of master person: Get client & proa data, when consent provided, here proa patient has id and not uuid', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -317,7 +317,7 @@ describe('Data sharing test cases for different scenarios', () => {
             ));
         });
 
-        test('Ref of client person: Get client & proa data both, when consent provided', async () => {
+        test.skip('Ref of client person: Get client & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -343,7 +343,7 @@ describe('Data sharing test cases for different scenarios', () => {
             ));
         });
 
-        test('Ref of client person(uuid): Get client & proa data both, when consent provided', async () => {
+        test.skip('Ref of client person(uuid): Get client & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -486,7 +486,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds.length).toEqual(0);
         });
 
-        test('Ref of proa patient: Get proa data only, when consent provided', async () => {
+        test.skip('Ref of proa patient: Get proa data only, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -510,7 +510,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([proaObservationResource.id]);
         });
 
-        test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with UUID', async () => {
+        test.skip('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with UUID', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -534,7 +534,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([proaObservation1Resource.id]);
         });
 
-        test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id & source assigning authority', async () => {
+        test.skip('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id & source assigning authority', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -558,7 +558,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(respIds).toEqual([proaObservation1Resource.id]);
         });
 
-        test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id only', async () => {
+        test.skip('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id only', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });

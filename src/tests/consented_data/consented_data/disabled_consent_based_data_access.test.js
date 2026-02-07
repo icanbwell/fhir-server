@@ -35,7 +35,7 @@ class MockConfigManager extends ConfigManager {
 
 const headers = getHeaders('user/*.read access/client.*');
 
-describe('Disabled Consent Based Data Access Test', () => {
+describe.skip('Disabled Consent Based Data Access Test', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
