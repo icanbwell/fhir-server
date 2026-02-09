@@ -168,7 +168,7 @@ class RedisClient {
     }
 
     /**
-     * Invalidates cache keys by prefix
+     * Retrieves all keys from Redis that match a given prefix
      * @param {string} prefix
      * @returns {Promise<string[]>}
      */

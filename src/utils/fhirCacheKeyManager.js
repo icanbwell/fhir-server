@@ -35,7 +35,7 @@ class FhirCacheKeyManager {
      * Retrieves all cache keys for a given resource type and ID.
      * @param {string} resourceType
      * @param {string} resourceId
-     * @returns {Promise<string[]>}
+     * @returns {Promise<{ cacheKeys: string[], generationKeys: { key: string, value: string }[] }>}
      */
     async getAllKeysForResource({ resourceType, resourceId }) {
         await this.redisClient.connectAsync();

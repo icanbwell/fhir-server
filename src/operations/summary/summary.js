@@ -47,7 +47,8 @@ class SummaryOperation {
         configManager,
         redisManager,
         enrichmentManager,
-        postRequestProcessor
+        postRequestProcessor,
+        summaryCacheKeyGenerator
     }) {
         /**
          * @type {GraphOperation}
@@ -103,7 +104,7 @@ class SummaryOperation {
         /**
          * @type {SummaryCacheKeyGenerator}
          */
-        this.summaryCacheKeyGenerator = new SummaryCacheKeyGenerator({ redisManager });
+        this.summaryCacheKeyGenerator = summaryCacheKeyGenerator;
         assertTypeEquals(this.summaryCacheKeyGenerator, SummaryCacheKeyGenerator);
     }
 

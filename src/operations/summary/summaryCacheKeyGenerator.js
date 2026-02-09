@@ -40,7 +40,13 @@ class SummaryCacheKeyGenerator extends BaseCacheKeyGenerator {
         const generationKey = `${keyPrefix}:${this.operation}:Generation`;
         const existingGeneration = await this.redisManager.getCacheAsync(generationKey);
         if (existingGeneration) {
-            return parseInt(existingGeneration);
+            const parsedGeneration = Number.parseInt(existingGeneration, 10);
+            if (!Number.isNaN(parsedGeneration)) {
+                return parsedGeneration;
+            } else {
+                // throw error if generation value is not a valid number
+                throw new Error(`Invalid generation value for key ${generationKey}: ${existingGeneration}`);
+            }
         }
         return await this.redisManager.incrementGenerationAsync(generationKey);
     }

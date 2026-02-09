@@ -41,7 +41,10 @@ class MockRedisClient {
      * @returns {Promise<number>} new value after increment
      */
     async incr(key) {
-        const currentValue = this.store.get(key) || 0;
+        const storedValue = this.store.get(key);
+        const parsedCurrent =
+            storedValue === undefined ? 0 : parseInt(storedValue, 10);
+        const currentValue = Number.isNaN(parsedCurrent) ? 0 : parsedCurrent;
         const newValue = currentValue + 1;
         this.store.set(key, `${newValue}`);
         return newValue;
