@@ -294,7 +294,7 @@ describe('Proxy Patient $everything Tests', () => {
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(5);
-        let cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639::Scopes:41b78b54-0a8e-5477-af30-d99864d04833::Everything';
+        let cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639:Everything:Scopes:41b78b54-0a8e-5477-af30-d99864d04833';
         expect(streams.keys()).toContain(cacheKey);
         expect(streams.get(cacheKey)).toHaveLength(5);
 

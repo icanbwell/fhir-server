@@ -10,11 +10,8 @@ const deepcopy = require('deepcopy');
 const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
 const { logInfo, logError } = require('../common/logging');
-const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { SearchManager } = require('../search/searchManager');
 const { isUuid } = require('../../utils/uid.util');
 const { PERSON_PROXY_PREFIX, CACHE_STATUS } = require('../../constants');
-const { READ } = require('../../constants').OPERATIONS;
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
 const { RedisManager } = require('../../utils/redisManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -36,11 +33,10 @@ class SummaryOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
-     * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {SearchManager} searchManager
      * @param {RedisManager} redisManager
      * @param {EnrichmentManager} enrichmentManager
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {SummaryCacheKeyGenerator} summaryCacheKeyGenerator
      */
     constructor({
         graphOperation,
@@ -49,8 +45,6 @@ class SummaryOperation {
         fhirLoggingManager,
         scopesValidator,
         configManager,
-        databaseQueryFactory,
-        searchManager,
         redisManager,
         enrichmentManager,
         postRequestProcessor
@@ -89,18 +83,6 @@ class SummaryOperation {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
-         * @type {DatabaseQueryFactory}
-         */
-        this.databaseQueryFactory = databaseQueryFactory;
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-
-        /**
-         * @type {SearchManager}
-         */
-        this.searchManager = searchManager;
-        assertTypeEquals(searchManager, SearchManager);
-
-        /**
          * @type {RedisManager}
          */
         this.redisManager = redisManager;
@@ -117,6 +99,12 @@ class SummaryOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {SummaryCacheKeyGenerator}
+         */
+        this.summaryCacheKeyGenerator = new SummaryCacheKeyGenerator({ redisManager });
+        assertTypeEquals(this.summaryCacheKeyGenerator, SummaryCacheKeyGenerator);
     }
 
     /**
@@ -134,88 +122,35 @@ class SummaryOperation {
     }
 
     /**
-     * Get patient UUID for a given ID
-     * @param {ParsedArgs} parsedArgs
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} resourceType
-     * @returns {Promise<string[]>}
-     */
-    async fetchPatientUUID(parsedArgs, requestInfo, resourceType) {
-        const { query } = await this.searchManager.constructQueryAsync({
-            user: requestInfo.user,
-            scope: requestInfo.scope,
-            isUser: requestInfo.isUser,
-            resourceType,
-            useAccessIndex: this.configManager.useAccessIndex,
-            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-            requestId: requestInfo.requestId,
-            parsedArgs,
-            operation: READ,
-            accessRequested: 'read',
-            addPersonOwnerToContext: requestInfo.isUser,
-            applyPatientFilter: true
-        });
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({
-            resourceType,
-            base_version: parsedArgs.base_version
-        });
-        const options = {
-            projection: {
-                _uuid: 1,
-                _id: 0
-            }
-        };
-        let cursor = await databaseQueryManager.findAsync({ query, options });
-        let ids = [];
-        while (await cursor.hasNext()) {
-            const sourceResource = await cursor.next();
-            ids.push(sourceResource._uuid);
-        }
-        return ids;
-    }
-
-    /**
      * Get cache key for a given request
      * @param {ParsedArgs} parsedArgs
      * @param {FhirRequestInfo} requestInfo
-     * @param {string} resourceType
      * @returns {Promise<string|undefined>}
      */
-    async getCacheKey(parsedArgs, requestInfo, resourceType) {
+    async getCacheKey(parsedArgs, requestInfo) {
         let paramsIds = this.fetchOriginalIdsFromParams(parsedArgs);
-        // Multiple ids are not supported for now
-        if (paramsIds.length !== 1) {
+        // Multiple ids are not supported and check for cacheable response type
+        if (
+            paramsIds.length !== 1 ||
+            !this.summaryCacheKeyGenerator.isResponseTypeCacheable(requestInfo.accept, parsedArgs)
+        ) {
             return undefined;
         }
-        const keyGenerator = new SummaryCacheKeyGenerator();
-        if (!keyGenerator.isResponseTypeCacheable(requestInfo.accept, parsedArgs)) {
-            return undefined;
-        }
-
-        let idForCache;
         let id = paramsIds[0];
-        const isProxyPatient = id.startsWith(PERSON_PROXY_PREFIX);
-        if (isProxyPatient) {
+
+        if (id.startsWith(PERSON_PROXY_PREFIX)) {
             id = id.replace(PERSON_PROXY_PREFIX, '');
-            if (
-                isUuid(id) &&
-                (requestInfo.personIdFromJwtToken === undefined ||
-                    id === requestInfo.personIdFromJwtToken)
-            ) {
-                idForCache = `${PERSON_PROXY_PREFIX}${id}`;
+            if (isUuid(id) && (!requestInfo.isUser || id === requestInfo.personIdFromJwtToken)) {
+                return await this.summaryCacheKeyGenerator.generateCacheKey({
+                    id,
+                    isPersonId: true,
+                    parsedArgs: parsedArgs,
+                    scope: requestInfo.scope
+                });
             }
-        } else {
-            let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType);
-            idForCache = patientIds && patientIds.length === 1 ? patientIds[0] : undefined;
         }
 
-        return idForCache
-            ? keyGenerator.generateCacheKey({
-                  id: idForCache,
-                  parsedArgs: parsedArgs,
-                  scope: requestInfo.scope
-              })
-            : undefined;
+        return undefined;
     }
 
     /**
@@ -337,7 +272,7 @@ class SummaryOperation {
                 proxyPatientId && isTrue(parsedArgs._includeSummaryCompositionOnly);
 
             const cacheKey = this.configManager.writeToCacheForSummaryOperation
-                ? await this.getCacheKey(parsedArgs, requestInfo, resourceType)
+                ? await this.getCacheKey(parsedArgs, requestInfo)
                 : undefined;
 
             let readFromCache =

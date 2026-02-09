@@ -1,26 +1,13 @@
+const { BaseCacheKeyGenerator } = require('../operations/common/baseCacheKeyGenerator');
+const { RedisClient } = require('./redisClient');
+
 class FhirCacheKeyManager {
     constructor({ redisClient }) {
         /**
          * @type {RedisClient}
          */
         this.redisClient = redisClient;
-    }
-
-    /**
-     * Generates a cache key prefix for a given resource type and ID.
-     * @param {string} resourceType
-     * @param {string} resourceId
-     * @return {Promise<string>}
-     */
-    generateCacheKeyPrefix({ resourceType, resourceId }) {
-        let prefix;
-        if (resourceType === 'Patient') {
-            prefix = `Patient:${resourceId}`;
-        }
-        else if (resourceType === 'Person') {
-            prefix = `ClientPerson:${resourceId}`;
-        }
-        return prefix;
+        this.keyGenerator = new BaseCacheKeyGenerator();
     }
 
     /**
@@ -40,7 +27,7 @@ class FhirCacheKeyManager {
      */
     async invalidateCacheKeysForResource({ resourceType, resourceId }) {
         await this.redisClient.connectAsync();
-        const prefix = this.generateCacheKeyPrefix({ resourceType, resourceId });
+        const prefix = this.keyGenerator.generateIdComponent({ id: resourceId, isPersonId: resourceType === 'Person' });
         return prefix ? this.redisClient.invalidateByPrefixAsync(prefix) : undefined;
     }
 
@@ -52,8 +39,31 @@ class FhirCacheKeyManager {
      */
     async getAllKeysForResource({ resourceType, resourceId }) {
         await this.redisClient.connectAsync();
-        const prefix = this.generateCacheKeyPrefix({ resourceType, resourceId });
-        return this.redisClient.getAllKeysByPrefix(prefix);
+        const prefix = this.keyGenerator.generateIdComponent({ id: resourceId, isPersonId: resourceType === 'Person' });
+        const keys = await this.redisClient.getAllKeysByPrefix(prefix);
+
+        // Separate cache keys from generation keys
+        const { generationKeysList, cacheKeys } = keys.reduce(
+            (acc, key) => {
+                if (key.endsWith(':Generation')) {
+                    acc.generationKeysList.push(key);
+                } else {
+                    acc.cacheKeys.push(key);
+                }
+                return acc;
+            },
+            { generationKeysList: [], cacheKeys: [] }
+        );
+
+        // Fetch generation values for all generation keys in parallel
+        const generationKeys = await Promise.all(
+            generationKeysList.map(async (generationKey) => {
+                const generationValue = await this.redisClient.get(generationKey);
+                return { key: generationKey, value: generationValue };
+            })
+        );
+
+        return { cacheKeys, generationKeys };
     }
 }
 

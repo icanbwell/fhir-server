@@ -50,6 +50,37 @@ class RedisManager {
         }
     }
 
+    /**
+     * Get cache value for the given key
+     * @param {string} cacheKey
+     * @returns {Promise<string|null>}
+     */
+    async getCacheAsync(cacheKey) {
+        try {
+            await this.redisClient.connectAsync();
+            return await this.redisClient.get(cacheKey);
+        } catch (error) {
+            logError('Error getting Redis cache', { error, cacheKey });
+            throw error;
+        }
+    }
+
+    /**
+     * Increment generation for the given cache key
+     * @param {string} cacheKey
+     * @returns {Promise<number>}
+     */
+    async incrementGenerationAsync(cacheKey) {
+        try {
+            await this.redisClient.connectAsync();
+            return await this.redisClient.incr(cacheKey);
+        } catch (error) {
+            logError('Error incrementing generation in Redis', { error, cacheKey });
+            captureException(error);
+            throw error;
+        }
+    }
+
     async deleteKeyAsync(cacheKey) {
         try {
             await this.redisClient.connectAsync();

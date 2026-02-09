@@ -201,11 +201,11 @@ async function handleAdminGet (
                     if (resourceType && resourceId) {
                         const fhirCacheKeyManager = container.fhirCacheKeyManager;
                         try {
-                            const cacheKeys = await fhirCacheKeyManager.getAllKeysForResource({
+                            const result = await fhirCacheKeyManager.getAllKeysForResource({
                                 resourceType,
                                 resourceId
                             });
-                            return res.json({ cacheKeys: cacheKeys });
+                            return res.json(result);
                         } catch (error) {
                             logError(`Error retrieving cache for ${resourceType}/${resourceId}`, error);
                             const operationOutcome = new OperationOutcome({

@@ -1,6 +1,9 @@
 {
   "id": "bwell-realm",
   "realm": "master",
+  "accessCodeLifespan": 86400,
+  "accessTokenLifespan": 86400,
+  "accessTokenLifespanForImplicitFlow": 86400,
   "displayName": "Keycloak",
   "enabled": true,
   "defaultSignatureAlgorithm": "RS256",

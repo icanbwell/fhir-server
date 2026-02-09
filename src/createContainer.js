@@ -127,6 +127,7 @@ const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
+const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
 
 /**
  * Creates a container and sets up all the services
@@ -749,9 +750,14 @@ const createContainer = function () {
             searchManager: c.searchManager,
             redisManager: c.redisManager,
             enrichmentManager: c.enrichmentManager,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            summaryCacheKeyGenerator: c.summaryCacheKeyGenerator
         }
     ));
+
+    container.register('summaryCacheKeyGenerator', (c) => new SummaryCacheKeyGenerator({
+        redisManager: c.redisManager
+    }));
 
     container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
         {

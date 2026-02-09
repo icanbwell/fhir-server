@@ -300,16 +300,21 @@ class EverythingHelper {
         if (isProxyPatient) {
             id = id.replace(PERSON_PROXY_PREFIX, '');
             if (isUuid(id) && id == requestInfo.personIdFromJwtToken) {
-                idForCache = `${PERSON_PROXY_PREFIX}${id}`;
+                idForCache = id;
             }
         } else {
             let patientIds = await this.fetchPatientUUID(parsedArgs, requestInfo, resourceType, base_version);
             idForCache = patientIds && patientIds.length == 1 ? patientIds[0] : undefined;
         }
 
-        return idForCache ? keyGenerator.generateCacheKey(
-            { id: idForCache, parsedArgs: parsedArgs, scope: requestInfo.scope }
-        ) : undefined;
+        return idForCache
+            ? await keyGenerator.generateCacheKey({
+                  id: idForCache,
+                  isPersonId: isProxyPatient,
+                  parsedArgs: parsedArgs,
+                  scope: requestInfo.scope
+              })
+            : undefined;
     }
 
     /**

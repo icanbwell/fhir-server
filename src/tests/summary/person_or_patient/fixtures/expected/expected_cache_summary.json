@@ -1,0 +1,301 @@
+{
+  "resourceType": "Bundle",
+  "type": "document",
+  "identifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:uuid:4dcfd353-49fd-4ab0-b521-c8d57ced74d6"
+  },
+  "entry": [
+    {
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "24a5930e-11b4-5525-b482-669174917044",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "24a5930e-11b4-5525-b482-669174917044"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "source": "http://healthsystem1health.org/provider",
+          "security": [
+            {
+              "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+              "system": "https://www.icanbwell.com/access",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "healthsystem1"
+            },
+            {
+              "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "healthsystem1"
+            }
+          ]
+        },
+        "name": [
+          {
+            "use": "usual",
+            "text": "patient1",
+            "family": "PATIENT1",
+            "given": ["SHYLA"]
+          },
+          {
+            "use": "usual",
+            "text": "patient2",
+            "family": "PATIENT2",
+            "given": ["SHYLA"]
+          }
+        ],
+        "resourceType": "Patient",
+        "telecom": [],
+        "address": [],
+        "communication": []
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "bwell",
+        "name": "b.well Connected Health"
+      }
+    },
+    {
+      "resource": {
+        "id": "Composition-person.0eb80391-0f61-5ce6-b221-a5428f2f38a7",
+        "resourceType": "Composition",
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "60591-5",
+              "display": "Patient summary Document"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7"
+        },
+        "author": [
+          {
+            "reference": "Organization/bwell",
+            "display": "b.well Connected Health"
+          }
+        ],
+        "title": "International Patient Summary",
+        "section": [
+          {
+            "title": "Problem List",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "11450-4",
+                  "display": "Problem List"
+                }
+              ],
+              "text": "Problem List"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes patient problems, sorted by recorded date (most recent first)</p> <div> <table> <thead> <tr> <th>Problem</th> <th>Code (System)</th> <th>Is Chronic</th> <th>Onset Date</th> <th>Last Confirmed Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Stress (finding)</td> <td>73595000 (SNOMED CT)</td> <td>Yes</td> <td>10/21/2017, 5:32 PM EDT</td> <td>10/21/2017, 5:32 PM EDT</td> <td>synthea</td> </tr> <tr> <td>Limited social contact (finding)</td> <td>423315002 (SNOMED CT)</td> <td>Yes</td> <td>11/19/2022, 4:57 PM EST</td> <td>11/19/2022, 4:57 PM EST</td> <td>synthea</td> </tr> <tr> <td>Gingival disease (disorder)</td> <td>18718003 (SNOMED CT)</td> <td>No</td> <td>11/16/2019, 6:30 PM EST</td> <td>11/16/2019, 6:30 PM EST</td> <td>synthea</td> </tr> <tr> <td>Victim of intimate partner abuse (finding)</td> <td>706893006 (SNOMED CT)</td> <td>No</td> <td>11/2/2019, 5:38 PM EDT</td> <td>11/2/2019, 5:38 PM EDT</td> <td>synthea</td> </tr> <tr> <td>Gingivitis (disorder)</td> <td>66383009 (SNOMED CT)</td> <td>No</td> <td>10/27/2018, 7:05 PM EDT</td> <td>10/27/2018, 7:05 PM EDT</td> <td>synthea</td> </tr> <tr> <td>Full-time employment (finding)</td> <td>160903007 (SNOMED CT)</td> <td>No</td> <td>9/28/2013, 5:41 PM EDT</td> <td>9/28/2013, 5:41 PM EDT</td> <td>synthea</td> </tr> <tr> <td>Part-time employment (finding)</td> <td>160904001 (SNOMED CT)</td> <td>No</td> <td>10/21/2017, 5:32 PM EDT</td> <td>10/21/2017, 5:32 PM EDT</td> <td>synthea</td> </tr> <tr> <td>Has a criminal record (finding)</td> <td>266948004 (SNOMED CT)</td> <td>No</td> <td>10/21/2017, 5:32 PM EDT</td> <td>10/21/2017, 5:32 PM EDT</td> <td>synthea</td> </tr> <tr> <td>Social isolation (finding)</td> <td>422650009 (SNOMED CT)</td> <td>Yes</td> <td>10/10/2015, 5:55 PM EDT</td> <td>10/10/2015, 5:55 PM EDT</td> <td>synthea</td> </tr> <tr> <td>Chronic low back pain (finding)</td> <td>278860009 (SNOMED CT)</td> <td>Yes</td> <td>2/3/2014, 3:58 PM EST</td> <td>2/3/2014, 3:58 PM EST</td> <td>synthea</td> </tr> <tr> <td>Chronic pain (finding)</td> <td>82423001 (SNOMED CT)</td> <td>Yes</td> <td>2/3/2014, 3:58 PM EST</td> <td>2/3/2014, 3:58 PM EST</td> <td>synthea</td> </tr> <tr> <td>Anemia (disorder)</td> <td>271737000 (SNOMED CT)</td> <td>Yes</td> <td>12/5/1998, 3:58 PM EST</td> <td>12/5/1998, 3:58 PM EST</td> <td>synthea</td> </tr> <tr> <td>Prediabetes (finding)</td> <td>714628002 (SNOMED CT)</td> <td>Yes</td> <td>12/5/1998, 3:58 PM EST</td> <td>12/5/1998, 3:58 PM EST</td> <td>synthea</td> </tr> <tr> <td>Body mass index 30+ - obesity (finding)</td> <td>162864005 (SNOMED CT)</td> <td>Yes</td> <td>11/28/1992, 3:58 PM EST</td> <td>11/28/1992, 3:58 PM EST</td> <td>synthea</td> </tr> <tr> <td>Past pregnancy history of miscarriage (situation)</td> <td>161744009 (SNOMED CT)</td> <td>No</td> <td>11/25/1986, 4:58 AM EST</td> <td>11/25/1986, 4:58 AM EST</td> <td>synthea</td> </tr> <tr> <td>Received higher education (finding)</td> <td>224299000 (SNOMED CT)</td> <td>No</td> <td>11/10/1979, 4:34 PM EST</td> <td>11/10/1979, 4:34 PM EST</td> <td>synthea</td> </tr> </tbody> </table> </div></div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "Allergies and Intolerances",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "48765-2",
+                  "display": "Allergies and Intolerances"
+                }
+              ],
+              "text": "Allergies and Intolerances"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all AllergyIntolerance resources, with no additional filtering, sorted as provided.</p> <div> <table> <thead> <tr> <th>Allergen</th> <th>Code (System)</th> <th>Criticality</th> <th>Recorded Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Cashew</td> <td></td> <td>low</td> <td>1/2/2012, 7:00 PM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "Medication Summary",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "10160-0",
+                  "display": "Medication Summary"
+                }
+              ],
+              "text": "Medication Summary"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available about the subject's medication use or administration.</div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "Immunizations",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "11369-6",
+                  "display": "Immunizations"
+                }
+              ],
+              "text": "Immunizations"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <div> <p>This list includes all vaccinations, sorted by occurrence date (most recent first).</p> <table> <thead> <tr> <th>Immunization</th> <th>Code (System)</th> <th>Status</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Flu (Influenza)</td> <td></td> <td>completed</td> <td>10/1/2024, 6:00 AM EDT</td> <td></td> </tr> <tr> <td>COVID-19</td> <td></td> <td>completed</td> <td>8/10/2024, 7:00 AM EDT</td> <td></td> </tr> </tbody> </table> </div></div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "History of Procedures",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "47519-4",
+                  "display": "History of Procedures"
+                }
+              ],
+              "text": "History of Procedures"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all Procedure resources, sorted by performed date (most recent first).</p> <div> <table> <thead> <tr> <th>Procedure</th> <th>Code (System)</th> <th>Performer</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Mammography</td> <td></td> <td></td> <td>5/26/2024, 2:38 PM EDT</td> <td></td> </tr> <tr> <td>Biopsy of suspected melanoma L) arm</td> <td></td> <td>Dr Bert Biopser</td> <td>2/2/2020, 7:00 PM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "Plan of Care",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "18776-5",
+                  "display": "Plan of Care"
+                }
+              ],
+              "text": "Plan of Care"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all CarePlan resources, sorted by planned end date (most recent first).</p> <div> <table> <thead> <tr> <th>Description</th> <th>Created</th> <th>Planned Start</th> <th>Planned End</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Weight management plan</td> <td></td> <td>3/2/2012, 8:45 PM EST</td> <td>5/31/2026, 8:00 PM EDT</td> <td></td> </tr> </tbody> </table> </div></div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "History of Past Illness",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "11348-0",
+                  "display": "History of Past Illness"
+                }
+              ],
+              "text": "History of Past Illness"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes past problems for the patient with a recorded date within the last 5 years, sorted by recorded date (most recent first).</p> <div> <table> <thead> <tr> <th>Problem</th> <th>Code (System)</th> <th>Is Chronic</th> <th>Onset Date</th> <th>Last Confirmed Date</th> <th>Resolved Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Fracture of bone (disorder)</td> <td>125605004 (SNOMED CT)</td> <td>No</td> <td>9/21/2023, 5:39 PM EDT</td> <td>9/21/2023, 5:39 PM EDT</td> <td>12/30/2023, 5:19 PM EST</td> <td>synthea</td> </tr> <tr> <td>Fracture of ankle (disorder)</td> <td>16114001 (SNOMED CT)</td> <td>No</td> <td>9/21/2023, 5:39 PM EDT</td> <td>9/21/2023, 5:39 PM EDT</td> <td>12/30/2023, 5:19 PM EST</td> <td>synthea</td> </tr> </tbody> </table> <p><em>6 additional past illnesses older than 5 years ago are present</em></p></div></div>"
+            },
+            "entry": []
+          },
+          {
+            "title": "Vital Signs",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8716-3",
+                  "display": "Vital Signs"
+                }
+              ],
+              "text": "Vital Signs"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes the latest vital signs, sorted by effective date (most recent first).</p> <div> <table> <thead> <tr> <th>Name</th> <th>Code (System)</th> <th>Result</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Heart rate</td> <td></td> <td>69 /min</td> <td>4/4/2023, 9:21 PM EDT</td> <td></td> </tr> <tr> <td>Blood Pressure</td> <td></td> <td>120 mmHg / 80 mmHg</td> <td>1/1/2023, 4:00 AM EST</td> <td></td> </tr> </tbody> </table> </div></div>"
+            },
+            "entry": []
+          }
+        ],
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This section merges all Patient resources into a single combined patient record, preferring non-empty values for each field.</p><div> <ul> <li><strong>Name(s):</strong><ul><li>patient1</li><li>patient2</li></ul></li> <li><strong>Gender:</strong>Female</li> <li><strong>Date of Birth:</strong>2017-01-01</li> <li><strong>Telecom:</strong><ul></ul></li> <li><strong>Address(es):</strong></li> <li><strong>Language(s):</strong></li> </ul> </div></div>"
+        }
+      }
+    },
+    {
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "dc1946f6-aed3-599f-8f8d-dd543a094589",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient2"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "dc1946f6-aed3-599f-8f8d-dd543a094589"
+          }
+        ],
+        "meta": {
+          "versionId": "1",
+          "source": "http://healthsystem1health.org/provider",
+          "security": [
+            {
+              "id": "d2ef88ba-b717-5294-bb3f-7213c25fd56f",
+              "system": "https://www.icanbwell.com/access",
+              "code": "healthsystem2"
+            },
+            {
+              "id": "c28d4443-54ca-5990-a470-a306d9c2fb24",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "healthsystem2"
+            },
+            {
+              "id": "10946a02-dc58-5173-9719-e2753b3ea786",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "healthsystem2"
+            }
+          ]
+        },
+        "name": [
+          {
+            "use": "usual",
+            "text": "patient2",
+            "family": "PATIENT2",
+            "given": ["SHYLA"]
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    }
+  ],
+  "total": 4
+}

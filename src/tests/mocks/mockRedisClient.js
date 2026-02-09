@@ -35,6 +35,18 @@ class MockRedisClient {
         return this.store.get(key);
     }
 
+    /**
+     * Increment a key's value in redis
+     * @param {string} key
+     * @returns {Promise<number>} new value after increment
+     */
+    async incr(key) {
+        const currentValue = this.store.get(key) || 0;
+        const newValue = currentValue + 1;
+        this.store.set(key, `${newValue}`);
+        return newValue;
+    }
+
     async deleteKey(key) {
         this.store.delete(key);
         this.streams.delete(key);

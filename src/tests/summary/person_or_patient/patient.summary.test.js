@@ -37,6 +37,7 @@ const expectedPatientBundleUsingComposition = require('./fixtures/expected/expec
 const expectedPatientBundleLastUpdated = require('./fixtures/expected/expected_patient_bundle_last_updated.json');
 const expectedPatientBundleLastUpdatedRange = require('./fixtures/expected/expected_patient_bundle_last_updated_range.json');
 const expectedSummaryCompositionOnlyBundle = require('./fixtures/expected/expected_summary_bundle_with_only_composition.json');
+const expectedCacheSummary = require('./fixtures/expected/expected_cache_summary.json');
 const expectedCompositionDivPath = `${__dirname}/fixtures/expected/expected_composition_div.html`;
 const expectedFunctionalStatusDivPath = `${__dirname}/fixtures/expected/expected_functional_status_div.html`;
 
@@ -858,64 +859,115 @@ describe('Patient $summary Tests', () => {
         const redisData = container.redisClient.store;
         // Test without redis enabled
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary')
+            .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary')
             .set(getHeaders());
 
         expect(Array.from(redisData.keys())).toHaveLength(0);
-        expect(resp).toHaveResourceCount(3);
+        expect(resp).toHaveResponse(expectedCacheSummary, (resource) => {
+            // remove the date from the Composition resource
+            if (resource.resourceType === 'Composition') {
+                delete resource.date;
+            }
+        });
 
         // Test with redis enabled
         process.env.ENABLE_REDIS = '1';
         process.env.ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION = '1';
         const redisReadSpy = jest.spyOn(container.redisManager, 'readBundleFromCacheAsync');
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary')
+            .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary')
             .set(getHeaders());
 
-        expect(resp).toHaveResourceCount(3);
-        let cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:6331e158-f666-5ee2-9e13-15282da7ba75::Summary';
+        expect(resp).toHaveResponse(expectedCacheSummary, (resource) => {
+            // remove the date from the Composition resource
+            if (resource.resourceType === 'Composition') {
+                delete resource.date;
+            }
+        });
+        let cacheKey = 'ClientPerson:0eb80391-0f61-5ce6-b221-a5428f2f38a7:Summary:Generation:1:Scopes:6331e158-f666-5ee2-9e13-15282da7ba75';
         expect(redisData.keys()).toContain(cacheKey);
+        expect(redisData.get('ClientPerson:0eb80391-0f61-5ce6-b221-a5428f2f38a7:Summary:Generation')).toEqual('1');
         expect(resp.headers).toHaveProperty('x-cache', 'Miss');
 
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary')
+            .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary')
             .set(getHeaders());
-
-        expect(resp).toHaveResourceCount(3);
+        expect(resp).toHaveResponse(expectedCacheSummary, (resource) => {
+            // remove the date from the Composition resource
+            if (resource.resourceType === 'Composition') {
+                delete resource.date;
+            }
+        });
         expect(redisReadSpy).not.toHaveBeenCalled();
         expect(resp.headers).toHaveProperty('x-cache', 'Miss');
 
         process.env.ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION = '1';
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary')
+            .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary')
             .set(getHeaders());
 
-        expect(resp).toHaveResourceCount(3);
+        expect(resp).toHaveResponse(expectedCacheSummary, (resource) => {
+            // remove the date from the Composition resource
+            if (resource.resourceType === 'Composition') {
+                delete resource.date;
+            }
+        });
         expect(redisReadSpy).toHaveBeenCalled();
         redisReadSpy.mockClear();
         expect(resp.headers).toHaveProperty('x-cache', 'Hit');
-        redisData.clear();
 
-        process.env.ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION = '1';
+        // Simulate cache generation increment
+        redisData.set('ClientPerson:0eb80391-0f61-5ce6-b221-a5428f2f38a7:Summary:Generation', '2');
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary?_debug=true')
+            .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary')
             .set(getHeaders());
 
-        expect(resp).toHaveResourceCount(3);
+        expect(resp).toHaveResponse(expectedCacheSummary, (resource) => {
+            // remove the date from the Composition resource
+            if (resource.resourceType === 'Composition') {
+                delete resource.date;
+            }
+        });
+        expect(redisReadSpy).not.toHaveBeenCalled();
+        redisReadSpy.mockClear();
+        expect(resp.headers).toHaveProperty('x-cache', 'Miss');
+
+        resp = await request
+            .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary')
+            .set(getHeaders());
+
+        expect(resp).toHaveResponse(expectedCacheSummary, (resource) => {
+            // remove the date from the Composition resource
+            if (resource.resourceType === 'Composition') {
+                delete resource.date;
+            }
+        });
+        expect(redisReadSpy).toHaveBeenCalled();
+        redisReadSpy.mockClear();
+        expect(resp.headers).toHaveProperty('x-cache', 'Hit');
+        expect(redisData.keys()).toContain(cacheKey);
+        expect(redisData.keys()).toContain('ClientPerson:0eb80391-0f61-5ce6-b221-a5428f2f38a7:Summary:Generation:2:Scopes:6331e158-f666-5ee2-9e13-15282da7ba75');
+        expect(redisData.get('ClientPerson:0eb80391-0f61-5ce6-b221-a5428f2f38a7:Summary:Generation')).toEqual('2');
+
+        redisData.clear();
+
+        resp = await request
+            .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary?_debug=true')
+            .set(getHeaders());
+
+        expect(resp).toHaveResourceCount(4);
         expect(redisReadSpy).not.toHaveBeenCalled();
         expect(Array.from(redisData.keys())).toHaveLength(0);
         redisReadSpy.mockClear();
         redisData.clear();
 
-        // test patient uuid case
+        // test patient uuid case, redis should not be used for Patient
         resp = await request
             .get('/4_0_0/Patient/24a5930e-11b4-5525-b482-669174917044/$summary')
             .set(getHeaders());
 
         expect(resp).toHaveResourceCount(3);
-        expect(redisData.keys()).toContain(cacheKey);
-        let cachedBundle = JSON.parse(redisData.get(cacheKey));
-        expect(cachedBundle.entry).toHaveLength(9);
+        expect(redisReadSpy).not.toHaveBeenCalled();
         redisData.clear();
 
         // test with patient scopes
@@ -931,21 +983,21 @@ describe('Patient $summary Tests', () => {
         };
         let patientHeader = getHeadersWithCustomPayload(jwtPayload);
         resp = await request
-            .get('/4_0_0/Patient/24a5930e-11b4-5525-b482-669174917044/$summary')
+            .get('/4_0_0/Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639/$summary')
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(3);
-        cacheKey = 'Patient:24a5930e-11b4-5525-b482-669174917044::Scopes:41b78b54-0a8e-5477-af30-d99864d04833::Summary';
+        cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639:Summary:Generation:1:Scopes:41b78b54-0a8e-5477-af30-d99864d04833';
         expect(cacheKey).toBeDefined();
-        cachedBundle = JSON.parse(redisData.get(cacheKey));
+        let cachedBundle = JSON.parse(redisData.get(cacheKey));
         expect(cachedBundle.entry).toHaveLength(9);
-        redisData.clear();
 
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary')
+            .get('/4_0_0/Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639/$summary')
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(3);
+        expect(resp.headers).toHaveProperty('x-cache', 'Hit');
         // Cache key should be the same for the same patient
         expect(redisData.keys()).toContain(cacheKey);
         cachedBundle = JSON.parse(redisData.get(cacheKey));
@@ -994,24 +1046,24 @@ describe('Patient $summary Tests', () => {
         expect(resp).toHaveMergeResponse({ created: false });
 
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary')
+            .get('/4_0_0/Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639/$summary')
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(4);
-        expect(Array.from(redisData.keys())).toHaveLength(0);
 
         // Testing redis
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary')
+            .get('/4_0_0/Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639/$summary')
             .set(patientHeader);
 
         expect(resp).toHaveResourceCount(4);
+        expect(redisReadSpy).toHaveBeenCalled();
         redisReadSpy.mockClear();
 
         let headers = getHeaders();
         headers['Cache-Control'] = 'no-cache';
         resp = await request
-            .get('/4_0_0/Patient/patient1/$summary')
+            .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary')
             .set(headers);
 
         expect(redisReadSpy).not.toHaveBeenCalled();

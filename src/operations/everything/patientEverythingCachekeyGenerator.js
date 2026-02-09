@@ -1,5 +1,4 @@
 const { BaseCacheKeyGenerator } = require('../common/baseCacheKeyGenerator');
-const { PERSON_PROXY_PREFIX } = require('../../constants');
 const { fhirContentTypes } = require('../../utils/contentTypes');
 
 class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
@@ -28,18 +27,6 @@ class PatientEverythingCacheKeyGenerator extends BaseCacheKeyGenerator {
             fhirContentTypes.ndJson2,
             fhirContentTypes.ndJson3
         ];
-    }
-
-    /**
-     * Generate a cache ID component from the resource ID
-     * @param {string} id
-     * @returns {string}
-     */
-    generateIdComponent(id) {
-        if (id.startsWith(PERSON_PROXY_PREFIX)) {
-            return `ClientPerson:${id.slice(PERSON_PROXY_PREFIX.length)}`;
-        }
-        return `Patient:${id}`;
     }
 }
 

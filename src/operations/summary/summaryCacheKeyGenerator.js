@@ -1,38 +1,48 @@
 const { BaseCacheKeyGenerator } = require('../common/baseCacheKeyGenerator');
-const { PERSON_PROXY_PREFIX } = require('../../constants');
 const { fhirContentTypes } = require('../../utils/contentTypes');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { RedisManager } = require('../../utils/redisManager');
 
 class SummaryCacheKeyGenerator extends BaseCacheKeyGenerator {
-    constructor() {
+    constructor({ redisManager }) {
         super();
         this.operation = 'Summary';
-        this.invalidParamsForCache = [
-            '_rewritePatientReference',
-            '_debug',
-            '_explain',
-            '_lastUpdated'
-        ];
+        this.invalidParamsForCache = ['_rewritePatientReference', '_debug', '_explain', '_lastUpdated'];
         this.cacheableResponseTypes = [
             fhirContentTypes.fhirJson,
             fhirContentTypes.fhirJson2,
             fhirContentTypes.fhirJson3
         ];
         // params to be included in cache key
-        this.keyParamsforCache = [
-            '_includeSummaryCompositionOnly'
-        ]
+        this.keyParamsforCache = ['_includeSummaryCompositionOnly'];
+
+        /**
+         * @type {RedisManager}
+         */
+        this.redisManager = redisManager;
+        assertTypeEquals(redisManager, RedisManager);
     }
 
     /**
-     * Generate a cache ID component from the resource ID
-     * @param {string} id
-     * @returns {string}
+     * Get generation number for the given ID
+     * @typedef {Object} options
+     * @property {string} id
+     * @property {boolean} isPersonId
+     *
+     * @param {options} options
+     * @returns {Promise<number|undefined>}
      */
-    generateIdComponent(id) {
-        if (id.startsWith(PERSON_PROXY_PREFIX)) {
-            return `ClientPerson:${id.slice(PERSON_PROXY_PREFIX.length)}`;
+    async getGenerationForId({ id, isPersonId }) {
+        if (!isPersonId) {
+            throw new Error('SummaryCacheKeyGenerator only supports person IDs for generation tracking');
         }
-        return `Patient:${id}`;
+        const keyPrefix = this.generateIdComponent({ id, isPersonId });
+        const generationKey = `${keyPrefix}:${this.operation}:Generation`;
+        const existingGeneration = await this.redisManager.getCacheAsync(generationKey);
+        if (existingGeneration) {
+            return parseInt(existingGeneration);
+        }
+        return await this.redisManager.incrementGenerationAsync(generationKey);
     }
 }
 

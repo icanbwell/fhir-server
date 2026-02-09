@@ -1,5 +1,6 @@
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { fhirContentTypes } = require('../../utils/contentTypes');
+const { logError } = require('./logging');
 
 class BaseCacheKeyGenerator {
     /**
@@ -40,13 +41,17 @@ class BaseCacheKeyGenerator {
     }
 
     /**
-     * Generate cache key for $everything operation
-     * @param {string} cacheIdentifier
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} scope
+     * Generate cache key
+     * @typedef {Object} options
+     * @property {string} id
+     * @property {boolean} isPersonId
+     * @property {ParsedArgs} parsedArgs
+     * @property {string} scope
+     *
+     * @param {options} options
      * @returns {Promise<string|undefined>}
      */
-    async generateCacheKey({ id, parsedArgs, scope }) {
+    async generateCacheKey({ id, isPersonId, parsedArgs, scope }) {
         const rawArgs = parsedArgs.getRawArgs();
 
         // Don't cache if any cache-invalidating params are present and their value is not false
@@ -63,9 +68,20 @@ class BaseCacheKeyGenerator {
             return undefined;
         }
         // Build cache key components
-        const cacheIdentifier = this.generateIdComponent(id);
-        const scopes = this.normalizeScopesForCaching(scope);
-        let key = `${cacheIdentifier}::Scopes:${scopes}::${this.operation}`;
+        let cacheKey = `${this.generateIdComponent({ id, isPersonId })}:${this.operation}`;
+
+        try {
+            const generation = await this.getGenerationForId({ id, isPersonId });
+            if (generation) {
+                cacheKey += `:Generation:${generation}`;
+            }
+        } catch (error) {
+            // log error and skip cache
+            logError('Error fetching generation for cache key', { error, id, isPersonId });
+            return undefined;
+        }
+
+        cacheKey += `:Scopes:${this.normalizeScopesForCaching(scope)}`;
 
         if (this.keyParamsforCache && this.keyParamsforCache.length > 0) {
             const params = {};
@@ -81,19 +97,39 @@ class BaseCacheKeyGenerator {
                 }
             });
             if (Object.keys(params).length > 0) {
-                key += `:${generateUUIDv5(JSON.stringify(params))}`;
+                cacheKey += `:Param:${generateUUIDv5(JSON.stringify(params))}`;
             }
         }
 
-        return key;
+        return cacheKey;
     }
 
     /**
      * Generate a cache ID component from the resource ID
-     * @param {string} id
+     * @typedef {Object} options
+     * @property {string} id
+     * @property {boolean} isPersonId
+     *
+     * @param {options} options
+     * @returns {string}
      */
-    generateIdComponent(id) {
-        throw new Error('Method not implemented.');
+    generateIdComponent({ id, isPersonId }) {
+        const resourceType = isPersonId ? 'ClientPerson' : 'Patient';
+        return `${resourceType}:${id}`;
+    }
+
+    /**
+     * Get generation number for the given ID
+     * @typedef {Object} options
+     * @property {string} id
+     * @property {boolean} isPersonId
+     *
+     * @param {options} options
+     * @returns {Promise<number|undefined>}
+     */
+    async getGenerationForId({ id, isPersonId }) {
+        // This method should be implemented in subclasses if generation tracking is needed
+        return undefined;
     }
 }
 
