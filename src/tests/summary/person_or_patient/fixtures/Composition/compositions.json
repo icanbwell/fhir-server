@@ -201,8 +201,8 @@
     "type": {
       "coding": [
         {
-          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
-          "code": "vital_summary_document"
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+          "code": "vital_group_code"
         }
       ]
     }
@@ -324,8 +324,8 @@
     "type": {
       "coding": [
         {
-          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
-          "code": "careplan_summary_document"
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+          "code": "careplan_group_category"
         }
       ]
     },
@@ -400,8 +400,8 @@
     "type": {
       "coding": [
         {
-          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
-          "code": "allergy_summary_document"
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+          "code": "allergy_group_code"
         }
       ]
     },
@@ -533,8 +533,8 @@
     "type": {
       "coding": [
         {
-          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
-          "code": "immunization_summary_document"
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+          "code": "immunization_group_code"
         }
       ]
     },
@@ -638,8 +638,8 @@
     "type": {
       "coding": [
         {
-          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
-          "code": "procedure_summary_document"
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+          "code": "procedure_group_code"
         }
       ]
     },
@@ -858,8 +858,8 @@
     "type": {
       "coding": [
         {
-          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
-          "code": "diagnosticreportlab_summary_document"
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+          "code": "diagnosticreportlab_group_code"
         }
       ]
     },
@@ -1289,8 +1289,8 @@
     "type": {
       "coding": [
         {
-          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
-          "code": "lab_summary_document"
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+          "code": "lab_group_code"
         }
       ]
     },
@@ -4641,8 +4641,8 @@
       "coding": [
         {
           "id": "d459919f-305d-52ac-90ed-3df6f2c01138",
-          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
-          "code": "condition_summary_document",
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/view-type",
+          "code": "condition_code_display_view",
           "display": "b.Well Condition Summary Composition Document"
         }
       ],
