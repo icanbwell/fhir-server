@@ -63,7 +63,7 @@ describe('Condition Tests', () => {
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [user/*.*] failed access check to [Condition.write]');
+            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [user/*.*] failed access check to [Condition.write]');
         });
         test('create without valid user scopes doesn\'t work', async () => {
             const request = await createTestRequest((c) => {
@@ -93,7 +93,7 @@ describe('Condition Tests', () => {
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [] failed access check to [Condition.write]');
+            expect(body.issue[0].details.text).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [] failed access check to [Condition.write]');
         });
     });
 });

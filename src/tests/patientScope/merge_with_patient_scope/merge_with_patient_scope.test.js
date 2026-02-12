@@ -156,7 +156,7 @@ describe('Patient Scope merge Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(200);
             const body = resp.body;
-            expect(body.issue.diagnostics).toStrictEqual('None of the provided scopes matched an allowed scope.: user patient-123@example.com with scopes [patient/Encounter.*] failed access check to [Condition.write]');
+            expect(body.issue.diagnostics).toStrictEqual('None of the provided scopes matched an allowed scope.: user clientFhirPerson with scopes [patient/Encounter.*] failed access check to [Condition.write]');
         });
         test('merge_with_patient_scope with multiple resources if patient id does not match in one', async () => {
             const request = await createTestRequest((c) => {
@@ -339,9 +339,9 @@ describe('Patient Scope merge Tests', () => {
                     severity: 'error',
                     code: 'forbidden',
                     details: {
-                        text: `Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [] failed access check to [${resourceType}.write]`
+                        text: `Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [] failed access check to [${resourceType}.write]`
                     },
-                    diagnostics: `Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [] failed access check to [${resourceType}.write]`
+                    diagnostics: `Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [] failed access check to [${resourceType}.write]`
                 });
             }
             process.env.VALIDATE_SCHEMA = envValue;

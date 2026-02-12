@@ -141,10 +141,10 @@ describe('Observation Tests', () => {
                         severity: 'error',
                         code: 'forbidden',
                         details: {
-                            text: "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            text: "user clientFhirPerson with scopes [patient/*.* access/*.* user/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                         },
                         diagnostics:
-                            "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            "user clientFhirPerson with scopes [patient/*.* access/*.* user/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                     }
                 ]
             });
@@ -161,10 +161,10 @@ describe('Observation Tests', () => {
                         severity: 'error',
                         code: 'forbidden',
                         details: {
-                            text: "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to Practitioner's history: Access to history resources not allowed if patient scope is present"
+                            text: "user clientFhirPerson with scopes [patient/*.* access/*.* user/*.*] failed access check to Practitioner's history: Access to history resources not allowed if patient scope is present"
                         },
                         diagnostics:
-                            "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to Practitioner's history: Access to history resources not allowed if patient scope is present"
+                            "user clientFhirPerson with scopes [patient/*.* access/*.* user/*.*] failed access check to Practitioner's history: Access to history resources not allowed if patient scope is present"
                     }
                 ]
             });

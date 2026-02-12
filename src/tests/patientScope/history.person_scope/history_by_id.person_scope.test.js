@@ -96,10 +96,10 @@ describe('Observation Tests', () => {
                         severity: 'error',
                         code: 'forbidden',
                         details: {
-                            text: "user patient-123@example.com with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            text: "user person1 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                         },
                         diagnostics:
-                            "user patient-123@example.com with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            "user person1 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                     }
                 ]
             });
@@ -162,10 +162,10 @@ describe('Observation Tests', () => {
                         severity: 'error',
                         code: 'forbidden',
                         details: {
-                            text: "user patient-123@example.com with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            text: "user person1 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                         },
                         diagnostics:
-                            "user patient-123@example.com with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
+                            "user person1 with scopes [patient/Observation.read user/*.* access/*.*] failed access check to Observation's history: Access to history resources not allowed if patient scope is present"
                     }
                 ]
             });

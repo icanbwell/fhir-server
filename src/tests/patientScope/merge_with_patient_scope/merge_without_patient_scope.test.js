@@ -61,7 +61,7 @@ describe('Condition Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: false });
             const body = resp.body;
-            expect(body.issue.diagnostics).toStrictEqual('Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [user/*.*] failed access check to [Condition.write]');
+            expect(body.issue.diagnostics).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [user/*.*] failed access check to [Condition.write]');
         });
         test('merge_with_user_scope with bundle resource', async () => {
             const request = await createTestRequest((c) => {
@@ -107,7 +107,7 @@ describe('Condition Tests', () => {
 
             const condition1Response = body[0];
             expect(condition1Response.created).toStrictEqual(false);
-            expect(condition1Response.issue.diagnostics).toStrictEqual('Write not allowed using user scopes if patient scope is present: user patient-123@example.com with scopes [user/Condition.write] failed access check to [Condition.write]');
+            expect(condition1Response.issue.diagnostics).toStrictEqual('Write not allowed using user scopes if patient scope is present: user clientFhirPerson with scopes [user/Condition.write] failed access check to [Condition.write]');
         });
     });
 });

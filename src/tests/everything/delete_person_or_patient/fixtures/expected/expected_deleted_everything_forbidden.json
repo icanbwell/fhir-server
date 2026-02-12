@@ -8,9 +8,9 @@
             "severity": "error",
             "code": "forbidden",
             "details": {
-              "text": "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to delete $everything: Access to delete $everything not allowed if patient scope is present"
+              "text": "user clientFhirPerson with scopes [patient/*.* access/*.* user/*.*] failed access check to delete $everything: Access to delete $everything not allowed if patient scope is present"
             },
-            "diagnostics": "user imran with scopes [patient/*.* access/*.* user/*.*] failed access check to delete $everything: Access to delete $everything not allowed if patient scope is present"
+            "diagnostics": "user clientFhirPerson with scopes [patient/*.* access/*.* user/*.*] failed access check to delete $everything: Access to delete $everything not allowed if patient scope is present"
           }
         ]
       }

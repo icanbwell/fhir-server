@@ -117,7 +117,7 @@ describe('Observation Tests', () => {
 
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user patient-123@example.com with scopes [user/Observation.write] failed access check to [Observation.read]');
+            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user clientFhirPerson with scopes [user/Observation.write] failed access check to [Observation.read]');
         });
     });
 });

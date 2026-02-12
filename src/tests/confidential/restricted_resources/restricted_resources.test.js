@@ -145,10 +145,10 @@ describe('Observation Tests', () => {
                     {
                         code: 'forbidden',
                         details: {
-                            text: 'user patient-123@example.com with scopes [patient/Observation.read patient/Observation.write user/*.* access/*.*] has no write access to resource Observation with id 2'
+                            text: 'user person1 with scopes [patient/Observation.read patient/Observation.write user/*.* access/*.*] has no write access to resource Observation with id 2'
                         },
                         diagnostics:
-                            'user patient-123@example.com with scopes [patient/Observation.read patient/Observation.write user/*.* access/*.*] has no write access to resource Observation with id 2',
+                            'user person1 with scopes [patient/Observation.read patient/Observation.write user/*.* access/*.*] has no write access to resource Observation with id 2',
                         severity: 'error'
                     }
                 ],

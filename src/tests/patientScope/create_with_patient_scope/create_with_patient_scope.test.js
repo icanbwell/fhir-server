@@ -150,7 +150,7 @@ describe('Condition Tests', () => {
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user patient-123@example.com with scopes [patient/Observation.*] failed access check to [Condition.write]');
+            expect(body.issue[0].details.text).toStrictEqual('None of the provided scopes matched an allowed scope.: user clientFhirPerson with scopes [patient/Observation.*] failed access check to [Condition.write]');
         });
         test('Non patient resources can not be accessed with patient scopes', async () => {
             const envValue = process.env.VALIDATE_SCHEMA;
