@@ -8127,7 +8127,7 @@ const searchParameterQueries = {
 			description: 'When the resource version last changed',
 			type: 'date',
 			field: 'meta.lastUpdated',
-			fieldTypesObj: { 'meta.lastUpdated': 'datetime' }
+			fieldTypesObj: { 'meta.lastUpdated': 'instant' }
 		}),
 		_profile: new SearchParameterDefinition({
 			description: 'Profiles this resource claims to conform to',

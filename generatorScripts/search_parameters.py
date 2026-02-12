@@ -8121,7 +8121,7 @@ search_parameter_queries = {
 			'description': 'When the resource version last changed',
 			'type': 'date',
 			'field': 'meta.lastUpdated',
-			'fieldTypesObj': { 'meta.lastUpdated': 'datetime' },
+			'fieldTypesObj': { 'meta.lastUpdated': 'instant' },
 		},
 		'_profile': {
 			'description': 'Profiles this resource claims to conform to',

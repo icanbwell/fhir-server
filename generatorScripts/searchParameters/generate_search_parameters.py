@@ -87,7 +87,7 @@ def main() -> int:
                 field_type = resource_field_types.get(exp, {}).get("code", None)
                 if field_type is None:
                     if resource1 == "Resource" and exp1 == "meta.lastUpdated":
-                        field_type = "datetime"
+                        field_type = "instant"
                     if resource1 == "MedicationRequest" and exp1 == "dosageInstruction.timing.event":
                         field_type = "datetime"
                 query_entry: QueryEntry = QueryEntry(
