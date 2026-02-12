@@ -865,6 +865,11 @@ const dateQueryBuilder = function ({ date, type, path }) {
                 const moment_dt = moment.utc(str);
                 // convert to format that mongo uses to store
                 const datetime_utc = moment_dt.utc().format('YYYY-MM-DDTHH:mm:ssZ');
+                if (prefix === '$sa') {
+                    prefix = '$gt';
+                } else if (prefix === '$eb') {
+                    prefix = '$lt';
+                }
                 return {
                     [prefix]: datetime_utc
                 };
