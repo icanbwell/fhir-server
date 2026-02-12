@@ -212,9 +212,14 @@ class AuthService {
             context.personIdFromJwtToken = jwt_payload[this.requiredJWTFields.clientFhirPersonId];
             context.masterPersonIdFromJwtToken = jwt_payload[this.requiredJWTFields.bwellFhirPersonId];
             context.managingOrganizationId = jwt_payload[this.optionalJWTFields.bwellManagingOrganizationId];
+
+            context.subject = jwt_payload['sub'];
+            context.username = context.personIdFromJwtToken;
         }
         logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
-        done(null, {id: client_id, isUser, name: username, username}, {scope, context});
+
+        const effectiveUsername = context.username || username;
+        done(null, {id: client_id, isUser, name: effectiveUsername, username: effectiveUsername}, {scope, context});
     }
 
     /**
