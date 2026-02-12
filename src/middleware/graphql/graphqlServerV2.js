@@ -1,8 +1,6 @@
 /**
  * This middleware handles graphqlV2 requests
  */
-const contentType = require('content-type');
-const httpContext = require('express-http-context');
 const { ApolloServer } = require('@apollo/server');
 const { buildSubgraphSchema } = require('@apollo/subgraph');
 const { expressMiddleware } = require('@as-integrations/express5');
@@ -21,15 +19,13 @@ const { join } = require('path');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { FhirDataSource } = require('../../graphqlv2/dataSource');
-const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { FhirRequestInfoBuilder } = require('../../utils/fhirRequestInfoBuilder');
 const { getApolloServerLoggingPlugin } = require('./plugins/graphqlLoggingPlugin');
 const { getAddRequestIdToResponseHeadersPlugin } = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const { getBundleMetaApolloServerPlugin } = require('./plugins/graphqlBundleMetaPlugin');
 const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const { removeNullFromArray } = require('../../utils/nullRemover');
 const resolvers = require('../../graphqlv2/resolvers');
-const { REQUEST_ID_TYPE } = require('../../constants');
-const accepts = require("accepts");
 
 /**
  * @param {function (): SimpleContainer} fnGetContainer
@@ -79,35 +75,9 @@ const graphqlV2 = async (fnGetContainer) => {
      */
     async function getContext ({ req, res }) {
         /**
-         * @type {import('content-type').ContentType}
-         */
-        const contentTypeFromHeader = req.headers['content-type'] ? contentType.parse(req.headers['content-type']) : null;
-        /**
          * @type {FhirRequestInfo}
          */
-        const fhirRequestInfo = new FhirRequestInfo(
-            {
-                user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
-                    (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
-                    ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id),
-                scope: req.authInfo && req.authInfo.scope,
-                remoteIpAddress: req.socket.remoteAddress,
-                requestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID),
-                userRequestId: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
-                protocol: req.protocol,
-                originalUrl: req.originalUrl,
-                path: req.path,
-                host: req.hostname,
-                body: req.body,
-                isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
-                personIdFromJwtToken: req.authInfo?.context?.personIdFromJwtToken,
-                masterPersonIdFromJwtToken: req.authInfo?.context?.masterPersonIdFromJwtToken,
-                managingOrganizationId: req.authInfo?.context?.managingOrganizationId,
-                headers: req.headers,
-                method: req.method,
-                contentTypeFromHeader,
-                accept: accepts(req).types()
-            });
+        const fhirRequestInfo = FhirRequestInfoBuilder.fromRequest(req);
 
         req.container = container;
         return {

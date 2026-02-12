@@ -15,6 +15,7 @@ const {ValidateOperation} = require('./validate/validate');
 const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
 const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
+const {FhirRequestInfoBuilder} = require('../utils/fhirRequestInfoBuilder');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const httpContext = require('express-http-context');
@@ -211,111 +212,7 @@ class FhirOperationsManager {
      * @return {FhirRequestInfo}
      */
     getRequestInfo(req) {
-        assertIsValid(req, 'req is null');
-        /**
-         * @type {string | null}
-         */
-        const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
-            (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
-            ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
-        /**
-         * @type {boolean}
-         */
-        const isUser = req.authInfo && req.authInfo.context && req.authInfo.context.isUser;
-        /**
-         * @type {string|null}
-         */
-        const personIdFromJwtToken = req.authInfo?.context?.personIdFromJwtToken;
-        /**
-         * @type {string|null}
-         */
-        const masterPersonIdFromJwtToken = req.authInfo?.context?.masterPersonIdFromJwtToken;
-        /**
-         * @type {string|null}
-         */
-        const managingOrganizationId = req.authInfo?.context?.managingOrganizationId;
-        /**
-         * @type {string}
-         */
-        const scope = req.authInfo && req.authInfo.scope;
-        /**
-         * @type {string|null}
-         */
-        const remoteIpAddress = req.socket.remoteAddress;
-        /**
-         * @type {string|null}
-         */
-        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID) || req.requestId;
-        /**
-         * @type {string|null}
-         */
-        const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID) || req.userRequestId;
-        /**
-         * @type {string}
-         */
-        const path = req.path;
-        /**
-         * @type {string|string[]|null}
-         */
-        const accept = accepts(req).types();
-        /**
-         * @type {string}
-         */
-        const protocol = req.protocol;
-        /**
-         * @type {string | null}
-         */
-        const originalUrl = req.originalUrl;
-        /**
-         * @type {string | null}
-         */
-        let host = req.hostname;
-        // Add port if protocol is not https and port exists
-        if (protocol !== 'https' && req.headers.host && req.headers.host.includes(':')) {
-            const port = req.headers.host.split(':')[1];
-            host = `${req.hostname}:${port}`;
-        }
-        /**
-         * @type {Object | Object[] | null}
-         */
-        const body = req.body;
-
-        /**
-         * @type {string}
-         */
-        const method = req.method;
-
-        /**
-         * @type {Object}
-         */
-        const headers = req.headers;
-
-        /**
-         * @type {import('content-type').ContentType}
-         */
-        const contentTypeFromHeader = headers['content-type'] ? contentType.parse(headers['content-type']) : null;
-        return new FhirRequestInfo(
-            {
-                user,
-                scope,
-                remoteIpAddress,
-                requestId,
-                userRequestId,
-                protocol,
-                originalUrl,
-                path,
-                host,
-                body,
-                accept,
-                isUser,
-                personIdFromJwtToken,
-                masterPersonIdFromJwtToken,
-                managingOrganizationId,
-                headers,
-                method,
-                contentTypeFromHeader
-            }
-        );
+        return FhirRequestInfoBuilder.fromRequest(req);
     }
 
     /**
