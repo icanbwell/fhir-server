@@ -40,6 +40,20 @@ module.exports = {
     definition: 'http://hl7.org/fhir/SearchParameter/Condition-abatement-date',
     description: 'Date-related abatements (dateTime and period)'
   },
+  _abatementPeriodStart: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Condition.abatementPeriod.start',
+    definition: 'http://hl7.org/fhir/SearchParameter/Condition-abatement-date',
+    description: 'Custom search parameter for start date of abatementPeriod'
+  },
+  _abatementPeriodEnd: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Condition.abatementPeriod.end',
+    definition: 'http://hl7.org/fhir/SearchParameter/Condition-abatement-date',
+    description: 'Custom search parameter for end date of abatementPeriod'
+  },
   'abatement-string': {
     type: 'string',
     fhirtype: 'string',
@@ -109,6 +123,20 @@ module.exports = {
     xpath: 'Condition.onsetDateTime',
     definition: 'http://hl7.org/fhir/SearchParameter/Condition-onset-date',
     description: 'Date related onsets (dateTime and Period)'
+  },
+  _onsetPeriodStart: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Condition.onsetPeriod.start',
+    definition: 'http://hl7.org/fhir/SearchParameter/Condition-onset-date',
+    description: 'Custom search parameter for start date of onsetPeriod'
+  },
+  _onsetPeriodEnd: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Condition.onsetPeriod.end',
+    definition: 'http://hl7.org/fhir/SearchParameter/Condition-onset-date',
+    description: 'Custom search parameter for end date of onsetPeriod'
   },
   'onset-info': {
     type: 'string',

@@ -55,7 +55,8 @@ def get_resources_fields_data():
                                 type_name = "String"
                             result[
                                 snapshot_element.get("id").replace("[x]", "")
-                                + type_name
+                                + type_name[0].upper()
+                                + type_name[1:]
                             ] = {
                                 "code": type_code,
                                 "min": snapshot_element["min"].get("value"),

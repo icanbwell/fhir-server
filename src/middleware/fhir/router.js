@@ -126,10 +126,9 @@ class FhirRouter {
      * @param {Object} config - Application config
      * @param {Object} profile - Profile configuration from end users
      * @param {string} key - Profile name the user has configured
-     * @param {Array<Object>} parameters - Parameters allowed for this profile
      * @param {Object} corsDefaults - Default cors settings
      */
-    enableOperationRoutesForProfile (app, config, profile, key, parameters, corsDefaults) {
+    enableOperationRoutesForProfile (app, config, profile, key, corsDefaults) {
         // Error message we will use for invalid configurations
         const errorMessage = `Invalid operation configuration for ${key}. Please ` + 'see the wiki on how to use operations. ' + 'https://github.com/icanbwell/fhir-server#cheat-sheet';
 
@@ -338,12 +337,11 @@ class FhirRouter {
      * @param {Object} config - Application config
      * @param {Object} profile - Profile configuration from end users
      * @param {string} profileName - Profile name the user has configured
-     * @param {Array<Object>} parameters - Parameters allowed for this profile
      * @param {Object} corsDefaults - Default cors settings
      */
-    enableProfileRoutes (app, config, profile, profileName, parameters, corsDefaults) {
+    enableProfileRoutes (app, config, profile, profileName, corsDefaults) {
         if (profile.operation && profile.operation.length) {
-            this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
+            this.enableOperationRoutesForProfile(app, config, profile, profileName, corsDefaults);
         } // Start iterating over potential routes to enable for this profile
     }
 
@@ -373,7 +371,7 @@ class FhirRouter {
                 throw new Error(`${profileName} is an invalid profile configuration, please see the wiki ` + 'for further instruction' + 'https://github.com/icanbwell/fhir-server#cheat-sheet');
             } // Enable all provided operations for this profile
 
-            this.enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults);
+            this.enableProfileRoutes(app, config, profile, profileName, corsDefaults);
 
             for (const route of routes) {
                 // If we do not have a matching service function for this route, skip it

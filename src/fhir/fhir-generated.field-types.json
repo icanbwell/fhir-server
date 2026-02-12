@@ -259,7 +259,7 @@
     "min": "0",
     "max": "1"
   },
-  "ActivityDefinition.subjectcanonical": {
+  "ActivityDefinition.subjectCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
@@ -394,7 +394,7 @@
     "min": "0",
     "max": "1"
   },
-  "ActivityDefinition.timingdateTime": {
+  "ActivityDefinition.timingDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -644,12 +644,12 @@
     "min": "0",
     "max": "1"
   },
-  "AdministrableProductDefinition.property.valuedate": {
+  "AdministrableProductDefinition.property.valueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "AdministrableProductDefinition.property.valueboolean": {
+  "AdministrableProductDefinition.property.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -1059,7 +1059,7 @@
     "min": "0",
     "max": "1"
   },
-  "AllergyIntolerance.onsetdateTime": {
+  "AllergyIntolerance.onsetDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -1079,7 +1079,7 @@
     "min": "0",
     "max": "1"
   },
-  "AllergyIntolerance.onsetstring": {
+  "AllergyIntolerance.onsetString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -1734,12 +1734,12 @@
     "min": "1",
     "max": "1"
   },
-  "AuditEvent.entity.detail.valuestring": {
+  "AuditEvent.entity.detail.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "AuditEvent.entity.detail.valuebase64Binary": {
+  "AuditEvent.entity.detail.valueBase64Binary": {
     "code": "base64Binary",
     "min": "1",
     "max": "1"
@@ -1949,7 +1949,7 @@
     "min": "0",
     "max": "1"
   },
-  "BiologicallyDerivedProduct.collection.collecteddateTime": {
+  "BiologicallyDerivedProduct.collection.collectedDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -1994,7 +1994,7 @@
     "min": "0",
     "max": "1"
   },
-  "BiologicallyDerivedProduct.processing.timedateTime": {
+  "BiologicallyDerivedProduct.processing.timeDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -2029,7 +2029,7 @@
     "min": "0",
     "max": "1"
   },
-  "BiologicallyDerivedProduct.manipulation.timedateTime": {
+  "BiologicallyDerivedProduct.manipulation.timeDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -3289,7 +3289,7 @@
     "min": "0",
     "max": "1"
   },
-  "CarePlan.activity.detail.scheduledstring": {
+  "CarePlan.activity.detail.scheduledString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -3684,7 +3684,7 @@
     "min": "0",
     "max": "1"
   },
-  "ChargeItem.occurrencedateTime": {
+  "ChargeItem.occurrenceDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -4339,7 +4339,7 @@
     "min": "0",
     "max": "*"
   },
-  "Citation.relatesTo.targeturi": {
+  "Citation.relatesTo.targetUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
@@ -4604,7 +4604,7 @@
     "min": "0",
     "max": "*"
   },
-  "Citation.citedArtifact.relatesTo.targeturi": {
+  "Citation.citedArtifact.relatesTo.targetUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
@@ -5399,7 +5399,7 @@
     "min": "0",
     "max": "1"
   },
-  "Claim.supportingInfo.timingdate": {
+  "Claim.supportingInfo.timingDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -5409,12 +5409,12 @@
     "min": "0",
     "max": "1"
   },
-  "Claim.supportingInfo.valueboolean": {
+  "Claim.supportingInfo.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "Claim.supportingInfo.valuestring": {
+  "Claim.supportingInfo.valueString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -5704,7 +5704,7 @@
     "min": "0",
     "max": "*"
   },
-  "Claim.item.serviceddate": {
+  "Claim.item.servicedDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -6224,7 +6224,7 @@
     "min": "0",
     "max": "*"
   },
-  "ClaimResponse.addItem.serviceddate": {
+  "ClaimResponse.addItem.servicedDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -6694,7 +6694,7 @@
     "min": "0",
     "max": "1"
   },
-  "ClinicalImpression.effectivedateTime": {
+  "ClinicalImpression.effectiveDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -6999,7 +6999,7 @@
     "min": "0",
     "max": "1"
   },
-  "ClinicalUseDefinition.indication.durationstring": {
+  "ClinicalUseDefinition.indication.durationString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -7479,7 +7479,7 @@
     "min": "1",
     "max": "1"
   },
-  "CodeSystem.concept.property.valuecode": {
+  "CodeSystem.concept.property.valueCode": {
     "code": "code",
     "min": "1",
     "max": "1"
@@ -7489,27 +7489,27 @@
     "min": "1",
     "max": "1"
   },
-  "CodeSystem.concept.property.valuestring": {
+  "CodeSystem.concept.property.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "CodeSystem.concept.property.valueinteger": {
+  "CodeSystem.concept.property.valueInteger": {
     "code": "integer",
     "min": "1",
     "max": "1"
   },
-  "CodeSystem.concept.property.valueboolean": {
+  "CodeSystem.concept.property.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
   },
-  "CodeSystem.concept.property.valuedateTime": {
+  "CodeSystem.concept.property.valueDateTime": {
     "code": "dateTime",
     "min": "1",
     "max": "1"
   },
-  "CodeSystem.concept.property.valuedecimal": {
+  "CodeSystem.concept.property.valueDecimal": {
     "code": "decimal",
     "min": "1",
     "max": "1"
@@ -7679,7 +7679,7 @@
     "min": "0",
     "max": "*"
   },
-  "Communication.payload.contentstring": {
+  "Communication.payload.contentString": {
     "code": "string",
     "min": "1",
     "max": "1"
@@ -7824,7 +7824,7 @@
     "min": "0",
     "max": "*"
   },
-  "CommunicationRequest.payload.contentstring": {
+  "CommunicationRequest.payload.contentString": {
     "code": "string",
     "min": "1",
     "max": "1"
@@ -7839,7 +7839,7 @@
     "min": "1",
     "max": "1"
   },
-  "CommunicationRequest.occurrencedateTime": {
+  "CommunicationRequest.occurrenceDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -8404,22 +8404,22 @@
     "min": "0",
     "max": "1"
   },
-  "ConceptMap.sourceuri": {
+  "ConceptMap.sourceUri": {
     "code": "uri",
     "min": "0",
     "max": "1"
   },
-  "ConceptMap.sourcecanonical": {
+  "ConceptMap.sourceCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
   },
-  "ConceptMap.targeturi": {
+  "ConceptMap.targetUri": {
     "code": "uri",
     "min": "0",
     "max": "1"
   },
-  "ConceptMap.targetcanonical": {
+  "ConceptMap.targetCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
@@ -8699,7 +8699,7 @@
     "min": "0",
     "max": "1"
   },
-  "Condition.onsetdateTime": {
+  "Condition.onsetDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -8719,12 +8719,12 @@
     "min": "0",
     "max": "1"
   },
-  "Condition.onsetstring": {
+  "Condition.onsetString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "Condition.abatementdateTime": {
+  "Condition.abatementDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -8744,7 +8744,7 @@
     "min": "0",
     "max": "1"
   },
-  "Condition.abatementstring": {
+  "Condition.abatementString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -9524,42 +9524,42 @@
     "min": "0",
     "max": "*"
   },
-  "Contract.term.offer.answer.valueboolean": {
+  "Contract.term.offer.answer.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
   },
-  "Contract.term.offer.answer.valuedecimal": {
+  "Contract.term.offer.answer.valueDecimal": {
     "code": "decimal",
     "min": "1",
     "max": "1"
   },
-  "Contract.term.offer.answer.valueinteger": {
+  "Contract.term.offer.answer.valueInteger": {
     "code": "integer",
     "min": "1",
     "max": "1"
   },
-  "Contract.term.offer.answer.valuedate": {
+  "Contract.term.offer.answer.valueDate": {
     "code": "date",
     "min": "1",
     "max": "1"
   },
-  "Contract.term.offer.answer.valuedateTime": {
+  "Contract.term.offer.answer.valueDateTime": {
     "code": "dateTime",
     "min": "1",
     "max": "1"
   },
-  "Contract.term.offer.answer.valuetime": {
+  "Contract.term.offer.answer.valueTime": {
     "code": "time",
     "min": "1",
     "max": "1"
   },
-  "Contract.term.offer.answer.valuestring": {
+  "Contract.term.offer.answer.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "Contract.term.offer.answer.valueuri": {
+  "Contract.term.offer.answer.valueUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
@@ -9894,7 +9894,7 @@
     "min": "0",
     "max": "*"
   },
-  "Contract.term.action.occurrencedateTime": {
+  "Contract.term.action.occurrenceDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -10394,7 +10394,7 @@
     "min": "1",
     "max": "1"
   },
-  "CoverageEligibilityRequest.serviceddate": {
+  "CoverageEligibilityRequest.servicedDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -10654,7 +10654,7 @@
     "min": "1",
     "max": "1"
   },
-  "CoverageEligibilityResponse.serviceddate": {
+  "CoverageEligibilityResponse.servicedDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -10824,12 +10824,12 @@
     "min": "1",
     "max": "1"
   },
-  "CoverageEligibilityResponse.insurance.item.benefit.allowedunsignedInt": {
+  "CoverageEligibilityResponse.insurance.item.benefit.allowedUnsignedInt": {
     "code": "unsignedInt",
     "min": "0",
     "max": "1"
   },
-  "CoverageEligibilityResponse.insurance.item.benefit.allowedstring": {
+  "CoverageEligibilityResponse.insurance.item.benefit.allowedString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -10839,12 +10839,12 @@
     "min": "0",
     "max": "1"
   },
-  "CoverageEligibilityResponse.insurance.item.benefit.usedunsignedInt": {
+  "CoverageEligibilityResponse.insurance.item.benefit.usedUnsignedInt": {
     "code": "unsignedInt",
     "min": "0",
     "max": "1"
   },
-  "CoverageEligibilityResponse.insurance.item.benefit.usedstring": {
+  "CoverageEligibilityResponse.insurance.item.benefit.usedString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -10969,7 +10969,7 @@
     "min": "0",
     "max": "1"
   },
-  "DetectedIssue.identifieddateTime": {
+  "DetectedIssue.identifiedDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -11469,7 +11469,7 @@
     "min": "1",
     "max": "1"
   },
-  "DeviceDefinition.manufacturerstring": {
+  "DeviceDefinition.manufacturerString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -11964,7 +11964,7 @@
     "min": "0",
     "max": "1"
   },
-  "DeviceRequest.parameter.valueboolean": {
+  "DeviceRequest.parameter.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -11979,7 +11979,7 @@
     "min": "0",
     "max": "1"
   },
-  "DeviceRequest.occurrencedateTime": {
+  "DeviceRequest.occurrenceDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -12119,7 +12119,7 @@
     "min": "0",
     "max": "1"
   },
-  "DeviceUseStatement.timingdateTime": {
+  "DeviceUseStatement.timingDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -12234,7 +12234,7 @@
     "min": "0",
     "max": "1"
   },
-  "DiagnosticReport.effectivedateTime": {
+  "DiagnosticReport.effectiveDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -13719,7 +13719,7 @@
     "min": "0",
     "max": "1"
   },
-  "Evidence.citeAsmarkdown": {
+  "Evidence.citeAsMarkdown": {
     "code": "markdown",
     "min": "0",
     "max": "1"
@@ -14199,7 +14199,7 @@
     "min": "0",
     "max": "1"
   },
-  "EvidenceReport.citeAsmarkdown": {
+  "EvidenceReport.citeAsMarkdown": {
     "code": "markdown",
     "min": "0",
     "max": "1"
@@ -14274,7 +14274,7 @@
     "min": "1",
     "max": "1"
   },
-  "EvidenceReport.subject.characteristic.valueboolean": {
+  "EvidenceReport.subject.characteristic.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
@@ -14619,7 +14619,7 @@
     "min": "1",
     "max": "1"
   },
-  "EvidenceVariable.characteristic.definitioncanonical": {
+  "EvidenceVariable.characteristic.definitionCanonical": {
     "code": "canonical",
     "min": "1",
     "max": "1"
@@ -15449,7 +15449,7 @@
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.supportingInfo.timingdate": {
+  "ExplanationOfBenefit.supportingInfo.timingDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -15459,12 +15459,12 @@
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.supportingInfo.valueboolean": {
+  "ExplanationOfBenefit.supportingInfo.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.supportingInfo.valuestring": {
+  "ExplanationOfBenefit.supportingInfo.valueString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -15739,7 +15739,7 @@
     "min": "0",
     "max": "*"
   },
-  "ExplanationOfBenefit.item.serviceddate": {
+  "ExplanationOfBenefit.item.servicedDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -16064,7 +16064,7 @@
     "min": "0",
     "max": "*"
   },
-  "ExplanationOfBenefit.addItem.serviceddate": {
+  "ExplanationOfBenefit.addItem.servicedDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -16449,12 +16449,12 @@
     "min": "1",
     "max": "1"
   },
-  "ExplanationOfBenefit.benefitBalance.financial.allowedunsignedInt": {
+  "ExplanationOfBenefit.benefitBalance.financial.allowedUnsignedInt": {
     "code": "unsignedInt",
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.benefitBalance.financial.allowedstring": {
+  "ExplanationOfBenefit.benefitBalance.financial.allowedString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -16464,7 +16464,7 @@
     "min": "0",
     "max": "1"
   },
-  "ExplanationOfBenefit.benefitBalance.financial.usedunsignedInt": {
+  "ExplanationOfBenefit.benefitBalance.financial.usedUnsignedInt": {
     "code": "unsignedInt",
     "min": "0",
     "max": "1"
@@ -16569,12 +16569,12 @@
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.borndate": {
+  "FamilyMemberHistory.bornDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.bornstring": {
+  "FamilyMemberHistory.bornString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -16589,7 +16589,7 @@
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.agestring": {
+  "FamilyMemberHistory.ageString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -16599,7 +16599,7 @@
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.deceasedboolean": {
+  "FamilyMemberHistory.deceasedBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -16614,12 +16614,12 @@
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.deceaseddate": {
+  "FamilyMemberHistory.deceasedDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.deceasedstring": {
+  "FamilyMemberHistory.deceasedString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -16689,7 +16689,7 @@
     "min": "0",
     "max": "1"
   },
-  "FamilyMemberHistory.condition.onsetstring": {
+  "FamilyMemberHistory.condition.onsetString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -16854,7 +16854,7 @@
     "min": "1",
     "max": "1"
   },
-  "Goal.startdate": {
+  "Goal.startDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -16904,17 +16904,17 @@
     "min": "0",
     "max": "1"
   },
-  "Goal.target.detailstring": {
+  "Goal.target.detailString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "Goal.target.detailboolean": {
+  "Goal.target.detailBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "Goal.target.detailinteger": {
+  "Goal.target.detailInteger": {
     "code": "integer",
     "min": "0",
     "max": "1"
@@ -16924,7 +16924,7 @@
     "min": "0",
     "max": "1"
   },
-  "Goal.target.duedate": {
+  "Goal.target.dueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
@@ -17314,7 +17314,7 @@
     "min": "1",
     "max": "1"
   },
-  "Group.characteristic.valueboolean": {
+  "Group.characteristic.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
@@ -17429,12 +17429,12 @@
     "min": "0",
     "max": "*"
   },
-  "GuidanceResponse.moduleuri": {
+  "GuidanceResponse.moduleUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
   },
-  "GuidanceResponse.modulecanonical": {
+  "GuidanceResponse.moduleCanonical": {
     "code": "canonical",
     "min": "1",
     "max": "1"
@@ -18094,12 +18094,12 @@
     "min": "0",
     "max": "1"
   },
-  "Immunization.occurrencedateTime": {
+  "Immunization.occurrenceDateTime": {
     "code": "dateTime",
     "min": "1",
     "max": "1"
   },
-  "Immunization.occurrencestring": {
+  "Immunization.occurrenceString": {
     "code": "string",
     "min": "1",
     "max": "1"
@@ -18329,22 +18329,22 @@
     "min": "0",
     "max": "*"
   },
-  "Immunization.protocolApplied.doseNumberpositiveInt": {
+  "Immunization.protocolApplied.doseNumberPositiveInt": {
     "code": "positiveInt",
     "min": "1",
     "max": "1"
   },
-  "Immunization.protocolApplied.doseNumberstring": {
+  "Immunization.protocolApplied.doseNumberString": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "Immunization.protocolApplied.seriesDosespositiveInt": {
+  "Immunization.protocolApplied.seriesDosesPositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "Immunization.protocolApplied.seriesDosesstring": {
+  "Immunization.protocolApplied.seriesDosesString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -18444,22 +18444,22 @@
     "min": "0",
     "max": "1"
   },
-  "ImmunizationEvaluation.doseNumberpositiveInt": {
+  "ImmunizationEvaluation.doseNumberPositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "ImmunizationEvaluation.doseNumberstring": {
+  "ImmunizationEvaluation.doseNumberString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "ImmunizationEvaluation.seriesDosespositiveInt": {
+  "ImmunizationEvaluation.seriesDosesPositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "ImmunizationEvaluation.seriesDosesstring": {
+  "ImmunizationEvaluation.seriesDosesString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -18609,22 +18609,22 @@
     "min": "0",
     "max": "1"
   },
-  "ImmunizationRecommendation.recommendation.doseNumberpositiveInt": {
+  "ImmunizationRecommendation.recommendation.doseNumberPositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "ImmunizationRecommendation.recommendation.doseNumberstring": {
+  "ImmunizationRecommendation.recommendation.doseNumberString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "ImmunizationRecommendation.recommendation.seriesDosespositiveInt": {
+  "ImmunizationRecommendation.recommendation.seriesDosesPositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "ImmunizationRecommendation.recommendation.seriesDosesstring": {
+  "ImmunizationRecommendation.recommendation.seriesDosesString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -18914,12 +18914,12 @@
     "min": "0",
     "max": "1"
   },
-  "ImplementationGuide.definition.resource.exampleboolean": {
+  "ImplementationGuide.definition.resource.exampleBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "ImplementationGuide.definition.resource.examplecanonical": {
+  "ImplementationGuide.definition.resource.exampleCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
@@ -18949,7 +18949,7 @@
     "min": "0",
     "max": "*"
   },
-  "ImplementationGuide.definition.page.nameurl": {
+  "ImplementationGuide.definition.page.nameUrl": {
     "code": "url",
     "min": "1",
     "max": "1"
@@ -19084,12 +19084,12 @@
     "min": "1",
     "max": "1"
   },
-  "ImplementationGuide.manifest.resource.exampleboolean": {
+  "ImplementationGuide.manifest.resource.exampleBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "ImplementationGuide.manifest.resource.examplecanonical": {
+  "ImplementationGuide.manifest.resource.exampleCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
@@ -20694,12 +20694,12 @@
     "min": "0",
     "max": "1"
   },
-  "ManufacturedItemDefinition.property.valuedate": {
+  "ManufacturedItemDefinition.property.valueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "ManufacturedItemDefinition.property.valueboolean": {
+  "ManufacturedItemDefinition.property.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -21484,7 +21484,7 @@
     "min": "0",
     "max": "1"
   },
-  "Media.createddateTime": {
+  "Media.createdDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -21789,7 +21789,7 @@
     "min": "0",
     "max": "*"
   },
-  "MedicationAdministration.effectivedateTime": {
+  "MedicationAdministration.effectiveDateTime": {
     "code": "dateTime",
     "min": "1",
     "max": "1"
@@ -22584,7 +22584,7 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationKnowledge.drugCharacteristic.valuestring": {
+  "MedicationKnowledge.drugCharacteristic.valueString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -22594,7 +22594,7 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationKnowledge.drugCharacteristic.valuebase64Binary": {
+  "MedicationKnowledge.drugCharacteristic.valueBase64Binary": {
     "code": "base64Binary",
     "min": "0",
     "max": "1"
@@ -22824,7 +22824,7 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationRequest.reportedboolean": {
+  "MedicationRequest.reportedBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -23034,7 +23034,7 @@
     "min": "0",
     "max": "*"
   },
-  "MedicationRequest.substitution.allowedboolean": {
+  "MedicationRequest.substitution.allowedBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
@@ -23154,7 +23154,7 @@
     "min": "0",
     "max": "1"
   },
-  "MedicationStatement.effectivedateTime": {
+  "MedicationStatement.effectiveDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -23584,12 +23584,12 @@
     "min": "0",
     "max": "1"
   },
-  "MedicinalProductDefinition.characteristic.valuedate": {
+  "MedicinalProductDefinition.characteristic.valueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "MedicinalProductDefinition.characteristic.valueboolean": {
+  "MedicinalProductDefinition.characteristic.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -23734,7 +23734,7 @@
     "min": "1",
     "max": "1"
   },
-  "MessageDefinition.eventuri": {
+  "MessageDefinition.eventUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
@@ -23869,7 +23869,7 @@
     "min": "1",
     "max": "1"
   },
-  "MessageHeader.eventuri": {
+  "MessageHeader.eventUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
@@ -25184,7 +25184,7 @@
     "min": "1",
     "max": "1"
   },
-  "NutritionProduct.productCharacteristic.valuestring": {
+  "NutritionProduct.productCharacteristic.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
@@ -25194,7 +25194,7 @@
     "min": "1",
     "max": "1"
   },
-  "NutritionProduct.productCharacteristic.valuebase64Binary": {
+  "NutritionProduct.productCharacteristic.valueBase64Binary": {
     "code": "base64Binary",
     "min": "1",
     "max": "1"
@@ -25204,7 +25204,7 @@
     "min": "1",
     "max": "1"
   },
-  "NutritionProduct.productCharacteristic.valueboolean": {
+  "NutritionProduct.productCharacteristic.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
@@ -25344,7 +25344,7 @@
     "min": "0",
     "max": "1"
   },
-  "Observation.effectivedateTime": {
+  "Observation.effectiveDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -25359,7 +25359,7 @@
     "min": "0",
     "max": "1"
   },
-  "Observation.effectiveinstant": {
+  "Observation.effectiveInstant": {
     "code": "instant",
     "min": "0",
     "max": "1"
@@ -25384,17 +25384,17 @@
     "min": "0",
     "max": "1"
   },
-  "Observation.valuestring": {
+  "Observation.valueString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "Observation.valueboolean": {
+  "Observation.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "Observation.valueinteger": {
+  "Observation.valueInteger": {
     "code": "integer",
     "min": "0",
     "max": "1"
@@ -25414,12 +25414,12 @@
     "min": "0",
     "max": "1"
   },
-  "Observation.valuetime": {
+  "Observation.valueTime": {
     "code": "time",
     "min": "0",
     "max": "1"
   },
-  "Observation.valuedateTime": {
+  "Observation.valueDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -25559,17 +25559,17 @@
     "min": "0",
     "max": "1"
   },
-  "Observation.component.valuestring": {
+  "Observation.component.valueString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "Observation.component.valueboolean": {
+  "Observation.component.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "Observation.component.valueinteger": {
+  "Observation.component.valueInteger": {
     "code": "integer",
     "min": "0",
     "max": "1"
@@ -25589,12 +25589,12 @@
     "min": "0",
     "max": "1"
   },
-  "Observation.component.valuetime": {
+  "Observation.component.valueTime": {
     "code": "time",
     "min": "0",
     "max": "1"
   },
-  "Observation.component.valuedateTime": {
+  "Observation.component.valueDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -26639,7 +26639,7 @@
     "min": "0",
     "max": "1"
   },
-  "PackagedProductDefinition.package.shelfLifeStorage.periodstring": {
+  "PackagedProductDefinition.package.shelfLifeStorage.periodString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -26689,12 +26689,12 @@
     "min": "0",
     "max": "1"
   },
-  "PackagedProductDefinition.package.property.valuedate": {
+  "PackagedProductDefinition.package.property.valueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "PackagedProductDefinition.package.property.valueboolean": {
+  "PackagedProductDefinition.package.property.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -26779,97 +26779,97 @@
     "min": "1",
     "max": "1"
   },
-  "Parameters.parameter.valuebase64Binary": {
+  "Parameters.parameter.valueBase64Binary": {
     "code": "base64Binary",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueboolean": {
+  "Parameters.parameter.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuecanonical": {
+  "Parameters.parameter.valueCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuecode": {
+  "Parameters.parameter.valueCode": {
     "code": "code",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuedate": {
+  "Parameters.parameter.valueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuedateTime": {
+  "Parameters.parameter.valueDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuedecimal": {
+  "Parameters.parameter.valueDecimal": {
     "code": "decimal",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueid": {
+  "Parameters.parameter.valueId": {
     "code": "id",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueinstant": {
+  "Parameters.parameter.valueInstant": {
     "code": "instant",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueinteger": {
+  "Parameters.parameter.valueInteger": {
     "code": "integer",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuemarkdown": {
+  "Parameters.parameter.valueMarkdown": {
     "code": "markdown",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueoid": {
+  "Parameters.parameter.valueOid": {
     "code": "oid",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuepositiveInt": {
+  "Parameters.parameter.valuePositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuestring": {
+  "Parameters.parameter.valueString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valuetime": {
+  "Parameters.parameter.valueTime": {
     "code": "time",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueunsignedInt": {
+  "Parameters.parameter.valueUnsignedInt": {
     "code": "unsignedInt",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueuri": {
+  "Parameters.parameter.valueUri": {
     "code": "uri",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueurl": {
+  "Parameters.parameter.valueUrl": {
     "code": "url",
     "min": "0",
     "max": "1"
   },
-  "Parameters.parameter.valueuuid": {
+  "Parameters.parameter.valueUuid": {
     "code": "uuid",
     "min": "0",
     "max": "1"
@@ -27104,12 +27104,12 @@
     "min": "0",
     "max": "1"
   },
-  "Patient.deceasedboolean": {
+  "Patient.deceasedBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "Patient.deceaseddateTime": {
+  "Patient.deceasedDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -27124,12 +27124,12 @@
     "min": "0",
     "max": "1"
   },
-  "Patient.multipleBirthboolean": {
+  "Patient.multipleBirthBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "Patient.multipleBirthinteger": {
+  "Patient.multipleBirthInteger": {
     "code": "integer",
     "min": "0",
     "max": "1"
@@ -27779,7 +27779,7 @@
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.subjectcanonical": {
+  "PlanDefinition.subjectCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
@@ -28049,7 +28049,7 @@
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.action.subjectcanonical": {
+  "PlanDefinition.action.subjectCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
@@ -28139,7 +28139,7 @@
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.action.timingdateTime": {
+  "PlanDefinition.action.timingDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -28229,12 +28229,12 @@
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.action.definitioncanonical": {
+  "PlanDefinition.action.definitionCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
   },
-  "PlanDefinition.action.definitionuri": {
+  "PlanDefinition.action.definitionUri": {
     "code": "uri",
     "min": "0",
     "max": "1"
@@ -28664,7 +28664,7 @@
     "min": "0",
     "max": "1"
   },
-  "Procedure.performeddateTime": {
+  "Procedure.performedDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -28674,7 +28674,7 @@
     "min": "0",
     "max": "1"
   },
-  "Procedure.performedstring": {
+  "Procedure.performedString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -28874,7 +28874,7 @@
     "min": "0",
     "max": "1"
   },
-  "Provenance.occurreddateTime": {
+  "Provenance.occurredDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -29204,37 +29204,37 @@
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.enableWhen.answerboolean": {
+  "Questionnaire.item.enableWhen.answerBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.enableWhen.answerdecimal": {
+  "Questionnaire.item.enableWhen.answerDecimal": {
     "code": "decimal",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.enableWhen.answerinteger": {
+  "Questionnaire.item.enableWhen.answerInteger": {
     "code": "integer",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.enableWhen.answerdate": {
+  "Questionnaire.item.enableWhen.answerDate": {
     "code": "date",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.enableWhen.answerdateTime": {
+  "Questionnaire.item.enableWhen.answerDateTime": {
     "code": "dateTime",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.enableWhen.answertime": {
+  "Questionnaire.item.enableWhen.answerTime": {
     "code": "time",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.enableWhen.answerstring": {
+  "Questionnaire.item.enableWhen.answerString": {
     "code": "string",
     "min": "1",
     "max": "1"
@@ -29304,22 +29304,22 @@
     "min": "0",
     "max": "*"
   },
-  "Questionnaire.item.answerOption.valueinteger": {
+  "Questionnaire.item.answerOption.valueInteger": {
     "code": "integer",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.answerOption.valuedate": {
+  "Questionnaire.item.answerOption.valueDate": {
     "code": "date",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.answerOption.valuetime": {
+  "Questionnaire.item.answerOption.valueTime": {
     "code": "time",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.answerOption.valuestring": {
+  "Questionnaire.item.answerOption.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
@@ -29359,42 +29359,42 @@
     "min": "0",
     "max": "*"
   },
-  "Questionnaire.item.initial.valueboolean": {
+  "Questionnaire.item.initial.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.initial.valuedecimal": {
+  "Questionnaire.item.initial.valueDecimal": {
     "code": "decimal",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.initial.valueinteger": {
+  "Questionnaire.item.initial.valueInteger": {
     "code": "integer",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.initial.valuedate": {
+  "Questionnaire.item.initial.valueDate": {
     "code": "date",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.initial.valuedateTime": {
+  "Questionnaire.item.initial.valueDateTime": {
     "code": "dateTime",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.initial.valuetime": {
+  "Questionnaire.item.initial.valueTime": {
     "code": "time",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.initial.valuestring": {
+  "Questionnaire.item.initial.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "Questionnaire.item.initial.valueuri": {
+  "Questionnaire.item.initial.valueUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
@@ -29564,42 +29564,42 @@
     "min": "0",
     "max": "*"
   },
-  "QuestionnaireResponse.item.answer.valueboolean": {
+  "QuestionnaireResponse.item.answer.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "QuestionnaireResponse.item.answer.valuedecimal": {
+  "QuestionnaireResponse.item.answer.valueDecimal": {
     "code": "decimal",
     "min": "0",
     "max": "1"
   },
-  "QuestionnaireResponse.item.answer.valueinteger": {
+  "QuestionnaireResponse.item.answer.valueInteger": {
     "code": "integer",
     "min": "0",
     "max": "1"
   },
-  "QuestionnaireResponse.item.answer.valuedate": {
+  "QuestionnaireResponse.item.answer.valueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "QuestionnaireResponse.item.answer.valuedateTime": {
+  "QuestionnaireResponse.item.answer.valueDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
   },
-  "QuestionnaireResponse.item.answer.valuetime": {
+  "QuestionnaireResponse.item.answer.valueTime": {
     "code": "time",
     "min": "0",
     "max": "1"
   },
-  "QuestionnaireResponse.item.answer.valuestring": {
+  "QuestionnaireResponse.item.answer.valueString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "QuestionnaireResponse.item.answer.valueuri": {
+  "QuestionnaireResponse.item.answer.valueUri": {
     "code": "uri",
     "min": "0",
     "max": "1"
@@ -29769,7 +29769,7 @@
     "min": "0",
     "max": "1"
   },
-  "RegulatedAuthorization.case.datedateTime": {
+  "RegulatedAuthorization.case.dateDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -30149,7 +30149,7 @@
     "min": "0",
     "max": "1"
   },
-  "RequestGroup.action.timingdateTime": {
+  "RequestGroup.action.timingDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -30664,7 +30664,7 @@
     "min": "1",
     "max": "1"
   },
-  "ResearchElementDefinition.characteristic.definitioncanonical": {
+  "ResearchElementDefinition.characteristic.definitionCanonical": {
     "code": "canonical",
     "min": "1",
     "max": "1"
@@ -30699,7 +30699,7 @@
     "min": "0",
     "max": "1"
   },
-  "ResearchElementDefinition.characteristic.studyEffectivedateTime": {
+  "ResearchElementDefinition.characteristic.studyEffectiveDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -30734,7 +30734,7 @@
     "min": "0",
     "max": "1"
   },
-  "ResearchElementDefinition.characteristic.participantEffectivedateTime": {
+  "ResearchElementDefinition.characteristic.participantEffectiveDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -31139,7 +31139,7 @@
     "min": "0",
     "max": "1"
   },
-  "RiskAssessment.occurrencedateTime": {
+  "RiskAssessment.occurrenceDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -31199,7 +31199,7 @@
     "min": "0",
     "max": "1"
   },
-  "RiskAssessment.prediction.probabilitydecimal": {
+  "RiskAssessment.prediction.probabilityDecimal": {
     "code": "decimal",
     "min": "0",
     "max": "1"
@@ -31649,7 +31649,7 @@
     "min": "0",
     "max": "1"
   },
-  "ServiceRequest.occurrencedateTime": {
+  "ServiceRequest.occurrenceDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -31664,7 +31664,7 @@
     "min": "0",
     "max": "1"
   },
-  "ServiceRequest.asNeededboolean": {
+  "ServiceRequest.asNeededBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -31949,7 +31949,7 @@
     "min": "0",
     "max": "1"
   },
-  "Specimen.collection.collecteddateTime": {
+  "Specimen.collection.collectedDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -32024,7 +32024,7 @@
     "min": "0",
     "max": "*"
   },
-  "Specimen.processing.timedateTime": {
+  "Specimen.processing.timeDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -32249,7 +32249,7 @@
     "min": "0",
     "max": "1"
   },
-  "SpecimenDefinition.typeTested.container.minimumVolumestring": {
+  "SpecimenDefinition.typeTested.container.minimumVolumeString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -32924,97 +32924,97 @@
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuebase64Binary": {
+  "StructureMap.group.rule.source.defaultValueBase64Binary": {
     "code": "base64Binary",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueboolean": {
+  "StructureMap.group.rule.source.defaultValueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuecanonical": {
+  "StructureMap.group.rule.source.defaultValueCanonical": {
     "code": "canonical",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuecode": {
+  "StructureMap.group.rule.source.defaultValueCode": {
     "code": "code",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuedate": {
+  "StructureMap.group.rule.source.defaultValueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuedateTime": {
+  "StructureMap.group.rule.source.defaultValueDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuedecimal": {
+  "StructureMap.group.rule.source.defaultValueDecimal": {
     "code": "decimal",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueid": {
+  "StructureMap.group.rule.source.defaultValueId": {
     "code": "id",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueinstant": {
+  "StructureMap.group.rule.source.defaultValueInstant": {
     "code": "instant",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueinteger": {
+  "StructureMap.group.rule.source.defaultValueInteger": {
     "code": "integer",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuemarkdown": {
+  "StructureMap.group.rule.source.defaultValueMarkdown": {
     "code": "markdown",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueoid": {
+  "StructureMap.group.rule.source.defaultValueOid": {
     "code": "oid",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuepositiveInt": {
+  "StructureMap.group.rule.source.defaultValuePositiveInt": {
     "code": "positiveInt",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuestring": {
+  "StructureMap.group.rule.source.defaultValueString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValuetime": {
+  "StructureMap.group.rule.source.defaultValueTime": {
     "code": "time",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueunsignedInt": {
+  "StructureMap.group.rule.source.defaultValueUnsignedInt": {
     "code": "unsignedInt",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueuri": {
+  "StructureMap.group.rule.source.defaultValueUri": {
     "code": "uri",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueurl": {
+  "StructureMap.group.rule.source.defaultValueUrl": {
     "code": "url",
     "min": "0",
     "max": "1"
   },
-  "StructureMap.group.rule.source.defaultValueuuid": {
+  "StructureMap.group.rule.source.defaultValueUuid": {
     "code": "uuid",
     "min": "0",
     "max": "1"
@@ -33279,27 +33279,27 @@
     "min": "0",
     "max": "*"
   },
-  "StructureMap.group.rule.target.parameter.valueid": {
+  "StructureMap.group.rule.target.parameter.valueId": {
     "code": "id",
     "min": "1",
     "max": "1"
   },
-  "StructureMap.group.rule.target.parameter.valuestring": {
+  "StructureMap.group.rule.target.parameter.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "StructureMap.group.rule.target.parameter.valueboolean": {
+  "StructureMap.group.rule.target.parameter.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
   },
-  "StructureMap.group.rule.target.parameter.valueinteger": {
+  "StructureMap.group.rule.target.parameter.valueInteger": {
     "code": "integer",
     "min": "1",
     "max": "1"
   },
-  "StructureMap.group.rule.target.parameter.valuedecimal": {
+  "StructureMap.group.rule.target.parameter.valueDecimal": {
     "code": "decimal",
     "min": "1",
     "max": "1"
@@ -34174,7 +34174,7 @@
     "min": "0",
     "max": "1"
   },
-  "SubstanceDefinition.moiety.amountstring": {
+  "SubstanceDefinition.moiety.amountString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -34219,12 +34219,12 @@
     "min": "0",
     "max": "1"
   },
-  "SubstanceDefinition.property.valuedate": {
+  "SubstanceDefinition.property.valueDate": {
     "code": "date",
     "min": "0",
     "max": "1"
   },
-  "SubstanceDefinition.property.valueboolean": {
+  "SubstanceDefinition.property.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
@@ -34549,7 +34549,7 @@
     "min": "0",
     "max": "1"
   },
-  "SubstanceDefinition.relationship.amountstring": {
+  "SubstanceDefinition.relationship.amountString": {
     "code": "string",
     "min": "0",
     "max": "1"
@@ -34719,7 +34719,7 @@
     "min": "0",
     "max": "1"
   },
-  "SupplyDelivery.occurrencedateTime": {
+  "SupplyDelivery.occurrenceDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -34864,12 +34864,12 @@
     "min": "0",
     "max": "1"
   },
-  "SupplyRequest.parameter.valueboolean": {
+  "SupplyRequest.parameter.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "SupplyRequest.occurrencedateTime": {
+  "SupplyRequest.occurrenceDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
@@ -35159,97 +35159,97 @@
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuebase64Binary": {
+  "Task.input.valueBase64Binary": {
     "code": "base64Binary",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueboolean": {
+  "Task.input.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuecanonical": {
+  "Task.input.valueCanonical": {
     "code": "canonical",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuecode": {
+  "Task.input.valueCode": {
     "code": "code",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuedate": {
+  "Task.input.valueDate": {
     "code": "date",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuedateTime": {
+  "Task.input.valueDateTime": {
     "code": "dateTime",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuedecimal": {
+  "Task.input.valueDecimal": {
     "code": "decimal",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueid": {
+  "Task.input.valueId": {
     "code": "id",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueinstant": {
+  "Task.input.valueInstant": {
     "code": "instant",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueinteger": {
+  "Task.input.valueInteger": {
     "code": "integer",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuemarkdown": {
+  "Task.input.valueMarkdown": {
     "code": "markdown",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueoid": {
+  "Task.input.valueOid": {
     "code": "oid",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuepositiveInt": {
+  "Task.input.valuePositiveInt": {
     "code": "positiveInt",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuestring": {
+  "Task.input.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valuetime": {
+  "Task.input.valueTime": {
     "code": "time",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueunsignedInt": {
+  "Task.input.valueUnsignedInt": {
     "code": "unsignedInt",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueuri": {
+  "Task.input.valueUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueurl": {
+  "Task.input.valueUrl": {
     "code": "url",
     "min": "1",
     "max": "1"
   },
-  "Task.input.valueuuid": {
+  "Task.input.valueUuid": {
     "code": "uuid",
     "min": "1",
     "max": "1"
@@ -35434,97 +35434,97 @@
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuebase64Binary": {
+  "Task.output.valueBase64Binary": {
     "code": "base64Binary",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueboolean": {
+  "Task.output.valueBoolean": {
     "code": "boolean",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuecanonical": {
+  "Task.output.valueCanonical": {
     "code": "canonical",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuecode": {
+  "Task.output.valueCode": {
     "code": "code",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuedate": {
+  "Task.output.valueDate": {
     "code": "date",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuedateTime": {
+  "Task.output.valueDateTime": {
     "code": "dateTime",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuedecimal": {
+  "Task.output.valueDecimal": {
     "code": "decimal",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueid": {
+  "Task.output.valueId": {
     "code": "id",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueinstant": {
+  "Task.output.valueInstant": {
     "code": "instant",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueinteger": {
+  "Task.output.valueInteger": {
     "code": "integer",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuemarkdown": {
+  "Task.output.valueMarkdown": {
     "code": "markdown",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueoid": {
+  "Task.output.valueOid": {
     "code": "oid",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuepositiveInt": {
+  "Task.output.valuePositiveInt": {
     "code": "positiveInt",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuestring": {
+  "Task.output.valueString": {
     "code": "string",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valuetime": {
+  "Task.output.valueTime": {
     "code": "time",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueunsignedInt": {
+  "Task.output.valueUnsignedInt": {
     "code": "unsignedInt",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueuri": {
+  "Task.output.valueUri": {
     "code": "uri",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueurl": {
+  "Task.output.valueUrl": {
     "code": "url",
     "min": "1",
     "max": "1"
   },
-  "Task.output.valueuuid": {
+  "Task.output.valueUuid": {
     "code": "uuid",
     "min": "1",
     "max": "1"
@@ -37554,37 +37554,37 @@
     "min": "1",
     "max": "1"
   },
-  "ValueSet.expansion.parameter.valuestring": {
+  "ValueSet.expansion.parameter.valueString": {
     "code": "string",
     "min": "0",
     "max": "1"
   },
-  "ValueSet.expansion.parameter.valueboolean": {
+  "ValueSet.expansion.parameter.valueBoolean": {
     "code": "boolean",
     "min": "0",
     "max": "1"
   },
-  "ValueSet.expansion.parameter.valueinteger": {
+  "ValueSet.expansion.parameter.valueInteger": {
     "code": "integer",
     "min": "0",
     "max": "1"
   },
-  "ValueSet.expansion.parameter.valuedecimal": {
+  "ValueSet.expansion.parameter.valueDecimal": {
     "code": "decimal",
     "min": "0",
     "max": "1"
   },
-  "ValueSet.expansion.parameter.valueuri": {
+  "ValueSet.expansion.parameter.valueUri": {
     "code": "uri",
     "min": "0",
     "max": "1"
   },
-  "ValueSet.expansion.parameter.valuecode": {
+  "ValueSet.expansion.parameter.valueCode": {
     "code": "code",
     "min": "0",
     "max": "1"
   },
-  "ValueSet.expansion.parameter.valuedateTime": {
+  "ValueSet.expansion.parameter.valueDateTime": {
     "code": "dateTime",
     "min": "0",
     "max": "1"
