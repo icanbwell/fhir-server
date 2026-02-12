@@ -426,7 +426,6 @@ describe('InternalAuditLog Tests', () => {
             delete latestLog._uuid;
             delete latestLog._sourceId;
             delete latestLog.recorded;
-            console.log(JSON.stringify(latestLog, null, 2));
             expect(latestLog).toStrictEqual(expectedPatientScopeAuditEvent);
         });
     });

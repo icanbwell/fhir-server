@@ -17,15 +17,13 @@ const {get_all_args} = require('./common/get_all_args');
 const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {FhirRequestInfoBuilder} = require('../utils/fhirRequestInfoBuilder');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
-const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const httpContext = require('express-http-context');
+const {assertTypeEquals} = require('../utils/assertType');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
-const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
-const {REQUEST_ID_TYPE, PERSON_PROXY_PREFIX} = require('../constants');
+const {PERSON_PROXY_PREFIX} = require('../constants');
 const {shouldStreamResponse} = require('../utils/requestHelpers');
 const {ParametersBodyParser} = require('./common/parametersBodyParser');
 const {
@@ -35,7 +33,6 @@ const {
 const {ExportByIdOperation} = require('./export/exportById');
 const {FhirResponseNdJsonStreamer} = require('../utils/fhirResponseNdJsonStreamer');
 const {READ, WRITE} = require('../constants').OPERATIONS;
-const accepts = require("accepts");
 const {vulcanIgSearchQueries} = require('./query/customQueries');
 const {ParsedArgs} = require('./query/parsedArgs');
 const {getNestedValueByPath} = require('../utils/object');

@@ -324,7 +324,7 @@ describe('JWT Bearer Strategy', () => {
                             subject: 'jwt-subject',
                             personIdFromJwtToken: 'clientFhirPerson',
                             masterPersonIdFromJwtToken: 'bwellFhirPerson',
-                            managingOrganizationId: "org1"
+                            managingOrganizationId: 'org1'
                         }
                     });
                     resolve();

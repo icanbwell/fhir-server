@@ -28,7 +28,7 @@ class FhirRequestInfoBuilder {
 
     /**
      * Gets isUser flag from the request
-     * @returns {boolean}
+     * @returns {boolean | undefined}
      */
     get isUser() {
         return this.req.authInfo?.context?.isUser;
@@ -36,7 +36,7 @@ class FhirRequestInfoBuilder {
 
     /**
      * Gets person ID from JWT token
-     * @returns {string | null}
+     * @returns {string | undefined}
      */
     get personId() {
         return this.req.authInfo?.context?.personIdFromJwtToken;
