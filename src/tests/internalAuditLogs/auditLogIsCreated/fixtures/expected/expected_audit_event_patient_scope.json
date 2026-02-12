@@ -1,0 +1,124 @@
+{
+    "resourceType": "AuditEvent",
+    "meta": {
+        "versionId": "1",
+        "security": [
+            {
+                "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b",
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            },
+            {
+                "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2",
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "id": "33ced3c5-0807-582a-b03a-df7d6e95a41c",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "bwell"
+            }
+        ]
+    },
+    "type": {
+        "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",
+        "system": "http://dicom.nema.org/resources/ontology/DCM",
+        "code": "110112",
+        "display": "Query"
+    },
+    "action": "R",
+    "agent": [
+        {
+            "who": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/person1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Person/person1",
+                "_sourceAssigningAuthority": "bwell",
+                "_uuid": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892",
+                "_sourceId": "Person/person1"
+            },
+            "altId": "person1",
+            "requestor": true,
+            "network": {
+                "type": "2"
+            }
+        }
+    ],
+    "source": {
+        "observer": {
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Person/person1"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "bwell"
+                }
+            ],
+            "reference": "Person/person1",
+            "_sourceAssigningAuthority": "bwell",
+            "_uuid": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892",
+            "_sourceId": "Person/person1"
+        }
+    },
+    "entity": [
+        {
+            "what": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Observation/2354-InAgeCohort"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Observation/bad1a7ed-b88a-530c-bbdf-3a36e5887a96"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Observation/2354-InAgeCohort",
+                "_sourceAssigningAuthority": "bwell",
+                "_uuid": "Observation/bad1a7ed-b88a-530c-bbdf-3a36e5887a96",
+                "_sourceId": "Observation/2354-InAgeCohort"
+            },
+            "detail": [
+                {
+                    "type": "base_version",
+                    "valueString": "4_0_0"
+                }
+            ]
+        }
+    ],
+    "_access": {
+        "bwell": 1
+    },
+    "_sourceAssigningAuthority": "bwell"
+}

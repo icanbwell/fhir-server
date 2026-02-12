@@ -235,4 +235,103 @@ describe('JWT Bearer Strategy', () => {
             })(req);
         });
     });
+
+    test('should set username to clientFhirPersonId and subject to sub for patient-scoped tokens', async () => {
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync(
+                    {
+                        pub: publicKey,
+                        kid: '123'
+                    }
+                )
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const patientScopedPayload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId',
+            scope: 'patient/*.* user/*.* access/*.*',
+            username: 'imran',
+            sub: 'jwt-subject',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'org1'
+        };
+
+        const patientScopedToken = jwt.sign(patientScopedPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const req = {
+            headers: {authorization: `Bearer ${patientScopedToken}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService(
+                {
+                    configManager: configManager,
+                    wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                        {
+                            configManager: configManager
+                        }
+                    )
+                }
+            ),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toStrictEqual({
+                        id: 'testClientId',
+                        isUser: true,
+                        name: 'clientFhirPerson',
+                        username: 'clientFhirPerson'
+                    });
+                    expect(info).toStrictEqual({
+                        scope: 'patient/*.* user/*.* access/*.*',
+                        context: {
+                            isUser: true,
+                            username: 'clientFhirPerson',
+                            subject: 'jwt-subject',
+                            personIdFromJwtToken: 'clientFhirPerson',
+                            masterPersonIdFromJwtToken: 'bwellFhirPerson',
+                            managingOrganizationId: "org1"
+                        }
+                    });
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
 });
