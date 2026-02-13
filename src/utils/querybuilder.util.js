@@ -952,9 +952,9 @@ const datetimeApproxString = function({ dateQueryItem }) {
     if (typeof dateQueryItem !=='string') {
         return { startDate: "", endDate: "" };
     }
-    const { startDate, endDate } = datetimeApprox({dateQueryItem: moment(dateQueryItem).utc().toDate()});
-    const start = moment(startDate).format('YYYY-MM-DDTHH:mm:ssZ');
-    const end = moment(endDate).format('YYYY-MM-DDTHH:mm:ssZ');
+    const { startDate, endDate } = datetimeApprox({dateQueryItem: moment(dateQueryItem).utc(true).toDate()});
+    const start = moment.utc(startDate).format('YYYY-MM-DDTHH:mm:ssZ');
+    const end = moment.utc(endDate).format('YYYY-MM-DDTHH:mm:ssZ');
     return ({ start, end });
 }
 
