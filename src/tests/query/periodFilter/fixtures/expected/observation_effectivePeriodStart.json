@@ -1,0 +1,43 @@
+{
+  "entry": [],
+  "type": "searchset",
+  "resourceType": "Bundle",
+  "total": 0,
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Observation_4_0_0.find({'$and':[{'effectivePeriod.start':{'$regex':'^(?:2026-01-01)|(?:eq2026-01-01)|(?:2026$)|(?:2026-01$)|(?:2026-01-01$)','$options':'i'}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Observation_4_0_0"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'limit':100,'sort':{'_uuid':1}}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "['effectivePeriod.start','meta.tag.system','meta.tag.code','_uuid']"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptimization",
+        "display": "{'useTwoStepSearchOptimization':undefined}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryDatabase",
+        "code": "fhir"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  }
+}
