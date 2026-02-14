@@ -632,9 +632,9 @@ class FhirOperationsManager {
             );
             if (currentResource && currentResource.meta && currentResource.meta.versionId) {
                 const normalizeETag = (etag) => (etag || '').replace(/^W\//, '').replace(/"/g, '');
-                const versionId = normalizeETag(ifMatch);
+                const versionIds = ifMatch.split(',').map(v => normalizeETag(v.trim()));
                 const currentVersionId = normalizeETag(currentResource.meta.versionId);
-                if (versionId !== currentVersionId && versionId !== '*') {
+                if (!versionIds.includes(currentVersionId) && !versionIds.includes('*')) {
                     throw new PreconditionFailedError('Version conflict: If-Match does not match current resource version.');
                 }
             }

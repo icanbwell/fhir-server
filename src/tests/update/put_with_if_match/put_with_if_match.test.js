@@ -13,9 +13,11 @@ describe('PUT with If-Match (optimistic locking)', () => {
         resource = {
             resourceType: 'Patient',
             id: resourceId,
-            meta: { versionId: '1', source: 'https://www.icanbwell.com/test', security: [
-                    { system: 'https://www.icanbwell.com/owner', code: 'test' }
-                ] },
+            meta: {
+                source: 'https://www.icanbwell.com/test', security: [
+                    {system: 'https://www.icanbwell.com/owner', code: 'test'}
+                ]
+            },
             name: [{ given: ['John'], family: 'Doe' }]
         };
         // Create the resource first
@@ -30,7 +32,7 @@ describe('PUT with If-Match (optimistic locking)', () => {
         await commonAfterEach();
     });
 
-    it('should update resource when If-Match matches current version', async () => {
+    it('should update resource when weak If-Match matches current version', async () => {
         const updatedResource = { ...resource, name: [{ given: ['Jane'], family: 'Doe' }] };
         const resp = await request
             .put(`/4_0_0/Patient/${resourceId}`)
@@ -47,9 +49,23 @@ describe('PUT with If-Match (optimistic locking)', () => {
         const resp = await request
             .put(`/4_0_0/Patient/${resourceId}`)
             .send(updatedResource)
-            .set({...getHeaders(), 'if-match': 'W/"2"'});
+            .set({...getHeaders(), 'if-match': '2'});
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.name[0].given[0]).toBe('Jenny');
+        expect(resp.body.meta.versionId).toBe('3');
+        expect(resp.headers['etag']).toBe('W/"3"');
+    });
+
+    it('should handle comma separated if-match header the same as If-Match', async () => {
+        const updatedResource = {...resource, name: [{given: ['Joey'], family: 'Doe'}]};
+        const resp = await request
+            .put(`/4_0_0/Patient/${resourceId}`)
+            .send(updatedResource)
+            .set({...getHeaders(), 'if-match': '10, 3'});
+        expect(resp).toHaveStatusCode(200);
+        expect(resp.body.name[0].given[0]).toBe('Joey');
+        expect(resp.body.meta.versionId).toBe('4');
+        expect(resp.headers['etag']).toBe('W/"4"');
     });
 
     it('should fail with 412 Precondition Failed when If-Match does not match', async () => {
