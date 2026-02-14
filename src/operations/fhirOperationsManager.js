@@ -622,14 +622,14 @@ class FhirOperationsManager {
             }
         );
         // If-Match/version check logic (optimistic locking)
-        const ifMatch = req.headers['If-Match'];
+        const ifMatch = req.headers['if-match'];
         if (ifMatch && parsedArgs.id) {
             // Fetch current resource by id
-            const currentResource = await this.searchByIdOperation.searchByIdAsync({
-                requestInfo: this.getRequestInfo(req),
-                parsedArgs: { id: parsedArgs.id, base_version: parsedArgs.base_version },
+            const currentResource = await this.searchById(
+                args,
+                { req },
                 resourceType
-            });
+            );
             if (currentResource && currentResource.meta && currentResource.meta.versionId) {
                 const currentVersionId = currentResource.meta.versionId;
                 const normalizeETag = (etag) => (etag || '').replace(/^W\//, '').replace(/"/g, '');

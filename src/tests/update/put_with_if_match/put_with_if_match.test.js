@@ -1,0 +1,65 @@
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeAll, afterAll, expect, it} = require('@jest/globals');
+
+
+describe('PUT with If-Match (optimistic locking)', () => {
+    let resource;
+    let resourceId;
+    let request;
+    let requestId;
+
+    beforeAll(async () => {
+        await commonBeforeEach();
+        request = await createTestRequest();
+        resourceId = 'test-if-match-123';
+        resource = {
+            resourceType: 'Patient',
+            id: resourceId,
+            meta: { versionId: '1', source: 'https://www.icanbwell.com/test', security: [
+                    { system: 'https://www.icanbwell.com/owner', code: 'test' }
+                ] },
+            name: [{ given: ['John'], family: 'Doe' }]
+        };
+        // Create the resource first
+        let resp = await request
+            .post(`/4_0_0/Patient/${resourceId}/$merge`)
+            .send(resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+    });
+
+    afterAll(async () => {
+        await commonAfterEach();
+    });
+
+    it('should update resource when If-Match matches current version', async () => {
+        const updatedResource = { ...resource, name: [{ given: ['Jane'], family: 'Doe' }] };
+        const resp = await request
+            .put(`/4_0_0/Patient/${resourceId}`)
+            .send(updatedResource)
+            .set({...getHeaders(), 'If-Match': 'W/"1"'});
+        expect(resp).toHaveStatusCode(200);
+        expect(resp.body.name[0].given[0]).toBe('Jane');
+        expect(resp.body.meta.versionId).not.toBe('1');
+    });
+
+    it('should fail with 412 Precondition Failed when If-Match does not match', async () => {
+        const updatedResource = { ...resource, name: [{ given: ['Jack'], family: 'Doe' }] };
+        const resp = await request
+            .put(`/4_0_0/Patient/${resourceId}`)
+            .send(updatedResource)
+            .set({...getHeaders(), 'If-Match': 'W/"999"'});
+        expect(resp).toHaveStatusCode(412);
+        expect(resp.body.issue[0].code).toBe('precondition-failed');
+    });
+
+    it('should update resource when If-Match header is not provided', async () => {
+        const updatedResource = { ...resource, name: [{ given: ['Jill'], family: 'Doe' }] };
+        const resp = await request
+            .put(`/4_0_0/Patient/${resourceId}`)
+            .send(updatedResource)
+            .set(getHeaders());
+        expect(resp).toHaveStatusCode(200);
+        expect(resp.body.name[0].given[0]).toBe('Jill');
+    });
+});
