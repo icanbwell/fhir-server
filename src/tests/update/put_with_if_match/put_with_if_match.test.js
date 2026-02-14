@@ -1,12 +1,10 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
-const { describe, beforeAll, afterAll, expect, it} = require('@jest/globals');
-
+const { describe, beforeAll, afterAll, expect, it } = require('@jest/globals');
 
 describe('PUT with If-Match (optimistic locking)', () => {
     let resource;
     let resourceId;
     let request;
-    let requestId;
 
     beforeAll(async () => {
         await commonBeforeEach();
@@ -40,7 +38,18 @@ describe('PUT with If-Match (optimistic locking)', () => {
             .set({...getHeaders(), 'If-Match': 'W/"1"'});
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.name[0].given[0]).toBe('Jane');
-        expect(resp.body.meta.versionId).not.toBe('1');
+        expect(resp.body.meta.versionId).toBe('2');
+        expect(resp.headers['etag']).toBe('W/"2"');
+    });
+
+    it('should handle lowercase if-match header the same as If-Match', async () => {
+        const updatedResource = {...resource, name: [{given: ['Jenny'], family: 'Doe'}]};
+        const resp = await request
+            .put(`/4_0_0/Patient/${resourceId}`)
+            .send(updatedResource)
+            .set({...getHeaders(), 'if-match': 'W/"2"'});
+        expect(resp).toHaveStatusCode(200);
+        expect(resp.body.name[0].given[0]).toBe('Jenny');
     });
 
     it('should fail with 412 Precondition Failed when If-Match does not match', async () => {
@@ -61,5 +70,15 @@ describe('PUT with If-Match (optimistic locking)', () => {
             .set(getHeaders());
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.name[0].given[0]).toBe('Jill');
+    });
+
+    it('should update resource when If-Match is wildcard "*" and resource exists', async () => {
+        const updatedResource = { ...resource, name: [{ given: ['Jim'], family: 'Doe' }] };
+        const resp = await request
+            .put(`/4_0_0/Patient/${resourceId}`)
+            .send(updatedResource)
+            .set({ ...getHeaders(), 'If-Match': '*' });
+        expect(resp).toHaveStatusCode(200);
+        expect(resp.body.name[0].given[0]).toBe('Jim');
     });
 });
