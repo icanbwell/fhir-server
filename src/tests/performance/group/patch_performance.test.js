@@ -11,6 +11,7 @@
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
+process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.LOGLEVEL = 'ERROR';
 process.env.STREAM_RESPONSE = '0';
 process.env.MAX_GROUP_MEMBERS_PER_PUT = '100000'; // Allow up to 100K for performance testing
