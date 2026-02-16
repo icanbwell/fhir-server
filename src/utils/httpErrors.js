@@ -211,9 +211,11 @@ class ExternalTimeoutError extends ServerError {
 }
 
 class PreconditionFailedError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             statusCode: 412,
+            // Add any normal operation outcome stuff here
+            // https://www.hl7.org/fhir/valueset-issue-type.html
             issue: [
                 {
                     severity: 'error',
@@ -222,11 +224,16 @@ class PreconditionFailedError extends ServerError {
                 }
             ]
         });
+
+        // You can attach relevant information to the error instance
+        // (e.g.. the username)
+
         for (const [key, value] of Object.entries(options)) {
             this[`${key}`] = value;
         }
     }
-    get statusCode() {
+
+    get statusCode () {
         return 412;
     }
 }
