@@ -114,6 +114,11 @@ Use `/health` as the url for health check in Kubernetes or other systems
 The FHIR server can optionally send various Kafka Events
 [Kafka Events](readme/kafkaEvents.md)
 
+## ClickHouse Integration
+
+For Groups approaching MongoDB's 16MB document limit, the FHIR server supports event-sourced ClickHouse storage for scalable member queries
+[ClickHouse Integration](readme/clickhouse.md)
+
 ## Download Patient (or Person or Practioner) Summary
 This b.well FHIR server supports the $summary operation for the Patient, Person, and Practitioner resources. This operation allows you to retrieve a summary of a patient's information in a single request.
 [download_summary.md](readme/download_summary.md)

@@ -20,6 +20,12 @@ up:
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-fhir-1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-fhir-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
+	echo "\nwaiting for ClickHouse server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} fhir-clickhouse`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-clickhouse`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-clickhouse`" != "restarting" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-clickhouse`" != "healthy" ]; then docker ps && docker logs fhir-clickhouse && printf "========== ERROR: fhir-clickhouse did not start. Run docker logs fhir-clickhouse =========\n" && exit 1; fi && \
+	echo "\nInitializing ClickHouse schema" && \
+	docker exec -i fhir-clickhouse clickhouse-client --multiquery < clickhouse-init/01-init-schema.sql && \
+	echo "ClickHouse schema initialized successfully"
 	if [ ! -f ./generatorScripts/data/.collections_created ]; then \
 		echo "\nCreating all mongo collections and indexes" && \
 		make create_all_collections && \
@@ -30,7 +36,8 @@ up:
 	echo KeyCloak UI: http://localhost:8080 && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
-	echo FHIR server: http://localhost:3000
+	echo FHIR server: http://localhost:3000 && \
+	echo ClickHouse HTTP: http://localhost:8123
 
 .PHONY: create_all_collections
 create_all_collections:
@@ -50,7 +57,8 @@ up-offline:
 	echo KeyCloak UI: http://localhost:8080 && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
-	echo FHIR server: http://localhost:3000
+	echo FHIR server: http://localhost:3000 && \
+	echo ClickHouse HTTP: http://localhost:8123
 
 .PHONY:up-autoinstrumentation
 up-autoinstrumentation:
@@ -66,7 +74,8 @@ up-autoinstrumentation:
 	echo KeyCloak UI: http://localhost:8080 && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
-	echo FHIR server: http://localhost:3000
+	echo FHIR server: http://localhost:3000 && \
+	echo ClickHouse HTTP: http://localhost:8123
 
 .PHONY:down
 down:

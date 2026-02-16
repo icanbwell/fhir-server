@@ -24,6 +24,21 @@ class PostSaveProcessor {
     }
 
     /**
+     * Checks if any handler requires synchronous writes for this resource type
+     * @param {string} resourceType
+     * @return {boolean}
+     */
+    needsSyncFor ({ resourceType }) {
+        for (const handler of this.handlers) {
+            if (typeof handler.shouldBlockForResource === 'function' &&
+                handler.shouldBlockForResource(resourceType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Fires events when a resource is changed
      * @param {string} requestId
      * @param {string} eventType.  Can be C = create or U = update

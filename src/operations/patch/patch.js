@@ -24,6 +24,9 @@ const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 const httpContext = require('express-http-context');
+const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../constants/groupConstants');
+const { createTooCostlyError } = require('../../utils/fhirErrorFactory');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 class PatchOperation {
     /**
@@ -40,6 +43,7 @@ class PatchOperation {
      * @param {SearchManager} searchManager
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
+     * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      */
     constructor (
         {
@@ -54,7 +58,8 @@ class PatchOperation {
             bwellPersonFinder,
             searchManager,
             resourceMerger,
-            resourceValidator
+            resourceValidator,
+            postSaveHandlerFactory
         }
     ) {
         /**
@@ -122,6 +127,12 @@ class PatchOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory}
+         */
+        this.postSaveHandlerFactory = postSaveHandlerFactory;
+        assertTypeEquals(postSaveHandlerFactory, require('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory);
     }
 
     /**
@@ -190,6 +201,32 @@ class PatchOperation {
             // http://hl7.org/fhir/http.html#patch
             // patchContent is passed in JSON Patch format https://jsonpatch.com/
             const { base_version, id } = parsedArgs;
+
+            // ============ SPECIAL HANDLING FOR GROUP MEMBER OPERATIONS ============
+            // For storage-synced Groups, member operations bypass MongoDB array updates
+            // and write directly to event log (FHIR R4B PATCH with RFC 6902)
+            // IMPORTANT: We detect member ops early but validate/write AFTER security checks below
+            let groupMemberOperations = null;
+            let hasOnlyMemberOperations = false;
+            let effectivePatchContent = patchContent;
+            const postSaveHandlers = this.postSaveHandlerFactory.getHandlers(resourceType);
+            if (resourceType === 'Group' && postSaveHandlers.length > 0) {
+                const memberOps = patchContent.filter(op => op.path.startsWith(PATCH_PATHS.MEMBER_PREFIX));
+                const nonMemberOps = patchContent.filter(op => !op.path.startsWith(PATCH_PATHS.MEMBER_PREFIX));
+
+                if (memberOps.length > 0) {
+                    // Store member operations for later processing (after validation)
+                    groupMemberOperations = memberOps;
+                    hasOnlyMemberOperations = (nonMemberOps.length === 0);
+
+                    if (!hasOnlyMemberOperations) {
+                        // Mixed patch: will handle member ops after validation, then continue with non-member ops
+                        effectivePatchContent = nonMemberOps;
+                    }
+                }
+            }
+            // ====================================================================
+
             // Get current record
             // Query our collection for this observation
             /**
@@ -255,13 +292,42 @@ class PatchOperation {
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource: foundResource, base_version
             });
+
+            // ============ EXECUTE GROUP MEMBER OPERATIONS (AFTER VALIDATION) ============
+            // Now that we've validated the resource exists and user has access, handle member operations
+            if (groupMemberOperations && groupMemberOperations.length > 0) {
+                await this._handleGroupMemberPatchAsync({
+                    requestInfo,
+                    parsedArgs,
+                    resourceType,
+                    id,
+                    base_version,
+                    memberOperations: groupMemberOperations,
+                    foundResource
+                });
+
+                // If only member operations, update metadata and return
+                if (hasOnlyMemberOperations) {
+                    return await this._buildGroupMemberPatchResponseAsync({
+                        requestInfo,
+                        parsedArgs,
+                        resourceType,
+                        id,
+                        base_version,
+                        foundResource
+                    });
+                }
+                // Mixed operations: continue with non-member patch below
+            }
+            // ====================================================================
+
             const originalResource = foundResource.clone();
             foundResource = await this.databaseAttachmentManager.transformAttachments(
-                foundResource, RETRIEVE, patchContent
+                foundResource, RETRIEVE, effectivePatchContent
             );
 
             // Validate the patch
-            const errors = validate(patchContent, foundResource);
+            const errors = validate(effectivePatchContent, foundResource);
             if (errors) {
                 const error = Array.isArray(errors) && errors.length && errors.find(e => !!e) ? errors.find(e => !!e) : errors;
                 throw new BadRequestError(error);
@@ -271,7 +337,7 @@ class PatchOperation {
              * @type {Object}
              */
             const resource_incoming = this.resourceMerger.applyPatch({
-                currentResource: foundResource, patchContent
+                currentResource: foundResource, patchContent: effectivePatchContent
             });
             /**
              * @type {Resource}
@@ -353,7 +419,7 @@ class PatchOperation {
                         resourceType,
                         doc: resource,
                         uuid: resource._uuid,
-                        patches: patchContent.map(
+                        patches: effectivePatchContent.map(
                             p => {
                                 return {
                                     op: p.op,
@@ -410,6 +476,185 @@ class PatchOperation {
             });
             throw e;
         }
+    }
+
+    /**
+     * Handles PATCH operations on Group.member by translating them to ClickHouse events
+     * Supports JSON Patch (RFC 6902) ADD operations with server-side extension for REMOVE
+     *
+     * Supported operations:
+     * - ADD /member/-: Appends member (RFC 6902 compliant)
+     * - REMOVE /member with entity reference: Removes member (server-side extension)
+     *
+     * IMPORTANT: Does NOT use fast-json-patch. Translates operations directly to events
+     * without reading the existing member array (event-sourced approach).
+     *
+     * SECURITY: This method is called AFTER the resource has been validated to exist
+     * and the user's access has been verified by scopesValidator.
+     *
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
+     * @param {string} params.id
+     * @param {string} params.base_version
+     * @param {Array<Object>} params.memberOperations - JSON Patch operations on /member
+     * @param {Resource} params.foundResource - The validated Group resource from MongoDB
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _handleGroupMemberPatchAsync({
+        requestInfo,
+        parsedArgs,
+        resourceType,
+        id,
+        base_version,
+        memberOperations,
+        foundResource
+    }) {
+        const groupId = id;
+
+        const postSaveHandlers = this.postSaveHandlerFactory.getHandlers(resourceType);
+        if (postSaveHandlers.length === 0) {
+            throw new Error('No post-save handlers available for Group resource');
+        }
+        const groupHandler = postSaveHandlers[0];
+
+        // 1. Enforce operations limit (empirically determined)
+        const MAX_PATCH_OPERATIONS = this.configManager.groupPatchOperationsLimit;
+        if (memberOperations.length > MAX_PATCH_OPERATIONS) {
+            const batchCount = Math.ceil(memberOperations.length / MAX_PATCH_OPERATIONS);
+            const { message, options } = createTooCostlyError({
+                actual: memberOperations.length,
+                limit: MAX_PATCH_OPERATIONS,
+                operation: 'PATCH',
+                customGuidance: `For writes: Split into ${batchCount} batches of ${MAX_PATCH_OPERATIONS} operations each`
+            });
+            throw new BadRequestError({ message }, options);
+        }
+
+        // 2. Parse member operations into add/remove events
+        // IMPORTANT: Do NOT use fast-json-patch here. We're not applying patches to a document.
+        // We're translating operations directly to event-sourced storage sync events.
+        const eventsToAdd = [];
+        const eventsToRemove = [];
+
+        for (const op of memberOperations) {
+            if (op.op === PATCH_OPERATIONS.ADD && op.path === PATCH_PATHS.MEMBER_APPEND) {
+                // RFC 6902: path "/member/-" means append to member array
+                eventsToAdd.push({
+                    entity: op.value.entity,
+                    period: op.value.period,
+                    inactive: op.value.inactive || false
+                });
+            } else if (op.op === PATCH_OPERATIONS.REMOVE && op.path === PATCH_PATHS.MEMBER_PREFIX && op.value?.entity) {
+                // Server-side extension: remove member by entity reference
+                // Creates MEMBER_REMOVED event in ClickHouse event log
+                // Note: This is a pragmatic extension for event sourcing (not standard RFC 6902)
+                eventsToRemove.push({
+                    entity: op.value.entity,
+                    period: op.value.period,
+                    inactive: op.value.inactive || false
+                });
+            } else {
+                // UNSUPPORTED: remove by index (e.g., /member/0)
+                // Would require reading current state to resolve index
+                const message = `Unsupported PATCH operation on Group.member: ${op.op} ${op.path}. ` +
+                    `Supported operations: ` +
+                    `1) Add member: {"op":"add","path":"${PATCH_PATHS.MEMBER_APPEND}","value":{"entity":{"reference":"Patient/123"}}} ` +
+                    `2) Remove member: {"op":"remove","path":"${PATCH_PATHS.MEMBER_PREFIX}","value":{"entity":{"reference":"Patient/123"}}}`;
+                throw new BadRequestError({
+                    message,
+                    toString: function () {
+                        return message;
+                    }
+                }, {
+                    issue: [new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'not-supported',
+                        diagnostics: message
+                    })]
+                });
+            }
+        }
+
+        // 3. Write events to storage (NO MongoDB member array update)
+        // Direct translation: 1 operation = 1 event (added or removed)
+        if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
+            await groupHandler.writeEventsAsync({
+                groupId,
+                added: eventsToAdd,
+                removed: eventsToRemove
+            });
+
+            // Set flag to tell post-save handler that events were already written
+            // This prevents the handler from trying to compute a diff (which would be incorrect)
+            const httpContext = require('express-http-context');
+            const { CONTEXT_KEYS } = require('../../constants/groupConstants');
+            httpContext.set(CONTEXT_KEYS.GROUP_MEMBER_EVENTS_WRITTEN(groupId), true);
+        }
+
+        // 4. Update Group metadata in MongoDB (increment versionId, update lastUpdated)
+        // Note: This is handled by the response builder or the mixed patch logic
+    }
+
+    /**
+     * Builds response for Group member-only PATCH operations
+     * Returns Group metadata without the member array (members are in storage sync)
+     *
+     * SECURITY: This method is called AFTER the resource has been validated to exist
+     * and the user's access has been verified by scopesValidator.
+     *
+     * @param {Object} params
+     * @param {FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
+     * @param {string} params.id
+     * @param {string} params.base_version
+     * @param {Resource} params.foundResource - The validated Group resource from MongoDB
+     * @returns {Promise<{id: string, created: boolean, resource_version: string, resource: Resource}>}
+     * @private
+     */
+    async _buildGroupMemberPatchResponseAsync({
+        requestInfo,
+        parsedArgs,
+        resourceType,
+        id,
+        base_version,
+        foundResource
+    }) {
+
+        // Increment version and update lastUpdated
+        const updatedResource = foundResource.clone();
+        this.resourceMerger.updateMeta({
+            patched_resource_incoming: updatedResource,
+            currentResource: foundResource,
+            original_source: foundResource.meta?.source,
+            incrementVersion: true
+        });
+
+        // Update MongoDB metadata only (no member array)
+        await this.databaseBulkInserter.replaceOneAsync({
+            base_version,
+            requestInfo,
+            resourceType,
+            doc: updatedResource,
+            uuid: updatedResource._uuid
+        });
+
+        await this.databaseBulkInserter.executeAsync({
+            requestInfo,
+            base_version
+        });
+
+        // Return 200 OK with metadata only (no member array)
+        return {
+            id: updatedResource.id,
+            created: false,
+            updated: true,
+            resource_version: updatedResource.meta.versionId,
+            resource: updatedResource
+        };
     }
 }
 

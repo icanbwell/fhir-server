@@ -34,7 +34,9 @@ const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
+const { CONTEXT_KEYS } = require('../constants/groupConstants');
 const { MongoInvalidArgumentError } = require('mongodb');
+const httpContext = require('express-http-context');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -119,6 +121,45 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+    }
+
+    /**
+     * Handles Group member array stripping and storage for ClickHouse-backed Groups
+     * This prevents 16MB MongoDB document size limit errors
+     *
+     * @param {Resource} resource - FHIR resource being saved
+     * @param {string} requestId - Request ID for httpContext storage
+     * @returns {Resource} Resource with member array stripped (if applicable)
+     * @private
+     */
+    _handleGroupMemberStripping ({ resource, requestId }) {
+        // Only process Group resources with ClickHouse enabled
+        if (resource.resourceType !== 'Group') {
+            return resource;
+        }
+
+        if (!this.configManager.enableClickHouse ||
+            !this.configManager.mongoWithClickHouseResources.includes('Group')) {
+            return resource;
+        }
+
+        // Store original member array in httpContext for POST-save handler
+        // IMPORTANT: Store even if empty - UPDATE operations need to detect member removals
+        const memberArray = resource.member || [];
+        const contextKey = CONTEXT_KEYS.GROUP_MEMBERS(resource.id);
+        httpContext.set(contextKey, memberArray);
+
+        // Flag that Group members were provided (forces UPDATE even if MongoDB sees no changes)
+        // This is necessary for hybrid storage: members stripped from MongoDB but tracked in ClickHouse
+        const changedKey = CONTEXT_KEYS.GROUP_MEMBERS_CHANGED(resource.id);
+        httpContext.set(changedKey, true);
+
+        // Strip member array from resource (hybrid storage: MongoDB stores metadata, ClickHouse stores members)
+        // This prevents 16MB document size limit errors for large member arrays
+        // IMPORTANT: Modify in place to preserve Resource type
+        resource.member = [];
+
+        return resource;
     }
 
     /**
@@ -313,7 +354,10 @@ class DatabaseBulkInserter extends EventEmitter {
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
+            // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            // THEN handle Group member stripping (ClickHouse-backed Groups)
+            doc = this._handleGroupMemberStripping({ resource: doc, requestId: requestInfo.requestId });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
@@ -473,9 +517,13 @@ class DatabaseBulkInserter extends EventEmitter {
         assertTypeEquals(requestInfo, FhirRequestInfo);
 
         const requestId = requestInfo.requestId;
+
         try {
             assertTypeEquals(doc, Resource);
+            // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            // THEN handle Group member stripping (ClickHouse-backed Groups)
+            doc = this._handleGroupMemberStripping({ resource: doc, requestId: requestInfo.requestId });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -566,7 +614,10 @@ class DatabaseBulkInserter extends EventEmitter {
         const lastVersionId = previousVersionId;
         try {
             assertTypeEquals(doc, Resource);
+            // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            // THEN handle Group member stripping (ClickHouse-backed Groups)
+            doc = this._handleGroupMemberStripping({ resource: doc, requestId: requestInfo.requestId });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -1260,15 +1311,29 @@ class DatabaseBulkInserter extends EventEmitter {
             !useHistoryCollection &&
             !isAccessLogOperation
         ) {
-            this.postRequestProcessor.add({
+            const eventType = bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U';
+
+            const afterSaveTask = async () => await this.postSaveProcessor.afterSaveAsync({
                 requestId,
-                fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
-                    requestId,
-                    eventType: bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U',
-                    resourceType,
-                    doc: bulkInsertUpdateEntry.resource
-                })
+                eventType,
+                resourceType,
+                doc: bulkInsertUpdateEntry.resource
             });
+
+            // Check if any handler needs sync mode for this resource
+            const needsSync = this.postSaveProcessor.needsSyncFor({ resourceType });
+
+            if (needsSync) {
+                // Sync mode: Block API response until hybrid storage write completes
+                // (e.g., ClickHouse write for Group members must complete before returning)
+                await afterSaveTask();
+            } else {
+                // Async mode: Defer to post-request processor
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: afterSaveTask
+                });
+            }
         }
 
         return mergeResultEntry;

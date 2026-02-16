@@ -62,6 +62,7 @@ const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider'
 const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
 const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
+const {GroupInvariantHandler} = require('./preSaveHandlers/handlers/groupInvariantHandler');
 const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
@@ -90,8 +91,10 @@ const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
 const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
 const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
+const {GroupInvariantValidator} = require('./operations/merge/validators/groupInvariantValidator');
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
+const {PostSaveHandlerFactory} = require('./dataLayer/postSaveHandlers/postSaveHandlerFactory');
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
@@ -107,6 +110,7 @@ const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
+const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -161,7 +165,11 @@ const createContainer = function () {
                 configManager: c.configManager
             }),
             new HashReferencesEnrichmentProvider(),
-            new MetaUuidEnrichmentProvider()
+            new MetaUuidEnrichmentProvider(),
+            new GroupMemberEnrichmentProvider({
+                clickHouseClientManager: c.clickHouseClientManager,
+                configManager: c.configManager
+            })
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
@@ -174,6 +182,10 @@ const createContainer = function () {
     ));
     container.register('preSaveManager', (c) => new PreSaveManager({
         preSaveHandlers: [
+            // Validate Group invariants early (fail fast)
+            new GroupInvariantHandler({ configManager: c.configManager }),
+            // Note: Group.member array stripping is now handled in databaseBulkInserter
+            // before preSaveManager is called, to ensure proper write ordering with ClickHouse
             new DateColumnHandler(),
             new SourceIdColumnHandler(),
             new AccessColumnHandler(),
@@ -281,6 +293,16 @@ const createContainer = function () {
     container.register('mongoDatabaseManager', (c) => new MongoDatabaseManager({
         configManager: c.configManager
     }));
+    // Register ClickHouse client manager (if enabled)
+    container.register('clickHouseClientManager', (c) => {
+        if (c.configManager.enableClickHouse) {
+            const { ClickHouseClientManager } = require('./utils/clickHouseClientManager');
+            return new ClickHouseClientManager({
+                configManager: c.configManager
+            });
+        }
+        return null;
+    });
     container.register('indexManager', (c) => new IndexManager(
         {
             indexProvider: c.indexProvider,
@@ -295,11 +317,22 @@ const createContainer = function () {
         {
             mongoDatabaseManager: c.mongoDatabaseManager
         }));
+    // Register storage provider factory
+    container.register('storageProviderFactory', (c) => {
+        const { StorageProviderFactory } = require('./dataLayer/providers/storageProviderFactory');
+        return new StorageProviderFactory({
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            clickHouseClientManager: c.clickHouseClientManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            configManager: c.configManager
+        });
+    });
 
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
         {
             resourceLocatorFactory: c.resourceLocatorFactory,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            storageProviderFactory: c.storageProviderFactory
         }));
     container.register('databaseHistoryFactory', (c) => new DatabaseHistoryFactory(
         {
@@ -402,6 +435,7 @@ const createContainer = function () {
                     resourceValidator: c.resourceValidator
                 }),
                 new ParametersResourceValidator(),
+                new GroupInvariantValidator(),
                 new MergeResourceValidator({
                     mergeManager: c.mergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,
@@ -598,7 +632,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 bwellPersonFinder: c.bwellPersonFinder,
-                searchManager: c.searchManager
+                searchManager: c.searchManager,
+                postSaveHandlerFactory: c.postSaveHandlerFactory
             }
         )
     );
@@ -704,7 +739,8 @@ const createContainer = function () {
             bwellPersonFinder: c.bwellPersonFinder,
             searchManager: c.searchManager,
             resourceMerger: c.resourceMerger,
-            resourceValidator: c.resourceValidator
+            resourceValidator: c.resourceValidator,
+            postSaveHandlerFactory: c.postSaveHandlerFactory
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -892,12 +928,25 @@ const createContainer = function () {
         }
     ));
 
-    container.register('postSaveProcessor', (c) => new PostSaveProcessor({
-        handlers: [
+    container.register('postSaveHandlerFactory', (c) => new PostSaveHandlerFactory({
+        clickHouseClientManager: c.clickHouseClientManager,
+        configManager: c.configManager
+    }));
+
+    container.register('postSaveProcessor', (c) => {
+        const handlers = [
             c.changeEventProducer,
             c.patientPersonDataChangeEventProducer
-        ]
-    }));
+        ];
+
+        // Add ClickHouse handler for Group resources if enabled
+        const groupHandlers = c.postSaveHandlerFactory.getHandlers('Group');
+        handlers.push(...groupHandlers);
+
+        return new PostSaveProcessor({
+            handlers
+        });
+    });
 
     container.register('patientQueryCreator', (c) => new PatientQueryCreator({
         patientFilterManager: c.patientFilterManager,

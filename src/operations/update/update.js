@@ -42,6 +42,7 @@ class UpdateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
+     * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      */
     constructor (
         {
@@ -56,7 +57,8 @@ class UpdateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            searchManager
+            searchManager,
+            postSaveHandlerFactory
         }
     ) {
         /**
@@ -124,6 +126,12 @@ class UpdateOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory}
+         */
+        this.postSaveHandlerFactory = postSaveHandlerFactory;
+        assertTypeEquals(postSaveHandlerFactory, require('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory);
     }
 
     /**
@@ -184,6 +192,21 @@ class UpdateOperation {
 
         const { id: rawId } = IdParser.parse(id);
         resource_incoming_json.id = rawId;
+
+        // For resources with mongo-with-clickhouse dual-write storage, flag changes to force UPDATE
+        // even if MongoDB sees no changes (check BEFORE Resource creation strips empty arrays)
+        const postSaveHandlers = this.postSaveHandlerFactory.getHandlers(resourceType);
+        if (postSaveHandlers.length > 0) {
+            // Check if this resource has fields stored externally that may have changed
+            // Currently only Group.member uses dual-write storage (MongoDB + ClickHouse)
+            if (resourceType === 'Group' && resource_incoming_json.member !== undefined) {
+                const { CONTEXT_KEYS } = require('../../constants/groupConstants');
+                const changedKey = CONTEXT_KEYS.GROUP_MEMBERS_CHANGED(rawId);
+                httpContext.set(changedKey, true);
+            }
+            // Future: Add other mongo-with-clickhouse dual-write resources here
+            // Example: if (resourceType === 'Observation' && resource_incoming_json.component !== undefined) { ... }
+        }
 
         // create a resource with incoming data
         /**
@@ -335,6 +358,24 @@ class UpdateOperation {
                     databaseAttachmentManager: this.databaseAttachmentManager
                 }));
                 doc = updatedResource;
+
+                // Check if dual-write storage fields changed (stored in httpContext)
+                // If so, force the update even if mergeResourceAsync returned null (MongoDB sees no changes)
+                const postSaveHandlers2 = this.postSaveHandlerFactory.getHandlers(resourceType);
+                if (!doc && postSaveHandlers2.length > 0) {
+                    // Check resource-specific mongo-with-clickhouse dual-write storage change flags
+                    // Currently only Group.member uses dual-write (MongoDB + ClickHouse)
+                    if (resourceType === 'Group') {
+                        const { CONTEXT_KEYS } = require('../../constants/groupConstants');
+                        const changedKey = CONTEXT_KEYS.GROUP_MEMBERS_CHANGED(id);
+                        const membersChanged = httpContext.get(changedKey);
+                        if (membersChanged) {
+                            doc = resource_incoming;
+                        }
+                    }
+                    // Future: Add other mongo-with-clickhouse dual-write resources here
+                    // Example: if (resourceType === 'Observation') { check component flag... }
+                }
             } else {
                 if (ifMatch) {
                     precondition_failed_error = new PreconditionFailedError(`Version conflict: Resource does not exist, but If-Match header was provided. If-Match: ${ifMatch}`);
@@ -367,6 +408,7 @@ class UpdateOperation {
                 }
                 // Update attachments after all validations
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
+
                 if (data && data.meta) {
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
