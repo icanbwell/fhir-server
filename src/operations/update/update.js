@@ -1,6 +1,6 @@
 const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
-const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, PreconditionFailedError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -305,7 +305,16 @@ class UpdateOperation {
                 await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                     requestInfo, resource: foundResource, base_version
                 });
-
+                // If-Match/version check logic (optimistic locking)
+                const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
+                if (ifMatch && data.meta.versionId) {
+                    const normalizeETag = (etag) => (etag || '').replace(/^W\//, '').replace(/"/g, '');
+                    const versionIds = ifMatch.split(',').map(v => normalizeETag(v.trim()));
+                    const currentVersionId = normalizeETag(data.meta.versionId);
+                    if (!versionIds.includes(currentVersionId) && !versionIds.includes('*')) {
+                        throw new PreconditionFailedError('Version conflict: If-Match does not match current resource version.');
+                    }
+                }
                 ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     base_version,
                     requestInfo,
@@ -316,7 +325,7 @@ class UpdateOperation {
                 }));
                 doc = updatedResource;
             } else {
-                doc = resource_incoming
+                doc = resource_incoming;
             }
             if (doc) {
                 // Validating resource meta tags
