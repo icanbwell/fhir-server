@@ -30,7 +30,7 @@
   "link": [
     {
       "target": {
-        "reference": "Patient/patient1|healthsystem1",
+        "reference": "Patient/24a5930e-11b4-5525-b482-669174917044",
         "type": "Patient"
       },
       "assurance": "level4"
