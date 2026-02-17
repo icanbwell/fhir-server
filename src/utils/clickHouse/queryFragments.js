@@ -61,8 +61,8 @@ class QueryFragments {
             return '';
         }
 
-        // Escape single quotes in value
-        const escapedValue = afterValue.replace(/'/g, "\\'");
+        // Escape backslashes first, then single quotes (prevents SQL injection)
+        const escapedValue = afterValue.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         return `AND ${column} > '${escapedValue}'`;
     }
 
@@ -109,7 +109,8 @@ class QueryFragments {
             return 'WHERE group_id = {groupId:String}';
         }
 
-        const escapedId = groupId.replace(/'/g, "\\'");
+        // Escape backslashes first, then single quotes (prevents SQL injection)
+        const escapedId = groupId.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         return `WHERE group_id = '${escapedId}'`;
     }
 
@@ -130,7 +131,8 @@ class QueryFragments {
             return 'WHERE entity_reference = {entityReference:String}';
         }
 
-        const escapedRef = entityReference.replace(/'/g, "\\'");
+        // Escape backslashes first, then single quotes (prevents SQL injection)
+        const escapedRef = entityReference.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         return `WHERE entity_reference = '${escapedRef}'`;
     }
 
@@ -193,7 +195,8 @@ class QueryFragments {
         }
 
         // Build array literal for ClickHouse
-        const tagsList = accessTags.map(tag => `'${tag.replace(/'/g, "\\'")}'`).join(', ');
+        // Escape backslashes first, then single quotes (prevents SQL injection)
+        const tagsList = accessTags.map(tag => `'${tag.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`).join(', ');
         return `AND hasAny(access_tags, [${tagsList}])`;
     }
 
@@ -221,7 +224,8 @@ class QueryFragments {
             return 'AND hasAny(owner_tags, {ownerTags:Array(String)})';
         }
 
-        const tagsList = ownerTags.map(tag => `'${tag.replace(/'/g, "\\'")}'`).join(', ');
+        // Escape backslashes first, then single quotes (prevents SQL injection)
+        const tagsList = ownerTags.map(tag => `'${tag.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`).join(', ');
         return `AND hasAny(owner_tags, [${tagsList}])`;
     }
 }
