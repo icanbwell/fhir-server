@@ -12,6 +12,7 @@ const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter')
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { logInfo } = require('../common/logging');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
@@ -316,26 +317,12 @@ class UpdateOperation {
                         const currentVersionId = normalizeETag(String(data.meta.versionId));
                         if (!versionIds.includes(currentVersionId) && !versionIds.includes('*')) {
                             precondition_failed_error = new PreconditionFailedError(`Version conflict: If-Match does not match current resource version. Older version: ${currentVersionId}, If-Match: ${ifMatch}`);
-                            await this.fhirLoggingManager.logOperationFailureAsync({
-                                requestInfo,
-                                args: parsedArgs.getRawArgs(),
-                                resourceType,
-                                startTime,
-                                action: currentOperationName,
-                                error: precondition_failed_error
-                            });
+                            logInfo(precondition_failed_error.message);
                             throw precondition_failed_error;
                         }
                     } else {
                         precondition_failed_error = new PreconditionFailedError(`Version conflict: Resource does not have a versionId, but If-Match header was provided. If-Match: ${ifMatch}`);
-                        await this.fhirLoggingManager.logOperationFailureAsync({
-                            requestInfo,
-                            args: parsedArgs.getRawArgs(),
-                            resourceType,
-                            startTime,
-                            action: currentOperationName,
-                            error: precondition_failed_error
-                        });
+                        logInfo(precondition_failed_error.message);
                         throw precondition_failed_error;
                     }
                 }
@@ -351,14 +338,7 @@ class UpdateOperation {
             } else {
                 if (ifMatch) {
                     precondition_failed_error = new PreconditionFailedError(`Version conflict: Resource does not exist, but If-Match header was provided. If-Match: ${ifMatch}`);
-                    await this.fhirLoggingManager.logOperationFailureAsync({
-                        requestInfo,
-                        args: parsedArgs.getRawArgs(),
-                        resourceType,
-                        startTime,
-                        action: currentOperationName,
-                        error: precondition_failed_error
-                    });
+                    logInfo(precondition_failed_error.message);
                     throw precondition_failed_error;
                 }
                 doc = resource_incoming;
