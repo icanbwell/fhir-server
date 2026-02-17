@@ -23,6 +23,8 @@ process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
+process.env.CLICKHOUSE_HOST = 'localhost'; // GitHub Actions services are accessible via localhost
+process.env.CLICKHOUSE_PORT = '8123';
 process.env.LOGLEVEL = 'SILENT';
 process.env.STREAM_RESPONSE = '0';
 

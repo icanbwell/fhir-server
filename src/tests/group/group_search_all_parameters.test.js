@@ -1,6 +1,8 @@
 // Verify all 10 FHIR R4B Group search parameters
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
+process.env.CLICKHOUSE_HOST = 'localhost';
+process.env.CLICKHOUSE_PORT = '8123';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.LOGLEVEL = 'SILENT';
