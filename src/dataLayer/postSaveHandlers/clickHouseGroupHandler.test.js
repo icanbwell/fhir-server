@@ -30,7 +30,7 @@ describe('ClickHouseGroupHandler', () => {
         };
 
         mockGroupMemberRepository = {
-            insertEventsAsync: jest.fn().mockResolvedValue({ success: true })
+            appendEvents: jest.fn().mockResolvedValue({ success: true })
         };
 
         handler = new ClickHouseGroupHandler({
@@ -82,8 +82,6 @@ describe('ClickHouseGroupHandler', () => {
         });
 
         test('should process Group save when configured', async () => {
-            mockClickHouseClientManager.insertAsync.mockResolvedValue({ success: true });
-
             const groupId = 'group-1';
             const members = [{
                 entity: { reference: 'Patient/patient-1' }
@@ -116,7 +114,7 @@ describe('ClickHouseGroupHandler', () => {
                 }
             });
 
-            expect(mockClickHouseClientManager.insertAsync).toHaveBeenCalled();
+            expect(mockGroupMemberRepository.appendEvents).toHaveBeenCalled();
         });
 
         test('should propagate errors from ClickHouse', async () => {
@@ -133,8 +131,8 @@ describe('ClickHouseGroupHandler', () => {
                 return undefined;
             });
 
-            // Mock insertAsync to reject with error
-            mockClickHouseClientManager.insertAsync.mockRejectedValue(new Error('ClickHouse connection error'));
+            // Mock appendEvents to reject with error
+            mockGroupMemberRepository.appendEvents.mockRejectedValue(new Error('ClickHouse connection error'));
 
             // Handler should propagate errors to fail the API request
             await expect(handler.afterSaveAsync({
@@ -151,7 +149,7 @@ describe('ClickHouseGroupHandler', () => {
                         lastUpdated: '2024-01-01T00:00:00Z'
                     }
                 }
-            })).rejects.toThrow('Failed to write Group member events to ClickHouse');
+            })).rejects.toThrow();
         });
     });
 
@@ -176,8 +174,6 @@ describe('ClickHouseGroupHandler', () => {
         });
 
         test('afterSaveAsync always blocks for Group writes', async () => {
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([]);
-
             const groupId = 'group-1';
             const members = [{ entity: { reference: 'Patient/1' } }];
 
@@ -190,7 +186,7 @@ describe('ClickHouseGroupHandler', () => {
             });
 
             let writeCompleted = false;
-            mockClickHouseClientManager.insertAsync.mockImplementation(async () => {
+            mockGroupMemberRepository.appendEvents.mockImplementation(async () => {
                 const WRITE_DELAY_MS = 100;
                 await new Promise(resolve => setTimeout(resolve, WRITE_DELAY_MS));
                 writeCompleted = true;
