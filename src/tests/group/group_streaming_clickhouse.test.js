@@ -322,6 +322,8 @@ describe('Group Streaming with ClickHouse', () => {
             });
         }
 
+        // Brief delay to ensure all async operations complete
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Query with streaming + pagination
         const request = await createTestRequest((c) => {
