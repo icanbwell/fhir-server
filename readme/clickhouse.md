@@ -2,224 +2,41 @@
 
 ## Overview
 
-The Helix FHIR Server supports ClickHouse as an alternative storage backend for FHIR resources requiring scalable array storage or append-only logging. This integration provides flexible storage architectures optimized for different resource patterns.
+The FHIR server integrates ClickHouse as a complementary storage backend for resources requiring scalable array storage and event-sourced audit trails. ClickHouse is a columnar analytical database optimized for high-volume, append-heavy workloads with fast analytical queries.
 
-**Currently Implemented:** Group resources (1M+ members supported)
+The integration uses a dual-storage model: MongoDB stores resource metadata (transactional CRUD), while ClickHouse stores high-volume data as an event-sourced log. This architecture enables FHIR Groups with millions of members while maintaining sub-second query performance.
 
-**Key Capabilities:**
-- **Scalability**: Support for resources with massive arrays
-- **Performance**: Sub-5-second queries on indexed fields
-- **Audit Trail**: Complete event history
-- **Flexible Architecture**: Three storage patterns
+**Currently Supported:** Group resources with 1M+ member scale
 
-### Group Resources: Production-Ready
+## Why ClickHouse for Groups
 
-Group resources are the first fully implemented resource type using ClickHouse. This implementation uses an event-sourced, append-only pattern with dual storage:
+MongoDB's 16MB BSON document limit restricts Group resources to approximately 50K-100K members. ClickHouse solves this by:
 
-- **Scalability**: Support for Groups with 1M+ members
-- **Performance**: Sub-5-second queries for member lookups
-- **Audit Trail**: Complete history of all membership changes
-- **Dual Storage**: MongoDB for Group metadata, ClickHouse for member events
+- **Event-sourced storage**: Member changes stored as append-only events, not embedded arrays
+- **Columnar performance**: Fast member queries using materialized views and argMax aggregation
+- **Unlimited scale**: Tested with 1M+ members per Group
+- **Complete audit trail**: Every membership change preserved with provenance
 
-## Why ClickHouse Instead of GridFS?
+## Quick Start
 
-MongoDB's 16MB BSON document limit restricts Group resources to ~50K-100K members. While MongoDB GridFS can store larger documents, it's not suitable for FHIR use cases:
+### Configuration
 
-**GridFS Limitations:**
-- Designed for file storage (PDFs, images), not structured data
-- Poor query performance - no indexes on document contents
-- No support for partial document updates
-- Incompatible with FHIR search parameters
-- Requires chunking/reassembly on every read
-
-**ClickHouse Advantages:**
-- Native columnar storage optimized for analytics queries
-- Fast member lookups via indexed materialized views
-- Event sourcing provides complete audit trail
-- FHIR queries work transparently without code changes
-- Scales to 10M+ members per Group
-
-## Storage Architecture
-
-The ClickHouse integration supports three distinct storage patterns, enabling flexible architecture choices based on resource requirements:
-
-### 1. MONGO (Default)
-
-Pure MongoDB storage - the standard FHIR server pattern.
-
-**Use Case:** All standard FHIR resources
-
-**Routing:** `StorageProviderFactory` → `MongoStorageProvider`
-
-**Example:** Patient, Observation, Practitioner (most resources)
-
-### 2. MONGO_WITH_CLICKHOUSE (Dual-Write)
-
-Hybrid architecture that stores metadata in MongoDB and events/arrays in ClickHouse.
-
-**Use Case:** Resources with large arrays or audit requirements
-
-**Routing:** `StorageProviderFactory` → `MongoWithClickHouseStorageProvider`
-- Writes: Dual-write to both MongoDB and ClickHouse
-- Metadata queries: Route to MongoDB
-- Array/member queries: Route to ClickHouse
-
-**Currently Implemented:** Group resources
-- MongoDB stores: Group metadata (id, name, type, etc.) + full member array
-- ClickHouse stores: Member change events (event_type='added'/'removed')
-- Member queries (`?member.entity._uuid=xxx`) route to ClickHouse
-- Metadata queries (`?name=MyGroup`) route to MongoDB
-
-**Configuration:**
 ```bash
-MONGO_WITH_CLICKHOUSE_RESOURCES=Group
-```
-
-**Future Candidates:** List, MeasureReport
-
-### 3. CLICKHOUSE_ONLY (Append-Only)
-
-Pure ClickHouse storage for append-only, immutable resources.
-
-**Use Case:** Audit logs, event streams, immutable historical data
-
-**Routing:** `StorageProviderFactory` → `ClickHouseStorageProvider`
-
-**Example (Stubbed):** AuditEvent, Observation, Communication
-
-**Configuration:**
-```bash
-CLICKHOUSE_ONLY_RESOURCES=AuditEvent
-```
-
-**Status:** Architecture designed and stubbed; implementation pending customer requirements
-
-### How Storage Routing Works
-
-The `StorageProviderFactory` (src/dataLayer/providers/storageProviderFactory.js:22) determines storage based on:
-
-1. **Is ClickHouse enabled?** Check `ENABLE_CLICKHOUSE=1`
-2. **Is resource in `MONGO_WITH_CLICKHOUSE_RESOURCES`?** → Use `MongoWithClickHouseStorageProvider`
-3. **Is resource in `CLICKHOUSE_ONLY_RESOURCES`?** → Use `ClickHouseStorageProvider`
-4. **Default:** → Use `MongoStorageProvider`
-
-## Group Implementation Architecture
-
-### Event-Sourced Pattern
-
-Instead of storing members as embedded arrays in MongoDB documents (which has a 16MB limit), ClickHouse tracks membership as a series of immutable events:
-
-```
-Event Log (ClickHouse)                 Current State (Derived Tables)
-─────────────────────                  ──────────────────────────────────
-event_type='added': Patient/1 @ 10:00  Group A: [Patient/1, Patient/2]
-event_type='added': Patient/2 @ 10:05
-event_type='removed': Patient/1 @ 10:10
-event_type='added': Patient/1 @ 10:15
-```
-
-### Database Schema
-
-**`fhir.fhir_group_member_events` Table** (MergeTree, Append-Only)
-- Event log storing all membership changes as immutable events
-- Source of truth for all membership history
-- Ordered by `(group_id, entity_reference, event_time, event_id)`
-- No time-based partitioning (maintains full group history for correctness)
-- Event types: `added` (added to group), `removed` (removed from group)
-- Includes provenance: `actor`, `reason`, `source`, `correlation_id`
-
-**`fhir.fhir_group_member_current` Table** (AggregatingMergeTree)
-- Current membership state per (group_id, entity_reference)
-- Derives latest state using `argMax` aggregations over event log
-- Maintained automatically by `mv_group_member_current` materialized view
-- Powers fast roster queries and member state checks
-- One logical row per member after background merges
-
-**`fhir.fhir_group_member_current_by_entity` Table** (AggregatingMergeTree)
-- Reverse lookup index ordered by `(entity_reference, group_id)`
-- Powers "which groups is Patient/X in?" queries
-- Maintained automatically by `mv_group_member_current_by_entity` materialized view
-- Lightweight: only stores event_type and inactive flag for fast lookups
-
-**Materialized Views**
-- `mv_group_member_current`: Updates `fhir_group_member_current` on every insert
-- `mv_group_member_current_by_entity`: Updates reverse lookup table on every insert
-- Trigger automatically, typically within milliseconds
-
-### Dual-Write Strategy
-
-When a Group is created or updated:
-
-1. **MongoDB**: Stores Group metadata (id, name, type, etc.) + full member array
-2. **ClickHouse**: Stores member change events (additions/removals)
-
-Queries route intelligently:
-- **Member queries** (`?member.entity._uuid=xxx`): ClickHouse → MongoDB
-- **Metadata queries** (`?name=MyGroup`): MongoDB directly
-
-## Configuration
-
-### When to Enable
-
-Enable ClickHouse when:
-- Groups are approaching MongoDB's 16MB document limit (~50K-100K members)
-- Member queries are timing out or showing poor performance
-- You need audit trail of membership changes
-
-### Environment Variables
-
-**Required:**
-```bash
-# Enable ClickHouse integration
+# Enable ClickHouse
 ENABLE_CLICKHOUSE=1
 
-# Dual-write resources: MongoDB metadata + ClickHouse events (comma-separated)
-# Currently supported: Group
+# Configure which resources use ClickHouse
 MONGO_WITH_CLICKHOUSE_RESOURCES=Group
 
-# ClickHouse server connection
-CLICKHOUSE_HOST=clickhouse          # Or 127.0.0.1 for IPv4
-CLICKHOUSE_PORT=8123                # HTTP interface port
-CLICKHOUSE_DATABASE=fhir            # Database name
-CLICKHOUSE_USERNAME=default         # Default for local dev
-CLICKHOUSE_PASSWORD=                # Empty for local dev
+# ClickHouse connection
+CLICKHOUSE_HOST=127.0.0.1
+CLICKHOUSE_PORT=8123
+CLICKHOUSE_DATABASE=fhir
+CLICKHOUSE_USERNAME=default
+CLICKHOUSE_PASSWORD=
 ```
 
-**Optional:**
-```bash
-# Fallback to MongoDB if ClickHouse unavailable (default: false)
-CLICKHOUSE_FALLBACK_TO_MONGO=true
-
-# Streaming responses for search results (default: false)
-# Enables NDJSON streaming format for memory-efficient large result sets
-STREAM_RESPONSE=true
-
-# ClickHouse-only resources: Append-only resources (future implementation)
-# CLICKHOUSE_ONLY_RESOURCES=AuditEvent,Observation
-
-# Enable multiple dual-write resources (future)
-# MONGO_WITH_CLICKHOUSE_RESOURCES=Group,List
-```
-
-**Configuration Behavior:**
-
-**MONGO_WITH_CLICKHOUSE_RESOURCES (Dual-Write Pattern):**
-- Writes: Dual-write to both MongoDB and ClickHouse
-- Array/member queries: Route to ClickHouse for performance
-- Metadata queries: Route to MongoDB
-- Example: Group resources with large member arrays
-
-**CLICKHOUSE_ONLY_RESOURCES (Append-Only Pattern):**
-- Writes: ClickHouse only (immutable events)
-- Reads: ClickHouse only
-- Example: AuditEvent, Observation (when implemented)
-
-**Default Behavior:**
-- When `ENABLE_CLICKHOUSE=0` or resource not in either list:
-  - All operations → MongoDB only
-  - Existing resources continue to work normally
-
-### Docker Compose
+### Docker Setup
 
 ClickHouse is included in `docker-compose.yml`:
 
@@ -234,233 +51,385 @@ clickhouse:
     - ./clickhouse-init:/docker-entrypoint-initdb.d
 ```
 
-## Usage
+Start with: `docker-compose up -d`
 
-### Standard FHIR Operations (Transparent)
+## Group API Usage
 
-The ClickHouse integration is transparent to API consumers. All standard FHIR operations work without modification:
+All standard FHIR operations work transparently - the ClickHouse integration is invisible to API consumers.
 
-#### Search Operations
+### Creating Groups
+
+Create a Group with initial members using POST:
+
 ```bash
-# Find Groups containing a specific member (sub-100ms performance)
-GET /4_0_0/Group?member.entity._uuid=patient-uuid-123
-GET /4_0_0/Group?member.entity._reference=Patient/123
-
-# Search with pagination (cursor-based, O(log n))
-GET /4_0_0/Group?member.entity._uuid=patient-uuid-123&_count=100
-
-# Search with streaming (configurable, optimal for large result sets)
-GET /4_0_0/Group?member.entity._uuid=patient-uuid-123
-# With STREAM_RESPONSE=true:
-#   Returns: application/x-ndjson (NDJSON streaming format)
-#   Memory efficient: Resources streamed as they're retrieved
-#   No buffering: Client receives results immediately
-```
-
-#### Read Operations
-```bash
-# Get Group by ID
-GET /4_0_0/Group/my-group-id
-# Note: GET returns metadata only, not full member array (use search for members)
-```
-
-#### Create Operations (Small Groups)
-```bash
-# Create Group with members (<10K members)
 POST /4_0_0/Group
+Content-Type: application/fhir+json
+
 {
   "resourceType": "Group",
   "type": "person",
   "actual": true,
+  "name": "My Patient Cohort",
   "member": [
-    {"entity": {"reference": "Patient/1"}},
-    {"entity": {"reference": "Patient/2"}}
+    { "entity": { "reference": "Patient/1" } },
+    { "entity": { "reference": "Patient/2" } },
+    { "entity": { "reference": "Patient/3" } }
   ]
 }
 ```
 
-#### Bulk Operations via PATCH (Recommended for Member Changes)
+Response: `201 Created` with Group metadata (note: `member` array is empty in responses - member data lives in ClickHouse)
+
+### Incremental Loading with PATCH (Recommended)
+
+**For large Groups (50K+ members), use PATCH to add members incrementally.** This is the most efficient pattern:
+
 ```bash
-# Add members in bulk (up to 10K per request)
-PATCH /4_0_0/Group/my-group-id
+# Step 1: Create Group with initial batch (5K-10K members)
+POST /4_0_0/Group
+{
+  "resourceType": "Group",
+  "id": "cohort-2025",
+  "type": "person",
+  "actual": true,
+  "member": [
+    { "entity": { "reference": "Patient/1" } },
+    ...
+    { "entity": { "reference": "Patient/5000" } }
+  ]
+}
+
+# Step 2-N: Add more members using PATCH (5K per batch)
+PATCH /4_0_0/Group/cohort-2025
 Content-Type: application/json-patch+json
 
 [
-  { "op": "add", "path": "/member/-", "value": { "entity": { "reference": "Patient/1" } } },
-  { "op": "add", "path": "/member/-", "value": { "entity": { "reference": "Patient/2" } } }
-]
-
-# Remove members by reference
-PATCH /4_0_0/Group/my-group-id
-[
-  { "op": "remove", "path": "/member", "value": { "entity": { "reference": "Patient/1" } } }
+  { "op": "add", "path": "/member/-", "value": { "entity": { "reference": "Patient/5001" } } },
+  { "op": "add", "path": "/member/-", "value": { "entity": { "reference": "Patient/5002" } } },
+  ...
+  { "op": "add", "path": "/member/-", "value": { "entity": { "reference": "Patient/10000" } } }
 ]
 ```
 
-### Building Large Groups: Incremental Loading Pattern (Preferred)
+**Why PATCH is recommended:**
+- **Efficient**: Only sends new members, not entire array
+- **Scalable**: No request size limit (10K operation limit per PATCH, configurable)
+- **Fast**: Direct event writes without reading existing state
+- **Network-friendly**: Smaller payloads (KB vs MB)
 
-**⚠️ Preferred Method for Groups >50K Members**
+**Batch size recommendations:**
+- 1K-5K operations: Standard workloads
+- 5K-10K operations: Bulk imports (default limit: 10K)
 
-For Groups with >50K members, use the **incremental loading pattern** to respect HTTP payload limits while achieving 1M+ member scale:
+### Incremental Loading with PUT (Alternative)
 
-#### Why Incremental Loading is Preferred
-
-**When to Use Incremental Loading:**
-- ✅ **Preferred for:** Groups with >50K members
-- ✅ **Achieves:** 1M+ member scale using standard FHIR operations
-- ✅ **Respects:** HTTP payload limits (6-10MB typical)
-- ✅ **Performance:** Event-sourced writes are optimized for incremental updates
-
-**Alternative Approaches and Limitations:**
-
-| Approach | Max Members | Performance | Use Case |
-|----------|-------------|-------------|----------|
-| **Incremental PUT** (Preferred) | 1M+ | Excellent | Large Groups, batch jobs, initial loads |
-| **PATCH Bulk Operations** | 10K per request | Good | Daily updates, small additions |
-| **Single POST** | ~10K-15K | Good | Small Groups, interactive creation |
-| **FHIR Bulk Data Export/Import** | Not yet implemented | N/A | Future consideration |
-
-**HTTP/Express Payload Limits:**
-- Default payload limit: ~6MB (configurable but typically 6-10MB)
-- Single POST with 100K+ members exceeds these limits → HTTP 413 errors
-- Standard across FHIR implementations (HAPI, AWS HealthLake, Google Cloud)
-
-**Industry Comparison:**
-- **HAPI FHIR**: No documented limit, relies on Bulk Export for large datasets
-- **AWS HealthLake**: ~6-10MB payload limits (standard AWS API Gateway limits)
-- **Google Cloud Healthcare**: ~10MB request size limits
-- **FHIR Specification**: Recommends 'definitional' Groups (criteria-based) for large populations
-
-**Unique Capability:** No major FHIR server documents support for 1M+ member enumerated Groups. This ClickHouse implementation enables that scale using standard FHIR operations with incremental loading.
-
-#### The Pattern
-
-Build large Groups incrementally via PUT operations:
+You can also use PUT, where the server computes the diff automatically:
 
 ```bash
-# Step 1: Create Group with initial members (1K-10K recommended)
-POST /4_0_0/Group
-{
-  "resourceType": "Group",
-  "id": "attribution-cohort-2025",
-  "type": "person",
-  "actual": true,
-  "member": [
-    { "entity": { "reference": "Patient/1" } },
-    { "entity": { "reference": "Patient/2" } },
-    // ... up to ~10,000 members in initial POST
-  ]
-}
+# Step 1: Create with initial batch
+POST /4_0_0/Group { "member": [ /* 10K members */ ] }
 
-# Step 2: Add more members via PUT (include previous + new members)
-PUT /4_0_0/Group/attribution-cohort-2025
+# Step 2: Update with full array (server detects additions)
+PUT /4_0_0/Group/{id}
 {
   "resourceType": "Group",
-  "id": "attribution-cohort-2025",
+  "id": "cohort-2025",
   "type": "person",
   "actual": true,
   "member": [
-    // Include ALL previous members + new ones
-    { "entity": { "reference": "Patient/1" } },
-    { "entity": { "reference": "Patient/2" } },
-    // ... up to ~20,000 members total
-  ]
-}
-
-# Step 3-N: Continue adding members in batches
-PUT /4_0_0/Group/attribution-cohort-2025
-{
-  "resourceType": "Group",
-  "id": "attribution-cohort-2025",
-  "type": "person",
-  "actual": true,
-  "member": [
-    // Include ALL previous + new (30K, 40K, 50K... 1M+)
+    /* Include ALL previous members + new ones (20K total) */
   ]
 }
 ```
 
-#### How ClickHouse Handles This
+**Limitations of PUT:**
+- HTTP payload size limits (typically 6-10MB)
+- Maximum ~50K members per PUT (configurable via `MAX_GROUP_MEMBERS_PER_PUT`)
+- Larger payloads over network
 
-**Event Sourcing Optimization:**
-- Each PUT compares new member array with ClickHouse's current state
-- Only writes events with `event_type='added'` for new members
-- Only writes events with `event_type='removed'` for removed members
-- No duplicate events = efficient storage and fast queries
+**ClickHouse optimization:** The server only writes events for net changes (additions/removals), not duplicates.
 
-**Example:**
-```
-Initial: [Patient/1, Patient/2]
-Update:  [Patient/1, Patient/2, Patient/3, Patient/4]
+### Searching by Member
 
-ClickHouse writes:
-  → event_type='added': Patient/3
-  → event_type='added': Patient/4
+Find all Groups containing a specific patient:
 
-No events for Patient/1 and Patient/2 (already members)
+```bash
+GET /4_0_0/Group?member=Patient/123
+GET /4_0_0/Group?member.entity._reference=Patient/123
+GET /4_0_0/Group?member.entity._uuid=patient-uuid-123
 ```
 
-#### Benefits
+**Performance:** Sub-100ms for member lookup across all Groups (uses indexed materialized view)
 
-✅ **Respects HTTP payload limits** (6-10MB per request)
-✅ **Uses standard FHIR operations** (no custom extensions)
-✅ **Works with existing FHIR clients** (no special code needed)
-✅ **Scales to millions** (unique to this implementation)
-✅ **Complete audit trail** (every membership change logged)
-✅ **Efficient storage** (only stores deltas)
+### Reading Groups
 
-#### Batch Size Recommendations
+```bash
+GET /4_0_0/Group/{id}
+```
 
-| Batch Size | Payload Size | Use Case |
-|------------|--------------|----------|
-| 1K-5K members | ~500KB-2.5MB | Interactive API calls |
-| 5K-10K members | ~2.5MB-5MB | Batch jobs |
-| 10K-15K members | ~5MB-7.5MB | Maximum safe size |
+Returns Group metadata. The `member` array will be empty (members are stored in ClickHouse and excluded from GET responses for performance).
 
-**Note:** Monitor actual payload sizes for your data. Member object complexity affects size (period dates, inactive flags, extensions).
+### Removing Members
 
-#### Production Usage
+Use PATCH to remove specific members:
 
-Real-world scenarios using this pattern:
+```bash
+PATCH /4_0_0/Group/{id}
+Content-Type: application/json-patch+json
 
-1. **Attribution Cohorts** (100K-1M patients)
-   - Initial roster via bulk import (10K batches)
-   - Daily updates via incremental PUT operations
-   - Fast member lookup for eligibility checks
+[
+  {
+    "op": "remove",
+    "path": "/member",
+    "value": { "entity": { "reference": "Patient/123" } }
+  }
+]
+```
 
-2. **Measure Population Segments** (50K-500K patients)
-   - Initial calculation creates Group
-   - Monthly recalculation updates membership
-   - Analytics queries on membership changes over time
+Or use PUT with the reduced member array (server detects removals automatically).
 
-3. **Network Directories** (10K-100K providers)
-   - Initial directory load
-   - Weekly updates for new/departed providers
-   - Geographic and specialty-based queries
+## How It Works
 
-### Querying ClickHouse Directly
+### Event-Sourced Architecture
 
-For debugging or advanced analytics, query ClickHouse directly:
+Instead of storing members as an embedded array, ClickHouse tracks membership as immutable events:
+
+```
+Event Log                              Current State (Derived)
+─────────────────────                  ───────────────────────
+event_type='added': Patient/1 @ 10:00  → Patient/1: active
+event_type='added': Patient/2 @ 10:05  → Patient/2: active
+event_type='removed': Patient/1 @ 10:10 → Patient/1: removed
+event_type='added': Patient/1 @ 10:15  → Patient/1: active
+```
+
+Every membership change creates an event. Current state is derived using ClickHouse's `argMax` aggregation over the event log.
+
+### Dual Storage Model
+
+**MongoDB stores:**
+- Group metadata (id, name, type, actual, meta)
+- `member` array is always `[]` (stripped before save)
+
+**ClickHouse stores:**
+- Member events (`fhir_group_member_events` table)
+- Materialized current state (`fhir_group_member_current` table)
+- Reverse lookup index (`fhir_group_member_current_by_entity` table)
+
+**Write flow:**
+1. Member array stripped from resource before MongoDB save
+2. MongoDB saves Group metadata only
+3. Member events written to ClickHouse
+4. Materialized views auto-update (milliseconds)
+
+**Query routing:**
+- Member queries (`?member=Patient/X`) → ClickHouse
+- Metadata queries (`?name=MyGroup`) → MongoDB
+- GET by ID → MongoDB (members excluded)
+
+### ClickHouse Schema
+
+**Event Log** (`fhir_group_member_events`):
+```sql
+CREATE TABLE fhir.fhir_group_member_events (
+    group_id String,
+    entity_reference String,
+    entity_type LowCardinality(String),
+    event_type Enum8('added' = 1, 'removed' = 2),
+    event_time DateTime64(3, 'UTC'),
+    event_id UUID,  -- Tie-breaker for deterministic ordering
+    period_start Nullable(DateTime64(3, 'UTC')),
+    period_end Nullable(DateTime64(3, 'UTC')),
+    inactive UInt8,
+    actor String,
+    reason LowCardinality(String),
+    correlation_id String,
+    access_tags Array(String),
+    owner_tags Array(String)
+) ENGINE = MergeTree()
+ORDER BY (group_id, entity_reference, event_time, event_id);
+```
+
+**Current State** (`fhir_group_member_current`):
+- Materialized view using `AggregatingMergeTree`
+- One row per (group_id, entity_reference) after merges
+- Uses `argMax(field, (event_time, event_id))` for latest state
+- Auto-updates on every INSERT to event log
+
+**Reverse Lookup** (`fhir_group_member_current_by_entity`):
+- Ordered by (entity_reference, group_id)
+- Powers "which groups is Patient X in?" queries
+- Lightweight index for fast lookups
+
+## Architecture Diagrams
+
+### POST/PUT Flow (Create or Update Group)
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API as FHIR API
+    participant BulkInserter as DatabaseBulkInserter
+    participant Context as httpContext
+    participant Mongo as MongoDB
+    participant PostSave as PostSaveProcessor
+    participant Handler as ClickHouseGroupHandler
+    participant Builder as GroupMemberEventBuilder
+    participant Repo as GroupMemberRepository
+    participant CH as ClickHouse
+
+    Client->>API: POST /4_0_0/Group<br/>{member: [Patient/1, Patient/2]}
+    API->>BulkInserter: insertOneAsync(groupResource)
+
+    Note over BulkInserter: _handleGroupMemberStripping()
+    BulkInserter->>Context: Store original member[]
+    BulkInserter->>BulkInserter: Strip member array<br/>(set to [])
+
+    BulkInserter->>Mongo: insertOne({...group, member: []})
+    Mongo-->>BulkInserter: Success
+
+    BulkInserter->>PostSave: afterSaveAsync(CREATE)
+    PostSave->>Handler: afterSaveAsync(groupId, CREATE)
+
+    Handler->>Context: Get original member[]
+    Handler->>Builder: buildAddedEvents(members)
+    Builder-->>Handler: events[]
+
+    Handler->>Repo: appendEvents(events)
+    Repo->>CH: INSERT INTO fhir_group_member_events
+    CH->>CH: Materialized view auto-updates<br/>(fhir_group_member_current)
+    CH-->>Repo: Success
+
+    Repo-->>Handler: Success
+    Handler-->>PostSave: Success
+    PostSave-->>API: Success
+    API-->>Client: 201 Created<br/>{id, meta, member: []}
+```
+
+### PATCH Flow (Incremental Member Addition)
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API as FHIR API
+    participant PatchOp as PATCH Handler
+    participant Handler as ClickHouseGroupHandler
+    participant Repo as GroupMemberRepository
+    participant CH as ClickHouse
+    participant Context as httpContext
+    participant Mongo as MongoDB
+
+    Client->>API: PATCH /4_0_0/Group/{id}<br/>[{op: "add", path: "/member/-", value: {...}}]
+    API->>PatchOp: handle PATCH
+
+    Note over PatchOp: Detect member operations
+    PatchOp->>PatchOp: Parse member ops<br/>eventsToAdd[]<br/>eventsToRemove[]
+
+    PatchOp->>Handler: writeEventsAsync(groupId, added, removed)
+    Handler->>Repo: appendEvents(events)
+    Repo->>CH: INSERT INTO fhir_group_member_events
+    CH->>CH: Materialized view updates
+    CH-->>Repo: Success
+    Repo-->>Handler: Success
+    Handler-->>PatchOp: Success
+
+    PatchOp->>Context: Set GROUP_MEMBER_EVENTS_WRITTEN flag
+    PatchOp->>Mongo: Update metadata only<br/>(versionId, lastUpdated)
+
+    Note over PatchOp: PostSave handler sees flag,<br/>skips member processing
+
+    PatchOp-->>API: Success
+    API-->>Client: 200 OK
+```
+
+### Search by Member Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API as FHIR API
+    participant Provider as MongoWithClickHouse<br/>StorageProvider
+    participant CH as ClickHouse
+    participant Mongo as MongoDB
+
+    Client->>API: GET /4_0_0/Group?member=Patient/123
+    API->>Provider: findAsync(query)
+
+    Note over Provider: Detect member search parameter
+    Provider->>Provider: Extract member criteria<br/>from MongoDB query
+
+    Provider->>CH: SELECT group_id<br/>FROM fhir_group_member_current_by_entity<br/>WHERE entity_reference = 'Patient/123'<br/>AND event_type = 'added'
+
+    Note over CH: Uses argMax aggregation<br/>for current state
+    CH-->>Provider: [groupId1, groupId2, ...]
+
+    Provider->>Mongo: find({_id: {$in: [groupId1, groupId2]}})
+    Mongo-->>Provider: [Group metadata...]
+
+    Note over Provider: Groups returned WITHOUT<br/>member arrays (stripped)
+
+    Provider-->>API: Groups[]
+    API-->>Client: 200 OK Bundle
+```
+
+## Performance
+
+**Scale:**
+- Supports 1M+ members per Group
+- No practical upper limit (tested to 1M in performance tests)
+
+**Query Performance:**
+- Member search: <100ms (sub-second across all Groups)
+- Member count: <50ms
+- Reverse lookup: <50ms (which Groups contain Patient X)
+
+**Write Performance:**
+- PATCH (10K operations): ~1-2 seconds
+- POST (10K members): ~1-2 seconds
+- PUT with diff computation: ~2-3 seconds
+
+**Throughput:**
+- Tested: 50K members loaded incrementally in ~60 seconds
+- Real-world: Depends on network, payload size, and server resources
+
+## Querying ClickHouse Directly
+
+For debugging or advanced analytics, you can query ClickHouse directly:
 
 ```sql
 -- Connect to ClickHouse
 docker exec -it fhir-clickhouse clickhouse-client
 
--- View current members of a Group (with pagination)
-SELECT
-    entity_reference,
-    argMaxMerge(entity_type) AS entity_type,
-    argMaxMerge(event_time) AS last_event_time
-FROM fhir.fhir_group_member_current
+-- Count active members in a Group
+SELECT count() as count
+FROM (
+    SELECT entity_reference
+    FROM fhir.fhir_group_member_events
+    WHERE group_id = 'my-group-id'
+    GROUP BY entity_reference
+    HAVING argMax(event_type, (event_time, event_id)) = 'added'
+       AND argMax(inactive, (event_time, event_id)) = 0
+);
+
+-- List active members (paginated)
+SELECT entity_reference, entity_type
+FROM fhir.fhir_group_member_events
 WHERE group_id = 'my-group-id'
-  AND entity_reference > 'Patient/000000'  -- cursor for pagination
-GROUP BY entity_reference
-HAVING argMaxMerge(event_type) = 'added'
-   AND argMaxMerge(inactive) = 0
+GROUP BY entity_reference, entity_type
+HAVING argMax(event_type, (event_time, event_id)) = 'added'
+   AND argMax(inactive, (event_time, event_id)) = 0
 ORDER BY entity_reference
 LIMIT 100;
 
--- View complete event history for a Group
+-- Find Groups containing a member (reverse lookup)
+SELECT group_id
+FROM fhir.fhir_group_member_events
+WHERE entity_reference = 'Patient/123'
+GROUP BY group_id
+HAVING argMax(event_type, (event_time, event_id)) = 'added'
+   AND argMax(inactive, (event_time, event_id)) = 0;
+
+-- View complete event history for a member
 SELECT
     event_type,
     event_time,
@@ -470,138 +439,138 @@ SELECT
     correlation_id
 FROM fhir.fhir_group_member_events
 WHERE group_id = 'my-group-id'
-ORDER BY event_time ASC, event_id ASC;
-
--- Find Groups containing a specific member (reverse lookup)
-SELECT
-    group_id
-FROM fhir.fhir_group_member_current_by_entity
-WHERE entity_reference = 'Patient/123'
-GROUP BY group_id
-HAVING argMaxMerge(event_type) = 'added'
-   AND argMaxMerge(inactive) = 0;
-
--- Count active members in a Group
-SELECT count()
-FROM (
-    SELECT entity_reference
-    FROM fhir.fhir_group_member_current
-    WHERE group_id = 'my-group-id'
-    GROUP BY entity_reference
-    HAVING argMaxMerge(event_type) = 'added'
-       AND argMaxMerge(inactive) = 0
-);
-
--- View full event history for a member in a Group (care gap timeline)
-SELECT
-    event_type,
-    event_time,
-    period_start,
-    period_end,
-    inactive,
-    actor,
-    reason,
-    source,
-    correlation_id
-FROM fhir.fhir_group_member_events
-WHERE group_id = 'my-group-id'
-  AND entity_reference = 'Patient/456'
+  AND entity_reference = 'Patient/123'
 ORDER BY event_time ASC, event_id ASC;
 ```
 
-## Performance
+## Other Resources
 
-### Benchmark Results
+The ClickHouse integration architecture supports additional FHIR resource types beyond Groups. Resources planned for future implementation include:
 
-| Operation | MongoDB (50K members) | ClickHouse (1M members) | Improvement |
-|-----------|----------------------|-------------------------|-------------|
-| Create Group | ~15s | ~18s (dual-write) | Comparable |
-| GET by ID | ~2s | ~2s | Same |
-| Search by member | ~500ms | ~100ms | 5x faster |
-| Add 1 member | ~15s | ~1s | 15x faster |
-| Remove 1 member | ~15s | ~1s | 15x faster |
+- **AuditEvent**: Compliance logging and security audit trails (append-only pattern)
+- **Observation**: Device telemetry and high-volume lab results (time-series pattern)
 
-### Scalability Limits
+These resources would use the `CLICKHOUSE_ONLY` storage pattern (no MongoDB dual-write). Implementation is driven by user requirements.
 
-| Storage | Max Practical Members | Document/Table Size |
-|---------|----------------------|---------------------|
-| MongoDB | ~50,000 | 16MB BSON limit |
-| ClickHouse | 10,000,000+ | Unlimited (no partitioning) |
+## Configuration Reference
 
-## Event Types
-
-### event_type='added'
-
-Fired when a member is added to a Group.
-
-**Triggers:**
-- New member in Group.member array (POST or PUT)
-- Member re-added after previous removal
-
-**Example:**
-```json
-{
-  "event_type": "added",
-  "group_id": "my-group-id",
-  "entity_reference": "Patient/123",
-  "entity_type": "Patient",
-  "event_time": "2024-01-15T10:30:00.000Z"
-}
-```
-
-### event_type='removed'
-
-Fired when a member is removed from a Group.
-
-**Triggers:**
-- Member no longer in Group.member array (PUT)
-- Empty member array (`member: []`)
-
-**Example:**
-```json
-{
-  "event_type": "removed",
-  "group_id": "my-group-id",
-  "entity_reference": "Patient/123",
-  "event_time": "2024-01-15T11:00:00.000Z"
-}
-```
-
-## Member Lifecycle
-
-### Scenario: Add → Remove → Re-add
-
-```
-Time    Action              Events in ClickHouse           Current State (Derived Tables)
-───────────────────────────────────────────────────────────────────────────────────────
-10:00   Create Group        event_type='added' (Patient/1)    Patient/1: event_type='added'
-10:05   Update (remove)     event_type='removed' (Patient/1)  Patient/1: event_type='removed'
-10:10   Update (re-add)     event_type='added' (Patient/1)    Patient/1: event_type='added'
-```
-
-**Query behavior:**
-- At 10:00: Group appears in search for Patient/1 ✓
-- At 10:05: Group does NOT appear in search for Patient/1 ✗
-- At 10:10: Group appears in search for Patient/1 again ✓
-
-## Migration
-
-### Existing Groups
-
-Existing Groups in MongoDB will continue to work without modification. They will use MongoDB storage until updated, at which point they'll start using the dual-write pattern.
-
-### Backfill Script (Optional)
-
-To migrate existing Groups to ClickHouse:
+### Required Variables
 
 ```bash
-# Coming in future release
-node src/admin/scripts/backfillGroupsToClickHouse.js
+# Enable ClickHouse integration
+ENABLE_CLICKHOUSE=1
+
+# Resources using dual-write pattern (MongoDB + ClickHouse)
+MONGO_WITH_CLICKHOUSE_RESOURCES=Group
+
+# ClickHouse server connection
+CLICKHOUSE_HOST=127.0.0.1           # Or 'clickhouse' in Docker network
+CLICKHOUSE_PORT=8123                # HTTP interface port
+CLICKHOUSE_DATABASE=fhir            # Database name
+CLICKHOUSE_USERNAME=default         # Default for local dev
+CLICKHOUSE_PASSWORD=                # Empty for local dev
 ```
 
-## Monitoring
+### Optional Variables
 
-### Health Checks
+```bash
+# Fallback to MongoDB if ClickHouse unavailable (default: false)
+CLICKHOUSE_FALLBACK_TO_MONGO=true
+
+# Maximum PATCH operations per request (default: 10000)
+GROUP_PATCH_OPERATIONS_LIMIT=10000
+
+# Maximum members per PUT request (default: 50000)
+MAX_GROUP_MEMBERS_PER_PUT=50000
+
+# Resources using ClickHouse-only pattern (future)
+# CLICKHOUSE_ONLY_RESOURCES=AuditEvent
+```
+
+### Storage Patterns
+
+The server supports three storage patterns (configured per resource type):
+
+1. **MONGO** (default): Pure MongoDB storage
+   - Used by: Most FHIR resources (Patient, Practitioner, Observation, etc.)
+
+2. **MONGO_WITH_CLICKHOUSE** (dual-write): MongoDB metadata + ClickHouse events
+   - Used by: Group
+   - MongoDB: Resource metadata
+   - ClickHouse: High-volume data (member events)
+
+3. **CLICKHOUSE_ONLY** (append-only): Pure ClickHouse storage
+   - Planned for: AuditEvent, Observation (device telemetry)
+   - No MongoDB, append-only events
+
+## Security
+
+Group member queries respect FHIR security tags:
+
+```json
+{
+  "meta": {
+    "security": [
+      { "system": "https://www.icanbwell.com/access", "code": "client1" },
+      { "system": "https://www.icanbwell.com/owner", "code": "client1" }
+    ]
+  }
+}
+```
+
+Only Groups with matching `access` or `owner` tags are returned in search results. Security tags are stored in ClickHouse and filtered at query time.
+
+## Troubleshooting
+
+### ClickHouse Connection Errors
+
+**Symptom:** `Error connecting to ClickHouse`
+
+**Solutions:**
+1. Verify ClickHouse is running: `docker ps | grep clickhouse`
+2. Check logs: `docker logs fhir-clickhouse`
+3. Test connection: `docker exec -it fhir-clickhouse clickhouse-client`
+4. Verify `CLICKHOUSE_HOST` in configuration (use `127.0.0.1` or container name)
+
+### Groups Not Appearing in Member Search
+
+**Symptom:** `GET /Group?member=Patient/X` returns empty results
+
+**Solutions:**
+1. Wait for ClickHouse sync (materialized views update within milliseconds)
+2. Check ClickHouse has events:
+   ```sql
+   SELECT count(*) FROM fhir.fhir_group_member_events WHERE group_id = 'my-group-id';
+   ```
+3. Verify security tags match between Group and query context
+4. Check ClickHouse logs for insert errors
+
+### PATCH Operations Failing
+
+**Symptom:** `400 Bad Request` on PATCH with member operations
+
+**Solutions:**
+1. Verify `Content-Type: application/json-patch+json` header
+2. Check operation count (default limit: 10K operations)
+3. Validate PATCH operation format:
+   - Add: `{"op": "add", "path": "/member/-", "value": {"entity": {"reference": "Patient/123"}}}`
+   - Remove: `{"op": "remove", "path": "/member", "value": {"entity": {"reference": "Patient/123"}}}`
+
+### Performance Issues
+
+**Symptom:** Slow member queries (>5 seconds)
+
+**Solutions:**
+1. Verify materialized views exist:
+   ```sql
+   SHOW TABLES FROM fhir;
+   -- Should see: fhir_group_member_events, fhir_group_member_current, fhir_group_member_current_by_entity
+   ```
+2. Check ClickHouse server resources (CPU, memory)
+3. Review ClickHouse query logs for slow queries
+4. Ensure queries use indexed columns (group_id, entity_reference)
+
+## Health Monitoring
 
 The `/health` endpoint includes ClickHouse status:
 
@@ -615,422 +584,13 @@ curl http://localhost:3000/health
 }
 ```
 
-### Logs
-
-ClickHouse operations are logged with structured JSON:
-
-```json
-{
-  "level": "info",
-  "message": "Writing Group member events to ClickHouse",
-  "groupId": "my-group",
-  "additions": 5,
-  "removals": 2
-}
-```
-
-## Troubleshooting
-
-### ClickHouse Connection Errors
-
-**Symptom:** `Error connecting to ClickHouse`
-
-**Solutions:**
-1. Verify ClickHouse is running: `docker ps | grep clickhouse`
-2. Check logs: `docker logs fhir-clickhouse`
-3. Test connection: `docker exec -it fhir-clickhouse clickhouse-client`
-4. Verify environment variables in `docker-compose.yml`
-
-### Query Performance Issues
-
-**Symptom:** Member queries taking >5 seconds
-
-**Solutions:**
-1. Check ClickHouse tables exist: `SHOW TABLES FROM fhir`
-2. Verify schema: `SHOW CREATE TABLE fhir.fhir_group_member_events`
-3. Check materialized views are populated: `SELECT count(*) FROM fhir.fhir_group_member_current`
-4. Review ClickHouse logs for errors
-
-### Dual-Write Failures
-
-**Symptom:** Data in MongoDB but not ClickHouse
-
-**Solutions:**
-1. Check ClickHouse logs for insert errors
-2. Verify security tags are present on Group resource
-3. Ensure `ENABLE_CLICKHOUSE=1` is set
-4. Check `CLICKHOUSE_HYBRID_RESOURCES` includes `Group`
-
-### Fallback to MongoDB
-
-If ClickHouse becomes unavailable, the system automatically falls back to MongoDB (if configured):
-
-```bash
-# Enable automatic fallback
-CLICKHOUSE_FALLBACK_TO_MONGO=1
-```
-
-## Security
-
-### Access Control
-
-Group member queries respect FHIR security tags:
-
-```javascript
-// Only Groups with matching access/owner tags are returned
-meta: {
-  security: [
-    { system: "https://www.icanbwell.com/access", code: "client1" },
-    { system: "https://www.icanbwell.com/owner", code: "client1" }
-  ]
-}
-```
-
-### Data Isolation
-
-ClickHouse tables are partitioned by time and indexed by Group UUID, ensuring:
-- Efficient queries
-- Data locality
-- Easy archival of old data
-
-## Limitations
-
-### Architectural Limitations (All ClickHouse Resources)
-1. **No Cross-Resource Transactions**: ClickHouse and MongoDB writes are independent (eventual consistency)
-   - If MongoDB write succeeds but ClickHouse write fails, data may be inconsistent
-   - Fallback to MongoDB available via `CLICKHOUSE_FALLBACK_TO_MONGO=1`
-
-### Current Scope
-1. **Single Resource Type**: Only Group resources currently implemented
-   - Architecture supports multiple resources
-   - Additional resources driven by customer requirements
-
-### What's NOT Limited
-- **Read-After-Write Consistency**: ✅ Queries use `FINAL` modifier to force materialized view synchronization (no delay)
-- **Pagination**: ✅ Implemented via seek cursor (O(log n)) and offset-based pagination
-- **Bulk Operations**: ✅ PATCH operations support batch member add/remove operations (up to 10K per request)
-- **Security**: ✅ Access and owner tags filtered in ClickHouse queries
-- **FHIR Compliance**: ✅ All standard FHIR operations work transparently (POST, GET, PUT, PATCH, DELETE, Search)
-
-## Extending to Additional Resources
-
-The ClickHouse integration is designed to be resource-agnostic. This section provides a blueprint for adding new resources.
-
-### Prerequisites
-
-Before adding a new resource to ClickHouse:
-
-1. **Identify the Pattern**: Which storage pattern fits your use case?
-   - **MONGO_WITH_CLICKHOUSE**: Large arrays, dual-write needed (e.g., List)
-   - **CLICKHOUSE_ONLY**: Append-only, immutable events (e.g., AuditEvent, Observation)
-
-2. **Understand the Trade-offs**:
-   - Read-after-write consistency delays (<100ms)
-   - Additional infrastructure complexity
-   - Storage costs (data in both systems for dual-write)
-
-3. **Reference Implementation**: Study Group implementation as template
-
-### Pattern 1: MONGO_WITH_CLICKHOUSE (Dual-Write)
-
-Use this pattern for resources with large arrays that need metadata queries on MongoDB.
-
-**Example Use Cases:**
-- **List**: Large item arrays (1M+ entries)
-- **MeasureReport**: Large population arrays (quality measures)
-
-#### Step 1: Design Event Schema
-
-Define ClickHouse table for resource-specific events.
-
-**Example (List resources):**
-```sql
-CREATE TABLE fhir.fhir_list_item_events (
-    list_id String,
-    item_reference String,
-    item_type LowCardinality(String),
-    event_type Enum8('added' = 1, 'removed' = 2),
-    event_time DateTime64(3, 'UTC') DEFAULT now64(3, 'UTC'),
-    event_id UUID DEFAULT generateUUIDv4(),
-    deleted UInt8 DEFAULT 0,
-    actor String DEFAULT '',
-    reason LowCardinality(String) DEFAULT '',
-    source LowCardinality(String) DEFAULT '',
-    correlation_id String DEFAULT '',
-    list_source_id String DEFAULT '',
-    access_tags Array(String) DEFAULT [],
-    owner_tags Array(String) DEFAULT []
-) ENGINE = MergeTree()
-ORDER BY (list_id, item_reference, event_time, event_id);
-```
-
-#### Step 2: Create Materialized Views
-
-Create views for current state and optimized queries.
-
-**Example:**
-```sql
-CREATE TABLE fhir.fhir_list_item_current (
-    list_id String,
-    item_reference String,
-    item_type AggregateFunction(argMax, LowCardinality(String), Tuple(DateTime64(3, 'UTC'), UUID)),
-    event_type AggregateFunction(argMax, Enum8('added' = 1, 'removed' = 2), Tuple(DateTime64(3, 'UTC'), UUID)),
-    event_time AggregateFunction(argMax, DateTime64(3, 'UTC'), Tuple(DateTime64(3, 'UTC'), UUID)),
-    deleted AggregateFunction(argMax, UInt8, Tuple(DateTime64(3, 'UTC'), UUID)),
-    actor AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
-    correlation_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
-    access_tags AggregateFunction(argMax, Array(String), Tuple(DateTime64(3, 'UTC'), UUID)),
-    owner_tags AggregateFunction(argMax, Array(String), Tuple(DateTime64(3, 'UTC'), UUID))
-) ENGINE = AggregatingMergeTree
-ORDER BY (list_id, item_reference);
-
-CREATE MATERIALIZED VIEW fhir.mv_list_item_current
-TO fhir.fhir_list_item_current
-AS SELECT
-    list_id,
-    item_reference,
-    argMaxState(item_type, tuple(event_time, event_id)) AS item_type,
-    argMaxState(event_type, tuple(event_time, event_id)) AS event_type,
-    argMaxState(event_time, tuple(event_time, event_id)) AS event_time,
-    argMaxState(deleted, tuple(event_time, event_id)) AS deleted,
-    argMaxState(actor, tuple(event_time, event_id)) AS actor,
-    argMaxState(correlation_id, tuple(event_time, event_id)) AS correlation_id,
-    argMaxState(access_tags, tuple(event_time, event_id)) AS access_tags,
-    argMaxState(owner_tags, tuple(event_time, event_id)) AS owner_tags
-FROM fhir.fhir_list_item_events
-GROUP BY list_id, item_reference;
-```
-
-#### Step 3: Implement Post-Save Handler
-
-Add logic to compute deltas and write events to ClickHouse.
-
-**Location:** `src/operations/common/postSaveProcessor.js`
-
-**Reference:** Group implementation at `src/dataLayer/clickhouse/groupMemberEventWriter.js`
-
-**Key Logic:**
-```javascript
-async function writeListItemEvents(resource, previousResource) {
-    // 1. Extract current items from resource.entry
-    const currentItems = extractItems(resource);
-
-    // 2. Query ClickHouse for previous items
-    const previousItems = await queryCurrentItems(resource.id);
-
-    // 3. Compute delta
-    const additions = currentItems.filter(i => !previousItems.includes(i));
-    const removals = previousItems.filter(i => !currentItems.includes(i));
-
-    // 4. Write events to ClickHouse
-    await writeEvents(additions, removals, resource);
-}
-```
-
-#### Step 4: Update Configuration
-
-Add resource to configuration list:
-
-```bash
-MONGO_WITH_CLICKHOUSE_RESOURCES=Group,List
-```
-
-#### Step 5: Implement Query Routing
-
-Update `StorageProviderFactory` to route queries for new resource.
-
-**Location:** `src/dataLayer/providers/storageProviderFactory.js`
-
-**Reference:** Existing Group routing logic
-
-### Pattern 2: CLICKHOUSE_ONLY (Append-Only)
-
-Use this pattern for immutable, append-only resources (audit logs, events).
-
-**Example Use Cases:**
-- **AuditEvent**: Compliance logging, security audit trail
-- **Observation**: Device telemetry (wearables, IoT sensors), high-frequency lab results, continuous monitoring
-- **Communication**: Care gap outreach history
-
-#### Step 1: Design Append-Only Table
-
-Create ClickHouse table with all FHIR resource fields.
-
-**Example (AuditEvent):**
-```sql
-CREATE TABLE fhir.fhir_audit_events (
-    resource_id String,
-    recorded DateTime64(3, 'UTC'),
-    type_system String,
-    type_code String,
-    subtype_system String,
-    subtype_code String,
-    action LowCardinality(String),
-    outcome LowCardinality(String),
-    agent_who String,
-    agent_requestor UInt8,
-    agent_type_system String,
-    agent_type_code String,
-    source_observer String,
-    source_type_system String,
-    source_type_code String,
-    entity_what String,
-    entity_type LowCardinality(String),
-    entity_role LowCardinality(String),
-    raw_resource String,  -- Full FHIR JSON for completeness
-    source_id String DEFAULT '',
-    access_tags Array(String) DEFAULT [],
-    owner_tags Array(String) DEFAULT []
-) ENGINE = MergeTree()
-ORDER BY (recorded, resource_id);
-```
-
-#### Step 2: Implement Storage Provider
-
-Create ClickHouse-only storage provider.
-
-**Location:** `src/dataLayer/providers/clickhouseStorageProvider.js`
-
-**Key Methods:**
-- `createAsync()`: INSERT into ClickHouse
-- `searchAsync()`: SELECT with WHERE clauses from FHIR search params
-- `getAsync()`: SELECT by resource_uuid
-
-**Note:** No UPDATE or DELETE operations (append-only)
-
-#### Step 3: Update Configuration
-
-Add resource to ClickHouse-only list:
-
-```bash
-CLICKHOUSE_ONLY_RESOURCES=AuditEvent,Observation
-```
-
-#### Step 4: Schema Mapping
-
-Map FHIR search parameters to ClickHouse columns.
-
-**Location:** `src/dataLayer/clickhouse/searchParameterMapper.js`
-
-**Example:**
-```javascript
-const auditEventSearchParams = {
-    'date': 'recorded',
-    'entity': 'entity_what',
-    'agent': 'agent_who',
-    'action': 'action',
-    'type': 'type_code'
-};
-```
-
-### Testing New Resources
-
-After implementation:
-
-1. **Unit Tests**: Test event writing, query routing, delta computation
-2. **Integration Tests**: Test full CRUD operations
-3. **Performance Tests**: Verify query performance at scale
-4. **Migration Tests**: Test backward compatibility with existing MongoDB data
-
-### Complete Example: Group Implementation
-
-Study the Group implementation for a complete reference:
-
-**Event Schema:**
-- `clickhouse-init/01-init-schema.sql` (complete schema with all tables and views)
-
-**Event Writer:**
-- `src/dataLayer/clickhouse/groupMemberEventWriter.js`
-
-**Query Router:**
-- `src/dataLayer/providers/storageProviderFactory.js`
-- `src/operations/search/groupSearchHandler.js`
-
-**Post-Save Hook:**
-- `src/operations/common/postSaveProcessor.js`
-
-**Configuration:**
-- `src/utils/configManager.js` (MONGO_WITH_CLICKHOUSE_RESOURCES)
-
-## Future Enhancements
-
-### Near-Term Optimizations (Group Resources)
-
-**Temporal Queries**
-- Query Group membership at specific point in time
-- Example: "Who was in this cohort on 2024-01-15?"
-- Use event log to reconstruct historical state
-
-**Bulk Operations**
-- Batch member additions/removals via FHIR Batch/Transaction
-- Reduce HTTP overhead for large membership updates
-- Target: 100K member updates in single operation
-
-**GraphQL Support**
-- ClickHouse-backed GraphQL resolvers for Group queries
-- Eliminate need for REST pagination
-- Direct access to materialized views
-
-**Analytics Endpoints**
-- Membership trend analysis
-- Cohort overlap queries
-- Member churn metrics
-
-### Additional Resource Candidates
-
-Implementation of additional resources will be driven by customer requirements. The architecture supports:
-
-**MONGO_WITH_CLICKHOUSE Pattern (Dual-Write):**
-- **List**: Large item arrays for care plan tracking, formularies
-- **MeasureReport**: Quality measure populations (numerator/denominator/exclusion arrays)
-
-**CLICKHOUSE_ONLY Pattern (Append-Only):**
-- **AuditEvent** *(Most viable near-term)*: Security audit logs, compliance tracking
-  - High volume, immutable, analytical queries
-  - No need for MongoDB metadata
-  - Complementary to existing MongoDB AuditEvent storage
-- **Observation** *(Device Telemetry)*: Wearables, IoT sensors, continuous monitoring devices
-  - Time-series data from patient monitoring devices
-  - High-volume streaming telemetry (heart rate, blood pressure, glucose)
-  - Analytical queries on vital signs trends and anomaly detection
-  - Scalable storage for millions of device readings
-- **Communication**: Care gap outreach tracking, patient engagement history
-
-### Strategic Vision: Complementary Analytical Data Plane
-
-ClickHouse positions the FHIR server as a **real-time analytical platform**, not just transactional storage:
-
-**Traditional FHIR Architecture:**
-- FHIR Server → Transactional queries (milliseconds)
-- Data Warehouse → Analytical queries (hours/days)
-
-**With ClickHouse Integration:**
-- FHIR Server → Transactional + analytical queries (milliseconds)
-- Real-time cohort analysis, membership trends, audit queries
-- Eliminates need for batch ETL pipelines for many use cases
-
-**Target Analytical Queries:**
-- "Find all Groups with >10K members added in last 30 days"
-- "Show membership churn rate by Group type"
-- "Audit trail: Who accessed resource X in past 90 days?"
-
-### Infrastructure Enhancements
-
-- **Read Replicas**: Horizontal scaling for ClickHouse read operations
-- **Sharding**: Partition data across multiple ClickHouse clusters
-- **Tiered Storage**: Hot/cold data separation (recent vs. historical events)
-
-**Note:** All enhancements driven by customer needs. No timeline commitments.
-
 ## Related Documentation
 
+- [FHIR Group Resource Specification](https://www.hl7.org/fhir/group.html)
 - [Performance Optimization](./performance.md)
 - [Security Model](./security.md)
-- [Everything Operation](./everything.md)
-- [Merge Functionality](./merge.md)
 
 ## Support
 
-For issues or questions:
+For issues or questions, please open a GitHub issue:
 - GitHub Issues: https://github.com/icanbwell/fhir-server/issues
-- Internal Slack: #helix-fhir-server
