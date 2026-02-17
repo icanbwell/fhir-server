@@ -297,6 +297,9 @@ class UpdateOperation {
             let updatedResource;
             let patches;
 
+            const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
+
+
             // check if resource was found in database or not
             // noinspection JSUnresolvedVariable
             if (data && data.meta) {
@@ -306,13 +309,16 @@ class UpdateOperation {
                     requestInfo, resource: foundResource, base_version
                 });
                 // If-Match/version check logic (optimistic locking)
-                const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
-                if (ifMatch && data.meta.versionId) {
-                    const normalizeETag = (etag) => (etag || '').replace(/^W\//, '').replace(/"/g, '');
-                    const versionIds = ifMatch.split(',').map(v => normalizeETag(v.trim()));
-                    const currentVersionId = normalizeETag(data.meta.versionId);
-                    if (!versionIds.includes(currentVersionId) && !versionIds.includes('*')) {
-                        throw new PreconditionFailedError('Version conflict: If-Match does not match current resource version.');
+                if (ifMatch) {
+                    if (data.meta.versionId) {
+                        const normalizeETag = (etag) => (etag || '').replace(/^W\//, '').replace(/"/g, '');
+                        const versionIds = ifMatch.split(',').map(v => normalizeETag(v.trim()));
+                        const currentVersionId = normalizeETag(String(data.meta.versionId));
+                        if (!versionIds.includes(currentVersionId) && !versionIds.includes('*')) {
+                            throw new PreconditionFailedError('Version conflict: If-Match does not match current resource version.');
+                        }
+                    } else {
+                        throw new PreconditionFailedError('Version conflict: Resource does not have a versionId, but If-Match header was provided.');
                     }
                 }
                 ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
@@ -325,6 +331,9 @@ class UpdateOperation {
                 }));
                 doc = updatedResource;
             } else {
+                if (ifMatch) {
+                    throw new PreconditionFailedError('Version conflict: Resource does not exist, but If-Match header was provided.');
+                }
                 doc = resource_incoming;
             }
             if (doc) {

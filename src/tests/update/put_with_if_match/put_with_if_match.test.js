@@ -97,4 +97,15 @@ describe('PUT with If-Match (optimistic locking)', () => {
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.name[0].given[0]).toBe('Jim');
     });
+
+    it('should fail with 412 Precondition Failed when If-Match is provided but resource does not exist', async () => {
+        const nonExistentId = 'non-existent-id';
+        const updatedResource = { ...resource, id: nonExistentId, name: [{ given: ['Justin'], family: 'Smith' }] };
+        const resp = await request
+            .put(`/4_0_0/Patient/${nonExistentId}`)
+            .send(updatedResource)
+            .set({ ...getHeaders(), 'If-Match': '*' });
+        expect(resp).toHaveStatusCode(412);
+        expect(resp.body.issue[0].code).toBe('precondition-failed');
+    });
 });
