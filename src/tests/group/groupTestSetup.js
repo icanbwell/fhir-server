@@ -116,9 +116,6 @@ async function setupGroupTests() {
     // Start setup and store promise
     setupPromise = (async () => {
         try {
-            // Ensure ClickHouse is running before starting tests
-            await ensureClickHouse();
-
             // Initialize common test infrastructure
             await commonBeforeEach();
 
@@ -130,7 +127,9 @@ async function setupGroupTests() {
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
 
             // Wait for ClickHouse to be ready
-            await waitForClickHouse(sharedClickHouseManager);
+            // In CI, ClickHouse service should be running (GitHub Actions service)
+            // Locally, ensureClickHouse() would have started it
+            await waitForClickHouse(sharedClickHouseManager, 30000);
 
             // Initialize schema
             await initializeClickHouseSchema(sharedClickHouseManager);
