@@ -61,8 +61,14 @@ class QueryFragments {
             return '';
         }
 
-        // Escape backslashes first, then single quotes (prevents SQL injection)
-        const escapedValue = afterValue.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        // Validate column parameter (allowlist for SQL injection prevention)
+        const allowedColumns = ['entity_reference', 'group_id', 'event_time', 'event_id', 'access_tags', 'owner_tags'];
+        if (!allowedColumns.includes(column)) {
+            throw new Error(`Invalid column name: ${column}`);
+        }
+
+        // Use ClickHouse proper escaping: double single quotes (not backslash escaping)
+        const escapedValue = afterValue.replace(/'/g, "''");
         return `AND ${column} > '${escapedValue}'`;
     }
 
@@ -109,8 +115,14 @@ class QueryFragments {
             return 'WHERE group_id = {groupId:String}';
         }
 
-        // Escape backslashes first, then single quotes (prevents SQL injection)
-        const escapedId = groupId.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        // Validate UUID format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(groupId)) {
+            throw new Error('Invalid group ID format. Must be a UUID.');
+        }
+
+        // Use ClickHouse proper escaping: double single quotes (not backslash escaping)
+        const escapedId = groupId.replace(/'/g, "''");
         return `WHERE group_id = '${escapedId}'`;
     }
 
@@ -131,8 +143,8 @@ class QueryFragments {
             return 'WHERE entity_reference = {entityReference:String}';
         }
 
-        // Escape backslashes first, then single quotes (prevents SQL injection)
-        const escapedRef = entityReference.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        // Use ClickHouse proper escaping: double single quotes (not backslash escaping)
+        const escapedRef = entityReference.replace(/'/g, "''");
         return `WHERE entity_reference = '${escapedRef}'`;
     }
 
@@ -153,7 +165,15 @@ class QueryFragments {
      * @returns {string} SQL ORDER BY clause
      */
     static orderByEntityReference(direction = 'ASC') {
-        return `ORDER BY entity_reference ${direction}`;
+        // Strict allowlist validation to prevent SQL injection
+        const allowedDirections = ['ASC', 'DESC'];
+        const normalizedDirection = direction.toUpperCase();
+
+        if (!allowedDirections.includes(normalizedDirection)) {
+            throw new Error(`Invalid direction. Must be one of: ${allowedDirections.join(', ')}`);
+        }
+
+        return `ORDER BY entity_reference ${normalizedDirection}`;
     }
 
     /**
@@ -195,8 +215,8 @@ class QueryFragments {
         }
 
         // Build array literal for ClickHouse
-        // Escape backslashes first, then single quotes (prevents SQL injection)
-        const tagsList = accessTags.map(tag => `'${tag.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`).join(', ');
+        // Use ClickHouse proper escaping: double single quotes (not backslash escaping)
+        const tagsList = accessTags.map(tag => `'${tag.replace(/'/g, "''")}'`).join(', ');
         return `AND hasAny(access_tags, [${tagsList}])`;
     }
 
@@ -224,8 +244,8 @@ class QueryFragments {
             return 'AND hasAny(owner_tags, {ownerTags:Array(String)})';
         }
 
-        // Escape backslashes first, then single quotes (prevents SQL injection)
-        const tagsList = ownerTags.map(tag => `'${tag.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`).join(', ');
+        // Use ClickHouse proper escaping: double single quotes (not backslash escaping)
+        const tagsList = ownerTags.map(tag => `'${tag.replace(/'/g, "''")}'`).join(', ');
         return `AND hasAny(owner_tags, [${tagsList}])`;
     }
 }

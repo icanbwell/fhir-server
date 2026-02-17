@@ -338,8 +338,10 @@ class ClickHouseClientManager {
                 return;
             }
 
+            // Use parameterized query with Identifier type for table names
             await this.queryAsync({
-                query: `TRUNCATE TABLE ${tableName}`
+                query: `TRUNCATE TABLE {table:Identifier}`,
+                query_params: { table: tableName }
             });
 
             logDebug('Table truncated successfully', { tableName });
