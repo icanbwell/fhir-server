@@ -35,19 +35,20 @@ jobs:
       matrix:
         shard: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
       fail-fast: false
-    services:
-      clickhouse:
-        image: clickhouse/clickhouse-server:24.1
-        ports:
-          - 8123:8123
-          - 9000:9000
-        options: >-
-          --health-cmd "wget --spider -q http://localhost:8123/ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
+      - name: Start ClickHouse container
+        run: |
+          docker-compose up -d clickhouse
+          echo "Waiting for ClickHouse to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8123/ping > /dev/null; then
+              echo "✓ ClickHouse is ready"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
