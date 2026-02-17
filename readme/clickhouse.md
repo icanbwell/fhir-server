@@ -190,6 +190,10 @@ CLICKHOUSE_PASSWORD=                # Empty for local dev
 # Fallback to MongoDB if ClickHouse unavailable (default: false)
 CLICKHOUSE_FALLBACK_TO_MONGO=true
 
+# Streaming responses for search results (default: false)
+# Enables NDJSON streaming format for memory-efficient large result sets
+STREAM_RESPONSE=true
+
 # ClickHouse-only resources: Append-only resources (future implementation)
 # CLICKHOUSE_ONLY_RESOURCES=AuditEvent,Observation
 
@@ -232,18 +236,37 @@ clickhouse:
 
 ## Usage
 
-### Standard FHIR Queries (Transparent)
+### Standard FHIR Operations (Transparent)
 
-The ClickHouse integration is transparent to API consumers. Standard FHIR queries work without modification:
+The ClickHouse integration is transparent to API consumers. All standard FHIR operations work without modification:
 
+#### Search Operations
 ```bash
-# Find Groups containing a specific member
+# Find Groups containing a specific member (sub-100ms performance)
 GET /4_0_0/Group?member.entity._uuid=patient-uuid-123
+GET /4_0_0/Group?member.entity._reference=Patient/123
 
-# Get Group by ID (includes all members from MongoDB)
+# Search with pagination (cursor-based, O(log n))
+GET /4_0_0/Group?member.entity._uuid=patient-uuid-123&_count=100
+
+# Search with streaming (configurable, optimal for large result sets)
+GET /4_0_0/Group?member.entity._uuid=patient-uuid-123
+# With STREAM_RESPONSE=true:
+#   Returns: application/x-ndjson (NDJSON streaming format)
+#   Memory efficient: Resources streamed as they're retrieved
+#   No buffering: Client receives results immediately
+```
+
+#### Read Operations
+```bash
+# Get Group by ID
 GET /4_0_0/Group/my-group-id
+# Note: GET returns metadata only, not full member array (use search for members)
+```
 
-# Create Group with members
+#### Create Operations (Small Groups)
+```bash
+# Create Group with members (<10K members)
 POST /4_0_0/Group
 {
   "resourceType": "Group",
@@ -254,32 +277,61 @@ POST /4_0_0/Group
     {"entity": {"reference": "Patient/2"}}
   ]
 }
-
-# Update Group (add/remove members)
-PUT /4_0_0/Group/my-group-id
-{
-  ...with updated member array...
-}
 ```
 
-### Building Large Groups: Incremental Loading Pattern
+#### Bulk Operations via PATCH (Recommended for Member Changes)
+```bash
+# Add members in bulk (up to 10K per request)
+PATCH /4_0_0/Group/my-group-id
+Content-Type: application/json-patch+json
 
-For Groups with >50K members, use the **incremental loading pattern** to respect HTTP payload limits while building Groups at scale:
+[
+  { "op": "add", "path": "/member/-", "value": { "entity": { "reference": "Patient/1" } } },
+  { "op": "add", "path": "/member/-", "value": { "entity": { "reference": "Patient/2" } } }
+]
 
-#### Why Incremental Loading?
+# Remove members by reference
+PATCH /4_0_0/Group/my-group-id
+[
+  { "op": "remove", "path": "/member", "value": { "entity": { "reference": "Patient/1" } } }
+]
+```
+
+### Building Large Groups: Incremental Loading Pattern (Preferred)
+
+**⚠️ Preferred Method for Groups >50K Members**
+
+For Groups with >50K members, use the **incremental loading pattern** to respect HTTP payload limits while achieving 1M+ member scale:
+
+#### Why Incremental Loading is Preferred
+
+**When to Use Incremental Loading:**
+- ✅ **Preferred for:** Groups with >50K members
+- ✅ **Achieves:** 1M+ member scale using standard FHIR operations
+- ✅ **Respects:** HTTP payload limits (6-10MB typical)
+- ✅ **Performance:** Event-sourced writes are optimized for incremental updates
+
+**Alternative Approaches and Limitations:**
+
+| Approach | Max Members | Performance | Use Case |
+|----------|-------------|-------------|----------|
+| **Incremental PUT** (Preferred) | 1M+ | Excellent | Large Groups, batch jobs, initial loads |
+| **PATCH Bulk Operations** | 10K per request | Good | Daily updates, small additions |
+| **Single POST** | ~10K-15K | Good | Small Groups, interactive creation |
+| **FHIR Bulk Data Export/Import** | Not yet implemented | N/A | Future consideration |
 
 **HTTP/Express Payload Limits:**
 - Default payload limit: ~6MB (configurable but typically 6-10MB)
 - Single POST with 100K+ members exceeds these limits → HTTP 413 errors
 - Standard across FHIR implementations (HAPI, AWS HealthLake, Google Cloud)
 
-**Industry Approach:**
+**Industry Comparison:**
 - **HAPI FHIR**: No documented limit, relies on Bulk Export for large datasets
 - **AWS HealthLake**: ~6-10MB payload limits (standard AWS API Gateway limits)
 - **Google Cloud Healthcare**: ~10MB request size limits
 - **FHIR Specification**: Recommends 'definitional' Groups (criteria-based) for large populations
 
-**Unique Capability:** No major FHIR server documents support for 1M+ member enumerated Groups. This ClickHouse implementation enables that scale using standard FHIR operations.
+**Unique Capability:** No major FHIR server documents support for 1M+ member enumerated Groups. This ClickHouse implementation enables that scale using standard FHIR operations with incremental loading.
 
 #### The Pattern
 
@@ -644,17 +696,21 @@ ClickHouse tables are partitioned by time and indexed by Group UUID, ensuring:
 ## Limitations
 
 ### Architectural Limitations (All ClickHouse Resources)
-1. **Read-After-Write Consistency**: Brief delay (<100ms) before data appears in materialized views
-2. **No Cross-Resource Transactions**: ClickHouse and MongoDB writes are independent (eventual consistency)
-
-### Group-Specific Limitations (Current Implementation)
-1. **No Pagination**: Full member array returned in GET requests (use `_elements` to limit fields)
-2. **Bulk Operations**: No native batch member add/remove (use incremental PUT pattern)
+1. **No Cross-Resource Transactions**: ClickHouse and MongoDB writes are independent (eventual consistency)
+   - If MongoDB write succeeds but ClickHouse write fails, data may be inconsistent
+   - Fallback to MongoDB available via `CLICKHOUSE_FALLBACK_TO_MONGO=1`
 
 ### Current Scope
 1. **Single Resource Type**: Only Group resources currently implemented
    - Architecture supports multiple resources
    - Additional resources driven by customer requirements
+
+### What's NOT Limited
+- **Read-After-Write Consistency**: ✅ Queries use `FINAL` modifier to force materialized view synchronization (no delay)
+- **Pagination**: ✅ Implemented via seek cursor (O(log n)) and offset-based pagination
+- **Bulk Operations**: ✅ PATCH operations support batch member add/remove operations (up to 10K per request)
+- **Security**: ✅ Access and owner tags filtered in ClickHouse queries
+- **FHIR Compliance**: ✅ All standard FHIR operations work transparently (POST, GET, PUT, PATCH, DELETE, Search)
 
 ## Extending to Additional Resources
 
