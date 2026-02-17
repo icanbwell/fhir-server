@@ -114,7 +114,7 @@ We do not have any maximum number for `_count`. It can be anything but `_count=0
 
 ### 1.5 Additional Filters
 
-Helix FHIR Server supports all the standard FHIR search parameters: https://www.hl7.org/fhir/R4B/searchparameter-registry.html. Below are some examples:
+The FHIR Server supports all the standard FHIR search parameters: https://www.hl7.org/fhir/R4B/searchparameter-registry.html. Below are some examples:
 
 | Filter By                 | Query Parameter                                                                                                                    | Example                                                                                                                                                                                                          | Supported for Resources                                                           |     |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --- |
@@ -233,7 +233,7 @@ FHIR Specification: https://www.hl7.org/fhir/R4B/http.html#delete
 
 ## 6. Requesting a graph of related resources
 
-Requesting resources and then requesting the related resources can result in many calls which can be slow. The Helix FHIR server provides the $graph endpoint to do this in one call.
+Requesting resources and then requesting the related resources can result in many calls which can be slow. The FHIR server provides the $graph endpoint to do this in one call.
 
 Use the [$graph](graph.md) endpoint to get a resource and the specified related resources. The requested graph is passed in as GraphDefinition in the body and all the resources are returned in a `Bundle`.
 
