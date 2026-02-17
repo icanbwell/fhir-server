@@ -1,3 +1,4 @@
+const { describe, test, beforeEach, expect, jest } = require('@jest/globals');
 const { ClickHouseStorageProvider } = require('./clickHouseStorageProvider');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 

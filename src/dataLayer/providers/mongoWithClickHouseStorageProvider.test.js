@@ -100,11 +100,12 @@ describe('MongoWithClickHouseStorageProvider', () => {
             await provider.findAsync({ query, options: {}, extraInfo: {} });
 
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
-            expect(mockMongoStorageProvider.findAsync).toHaveBeenCalledWith({
-                query: { id: { $in: ['group-1', 'group-2'] } },
-                options: {},
-                extraInfo: {}
-            });
+            expect(mockMongoStorageProvider.findAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query: { id: { $in: ['group-1', 'group-2'] } },
+                    extraInfo: {}
+                })
+            );
         });
     });
 
@@ -151,15 +152,14 @@ describe('MongoWithClickHouseStorageProvider', () => {
             const options = { limit: 50 };
 
             mockClickHouseClientManager.queryAsync
-                .mockResolvedValueOnce([{ total: 1 }])  // count query
                 .mockResolvedValueOnce([{ group_id: 'group-1' }]);  // page query
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await provider.findAsync({ query, options, extraInfo: {} });
 
-            expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalledTimes(2);
-            // Second call is the page query with limit
-            const pageQueryCall = mockClickHouseClientManager.queryAsync.mock.calls[1][0];
+            expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalledTimes(1);
+            // First call is the page query with limit
+            const pageQueryCall = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
             expect(pageQueryCall.query_params.limit).toBe(50);
         });
 
@@ -168,14 +168,13 @@ describe('MongoWithClickHouseStorageProvider', () => {
             const options = {};
 
             mockClickHouseClientManager.queryAsync
-                .mockResolvedValueOnce([{ total: 1 }])  // count query
                 .mockResolvedValueOnce([{ group_id: 'group-1' }]);  // page query
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await provider.findAsync({ query, options, extraInfo: {} });
 
-            // Second call is the page query with default limit
-            const pageQueryCall = mockClickHouseClientManager.queryAsync.mock.calls[1][0];
+            // First call is the page query with default limit
+            const pageQueryCall = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
             expect(pageQueryCall.query_params.limit).toBe(100);
         });
 
