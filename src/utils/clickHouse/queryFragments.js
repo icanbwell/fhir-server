@@ -164,6 +164,66 @@ class QueryFragments {
     static limit(limit) {
         return `LIMIT ${parseInt(limit, 10)}`;
     }
+
+    /**
+     * Builds WHERE clause for filtering by access tags (security authorization)
+     *
+     * This enforces that the user has access to the resource based on meta.security tags.
+     * In ClickHouse, these are stored in the access_tags Array(String) column.
+     *
+     * @param {string[]} accessTags - Array of access tag codes
+     * @param {boolean} [parameterized=false] - Use parameterized query
+     *
+     * @returns {string} SQL WHERE clause fragment
+     *
+     * @example
+     * QueryFragments.whereAccessTags(['client1', 'client2'])
+     * // Returns: "AND hasAny(access_tags, ['client1', 'client2'])"
+     *
+     * QueryFragments.whereAccessTags(['client1'], true)
+     * // Returns: "AND hasAny(access_tags, {accessTags:Array(String)})"
+     */
+    static whereAccessTags(accessTags, parameterized = false) {
+        if (!accessTags || accessTags.length === 0) {
+            return '';
+        }
+
+        if (parameterized) {
+            return 'AND hasAny(access_tags, {accessTags:Array(String)})';
+        }
+
+        // Build array literal for ClickHouse
+        const tagsList = accessTags.map(tag => `'${tag.replace(/'/g, "\\'")}'`).join(', ');
+        return `AND hasAny(access_tags, [${tagsList}])`;
+    }
+
+    /**
+     * Builds WHERE clause for filtering by owner tags
+     *
+     * This enforces that the user is the owner of the resource based on meta.security owner tags.
+     * In ClickHouse, these are stored in the owner_tags Array(String) column.
+     *
+     * @param {string[]} ownerTags - Array of owner tag codes
+     * @param {boolean} [parameterized=false] - Use parameterized query
+     *
+     * @returns {string} SQL WHERE clause fragment
+     *
+     * @example
+     * QueryFragments.whereOwnerTags(['org1'])
+     * // Returns: "AND hasAny(owner_tags, ['org1'])"
+     */
+    static whereOwnerTags(ownerTags, parameterized = false) {
+        if (!ownerTags || ownerTags.length === 0) {
+            return '';
+        }
+
+        if (parameterized) {
+            return 'AND hasAny(owner_tags, {ownerTags:Array(String)})';
+        }
+
+        const tagsList = ownerTags.map(tag => `'${tag.replace(/'/g, "\\'")}'`).join(', ');
+        return `AND hasAny(owner_tags, [${tagsList}])`;
+    }
 }
 
 module.exports = { QueryFragments };

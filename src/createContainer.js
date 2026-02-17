@@ -91,7 +91,6 @@ const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
 const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
 const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
-const {GroupInvariantValidator} = require('./operations/merge/validators/groupInvariantValidator');
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
 const {PostSaveHandlerFactory} = require('./dataLayer/postSaveHandlers/postSaveHandlerFactory');
@@ -435,7 +434,6 @@ const createContainer = function () {
                     resourceValidator: c.resourceValidator
                 }),
                 new ParametersResourceValidator(),
-                new GroupInvariantValidator(),
                 new MergeResourceValidator({
                     mergeManager: c.mergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,

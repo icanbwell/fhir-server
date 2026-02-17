@@ -528,6 +528,116 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
+     * Extracts security tags from MongoDB query for ClickHouse filtering
+     *
+     * Security tags in MongoDB queries look like:
+     * { 'meta.security': { $elemMatch: { system: 'https://...', code: { $in: ['tag1', 'tag2'] } } } }
+     *
+     * In ClickHouse, these are stored as:
+     * - access_tags Array(String) - from meta.security with system=access
+     * - owner_tags Array(String) - from meta.security with system=owner
+     *
+     * @param {Object} query - MongoDB query object
+     * @returns {{accessTags: string[], ownerTags: string[]}} Extracted security tags
+     * @private
+     */
+    _extractSecurityTags(query) {
+        const result = {
+            accessTags: [],
+            ownerTags: []
+        };
+
+        const ACCESS_SYSTEM = 'https://www.icanbwell.com/access';
+        const OWNER_SYSTEM = 'https://www.icanbwell.com/owner';
+
+        /**
+         * Extract codes from $elemMatch condition
+         * @param {Object} elemMatch - $elemMatch condition object
+         * @param {string} targetSystem - System URL to match
+         * @returns {string[]} Array of codes
+         */
+        const extractCodesFromElemMatch = (elemMatch, targetSystem) => {
+            if (!elemMatch || typeof elemMatch !== 'object') {
+                return [];
+            }
+
+            // Check if system matches
+            if (elemMatch.system !== targetSystem) {
+                return [];
+            }
+
+            // Extract code(s)
+            if (elemMatch.code) {
+                if (typeof elemMatch.code === 'string') {
+                    return [elemMatch.code];
+                }
+                if (elemMatch.code.$in && Array.isArray(elemMatch.code.$in)) {
+                    return elemMatch.code.$in;
+                }
+                if (elemMatch.code.$eq) {
+                    return [elemMatch.code.$eq];
+                }
+            }
+
+            return [];
+        };
+
+        /**
+         * Recursively extract security tags from nested query structure
+         * @param {Object} obj - Query object to search
+         */
+        const extractRecursive = (obj) => {
+            if (!obj || typeof obj !== 'object') {
+                return;
+            }
+
+            // Check for meta.security $elemMatch
+            if (obj['meta.security'] && obj['meta.security'].$elemMatch) {
+                const elemMatch = obj['meta.security'].$elemMatch;
+
+                // Extract access tags
+                const accessCodes = extractCodesFromElemMatch(elemMatch, ACCESS_SYSTEM);
+                result.accessTags.push(...accessCodes);
+
+                // Extract owner tags
+                const ownerCodes = extractCodesFromElemMatch(elemMatch, OWNER_SYSTEM);
+                result.ownerTags.push(...ownerCodes);
+            }
+
+            // Check for _access.* index fields (alternative MongoDB index-based query format)
+            for (const key of Object.keys(obj)) {
+                if (key.startsWith('_access.')) {
+                    const accessCode = key.substring('_access.'.length);
+                    if (obj[key] === 1) {
+                        result.accessTags.push(accessCode);
+                    }
+                }
+            }
+
+            // Recurse into $and and $or arrays
+            if (obj.$and && Array.isArray(obj.$and)) {
+                obj.$and.forEach(extractRecursive);
+            }
+            if (obj.$or && Array.isArray(obj.$or)) {
+                obj.$or.forEach(extractRecursive);
+            }
+        };
+
+        extractRecursive(query);
+
+        // Deduplicate tags
+        result.accessTags = [...new Set(result.accessTags)];
+        result.ownerTags = [...new Set(result.ownerTags)];
+
+        logDebug('Extracted security tags from query', {
+            accessTags: result.accessTags,
+            ownerTags: result.ownerTags
+        });
+
+        return result;
+    }
+
+    /**
      * Queries ClickHouse for Groups containing specified member
      * Uses argMax with tuple tie-breaker for deterministic results
      *
@@ -580,10 +690,15 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             const extractedCriteria = this._extractMemberCriteria(cleanQuery);
             const { memberUuid, memberSourceId, memberReference } = extractedCriteria;
 
-            logDebug('Extracted member search criteria', {
+            // Extract security tags for authorization filtering
+            const { accessTags, ownerTags } = this._extractSecurityTags(query);
+
+            logDebug('Extracted search criteria', {
                 memberUuid,
                 memberSourceId,
-                memberReference
+                memberReference,
+                accessTags,
+                ownerTags
             });
 
             // Build ClickHouse query with argMax and tuple tie-breaker
@@ -622,6 +737,17 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                     query
                 });
                 return await this.mongoStorageProvider.findAsync({ query, options, extraInfo });
+            }
+
+            // Apply security tag filtering (CRITICAL for authorization)
+            // This ensures ClickHouse queries respect the same access controls as MongoDB
+            if (accessTags.length > 0) {
+                whereClause += ` ${QueryFragments.whereAccessTags(accessTags, true)}`;
+                queryParams.accessTags = accessTags;
+            }
+            if (ownerTags.length > 0) {
+                whereClause += ` ${QueryFragments.whereOwnerTags(ownerTags, true)}`;
+                queryParams.ownerTags = ownerTags;
             }
 
             // Build page query with pagination
