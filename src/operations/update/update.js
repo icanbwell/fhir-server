@@ -315,9 +315,25 @@ class UpdateOperation {
                         const versionIds = ifMatch.split(',').map(v => normalizeETag(v.trim()));
                         const currentVersionId = normalizeETag(String(data.meta.versionId));
                         if (!versionIds.includes(currentVersionId) && !versionIds.includes('*')) {
+                            await this.fhirLoggingManager.logOperationFailureAsync({
+                                requestInfo,
+                                args: parsedArgs.getRawArgs(),
+                                resourceType,
+                                startTime,
+                                action: currentOperationName,
+                                error: new PreconditionFailedError(`Version conflict: If-Match does not match current resource version. Older version: ${currentVersionId}, If-Match: ${ifMatch}`)
+                            });
                             throw new PreconditionFailedError('Version conflict: If-Match does not match current resource version.');
                         }
                     } else {
+                        await this.fhirLoggingManager.logOperationFailureAsync({
+                            requestInfo,
+                            args: parsedArgs.getRawArgs(),
+                            resourceType,
+                            startTime,
+                            action: currentOperationName,
+                            error: new PreconditionFailedError(`Version conflict: Resource does not have a versionId, but If-Match header was provided. If-Match: ${ifMatch}`)
+                        });
                         throw new PreconditionFailedError('Version conflict: Resource does not have a versionId, but If-Match header was provided.');
                     }
                 }
@@ -332,6 +348,14 @@ class UpdateOperation {
                 doc = updatedResource;
             } else {
                 if (ifMatch) {
+                    await this.fhirLoggingManager.logOperationFailureAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName,
+                        error: new PreconditionFailedError(`Version conflict: Resource does not exist, but If-Match header was provided. If-Match: ${ifMatch}`)
+                    });
                     throw new PreconditionFailedError('Version conflict: Resource does not exist, but If-Match header was provided.');
                 }
                 doc = resource_incoming;
