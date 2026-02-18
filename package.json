@@ -118,9 +118,11 @@
     "jws": "3.2.3",
     "js-yaml": "4.1.1",
     "body-parser": "2.2.1",
-    "qs": "6.14.1",
     "@smithy/config-resolver": "4.4.0",
-    "express": "4.22.0"
+    "express": "4.22.0",
+    "ajv": "8.18.0",
+    "qs": "6.14.2",
+    "@aws-sdk/xml-builder": "3.972.5"
   },
   "dependencies": {
     "@apollo/server": "4.13.0",
@@ -128,7 +130,7 @@
     "@as-integrations/express5": "^1.1.0",
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
-    "@aws-sdk/client-s3": "3.894.0",
+    "@aws-sdk/client-s3": "3.980.0",
     "@aws-sdk/lib-storage": "^3.824.0",
     "@godaddy/terminus": "^4.12.1",
     "@graphql-tools/load-files": "^7.0.1",
