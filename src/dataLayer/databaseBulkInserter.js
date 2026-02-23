@@ -171,7 +171,8 @@ class DatabaseBulkInserter extends EventEmitter {
         const contextFieldName = `${resource.resourceType.toLowerCase()}${config.field.charAt(0).toUpperCase()}${config.field.slice(1)}s`;
         const arrayData = contextData?.[contextFieldName] || resource[fieldName] || [];
 
-        // TODO: Remove httpContext.set() after Phase 2 migration complete
+        // Store array data in httpContext so post-save handler can access it after MongoDB save
+        // This is the communication mechanism between pre-save (stripping) and post-save (ClickHouse write)
         const contextKey = CONTEXT_KEYS[config.contextKey](resource.id);
         httpContext.set(contextKey, arrayData);
 
