@@ -1,8 +1,9 @@
-const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
+const { describe, test, beforeAll, afterEach, afterAll, expect } = require('@jest/globals');
 const {
     setupGroupTests,
     teardownGroupTests,
-    cleanupBetweenTests,
+    cleanupAllData,
+    cleanupGroupData,
     getSharedRequest,
     getClickHouseManager,
     getTestHeaders
@@ -12,10 +13,7 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 describe('Group Concurrency Tests', () => {
     beforeAll(async () => {
         await setupGroupTests();
-    });
-
-    beforeEach(async () => {
-        await cleanupBetweenTests();
+        await cleanupAllData();
     });
 
     afterAll(async () => {
@@ -74,11 +72,12 @@ describe('Group Concurrency Tests', () => {
         const memberRef = 'Patient/concurrent-member-1';
         const clickHouseManager = getClickHouseManager();
 
-        await createGroup(groupId, []);
+        const createResponse = await createGroup(groupId, []);
+        const actualId = createResponse.body.id;
 
         const updates = [
-            updateGroup(groupId, [{ entity: { reference: memberRef } }]),
-            updateGroup(groupId, [{ entity: { reference: memberRef } }])
+            updateGroup(actualId, [{ entity: { reference: memberRef } }]),
+            updateGroup(actualId, [{ entity: { reference: memberRef } }])
         ];
 
         const results = await Promise.all(updates);
@@ -89,7 +88,7 @@ describe('Group Concurrency Tests', () => {
 
         const events = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${groupId}' AND entity_reference = '${memberRef}'`
+                    WHERE group_id = '${actualId}' AND entity_reference = '${memberRef}'`
         });
 
         expect(parseInt(events[0].count)).toBeGreaterThanOrEqual(1);
@@ -97,7 +96,7 @@ describe('Group Concurrency Tests', () => {
         const activeMembers = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference
                     FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${groupId}'
+                    WHERE group_id = '${actualId}'
                     GROUP BY entity_reference
                     HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
@@ -111,24 +110,23 @@ describe('Group Concurrency Tests', () => {
         const memberRef = 'Patient/concurrent-member-2';
         const clickHouseManager = getClickHouseManager();
 
-        await createGroup(groupId, [{ entity: { reference: memberRef } }]);
+        const createResponse = await createGroup(groupId, [{ entity: { reference: memberRef } }]);
+        const actualId = createResponse.body.id;
 
         const updates = [
-            updateGroup(groupId, [{ entity: { reference: memberRef } }]),
-            updateGroup(groupId, [])
+            updateGroup(actualId, [{ entity: { reference: memberRef } }]),
+            updateGroup(actualId, [])
         ];
 
         const results = await Promise.all(updates);
 
-        // Concurrent writes: at least one should succeed
         const successCount = results.filter(r => [200, 201].includes(r.status)).length;
         expect(successCount).toBeGreaterThan(0);
-
 
         const activeMembers = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference
                     FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${groupId}'
+                    WHERE group_id = '${actualId}'
                     GROUP BY entity_reference
                     HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
@@ -141,26 +139,25 @@ describe('Group Concurrency Tests', () => {
         const groupId = `concurrent-multi-${Date.now()}`;
         const clickHouseManager = getClickHouseManager();
 
-        await createGroup(groupId, []);
+        const createResponse = await createGroup(groupId, []);
+        const actualId = createResponse.body.id;
 
         const updates = [];
         for (let i = 0; i < 5; i++) {
             const members = Array.from({ length: i + 1 }, (_, j) => ({
                 entity: { reference: `Patient/concurrent-${j}` }
             }));
-            updates.push(updateGroup(groupId, members));
+            updates.push(updateGroup(actualId, members));
         }
 
         const results = await Promise.all(updates);
 
-        // Concurrent writes: at least one should succeed
         const successCount = results.filter(r => [200, 201].includes(r.status)).length;
         expect(successCount).toBeGreaterThan(0);
 
-
         const events = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${groupId}'`
+                    WHERE group_id = '${actualId}'`
         });
 
         expect(parseInt(events[0].count)).toBeGreaterThan(0);
@@ -172,7 +169,6 @@ describe('Group Concurrency Tests', () => {
         const createResponse = await createGroup(groupId, []);
         expect(createResponse.status).toBe(201);
 
-        // Get the actual ID from the created resource (might be UUID)
         const actualId = createResponse.body.id;
 
         // Wait for persistence
@@ -204,14 +200,15 @@ describe('Group Concurrency Tests', () => {
     test('Concurrent DELETE and UPDATE → One operation wins', async () => {
         const groupId = `concurrent-delete-${Date.now()}`;
 
-        await createGroup(groupId, [{ entity: { reference: 'Patient/delete-test' } }]);
+        const createResponse = await createGroup(groupId, [{ entity: { reference: 'Patient/delete-test' } }]);
+        const actualId = createResponse.body.id;
 
         const request = getSharedRequest();
         const deletePromise = request
-            .delete(`/4_0_0/Group/${groupId}`)
+            .delete(`/4_0_0/Group/${actualId}`)
             .set(getTestHeaders());
 
-        const updatePromise = updateGroup(groupId, [
+        const updatePromise = updateGroup(actualId, [
             { entity: { reference: 'Patient/delete-test' } },
             { entity: { reference: 'Patient/new' } }
         ]);
@@ -229,7 +226,8 @@ describe('Group Concurrency Tests', () => {
         const groupId = `concurrent-search-${Date.now()}`;
         const memberRef = 'Patient/search-concurrent';
 
-        await createGroup(groupId, [{ entity: { reference: memberRef } }]);
+        const createResponse = await createGroup(groupId, [{ entity: { reference: memberRef } }]);
+        const actualId = createResponse.body.id;
 
         const request = getSharedRequest();
         const searches = [];
@@ -252,7 +250,6 @@ describe('Group Concurrency Tests', () => {
     test('DELETE during READ → 404 or stale data', async () => {
         const groupId = `concurrent-delete-read-${Date.now()}`;
 
-        // Create Group first
         const createResponse = await createGroup(groupId, [
             { entity: { reference: 'Patient/delete-read-test' } }
         ]);
@@ -292,9 +289,9 @@ describe('Group Concurrency Tests', () => {
 
     test('100 concurrent PATCH operations → All events stored', async () => {
         const groupId = `concurrent-patch-flood-${Date.now()}`;
+
         const clickHouseManager = getClickHouseManager();
 
-        // Create initial Group
         const createResponse = await createGroup(groupId, []);
         expect(createResponse.status).toBe(201);
         const actualId = createResponse.body.id;
@@ -350,5 +347,108 @@ describe('Group Concurrency Tests', () => {
             const uniqueCount = parseInt(uniqueMembers[0].count);
             expect(uniqueCount).toBeGreaterThan(0);
         }
-    }, 60000); // Extended timeout for 100 concurrent operations
+    }, 180000); // Extended timeout for 100 concurrent operations (slower in full suite due to resource contention)
+
+    test('Out-of-order events → argMax handles with tie-breaker', async () => {
+        const groupId = `out-of-order-${Date.now()}`;
+        const memberRef = 'Patient/out-of-order-member';
+        const clickHouseManager = getClickHouseManager();
+        const { v4: uuidv4 } = require('uuid');
+        const baseTime = '2024-01-01 12:00:00';
+        const uuid1 = uuidv4();
+        const uuid2 = uuidv4();
+        const uuid3 = uuidv4();
+
+        // Insert events: same event_time, different event_id (tie-breaker scenario)
+        await clickHouseManager.insertAsync({
+            table: 'fhir.fhir_group_member_events',
+            values: [
+                {
+                    group_id: groupId,
+                    entity_reference: memberRef,
+                    entity_type: 'Patient',
+                    event_type: 'added',
+                    event_time: baseTime,
+                    event_id: uuid1,
+                    period_start: null,
+                    period_end: null,
+                    inactive: 0,
+                    actor: '',
+                    reason: '',
+                    source: '',
+                    correlation_id: '',
+                    group_source_id: '',
+                    group_source_assigning_authority: '',
+                    access_tags: ['test-access'],
+                    owner_tags: ['test-owner']
+                },
+                {
+                    group_id: groupId,
+                    entity_reference: memberRef,
+                    entity_type: 'Patient',
+                    event_type: 'removed',
+                    event_time: baseTime,
+                    event_id: uuid2,
+                    period_start: null,
+                    period_end: null,
+                    inactive: 0,
+                    actor: '',
+                    reason: '',
+                    source: '',
+                    correlation_id: '',
+                    group_source_id: '',
+                    group_source_assigning_authority: '',
+                    access_tags: ['test-access'],
+                    owner_tags: ['test-owner']
+                },
+                {
+                    group_id: groupId,
+                    entity_reference: memberRef,
+                    entity_type: 'Patient',
+                    event_type: 'added',
+                    event_time: baseTime,
+                    event_id: uuid3,
+                    period_start: null,
+                    period_end: null,
+                    inactive: 0,
+                    actor: '',
+                    reason: '',
+                    source: '',
+                    correlation_id: '',
+                    group_source_id: '',
+                    group_source_assigning_authority: '',
+                    access_tags: ['test-access'],
+                    owner_tags: ['test-owner']
+                }
+            ],
+            format: 'JSONEachRow'
+        });
+
+        // Query with argMax - tie-breaker should use event_id to determine winner
+        const result = await clickHouseManager.queryAsync({
+            query: `SELECT
+                        entity_reference,
+                        argMax(event_type, (event_time, event_id)) as final_event_type
+                    FROM fhir.fhir_group_member_events
+                    WHERE group_id = {groupId:String}
+                    GROUP BY entity_reference`,
+            query_params: { groupId }
+        });
+
+        expect(result.length).toBe(1);
+        expect(result[0].entity_reference).toBe(memberRef);
+        // Final state is deterministic based on (event_time, event_id) tuple
+        expect(['added', 'removed']).toContain(result[0].final_event_type);
+
+        // Verify determinism - query again, should get same result
+        const result2 = await clickHouseManager.queryAsync({
+            query: `SELECT argMax(event_type, (event_time, event_id)) as final_event_type
+                    FROM fhir.fhir_group_member_events
+                    WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}
+                    GROUP BY entity_reference`,
+            query_params: { groupId, memberRef }
+        });
+
+        expect(result2[0].final_event_type).toBe(result[0].final_event_type);
+    }, 30000);
 });

@@ -64,33 +64,35 @@ async function waitForClickHouse(manager, maxWaitMs = 30000) {
 
 /**
  * Initializes ClickHouse schema if needed
+ * Uses the full schema from clickhouse-init/01-init-schema.sql
  */
 async function initializeClickHouseSchema(clickHouseManager) {
     try {
+        const fs = require('fs');
+        const path = require('path');
+
+        // Check if schema is already initialized
         const exists = await clickHouseManager.tableExistsAsync('fhir.fhir_group_member_events');
 
         if (!exists) {
-            // Create table directly
-            const createTableSQL = `
-                CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_events (
-                    group_id String,
-                    entity_reference String,
-                    entity_type LowCardinality(String),
-                    event_type Enum8('added' = 1, 'removed' = 2),
-                    event_time DateTime64(3, 'UTC') DEFAULT now64(3, 'UTC'),
-                    event_id UUID DEFAULT generateUUIDv4(),
-                    period_start Nullable(DateTime64(3, 'UTC')),
-                    period_end Nullable(DateTime64(3, 'UTC')),
-                    inactive UInt8 DEFAULT 0,
-                    group_source_id String DEFAULT '',
-                    group_source_assigning_authority String DEFAULT '',
-                    access_tags Array(String) DEFAULT [],
-                    owner_tags Array(String) DEFAULT []
-                ) ENGINE = MergeTree()
-                ORDER BY (group_id, entity_reference, event_time, event_id)
-            `;
+            const schemaPath = path.join(__dirname, '../../..', 'clickhouse-init', '01-init-schema.sql');
+            const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
 
-            await clickHouseManager.queryAsync({ query: createTableSQL });
+            const statements = schemaSQL
+                .split(';')
+                .map(s => s.trim())
+                .filter(s => s.length > 0 && !s.match(/^--/) && !s.match(/^SET\s+/i))
+                .filter(s => !s.includes('ClickHouse FHIR schema initialized'));
+
+            for (const statement of statements) {
+                try {
+                    await clickHouseManager.queryAsync({ query: statement });
+                } catch (err) {
+                    if (!err.message.includes('already exists')) {
+                        // Ignore other errors during schema init
+                    }
+                }
+            }
         }
     } catch (e) {
         console.error('Error initializing ClickHouse schema:', e.message);
@@ -174,40 +176,76 @@ async function teardownGroupTests() {
 }
 
 /**
- * Cleans up test data between tests (call in beforeEach)
- * Only truncates data, keeps connections alive
+ * Cleans up a specific group's data from ClickHouse and MongoDB
  *
+ * @param {string} groupId - The group ID to clean up
  * @returns {Promise<void>}
  */
-async function cleanupBetweenTests() {
+async function cleanupGroupData(groupId) {
     if (!sharedClickHouseManager) {
         return;
     }
 
     try {
-        // Truncate all Group-related tables in dependency order
-        // 1. Truncate materialized view target tables first (they depend on events table)
-        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_current_by_entity');
-        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_current');
+        await sharedClickHouseManager.queryAsync({
+            query: `ALTER TABLE fhir.fhir_group_member_events DELETE WHERE group_id = {groupId:String}`,
+            query_params: { groupId }
+        });
 
-        // 2. Truncate source events table
-        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_events');
+        await syncClickHouseMaterializedViews();
 
-        // 3. Clean MongoDB to prevent test pollution
-        // Required for search tests where multiple tests create groups with same member references
         const { createTestContainer } = require('../createTestContainer');
         const container = createTestContainer();
-        if (container && container.mongoClient) {
-            const mongoClient = container.mongoClient;
-            const db = mongoClient.db(container.configManager.mongoDbName);
+        if (container?.mongoClient) {
+            const db = container.mongoClient.db(container.configManager.mongoDbName);
+            await db.collection('Group_4_0_0').deleteOne({ id: groupId });
+        }
+    } catch (e) {
+        if (!e.message.includes('does not exist')) {
+            // Ignore cleanup errors
+        }
+    }
+}
+
+/**
+ * Truncates all Group test data from ClickHouse and MongoDB
+ *
+ * @returns {Promise<void>}
+ */
+async function cleanupAllData() {
+    if (!sharedClickHouseManager) {
+        return;
+    }
+
+    try {
+        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_current_by_entity');
+        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_current');
+        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_events');
+
+        await syncClickHouseMaterializedViews();
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        if (container?.mongoClient) {
+            const db = container.mongoClient.db(container.configManager.mongoDbName);
             await db.collection('Group_4_0_0').deleteMany({});
         }
     } catch (e) {
-        // Ignore errors if tables don't exist yet (first test run)
         if (!e.message.includes('does not exist')) {
-            console.warn('Cleanup warning:', e.message);
+            // Ignore cleanup errors
         }
     }
+}
+
+/**
+ * Cleans up test data between tests
+ * @deprecated Use cleanupAllData() or cleanupGroupData(groupId)
+ *
+ * @returns {Promise<void>}
+ */
+async function cleanupBetweenTests() {
+    return cleanupAllData();
 }
 
 /**
@@ -279,7 +317,7 @@ async function syncClickHouseMaterializedViews() {
             query: 'OPTIMIZE TABLE fhir.fhir_group_member_current FINAL'
         });
     } catch (e) {
-        console.warn('Warning: Could not optimize tables:', e.message);
+        // Ignore optimization errors
     }
 }
 
@@ -320,6 +358,8 @@ module.exports = {
     setupGroupTests,
     teardownGroupTests,
     cleanupBetweenTests,
+    cleanupAllData,
+    cleanupGroupData,
     syncClickHouseMaterializedViews,
     getSharedRequest,
     getClickHouseManager,

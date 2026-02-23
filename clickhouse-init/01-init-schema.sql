@@ -46,7 +46,12 @@ CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_events
     group_source_id String DEFAULT '',
     group_source_assigning_authority String DEFAULT '',
     access_tags Array(String) DEFAULT [],
-    owner_tags Array(String) DEFAULT []
+    owner_tags Array(String) DEFAULT [],
+
+    -- Derived from owner_tags[0] at write time
+    -- Matches MongoDB's _sourceAssigningAuthority field
+    -- Represents the managing organization (primary owner)
+    source_assigning_authority LowCardinality(String) DEFAULT ''
 )
 ENGINE = MergeTree()
 ORDER BY (group_id, entity_reference, event_time, event_id);
@@ -149,7 +154,8 @@ GROUP BY group_id, entity_reference;
 -- Lightweight current-state index optimized for:
 --   - "Which groups is Patient/X currently in?"
 --   - FHIR search-style semantics like GET /Group?member=Patient/X
--- Intentionally excludes provenance/metadata to keep it small and fast.
+-- Includes security tags (access_tags, owner_tags) for authorization filtering.
+-- Excludes other provenance/metadata to keep it relatively fast.
 
 CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_current_by_entity
 (
@@ -157,7 +163,12 @@ CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_current_by_entity
     group_id String,
 
     event_type AggregateFunction(argMax, Enum8('added' = 1, 'removed' = 2), Tuple(DateTime64(3, 'UTC'), UUID)),
-    inactive   AggregateFunction(argMax, UInt8, Tuple(DateTime64(3, 'UTC'), UUID))
+    inactive   AggregateFunction(argMax, UInt8, Tuple(DateTime64(3, 'UTC'), UUID)),
+
+    -- Security/authorization tags (added for Gate 3)
+    -- These enable security filtering at the database level for member lookups
+    access_tags AggregateFunction(argMax, Array(String), Tuple(DateTime64(3, 'UTC'), UUID)),
+    owner_tags  AggregateFunction(argMax, Array(String), Tuple(DateTime64(3, 'UTC'), UUID))
 )
 ENGINE = AggregatingMergeTree
 ORDER BY (entity_reference, group_id);
@@ -169,7 +180,9 @@ SELECT
     entity_reference,
     group_id,
     argMaxState(event_type, tie) AS event_type,
-    argMaxState(inactive, tie) AS inactive
+    argMaxState(inactive, tie) AS inactive,
+    argMaxState(access_tags, tie) AS access_tags,
+    argMaxState(owner_tags, tie) AS owner_tags
 FROM (
     SELECT
         entity_reference,
@@ -178,6 +191,8 @@ FROM (
         event_time,
         event_id,
         inactive,
+        access_tags,
+        owner_tags,
         tuple(event_time, event_id) AS tie
     FROM fhir.fhir_group_member_events
 )
@@ -252,7 +267,9 @@ GROUP BY entity_reference, group_id;
 --     entity_reference,
 --     group_id,
 --     argMaxState(event_type, tie) AS event_type,
---     argMaxState(inactive, tie) AS inactive
+--     argMaxState(inactive, tie) AS inactive,
+--     argMaxState(access_tags, tie) AS access_tags,
+--     argMaxState(owner_tags, tie) AS owner_tags
 -- FROM (
 --     SELECT
 --         entity_reference,
@@ -261,6 +278,8 @@ GROUP BY entity_reference, group_id;
 --         event_time,
 --         event_id,
 --         inactive,
+--         access_tags,
+--         owner_tags,
 --         tuple(event_time, event_id) AS tie
 --     FROM fhir.fhir_group_member_events
 -- )

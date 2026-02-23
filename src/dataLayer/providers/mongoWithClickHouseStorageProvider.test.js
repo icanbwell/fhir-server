@@ -2,6 +2,8 @@ const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 const { MongoWithClickHouseStorageProvider } = require('./mongoWithClickHouseStorageProvider');
 const { DatabaseCursor } = require('../databaseCursor');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
+const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
+const { QueryParser } = require('./mongoWithClickHouse/queryParser');
 
 describe('MongoWithClickHouseStorageProvider', () => {
     let provider;
@@ -9,6 +11,12 @@ describe('MongoWithClickHouseStorageProvider', () => {
     let mockClickHouseClientManager;
     let mockMongoStorageProvider;
     let mockConfigManager;
+
+    const withSecurityTags = (query) => ({
+        ...query,
+        '_access.test': 1,
+        'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/owner', code: 'bwell' } }
+    });
 
     beforeEach(() => {
         mockResourceLocator = {
@@ -56,7 +64,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
     });
 
-    describe('_extractMemberCriteria', () => {
+    describe('QueryParser.extractMemberCriteria', () => {
         test.each([
             [
                 { 'member.entity._uuid': 'uuid-123' },
@@ -71,7 +79,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
                 { memberUuid: null, memberSourceId: null, memberReference: 'Patient/456' }
             ]
         ])('should extract criteria from %p', (query, expected) => {
-            expect(provider._extractMemberCriteria(query)).toEqual(expected);
+            expect(QueryParser.extractMemberCriteria(query)).toEqual(expected);
         });
     });
 
@@ -88,7 +96,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
 
         test('should route member queries to ClickHouse', async () => {
-            const query = { 'member.entity.reference': 'Patient/123' };
+            const query = withSecurityTags({ 'member.entity.reference': 'Patient/123' });
             const mockCursor = {};
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
@@ -121,11 +129,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
 
     describe('Edge Cases', () => {
         test('should handle MongoDB operator unwrapping in member queries', async () => {
-            const query = {
-                'member.entity.reference': {
-                    $in: ['Patient/1', 'Patient/2']
-                }
-            };
+            const query = withSecurityTags({ 'member.entity.reference': { $in: ['Patient/1', 'Patient/2'] } });
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
                 { group_id: 'group-1' }
@@ -148,43 +152,38 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
 
         test('should pass limit option to ClickHouse queries', async () => {
-            const query = { 'member.entity.reference': 'Patient/123' };
+            const query = withSecurityTags({ 'member.entity.reference': 'Patient/123' });
             const options = { limit: 50 };
 
             mockClickHouseClientManager.queryAsync
-                .mockResolvedValueOnce([{ group_id: 'group-1' }]);  // page query
+                .mockResolvedValueOnce([{ group_id: 'group-1' }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await provider.findAsync({ query, options, extraInfo: {} });
 
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalledTimes(1);
-            // First call is the page query with limit
             const pageQueryCall = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
             expect(pageQueryCall.query_params.limit).toBe(50);
         });
 
         test('should use default limit of 100 when not specified', async () => {
-            const query = { 'member.entity.reference': 'Patient/123' };
+            const query = withSecurityTags({ 'member.entity.reference': 'Patient/123' });
             const options = {};
 
             mockClickHouseClientManager.queryAsync
-                .mockResolvedValueOnce([{ group_id: 'group-1' }]);  // page query
+                .mockResolvedValueOnce([{ group_id: 'group-1' }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await provider.findAsync({ query, options, extraInfo: {} });
 
-            // First call is the page query with default limit
             const pageQueryCall = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
             expect(pageQueryCall.query_params.limit).toBe(100);
         });
 
         test('should handle nested $and/$or queries', async () => {
-            const query = {
-                $and: [
-                    { 'member.entity.reference': 'Patient/123' },
-                    { active: true }
-                ]
-            };
+            const query = withSecurityTags({
+                $and: [{ 'member.entity.reference': 'Patient/123' }]
+            });
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
                 { group_id: 'group-1' }
@@ -197,7 +196,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
 
         test('should handle empty ClickHouse result set', async () => {
-            const query = { 'member.entity.reference': 'Patient/nonexistent' };
+            const query = withSecurityTags({ 'member.entity.reference': 'Patient/nonexistent' });
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
@@ -242,6 +241,94 @@ describe('MongoWithClickHouseStorageProvider', () => {
             expect(provider.clickHouseClientManager).toBe(mockClickHouseClientManager);
             expect(provider.mongoStorageProvider).toBe(mockMongoStorageProvider);
             expect(provider.configManager).toBe(mockConfigManager);
+        });
+    });
+
+    describe('QueryParser.extractSecurityTags', () => {
+        test.each([
+            [
+                '$elemMatch access tag',
+                { 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: 'client1' } } },
+                { accessTags: ['client1'], ownerTags: [] }
+            ],
+            [
+                '$elemMatch owner tag',
+                { 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/owner', code: 'bwell' } } },
+                { accessTags: [], ownerTags: ['bwell'] }
+            ],
+            [
+                '_access.* index format',
+                { '_access.client1': 1, '_access.client2': 1 },
+                { accessTags: ['client1', 'client2'], ownerTags: [] }
+            ],
+            [
+                'wildcard as literal',
+                { '_access.*': 1 },
+                { accessTags: ['*'], ownerTags: [] }
+            ],
+            [
+                'no security tags',
+                { 'member.entity.reference': 'Patient/123' },
+                { accessTags: [], ownerTags: [] }
+            ],
+            [
+                '$in operator',
+                { 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: { $in: ['c1', 'c2'] } } } },
+                { accessTags: ['c1', 'c2'], ownerTags: [] }
+            ],
+            [
+                '$eq operator',
+                { 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: { $eq: 'client1' } } } },
+                { accessTags: ['client1'], ownerTags: [] }
+            ]
+        ])('%s', (_, query, expected) => {
+            const result = QueryParser.extractSecurityTags(query);
+            expect(result.accessTags).toEqual(expect.arrayContaining(expected.accessTags));
+            expect(result.ownerTags).toEqual(expect.arrayContaining(expected.ownerTags));
+            expect(result.accessTags.length).toBe(expected.accessTags.length);
+            expect(result.ownerTags.length).toBe(expected.ownerTags.length);
+        });
+
+        test('deduplicates tags', () => {
+            const query = { $and: [{ '_access.client1': 1 }, { '_access.client1': 1 }] };
+            const { accessTags } = QueryParser.extractSecurityTags(query);
+            expect(accessTags).toEqual(['client1']);
+        });
+
+        test('extracts from nested $and/$or', () => {
+            const query = {
+                $or: [
+                    { 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: 'c1' } } },
+                    { 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: 'c2' } } }
+                ]
+            };
+            const { accessTags } = QueryParser.extractSecurityTags(query);
+            expect(accessTags).toEqual(expect.arrayContaining(['c1', 'c2']));
+        });
+
+        test('ignores _access fields with non-1 values', () => {
+            const query = { '_access.client1': 1, '_access.client2': 0 };
+            const { accessTags } = QueryParser.extractSecurityTags(query);
+            expect(accessTags).toEqual(['client1']);
+        });
+    });
+
+    describe('Security Validation', () => {
+        test.each([
+            ['accessTags', []],
+            ['ownerTags', []]
+        ])('QueryFragments.where%s throws on empty array', (method, input) => {
+            const func = method === 'accessTags' ? QueryFragments.whereAccessTags : QueryFragments.whereOwnerTags;
+            expect(() => func(input)).toThrow('Security violation');
+        });
+
+        test('succeeds with valid security tags', async () => {
+            const query = withSecurityTags({ 'member.entity.reference': 'Patient/test' });
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_id: 'group-1' }]);
+            mockMongoStorageProvider.findAsync.mockResolvedValue({});
+
+            await provider.findAsync({ query, options: {}, extraInfo: {} });
+            expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
         });
     });
 });

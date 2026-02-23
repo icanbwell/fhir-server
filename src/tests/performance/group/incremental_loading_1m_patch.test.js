@@ -38,6 +38,21 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
 
     afterAll(async () => {
         if (clickHouseManager) {
+            try {
+                await clickHouseManager.truncateTableAsync('fhir_group_member_current_by_entity');
+                await clickHouseManager.truncateTableAsync('fhir_group_member_current');
+                await clickHouseManager.truncateTableAsync('fhir_group_member_events');
+
+                const { createTestContainer } = require('../../createTestContainer');
+                const container = createTestContainer();
+                if (container && container.mongoClient) {
+                    const db = container.mongoClient.db(container.configManager.mongoDbName);
+                    await db.collection('Group_4_0_0').deleteMany({});
+                }
+            } catch (e) {
+                console.warn('Cleanup warning:', e.message);
+            }
+
             await clickHouseManager.closeAsync();
         }
         await commonAfterEach();

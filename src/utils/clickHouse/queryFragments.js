@@ -206,8 +206,13 @@ class QueryFragments {
      * // Returns: "AND hasAny(access_tags, {accessTags:Array(String)})"
      */
     static whereAccessTags(accessTags, parameterized = false) {
-        if (!accessTags || accessTags.length === 0) {
-            return '';
+        // CRITICAL SECURITY CHECK: Empty access tags bypass authorization
+        // MongoDB's scopesManager throws ForbiddenError if accessCodes is empty - match that behavior
+        if (!accessTags || !Array.isArray(accessTags) || accessTags.length === 0) {
+            throw new Error(
+                'Security violation: accessTags cannot be empty. ' +
+                'Empty arrays would bypass authorization checks.'
+            );
         }
 
         if (parameterized) {
@@ -236,8 +241,13 @@ class QueryFragments {
      * // Returns: "AND hasAny(owner_tags, ['org1'])"
      */
     static whereOwnerTags(ownerTags, parameterized = false) {
-        if (!ownerTags || ownerTags.length === 0) {
-            return '';
+        // CRITICAL SECURITY CHECK: Empty owner tags bypass authorization
+        // MongoDB's scopesManager throws ForbiddenError if accessCodes is empty - match that behavior
+        if (!ownerTags || !Array.isArray(ownerTags) || ownerTags.length === 0) {
+            throw new Error(
+                'Security violation: ownerTags cannot be empty. ' +
+                'Empty arrays would bypass authorization checks.'
+            );
         }
 
         if (parameterized) {

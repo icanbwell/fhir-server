@@ -343,5 +343,78 @@ describe('databaseBulkInserter Tests', () => {
             expect(onResourceChangeAsync).toBeCalledTimes(0);
             expect(mockBulkWrite).toHaveBeenCalledTimes(2);
         });
+
+        describe('contextData parameter', () => {
+            test.each([
+                [
+                    'Group resource with contextData',
+                    'Group',
+                    {
+                        id: 'group-1',
+                        resourceType: 'Group',
+                        member: [{ entity: { reference: 'Patient/1' } }],
+                        meta: { versionId: '1' }
+                    },
+                    {
+                        groupMembers: [{ entity: { reference: 'Patient/1' } }],
+                        resourceType: 'Group',
+                        resourceId: 'group-1'
+                    },
+                    true
+                ],
+                [
+                    'Group resource without contextData',
+                    'Group',
+                    {
+                        id: 'group-2',
+                        resourceType: 'Group',
+                        member: [{ entity: { reference: 'Patient/2' } }],
+                        meta: { versionId: '1' }
+                    },
+                    null,
+                    false
+                ],
+                [
+                    'Patient resource with contextData null',
+                    'Patient',
+                    {
+                        id: 'patient-1',
+                        resourceType: 'Patient',
+                        meta: { versionId: '1' }
+                    },
+                    null,
+                    false
+                ]
+            ])('%s', async (_, resourceType, doc, contextData, shouldStripMember) => {
+                const container = createTestContainer();
+                const databaseBulkInserter = container.databaseBulkInserter;
+                const requestId = '1234';
+                const requestInfo = getTestRequestInfo({ requestId });
+
+                await databaseBulkInserter.insertOneAsync({
+                    base_version,
+                    requestInfo,
+                    resourceType,
+                    doc,
+                    contextData
+                });
+
+                const mergeResults = await databaseBulkInserter.executeAsync({
+                    requestInfo,
+                    base_version
+                });
+
+                expect(mergeResults).not.toBeNull();
+                expect(mergeResults.length).toBe(1);
+                expect(mergeResults[0].created).toBe(true);
+
+                if (shouldStripMember && resourceType === 'Group') {
+                    const collection = `Group_${base_version}`;
+                    const savedGroups = await fhirDb.collection(collection).find({ id: doc.id }).toArray();
+                    expect(savedGroups.length).toBe(1);
+                    expect(savedGroups[0].member).toEqual([]);
+                }
+            });
+        });
     });
 });

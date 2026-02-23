@@ -486,6 +486,92 @@ describe('Group Member Lifecycle in ClickHouse', () => {
 
     }, 300000);
 
+    test('Remove member that was never added → No-op', async () => {
+        const groupId = 'test-remove-never-added';
+        const memberRef = 'Patient/never-added';
+
+        // Create empty group
+        const createdGroup = await createGroup({
+            id: groupId,
+            members: []
+        });
+        const actualGroupId = createdGroup.id;
+
+        // Attempt to remove member that was never added
+        const groupToUpdate = await getGroup(actualGroupId);
+        groupToUpdate.member = []; // Empty array (removing nothing)
+        await updateGroup(actualGroupId, groupToUpdate);
+
+        // Query events - should show no events for this member
+        const events = await sharedClickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+                    WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}`,
+            query_params: { groupId: actualGroupId, memberRef }
+        });
+
+        expect(parseInt(events[0].count)).toBe(0);
+
+        // Verify member search returns empty
+        const searchResults = await searchGroupsByMember(memberRef);
+        const groupIds = (searchResults.entry || []).map(e => e.resource.id);
+        expect(groupIds).not.toContain(actualGroupId);
+
+    }, 60000);
+
+    test('Duplicate remove events → Idempotent', async () => {
+        const groupId = 'test-duplicate-remove';
+        const memberRef = 'Patient/duplicate-remove';
+
+        // Create group with member
+        const createdGroup = await createGroup({
+            id: groupId,
+            members: [{ entity: { reference: memberRef } }]
+        });
+        const actualGroupId = createdGroup.id;
+
+        // Wait for initial sync
+        await waitForClickHouseSync(memberRef, [actualGroupId]);
+
+        // Remove member (first time)
+        let groupToUpdate = await getGroup(actualGroupId);
+        groupToUpdate.member = [];
+        await updateGroup(actualGroupId, groupToUpdate);
+
+        // Wait for sync - member should be gone
+        await waitForClickHouseSync(memberRef, []);
+
+        // Remove member again (duplicate)
+        groupToUpdate = await getGroup(actualGroupId);
+        groupToUpdate.member = [];
+        await updateGroup(actualGroupId, groupToUpdate);
+
+        // Wait and verify still not found (idempotent)
+        await waitForClickHouseSync(memberRef, []);
+
+        // Query events - should have 1 add + multiple removes
+        const events = await sharedClickHouseManager.queryAsync({
+            query: `SELECT event_type, count() as count
+                    FROM fhir.fhir_group_member_events
+                    WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}
+                    GROUP BY event_type
+                    ORDER BY event_type`,
+            query_params: { groupId: actualGroupId, memberRef }
+        });
+
+        // argMax should still return 'removed' regardless of duplicates
+        const activeMembers = await sharedClickHouseManager.queryAsync({
+            query: `SELECT entity_reference
+                    FROM fhir.fhir_group_member_events
+                    WHERE group_id = {groupId:String}
+                    GROUP BY entity_reference
+                    HAVING argMax(event_type, (event_time, event_id)) = 'added'`,
+            query_params: { groupId: actualGroupId }
+        });
+
+        expect(activeMembers.length).toBe(0);
+
+    }, 60000);
+
     test('Summary', () => {
     });
 });

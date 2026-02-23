@@ -37,6 +37,7 @@
     "test:graphql": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/graphql",
     "test:merge": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/practitioner.merge.test.js",
     "test:search": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/searchParameters/search_by* src/tests/patient/search_by* src/tests/operations/query/r4/r4.test.js",
+    "test:perf:clickhouse": "RUN_CLICKHOUSE_PERF=1 NODE_ENV=test NODE_OPTIONS=--max-old-space-size=20240 node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --logHeapUsage --runInBand --forceExit src/tests/group/group_clickhouse_performance.test.js",
     "prepare": "",
     "prettier-check": "prettier --check \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",
     "prettier-fix": "prettier --write \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",

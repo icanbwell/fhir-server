@@ -23,6 +23,7 @@ const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isUuid } = require('../../utils/uid.util');
+const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 
 /**
  * Update Operation
@@ -410,6 +411,8 @@ class UpdateOperation {
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
 
                 if (data && data.meta) {
+                    const contextData = buildContextDataForHybridStorage(resourceType, doc);
+
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             base_version,
@@ -417,7 +420,8 @@ class UpdateOperation {
                             resourceType,
                             doc,
                             uuid: doc._uuid,
-                            patches
+                            patches,
+                            contextData
                         }
                     );
                 } else {
@@ -427,7 +431,16 @@ class UpdateOperation {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource: doc, requestInfo, base_version
                     });
-                    await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
+
+                    const contextData = buildContextDataForHybridStorage(resourceType, doc);
+
+                    await this.databaseBulkInserter.insertOneAsync({
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        doc,
+                        contextData
+                    });
                 }
             }
 

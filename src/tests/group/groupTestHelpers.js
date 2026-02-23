@@ -36,8 +36,49 @@ function getMaxPatchOperations() {
     return parseInt(process.env.GROUP_PATCH_OPERATIONS_LIMIT || '10000', 10);
 }
 
+/**
+ * Creates multiple groups in parallel for performance testing
+ * @param {Object} request - Supertest request object
+ * @param {Array<Object>} groups - Array of group definitions
+ * @param {Object} headers - Request headers
+ * @param {Array<Object>} securityTags - Optional custom security tags (defaults to test-owner/test-access)
+ * @param {number} batchSize - Number of groups to create in parallel (default: 10)
+ * @returns {Promise<Array>} Array of responses
+ */
+async function bulkCreateGroups(request, groups, headers, securityTags = null, batchSize = 10) {
+    const defaultSecurityTags = securityTags || [
+        { system: 'https://www.icanbwell.com/owner', code: 'test-owner' },
+        { system: 'https://www.icanbwell.com/access', code: 'test-access' }
+    ];
+
+    const allResponses = [];
+
+    // Process in batches to avoid overwhelming the system
+    for (let i = 0; i < groups.length; i += batchSize) {
+        const batch = groups.slice(i, i + batchSize);
+        const createPromises = batch.map(group =>
+            request.post('/4_0_0/Group')
+                .send({
+                    resourceType: 'Group',
+                    ...group,
+                    meta: group.meta || {
+                        source: 'http://test.com/Group',
+                        security: defaultSecurityTags
+                    }
+                })
+                .set(headers)
+        );
+
+        const batchResponses = await Promise.all(createPromises);
+        allResponses.push(...batchResponses);
+    }
+
+    return allResponses;
+}
+
 module.exports = {
     assertTooCostlyOperationOutcome,
     getMaxGroupMembersPerPut,
-    getMaxPatchOperations
+    getMaxPatchOperations,
+    bulkCreateGroups
 };

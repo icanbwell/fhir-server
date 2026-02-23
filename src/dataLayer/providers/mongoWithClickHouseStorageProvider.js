@@ -4,6 +4,9 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { TABLES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
+const { QueryParser } = require('./mongoWithClickHouse/queryParser');
+const { QueryBuilder } = require('./mongoWithClickHouse/queryBuilder');
+const { QueryExecutor } = require('./mongoWithClickHouse/queryExecutor');
 
 /**
  * MongoDB + ClickHouse Storage Provider for resources with dual-write storage
@@ -53,20 +56,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * @private
      */
     _buildCountQuery(groupId) {
-        return {
-            query: `
-                SELECT count() as count
-                FROM (
-                    SELECT entity_reference
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL  -- need to force sync with MVs
-                    WHERE group_id = {groupId:String}
-                    GROUP BY entity_reference
-                    HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'
-                       AND argMaxMerge(inactive) = 0
-                )
-            `,
-            query_params: { groupId }
-        };
+        return QueryBuilder.buildActiveMemberCount({ groupId });
     }
 
     /**
@@ -82,39 +72,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * @private
      */
     _buildRosterQuery(groupId, { limit, afterReference = null }) {
-        const params = { groupId, limit };
-        const cursorClause = afterReference
-            ? 'AND entity_reference > {afterReference:String}'
-            : '';
-
-        if (afterReference) {
-            params.afterReference = afterReference;
-        }
-
-        return {
-            query: `
-                SELECT
-                    entity_reference,
-                    entity_type,
-                    inactive
-                FROM (
-                    SELECT
-                        entity_reference,
-                        argMaxMerge(entity_type) AS entity_type,
-                        argMaxMerge(event_type)  AS event_type,
-                        argMaxMerge(inactive)    AS inactive
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL  -- need FINAL to force sync with MVs
-                    WHERE group_id = {groupId:String}
-                    GROUP BY entity_reference
-                )
-                WHERE event_type = '${EVENT_TYPES.MEMBER_ADDED}'
-                  AND inactive = 0
-                  ${cursorClause}
-                ORDER BY entity_reference
-                LIMIT {limit:UInt32}
-            `,
-            query_params: params
-        };
+        return QueryBuilder.buildActiveMembers({ groupId, limit, afterReference });
     }
 
     /**
@@ -175,7 +133,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 SELECT count() as count
                 FROM (
                     SELECT entity_reference
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL  -- need to force sync with MVs
+                    FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL  -- need to force sync with MVs
                     WHERE group_id = {groupId:String}
                     GROUP BY entity_reference
                     HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}' AND argMaxMerge(inactive) = 0
@@ -344,47 +302,32 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
         // For member queries, get count from ClickHouse
         const isMemberQuery = this._isMemberQuery(query);
         if (isMemberQuery) {
-            // Extract member criteria to build ClickHouse count query
-            const extractedCriteria = this._extractMemberCriteria(query);
-            const { memberUuid, memberSourceId, memberReference } = extractedCriteria;
+            // Parse and validate member criteria
+            const memberCriteria = QueryParser.extractMemberCriteria(query);
+            const securityTags = QueryParser.extractSecurityTags(query);
+            const validation = QueryParser.validateMemberCriteria(memberCriteria);
 
-            let whereClause = '';
-            const queryParams = {};
-
-            if (memberReference) {
-                whereClause = 'WHERE entity_reference = {memberReference:String}';
-                queryParams.memberReference = memberReference;
-            } else if (memberSourceId && memberSourceId.includes('/')) {
-                whereClause = 'WHERE entity_reference = {memberSourceId:String}';
-                queryParams.memberSourceId = memberSourceId;
-            } else {
+            if (!validation.valid) {
                 // Fall back to MongoDB if no valid member criteria
+                logWarn(`Cannot count by member: ${validation.reason}`, { memberCriteria });
                 return await this.mongoStorageProvider.countAsync({ query });
             }
 
-            // Build count query matching the findAsync query logic
-            const countQuery = `
-                SELECT count() as total
-                FROM (
-                    SELECT group_id
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                    ${whereClause}
-                    GROUP BY group_id
-                    HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}' AND argMaxMerge(inactive) = 0
-                )
-            `;
+            // Build ClickHouse count query
+            const queryDef = QueryBuilder.buildCountGroupsByMemberQuery({
+                memberReference: validation.entityReference,
+                accessTags: securityTags.accessTags,
+                ownerTags: securityTags.ownerTags
+            });
 
             try {
-                const result = await this.clickHouseClientManager.queryAsync({
-                    query: countQuery,
-                    query_params: queryParams
-                });
+                const result = await this.clickHouseClientManager.queryAsync(queryDef);
                 return parseInt(result[0]?.total) || 0;
             } catch (error) {
                 logError('Error executing ClickHouse count query', {
                     error: error.message,
-                    query: countQuery,
-                    queryParams
+                    query: queryDef.query,
+                    queryParams: queryDef.query_params
                 });
                 throw error;
             }
@@ -450,194 +393,6 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
-     * Extracts member search criteria from query (handles nested $and/$or)
-     * @param {Object} query
-     * @returns {{memberUuid: string|null, memberSourceId: string|null, memberReference: string|null}}
-     * @private
-     */
-    _extractMemberCriteria(query) {
-        const result = {
-            memberUuid: null,
-            memberSourceId: null,
-            memberReference: null
-        };
-
-        /**
-         * Unwraps MongoDB operators like $in, $eq to get the actual value
-         * @param {*} value - The value to unwrap
-         * @returns {*} The unwrapped value
-         */
-        const unwrapValue = (value) => {
-            if (value && typeof value === 'object') {
-                // Handle $in operator - take first value from array
-                if (value.$in && Array.isArray(value.$in) && value.$in.length > 0) {
-                    return value.$in[0];
-                }
-                // Handle $eq operator
-                if (value.$eq !== undefined) {
-                    return value.$eq;
-                }
-                // Handle other operators that might contain the value
-                if (value.$regex) {
-                    return value.$regex;
-                }
-            }
-            return value;
-        };
-
-        // Direct field extraction with operator unwrapping
-        if (query['member.entity._uuid']) {
-            result.memberUuid = unwrapValue(query['member.entity._uuid']);
-        }
-        if (query['member.entity._sourceId']) {
-            result.memberSourceId = unwrapValue(query['member.entity._sourceId']);
-        }
-        if (query['member.entity.reference']) {
-            result.memberReference = unwrapValue(query['member.entity.reference']);
-        }
-        if (query['member']) {
-            result.memberReference = unwrapValue(query['member']);
-        }
-
-        // Extract from $and array
-        if (query.$and && Array.isArray(query.$and)) {
-            for (const condition of query.$and) {
-                const extracted = this._extractMemberCriteria(condition);
-                if (extracted.memberUuid) result.memberUuid = extracted.memberUuid;
-                if (extracted.memberSourceId) result.memberSourceId = extracted.memberSourceId;
-                if (extracted.memberReference) result.memberReference = extracted.memberReference;
-            }
-        }
-
-        // Extract from $or array
-        if (query.$or && Array.isArray(query.$or)) {
-            for (const condition of query.$or) {
-                const extracted = this._extractMemberCriteria(condition);
-                if (extracted.memberUuid) result.memberUuid = extracted.memberUuid;
-                if (extracted.memberSourceId) result.memberSourceId = extracted.memberSourceId;
-                if (extracted.memberReference) result.memberReference = extracted.memberReference;
-            }
-        }
-
-        logInfo('Extracted member criteria', {
-            query: JSON.stringify(query),
-            result
-        });
-
-        return result;
-    }
-
-    /**
-     * Extracts security tags from MongoDB query for ClickHouse filtering
-     *
-     * Security tags in MongoDB queries look like:
-     * { 'meta.security': { $elemMatch: { system: 'https://...', code: { $in: ['tag1', 'tag2'] } } } }
-     *
-     * In ClickHouse, these are stored as:
-     * - access_tags Array(String) - from meta.security with system=access
-     * - owner_tags Array(String) - from meta.security with system=owner
-     *
-     * @param {Object} query - MongoDB query object
-     * @returns {{accessTags: string[], ownerTags: string[]}} Extracted security tags
-     * @private
-     */
-    _extractSecurityTags(query) {
-        const result = {
-            accessTags: [],
-            ownerTags: []
-        };
-
-        const ACCESS_SYSTEM = 'https://www.icanbwell.com/access';
-        const OWNER_SYSTEM = 'https://www.icanbwell.com/owner';
-
-        /**
-         * Extract codes from $elemMatch condition
-         * @param {Object} elemMatch - $elemMatch condition object
-         * @param {string} targetSystem - System URL to match
-         * @returns {string[]} Array of codes
-         */
-        const extractCodesFromElemMatch = (elemMatch, targetSystem) => {
-            if (!elemMatch || typeof elemMatch !== 'object') {
-                return [];
-            }
-
-            // Check if system matches
-            if (elemMatch.system !== targetSystem) {
-                return [];
-            }
-
-            // Extract code(s)
-            if (elemMatch.code) {
-                if (typeof elemMatch.code === 'string') {
-                    return [elemMatch.code];
-                }
-                if (elemMatch.code.$in && Array.isArray(elemMatch.code.$in)) {
-                    return elemMatch.code.$in;
-                }
-                if (elemMatch.code.$eq) {
-                    return [elemMatch.code.$eq];
-                }
-            }
-
-            return [];
-        };
-
-        /**
-         * Recursively extract security tags from nested query structure
-         * @param {Object} obj - Query object to search
-         */
-        const extractRecursive = (obj) => {
-            if (!obj || typeof obj !== 'object') {
-                return;
-            }
-
-            // Check for meta.security $elemMatch
-            if (obj['meta.security'] && obj['meta.security'].$elemMatch) {
-                const elemMatch = obj['meta.security'].$elemMatch;
-
-                // Extract access tags
-                const accessCodes = extractCodesFromElemMatch(elemMatch, ACCESS_SYSTEM);
-                result.accessTags.push(...accessCodes);
-
-                // Extract owner tags
-                const ownerCodes = extractCodesFromElemMatch(elemMatch, OWNER_SYSTEM);
-                result.ownerTags.push(...ownerCodes);
-            }
-
-            // Check for _access.* index fields (alternative MongoDB index-based query format)
-            for (const key of Object.keys(obj)) {
-                if (key.startsWith('_access.')) {
-                    const accessCode = key.substring('_access.'.length);
-                    if (obj[key] === 1) {
-                        result.accessTags.push(accessCode);
-                    }
-                }
-            }
-
-            // Recurse into $and and $or arrays
-            if (obj.$and && Array.isArray(obj.$and)) {
-                obj.$and.forEach(extractRecursive);
-            }
-            if (obj.$or && Array.isArray(obj.$or)) {
-                obj.$or.forEach(extractRecursive);
-            }
-        };
-
-        extractRecursive(query);
-
-        // Deduplicate tags
-        result.accessTags = [...new Set(result.accessTags)];
-        result.ownerTags = [...new Set(result.ownerTags)];
-
-        logDebug('Extracted security tags from query', {
-            accessTags: result.accessTags,
-            ownerTags: result.ownerTags
-        });
-
-        return result;
-    }
-
-    /**
      * Queries ClickHouse for Groups containing specified member
      * Uses argMax with tuple tie-breaker for deterministic results
      *
@@ -650,213 +405,42 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      */
     async _findGroupsByMemberFromClickHouse({ query, options, extraInfo }) {
         try {
-            // Extract pagination parameters first
+            // Parse query
             const limit = options?.limit || 100;
             const skip = options?.skip || 0;
+            const afterGroupId = QueryParser.extractPaginationCursor(query);
+            const cleanQuery = QueryParser.cleanPaginationFromQuery(query);
 
-            // Extract _uuid.$gt from MongoDB query (id:above is converted to { _uuid: { $gt: value } } by fieldMapper)
-            let afterGroupId = '';
-            if (query._uuid && query._uuid.$gt) {
-                afterGroupId = query._uuid.$gt;
-            } else if (query.$and && Array.isArray(query.$and)) {
-                // Check if _uuid.$gt is nested in $and
-                for (const condition of query.$and) {
-                    if (condition._uuid && condition._uuid.$gt) {
-                        afterGroupId = condition._uuid.$gt;
-                        break;
-                    }
-                }
-            }
+            // Extract criteria
+            const memberCriteria = QueryParser.extractMemberCriteria(cleanQuery);
+            const securityTags = QueryParser.extractSecurityTags(query);
 
-            // Remove _uuid.$gt from query since it's not a member search criterion (it's for pagination)
-            const cleanQuery = { ...query };
-            if (cleanQuery._uuid) {
-                delete cleanQuery._uuid;
-            }
-            // Also remove from $and array if present
-            if (cleanQuery.$and && Array.isArray(cleanQuery.$and)) {
-                cleanQuery.$and = cleanQuery.$and.filter(condition => !condition._uuid || !condition._uuid.$gt);
-                // If $and is now empty or has only one item, simplify
-                if (cleanQuery.$and.length === 0) {
-                    delete cleanQuery.$and;
-                } else if (cleanQuery.$and.length === 1) {
-                    const singleCondition = cleanQuery.$and[0];
-                    delete cleanQuery.$and;
-                    Object.assign(cleanQuery, singleCondition);
-                }
-            }
-
-            // Extract member search criteria from query (may be nested in $and/$or)
-            const extractedCriteria = this._extractMemberCriteria(cleanQuery);
-            const { memberUuid, memberSourceId, memberReference } = extractedCriteria;
-
-            // Extract security tags for authorization filtering
-            const { accessTags, ownerTags } = this._extractSecurityTags(query);
-
-            logDebug('Extracted search criteria', {
-                memberUuid,
-                memberSourceId,
-                memberReference,
-                accessTags,
-                ownerTags
-            });
-
-            // Build ClickHouse query with argMax and tuple tie-breaker
-            let whereClause = '';
-            const queryParams = {};
-
-            // Note: Current schema uses entity_reference (not member_reference)
-            // and doesn't have member_uuid or member_source_id fields
-            // Search by entity_reference only
-            if (memberReference) {
-                whereClause = 'WHERE entity_reference = {memberReference:String}';
-                queryParams.memberReference = memberReference;
-            } else if (memberSourceId) {
-                // If memberSourceId looks like a full reference (has /), use it directly
-                // Otherwise, we'd need to know the resource type to construct the reference
-                if (memberSourceId.includes('/')) {
-                    whereClause = 'WHERE entity_reference = {memberSourceId:String}';
-                    queryParams.memberSourceId = memberSourceId;
-                } else {
-                    // Can't search by ID alone without resource type - would need fuzzy match
-                    // This is a limitation of the simplified schema
-                    logWarn('Cannot search by member source ID without full reference', {
-                        memberSourceId
-                    });
-                    return await this.mongoStorageProvider.findAsync({ query, options, extraInfo });
-                }
-            } else if (memberUuid) {
-                // UUID not stored in new schema - fall back to MongoDB
-                logWarn('UUID search not supported in new schema, falling back to MongoDB', {
-                    memberUuid
-                });
-                return await this.mongoStorageProvider.findAsync({ query, options, extraInfo });
-            } else {
-                // No member criteria found - fall back to MongoDB
-                logWarn('No member criteria extracted from query, falling back to MongoDB', {
-                    query
-                });
+            // Validate criteria
+            const validation = QueryParser.validateMemberCriteria(memberCriteria);
+            if (!validation.valid) {
+                logWarn(`Cannot search by member: ${validation.reason}`, { memberCriteria });
                 return await this.mongoStorageProvider.findAsync({ query, options, extraInfo });
             }
 
-            // Apply security tag filtering (CRITICAL for authorization)
-            // This ensures ClickHouse queries respect the same access controls as MongoDB
-            if (accessTags.length > 0) {
-                whereClause += ` ${QueryFragments.whereAccessTags(accessTags, true)}`;
-                queryParams.accessTags = accessTags;
-            }
-            if (ownerTags.length > 0) {
-                whereClause += ` ${QueryFragments.whereOwnerTags(ownerTags, true)}`;
-                queryParams.ownerTags = ownerTags;
-            }
-
-            // Build page query with pagination
-            // Prefer seek cursor (id:above) for performance, fall back to OFFSET if numeric skip is used
-            let pageQuery;
-            if (afterGroupId) {
-                // Seek cursor pagination - O(log n) at any depth
-                pageQuery = `
-                    SELECT group_id
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                    ${whereClause}
-                      AND group_id > {afterGroupId:String}
-                    GROUP BY group_id
-                    HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}' AND argMaxMerge(inactive) = 0
-                    ORDER BY group_id
-                    LIMIT {limit:UInt32}
-                `;
-                queryParams.afterGroupId = afterGroupId;
-            } else if (skip > 0) {
-                // Numeric offset pagination - O(n) but simpler for tests
-                pageQuery = `
-                    SELECT group_id
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                    ${whereClause}
-                    GROUP BY group_id
-                    HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}' AND argMaxMerge(inactive) = 0
-                    ORDER BY group_id
-                    LIMIT {limit:UInt32}
-                    OFFSET {skip:UInt32}
-                `;
-                queryParams.skip = skip;
-            } else {
-                // No pagination params - first page
-                pageQuery = `
-                    SELECT group_id
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                    ${whereClause}
-                    GROUP BY group_id
-                    HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}' AND argMaxMerge(inactive) = 0
-                    ORDER BY group_id
-                    LIMIT {limit:UInt32}
-                `;
-            }
-            queryParams.limit = limit;
-
-            logInfo('Executing ClickHouse member search with seek cursor pagination', {
-                memberReference: queryParams.memberReference || queryParams.memberSourceId,
+            // Build ClickHouse query
+            const queryDef = QueryBuilder.buildFindGroupsByMemberQuery({
+                memberReference: validation.entityReference,
+                accessTags: securityTags.accessTags,
+                ownerTags: securityTags.ownerTags,
+                limit,
                 afterGroupId,
-                limit
+                skip
             });
 
-            // Execute page query
-            let pageResult;
-            try {
-                pageResult = await this.clickHouseClientManager.queryAsync({
-                    query: pageQuery,
-                    query_params: queryParams
-                });
-            } catch (queryError) {
-                logError('Error executing ClickHouse query', {
-                    error: queryError.message,
-                    stack: queryError.stack,
-                    pageQuery,
-                    queryParams
-                });
-                throw queryError;
-            }
-
-            const groupIds = (pageResult || []).map(row => row.group_id);
-
-            logInfo('ClickHouse member search results', {
-                memberReference,
-                pageSize: groupIds.length,
-                afterGroupId
-            });
-
-            // Fetch full Group resources from MongoDB using ONLY this page's IDs
-            if (groupIds.length === 0) {
-                return await this.mongoStorageProvider.findAsync({
-                    query: { id: { $in: [] } },
-                    options: { ...options, limit: undefined, skip: undefined, sort: undefined },
-                    extraInfo
-                });
-            }
-
-            // MongoDB fetches ONLY this page (no skip/limit/sort - ClickHouse handled pagination)
-            const mongoQuery = { id: { $in: groupIds } };
-            const mongoOptions = {
-                ...options,
-                limit: groupIds.length,  // Limit to this page size
-                skip: undefined,         // ClickHouse handled pagination
-                sort: [['id', 1]]        // Sort by id ascending to match ClickHouse order
-            };
-
-            const mongoResult = await this.mongoStorageProvider.findAsync({
-                query: mongoQuery,
-                options: mongoOptions,
+            // Execute and return
+            return await QueryExecutor.executeGroupMemberSearch({
+                clickHouseManager: this.clickHouseClientManager,
+                mongoProvider: this.mongoStorageProvider,
+                queryDef,
+                limit,
+                options,
                 extraInfo
             });
-
-            // Set pagination metadata: if we got a full page, there may be more results
-            // The bundleManager will use the last resource's id to create the next link
-            if (groupIds.length === limit) {
-                // Got a full page, might have more results
-                // The last_id will be extracted from resources by searchBundle
-                mongoResult._hasMore = true;
-            }
-
-            return mongoResult;
         } catch (error) {
             logError('Error querying ClickHouse for Groups by member', {
                 error: error.message,

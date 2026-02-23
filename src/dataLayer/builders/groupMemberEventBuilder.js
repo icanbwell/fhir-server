@@ -1,6 +1,7 @@
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { FhirReferenceParser } = require('../../utils/fhir/referenceParser');
 const { SecurityTagExtractor } = require('../../utils/fhir/securityTagExtractor');
+const { logWarn, logError } = require('../../operations/common/logging');
 const { v4: uuidv4 } = require('uuid');
 
 /**
@@ -13,6 +14,48 @@ const { v4: uuidv4 } = require('uuid');
  * The Repository layer is responsible for converting to database-specific formats.
  */
 class GroupMemberEventBuilder {
+    /**
+     * Extracts and validates source_assigning_authority from owner_tags
+     * Matches MongoDB's sourceAssigningAuthorityColumnHandler behavior
+     *
+     * @param {Array<string>} ownerTags - Owner tag codes
+     * @param {string} groupId - Group ID for error logging
+     * @param {string} entityReference - Entity reference for error logging
+     * @returns {string} First owner tag (managing organization)
+     * @throws {Error} If ownerTags is empty
+     * @private
+     */
+    static _extractSourceAssigningAuthority(ownerTags, groupId, entityReference) {
+        if (!ownerTags || ownerTags.length === 0) {
+            const error = new Error(
+                `Invalid owner_tags for Group ${groupId}: Must have at least one owner tag. ` +
+                `source_assigning_authority cannot be derived without an owner.`
+            );
+
+            logError('Group event rejected: No owner_tags', {
+                groupId,
+                entityReference,
+                ownerTagsCount: 0,
+                ownerTags,
+                error: error.message
+            });
+
+            throw error;
+        }
+
+        if (ownerTags.length > 1) {
+            logWarn('Group has multiple owner tags, using first', {
+                groupId,
+                entityReference,
+                ownerTagsCount: ownerTags.length,
+                ownerTags,
+                selectedOwner: ownerTags[0]
+            });
+        }
+
+        return ownerTags[0];
+    }
+
     /**
      * Creates an event object with all required fields
      * Returns events with ISO timestamps (domain format).
@@ -30,6 +73,12 @@ class GroupMemberEventBuilder {
         accessTags,
         ownerTags
     }) {
+        const sourceAssigningAuthority = this._extractSourceAssigningAuthority(
+            ownerTags,
+            groupId,
+            entityReference
+        );
+
         return {
             event_id: uuidv4(),
             group_id: groupId,
@@ -43,7 +92,8 @@ class GroupMemberEventBuilder {
             group_source_id: groupSourceId,
             group_source_assigning_authority: groupSourceAuthority,
             access_tags: accessTags,
-            owner_tags: ownerTags
+            owner_tags: ownerTags,
+            source_assigning_authority: sourceAssigningAuthority
         };
     }
 

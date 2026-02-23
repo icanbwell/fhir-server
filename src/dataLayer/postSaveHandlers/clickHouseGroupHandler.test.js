@@ -200,7 +200,14 @@ describe('ClickHouseGroupHandler', () => {
                     id: groupId,
                     _uuid: 'uuid-1',
                     member: members,
-                    meta: { security: [], versionId: '1', lastUpdated: '2024-01-01T00:00:00Z' }
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'owner1' },
+                            { system: 'https://www.icanbwell.com/access', code: 'access1' }
+                        ],
+                        versionId: '1',
+                        lastUpdated: '2024-01-01T00:00:00Z'
+                    }
                 }
             });
 

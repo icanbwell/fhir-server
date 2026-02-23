@@ -4,6 +4,7 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { OPERATION_TYPES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { GroupMemberEventBuilder } = require('../builders/groupMemberEventBuilder');
 const { CONTEXT_KEYS } = require('../../constants/groupConstants');
+const { GroupMemberDiffComputer } = require('../../domain/group/groupMemberDiffComputer');
 const httpContext = require('express-http-context');
 
 /**
@@ -86,9 +87,10 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @param {string} params.eventType - OPERATION_TYPES.CREATE, UPDATE, or DELETE
      * @param {string} params.resourceType
      * @param {Object} params.doc - FHIR Group resource
+     * @param {Object|null} params.contextData
      * @return {Promise<void>}
      */
-    async afterSaveAsync({ requestId, eventType, resourceType, doc }) {
+    async afterSaveAsync({ requestId, eventType, resourceType, doc, contextData = null }) {
         if (!this.canHandle(resourceType)) {
             return;
         }
@@ -255,6 +257,45 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
     }
 
     /**
+     * Builds and writes combined events for additions and removals in a single INSERT
+     *
+     * @param {Object} params
+     * @param {string} params.groupId - Group resource ID
+     * @param {Array<Object>} params.additions - Members to add
+     * @param {Array<Object>} params.removals - Members to remove
+     * @param {Object} params.groupResource - FHIR Group resource
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _writeCombinedEventsAsync({ groupId, additions, removals, groupResource }) {
+        const allEvents = [];
+
+        if (additions.length > 0) {
+            const addEvents = GroupMemberEventBuilder.buildEvents({
+                groupId,
+                members: additions,
+                eventType: EVENT_TYPES.MEMBER_ADDED,
+                groupResource
+            });
+            allEvents.push(...addEvents);
+        }
+
+        if (removals.length > 0) {
+            const removeEvents = GroupMemberEventBuilder.buildEvents({
+                groupId,
+                members: removals,
+                eventType: EVENT_TYPES.MEMBER_REMOVED,
+                groupResource
+            });
+            allEvents.push(...removeEvents);
+        }
+
+        if (allEvents.length > 0) {
+            await this.repository.appendEvents(allEvents);
+        }
+    }
+
+    /**
      * Appends member events directly (no read, no diff)
      * Pure INSERT operation - O(batch size)
      *
@@ -313,32 +354,6 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
     }
 
     /**
-     * Computes the diff between current and incoming members
-     *
-     * @param {Set<string>} currentReferences - Current member references
-     * @param {Array<Object>} incomingMembers - Incoming member array
-     * @returns {Object} { additions: Array, removals: Array }
-     * @private
-     */
-    _computeMemberDiff(currentReferences, incomingMembers) {
-        const incomingReferences = new Set(
-            (incomingMembers || []).map(m => m.entity.reference)
-        );
-
-        // Compute additions (in incoming, not in current)
-        const additions = (incomingMembers || []).filter(m =>
-            m.entity?.reference && !currentReferences.has(m.entity.reference)
-        );
-
-        // Compute removals (in current, not in incoming)
-        const removals = Array.from(currentReferences)
-            .filter(ref => !incomingReferences.has(ref))
-            .map(ref => ({ entity: { reference: ref } }));
-
-        return { additions, removals };
-    }
-
-    /**
      * Handles Group update by computing diff between current and new members
      * Queries repository for current state, computes diff, writes events
      *
@@ -352,7 +367,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             const currentReferences = await this._getCurrentMembers(groupResource.id);
 
             // Compute diff
-            const { additions, removals } = this._computeMemberDiff(
+            const { additions, removals } = GroupMemberDiffComputer.compute(
                 currentReferences,
                 groupResource.member
             );
@@ -365,11 +380,13 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 incoming: (groupResource.member || []).length
             });
 
-            // Write addition events
-            await this._writeMemberEventsIfNeeded(additions, EVENT_TYPES.MEMBER_ADDED, groupResource);
-
-            // Write removal events
-            await this._writeMemberEventsIfNeeded(removals, EVENT_TYPES.MEMBER_REMOVED, groupResource);
+            // Write combined events in single INSERT
+            await this._writeCombinedEventsAsync({
+                groupId: groupResource.id,
+                additions,
+                removals,
+                groupResource
+            });
 
             logInfo('Processed Group update', {
                 groupId: groupResource.id,
@@ -396,10 +413,11 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @param {string} params.groupId - Group resource ID
      * @param {Array<Object>} params.added - Members to add
      * @param {Array<Object>} params.removed - Members to remove
+     * @param {Object} params.groupResource - Full Group resource (required for security tags)
      * @returns {Promise<void>}
      * @public
      */
-    async writeEventsAsync({ groupId, added = [], removed = [] }) {
+    async writeEventsAsync({ groupId, added = [], removed = [], groupResource }) {
         try {
             logDebug('Writing Group member events directly', {
                 groupId,
@@ -407,14 +425,17 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 removedCount: removed.length
             });
 
-            // Create minimal group resource for event building
-            const groupResource = { id: groupId };
+            if (!groupResource) {
+                throw new Error(`groupResource is required for writeEventsAsync (groupId: ${groupId})`);
+            }
 
-            // Write addition events
-            await this._writeMemberEventsIfNeeded(added, EVENT_TYPES.MEMBER_ADDED, groupResource);
-
-            // Write removal events
-            await this._writeMemberEventsIfNeeded(removed, EVENT_TYPES.MEMBER_REMOVED, groupResource);
+            // Write combined events in single INSERT
+            await this._writeCombinedEventsAsync({
+                groupId,
+                additions: added,
+                removals: removed,
+                groupResource
+            });
 
             logInfo('Successfully wrote Group member events', {
                 groupId,
