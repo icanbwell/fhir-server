@@ -171,18 +171,9 @@ class DatabaseBulkInserter extends EventEmitter {
         const contextFieldName = `${resource.resourceType.toLowerCase()}${config.field.charAt(0).toUpperCase()}${config.field.slice(1)}s`;
         const arrayData = contextData?.[contextFieldName] || resource[fieldName] || [];
 
-        // Store array data in httpContext so post-save handler can access it after MongoDB save
-        // This is the communication mechanism between pre-save (stripping) and post-save (ClickHouse write)
-        const contextKey = CONTEXT_KEYS[config.contextKey](resource.id);
-        httpContext.set(contextKey, arrayData);
-
-        // Flag that array data was provided (forces UPDATE even if MongoDB sees no changes)
-        // This is necessary for hybrid storage: arrays stripped from MongoDB but tracked in ClickHouse
-        const changedKey = CONTEXT_KEYS[`${config.contextKey}_CHANGED`](resource.id);
-        httpContext.set(changedKey, true);
-
         // Strip array from resource (hybrid storage: MongoDB stores metadata, ClickHouse stores array data)
         // This prevents 16MB document size limit errors for large arrays
+        // Array data is passed to post-save handler via contextData parameter (explicit threading)
         // IMPORTANT: Modify in place to preserve Resource type
         resource[fieldName] = [];
 
@@ -228,7 +219,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resource,
             operationType,
             operation,
-            patches
+            patches,
+            contextData = null
         }
     ) {
         assertIsValid(requestId, 'requestId is null');
@@ -253,7 +245,8 @@ class DatabaseBulkInserter extends EventEmitter {
                 doc: resource,
                 operationType,
                 operation,
-                patches
+                patches,
+                contextData
             })
         );
     }
@@ -275,7 +268,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resource,
             operationType,
             operation,
-            patches
+            patches,
+            contextData = null
         }
     ) {
         // If there is no entry for this collection then create one
@@ -301,7 +295,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     operationType,
                     patches,
                     isCreateOperation: true,
-                    isUpdateOperation: false
+                    isUpdateOperation: false,
+                    contextData
                 }
             )
         );
@@ -317,6 +312,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @property {import('mongodb').AnyBulkWriteOperation} operation
      * @property {MergePatchEntry[]|null} patches
      * @property {boolean} isAccessLogOperation
+     * @property {Object|null} contextData
      *
      * @param {getOperationForResourceAsyncParam}
      * @returns {BulkInsertUpdateEntry}
@@ -328,7 +324,8 @@ class DatabaseBulkInserter extends EventEmitter {
         operationType,
         operation,
         patches,
-        isAccessLogOperation = false
+        isAccessLogOperation = false,
+        contextData = null
     }) {
         try {
             if (!isAccessLogOperation) {
@@ -355,7 +352,8 @@ class DatabaseBulkInserter extends EventEmitter {
                 operationType,
                 patches,
                 isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
-                isUpdateOperation: operationType === 'replace' || operationType === 'merge'
+                isUpdateOperation: operationType === 'replace' || operationType === 'merge',
+                contextData
             });
         } catch (e) {
             throw new RethrownError({
@@ -411,7 +409,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         resourceType,
                         doc,
                         previousVersionId: `${previousVersionId}`,
-                        patches: null
+                        patches: null,
+                        contextData
                     }
                 );
             } else {
@@ -442,7 +441,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         }
                     },
                     operationType: 'insertUniqueId',
-                    patches: null
+                    patches: null,
+                    contextData
                 });
             }
             if (doc._id) {
@@ -468,9 +468,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} doc
      * @param {MergePatchEntry[]|null} patches
      * @param {boolean} skipResourceAssertion Skip assertion for doc to be as instance of Resource
+     * @param {Object|null} contextData Optional context data for resource-specific handling
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches, skipResourceAssertion = false }) {
+    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches, skipResourceAssertion = false, contextData = null }) {
         if (!skipResourceAssertion) {
             assertTypeEquals(doc, Resource);
         }
@@ -512,7 +513,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         }).toJSONInternal()
                     }
                 },
-                patches
+                patches,
+                contextData
             });
         } catch (e) {
             throw new RethrownError({
@@ -606,7 +608,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                     replacement: doc.toJSONInternal()
                                 }
                             },
-                            patches
+                            patches,
+                            contextData
                         }
                     );
                 }
@@ -747,7 +750,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                     replacement: doc.toJSONInternal()
                                 }
                             },
-                            patches
+                            patches,
+                            contextData
                         }
                     );
                 }
@@ -1347,12 +1351,14 @@ class DatabaseBulkInserter extends EventEmitter {
             !isAccessLogOperation
         ) {
             const eventType = bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U';
+            const contextData = bulkInsertUpdateEntry.contextData || null;
 
             const afterSaveTask = async () => await this.postSaveProcessor.afterSaveAsync({
                 requestId,
                 eventType,
                 resourceType,
-                doc: bulkInsertUpdateEntry.resource
+                doc: bulkInsertUpdateEntry.resource,
+                contextData
             });
 
             // Check if any handler needs sync mode for this resource

@@ -12,7 +12,7 @@ const httpContext = require('express-http-context');
  *
  * Architecture: Pure append-only event log with proper write ordering
  * - Member arrays are stripped BEFORE MongoDB save (in databaseBulkInserter)
- * - Original member array is stored in httpContext for POST-save access
+ * - Original member array is passed via contextData parameter (threaded through BulkInsertUpdateEntry)
  * - ClickHouse writes happen AFTER MongoDB save succeeds (correct ordering)
  * - Writes are INSERTs only, never queries existing state
  * - Reads use argMax aggregation over sorted event log
@@ -21,7 +21,7 @@ const httpContext = require('express-http-context');
  * Write Ordering:
  * 1. Strip member[] from resource (databaseBulkInserter)
  * 2. MongoDB.save(strippedResource) → returns doc
- * 3. POST-save handler retrieves original member[] from httpContext
+ * 3. POST-save handler receives original member[] via contextData parameter
  * 4. Write ClickHouse events
  * Result: If MongoDB fails, no ClickHouse events (correct)
  *
@@ -107,14 +107,14 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 return;
             }
 
-            // Retrieve original member array from httpContext
-            // This was stored by databaseBulkInserter before MongoDB save
-            const contextKey = CONTEXT_KEYS.GROUP_MEMBERS(doc.id);
-            const originalMembers = httpContext.get(contextKey) || [];
+            // Retrieve original member array from contextData
+            // contextData is threaded through BulkInsertUpdateEntry pipeline
+            const originalMembers = contextData?.groupMembers || [];
 
             logDebug('POST-save: Processing Group', {
                 groupId: doc.id,
                 eventType,
+                hasContextData: !!contextData,
                 hasOriginalMembers: originalMembers.length > 0,
                 originalMemberCount: originalMembers.length
             });

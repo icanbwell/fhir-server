@@ -194,20 +194,9 @@ class UpdateOperation {
         const { id: rawId } = IdParser.parse(id);
         resource_incoming_json.id = rawId;
 
-        // For resources with mongo-with-clickhouse dual-write storage, flag changes to force UPDATE
-        // even if MongoDB sees no changes (check BEFORE Resource creation strips empty arrays)
-        const postSaveHandlers = this.postSaveHandlerFactory.getHandlers(resourceType);
-        if (postSaveHandlers.length > 0) {
-            // Check if this resource has fields stored externally that may have changed
-            // Currently only Group.member uses dual-write storage (MongoDB + ClickHouse)
-            if (resourceType === 'Group' && resource_incoming_json.member !== undefined) {
-                const { CONTEXT_KEYS } = require('../../constants/groupConstants');
-                const changedKey = CONTEXT_KEYS.GROUP_MEMBERS_CHANGED(rawId);
-                httpContext.set(changedKey, true);
-            }
-            // Future: Add other mongo-with-clickhouse dual-write resources here
-            // Example: if (resourceType === 'Observation' && resource_incoming_json.component !== undefined) { ... }
-        }
+        // For resources with mongo-with-clickhouse dual-write storage, track if externally-stored fields present
+        // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save)
+        const hasMemberField = resourceType === 'Group' && resource_incoming_json.member !== undefined;
 
         // create a resource with incoming data
         /**
@@ -360,22 +349,16 @@ class UpdateOperation {
                 }));
                 doc = updatedResource;
 
-                // Check if dual-write storage fields changed (stored in httpContext)
+                // Check if dual-write storage fields changed
                 // If so, force the update even if mergeResourceAsync returned null (MongoDB sees no changes)
                 const postSaveHandlers2 = this.postSaveHandlerFactory.getHandlers(resourceType);
                 if (!doc && postSaveHandlers2.length > 0) {
-                    // Check resource-specific mongo-with-clickhouse dual-write storage change flags
+                    // Check resource-specific mongo-with-clickhouse dual-write storage
                     // Currently only Group.member uses dual-write (MongoDB + ClickHouse)
-                    if (resourceType === 'Group') {
-                        const { CONTEXT_KEYS } = require('../../constants/groupConstants');
-                        const changedKey = CONTEXT_KEYS.GROUP_MEMBERS_CHANGED(id);
-                        const membersChanged = httpContext.get(changedKey);
-                        if (membersChanged) {
-                            doc = resource_incoming;
-                        }
+                    if (hasMemberField) {
+                        doc = resource_incoming;
                     }
                     // Future: Add other mongo-with-clickhouse dual-write resources here
-                    // Example: if (resourceType === 'Observation') { check component flag... }
                 }
             } else {
                 if (ifMatch) {
