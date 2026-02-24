@@ -30,6 +30,8 @@ const main = async function () {
         await createServer(() => container);
         // Initialize cron tasks processor for processing scheduled tasks
         await container.cronTasksProcessor.initiateTasks();
+        // Initialize subscription expiration processor (if SSE subscriptions enabled)
+        await container.subscriptionExpirationProcessor.initiateTasks();
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
         console.log(JSON.stringify({ method: 'main', message: e.message, stack: JSON.stringify(e.stack, getCircularReplacer()) }));

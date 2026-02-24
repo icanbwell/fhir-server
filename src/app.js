@@ -33,7 +33,8 @@ const {
     handleSSEAdminStats,
     handleSubscriptionTopicSearch,
     handleSubscriptionTopicRead,
-    handleSubscriptionStatus
+    handleSubscriptionStatus,
+    handleSubscriptionEventsHistory
 } = require('./routeHandlers/subscriptionNotifications');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
@@ -397,6 +398,12 @@ function createApp({fnGetContainer}) {
         sseRouter.get(
             '/4_0_0/Subscription/:id/\\$status',
             (req, res) => handleSubscriptionStatus(fnGetContainer, req, res)
+        );
+
+        // Subscription $events operation (FHIR R5 - historical events query)
+        sseRouter.get(
+            '/4_0_0/Subscription/:id/\\$events',
+            (req, res) => handleSubscriptionEventsHistory(fnGetContainer, req, res)
         );
 
         // SubscriptionTopic search endpoint

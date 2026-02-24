@@ -138,6 +138,7 @@ const { SubscriptionKafkaConsumer } = require('./services/subscriptionKafkaConsu
 const { SSEEventDispatcher } = require('./services/sseEventDispatcher');
 const { SubscriptionTopicManager } = require('./services/subscriptionTopicManager');
 const { SubscriptionPreSaveHandler } = require('./preSaveHandlers/handlers/subscriptionPreSaveHandler');
+const { SubscriptionExpirationProcessor } = require('./utils/subscriptionExpirationProcessor');
 
 /**
  * Creates a container and sets up all the services
@@ -528,6 +529,13 @@ const createContainer = function () {
                 postSaveProcessor: c.postSaveProcessor,
                 auditLogger: c.auditLogger,
                 accessLogger: c.accessLogger,
+                configManager: c.configManager
+            }
+        )
+    );
+    container.register('subscriptionExpirationProcessor', (c) => new SubscriptionExpirationProcessor(
+            {
+                databaseQueryFactory: c.databaseQueryFactory,
                 configManager: c.configManager
             }
         )

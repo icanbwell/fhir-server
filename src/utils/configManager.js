@@ -1191,6 +1191,15 @@ class ConfigManager {
     get sseKafkaConsumerGroupId() {
         return env.SSE_KAFKA_CONSUMER_GROUP_ID || 'fhir-sse-subscription-consumer';
     }
+
+    /**
+     * Cron expression for subscription expiration check
+     * Default: every minute
+     * @return {string}
+     */
+    get subscriptionExpirationCronTime() {
+        return env.SUBSCRIPTION_EXPIRATION_CRON_TIME || '* * * * *';
+    }
 }
 
 module.exports = {

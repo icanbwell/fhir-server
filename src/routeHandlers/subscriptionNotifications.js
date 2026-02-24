@@ -634,11 +634,139 @@ async function _getSubscriptionAsync(container, subscriptionId) {
     }
 }
 
+/**
+ * Handle Subscription $events operation
+ * GET /4_0_0/Subscription/:id/$events
+ * Returns historical subscription notification events
+ *
+ * Query parameters:
+ * - eventsSinceNumber: Return events after this sequence number
+ * - eventsUntilNumber: Return events up to this sequence number (optional)
+ * - content: 'empty', 'id-only', 'full-resource' (default: 'full-resource')
+ *
+ * @param {function(): import('../createContainer').SimpleContainer} fnGetContainer
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
+async function handleSubscriptionEventsHistory(fnGetContainer, req, res) {
+    const subscriptionId = req.params.id;
+
+    /**
+     * @type {import('../createContainer').SimpleContainer}
+     */
+    const container = fnGetContainer();
+
+    /**
+     * @type {import('../utils/configManager').ConfigManager}
+     */
+    const configManager = container.configManager;
+
+    // Check if SSE subscriptions are enabled
+    if (!configManager.enableSSESubscriptions) {
+        res.status(501).json({
+            resourceType: 'OperationOutcome',
+            issue: [{
+                severity: 'error',
+                code: 'not-supported',
+                diagnostics: 'SSE Subscriptions are not enabled on this server'
+            }]
+        });
+        return;
+    }
+
+    try {
+        // Get the subscription to verify ownership
+        const subscription = await _getSubscriptionAsync(container, subscriptionId);
+
+        if (!subscription) {
+            res.status(404).json({
+                resourceType: 'OperationOutcome',
+                issue: [{
+                    severity: 'error',
+                    code: 'not-found',
+                    diagnostics: `Subscription/${subscriptionId} not found`
+                }]
+            });
+            return;
+        }
+
+        // Parse query parameters
+        const eventsSinceNumber = req.query.eventsSinceNumber
+            ? parseInt(req.query.eventsSinceNumber, 10)
+            : 0;
+        const limit = req.query._count
+            ? Math.min(parseInt(req.query._count, 10), configManager.sseReplayLimit)
+            : configManager.sseReplayLimit;
+
+        /**
+         * @type {import('../dataLayer/subscriptionEventStore').SubscriptionEventStore}
+         */
+        const subscriptionEventStore = container.subscriptionEventStore;
+
+        // Get events from ClickHouse
+        const events = await subscriptionEventStore.getEventsForReplayAsync({
+            subscriptionId,
+            lastEventId: eventsSinceNumber > 0 ? eventsSinceNumber.toString() : null,
+            limit
+        });
+
+        // Build response bundle
+        const bundle = {
+            resourceType: 'Bundle',
+            id: generateUUID(),
+            type: 'history',
+            timestamp: new Date().toISOString(),
+            total: events.length,
+            link: [
+                {
+                    relation: 'self',
+                    url: `${req.protocol}://${req.get('host')}${req.originalUrl}`
+                }
+            ],
+            entry: events.map(event => ({
+                fullUrl: `urn:uuid:${event.eventId}`,
+                resource: event.payload,
+                search: {
+                    mode: 'match'
+                }
+            }))
+        };
+
+        // Add next link if there might be more results
+        if (events.length === limit && events.length > 0) {
+            const lastEvent = events[events.length - 1];
+            bundle.link.push({
+                relation: 'next',
+                url: `${req.protocol}://${req.get('host')}/4_0_0/Subscription/${subscriptionId}/$events?eventsSinceNumber=${lastEvent.sequenceNumber}`
+            });
+        }
+
+        res.status(200).json(bundle);
+    } catch (error) {
+        logger.error('Error handling $events operation', {
+            subscriptionId,
+            error: error.message,
+            stack: error.stack
+        });
+
+        res.status(500).json({
+            resourceType: 'OperationOutcome',
+            issue: [{
+                severity: 'error',
+                code: 'exception',
+                diagnostics: error.message
+            }]
+        });
+    }
+}
+
 module.exports = {
     handleSubscriptionEvents,
     handleSubscriptionStats,
     handleSSEAdminStats,
     handleSubscriptionTopicSearch,
     handleSubscriptionTopicRead,
-    handleSubscriptionStatus
+    handleSubscriptionStatus,
+    handleSubscriptionEventsHistory
 };
