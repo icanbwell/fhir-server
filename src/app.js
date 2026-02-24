@@ -27,6 +27,14 @@ const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 const {handleLivenessCheck} = require('./routeHandlers/probeChecker.js');
 const {handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut} = require('./routeHandlers/admin');
+const {
+    handleSubscriptionEvents,
+    handleSubscriptionStats,
+    handleSSEAdminStats,
+    handleSubscriptionTopicSearch,
+    handleSubscriptionTopicRead,
+    handleSubscriptionStatus
+} = require('./routeHandlers/subscriptionNotifications');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
@@ -362,6 +370,71 @@ function createApp({fnGetContainer}) {
         (req, res) => handleAdminPut(fnGetContainer, req, res));
 
     app.use(adminRouter);
+
+    // Set up SSE Subscription routes (if enabled)
+    if (configManager.enableSSESubscriptions) {
+        // noinspection JSCheckFunctionSignatures
+        passport.use('sseStrategy', container.jwt_strategy);
+
+        const sseRouter = express.Router({mergeParams: true});
+        sseRouter.use(passport.initialize());
+        sseRouter.use(passport.authenticate('sseStrategy', {session: false}, null));
+        sseRouter.use(cors(fhirServerConfig.server.corsOptions));
+
+        // SSE event stream endpoint - streaming so no body parser needed
+        sseRouter.get(
+            '/4_0_0/\\$subscription-events/:subscriptionId',
+            (req, res) => handleSubscriptionEvents(fnGetContainer, req, res)
+        );
+
+        // Subscription stats endpoint
+        sseRouter.get(
+            '/4_0_0/\\$subscription-stats/:subscriptionId',
+            (req, res) => handleSubscriptionStats(fnGetContainer, req, res)
+        );
+
+        // Subscription $status operation (FHIR R5 compliance)
+        sseRouter.get(
+            '/4_0_0/Subscription/:id/\\$status',
+            (req, res) => handleSubscriptionStatus(fnGetContainer, req, res)
+        );
+
+        // SubscriptionTopic search endpoint
+        sseRouter.get(
+            '/4_0_0/SubscriptionTopic',
+            (req, res) => handleSubscriptionTopicSearch(fnGetContainer, req, res)
+        );
+
+        // SubscriptionTopic read endpoint
+        sseRouter.get(
+            '/4_0_0/SubscriptionTopic/:id',
+            (req, res) => handleSubscriptionTopicRead(fnGetContainer, req, res)
+        );
+
+        // Admin SSE stats endpoint
+        sseRouter.get(
+            '/admin/sse-stats',
+            (req, res) => handleSSEAdminStats(fnGetContainer, req, res)
+        );
+
+        app.use(sseRouter);
+
+        // Initialize the SSE Event Dispatcher for cross-pod communication via Redis Pub/Sub
+        const sseEventDispatcher = container.sseEventDispatcher;
+        if (sseEventDispatcher) {
+            sseEventDispatcher.initializeAsync().catch(err => {
+                logInfo('Failed to initialize SSE Event Dispatcher', { error: err.message });
+            });
+        }
+
+        // Start the Kafka consumer for SSE subscriptions
+        const subscriptionKafkaConsumer = container.subscriptionKafkaConsumer;
+        if (subscriptionKafkaConsumer) {
+            subscriptionKafkaConsumer.startAsync().catch(err => {
+                logInfo('Failed to start SSE Kafka consumer', { error: err.message });
+            });
+        }
+    }
 
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', container.jwt_strategy);

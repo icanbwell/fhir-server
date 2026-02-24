@@ -180,6 +180,129 @@ class RedisClient {
         }
         return keys;
     }
+
+    // ==================== Pub/Sub Methods for SSE Subscriptions ====================
+
+    /**
+     * Create a duplicate client for Pub/Sub subscriber (required by Redis)
+     * @returns {Promise<Object>}
+     */
+    async createSubscriberClientAsync() {
+        await this.connectAsync();
+        const subscriber = this.client.duplicate();
+        await subscriber.connect();
+        return subscriber;
+    }
+
+    /**
+     * Publish a message to a channel
+     * @param {string} channel - The channel name
+     * @param {string} message - The message to publish (JSON stringified)
+     * @returns {Promise<number>} - Number of subscribers that received the message
+     */
+    async publishAsync(channel, message) {
+        await this.connectAsync();
+        return await this.client.publish(channel, message);
+    }
+
+    /**
+     * Subscribe to a channel pattern (e.g., 'fhir:sse:*')
+     * @param {string} pattern - The channel pattern
+     * @param {function} callback - Callback function (pattern, channel, message)
+     * @returns {Promise<Object>} - Subscriber client (needed to unsubscribe)
+     */
+    async pSubscribeAsync(pattern, callback) {
+        const subscriber = await this.createSubscriberClientAsync();
+        await subscriber.pSubscribe(pattern, (message, channel) => {
+            callback(pattern, channel, message);
+        });
+        return subscriber;
+    }
+
+    /**
+     * Subscribe to a specific channel
+     * @param {string} channel - The channel name
+     * @param {function} callback - Callback function (message, channel)
+     * @returns {Promise<Object>} - Subscriber client
+     */
+    async subscribeAsync(channel, callback) {
+        const subscriber = await this.createSubscriberClientAsync();
+        await subscriber.subscribe(channel, (message) => {
+            callback(message, channel);
+        });
+        return subscriber;
+    }
+
+    /**
+     * Unsubscribe from pattern and quit subscriber client
+     * @param {Object} subscriber - The subscriber client
+     * @param {string} [pattern] - Optional pattern to unsubscribe from
+     */
+    async pUnsubscribeAsync(subscriber, pattern = null) {
+        if (subscriber) {
+            if (pattern) {
+                await subscriber.pUnsubscribe(pattern);
+            }
+            await subscriber.quit();
+        }
+    }
+
+    /**
+     * Set a hash field
+     * @param {string} key - Hash key
+     * @param {string} field - Field name
+     * @param {string} value - Field value
+     * @param {number} [ttlSeconds] - Optional TTL
+     */
+    async hSetAsync(key, field, value, ttlSeconds = null) {
+        await this.connectAsync();
+        await this.client.hSet(key, field, value);
+        if (ttlSeconds && !isNaN(parseInt(ttlSeconds))) {
+            await this.client.expire(key, parseInt(ttlSeconds));
+        }
+    }
+
+    /**
+     * Get a hash field
+     * @param {string} key - Hash key
+     * @param {string} field - Field name
+     * @returns {Promise<string|null>}
+     */
+    async hGetAsync(key, field) {
+        await this.connectAsync();
+        return await this.client.hGet(key, field);
+    }
+
+    /**
+     * Get all fields and values from a hash
+     * @param {string} key - Hash key
+     * @returns {Promise<Object>}
+     */
+    async hGetAllAsync(key) {
+        await this.connectAsync();
+        return await this.client.hGetAll(key);
+    }
+
+    /**
+     * Delete a hash field
+     * @param {string} key - Hash key
+     * @param {string} field - Field name
+     * @returns {Promise<number>}
+     */
+    async hDelAsync(key, field) {
+        await this.connectAsync();
+        return await this.client.hDel(key, field);
+    }
+
+    /**
+     * Get the number of fields in a hash
+     * @param {string} key - Hash key
+     * @returns {Promise<number>}
+     */
+    async hLenAsync(key) {
+        await this.connectAsync();
+        return await this.client.hLen(key);
+    }
 }
 
 module.exports = {

@@ -131,6 +131,13 @@ const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
+const { getSSEConnectionManager } = require('./services/sseConnectionManager');
+const { SubscriptionMatcher } = require('./services/subscriptionMatcher');
+const { SubscriptionEventStore } = require('./dataLayer/subscriptionEventStore');
+const { SubscriptionKafkaConsumer } = require('./services/subscriptionKafkaConsumer');
+const { SSEEventDispatcher } = require('./services/sseEventDispatcher');
+const { SubscriptionTopicManager } = require('./services/subscriptionTopicManager');
+const { SubscriptionPreSaveHandler } = require('./preSaveHandlers/handlers/subscriptionPreSaveHandler');
 
 /**
  * Creates a container and sets up all the services
@@ -201,7 +208,14 @@ const createContainer = function () {
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
             new ReferenceGlobalIdHandler({
                 configManager: c.configManager
-            })
+            }),
+            // SubscriptionPreSaveHandler validates SSE subscriptions
+            ...(c.configManager.enableSSESubscriptions ? [
+                new SubscriptionPreSaveHandler({
+                    configManager: c.configManager,
+                    subscriptionTopicManager: c.subscriptionTopicManager
+                })
+            ] : [])
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -1066,6 +1080,63 @@ const createContainer = function () {
     container.register('redisManager', (c) => new RedisManager({
         redisClient: c.redisClient
     }));
+
+    // SSE Subscription Services
+    container.register('sseConnectionManager', () => getSSEConnectionManager());
+
+    container.register('subscriptionTopicManager', (c) => {
+        if (c.configManager.enableSSESubscriptions) {
+            return new SubscriptionTopicManager({
+                databaseQueryFactory: c.databaseQueryFactory,
+                configManager: c.configManager
+            });
+        }
+        return null;
+    });
+
+    container.register('subscriptionEventStore', (c) => {
+        if (c.configManager.enableSSESubscriptions && c.configManager.enableClickHouse) {
+            return new SubscriptionEventStore({
+                clickHouseClientManager: c.clickHouseClientManager,
+                configManager: c.configManager
+            });
+        }
+        return null;
+    });
+
+    container.register('subscriptionMatcher', (c) => {
+        if (c.configManager.enableSSESubscriptions) {
+            return new SubscriptionMatcher({
+                databaseQueryFactory: c.databaseQueryFactory,
+                configManager: c.configManager
+            });
+        }
+        return null;
+    });
+
+    container.register('sseEventDispatcher', (c) => {
+        if (c.configManager.enableSSESubscriptions) {
+            return new SSEEventDispatcher({
+                redisClient: c.redisClient,
+                configManager: c.configManager,
+                sseConnectionManager: c.sseConnectionManager
+            });
+        }
+        return null;
+    });
+
+    container.register('subscriptionKafkaConsumer', (c) => {
+        if (c.configManager.enableSSESubscriptions && c.configManager.kafkaEnableEvents) {
+            return new SubscriptionKafkaConsumer({
+                kafkaClient: c.kafkaClient,
+                subscriptionMatcher: c.subscriptionMatcher,
+                sseEventDispatcher: c.sseEventDispatcher,
+                subscriptionEventStore: c.subscriptionEventStore,
+                configManager: c.configManager
+            });
+        }
+        return null;
+    });
 
     return container;
 };

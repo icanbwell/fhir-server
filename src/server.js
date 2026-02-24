@@ -118,6 +118,21 @@ async function createServer (fnGetContainer) {
             logInfo('Emitting beforeExit event');
             process.emit('beforeExit');
             await flushBuffer(fnGetContainer);
+
+            // Shutdown SSE Event Dispatcher (close Redis Pub/Sub connections)
+            logInfo('Shutting down SSE Event Dispatcher');
+            const sseEventDispatcher = container.sseEventDispatcher;
+            if (sseEventDispatcher) {
+                await sseEventDispatcher.shutdownAsync();
+            }
+
+            // Stop SSE Kafka Consumer
+            logInfo('Stopping SSE Kafka Consumer');
+            const subscriptionKafkaConsumer = container.subscriptionKafkaConsumer;
+            if (subscriptionKafkaConsumer) {
+                await subscriptionKafkaConsumer.stopAsync();
+            }
+
             logInfo('Disconnecting Kafka producer');
             await container.kafkaClient.disconnect();
         },

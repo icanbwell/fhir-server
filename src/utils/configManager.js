@@ -1125,6 +1125,72 @@ class ConfigManager {
     get clickHouseMaxConnections() {
         return parseInt(env.CLICKHOUSE_MAX_CONNECTIONS || String(DEFAULT_CLICKHOUSE.MAX_CONNECTIONS), 10);
     }
+
+    // ==================== SSE Subscription Configuration ====================
+
+    /**
+     * Whether SSE-based FHIR Subscriptions are enabled
+     * @return {boolean}
+     */
+    get enableSSESubscriptions() {
+        return isTrue(env.ENABLE_SSE_SUBSCRIPTIONS);
+    }
+
+    /**
+     * SSE heartbeat interval in milliseconds
+     * @return {number}
+     */
+    get sseHeartbeatIntervalMs() {
+        return parseInt(env.SSE_HEARTBEAT_INTERVAL_MS || '30000', 10);
+    }
+
+    /**
+     * SSE reconnect retry time in milliseconds (sent to client)
+     * @return {number}
+     */
+    get sseReconnectRetryMs() {
+        return parseInt(env.SSE_RECONNECT_RETRY_MS || '3000', 10);
+    }
+
+    /**
+     * Maximum number of events to replay on reconnection
+     * @return {number}
+     */
+    get sseReplayLimit() {
+        return parseInt(env.SSE_REPLAY_LIMIT || '1000', 10);
+    }
+
+    /**
+     * Number of days to retain subscription events in ClickHouse
+     * @return {number}
+     */
+    get subscriptionEventRetentionDays() {
+        return parseInt(env.SUBSCRIPTION_EVENT_RETENTION_DAYS || '7', 10);
+    }
+
+    /**
+     * Kafka topics to consume for SSE subscriptions
+     * @return {string[]}
+     */
+    get sseKafkaTopics() {
+        const topics = env.SSE_KAFKA_TOPICS;
+        if (topics) {
+            return topics.split(',').map(t => t.trim());
+        }
+        return [
+            'business.events',
+            'fhir.patient_data.change.events',
+            'fhir.person_data.change.events'
+        ];
+    }
+
+    /**
+     * Kafka consumer group ID for SSE subscriptions
+     * @return {string}
+     */
+    get sseKafkaConsumerGroupId() {
+        return env.SSE_KAFKA_CONSUMER_GROUP_ID || 'fhir-sse-subscription-consumer';
+    }
 }
 
 module.exports = {
