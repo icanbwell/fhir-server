@@ -5,6 +5,7 @@
 const { EventEmitter } = require('events');
 const { getLogger } = require('../winstonInit');
 const { generateUUID } = require('../utils/uid.util');
+const { getSSEMetrics } = require('../utils/sseMetrics');
 
 const logger = getLogger();
 
@@ -17,6 +18,7 @@ const logger = getLogger();
  * @property {Date} connectedAt - Connection timestamp
  * @property {string|null} lastEventId - Last event ID sent (for replay)
  * @property {AbortController} abortController - For connection cleanup
+ * @property {NodeJS.Timeout|null} timeoutTimer - Timer for connection timeout
  */
 
 class SSEConnectionManager extends EventEmitter {
@@ -36,6 +38,12 @@ class SSEConnectionManager extends EventEmitter {
         this._connectionsById = new Map();
 
         /**
+         * Map of connectionId -> timeout timer
+         * @type {Map<string, NodeJS.Timeout>}
+         */
+        this._connectionTimeouts = new Map();
+
+        /**
          * Total connection count
          * @type {number}
          */
@@ -53,9 +61,10 @@ class SSEConnectionManager extends EventEmitter {
      * @param {import('../utils/sseResponseWriter').SSEResponseWriter} params.writer - SSE writer
      * @param {string|null} [params.lastEventId] - Last event ID for replay
      * @param {import('http').IncomingMessage} params.request - HTTP request for cleanup
+     * @param {number} [params.timeoutMs] - Connection timeout in milliseconds (0 to disable)
      * @returns {SSEConnection}
      */
-    registerConnection({ subscriptionId, clientId, writer, lastEventId = null, request }) {
+    registerConnection({ subscriptionId, clientId, writer, lastEventId = null, request, timeoutMs = 0 }) {
         const connectionId = generateUUID();
 
         const abortController = new AbortController();
@@ -81,6 +90,30 @@ class SSEConnectionManager extends EventEmitter {
         this._connectionsById.set(connectionId, connection);
         this._totalConnections++;
 
+        // Set up connection timeout if specified
+        if (timeoutMs > 0) {
+            const timeoutTimer = setTimeout(() => {
+                logger.info('SSEConnectionManager: Connection timeout reached', {
+                    connectionId,
+                    subscriptionId,
+                    timeoutMs
+                });
+                // Send error before closing
+                try {
+                    writer.sendError({
+                        code: 'timeout',
+                        message: `SSE connection timed out after ${Math.floor(timeoutMs / 1000 / 60)} minutes. Please reconnect.`
+                    });
+                    writer.end();
+                } catch (e) {
+                    // Ignore errors during timeout cleanup
+                }
+                this._handleConnectionClose(connectionId);
+            }, timeoutMs);
+
+            this._connectionTimeouts.set(connectionId, timeoutTimer);
+        }
+
         // Handle connection cleanup on close
         request.on('close', () => this._handleConnectionClose(connectionId));
         request.on('error', (err) => {
@@ -92,8 +125,13 @@ class SSEConnectionManager extends EventEmitter {
             connectionId,
             subscriptionId,
             clientId,
-            totalConnections: this._totalConnections
+            totalConnections: this._totalConnections,
+            timeoutMs: timeoutMs || 'disabled'
         });
+
+        // Record metrics
+        const sseMetrics = getSSEMetrics();
+        sseMetrics.recordConnection({ subscriptionId, clientId });
 
         this.emit('connection:opened', { connectionId, subscriptionId, clientId });
 
@@ -116,6 +154,13 @@ class SSEConnectionManager extends EventEmitter {
         // Signal abort to stop any pending operations
         connection.abortController.abort();
 
+        // Clear any pending timeout
+        const timeoutTimer = this._connectionTimeouts.get(connectionId);
+        if (timeoutTimer) {
+            clearTimeout(timeoutTimer);
+            this._connectionTimeouts.delete(connectionId);
+        }
+
         // Remove from subscription map
         const subscriptionConnections = this._connectionsBySubscription.get(subscriptionId);
         if (subscriptionConnections) {
@@ -135,6 +180,10 @@ class SSEConnectionManager extends EventEmitter {
             clientId,
             totalConnections: this._totalConnections
         });
+
+        // Record metrics
+        const sseMetrics = getSSEMetrics();
+        sseMetrics.recordDisconnection({ subscriptionId, clientId });
 
         this.emit('connection:closed', { connectionId, subscriptionId, clientId });
     }
@@ -300,6 +349,16 @@ class SSEConnectionManager extends EventEmitter {
                 // Ignore errors during cleanup
             }
             this._handleConnectionClose(connection.connectionId);
+        }
+
+        // Record error metrics
+        if (connections.length > 0) {
+            const sseMetrics = getSSEMetrics();
+            sseMetrics.recordError({
+                errorType: 'subscription_closed',
+                subscriptionId,
+                reason
+            });
         }
 
         logger.info('SSEConnectionManager: Closed all connections for subscription', {

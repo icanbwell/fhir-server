@@ -1200,6 +1200,15 @@ class ConfigManager {
     get subscriptionExpirationCronTime() {
         return env.SUBSCRIPTION_EXPIRATION_CRON_TIME || '* * * * *';
     }
+
+    /**
+     * Maximum SSE connection duration in milliseconds
+     * Default: 24 hours (86400000ms). Set to 0 to disable timeout.
+     * @return {number}
+     */
+    get sseConnectionTimeoutMs() {
+        return parseInt(env.SSE_CONNECTION_TIMEOUT_MS || '86400000', 10);
+    }
 }
 
 module.exports = {

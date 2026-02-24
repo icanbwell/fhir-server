@@ -9,6 +9,7 @@ const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { getImageVersion } = require('./utils/getImageVersion');
+const { getSSEMetrics } = require('./utils/sseMetrics');
 
 Sentry.init({
     release: getImageVersion(),
@@ -32,6 +33,10 @@ const main = async function () {
         await container.cronTasksProcessor.initiateTasks();
         // Initialize subscription expiration processor (if SSE subscriptions enabled)
         await container.subscriptionExpirationProcessor.initiateTasks();
+        // Initialize SSE metrics (if SSE subscriptions enabled)
+        if (container.configManager.enableSSESubscriptions) {
+            getSSEMetrics().initialize();
+        }
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
         console.log(JSON.stringify({ method: 'main', message: e.message, stack: JSON.stringify(e.stack, getCircularReplacer()) }));

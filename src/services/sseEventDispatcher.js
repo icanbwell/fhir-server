@@ -18,6 +18,7 @@ const { getLogger } = require('../winstonInit');
 const { assertTypeEquals } = require('../utils/assertType');
 const { RedisClient } = require('../utils/redisClient');
 const { ConfigManager } = require('../utils/configManager');
+const { getSSEMetrics } = require('../utils/sseMetrics');
 
 const logger = getLogger();
 
@@ -128,6 +129,14 @@ class SSEEventDispatcher {
             // Track metrics
             const counter = this._eventCounters.get(subscriptionId) || 0;
             this._eventCounters.set(subscriptionId, counter + 1);
+
+            // Record OTEL metrics
+            const sseMetrics = getSSEMetrics();
+            sseMetrics.recordEventDispatched({
+                subscriptionId,
+                eventType: event.eventType || 'notification',
+                resourceType: event.resourceType
+            });
 
             logger.debug(`SSEEventDispatcher: Published event to ${channel}`, {
                 subscriptionId,

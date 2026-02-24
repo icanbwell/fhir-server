@@ -6,6 +6,7 @@ const { getLogger } = require('../winstonInit');
 const { SSEResponseWriter } = require('../utils/sseResponseWriter');
 const { getSSEConnectionManager } = require('../services/sseConnectionManager');
 const { generateUUID } = require('../utils/uid.util');
+const { getSSEMetrics } = require('../utils/sseMetrics');
 
 const logger = getLogger();
 
@@ -138,7 +139,8 @@ async function handleSubscriptionEvents(fnGetContainer, req, res) {
             clientId,
             writer: sseWriter,
             lastEventId,
-            request: req
+            request: req,
+            timeoutMs: configManager.sseConnectionTimeoutMs || 0
         });
 
         // Register connection with event dispatcher for cross-pod tracking
@@ -208,6 +210,7 @@ async function handleSubscriptionEvents(fnGetContainer, req, res) {
                 clientId
             });
 
+            const replayStartTime = Date.now();
             const missedEvents = await subscriptionEventStore.getEventsForReplayAsync({
                 subscriptionId,
                 lastEventId,
@@ -225,6 +228,12 @@ async function handleSubscriptionEvents(fnGetContainer, req, res) {
                     data: event.payload
                 });
             }
+
+            // Record replay metrics
+            const sseMetrics = getSSEMetrics();
+            const replayDuration = Date.now() - replayStartTime;
+            sseMetrics.recordReplayEvents(missedEvents.length, { subscriptionId });
+            sseMetrics.recordReplayDuration(replayDuration, { subscriptionId });
 
             logger.info('SSE: Replay complete', {
                 subscriptionId,
