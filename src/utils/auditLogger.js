@@ -21,6 +21,7 @@ const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { AuditEventKafkaProducer } = require('./auditEventKafkaProducer');
 const { ConfigManager } = require('./configManager');
+const { PERSON_PROXY_PREFIX } = require('../constants');
 const mutex = new Mutex();
 
 class AuditLogger {
@@ -90,12 +91,13 @@ class AuditLogger {
 
     /**
      * Create an AuditEntry resource
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} resourceType
-     * @param {string} operation
-     * @param {Object} cleanedArgs
-     * @param {string[]} ids
-     * @param {number} [maxNumberOfIds] - Optional max number of IDs to include in audit entry
+     * @param {Object} params
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {string} params.resourceType
+     * @param {string} params.operation
+     * @param {Object} params.cleanedArgs
+     * @param {string[]} params.ids
+     * @param {number} [params.maxNumberOfIds] - Optional max number of IDs to include in audit entry
      * @returns {AuditEvent}
      */
     createAuditEntry (
@@ -115,6 +117,23 @@ class AuditLogger {
 
         // Get current record
         const maxIds = maxNumberOfIds !== undefined ? maxNumberOfIds : this.maxIdsPerAuditEvent;
+
+        const isUser = Boolean(requestInfo?.isUser);
+
+        /**
+         * @type {string}
+         */
+        let actorReference;
+        /**
+         * @type {string|null}
+         */
+        const alternateId = requestInfo.alternateUserId;
+
+        if (isUser) {
+            actorReference = `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}`;
+        } else {
+            actorReference = `Person/${requestInfo.user}`;
+        }
 
         const resource = new AuditEvent({
             id: generateUUID(),
@@ -141,12 +160,12 @@ class AuditLogger {
             agent: [
                 new AuditEventAgent({
                     who: new Reference({
-                        reference: `Person/${requestInfo.user}`
+                        reference: actorReference
                     }),
-                    altId: requestInfo.user,
+                    altId: alternateId,
                     requestor: true,
                     network: new AuditEventNetwork({
-                        address: requestInfo.remoteIPAddress,
+                        address: requestInfo.remoteIpAddress,
                         type: '2'
                     })
                 })
@@ -154,7 +173,7 @@ class AuditLogger {
             source: new AuditEventSource({
                 observer: new Reference(
                     {
-                        reference: `Person/${requestInfo.user}`
+                        reference: actorReference
                     }
                 )
             }),

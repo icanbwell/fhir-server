@@ -5,6 +5,20 @@
  * @summary Arguments for the Encounter query
  */
 module.exports = {
+  _periodStart: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Encounter.period.start',
+    definition: 'http://hl7.org/fhir/SearchParameter/clinical-date',
+    description: 'Custom search parameter for start date of period'
+  },
+  _periodEnd: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Encounter.period.end',
+    definition: 'http://hl7.org/fhir/SearchParameter/clinical-date',
+    description: 'Custom search parameter for end date of period'
+  },
   date: {
     type: 'date',
     fhirtype: 'date',
@@ -88,6 +102,20 @@ module.exports = {
     xpath: 'Encounter.location.location',
     definition: 'http://hl7.org/fhir/SearchParameter/Encounter-location',
     description: 'Location the encounter takes place'
+  },
+  _locationPeriodStart: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Encounter.location.period.start',
+    definition: 'http://hl7.org/fhir/SearchParameter/Encounter-location-period',
+    description: 'Custom search parameter for start date of location.period'
+  },
+  _locationPeriodEnd: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Encounter.location.period.end',
+    definition: 'http://hl7.org/fhir/SearchParameter/Encounter-location-period',
+    description: 'Custom search parameter for end date of location.period'
   },
   'location-period': {
     type: 'date',

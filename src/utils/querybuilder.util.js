@@ -4,8 +4,6 @@
 
 const moment = require('moment-timezone');
 const { escapeRegExp } = require('./regexEscaper');
-const { UrlParser } = require('./urlParser');
-const { ReferenceParser } = require('./referenceParser');
 const { BadRequestError } = require('./httpErrors');
 const { FhirTypesManager } = require('../fhir/fhirTypesManager');
 /**
@@ -355,144 +353,6 @@ const exactMatchQueryBuilder = function ({ target, field, exists_flag }) {
         } else {
             queryBuilder[`${field}`] = value;
         }
-    }
-
-    return queryBuilder;
-};
-
-/**
- * @name referenceQueryBuilder
- * @param {string} target_type
- * @param {string} target
- * @param {string} field
- * @param {boolean|undefined} [exists_flag]
- * @return {JSON} queryBuilder
- */
-const referenceQueryBuilder = function ({ target_type, target, field, exists_flag }) {
-    const queryBuilder = {};
-    // noinspection JSIncompatibleTypesComparison
-    if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = { $exists: false };
-        return queryBuilder;
-    }
-    if (exists_flag === true) {
-        queryBuilder[`${field}`] = { $exists: true };
-        return queryBuilder;
-    }
-    if (target_type && target) {
-        queryBuilder[`${field}`] = `${target_type}/${target}`;
-        return queryBuilder;
-    }
-    const regex = /http(.*)?\/(\w+\/.+)$/;
-    const match = typeof target === 'string' && target.match(regex);
-
-    // Check if target is a url
-    if (match) {
-        queryBuilder[`${field}`] = match[2];
-    } else if (typeof target === 'string' && target.includes(',')) { // list was passed
-        // target = type/id
-        const searchItems = target.split(',');
-        const fullResourceTypeAndIdList = [];
-        for (const searchItem of searchItems) {
-            if (searchItem.includes('/')) {
-                const [type, id] = searchItem.split('/');
-                fullResourceTypeAndIdList.push(`${type}/${id}`);
-            } else {
-                fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
-            }
-        }
-        queryBuilder[`${field}`] = { $in: fullResourceTypeAndIdList.map(s => `${s}`) };
-    } else if (typeof target === 'string' && target.includes('/')) {
-        const [type, id] = target.split('/');
-        if (id.includes(',')) {
-            const idList = id.split(',');
-            queryBuilder[`${field}`] = { $in: idList.map(i => `${type}/${i}`) };
-        } else {
-            queryBuilder[`${field}`] = `${type}/${id}`;
-        }
-    } else {
-        // target = id The type may be there so we need to check the end of the field for the id
-        queryBuilder[`${field}`] = { $regex: new RegExp(escapeRegExp(`${target}$`)) };
-    }
-
-    return queryBuilder;
-};
-
-/**
- * @name referenceQueryBuilder
- * @param {string} target_type
- * @param {string} target
- * @param {string} field
- * @param {string|undefined} sourceAssigningAuthority
- * @param {string|undefined} sourceAssigningAuthorityField
- * @param {boolean|undefined} [exists_flag]
- * @return {JSON} queryBuilder
- */
-const referenceQueryBuilderOptimized = function (
-    {
-        target_type,
-        target,
-        field,
-        sourceAssigningAuthority,
-        sourceAssigningAuthorityField,
-        exists_flag
-    }
-) {
-    const queryBuilder = {};
-    // noinspection JSIncompatibleTypesComparison
-    if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = { $exists: false };
-        return queryBuilder;
-    }
-    if (exists_flag === true) {
-        queryBuilder[`${field}`] = { $exists: true };
-        return queryBuilder;
-    }
-    if (target_type && target) {
-        if (sourceAssigningAuthority) {
-            queryBuilder.$and = [
-                {
-                    [`${sourceAssigningAuthorityField}`]: sourceAssigningAuthority
-                },
-                {
-                    [`${field}`]: UrlParser.isUrl(target) ? target : `${target_type}/${target}`
-                }
-            ];
-        } else {
-            queryBuilder[`${field}`] = UrlParser.isUrl(target) ? target : `${target_type}/${target}`;
-        }
-        return queryBuilder;
-    }
-    const regex = /http(.*)?\/(\w+\/.+)$/;
-    const match = typeof target === 'string' && target.match(regex);
-
-    // Check if target is a url
-    if (match) {
-        queryBuilder[`${field}`] = match[2];
-    } else if (typeof target === 'string' && target.includes(',')) { // list was passed
-        // target = type/id
-        const searchItems = target.split(',');
-        const fullResourceTypeAndIdList = [];
-        for (const searchItem of searchItems) {
-            if (searchItem.includes('/')) {
-                const { resourceType, id } = ReferenceParser.parseReference(searchItem);
-                fullResourceTypeAndIdList.push(`${resourceType}/${id}`);
-            } else {
-                fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
-            }
-        }
-        queryBuilder[`${field}`] = { $in: fullResourceTypeAndIdList.map(s => `${s}`) };
-    } else if (typeof target === 'string' && target.includes('/')) {
-        const { resourceType, id } = ReferenceParser.parseReference(target);
-        if (id.includes(',')) {
-            const idList = id.split(',');
-            queryBuilder[`${field}`] = { $in: idList.map(i => `${resourceType}/${i}`) };
-        } else {
-            queryBuilder[`${field}`] = `${resourceType}/${id}`;
-        }
-    } else {
-        // target = id The type may be there so we need to check the end of the field for the id
-        queryBuilder[`${field}`] = { $regex: new RegExp(escapeRegExp(`${target}$`)) };
     }
 
     return queryBuilder;
@@ -1005,6 +865,11 @@ const dateQueryBuilder = function ({ date, type, path }) {
                 const moment_dt = moment.utc(str);
                 // convert to format that mongo uses to store
                 const datetime_utc = moment_dt.utc().format('YYYY-MM-DDTHH:mm:ssZ');
+                if (prefix === '$sa') {
+                    prefix = '$gt';
+                } else if (prefix === '$eb') {
+                    prefix = '$lt';
+                }
                 return {
                     [prefix]: datetime_utc
                 };
@@ -1087,9 +952,9 @@ const datetimeApproxString = function({ dateQueryItem }) {
     if (typeof dateQueryItem !=='string') {
         return { startDate: "", endDate: "" };
     }
-    const { startDate, endDate } = datetimeApprox({dateQueryItem: moment(dateQueryItem).utc().toDate()});
-    const start = moment(startDate).format('YYYY-MM-DDTHH:mm:ssZ');
-    const end = moment(endDate).format('YYYY-MM-DDTHH:mm:ssZ');
+    const { startDate, endDate } = datetimeApprox({dateQueryItem: moment(dateQueryItem).utc(true).toDate()});
+    const start = moment.utc(startDate).format('YYYY-MM-DDTHH:mm:ssZ');
+    const end = moment.utc(endDate).format('YYYY-MM-DDTHH:mm:ssZ');
     return ({ start, end });
 }
 
@@ -1117,55 +982,105 @@ const datetimeApprox = function({ dateQueryItem }) {
  * https://www.hl7.org/fhir/search.html#prefix
  * @param {string} dateQueryItem
  * @param {string} fieldName
- * @returns {Object[]}
+ * @returns {Object}
  */
 const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
     const regex = /([a-z]+)(.+)/;
     const match = dateQueryItem.match(regex);
 
-    const [prefix, date] = (match && match.length >= 1 && match[1])
-        ? [match[1], dateQueryItem.slice(match[1].length)]
-        : ['eq', dateQueryItem];
+    const [prefix, date] =
+        match && match.length >= 1 && match[1]
+            ? [match[1], dateQueryItem.slice(match[1].length)]
+            : ['eq', dateQueryItem];
 
-    // Build query for period.start
-    let startQuery = {};
+    // Build query
     switch (prefix) {
         case 'eq':
-        case 'le':
-        case 'lt':
-            startQuery = dateQueryBuilder({
-                date: `le${date}`,
-                type: 'date'
-            });
-            break;
-        case 'sa':
-            startQuery = dateQueryBuilder({
-                date: `ge${date}`,
-                type: 'date'
-            });
-            break;
-        case 'ge':
-        case 'gt':
-        case 'eb':
-            startQuery = { $ne: null };
-            break;
-        case 'ap':
-           { const { start, end } = datetimeApproxString({dateQueryItem: date});
-             startQuery = { $gte: start };
-             break; }
-        default:
-            throw new BadRequestError(new Error(`Invalid date parameter value: ${dateQueryItem}`));
-    }
-    startQuery = { [`${fieldName}.start`]: startQuery };
-
-    // Build query for period.end
-    let endQuery = {};
-    switch (prefix) {
-        case 'eq':
-        case 'ge':
-        case 'gt':
-            endQuery = {
+            return {
                 $or: [
+                    {
+                        [`${fieldName}.start`]: dateQueryBuilder({
+                            date: `le${date}`,
+                            type: 'date'
+                        }),
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `ge${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        [`${fieldName}.start`]: dateQueryBuilder({
+                            date: `le${date}`,
+                            type: 'date'
+                        }),
+                        [`${fieldName}.end`]: null
+                    },
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `ge${date}`,
+                            type: 'date'
+                        }),
+                        [`${fieldName}.start`]: null
+                    }
+                ]
+            };
+        case 'le':
+            return {
+                $or: [
+                    {
+                        [`${fieldName}.start`]: dateQueryBuilder({
+                            date: `le${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `le${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `gt${date}`,
+                            type: 'date'
+                        }),
+                        [`${fieldName}.start`]: null
+                    }
+                ]
+            };
+        case 'lt':
+            return {
+                $or: [
+                    {
+                        [`${fieldName}.start`]: dateQueryBuilder({
+                            date: `lt${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `le${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `gt${date}`,
+                            type: 'date'
+                        }),
+                        [`${fieldName}.start`]: null
+                    }
+                ]
+            };
+        case 'ge':
+            return {
+                $or: [
+                    {
+                        [`${fieldName}.start`]: dateQueryBuilder({
+                            date: `ge${date}`,
+                            type: 'date'
+                        })
+                    },
                     {
                         [`${fieldName}.end`]: dateQueryBuilder({
                             date: `ge${date}`,
@@ -1173,34 +1088,91 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
                         })
                     },
                     {
-                        [`${fieldName}.end`]: null
+                        $and: [
+                            {
+                                [`${fieldName}.start`]: dateQueryBuilder({
+                                    date: `lt${date}`,
+                                    type: 'date'
+                                })
+                            },
+                            {
+                                [`${fieldName}.end`]: null
+                            }
+                        ]
                     }
                 ]
             };
-            break;
+        case 'gt':
+            return {
+                $or: [
+                    {
+                        [`${fieldName}.start`]: dateQueryBuilder({
+                            date: `ge${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `gt${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        $and: [
+                            {
+                                [`${fieldName}.start`]: dateQueryBuilder({
+                                    date: `lt${date}`,
+                                    type: 'date'
+                                })
+                            },
+                            {
+                                [`${fieldName}.end`]: null
+                            }
+                        ]
+                    }
+                ]
+            };
+        case 'ne':
+            return {
+                $or: [
+                    {
+                        [`${fieldName}.start`]: dateQueryBuilder({
+                            date: `gt${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `lt${date}`,
+                            type: 'date'
+                        })
+                    }
+                ]
+            };
         case 'eb':
-            endQuery = {
+            return {
                 [`${fieldName}.end`]: dateQueryBuilder({
-                    date: `le${date}`,
+                    date: `lt${date}`,
                     type: 'date'
                 })
             };
-            break;
-        case 'ap':
-           { const { start, end } = datetimeApproxString({dateQueryItem: date});
-             endQuery = {
-                 [`${fieldName}.end`]: { $lte: end }
-               }
-             break;
-           }
-        case 'lt':
-        case 'le':
         case 'sa':
-            break;
+            return {
+                [`${fieldName}.start`]: dateQueryBuilder({
+                    date: `gt${date}`,
+                    type: 'date'
+                })
+            };
+        case 'ap': {
+            const { start, end } = datetimeApproxString({ dateQueryItem: date });
+            return {
+                [`${fieldName}.start`]: { $gte: start },
+                [`${fieldName}.end`]: { $lte: end }
+            };
+        }
         default:
-           throw new BadRequestError(new Error(`Invalid date parameter value: ${dateQueryItem}`));
+            throw new BadRequestError(new Error(`Invalid date parameter value: ${dateQueryItem}`));
     }
-    return [startQuery, endQuery];
 };
 
 /**
@@ -1251,160 +1223,6 @@ const datetimeTimingQueryBuilder = function ({ dateQueryItem, fieldName }) {
     timingQuery = { [`${fieldName}.event`]: timingQuery };
 
     return timingQuery;
-};
-
-/**
- * @name compositeQueryBuilder
- * @description from looking at where composites are used, the fields seem to be implicit
- * @param {string} target What we're querying for
- * @param {string} field1 contains the path and search type
- * @param {string} field2 contains the path and search type
- * @param {string} resourceType
- */
-const compositeQueryBuilder = function ({ target, field1, field2, resourceType }) {
-    const composite = [];
-    let temp = {};
-    const [target1, target2] = target.split(/[$,]/);
-    const [path1, type1] = field1.split('|');
-    const [path2, type2] = field2.split('|');
-
-    // Call the right queryBuilder based on type
-    switch (type1) {
-        case 'string':
-            temp = {};
-            temp[`${path1}`] = stringQueryBuilder({ target: target1 });
-            composite.push(temp);
-            break;
-        case 'token':
-            composite.push({
-                $or: [
-                    { $and: [tokenQueryBuilder({ target: target1, type: 'code', field: path1, resourceType })] },
-                    { $and: [tokenQueryBuilder({ target: target1, type: 'value', field: path1, resourceType })] }
-                ]
-            });
-            break;
-        case 'reference':
-            composite.push(referenceQueryBuilder({
-                target_type: target,
-                target: target1,
-                field: path1
-            }));
-            break;
-        case 'quantity':
-            composite.push(quantityQueryBuilder({ target: target1, field: path1 }));
-            break;
-        case 'number':
-            temp = {};
-            temp[`${path1}`] = numberQueryBuilder({ target: target1 });
-            composite.push(temp);
-            break;
-        case 'date':
-            composite.push({
-                $or: [
-                    {
-                        [path1]: dateQueryBuilder({
-                            date: target1, type: 'date'
-                        })
-                    },
-                    {
-                        [path1]: dateQueryBuilder({
-                            date: target1, type: 'dateTime'
-                        })
-                    },
-                    {
-                        [path1]: dateQueryBuilder({
-                            date: target1, type: 'instant'
-                        })
-                    },
-                    {
-                        $or: dateQueryBuilder({
-                            date: target1, type: 'period', path: path1
-                        })
-                    },
-                    {
-                        $or: dateQueryBuilder({
-                            date: target1, type: 'timing', path: path1
-                        })
-                    }
-                ]
-            });
-            break;
-        default:
-            temp = {};
-            temp[`${path1}`] = target1;
-            composite.push(temp);
-    }
-    switch (type2) {
-        case 'string':
-            temp = {};
-            temp[`${path2}`] = stringQueryBuilder({ target: target2 });
-            composite.push(temp);
-            break;
-        case 'token':
-            composite.push({
-                $or: [
-                    { $and: [tokenQueryBuilder({ target: target2, type: 'code', field: path2, resourceType })] },
-                    { $and: [tokenQueryBuilder({ target: target2, type: 'value', field: path2, resourceType })] }
-                ]
-            });
-            break;
-        case 'reference':
-            composite.push(referenceQueryBuilder({
-                target_type: target,
-                target: target2,
-                field: path2
-            }));
-            break;
-        case 'quantity':
-            composite.push(quantityQueryBuilder({ target: target2, field: path2 }));
-            break;
-        case 'number':
-            temp = {};
-            temp[`${path2}`] = composite.push(numberQueryBuilder({ target: target2 }));
-            composite.push(temp);
-            break;
-        case 'date':
-            composite.push({
-                $or: [
-                    {
-                        [path2]: dateQueryBuilder({
-                            date: target2, type: 'date'
-                        })
-                    },
-                    {
-                        [path2]: dateQueryBuilder({
-                            date: target2, type: 'dateTime'
-                        })
-                    },
-                    {
-                        [path2]: dateQueryBuilder({
-                            date: target2, type: 'instant'
-                        })
-                    },
-                    {
-                        $or: dateQueryBuilder({
-                            date: target2, type: 'period', path: path2
-                        })
-                    },
-                    {
-                        $or: dateQueryBuilder({
-                            date: target2, type: 'timing', path: path2
-                        })
-                    }
-                ]
-            });
-            break;
-        default:
-            temp = {};
-            temp[`${path2}`] = target2;
-            composite.push(temp);
-    }
-
-    if (target.includes('$')) {
-        return { $and: composite };
-    } else {
-        return { $or: composite };
-    }
 };
 
 /**
@@ -1518,13 +1336,10 @@ const extensionQueryBuilder = function ({ target, type, field, required, exists_
 module.exports = {
     stringQueryBuilder,
     tokenQueryBuilder,
-    referenceQueryBuilder,
-    referenceQueryBuilderOptimized,
     addressQueryBuilder,
     nameQueryBuilder,
     numberQueryBuilder,
     quantityQueryBuilder,
-    compositeQueryBuilder,
     dateQueryBuilder,
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,

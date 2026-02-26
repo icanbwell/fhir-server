@@ -1,6 +1,6 @@
 const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
-const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, PreconditionFailedError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -12,6 +12,7 @@ const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter')
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { logInfo } = require('../common/logging');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
@@ -22,6 +23,7 @@ const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isUuid } = require('../../utils/uid.util');
+const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 
 /**
  * Update Operation
@@ -41,6 +43,7 @@ class UpdateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
+     * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      */
     constructor (
         {
@@ -55,7 +58,8 @@ class UpdateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            searchManager
+            searchManager,
+            postSaveHandlerFactory
         }
     ) {
         /**
@@ -123,6 +127,12 @@ class UpdateOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory}
+         */
+        this.postSaveHandlerFactory = postSaveHandlerFactory;
+        assertTypeEquals(postSaveHandlerFactory, require('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory);
     }
 
     /**
@@ -183,6 +193,10 @@ class UpdateOperation {
 
         const { id: rawId } = IdParser.parse(id);
         resource_incoming_json.id = rawId;
+
+        // For resources with mongo-with-clickhouse dual-write storage, track if externally-stored fields present
+        // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save)
+        const hasMemberField = resourceType === 'Group' && resource_incoming_json.member !== undefined;
 
         // create a resource with incoming data
         /**
@@ -297,6 +311,9 @@ class UpdateOperation {
             let updatedResource;
             let patches;
 
+            const ifMatch = requestInfo.headers && requestInfo.headers['if-match'];
+            let precondition_failed_error;
+
             // check if resource was found in database or not
             // noinspection JSUnresolvedVariable
             if (data && data.meta) {
@@ -305,7 +322,23 @@ class UpdateOperation {
                 await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                     requestInfo, resource: foundResource, base_version
                 });
-
+                // If-Match/version check logic (optimistic locking)
+                if (ifMatch) {
+                    if (data.meta.versionId) {
+                        const normalizeETag = (etag) => (etag || '').replace(/^W\//, '').replace(/"/g, '');
+                        const versionIds = ifMatch.split(',').map(v => normalizeETag(v.trim()));
+                        const currentVersionId = normalizeETag(String(data.meta.versionId));
+                        if (!versionIds.includes(currentVersionId) && !versionIds.includes('*')) {
+                            precondition_failed_error = new PreconditionFailedError(`Version conflict: If-Match does not match current resource version. Older version: ${currentVersionId}, If-Match: ${ifMatch}`);
+                            logInfo(precondition_failed_error.message);
+                            throw precondition_failed_error;
+                        }
+                    } else {
+                        precondition_failed_error = new PreconditionFailedError(`Version conflict: Resource does not have a versionId, but If-Match header was provided. If-Match: ${ifMatch}`);
+                        logInfo(precondition_failed_error.message);
+                        throw precondition_failed_error;
+                    }
+                }
                 ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     base_version,
                     requestInfo,
@@ -315,8 +348,25 @@ class UpdateOperation {
                     databaseAttachmentManager: this.databaseAttachmentManager
                 }));
                 doc = updatedResource;
+
+                // Check if dual-write storage fields changed
+                // If so, force the update even if mergeResourceAsync returned null (MongoDB sees no changes)
+                const postSaveHandlers2 = this.postSaveHandlerFactory.getHandlers(resourceType);
+                if (!doc && postSaveHandlers2.length > 0) {
+                    // Check resource-specific mongo-with-clickhouse dual-write storage
+                    // Currently only Group.member uses dual-write (MongoDB + ClickHouse)
+                    if (hasMemberField) {
+                        doc = resource_incoming;
+                    }
+                    // Future: Add other mongo-with-clickhouse dual-write resources here
+                }
             } else {
-                doc = resource_incoming
+                if (ifMatch) {
+                    precondition_failed_error = new PreconditionFailedError(`Version conflict: Resource does not exist, but If-Match header was provided. If-Match: ${ifMatch}`);
+                    logInfo(precondition_failed_error.message);
+                    throw precondition_failed_error;
+                }
+                doc = resource_incoming;
             }
             if (doc) {
                 // Validating resource meta tags
@@ -342,7 +392,10 @@ class UpdateOperation {
                 }
                 // Update attachments after all validations
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
+
                 if (data && data.meta) {
+                    const contextData = buildContextDataForHybridStorage(resourceType, doc);
+
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             base_version,
@@ -350,7 +403,8 @@ class UpdateOperation {
                             resourceType,
                             doc,
                             uuid: doc._uuid,
-                            patches
+                            patches,
+                            contextData
                         }
                     );
                 } else {
@@ -360,7 +414,16 @@ class UpdateOperation {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource: doc, requestInfo, base_version
                     });
-                    await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
+
+                    const contextData = buildContextDataForHybridStorage(resourceType, doc);
+
+                    await this.databaseBulkInserter.insertOneAsync({
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        doc,
+                        contextData
+                    });
                 }
             }
 

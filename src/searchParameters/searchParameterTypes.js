@@ -18,6 +18,7 @@ class SearchParameterDefinition {
      * @param {string|undefined} [fieldFilter]
      * @param {string[]|undefined} [target]
      * @param {string|undefined} [fieldType]
+     * @param {Object|undefined} [fieldTypesObj]
      */
     constructor (
         {
@@ -27,7 +28,8 @@ class SearchParameterDefinition {
             fields,
             fieldFilter,
             target,
-            fieldType
+            fieldType,
+            fieldTypesObj
         }
     ) {
         /**
@@ -58,6 +60,10 @@ class SearchParameterDefinition {
          * @type {string|undefined}
          */
         this.fieldType = fieldType;
+        /**
+         * @type {Object|undefined}
+         */
+        this.fieldTypesObj = fieldTypesObj;
     }
 
     /**
@@ -85,7 +91,8 @@ class SearchParameterDefinition {
                 fields: this._fields,
                 fieldFilter: this.fieldFilter,
                 target: this.target,
-                fieldType: this.fieldType
+                fieldType: this.fieldType,
+                fieldTypesObj: this.fieldTypesObj
             }
         );
     }
@@ -102,7 +109,8 @@ class SearchParameterDefinition {
             fields: this._fields,
             fieldFilter: this.fieldFilter,
             target: this.target,
-            fieldType: this.fieldType
+            fieldType: this.fieldType,
+            fieldTypesObj: this.fieldTypesObj
         };
     }
 }

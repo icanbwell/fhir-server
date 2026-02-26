@@ -33,10 +33,6 @@ class BaseFilter {
          * @type {string}
          */
         this.resourceType = filterParameters.resourceType;
-        /**
-         * @type {string}
-         */
-        this.filterType = 'string';
         assertIsValid(filterParameters.resourceType, 'filterParameters.resourceType is null');
     }
 

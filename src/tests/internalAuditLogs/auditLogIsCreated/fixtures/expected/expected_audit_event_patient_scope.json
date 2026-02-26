@@ -34,12 +34,12 @@
                     {
                         "id": "sourceId",
                         "url": "https://www.icanbwell.com/sourceId",
-                        "valueString": "Person/person1"
+                        "valueString": "Patient/person.person1"
                     },
                     {
                         "id": "uuid",
                         "url": "https://www.icanbwell.com/uuid",
-                        "valueString": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892"
+                        "valueString": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5"
                     },
                     {
                         "id": "sourceAssigningAuthority",
@@ -47,15 +47,16 @@
                         "valueString": "bwell"
                     }
                 ],
-                "reference": "Person/person1",
+                "reference": "Patient/person.person1",
                 "_sourceAssigningAuthority": "bwell",
-                "_uuid": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892",
-                "_sourceId": "Person/person1"
+                "_uuid": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5",
+                "_sourceId": "Patient/person.person1"
             },
-            "altId": "person1",
+            "altId": "unique-identifier-123",
             "requestor": true,
             "network": {
-                "type": "2"
+                "type": "2",
+                "address": "::ffff:127.0.0.1"
             }
         }
     ],
@@ -65,12 +66,12 @@
                 {
                     "id": "sourceId",
                     "url": "https://www.icanbwell.com/sourceId",
-                    "valueString": "Person/person1"
+                    "valueString": "Patient/person.person1"
                 },
                 {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892"
+                    "valueString": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5"
                 },
                 {
                     "id": "sourceAssigningAuthority",
@@ -78,10 +79,10 @@
                     "valueString": "bwell"
                 }
             ],
-            "reference": "Person/person1",
+            "reference": "Patient/person.person1",
             "_sourceAssigningAuthority": "bwell",
-            "_uuid": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892",
-            "_sourceId": "Person/person1"
+            "_uuid": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5",
+            "_sourceId": "Patient/person.person1"
         }
     },
     "entity": [

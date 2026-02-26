@@ -19,6 +19,20 @@ module.exports = {
     definition: 'http://hl7.org/fhir/SearchParameter/clinical-date',
     description: 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made'
   },
+  _effectivePeriodStart: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Observation.effectivePeriod.start',
+    definition: 'http://hl7.org/fhir/SearchParameter/clinical-date',
+    description: 'Custom search parameter for start date of effectivePeriod'
+  },
+  _effectivePeriodEnd: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Observation.effectivePeriod.end',
+    definition: 'http://hl7.org/fhir/SearchParameter/clinical-date',
+    description: 'Custom search parameter for end date of effectivePeriod'
+  },
   identifier: {
     type: 'token',
     fhirtype: 'token',
@@ -200,6 +214,20 @@ module.exports = {
     xpath: 'Observation.valueDateTime',
     definition: 'http://hl7.org/fhir/SearchParameter/Observation-value-date',
     description: 'The value of the observation, if the value is a date or period of time'
+  },
+  _valuePeriodStart: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Observation.valuePeriod.start',
+    definition: 'http://hl7.org/fhir/SearchParameter/Observation-value-date',
+    description: 'Custom search parameter for start date of valuePeriod'
+  },
+  _valuePeriodEnd: {
+    type: 'date',
+    fhirtype: 'date',
+    xpath: 'Observation.valuePeriod.end',
+    definition: 'http://hl7.org/fhir/SearchParameter/Observation-value-date',
+    description: 'Custom search parameter for end date of valuePeriod'
   },
   'value-quantity': {
     type: 'quantity',

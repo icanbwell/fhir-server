@@ -9,6 +9,7 @@ class FhirRequestInfo {
      * class that holds request info
      * @param {Object} params
      * @param {string | null} params.user
+     * @param {string} params.alternateUserId
      * @param {string} params.scope
      * @param {string} params.protocol
      * @param {string|null} params.originalUrl
@@ -46,7 +47,8 @@ class FhirRequestInfo {
             managingOrganizationId,
             headers,
             method,
-            contentTypeFromHeader
+            contentTypeFromHeader,
+            alternateUserId
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -98,6 +100,10 @@ class FhirRequestInfo {
          * @type {boolean}
          */
         this.isUser = isUser;
+        /**
+         * @type {string | null}
+         */
+        this.alternateUserId = alternateUserId;
         /**
          * @type {string | null}
          */

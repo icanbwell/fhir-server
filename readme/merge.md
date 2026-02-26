@@ -1,6 +1,6 @@
 # FHIR $merge endpoint
 
-The b.well Helix FHIR server implements the $merge endpoint. This endpoint allows clients to send a list of resources (which do not need to be of the same type) and the FHIR server will compare those to the data it has and choose to:
+The b.well FHIR server implements the $merge endpoint. This endpoint allows clients to send a list of resources (which do not need to be of the same type) and the FHIR server will compare those to the data it has and choose to:
 
 1. Add a new resource
 2. Update an existing resource

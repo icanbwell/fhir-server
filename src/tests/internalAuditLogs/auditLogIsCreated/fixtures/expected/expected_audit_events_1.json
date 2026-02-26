@@ -9,7 +9,8 @@
       {
         "altId": "imran",
         "network": {
-          "type": "2"
+          "type": "2",
+          "address": "::ffff:127.0.0.1"
         },
         "requestor": true,
         "who": {

@@ -31,7 +31,7 @@ These environment variables allow the FHIR server to interact with the OAuth pro
 5. If using multiple authentication providers, obtain the EXTERNAL_AUTH_JWKS_URLS from each provider's documentation.
 
 
-Helix FHIR server supports the `well-known configuration` feature so you can get the token-url from the FHIR server. (The helix fhir client sdk does this automatically)
+The FHIR server supports the `well-known configuration` feature so you can get the token-url from the FHIR server. (The helix.fhir.client.sdk does this automatically)
 
 http://localhost:3000/.well-known/smart-configuration
 

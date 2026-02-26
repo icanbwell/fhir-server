@@ -106,3 +106,24 @@ or the [GraphQL API](graphql.md) to get related resources in the same call.
 Similarly, if you are adding or updating a lot of resources, typically you would have to make an add or update call for each resource.
 
 Instead, you can use the [Merge API](merge.md) to send multiple resources in one request.
+
+## ClickHouse for Resources with Large Arrays or Analytical Queries
+
+MongoDB's 16MB document limit restricts resources with large arrays. The FHIR server supports an optional **ClickHouse integration** that overcomes these limits.
+
+**Key Benefits:**
+- Support for massive arrays (1M+ members for Groups)
+- Sub-5-second queries on indexed fields
+- Complete audit trail with event sourcing
+- Real-time analytical queries
+
+**Currently Supported:** Group resources
+
+**Configuration:** Set `ENABLE_CLICKHOUSE=1` and configure resource-specific storage patterns:
+
+```bash
+ENABLE_CLICKHOUSE=1
+MONGO_WITH_CLICKHOUSE_RESOURCES=Group  # Dual-write pattern for large arrays
+```
+
+See the **[ClickHouse Integration Guide](clickhouse.md)** for complete details on architecture, configuration, and extending to additional resources.

@@ -893,64 +893,56 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Observation', args })
             });
             // need to convert dates to strings to make match work
-            result.query.$and['0'].$or['3'].effectiveInstant.$gte = result.query.$and['0'].$or['3'].effectiveInstant.$gte.toISOString();
-            result.query.$and['0'].$or['3'].effectiveInstant.$lte = result.query.$and['0'].$or['3'].effectiveInstant.$lte.toISOString();
-            expect(result.query).toStrictEqual(
-                {
-              $and: [
-                {
-                  $or: [
+            result.query.$and['0'].$or['2'].effectiveInstant.$gte = result.query.$and['0'].$or['2'].effectiveInstant.$gte.toISOString();
+            result.query.$and['0'].$or['2'].effectiveInstant.$lte = result.query.$and['0'].$or['2'].effectiveInstant.$lte.toISOString();
+            expect(result.query).toStrictEqual({
+                $and: [
                     {
-                      effectiveDateTime: {
-                        $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/,
-                        $options: 'i'
-                      }
-                    },
-                    {
-                      $and: [
-                        {
-                          'effectivePeriod.start': {
-                            $lte: '2019-10-16T22:12:29+00:00'
-                          }
-                        },
-                        {
-                          $or: [
+                        $or: [
                             {
-                              'effectivePeriod.end': {
-                                $gte: '2019-10-16T22:12:29+00:00'
-                              }
+                                effectiveDateTime: {
+                                    $regex: /^(?:2019-10-16T22:12)|(?:2019-10-16T22:12:29)|(?:2019$)|(?:2019-10$)|(?:2019-10-16$)|(?:2019-10-16T22:12Z?$)/,
+                                    $options: 'i'
+                                }
                             },
                             {
-                              'effectivePeriod.end': null
+                                'effectiveTiming.event': {
+                                    $lte: '2019-10-16T22:12:29+00:00'
+                                }
+                            },
+                            {
+                                effectiveInstant: {
+                                    $gte: '2019-10-16T00:00:00.000Z',
+                                    $lte: '2019-10-16T23:59:59.999Z'
+                                }
+                            },
+                            {
+                                'effectivePeriod.start': {
+                                    $lte: '2019-10-16T22:12:29+00:00'
+                                },
+                                'effectivePeriod.end': { $gte: '2019-10-16T22:12:29+00:00' }
+                            },
+                            {
+                                'effectivePeriod.start': { $lte: '2019-10-16T22:12:29+00:00' },
+                                'effectivePeriod.end': null
+                            },
+                            {
+                                'effectivePeriod.end': { $gte: '2019-10-16T22:12:29+00:00' },
+                                'effectivePeriod.start': null
                             }
-                          ]
+                        ]
+                    },
+                    {
+                        'meta.tag': {
+                            $not: {
+                                $elemMatch: {
+                                    system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                                    code: 'hidden'
+                                }
+                            }
                         }
-                      ]
-                    },
-                    {
-                      'effectiveTiming.event': {
-                          $lte: '2019-10-16T22:12:29+00:00'
-                      }
-                    },
-                    {
-                      effectiveInstant: {
-                        $gte: '2019-10-16T00:00:00.000Z',
-                        $lte: '2019-10-16T23:59:59.999Z'
-                      }
                     }
-                  ]
-                },
-                {
-                  'meta.tag': {
-                    $not: {
-                      $elemMatch: {
-                        system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
-                        code: 'hidden'
-                      }
-                    }
-                  }
-                }
-              ]
+                ]
             });
         });
         test.skip('r4 works with date with microseconds in Observation', async () => {

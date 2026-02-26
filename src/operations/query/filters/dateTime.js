@@ -5,130 +5,92 @@ const {
     datetimeTimingQueryBuilder,
     datetimeApproxString
 } = require('../../../utils/querybuilder.util');
-const { isColumnDateTimeType } = require('../../common/isColumnDateTimeType');
 const { BaseFilter } = require('./baseFilter');
 const { isTrue } = require('../../../utils/isTrue');
 const { isFalse } = require('../../../utils/isFalse');
-
-function isPeriodField (fieldString) {
-    return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';
-}
-
-function isTimingField (fieldString) {
-    const pattern = /timing/i;
-    return pattern.test(fieldString);
-}
 
 /**
  * filters by date
  * https://www.hl7.org/fhir/search.html#date
  */
 class FilterByDateTime extends BaseFilter {
-   /**
+    /**
      * @param {string} field
      * @param {string} value
+     * @param {string} fieldType
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem (field, value) {
-        // prettier-ignore
-        let strQuery;
-        let dateQuery;
-        const fieldName = this.fieldMapper.getFieldName(field);
-        const isDateSearchingPeriod = isPeriodField(field);
-        const isDateSearchingTiming = isTimingField(field);
-
+    filterByItem(field, value, fieldType) {
         // In case of missing modifiers the value could be true/false
         if (isTrue(value) || isFalse(value)) {
             return null;
         }
-        if (this.filterType === 'string') {
-            if (isDateSearchingPeriod) {
-                strQuery = datetimePeriodQueryBuilder(
-                    {
-                        dateQueryItem: value,
-                        fieldName
-                    }
-                );
-            } else if (isDateSearchingTiming) {
-                strQuery = datetimeTimingQueryBuilder({
-                        dateQueryItem: value,
-                        fieldName
-                    }
-                );
-            } else {
-                // if this is date as a string
-                if (!isColumnDateTimeType(this.resourceType, fieldName, this.fieldMapper.useHistoryTable)) {
-                    const regex = /([a-z]+)(.+)/;
-                    const match = value.match(regex);
-                    if (match && match[1] && match[1] === 'ap') {
-                        const justDate = value.substring(2);
-                        const { start, end} = datetimeApproxString({dateQueryItem: justDate})
-                        strQuery = {
-                            [fieldName]: { $gte: start, $lte: end }
-                        }
-                    } else {
-                        strQuery = {
-                            [fieldName]: dateQueryBuilder({
-                                date: value, type: this.propertyObj.type
-                            })
-                        }
-                    };
+
+        let query = null;
+        const fieldName = this.fieldMapper.getFieldName(field);
+
+        if (fieldType === 'period') {
+            query = datetimePeriodQueryBuilder(
+                {
+                    dateQueryItem: value,
+                    fieldName
                 }
-            }
-           return strQuery;
-        }
-        // if this of native Date type
-        // this field stores the date as a native date, so we can do faster queries
-        if (this.filterType === 'date') {
-            if (isColumnDateTimeType(this.resourceType, fieldName, this.fieldMapper.useHistoryTable)) {
-                dateQuery = {
-                    [fieldName]: dateQueryBuilderNative(
-                        {
-                            dateSearchParameter: value,
-                            type: this.propertyObj.type
-                        }
-                    )
+            );
+        } else if (fieldType === 'timing') {
+            query = datetimeTimingQueryBuilder({
+                dateQueryItem: value,
+                fieldName
+            });
+        } else if (fieldType === 'datetime' || fieldType === 'date') {
+            // if this is date/datetime as a string
+            const regex = /([a-z]+)(.+)/;
+            const match = value.match(regex);
+            if (match && match[1] && match[1] === 'ap') {
+                const justDate = value.substring(2);
+                const { start, end } = datetimeApproxString({ dateQueryItem: justDate });
+                query = {
+                    [fieldName]: { $gte: start, $lte: end }
+                };
+            } else {
+                query = {
+                    [fieldName]: dateQueryBuilder({
+                        date: value,
+                        type: this.propertyObj.type
+                    })
                 };
             }
-            return dateQuery;
+        } else if (fieldType === 'instant') {
+            // if this of native Date type
+            // this field stores the date as a native date, so we can do faster queries
+            query = {
+                [fieldName]: dateQueryBuilderNative({
+                    dateSearchParameter: value,
+                    type: this.propertyObj.type
+                })
+            };
         }
-      return null;
-}
+        return query;
+    }
 
     /**
      * filter function that calls filterByItem for each field and each value supplied
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filter () {
+    filter() {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */
         const and_segments = [];
 
         if (this.parsedArg.queryParameterValue.values) {
-            this.filterType = 'string';
             and_segments.push({
-                    $or: this.propertyObj.fields.flatMap((field) => {
-                            const sq = this.filterByField(field, this.parsedArg.queryParameterValue);
-                            if (sq[this.parsedArg.queryParameterValue.operator][0]) {
-                                return sq;
-                            }
-                        }
-                    )
-                }
-            );
-            this.filterType = 'date';
-            const dateSegments =
-                this.propertyObj.fields.flatMap((field) => {
-                        const dq = this.filterByField(field, this.parsedArg.queryParameterValue);
-                        if (dq[this.parsedArg.queryParameterValue.operator][0]) {
-                            return dq;
-                        }
+                $or: this.propertyObj.fields.flatMap((field) => {
+                    const sq = this.filterByField(field, this.parsedArg.queryParameterValue);
+                    if (sq[this.parsedArg.queryParameterValue.operator][0]) {
+                        return sq;
                     }
-            );
-            if (dateSegments && dateSegments.length > 0) {
-                and_segments[0].$or = and_segments[0].$or.concat(dateSegments);
-            }
+                })
+            });
         }
 
         // clean up and_segments, remove undefines
@@ -146,17 +108,18 @@ class FilterByDateTime extends BaseFilter {
      * @param {string} field
      * @param {import('../queryParameterValue').QueryParameterValue} queryParameterValue
      */
-    filterByField (field, queryParameterValue) {
+    filterByField(field, queryParameterValue) {
+        const fieldType = this.propertyObj.fieldTypesObj ? this.propertyObj.fieldTypesObj[field] : null;
+
         const childQueries = queryParameterValue.values.flatMap((v) => {
-            return this.filterByItem(field, v);
+            return this.filterByItem(field, v, fieldType);
         });
 
         const query = {
             [queryParameterValue.operator]: childQueries
         };
 
-        if (isColumnDateTimeType(this.resourceType, this.fieldMapper.getFieldName(field), this.fieldMapper.useHistoryTable) &&
-            this.filterType === 'date') {
+        if (fieldType === 'instant') {
             const simplifiedRangeQuery = {};
             const newChildQueries = [];
             // correct the query

@@ -1,6 +1,6 @@
 # FHIR $export endpoint
 
-The Helix FHIR Server supports the Bulk Export functionality of FHIR Specification [https://build.fhir.org/ig/HL7/bulk-data/export.html].
+The FHIR Server supports the Bulk Export functionality of FHIR Specification [https://build.fhir.org/ig/HL7/bulk-data/export.html].
 
 ## Api Overview:
 

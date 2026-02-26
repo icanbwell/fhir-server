@@ -34,6 +34,7 @@ const headers = {
         clientFhirPatientId: patient.id,
         bwellFhirPersonId: person.id,
         bwellFhirPatientId: patient.id,
+        sub: 'unique-identifier-123',
         token_use: 'access'
     }),
     Host: 'localhost:3000'
@@ -417,9 +418,12 @@ describe('InternalAuditLog Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
 
-            const logs = await auditEventCollection.find({}).sort({ _id: 1 }).toArray();
+            const logs = await auditEventCollection
+                .find({})
+                .sort({ 'meta.lastUpdated': -1, _id: -1 })
+                .toArray();
             expect(logs.length).toStrictEqual(initialCount + 1);
-            const latestLog = logs[logs.length - 1];
+            const latestLog = logs[0];
             delete latestLog.meta.lastUpdated;
             delete latestLog._id;
             delete latestLog.id;

@@ -1,6 +1,6 @@
 # FHIR $graph endpoint
 
-The Helix FHIR server supports the $graph endpoint of FHIR specification (https://www.hl7.org/fhir/R4B/resource-operation-graph.html).
+The FHIR server supports the $graph endpoint of FHIR specification (https://www.hl7.org/fhir/R4B/resource-operation-graph.html).
 
 The $graph endpoint accepts a GraphDefinition resource: https://www.hl7.org/fhir/R4B/graphdefinition.html.
 
