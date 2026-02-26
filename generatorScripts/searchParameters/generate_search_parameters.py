@@ -7,10 +7,17 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from re import Match
+import sys
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+
+# Add the project root to the Python path to resolve imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from generatorScripts.generate_resource_fields_type import get_resources_fields_data
 
 
 @dataclass
@@ -22,6 +29,7 @@ class QueryEntry:
     target: Optional[List[str]]
     description: Optional[str]
     definition: Optional[str]
+    field_type: Optional[str]
 
 
 def add_values_in_dict(sample_dict: Dict[str, Dict[str, List[QueryEntry]]], query_entry: QueryEntry):
@@ -44,6 +52,8 @@ def main() -> int:
     fhir_schema = json.loads(contents)
 
     entries: List[Dict[str, str]] = fhir_schema["entry"]
+
+    resource_field_types = get_resources_fields_data()
 
     query_entries: List[QueryEntry] = []
     print("search_parameter,base,code,status,type_,xpath,xpath_transformed,target,expression")
@@ -74,15 +84,67 @@ def main() -> int:
             for exp in xpath_transformed.split("|"):
                 exp = exp.strip(" ")
                 resource1, exp1 = exp.split(".", 1)
+                field_type = resource_field_types.get(exp, {}).get("code", None)
+                if field_type is None:
+                    if resource1 == "Resource" and exp1 == "meta.lastUpdated":
+                        field_type = "instant"
+                    if resource1 == "MedicationRequest" and exp1 == "dosageInstruction.timing.event":
+                        field_type = "datetime"
                 query_entry: QueryEntry = QueryEntry(
                     resource=resource1,
                     search_parameter=search_parameter,
                     type_=type_,
                     field=exp1,
+                    field_type=field_type,
                     target=target.split("|") if target else None,
                     description=description,
                     definition=definition
                 )
+
+                ############
+                # For custom param on period field in certain resources
+                ############
+
+                if (
+                    resource1
+                    in [
+                        "Encounter",
+                        "Condition",
+                        "DiagnosticReport",
+                        "Observation",
+                        "Procedure",
+                    ]
+                    and query_entry.type_ == "date"
+                    and query_entry.field_type
+                    and query_entry.field_type.lower() == "period"
+                ):
+                    # remove . from field name and convert to camel case for param name except first part
+                    param_name_parts = query_entry.field.split(".")
+                    param_name = param_name_parts[0] + "".join(part.capitalize() for part in param_name_parts[1:])
+
+                    # create start and end date entries
+                    start_entry: QueryEntry = QueryEntry(
+                        resource=query_entry.resource,
+                        search_parameter=f"_{param_name}Start",
+                        type_=query_entry.type_,
+                        field=query_entry.field + ".start",
+                        field_type="datetime",
+                        target=query_entry.target,
+                        description="Custom search parameter for start date of " + query_entry.field,
+                        definition=query_entry.definition
+                    )
+                    end_entry: QueryEntry = QueryEntry(
+                        resource=query_entry.resource,
+                        search_parameter=f"_{param_name}End",
+                        type_=query_entry.type_,
+                        field=query_entry.field + ".end",
+                        field_type="datetime",
+                        target=query_entry.target,
+                        description="Custom search parameter for end date of " + query_entry.field,
+                        definition=query_entry.definition
+                    )
+                    query_entries.append(start_entry)
+                    query_entries.append(end_entry)
                 query_entries.append(query_entry)
 
     # group by Resource
@@ -122,7 +184,7 @@ def main() -> int:
         file2.write("search_parameter_queries = {\n")
         write_search_parameter_dict(field_filter_regex, file2, sample_dict, is_python=True)
         file2.write("\n")
-    
+
     parameters_folder: Path = Path("src/middleware/fhir/resources/4_0_0/parameters/")
     if os.path.exists(parameters_folder):
         shutil.rmtree(parameters_folder)
@@ -228,9 +290,12 @@ def write_search_parameter_dict(field_filter_regex, file2, sample_dict, is_pytho
                 if field_filter:
                     cleaned_field_filter: str = field_filter.replace("'", "\\'")
                     file2.write(f"\t\t\t'fieldFilter': '{cleaned_field_filter}',\n")
+                if search_parameter_entries[0].type_ == 'date' and search_parameter_entries[0].field_type:
+                    file2.write(f"\t\t\t'fieldTypesObj': {{ '{cleaned_field}': '{search_parameter_entries[0].field_type.lower()}' }},\n")
             else:
                 fields: List[str] = []
                 field_filters: List[str] = []
+                field_types: dict = {}
                 for search_parameter_entry in search_parameter_entries:
                     field_filter_match: Match = re.search(field_filter_regex, search_parameter_entry.field)
                     field_filter: Optional[str] = field_filter_match.group() if field_filter_match else None
@@ -239,11 +304,16 @@ def write_search_parameter_dict(field_filter_regex, file2, sample_dict, is_pytho
                     if field_filter:
                         cleaned_field_filter: str = field_filter.replace("'", "\\'")
                         field_filters.append(cleaned_field_filter)
+                    if search_parameter_entry.type_ == 'date' and search_parameter_entry.field_type:
+                        field_types[cleaned_field] = search_parameter_entry.field_type.lower()
                 fields = [f"'{f}'" for f in fields]
                 field_filters = [f"'{f}'" for f in field_filters]
                 file2.write(f"\t\t\t'fields': [{', '.join(fields)}],\n")
                 if len(field_filters) > 0:
                     file2.write(f"\t\t\t'fieldFilters': [{', '.join(field_filters)}],\n")
+                if len(field_types) > 0:
+                    field_types_str = ", ".join([f"'{k}': '{v}'" for k, v in field_types.items()])
+                    file2.write(f"\t\t\t'fieldTypesObj': {{ {field_types_str} }},\n")
 
             # now write the target.  assume target is same for all search parameters with same name
             if search_parameter_entries[0].target:

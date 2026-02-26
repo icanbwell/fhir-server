@@ -27,6 +27,7 @@ search_parameter_queries = {
 			'description': 'Transaction window',
 			'type': 'date',
 			'field': 'servicePeriod',
+			'fieldTypesObj': { 'servicePeriod': 'period' },
 		},
 		'status': {
 			'description': 'active | inactive | entered-in-error | on-hold | unknown',
@@ -72,6 +73,7 @@ search_parameter_queries = {
 			'description': 'The activity definition publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'depends-on': {
 			'description': 'What resource is being referenced',
@@ -96,6 +98,7 @@ search_parameter_queries = {
 			'description': 'The time during which the activity definition is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the activity definition',
@@ -217,6 +220,7 @@ search_parameter_queries = {
 			'description': 'When the event occurred',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'event': {
 			'description': 'Type of the event itself in relation to the subject',
@@ -301,6 +305,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'recordedDate',
+			'fieldTypesObj': { 'recordedDate': 'datetime' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -311,6 +316,7 @@ search_parameter_queries = {
 			'description': 'Date(/time) of last known occurrence of a reaction',
 			'type': 'date',
 			'field': 'lastOccurrence',
+			'fieldTypesObj': { 'lastOccurrence': 'datetime' },
 		},
 		'manifestation': {
 			'description': 'Clinical symptoms/signs associated with the Event',
@@ -321,6 +327,7 @@ search_parameter_queries = {
 			'description': 'Date(/time) when manifestations showed',
 			'type': 'date',
 			'field': 'reaction.onset',
+			'fieldTypesObj': { 'reaction.onset': 'datetime' },
 		},
 		'patient': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Who the sensitivity is for* [CarePlan](careplan.html): Who the care plan is for* [CareTeam](careteam.html): Who care team is for* [ClinicalImpression](clinicalimpression.html): Patient or group assessed* [Composition](composition.html): Who and/or what the composition is about* [Condition](condition.html): Who has the condition?* [Consent](consent.html): Who the consent applies to* [DetectedIssue](detectedissue.html): Associated patient* [DeviceRequest](devicerequest.html): Individual the service is ordered for* [DeviceUseStatement](deviceusestatement.html): Search by subject - a patient* [DiagnosticReport](diagnosticreport.html): The subject of the report if a patient* [DocumentManifest](documentmanifest.html): The subject of the set of documents* [DocumentReference](documentreference.html): Who/what is the subject of the document* [Encounter](encounter.html): The patient or group present at the encounter* [EpisodeOfCare](episodeofcare.html): The patient who is the focus of this episode of care* [FamilyMemberHistory](familymemberhistory.html): The identity of a subject to list family member history items for* [Flag](flag.html): The identity of a subject to list flags for* [Goal](goal.html): Who this goal is intended for* [ImagingStudy](imagingstudy.html): Who the study is about* [Immunization](immunization.html): The patient for the vaccination record* [List](list.html): If all resources have the same subject* [MedicationAdministration](medicationadministration.html): The identity of a patient to list administrations  for* [MedicationDispense](medicationdispense.html): The identity of a patient to list dispenses  for* [MedicationRequest](medicationrequest.html): Returns prescriptions for a specific patient* [MedicationStatement](medicationstatement.html): Returns statements for a specific patient.* [NutritionOrder](nutritionorder.html): The identity of the person who requires the diet, formula or nutritional supplement* [Observation](observation.html): The subject that the observation is about (if patient)* [Procedure](procedure.html): Search by subject - a patient* [RiskAssessment](riskassessment.html): Who/what does assessment apply to?* [ServiceRequest](servicerequest.html): Search by subject - a patient* [SupplyDelivery](supplydelivery.html): Patient for whom the item is supplied* [VisionPrescription](visionprescription.html): The identity of a patient to list dispenses for',
@@ -377,6 +384,7 @@ search_parameter_queries = {
 			'description': 'Appointment date/time.',
 			'type': 'date',
 			'field': 'start',
+			'fieldTypesObj': { 'start': 'instant' },
 		},
 		'identifier': {
 			'description': 'An Identifier of the Appointment',
@@ -528,6 +536,7 @@ search_parameter_queries = {
 			'description': 'Time when the event was recorded',
 			'type': 'date',
 			'field': 'recorded',
+			'fieldTypesObj': { 'recorded': 'instant' },
 		},
 		'entity': {
 			'description': 'Specific instance of resource',
@@ -604,6 +613,7 @@ search_parameter_queries = {
 			'description': 'When created',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'date' },
 		},
 		'identifier': {
 			'description': 'Business identifier',
@@ -670,6 +680,7 @@ search_parameter_queries = {
 			'description': 'When the bundle was assembled',
 			'type': 'date',
 			'field': 'timestamp',
+			'fieldTypesObj': { 'timestamp': 'instant' },
 		},
 		'type': {
 			'description': 'document | message | transaction | transaction-response | batch | batch-response | history | searchset | collection',
@@ -697,6 +708,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -797,6 +809,7 @@ search_parameter_queries = {
 			'description': 'Specified date occurs within period specified by CarePlan.activity.detail.scheduled[x]',
 			'type': 'date',
 			'fields': ['activity.detail.scheduledTiming', 'activity.detail.scheduledPeriod', 'activity.detail.scheduledString'],
+			'fieldTypesObj': { 'activity.detail.scheduledTiming': 'timing', 'activity.detail.scheduledPeriod': 'period', 'activity.detail.scheduledString': 'string' },
 		},
 		'activity-reference': {
 			'description': 'Activity details defined in specific resource',
@@ -831,6 +844,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'encounter': {
 			'description': 'Encounter created as part of',
@@ -911,6 +925,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'encounter': {
 			'description': 'Encounter created as part of',
@@ -969,6 +984,7 @@ search_parameter_queries = {
 			'description': 'Date the charge item was entered',
 			'type': 'date',
 			'field': 'enteredDate',
+			'fieldTypesObj': { 'enteredDate': 'datetime' },
 		},
 		'enterer': {
 			'description': 'Individual who was entering',
@@ -990,6 +1006,7 @@ search_parameter_queries = {
 			'description': 'When the charged service was applied',
 			'type': 'date',
 			'fields': ['occurrenceDateTime', 'occurrencePeriod', 'occurrenceTiming'],
+			'fieldTypesObj': { 'occurrenceDateTime': 'datetime', 'occurrencePeriod': 'period', 'occurrenceTiming': 'timing' },
 		},
 		'patient': {
 			'description': 'Individual service was done for/to',
@@ -1063,6 +1080,7 @@ search_parameter_queries = {
 			'description': 'The charge item definition publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'The description of the charge item definition',
@@ -1073,6 +1091,7 @@ search_parameter_queries = {
 			'description': 'The time during which the charge item definition is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the charge item definition',
@@ -1130,6 +1149,7 @@ search_parameter_queries = {
 			'description': 'The citation publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'The description of the citation',
@@ -1140,6 +1160,7 @@ search_parameter_queries = {
 			'description': 'The time during which the citation is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the citation',
@@ -1193,6 +1214,7 @@ search_parameter_queries = {
 			'description': 'The creation date for the Claim',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'datetime' },
 		},
 		'detail-udi': {
 			'description': 'UDI associated with a line item, detail product or service',
@@ -1286,6 +1308,7 @@ search_parameter_queries = {
 			'description': 'The creation date',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'datetime' },
 		},
 		'disposition': {
 			'description': 'The contents of the disposition message',
@@ -1318,6 +1341,7 @@ search_parameter_queries = {
 			'description': 'The expected payment date',
 			'type': 'date',
 			'field': 'payment.date',
+			'fieldTypesObj': { 'payment.date': 'date' },
 		},
 		'request': {
 			'description': 'The claim reference',
@@ -1353,6 +1377,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'encounter': {
 			'description': 'Encounter created as part of',
@@ -1507,6 +1532,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -1625,6 +1651,7 @@ search_parameter_queries = {
 			'description': 'When received',
 			'type': 'date',
 			'field': 'received',
+			'fieldTypesObj': { 'received': 'datetime' },
 		},
 		'recipient': {
 			'description': 'Message recipient',
@@ -1642,6 +1669,7 @@ search_parameter_queries = {
 			'description': 'When sent',
 			'type': 'date',
 			'field': 'sent',
+			'fieldTypesObj': { 'sent': 'datetime' },
 		},
 		'status': {
 			'description': 'preparation | in-progress | not-done | on-hold | stopped | completed | entered-in-error | unknown',
@@ -1660,6 +1688,7 @@ search_parameter_queries = {
 			'description': 'When request transitioned to being actionable',
 			'type': 'date',
 			'field': 'authoredOn',
+			'fieldTypesObj': { 'authoredOn': 'datetime' },
 		},
 		'based-on': {
 			'description': 'Fulfills plan or proposal',
@@ -1697,6 +1726,7 @@ search_parameter_queries = {
 			'description': 'When scheduled',
 			'type': 'date',
 			'field': 'occurrenceDateTime',
+			'fieldTypesObj': { 'occurrenceDateTime': 'datetime' },
 		},
 		'patient': {
 			'description': 'Focus of message',
@@ -1770,6 +1800,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -1839,6 +1870,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'encounter': {
 			'description': 'Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier',
@@ -1867,6 +1899,7 @@ search_parameter_queries = {
 			'description': 'The period covered by the documentation',
 			'type': 'date',
 			'field': 'event.period',
+			'fieldTypesObj': { 'event.period': 'period' },
 		},
 		'related-id': {
 			'description': 'Target of the relationship',
@@ -1926,6 +1959,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'dependson': {
 			'description': 'Reference to property mapping depends on',
@@ -2034,6 +2068,30 @@ search_parameter_queries = {
 		},
 	},
 	'Condition': {
+		'_abatementPeriodEnd': {
+			'description': 'Custom search parameter for end date of abatementPeriod',
+			'type': 'date',
+			'field': 'abatementPeriod.end',
+			'fieldTypesObj': { 'abatementPeriod.end': 'datetime' },
+		},
+		'_abatementPeriodStart': {
+			'description': 'Custom search parameter for start date of abatementPeriod',
+			'type': 'date',
+			'field': 'abatementPeriod.start',
+			'fieldTypesObj': { 'abatementPeriod.start': 'datetime' },
+		},
+		'_onsetPeriodEnd': {
+			'description': 'Custom search parameter for end date of onsetPeriod',
+			'type': 'date',
+			'field': 'onsetPeriod.end',
+			'fieldTypesObj': { 'onsetPeriod.end': 'datetime' },
+		},
+		'_onsetPeriodStart': {
+			'description': 'Custom search parameter for start date of onsetPeriod',
+			'type': 'date',
+			'field': 'onsetPeriod.start',
+			'fieldTypesObj': { 'onsetPeriod.start': 'datetime' },
+		},
 		'abatement-age': {
 			'description': 'Abatement as age or age range',
 			'type': 'quantity',
@@ -2043,6 +2101,7 @@ search_parameter_queries = {
 			'description': 'Date-related abatements (dateTime and period)',
 			'type': 'date',
 			'fields': ['abatementDateTime', 'abatementPeriod'],
+			'fieldTypesObj': { 'abatementDateTime': 'datetime', 'abatementPeriod': 'period' },
 		},
 		'abatement-string': {
 			'description': 'Abatement as a string',
@@ -2106,6 +2165,7 @@ search_parameter_queries = {
 			'description': 'Date related onsets (dateTime and Period)',
 			'type': 'date',
 			'fields': ['onsetDateTime', 'onsetPeriod'],
+			'fieldTypesObj': { 'onsetDateTime': 'datetime', 'onsetPeriod': 'period' },
 		},
 		'onset-info': {
 			'description': 'Onsets as a string',
@@ -2122,6 +2182,7 @@ search_parameter_queries = {
 			'description': 'Date record was first recorded',
 			'type': 'date',
 			'field': 'recordedDate',
+			'fieldTypesObj': { 'recordedDate': 'datetime' },
 		},
 		'severity': {
 			'description': 'The severity of the condition',
@@ -2178,6 +2239,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'dateTime',
+			'fieldTypesObj': { 'dateTime': 'datetime' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -2200,6 +2262,7 @@ search_parameter_queries = {
 			'description': 'Timeframe for this rule',
 			'type': 'date',
 			'field': 'provision.period',
+			'fieldTypesObj': { 'provision.period': 'period' },
 		},
 		'purpose': {
 			'description': 'Context of activities covered by this rule',
@@ -2255,6 +2318,7 @@ search_parameter_queries = {
 			'description': 'The date/time the contract was issued',
 			'type': 'date',
 			'field': 'issued',
+			'fieldTypesObj': { 'issued': 'datetime' },
 		},
 		'patient': {
 			'description': 'The identity of the subject of the contract (if a patient)',
@@ -2352,6 +2416,7 @@ search_parameter_queries = {
 			'description': 'The creation date for the EOB',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'datetime' },
 		},
 		'enterer': {
 			'description': 'The party who is responsible for the request',
@@ -2393,6 +2458,7 @@ search_parameter_queries = {
 			'description': 'The creation date',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'datetime' },
 		},
 		'disposition': {
 			'description': 'The contents of the disposition message',
@@ -2455,6 +2521,7 @@ search_parameter_queries = {
 			'description': 'When identified',
 			'type': 'date',
 			'fields': ['identifiedDateTime', 'identifiedPeriod'],
+			'fieldTypesObj': { 'identifiedDateTime': 'datetime', 'identifiedPeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -2591,6 +2658,7 @@ search_parameter_queries = {
 			'description': 'When the request transitioned to being actionable',
 			'type': 'date',
 			'field': 'authoredOn',
+			'fieldTypesObj': { 'authoredOn': 'datetime' },
 		},
 		'based-on': {
 			'description': 'Plan/proposal/order fulfilled by this request',
@@ -2619,6 +2687,7 @@ search_parameter_queries = {
 			'description': 'When service should occur',
 			'type': 'date',
 			'fields': ['occurrenceDateTime', 'occurrencePeriod'],
+			'fieldTypesObj': { 'occurrenceDateTime': 'datetime', 'occurrencePeriod': 'period' },
 		},
 		'group-identifier': {
 			'description': 'Composite request this is part of',
@@ -2714,6 +2783,18 @@ search_parameter_queries = {
 		},
 	},
 	'DiagnosticReport': {
+		'_effectivePeriodEnd': {
+			'description': 'Custom search parameter for end date of effectivePeriod',
+			'type': 'date',
+			'field': 'effectivePeriod.end',
+			'fieldTypesObj': { 'effectivePeriod.end': 'datetime' },
+		},
+		'_effectivePeriodStart': {
+			'description': 'Custom search parameter for start date of effectivePeriod',
+			'type': 'date',
+			'field': 'effectivePeriod.start',
+			'fieldTypesObj': { 'effectivePeriod.start': 'datetime' },
+		},
 		'based-on': {
 			'description': 'Reference to the service request.',
 			'type': 'reference',
@@ -2739,6 +2820,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'fields': ['effectiveDateTime', 'effectivePeriod'],
+			'fieldTypesObj': { 'effectiveDateTime': 'datetime', 'effectivePeriod': 'period' },
 		},
 		'encounter': {
 			'description': 'Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier',
@@ -2755,6 +2837,7 @@ search_parameter_queries = {
 			'description': 'When the report was issued',
 			'type': 'date',
 			'field': 'issued',
+			'fieldTypesObj': { 'issued': 'instant' },
 		},
 		'media': {
 			'description': 'A reference to the image source.',
@@ -2815,6 +2898,7 @@ search_parameter_queries = {
 			'description': 'When this document manifest created',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'datetime' },
 		},
 		'description': {
 			'description': 'Human-readable description (title)',
@@ -2910,6 +2994,7 @@ search_parameter_queries = {
 			'description': 'When this document reference was created',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'instant' },
 		},
 		'description': {
 			'description': 'Human-readable description',
@@ -2962,6 +3047,7 @@ search_parameter_queries = {
 			'description': 'Time of service that is being documented',
 			'type': 'date',
 			'field': 'context.period',
+			'fieldTypesObj': { 'context.period': 'period' },
 		},
 		'related': {
 			'description': 'Related identifiers or resources',
@@ -3008,6 +3094,30 @@ search_parameter_queries = {
 		},
 	},
 	'Encounter': {
+		'_locationPeriodEnd': {
+			'description': 'Custom search parameter for end date of location.period',
+			'type': 'date',
+			'field': 'location.period.end',
+			'fieldTypesObj': { 'location.period.end': 'datetime' },
+		},
+		'_locationPeriodStart': {
+			'description': 'Custom search parameter for start date of location.period',
+			'type': 'date',
+			'field': 'location.period.start',
+			'fieldTypesObj': { 'location.period.start': 'datetime' },
+		},
+		'_periodEnd': {
+			'description': 'Custom search parameter for end date of period',
+			'type': 'date',
+			'field': 'period.end',
+			'fieldTypesObj': { 'period.end': 'datetime' },
+		},
+		'_periodStart': {
+			'description': 'Custom search parameter for start date of period',
+			'type': 'date',
+			'field': 'period.start',
+			'fieldTypesObj': { 'period.start': 'datetime' },
+		},
 		'account': {
 			'description': 'The set of accounts that may be used for billing for this Encounter',
 			'type': 'reference',
@@ -3035,6 +3145,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'diagnosis': {
 			'description': 'The diagnosis or procedure relevant to the encounter',
@@ -3068,6 +3179,7 @@ search_parameter_queries = {
 			'description': 'Time period during which the patient was present at the location',
 			'type': 'date',
 			'field': 'location.period',
+			'fieldTypesObj': { 'location.period': 'period' },
 		},
 		'part-of': {
 			'description': 'Another Encounter this encounter is part of',
@@ -3229,6 +3341,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -3291,6 +3404,7 @@ search_parameter_queries = {
 			'description': 'The event definition publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'depends-on': {
 			'description': 'What resource is being referenced',
@@ -3315,6 +3429,7 @@ search_parameter_queries = {
 			'description': 'The time during which the event definition is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the event definition',
@@ -3396,6 +3511,7 @@ search_parameter_queries = {
 			'description': 'The evidence publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'The description of the evidence',
@@ -3490,6 +3606,7 @@ search_parameter_queries = {
 			'description': 'The evidence variable publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'The description of the evidence variable',
@@ -3552,6 +3669,7 @@ search_parameter_queries = {
 			'description': 'The example scenario publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'identifier': {
 			'description': 'External identifier for the example scenario',
@@ -3612,6 +3730,7 @@ search_parameter_queries = {
 			'description': 'The creation date for the EOB',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'datetime' },
 		},
 		'detail-udi': {
 			'description': 'UDI associated with a line item detail product or service',
@@ -3699,6 +3818,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -3749,6 +3869,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'encounter': {
 			'description': 'Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier',
@@ -3805,6 +3926,7 @@ search_parameter_queries = {
 			'description': 'When goal pursuit begins',
 			'type': 'date',
 			'field': 'startDate',
+			'fieldTypesObj': { 'startDate': 'date' },
 		},
 		'subject': {
 			'description': 'Who this goal is intended for',
@@ -3816,6 +3938,7 @@ search_parameter_queries = {
 			'description': 'Reach goal on or before',
 			'type': 'date',
 			'field': 'target.dueDate',
+			'fieldTypesObj': { 'target.dueDate': 'date' },
 		},
 	},
 	'GraphDefinition': {
@@ -3838,6 +3961,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -4101,6 +4225,7 @@ search_parameter_queries = {
 			'description': 'When the study was started',
 			'type': 'date',
 			'field': 'started',
+			'fieldTypesObj': { 'started': 'datetime' },
 		},
 		'status': {
 			'description': 'The status of the study',
@@ -4119,6 +4244,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'fields': ['occurrenceDateTime', 'occurrenceString'],
+			'fieldTypesObj': { 'occurrenceDateTime': 'datetime', 'occurrenceString': 'string' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -4164,6 +4290,7 @@ search_parameter_queries = {
 			'description': 'When reaction started',
 			'type': 'date',
 			'field': 'reaction.date',
+			'fieldTypesObj': { 'reaction.date': 'datetime' },
 		},
 		'reason-code': {
 			'description': 'Reason why the vaccine was administered',
@@ -4207,6 +4334,7 @@ search_parameter_queries = {
 			'description': 'Date the evaluation was generated',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'dose-status': {
 			'description': 'The status of the dose relative to published recommendations',
@@ -4246,6 +4374,7 @@ search_parameter_queries = {
 			'description': 'Date recommendation(s) created',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'identifier': {
 			'description': 'Business identifier',
@@ -4306,6 +4435,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'depends-on': {
 			'description': 'Identity of the IG that this depends on',
@@ -4500,6 +4630,7 @@ search_parameter_queries = {
 			'description': 'Invoice date / posting date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'identifier': {
 			'description': 'Business Identifier for item',
@@ -4594,6 +4725,7 @@ search_parameter_queries = {
 			'description': 'The library publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'depends-on': {
 			'description': 'What resource is being referenced',
@@ -4618,6 +4750,7 @@ search_parameter_queries = {
 			'description': 'The time during which the library is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the library',
@@ -4714,6 +4847,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'empty-reason': {
 			'description': 'Why list is empty',
@@ -4895,6 +5029,7 @@ search_parameter_queries = {
 			'description': 'The measure publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'depends-on': {
 			'description': 'What resource is being referenced',
@@ -4919,6 +5054,7 @@ search_parameter_queries = {
 			'description': 'The time during which the measure is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the measure',
@@ -4985,6 +5121,7 @@ search_parameter_queries = {
 			'description': 'The date of the measure report',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'evaluated-resource': {
 			'description': 'An evaluated resource referenced by the measure report',
@@ -5013,6 +5150,7 @@ search_parameter_queries = {
 			'description': 'The period of the measure report',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'reporter': {
 			'description': 'The reporter to return measure report results for',
@@ -5043,6 +5181,7 @@ search_parameter_queries = {
 			'description': 'When Media was collected',
 			'type': 'date',
 			'fields': ['createdDateTime', 'createdPeriod'],
+			'fieldTypesObj': { 'createdDateTime': 'datetime', 'createdPeriod': 'period' },
 		},
 		'device': {
 			'description': 'Observing Device',
@@ -5115,6 +5254,7 @@ search_parameter_queries = {
 			'description': 'Returns medications in a batch with this expiration date',
 			'type': 'date',
 			'field': 'batch.expirationDate',
+			'fieldTypesObj': { 'batch.expirationDate': 'datetime' },
 		},
 		'form': {
 			'description': 'Returns medications for a specific dose form',
@@ -5176,6 +5316,7 @@ search_parameter_queries = {
 			'description': 'Date administration happened (or did not happen)',
 			'type': 'date',
 			'fields': ['effectiveDateTime', 'effectivePeriod'],
+			'fieldTypesObj': { 'effectiveDateTime': 'datetime', 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -5307,11 +5448,13 @@ search_parameter_queries = {
 			'description': 'Returns dispenses handed over on this date',
 			'type': 'date',
 			'field': 'whenHandedOver',
+			'fieldTypesObj': { 'whenHandedOver': 'datetime' },
 		},
 		'whenprepared': {
 			'description': 'Returns dispenses prepared on this date',
 			'type': 'date',
 			'field': 'whenPrepared',
+			'fieldTypesObj': { 'whenPrepared': 'datetime' },
 		},
 	},
 	'MedicationKnowledge': {
@@ -5389,6 +5532,7 @@ search_parameter_queries = {
 			'description': 'Return prescriptions written on this date',
 			'type': 'date',
 			'field': 'authoredOn',
+			'fieldTypesObj': { 'authoredOn': 'datetime' },
 		},
 		'category': {
 			'description': 'Returns prescriptions with different categories',
@@ -5404,6 +5548,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [MedicationRequest](medicationrequest.html): Returns medication request to be administered on a specific date',
 			'type': 'date',
 			'field': 'dosageInstruction.timing.event',
+			'fieldTypesObj': { 'dosageInstruction.timing.event': 'datetime' },
 		},
 		'encounter': {
 			'description': 'Multiple Resources: * [MedicationRequest](medicationrequest.html): Return prescriptions with this encounter identifier',
@@ -5494,6 +5639,7 @@ search_parameter_queries = {
 			'description': 'Date when patient was taking (or not taking) the medication',
 			'type': 'date',
 			'fields': ['effectiveDateTime', 'effectivePeriod'],
+			'fieldTypesObj': { 'effectiveDateTime': 'datetime', 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -5625,6 +5771,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -5840,6 +5987,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -5870,6 +6018,7 @@ search_parameter_queries = {
 			'description': 'When is identifier valid?',
 			'type': 'date',
 			'field': 'uniqueId.period',
+			'fieldTypesObj': { 'uniqueId.period': 'period' },
 		},
 		'publisher': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): Name of the publisher of the capability statement* [CodeSystem](codesystem.html): Name of the publisher of the code system* [CompartmentDefinition](compartmentdefinition.html): Name of the publisher of the compartment definition* [ConceptMap](conceptmap.html): Name of the publisher of the concept map* [GraphDefinition](graphdefinition.html): Name of the publisher of the graph definition* [ImplementationGuide](implementationguide.html): Name of the publisher of the implementation guide* [MessageDefinition](messagedefinition.html): Name of the publisher of the message definition* [NamingSystem](namingsystem.html): Name of the publisher of the naming system* [OperationDefinition](operationdefinition.html): Name of the publisher of the operation definition* [SearchParameter](searchparameter.html): Name of the publisher of the search parameter* [StructureDefinition](structuredefinition.html): Name of the publisher of the structure definition* [StructureMap](structuremap.html): Name of the publisher of the structure map* [TerminologyCapabilities](terminologycapabilities.html): Name of the publisher of the terminology capabilities* [ValueSet](valueset.html): Name of the publisher of the value set',
@@ -5912,6 +6061,7 @@ search_parameter_queries = {
 			'description': 'Return nutrition orders requested on this date',
 			'type': 'date',
 			'field': 'dateTime',
+			'fieldTypesObj': { 'dateTime': 'datetime' },
 		},
 		'encounter': {
 			'description': 'Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier',
@@ -5981,6 +6131,30 @@ search_parameter_queries = {
 		},
 	},
 	'Observation': {
+		'_effectivePeriodEnd': {
+			'description': 'Custom search parameter for end date of effectivePeriod',
+			'type': 'date',
+			'field': 'effectivePeriod.end',
+			'fieldTypesObj': { 'effectivePeriod.end': 'datetime' },
+		},
+		'_effectivePeriodStart': {
+			'description': 'Custom search parameter for start date of effectivePeriod',
+			'type': 'date',
+			'field': 'effectivePeriod.start',
+			'fieldTypesObj': { 'effectivePeriod.start': 'datetime' },
+		},
+		'_valuePeriodEnd': {
+			'description': 'Custom search parameter for end date of valuePeriod',
+			'type': 'date',
+			'field': 'valuePeriod.end',
+			'fieldTypesObj': { 'valuePeriod.end': 'datetime' },
+		},
+		'_valuePeriodStart': {
+			'description': 'Custom search parameter for start date of valuePeriod',
+			'type': 'date',
+			'field': 'valuePeriod.start',
+			'fieldTypesObj': { 'valuePeriod.start': 'datetime' },
+		},
 		'based-on': {
 			'description': 'Reference to the service request.',
 			'type': 'reference',
@@ -6046,6 +6220,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'fields': ['effectiveDateTime', 'effectivePeriod', 'effectiveTiming', 'effectiveInstant'],
+			'fieldTypesObj': { 'effectiveDateTime': 'datetime', 'effectivePeriod': 'period', 'effectiveTiming': 'timing', 'effectiveInstant': 'instant' },
 		},
 		'derived-from': {
 			'description': 'Related measurements the observation is made from',
@@ -6131,6 +6306,7 @@ search_parameter_queries = {
 			'description': 'The value of the observation, if the value is a date or period of time',
 			'type': 'date',
 			'fields': ['valueDateTime', 'valuePeriod'],
+			'fieldTypesObj': { 'valueDateTime': 'datetime', 'valuePeriod': 'period' },
 		},
 		'value-quantity': {
 			'description': 'The value of the observation, if the value is a Quantity, or a SampledData (just search on the bounds of the values in sampled data)',
@@ -6174,6 +6350,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -6327,6 +6504,7 @@ search_parameter_queries = {
 			'description': 'The period during which the participatingOrganization is affiliated with the primary organization',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'email': {
 			'description': 'A value in an email contact',
@@ -6495,11 +6673,13 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [Patient](patient.html): The patients date of birth* [Person](person.html): The persons date of birth* [RelatedPerson](relatedperson.html): The Related Persons date of birth',
 			'type': 'date',
 			'field': 'birthDate',
+			'fieldTypesObj': { 'birthDate': 'date' },
 		},
 		'death-date': {
 			'description': 'The date of death has been provided and satisfies this search value',
 			'type': 'date',
 			'field': 'deceasedDateTime',
+			'fieldTypesObj': { 'deceasedDateTime': 'datetime' },
 		},
 		'deceased': {
 			'description': 'This patient has been marked as deceased, or has a death date entered',
@@ -6582,6 +6762,7 @@ search_parameter_queries = {
 			'description': 'Creation date fro the notice',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'datetime' },
 		},
 		'identifier': {
 			'description': 'The business identifier of the notice',
@@ -6622,6 +6803,7 @@ search_parameter_queries = {
 			'description': 'The creation date',
 			'type': 'date',
 			'field': 'created',
+			'fieldTypesObj': { 'created': 'datetime' },
 		},
 		'disposition': {
 			'description': 'The contents of the disposition message',
@@ -6697,6 +6879,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [Patient](patient.html): The patients date of birth* [Person](person.html): The persons date of birth* [RelatedPerson](relatedperson.html): The Related Persons date of birth',
 			'type': 'date',
 			'field': 'birthDate',
+			'fieldTypesObj': { 'birthDate': 'date' },
 		},
 		'email': {
 			'description': 'Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact',
@@ -6803,6 +6986,7 @@ search_parameter_queries = {
 			'description': 'The plan definition publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'definition': {
 			'description': 'Activity or plan definitions used by plan definition',
@@ -6833,6 +7017,7 @@ search_parameter_queries = {
 			'description': 'The time during which the plan definition is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the plan definition',
@@ -6998,6 +7183,7 @@ search_parameter_queries = {
 			'description': 'The period during which the practitioner is authorized to perform in these role(s)',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'email': {
 			'description': 'Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact',
@@ -7063,6 +7249,18 @@ search_parameter_queries = {
 		},
 	},
 	'Procedure': {
+		'_performedPeriodEnd': {
+			'description': 'Custom search parameter for end date of performedPeriod',
+			'type': 'date',
+			'field': 'performedPeriod.end',
+			'fieldTypesObj': { 'performedPeriod.end': 'datetime' },
+		},
+		'_performedPeriodStart': {
+			'description': 'Custom search parameter for start date of performedPeriod',
+			'type': 'date',
+			'field': 'performedPeriod.start',
+			'fieldTypesObj': { 'performedPeriod.start': 'datetime' },
+		},
 		'based-on': {
 			'description': 'A request for this procedure',
 			'type': 'reference',
@@ -7083,6 +7281,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'fields': ['performedDateTime', 'performedPeriod', 'performedString', 'performedAge', 'performedRange'],
+			'fieldTypesObj': { 'performedDateTime': 'datetime', 'performedPeriod': 'period', 'performedString': 'string', 'performedAge': 'age', 'performedRange': 'range' },
 		},
 		'encounter': {
 			'description': 'Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier',
@@ -7192,6 +7391,7 @@ search_parameter_queries = {
 			'description': 'When the activity was recorded / updated',
 			'type': 'date',
 			'field': 'recorded',
+			'fieldTypesObj': { 'recorded': 'instant' },
 		},
 		'signature-type': {
 			'description': 'Indication of the reason the entity signed the object(s)',
@@ -7208,6 +7408,7 @@ search_parameter_queries = {
 			'description': 'When the activity occurred',
 			'type': 'date',
 			'field': 'occurredDateTime',
+			'fieldTypesObj': { 'occurredDateTime': 'datetime' },
 		},
 	},
 	'Questionnaire': {
@@ -7235,6 +7436,7 @@ search_parameter_queries = {
 			'description': 'The questionnaire publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'definition': {
 			'description': 'ElementDefinition - details for the item',
@@ -7250,6 +7452,7 @@ search_parameter_queries = {
 			'description': 'The time during which the questionnaire is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the questionnaire',
@@ -7308,6 +7511,7 @@ search_parameter_queries = {
 			'description': 'When the questionnaire response was last changed',
 			'type': 'date',
 			'field': 'authored',
+			'fieldTypesObj': { 'authored': 'datetime' },
 		},
 		'based-on': {
 			'description': 'Plan/proposal/order fulfilled by this questionnaire response',
@@ -7441,6 +7645,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [Patient](patient.html): The patients date of birth* [Person](person.html): The persons date of birth* [RelatedPerson](relatedperson.html): The Related Persons date of birth',
 			'type': 'date',
 			'field': 'birthDate',
+			'fieldTypesObj': { 'birthDate': 'date' },
 		},
 		'email': {
 			'description': 'Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact',
@@ -7502,6 +7707,7 @@ search_parameter_queries = {
 			'description': 'The date the request group was authored',
 			'type': 'date',
 			'field': 'authoredOn',
+			'fieldTypesObj': { 'authoredOn': 'datetime' },
 		},
 		'code': {
 			'description': 'The code of the request group',
@@ -7595,6 +7801,7 @@ search_parameter_queries = {
 			'description': 'The research definition publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'depends-on': {
 			'description': 'What resource is being referenced',
@@ -7619,6 +7826,7 @@ search_parameter_queries = {
 			'description': 'The time during which the research definition is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the research definition',
@@ -7707,6 +7915,7 @@ search_parameter_queries = {
 			'description': 'The research element definition publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'depends-on': {
 			'description': 'What resource is being referenced',
@@ -7731,6 +7940,7 @@ search_parameter_queries = {
 			'description': 'The time during which the research element definition is intended to be in use',
 			'type': 'date',
 			'field': 'effectivePeriod',
+			'fieldTypesObj': { 'effectivePeriod': 'period' },
 		},
 		'identifier': {
 			'description': 'External identifier for the research element definition',
@@ -7802,6 +8012,7 @@ search_parameter_queries = {
 			'description': 'When the study began and ended',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'focus': {
 			'description': 'Drugs, devices, etc. under study',
@@ -7869,6 +8080,7 @@ search_parameter_queries = {
 			'description': 'Start and end of participation',
 			'type': 'date',
 			'field': 'period',
+			'fieldTypesObj': { 'period': 'period' },
 		},
 		'identifier': {
 			'description': 'Business Identifier for research subject in a study',
@@ -7909,6 +8121,7 @@ search_parameter_queries = {
 			'description': 'When the resource version last changed',
 			'type': 'date',
 			'field': 'meta.lastUpdated',
+			'fieldTypesObj': { 'meta.lastUpdated': 'instant' },
 		},
 		'_profile': {
 			'description': 'Profiles this resource claims to conform to',
@@ -7942,6 +8155,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'occurrenceDateTime',
+			'fieldTypesObj': { 'occurrenceDateTime': 'datetime' },
 		},
 		'encounter': {
 			'description': 'Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier',
@@ -8004,6 +8218,7 @@ search_parameter_queries = {
 			'description': 'Search for Schedule resources that have a period that contains this date specified',
 			'type': 'date',
 			'field': 'planningHorizon',
+			'fieldTypesObj': { 'planningHorizon': 'period' },
 		},
 		'identifier': {
 			'description': 'A Schedule Identifier',
@@ -8062,6 +8277,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'derived-from': {
 			'description': 'Original definition for the search parameter',
@@ -8120,6 +8336,7 @@ search_parameter_queries = {
 			'description': 'Date request signed',
 			'type': 'date',
 			'field': 'authoredOn',
+			'fieldTypesObj': { 'authoredOn': 'datetime' },
 		},
 		'based-on': {
 			'description': 'What request fulfills',
@@ -8173,6 +8390,7 @@ search_parameter_queries = {
 			'description': 'When service should occur',
 			'type': 'date',
 			'fields': ['occurrenceDateTime', 'occurrencePeriod', 'occurrenceTiming'],
+			'fieldTypesObj': { 'occurrenceDateTime': 'datetime', 'occurrencePeriod': 'period', 'occurrenceTiming': 'timing' },
 		},
 		'patient': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Who the sensitivity is for* [CarePlan](careplan.html): Who the care plan is for* [CareTeam](careteam.html): Who care team is for* [ClinicalImpression](clinicalimpression.html): Patient or group assessed* [Composition](composition.html): Who and/or what the composition is about* [Condition](condition.html): Who has the condition?* [Consent](consent.html): Who the consent applies to* [DetectedIssue](detectedissue.html): Associated patient* [DeviceRequest](devicerequest.html): Individual the service is ordered for* [DeviceUseStatement](deviceusestatement.html): Search by subject - a patient* [DiagnosticReport](diagnosticreport.html): The subject of the report if a patient* [DocumentManifest](documentmanifest.html): The subject of the set of documents* [DocumentReference](documentreference.html): Who/what is the subject of the document* [Encounter](encounter.html): The patient or group present at the encounter* [EpisodeOfCare](episodeofcare.html): The patient who is the focus of this episode of care* [FamilyMemberHistory](familymemberhistory.html): The identity of a subject to list family member history items for* [Flag](flag.html): The identity of a subject to list flags for* [Goal](goal.html): Who this goal is intended for* [ImagingStudy](imagingstudy.html): Who the study is about* [Immunization](immunization.html): The patient for the vaccination record* [List](list.html): If all resources have the same subject* [MedicationAdministration](medicationadministration.html): The identity of a patient to list administrations  for* [MedicationDispense](medicationdispense.html): The identity of a patient to list dispenses  for* [MedicationRequest](medicationrequest.html): Returns prescriptions for a specific patient* [MedicationStatement](medicationstatement.html): Returns statements for a specific patient.* [NutritionOrder](nutritionorder.html): The identity of the person who requires the diet, formula or nutritional supplement* [Observation](observation.html): The subject that the observation is about (if patient)* [Procedure](procedure.html): Search by subject - a patient* [RiskAssessment](riskassessment.html): Who/what does assessment apply to?* [ServiceRequest](servicerequest.html): Search by subject - a patient* [SupplyDelivery](supplydelivery.html): Patient for whom the item is supplied* [VisionPrescription](visionprescription.html): The identity of a patient to list dispenses for',
@@ -8267,6 +8485,7 @@ search_parameter_queries = {
 			'description': 'Appointment date/time.',
 			'type': 'date',
 			'field': 'start',
+			'fieldTypesObj': { 'start': 'instant' },
 		},
 		'status': {
 			'description': 'The free/busy status of the appointment',
@@ -8289,6 +8508,7 @@ search_parameter_queries = {
 			'description': 'The date the specimen was collected',
 			'type': 'date',
 			'fields': ['collection.collectedDateTime', 'collection.collectedPeriod'],
+			'fieldTypesObj': { 'collection.collectedDateTime': 'datetime', 'collection.collectedPeriod': 'period' },
 		},
 		'collector': {
 			'description': 'Who collected the specimen',
@@ -8393,6 +8613,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'derivation': {
 			'description': 'specialization | constraint - How relates to base definition',
@@ -8501,6 +8722,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -8585,6 +8807,7 @@ search_parameter_queries = {
 			'description': 'Date status first applied',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'derived-or-self': {
 			'description': 'A server defined search that matches either the url or derivedFrom',
@@ -8647,6 +8870,7 @@ search_parameter_queries = {
 			'description': 'Expiry date of package or container of substance',
 			'type': 'date',
 			'field': 'instance.expiry',
+			'fieldTypesObj': { 'instance.expiry': 'datetime' },
 		},
 		'identifier': {
 			'description': 'Unique identifier for the substance',
@@ -8737,6 +8961,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of cares period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made',
 			'type': 'date',
 			'field': 'authoredOn',
+			'fieldTypesObj': { 'authoredOn': 'datetime' },
 		},
 		'identifier': {
 			'description': 'Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier',
@@ -8772,6 +8997,7 @@ search_parameter_queries = {
 			'description': 'Search by creation date',
 			'type': 'date',
 			'field': 'authoredOn',
+			'fieldTypesObj': { 'authoredOn': 'datetime' },
 		},
 		'based-on': {
 			'description': 'Search by requests this task is based on',
@@ -8820,6 +9046,7 @@ search_parameter_queries = {
 			'description': 'Search by last modification date',
 			'type': 'date',
 			'field': 'lastModified',
+			'fieldTypesObj': { 'lastModified': 'datetime' },
 		},
 		'owner': {
 			'description': 'Search by task owner',
@@ -8848,6 +9075,7 @@ search_parameter_queries = {
 			'description': 'Search by period Task is/was underway',
 			'type': 'date',
 			'field': 'executionPeriod',
+			'fieldTypesObj': { 'executionPeriod': 'period' },
 		},
 		'priority': {
 			'description': 'Search by task priority',
@@ -8892,6 +9120,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -8944,6 +9173,7 @@ search_parameter_queries = {
 			'description': 'The test report generation date',
 			'type': 'date',
 			'field': 'issued',
+			'fieldTypesObj': { 'issued': 'datetime' },
 		},
 		'participant': {
 			'description': 'The reference to a participant in the test execution',
@@ -8987,6 +9217,7 @@ search_parameter_queries = {
 			'description': 'The test script publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'The description of the test script',
@@ -9064,6 +9295,7 @@ search_parameter_queries = {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date',
 			'type': 'date',
 			'field': 'date',
+			'fieldTypesObj': { 'date': 'datetime' },
 		},
 		'description': {
 			'description': 'Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set',
@@ -9134,6 +9366,7 @@ search_parameter_queries = {
 			'description': 'Return prescriptions written on this date',
 			'type': 'date',
 			'field': 'dateWritten',
+			'fieldTypesObj': { 'dateWritten': 'datetime' },
 		},
 		'encounter': {
 			'description': 'Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier',
