@@ -2,6 +2,11 @@
 
 The Helix FHIR Server supports real-time push notifications using **Server-Sent Events (SSE)** as defined in the FHIR R5 Subscriptions specification.
 
+## 🎬 Demo Video
+
+Watch a live demonstration of SSE Subscriptions in action:  
+**[SSE Subscriptions Demo Video](https://drive.google.com/file/d/1F2g9gqt3gUmogJ1rMQVfn8Y7i7UbA74y/view?usp=sharing)**
+
 ## Overview
 
 SSE Subscriptions enable clients to receive real-time notifications when FHIR resources change, eliminating the need for polling. This implementation follows the [FHIR R5 Subscriptions IG](http://hl7.org/fhir/R5/subscriptions.html) with R4 resource compatibility via the [Subscriptions Backport IG](http://hl7.org/fhir/uv/subscriptions-backport/).
