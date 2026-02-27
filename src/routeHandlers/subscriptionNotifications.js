@@ -93,14 +93,16 @@ async function handleSubscriptionEvents(fnGetContainer, req, res) {
         }
 
         // Verify channel type supports SSE
+        // FHIR R5 uses 'message' for SSE, but also support 'sse' and 'server-sent-events' for compatibility
         const channelType = subscription.channel?.type;
-        if (channelType && channelType !== 'sse' && channelType !== 'server-sent-events') {
+        const supportedSSEChannelTypes = ['message', 'sse', 'server-sent-events'];
+        if (channelType && !supportedSSEChannelTypes.includes(channelType)) {
             res.status(400).json({
                 resourceType: 'OperationOutcome',
                 issue: [{
                     severity: 'error',
                     code: 'business-rule',
-                    diagnostics: `Subscription channel type '${channelType}' does not support SSE. Use channel type 'sse'.`
+                    diagnostics: `Subscription channel type '${channelType}' does not support SSE. Use channel type 'message' (FHIR R5) or 'sse'.`
                 }]
             });
             return;

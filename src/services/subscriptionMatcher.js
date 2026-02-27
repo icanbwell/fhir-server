@@ -82,7 +82,7 @@ class SubscriptionMatcher {
             const cursor = await databaseQueryManager.findAsync({
                 query: {
                     status: 'active',
-                    'channel.type': { $in: ['sse', 'server-sent-events'] }
+                    'channel.type': { $in: ['sse', 'server-sent-events', 'message'] }
                 },
                 options: {}
             });

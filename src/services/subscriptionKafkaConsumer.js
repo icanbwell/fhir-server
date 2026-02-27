@@ -389,10 +389,12 @@ class SubscriptionKafkaConsumer {
             // Broadcast to all connected SSE clients across all pods via Redis Pub/Sub
             const notifiedCount = await this.sseEventDispatcher.dispatchEventAsync({
                 subscriptionId,
-                notification: {
-                    id: String(storedEvent.sequenceNumber),
-                    event: 'notification',
-                    data: notificationBundle
+                event: {
+                    eventId: String(storedEvent.sequenceNumber),
+                    eventType: 'notification',
+                    resourceType: resourceInfo.resourceType,
+                    resourceId: resourceInfo.resourceId,
+                    payload: notificationBundle
                 }
             });
 

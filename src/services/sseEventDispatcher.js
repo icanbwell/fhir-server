@@ -204,7 +204,14 @@ class SSEEventDispatcher {
             return;
         }
 
-        const connectionCount = this.sseConnectionManager.broadcast(subscriptionId, event.payload);
+        // Format as SSE message with id, event type, and data
+        const sseMessage = {
+            id: event.eventId,
+            event: event.eventType || 'notification',
+            data: event.payload
+        };
+
+        const connectionCount = this.sseConnectionManager.broadcast(subscriptionId, sseMessage);
 
         if (connectionCount > 0) {
             logger.debug(`SSEEventDispatcher: Broadcast to ${connectionCount} local connections`, {
