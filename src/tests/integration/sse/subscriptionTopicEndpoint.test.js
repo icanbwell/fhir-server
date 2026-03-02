@@ -1,6 +1,10 @@
 /**
  * Integration tests for SSE Subscription endpoint handlers
  */
+
+// Enable SSE subscriptions for these tests
+process.env.ENABLE_SSE_SUBSCRIPTIONS = 'true';
+
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
 
@@ -33,11 +37,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
         // Use createTestRequest to properly set up the container and app
-        request = await createTestRequest((c) => {
-            // Enable SSE subscriptions in test config
-            c.configManager.enableSSESubscriptions = true;
-            return c;
-        });
+        request = await createTestRequest();
     });
 
     afterEach(async () => {
