@@ -6,7 +6,8 @@ const {
     cleanupGroupData,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders
+    getTestHeaders,
+    isClickHouseAvailable
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -68,6 +69,7 @@ describe('Group Concurrency Tests', () => {
     }
 
     test('Simultaneous add of same member → Both events stored, argMax returns one', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `concurrent-add-${Date.now()}`;
         const memberRef = 'Patient/concurrent-member-1';
         const clickHouseManager = getClickHouseManager();
@@ -106,6 +108,7 @@ describe('Group Concurrency Tests', () => {
     }, 30000);
 
     test('Concurrent add and remove of same member → Final state determined by event_time', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `concurrent-add-remove-${Date.now()}`;
         const memberRef = 'Patient/concurrent-member-2';
         const clickHouseManager = getClickHouseManager();
@@ -136,6 +139,7 @@ describe('Group Concurrency Tests', () => {
     }, 30000);
 
     test('Multiple concurrent updates to same Group → All events stored', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `concurrent-multi-${Date.now()}`;
         const clickHouseManager = getClickHouseManager();
 
@@ -164,6 +168,7 @@ describe('Group Concurrency Tests', () => {
     }, 30000);
 
     test('Race condition: Read during write → Returns consistent state', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `concurrent-read-write-${Date.now()}`;
 
         const createResponse = await createGroup(groupId, []);
@@ -198,6 +203,7 @@ describe('Group Concurrency Tests', () => {
     }, 30000);
 
     test('Concurrent DELETE and UPDATE → One operation wins', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `concurrent-delete-${Date.now()}`;
 
         const createResponse = await createGroup(groupId, [{ entity: { reference: 'Patient/delete-test' } }]);
@@ -223,6 +229,7 @@ describe('Group Concurrency Tests', () => {
     }, 30000);
 
     test('Concurrent member searches → No deadlocks, all return results', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `concurrent-search-${Date.now()}`;
         const memberRef = 'Patient/search-concurrent';
 
@@ -248,6 +255,7 @@ describe('Group Concurrency Tests', () => {
     // Phase 4.3: Concurrency Edge Case Tests
 
     test('DELETE during READ → 404 or stale data', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `concurrent-delete-read-${Date.now()}`;
 
         const createResponse = await createGroup(groupId, [
@@ -288,6 +296,7 @@ describe('Group Concurrency Tests', () => {
     }, 30000);
 
     test('100 concurrent PATCH operations → All events stored', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `concurrent-patch-flood-${Date.now()}`;
 
         const clickHouseManager = getClickHouseManager();
@@ -350,6 +359,7 @@ describe('Group Concurrency Tests', () => {
     }, 180000); // Extended timeout for 100 concurrent operations (slower in full suite due to resource contention)
 
     test('Out-of-order events → argMax handles with tie-breaker', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `out-of-order-${Date.now()}`;
         const memberRef = 'Patient/out-of-order-member';
         const clickHouseManager = getClickHouseManager();

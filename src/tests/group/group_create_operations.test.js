@@ -5,7 +5,8 @@ const {
     cleanupBetweenTests,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders
+    getTestHeaders,
+    isClickHouseAvailable
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -26,6 +27,7 @@ describe('Group CREATE operations', () => {
     }, 180000); // Allow extra time on CI
 
     beforeEach(async () => {
+        if (!isClickHouseAvailable()) return;
         await cleanupBetweenTests();
     });
 
@@ -52,6 +54,7 @@ describe('Group CREATE operations', () => {
     }
 
     test('POST Group without members → MongoDB only', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const clickHouseManager = getClickHouseManager();
         const response = await createGroup({
             type: 'person',
@@ -81,6 +84,7 @@ describe('Group CREATE operations', () => {
 
 
     test('POST Group with same member path uses same code (no threshold)', async () => {
+        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const clickHouseManager = getClickHouseManager();
 
         // Small batch

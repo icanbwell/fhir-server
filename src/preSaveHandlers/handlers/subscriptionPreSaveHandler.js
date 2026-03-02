@@ -74,8 +74,7 @@ class SubscriptionPreSaveHandler extends PreSaveHandler {
         // Validate channel is present
         if (!resource.channel) {
             throw new BadRequestError(
-                'Subscription must have a channel element',
-                'required'
+                new Error('Subscription must have a channel element')
             );
         }
 
@@ -83,8 +82,7 @@ class SubscriptionPreSaveHandler extends PreSaveHandler {
         const channelType = resource.channel.type;
         if (!channelType) {
             throw new BadRequestError(
-                'Subscription channel must have a type',
-                'required'
+                new Error('Subscription channel must have a type')
             );
         }
 
@@ -96,8 +94,7 @@ class SubscriptionPreSaveHandler extends PreSaveHandler {
             // Validate topic or criteria is present
             if (!resource.topic && !resource.criteria) {
                 throw new BadRequestError(
-                    'Subscription must specify a topic URL or criteria',
-                    'required'
+                    new Error('Subscription must specify a topic URL or criteria')
                 );
             }
 
@@ -106,8 +103,7 @@ class SubscriptionPreSaveHandler extends PreSaveHandler {
                 const validation = this.subscriptionTopicManager.validateSubscriptionTopic(resource);
                 if (!validation.valid) {
                     throw new BadRequestError(
-                        validation.error,
-                        'business-rule'
+                        new Error(validation.error)
                     );
                 }
             }
@@ -117,8 +113,7 @@ class SubscriptionPreSaveHandler extends PreSaveHandler {
         if (resource.status) {
             if (!VALID_STATUSES.includes(resource.status)) {
                 throw new BadRequestError(
-                    `Invalid subscription status: ${resource.status}. Valid values: ${VALID_STATUSES.join(', ')}`,
-                    'code-invalid'
+                    new Error(`Invalid subscription status: ${resource.status}. Valid values: ${VALID_STATUSES.join(', ')}`)
                 );
             }
         } else {
@@ -131,8 +126,8 @@ class SubscriptionPreSaveHandler extends PreSaveHandler {
             const endTime = new Date(resource.end);
             if (endTime <= new Date()) {
                 throw new BadRequestError(
-                    'Subscription end time must be in the future',
-                    'business-rule'
+                    new Error('Subscription end time must be in the future'),
+                    { code: 'business-rule' }
                 );
             }
         }
