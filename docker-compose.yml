@@ -115,6 +115,7 @@ services:
       CLICKHOUSE_PORT: '8123'
       CLICKHOUSE_DATABASE: 'fhir'
       CLICKHOUSE_USERNAME: 'default'
+      # WARNING: Empty password is for local development only. In production, set a strong password.
       CLICKHOUSE_PASSWORD: ''
       CLICKHOUSE_ENABLED_RESOURCES: 'Group'
     ports:

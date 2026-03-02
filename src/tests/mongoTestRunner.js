@@ -27,7 +27,9 @@ async function stopTestMongoServerAsync () {
 }
 
 async function getMongoUrlAsync () {
-    // For performance tests, use Docker MongoDB instead of in-memory server
+    // For performance tests that need a persistent MongoDB instance instead of the in-memory server,
+    // set USE_DOCKER_MONGO=1 and ensure MONGO_URL points to a running MongoDB container.
+    // This is useful for large-scale tests where in-memory server has size/performance limitations.
     if (process.env.USE_DOCKER_MONGO === '1' && process.env.MONGO_URL) {
         return process.env.MONGO_URL;
     }

@@ -57,12 +57,15 @@ const PATCH_PATHS = {
  * Default ClickHouse configuration values
  *
  * These are used as fallbacks when environment variables are not set.
+ * WARNING: Empty password is for local development only.
+ * In production, set CLICKHOUSE_PASSWORD environment variable.
  */
 const DEFAULT_CLICKHOUSE = {
     HOST: '127.0.0.1',
     PORT: 8123,
     DATABASE: 'fhir',
     USERNAME: 'default',
+    // WARNING: Empty password is insecure. For production, override via CLICKHOUSE_PASSWORD env var.
     PASSWORD: '',
     REQUEST_TIMEOUT_MS: 180000, // 3 minutes
     MAX_CONNECTIONS: 10

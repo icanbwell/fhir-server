@@ -106,7 +106,10 @@ class SSEConnectionManager extends EventEmitter {
                     });
                     writer.end();
                 } catch (e) {
-                    // Ignore errors during timeout cleanup
+                    // Log error during timeout cleanup - connection may already be closed
+                    logger.debug(`SSEConnectionManager: Error during timeout cleanup for ${connectionId}`, {
+                        error: e.message
+                    });
                 }
                 this._handleConnectionClose(connectionId);
             }, timeoutMs);

@@ -80,6 +80,24 @@ async function handleSubscriptionEvents(fnGetContainer, req, res) {
             return;
         }
 
+        // Verify user has access to this subscription (IDOR prevention)
+        const { authorized, clientId } = _verifySubscriptionAccess(subscription, req);
+        if (!authorized) {
+            logger.warn('SSE: Unauthorized access attempt to subscription', {
+                subscriptionId,
+                clientId
+            });
+            res.status(403).json({
+                resourceType: 'OperationOutcome',
+                issue: [{
+                    severity: 'error',
+                    code: 'forbidden',
+                    diagnostics: 'User does not have permission to access this subscription'
+                }]
+            });
+            return;
+        }
+
         if (subscription.status !== 'active' && subscription.status !== 'requested') {
             res.status(400).json({
                 resourceType: 'OperationOutcome',
@@ -108,11 +126,7 @@ async function handleSubscriptionEvents(fnGetContainer, req, res) {
             return;
         }
 
-        // Get client info from auth context
-        const clientId = req.authInfo?.context?.username ||
-                         req.authInfo?.context?.subject ||
-                         req.user?.id ||
-                         'anonymous';
+        // clientId is already obtained from _verifySubscriptionAccess above
 
         logger.info('SSE: Client connecting to subscription', {
             subscriptionId,
@@ -297,6 +311,38 @@ async function handleSubscriptionStats(fnGetContainer, req, res) {
     }
 
     try {
+        // Verify subscription exists
+        const subscription = await _getSubscriptionAsync(container, subscriptionId);
+        if (!subscription) {
+            res.status(404).json({
+                resourceType: 'OperationOutcome',
+                issue: [{
+                    severity: 'error',
+                    code: 'not-found',
+                    diagnostics: `Subscription/${subscriptionId} not found`
+                }]
+            });
+            return;
+        }
+
+        // Verify user has access to this subscription (IDOR prevention)
+        const { authorized, clientId } = _verifySubscriptionAccess(subscription, req);
+        if (!authorized) {
+            logger.warn('SSE: Unauthorized access attempt to subscription stats', {
+                subscriptionId,
+                clientId
+            });
+            res.status(403).json({
+                resourceType: 'OperationOutcome',
+                issue: [{
+                    severity: 'error',
+                    code: 'forbidden',
+                    diagnostics: 'User does not have permission to access this subscription'
+                }]
+            });
+            return;
+        }
+
         /**
          * @type {import('../dataLayer/subscriptionEventStore').SubscriptionEventStore}
          */
@@ -555,6 +601,24 @@ async function handleSubscriptionStatus(fnGetContainer, req, res) {
             return;
         }
 
+        // Verify user has access to this subscription (IDOR prevention)
+        const { authorized, clientId } = _verifySubscriptionAccess(subscription, req);
+        if (!authorized) {
+            logger.warn('SSE: Unauthorized access attempt to subscription status', {
+                subscriptionId,
+                clientId
+            });
+            res.status(403).json({
+                resourceType: 'OperationOutcome',
+                issue: [{
+                    severity: 'error',
+                    code: 'forbidden',
+                    diagnostics: 'User does not have permission to access this subscription'
+                }]
+            });
+            return;
+        }
+
         /**
          * @type {import('../dataLayer/subscriptionEventStore').SubscriptionEventStore}
          */
@@ -614,6 +678,46 @@ async function handleSubscriptionStatus(fnGetContainer, req, res) {
             }]
         });
     }
+}
+
+/**
+ * Verify that the authenticated user has access to a subscription
+ * @param {Object} subscription - The subscription resource
+ * @param {import('express').Request} req - The request object with auth info
+ * @returns {{authorized: boolean, clientId: string}} Authorization result with client ID
+ * @private
+ */
+function _verifySubscriptionAccess(subscription, req) {
+    // Get the authenticated client/user identifier
+    const clientId = req.authInfo?.context?.username ||
+                     req.authInfo?.context?.subject ||
+                     req.user?.id ||
+                     null;
+
+    // If no authentication, deny access (unless explicitly configured otherwise)
+    if (!clientId) {
+        return { authorized: false, clientId: 'anonymous' };
+    }
+
+    // Check if the subscription has access security tags
+    const accessTags = subscription?.meta?.security
+        ?.filter(tag => tag.system === 'https://www.icanbwell.com/access')
+        ?.map(tag => tag.code) || [];
+
+    // Check if the subscription has owner security tags
+    const ownerTags = subscription?.meta?.security
+        ?.filter(tag => tag.system === 'https://www.icanbwell.com/owner')
+        ?.map(tag => tag.code) || [];
+
+    // If no security tags exist, allow access (backward compatibility)
+    if (accessTags.length === 0 && ownerTags.length === 0) {
+        return { authorized: true, clientId };
+    }
+
+    // Check if the client ID matches any of the access or owner tags
+    const hasAccess = accessTags.includes(clientId) || ownerTags.includes(clientId);
+
+    return { authorized: hasAccess, clientId };
 }
 
 /**
@@ -697,6 +801,24 @@ async function handleSubscriptionEventsHistory(fnGetContainer, req, res) {
                     severity: 'error',
                     code: 'not-found',
                     diagnostics: `Subscription/${subscriptionId} not found`
+                }]
+            });
+            return;
+        }
+
+        // Verify user has access to this subscription (IDOR prevention)
+        const { authorized, clientId } = _verifySubscriptionAccess(subscription, req);
+        if (!authorized) {
+            logger.warn('SSE: Unauthorized access attempt to subscription events history', {
+                subscriptionId,
+                clientId
+            });
+            res.status(403).json({
+                resourceType: 'OperationOutcome',
+                issue: [{
+                    severity: 'error',
+                    code: 'forbidden',
+                    diagnostics: 'User does not have permission to access this subscription'
                 }]
             });
             return;
