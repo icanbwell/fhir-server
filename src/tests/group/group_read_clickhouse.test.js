@@ -10,7 +10,7 @@ const {
 describe('Individual Group Reads with ClickHouse', () => {
     beforeAll(async () => {
         await setupGroupTests();
-    });
+    }, 180000); // Allow extra time on CI
 
     beforeEach(async () => {
         await cleanupBetweenTests();

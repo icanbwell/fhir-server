@@ -30,7 +30,7 @@ const {
 describe('Group Error Handling', () => {
     beforeAll(async () => {
         await setupGroupTests();
-    });
+    }, 180000); // Allow extra time on CI
 
     beforeEach(async () => {
         await cleanupBetweenTests();

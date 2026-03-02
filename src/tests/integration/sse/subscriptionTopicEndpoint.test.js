@@ -2,14 +2,10 @@
  * Integration tests for SSE Subscription endpoint handlers
  */
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, getTestContainer } = require('../../common');
-const supertest = require('supertest');
-const { createApp } = require('../../../app');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
 
 // Mock SSE services
 jest.mock('../../../services/sseConnectionManager', () => {
-    const mockConnections = new Map();
-
     return {
         getSSEConnectionManager: () => ({
             registerConnection: jest.fn().mockReturnValue({
@@ -32,23 +28,16 @@ jest.mock('../../../services/sseConnectionManager', () => {
 });
 
 describe('SSE Subscription Endpoint Integration Tests', () => {
-    let app;
-    let testContainer;
+    let request;
 
     beforeEach(async () => {
         await commonBeforeEach();
-        testContainer = getTestContainer();
-
-        // Enable SSE subscriptions in test config
-        // Handle different container structures
-        const configManager = testContainer?.configManager ??
-            (typeof testContainer?.resolve === 'function' ? testContainer.resolve('configManager') : undefined);
-
-        if (configManager) {
-            configManager.enableSSESubscriptions = true;
-        }
-
-        app = createApp({ fnGetContainer: () => testContainer });
+        // Use createTestRequest to properly set up the container and app
+        request = await createTestRequest((c) => {
+            // Enable SSE subscriptions in test config
+            c.configManager.enableSSESubscriptions = true;
+            return c;
+        });
     });
 
     afterEach(async () => {
@@ -57,7 +46,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
 
     describe('GET /4_0_0/SubscriptionTopic', () => {
         test('should return list of subscription topics', async () => {
-            const response = await supertest(app)
+            const response = await request
                 .get('/4_0_0/SubscriptionTopic')
                 .set('Accept', 'application/fhir+json');
 
@@ -68,7 +57,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
         });
 
         test('should filter topics by URL', async () => {
-            const response = await supertest(app)
+            const response = await request
                 .get('/4_0_0/SubscriptionTopic')
                 .query({ url: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes' })
                 .set('Accept', 'application/fhir+json');
@@ -81,7 +70,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
 
     describe('GET /4_0_0/SubscriptionTopic/:id', () => {
         test('should return specific subscription topic', async () => {
-            const response = await supertest(app)
+            const response = await request
                 .get('/4_0_0/SubscriptionTopic/patient-changes')
                 .set('Accept', 'application/fhir+json');
 
@@ -91,7 +80,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
         });
 
         test('should return 404 for unknown topic', async () => {
-            const response = await supertest(app)
+            const response = await request
                 .get('/4_0_0/SubscriptionTopic/unknown-topic')
                 .set('Accept', 'application/fhir+json');
 

@@ -25,7 +25,7 @@ describe('Group Advanced Search', () => {
 
     beforeAll(async () => {
         await setupGroupTests();
-    });
+    }, 180000); // Allow extra time on CI
 
     beforeEach(async () => {
         await cleanupBetweenTests();

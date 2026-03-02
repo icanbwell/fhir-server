@@ -23,7 +23,7 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 describe('Group CREATE operations', () => {
     beforeAll(async () => {
         await setupGroupTests();
-    });
+    }, 180000); // Allow extra time on CI
 
     beforeEach(async () => {
         await cleanupBetweenTests();

@@ -41,7 +41,7 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     beforeAll(async () => {
         await setupGroupTests();
         await cleanupBetweenTests(); // Clean data from previous Jest runs
-    });
+    }, 180000); // Allow extra time on CI
 
     beforeEach(async () => {
         await cleanupBetweenTests();

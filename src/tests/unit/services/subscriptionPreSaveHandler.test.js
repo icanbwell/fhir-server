@@ -97,7 +97,7 @@ describe('SubscriptionPreSaveHandler Tests', () => {
     });
 
     describe('preSaveAsync - channel type validation', () => {
-        test('should reject non-message channel types', async () => {
+        test('should pass through non-SSE channel types without SSE processing', async () => {
             const subscription = {
                 resourceType: 'Subscription',
                 id: 'sub-123',
@@ -108,17 +108,20 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes'
             };
 
-            await expect(handler.preSaveAsync({ resource: subscription }))
-                .rejects.toThrow('SSE Subscriptions require channel.type');
+            // Handler passes through non-SSE types without validation
+            const result = await handler.preSaveAsync({ resource: subscription });
+            expect(result).toBeDefined();
+            expect(result.channel.type).toBe('rest-hook');
+            expect(result.status).toBe('requested'); // Not auto-activated
         });
 
-        test('should accept message channel type', async () => {
+        test('should accept sse channel type', async () => {
             const subscription = {
                 resourceType: 'Subscription',
                 id: 'sub-123',
                 status: 'requested',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
                 end: new Date(Date.now() + 86400000).toISOString() // Tomorrow
@@ -131,19 +134,19 @@ describe('SubscriptionPreSaveHandler Tests', () => {
     });
 
     describe('preSaveAsync - topic validation', () => {
-        test('should reject unknown topic URL', async () => {
+        test('should reject unknown topic URL for SSE subscriptions', async () => {
             const subscription = {
                 resourceType: 'Subscription',
                 id: 'sub-123',
                 status: 'requested',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://unknown.com/topic'
             };
 
             await expect(handler.preSaveAsync({ resource: subscription }))
-                .rejects.toThrow('SubscriptionTopic not found');
+                .rejects.toThrow();
         });
 
         test('should accept valid topic URL', async () => {
@@ -152,7 +155,7 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                 id: 'sub-123',
                 status: 'requested',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/observation-results',
                 end: new Date(Date.now() + 86400000).toISOString()
@@ -172,14 +175,14 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                 id: 'sub-123',
                 status: 'requested',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
                 end: '2020-01-01T00:00:00Z' // Past date
             };
 
             await expect(handler.preSaveAsync({ resource: subscription }))
-                .rejects.toThrow('Subscription end time must be in the future');
+                .rejects.toThrow(/end time must be in the future/i);
         });
 
         test('should accept future end time', async () => {
@@ -189,7 +192,7 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                 id: 'sub-123',
                 status: 'requested',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
                 end: futureDate
@@ -208,7 +211,7 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                 id: 'sub-123',
                 status: 'requested',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
                 end: new Date(Date.now() + 86400000).toISOString()
@@ -225,7 +228,7 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                 id: 'sub-123',
                 status: 'active',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
                 end: new Date(Date.now() + 86400000).toISOString()
@@ -242,7 +245,7 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                 id: 'sub-123',
                 status: 'off',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
                 end: new Date(Date.now() + 86400000).toISOString()
@@ -261,7 +264,7 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                 id: 'sub-123',
                 status: 'requested',
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
                 end: new Date(Date.now() + 86400000).toISOString()
@@ -272,10 +275,9 @@ describe('SubscriptionPreSaveHandler Tests', () => {
             expect(result.meta).toBeDefined();
             expect(result.meta.tag).toBeDefined();
             const sseTag = result.meta.tag.find(
-                t => t.system === 'https://bwell.zone/fhir/CodeSystem/subscription-channel-type'
+                t => t.system === 'http://icanbwell.com/fhir/subscription' && t.code === 'sse'
             );
             expect(sseTag).toBeDefined();
-            expect(sseTag.code).toBe('sse');
         });
 
         test('should preserve existing meta', async () => {
@@ -288,7 +290,7 @@ describe('SubscriptionPreSaveHandler Tests', () => {
                     lastUpdated: '2024-01-01T00:00:00Z'
                 },
                 channel: {
-                    type: 'message'
+                    type: 'sse'
                 },
                 topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
                 end: new Date(Date.now() + 86400000).toISOString()

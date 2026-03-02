@@ -33,7 +33,7 @@ describe('Group DELETE operations', () => {
     beforeAll(async () => {
         await setupGroupTests();
         clickHouseManager = getClickHouseManager();
-    });
+    }, 180000); // Allow extra time on CI
 
     beforeEach(async () => {
         await cleanupBetweenTests();

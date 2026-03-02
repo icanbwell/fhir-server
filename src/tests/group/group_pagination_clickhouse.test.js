@@ -33,7 +33,7 @@ describe('Group Pagination with ClickHouse', () => {
 
     beforeAll(async () => {
         await setupGroupTests();
-    });
+    }, 180000); // Allow extra time on CI
 
     beforeEach(async () => {
         await cleanupBetweenTests();

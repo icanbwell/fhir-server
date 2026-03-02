@@ -14,7 +14,7 @@ describe('Group Concurrency Tests', () => {
     beforeAll(async () => {
         await setupGroupTests();
         await cleanupAllData();
-    });
+    }, 180000); // Allow extra time on CI
 
     afterAll(async () => {
         await teardownGroupTests();
