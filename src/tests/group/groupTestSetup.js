@@ -133,7 +133,8 @@ async function setupGroupTests() {
             // Wait for ClickHouse to be ready
             // In CI, ClickHouse service should be running (GitHub Actions service)
             // Locally, ensureClickHouse() would have started it
-            await waitForClickHouse(sharedClickHouseManager, 30000);
+            const clickHouseTimeout = process.env.CI ? 120000 : 30000;
+            await waitForClickHouse(sharedClickHouseManager, clickHouseTimeout);
 
             // Initialize schema
             await initializeClickHouseSchema(sharedClickHouseManager);

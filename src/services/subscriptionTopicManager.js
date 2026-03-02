@@ -17,8 +17,8 @@ const logger = getLogger();
 const SUBSCRIPTION_TOPIC_FIXTURES = [
     {
         resourceType: 'SubscriptionTopic',
-        id: 'patient-create-update',
-        url: 'http://icanbwell.com/fhir/SubscriptionTopic/patient-create-update',
+        id: 'patient-changes',
+        url: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes',
         version: '1.0.0',
         name: 'PatientCreateUpdate',
         title: 'Patient Create and Update',
@@ -61,8 +61,8 @@ const SUBSCRIPTION_TOPIC_FIXTURES = [
     },
     {
         resourceType: 'SubscriptionTopic',
-        id: 'observation-create-update',
-        url: 'http://icanbwell.com/fhir/SubscriptionTopic/observation-create-update',
+        id: 'observation-results',
+        url: 'https://bwell.zone/fhir/SubscriptionTopic/observation-results',
         version: '1.0.0',
         name: 'ObservationCreateUpdate',
         title: 'Observation Create and Update',
@@ -111,8 +111,8 @@ const SUBSCRIPTION_TOPIC_FIXTURES = [
     },
     {
         resourceType: 'SubscriptionTopic',
-        id: 'encounter-create-update',
-        url: 'http://icanbwell.com/fhir/SubscriptionTopic/encounter-create-update',
+        id: 'encounter-events',
+        url: 'https://bwell.zone/fhir/SubscriptionTopic/encounter-events',
         version: '1.0.0',
         name: 'EncounterCreateUpdate',
         title: 'Encounter Create and Update',
@@ -156,7 +156,7 @@ const SUBSCRIPTION_TOPIC_FIXTURES = [
     {
         resourceType: 'SubscriptionTopic',
         id: 'all-resources',
-        url: 'http://icanbwell.com/fhir/SubscriptionTopic/all-resources',
+        url: 'https://bwell.zone/fhir/SubscriptionTopic/all-resources',
         version: '1.0.0',
         name: 'AllResources',
         title: 'All Resource Changes',

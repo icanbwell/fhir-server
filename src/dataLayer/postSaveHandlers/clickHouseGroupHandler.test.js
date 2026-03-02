@@ -148,7 +148,8 @@ describe('ClickHouseGroupHandler', () => {
                         versionId: '1',
                         lastUpdated: '2024-01-01T00:00:00Z'
                     }
-                }
+                },
+                contextData: { groupMembers: members }
             })).rejects.toThrow();
         });
     });
