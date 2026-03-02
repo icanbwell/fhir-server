@@ -6,7 +6,10 @@
 process.env.ENABLE_SSE_SUBSCRIPTIONS = 'true';
 
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getTestContainer } = require('../../common');
+const { createTestContainer } = require('../../createTestContainer');
+const { createApp } = require('../../../app');
+const supertest = require('supertest');
 
 // Mock SSE services
 jest.mock('../../../services/sseConnectionManager', () => {
@@ -33,15 +36,38 @@ jest.mock('../../../services/sseConnectionManager', () => {
 
 describe('SSE Subscription Endpoint Integration Tests', () => {
     let request;
+    let testContainer;
 
     beforeEach(async () => {
         await commonBeforeEach();
-        // Use createTestRequest to properly set up the container and app
-        request = await createTestRequest();
+
+        // Create a fresh container with sseEventDispatcher mocked BEFORE creating the app
+        testContainer = createTestContainer((c) => {
+            // Override sseEventDispatcher to return a mock that doesn't require real RedisClient
+            c.register('sseEventDispatcher', () => ({
+                initializeAsync: jest.fn().mockResolvedValue(undefined),
+                publishEvent: jest.fn().mockResolvedValue(undefined),
+                shutdown: jest.fn().mockResolvedValue(undefined)
+            }));
+            // Also override subscriptionKafkaConsumer since it depends on sseEventDispatcher
+            c.register('subscriptionKafkaConsumer', () => null);
+            return c;
+        });
+
+        // Create fresh app with our mocked container
+        const app = createApp({ fnGetContainer: () => testContainer, trackMetrics: false });
+        request = supertest(app);
     });
 
     afterEach(async () => {
-        await commonAfterEach();
+        // Clean up container resources
+        if (testContainer) {
+            const postRequestProcessor = testContainer.postRequestProcessor;
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
+            await testContainer.mongoDatabaseManager.dropDatabasesAsync();
+            const requestSpecificCache = testContainer.requestSpecificCache;
+            await requestSpecificCache.clearAllAsync();
+        }
     });
 
     describe('GET /4_0_0/SubscriptionTopic', () => {

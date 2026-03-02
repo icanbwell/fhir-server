@@ -108,6 +108,7 @@ services:
       SSE_HEARTBEAT_INTERVAL_MS: '30000'
       SSE_CONNECTION_TIMEOUT_MS: '86400000'
       SSE_REPLAY_LIMIT: '1000'
+      SUBSCRIPTION_EVENT_RETENTION_DAYS: '30'
       # ClickHouse configuration
       ENABLE_CLICKHOUSE: '1'
       CLICKHOUSE_HOST: 'clickhouse'

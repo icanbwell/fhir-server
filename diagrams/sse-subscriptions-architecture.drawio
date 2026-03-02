@@ -1,0 +1,136 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.6 Chrome/140.0.7339.249 Electron/38.8.0 Safari/537.36" version="29.3.6">
+  <diagram name="SSE Subscriptions Flow" id="sse-simple">
+    <mxGraphModel dx="1473" dy="812" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#333333;" value="SSE FHIR Subscriptions - Data Flow" vertex="1">
+          <mxGeometry height="30" width="400" x="350" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=18;fontColor=#0066CC;fontStyle=1;" value="①" vertex="1">
+          <mxGeometry height="30" width="30" x="160" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=18;fontColor=#0066CC;fontStyle=1;" value="②" vertex="1">
+          <mxGeometry height="30" width="30" x="160" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=18;fontColor=#0066CC;fontStyle=1;" value="③" vertex="1">
+          <mxGeometry height="30" width="30" x="460" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=18;fontColor=#0066CC;fontStyle=1;" value="④" vertex="1">
+          <mxGeometry height="30" width="30" x="760" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=18;fontColor=#0066CC;fontStyle=1;" value="⑤" vertex="1">
+          <mxGeometry height="30" width="30" x="460" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="client" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;verticalAlign=middle;" value="FHIR Client" vertex="1">
+          <mxGeometry height="60" width="120" x="60" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="fhir-server" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;verticalAlign=middle;" value="FHIR Server&#xa;(Express.js)" vertex="1">
+          <mxGeometry height="60" width="140" x="280" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-mgr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;verticalAlign=middle;" value="SSE Connection&#xa;Manager" vertex="1">
+          <mxGeometry height="60" width="130" x="500" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kafka" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1;verticalAlign=middle;" value="Kafka" vertex="1">
+          <mxGeometry height="60" width="120" x="60" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="consumer" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;verticalAlign=middle;" value="Kafka Consumer&#xa;Service" vertex="1">
+          <mxGeometry height="60" width="140" x="280" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="matcher" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;verticalAlign=middle;" value="Subscription&#xa;Matcher" vertex="1">
+          <mxGeometry height="60" width="130" x="500" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="mongodb" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" value="MongoDB&#xa;(Subscriptions)" vertex="1">
+          <mxGeometry height="80" width="100" x="720" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="clickhouse" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;" value="ClickHouse&#xa;(Event Replay)" vertex="1">
+          <mxGeometry height="80" width="100" x="880" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="flow1" edge="1" parent="1" source="client" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0066CC;strokeWidth=2;endArrow=classic;" target="fhir-server">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow1-label" connectable="0" parent="flow1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#0066CC;" value="Connect SSE" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow2" edge="1" parent="1" source="fhir-server" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0066CC;strokeWidth=2;endArrow=classic;" target="conn-mgr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow2-label" connectable="0" parent="flow2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#0066CC;" value="Register" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow3" edge="1" parent="1" source="kafka" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=2;endArrow=classic;" target="consumer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow3-label" connectable="0" parent="flow3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#9673a6;" value="FHIR Events" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow4" edge="1" parent="1" source="consumer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=2;endArrow=classic;" target="matcher">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow4-label" connectable="0" parent="flow4" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#b85450;" value="Match?" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow5" edge="1" parent="1" source="matcher" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6c8ebf;strokeWidth=2;endArrow=classic;" target="mongodb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow5-label" connectable="0" parent="flow5" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#6c8ebf;" value="Query" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow6" edge="1" parent="1" source="consumer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=2;endArrow=classic;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="clickhouse">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="380" />
+              <mxPoint x="850" y="380" />
+              <mxPoint x="850" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow6-label" connectable="0" parent="flow6" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#d79b00;" value="Store (for replay)" vertex="1">
+          <mxGeometry relative="1" x="0.3" as="geometry">
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow7" edge="1" parent="1" source="matcher" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=2;endArrow=classic;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="conn-mgr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow7-label" connectable="0" parent="flow7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#82b366;" value="Broadcast" vertex="1">
+          <mxGeometry relative="1" x="-0.2" as="geometry">
+            <mxPoint x="25" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow8" edge="1" parent="1" source="conn-mgr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#82b366;strokeWidth=3;endArrow=classic;dashed=1;dashPattern=8 4;" target="client">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="565" y="180" />
+              <mxPoint x="120" y="180" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow8-label" connectable="0" parent="flow8" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;fontColor=#82b366;fontStyle=1;" value="SSE Push Event" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="steps-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;" value="" vertex="1">
+          <mxGeometry height="130" width="920" x="60" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="steps-title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#333333;" value="Flow Steps:" vertex="1">
+          <mxGeometry height="20" width="100" x="80" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="steps-text" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#333333;spacingLeft=5;" value="① Client connects to SSE endpoint: GET /4_0_0/$subscription-events/:subscriptionId&#xa;② FHIR Server registers the connection with SSE Connection Manager&#xa;③ Kafka Consumer receives FHIR resource change events from Kafka topics&#xa;④ Subscription Matcher checks if event matches any active subscription criteria (queries MongoDB)&#xa;⑤ If matched, event is broadcast to all connected clients via SSE Connection Manager&#xa;&#xa;Replay: On reconnect, client sends Last-Event-ID → Server replays missed events from ClickHouse" vertex="1">
+          <mxGeometry height="90" width="880" x="80" y="475" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

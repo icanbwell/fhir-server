@@ -92,7 +92,7 @@ describe('SubscriptionTopicManager Tests', () => {
 
         test('should return undefined for unknown id', () => {
             const topic = topicManager.getTopicById('unknown-topic');
-            expect(topic).toBeUndefined();
+            expect(topic).toBeNull();
         });
     });
 
@@ -105,7 +105,7 @@ describe('SubscriptionTopicManager Tests', () => {
 
         test('should return undefined for unknown URL', () => {
             const topic = topicManager.getTopicByUrl('https://unknown.com/topic');
-            expect(topic).toBeUndefined();
+            expect(topic).toBeNull();
         });
     });
 

@@ -6,6 +6,8 @@ const { createTestContainer } = require('../../createTestContainer');
 const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 const Consent = require('../../../fhir/classes/4_0_0/resources/consent');
+const Group = require('../../../fhir/classes/4_0_0/resources/group');
+const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
 const { Collection, MongoInvalidArgumentError } = require('mongodb');
 const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
 const { MONGO_ERROR } = require('../../../constants');
@@ -349,12 +351,14 @@ describe('databaseBulkInserter Tests', () => {
                 [
                     'Group resource with contextData',
                     'Group',
-                    {
+                    () => new Group({
                         id: 'group-1',
                         resourceType: 'Group',
+                        type: 'person',
+                        actual: true,
                         member: [{ entity: { reference: 'Patient/1' } }],
                         meta: { versionId: '1' }
-                    },
+                    }),
                     {
                         groupMembers: [{ entity: { reference: 'Patient/1' } }],
                         resourceType: 'Group',
@@ -365,31 +369,34 @@ describe('databaseBulkInserter Tests', () => {
                 [
                     'Group resource without contextData',
                     'Group',
-                    {
+                    () => new Group({
                         id: 'group-2',
                         resourceType: 'Group',
+                        type: 'person',
+                        actual: true,
                         member: [{ entity: { reference: 'Patient/2' } }],
                         meta: { versionId: '1' }
-                    },
+                    }),
                     null,
                     false
                 ],
                 [
                     'Patient resource with contextData null',
                     'Patient',
-                    {
+                    () => new Patient({
                         id: 'patient-1',
                         resourceType: 'Patient',
                         meta: { versionId: '1' }
-                    },
+                    }),
                     null,
                     false
                 ]
-            ])('%s', async (_, resourceType, doc, contextData, shouldStripMember) => {
+            ])('%s', async (_, resourceType, docFactory, contextData, shouldStripMember) => {
                 const container = createTestContainer();
                 const databaseBulkInserter = container.databaseBulkInserter;
                 const requestId = '1234';
                 const requestInfo = getTestRequestInfo({ requestId });
+                const doc = docFactory();
 
                 await databaseBulkInserter.insertOneAsync({
                     base_version,

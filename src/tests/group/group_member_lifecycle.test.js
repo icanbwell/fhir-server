@@ -2,6 +2,7 @@
 const { describe, beforeAll, afterAll, beforeEach, test, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
+const { isClickHouseAvailable } = require('./groupTestSetup');
 
 // Enable ClickHouse for this test
 process.env.ENABLE_CLICKHOUSE = '1';
@@ -18,7 +19,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     let clickHouseAvailable = false;
 
     // CI can be slow, increase default timeout
-    const defaultWaitMs = process.env.CI ? 90000 : 30000;
+    const defaultWaitMs = process.env.CI ? 60000 : 30000;
 
     /**
      * Waits for ClickHouse to be ready
@@ -124,7 +125,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
 
         // Ensure schema is initialized
         await initializeClickHouseSchema(sharedClickHouseManager);
-    });
+    }, 120000); // 120 second timeout for ClickHouse initialization
 
     afterAll(async () => {
         // Close shared manager

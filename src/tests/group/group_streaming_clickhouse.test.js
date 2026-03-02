@@ -121,7 +121,7 @@ describe('Group Streaming with ClickHouse', () => {
         } catch (e) {
             // Ignore if table doesn't exist
         }
-    });
+    }, 120000); // 120 second timeout for ClickHouse initialization
 
     afterAll(async () => {
         if (clickHouseManager) {
