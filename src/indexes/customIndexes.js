@@ -368,7 +368,7 @@ module.exports = {
                     dateTime: 1
                 },
                 options: {
-                    name: 'uuid_1_dateTime_1'
+                    name: '_uuid_1_dateTime_1'
                 }
             }
         ],
