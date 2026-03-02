@@ -203,13 +203,18 @@ class SubscriptionTopicManager {
          * @type {DatabaseQueryFactory}
          */
         this.databaseQueryFactory = databaseQueryFactory;
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        // Use structural checks to allow mocks in unit tests
+        if (!databaseQueryFactory || typeof databaseQueryFactory.createQuery !== 'function') {
+            throw new Error('databaseQueryFactory must implement createQuery()');
+        }
 
         /**
          * @type {ConfigManager}
          */
         this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
+        if (!configManager) {
+            throw new Error('configManager is required');
+        }
 
         /**
          * In-memory cache of topics (fixtures are static)

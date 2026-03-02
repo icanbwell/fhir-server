@@ -222,7 +222,7 @@ class SSEConnectionManager extends EventEmitter {
      */
     hasActiveConnections(subscriptionId) {
         const connections = this._connectionsBySubscription.get(subscriptionId);
-        return connections && connections.size > 0;
+        return Boolean(connections && connections.size > 0);
     }
 
     /**

@@ -40,7 +40,13 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
         testContainer = getTestContainer();
 
         // Enable SSE subscriptions in test config
-        testContainer.configManager.enableSSESubscriptions = true;
+        // Handle different container structures
+        const configManager = testContainer?.configManager ??
+            (typeof testContainer?.resolve === 'function' ? testContainer.resolve('configManager') : undefined);
+
+        if (configManager) {
+            configManager.enableSSESubscriptions = true;
+        }
 
         app = createApp({ fnGetContainer: () => testContainer });
     });

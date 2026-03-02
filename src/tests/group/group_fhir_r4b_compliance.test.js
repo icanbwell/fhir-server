@@ -28,7 +28,10 @@ const path = require('path');
 describe('FHIR R4B Group Compliance with ClickHouse', () => {
     let clickHouseManager;
 
-    async function waitForClickHouse(manager, maxWaitMs = 30000) {
+    // CI can be slow, increase default timeout
+    const defaultWaitMs = process.env.CI ? 90000 : 30000;
+
+    async function waitForClickHouse(manager, maxWaitMs = defaultWaitMs) {
         const startTime = Date.now();
         while (Date.now() - startTime < maxWaitMs) {
             try {

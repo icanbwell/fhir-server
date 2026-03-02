@@ -37,7 +37,10 @@ let setupPromise = null;
 /**
  * Waits for ClickHouse to be ready with exponential backoff
  */
-async function waitForClickHouse(manager, maxWaitMs = 30000) {
+// CI can be slow, increase default timeout
+const defaultWaitMs = process.env.CI ? 90000 : 30000;
+
+async function waitForClickHouse(manager, maxWaitMs = defaultWaitMs) {
     const startTime = Date.now();
     let attempt = 0;
     let delay = 100; // Start with 100ms
@@ -133,7 +136,8 @@ async function setupGroupTests() {
             // Wait for ClickHouse to be ready
             // In CI, ClickHouse service should be running (GitHub Actions service)
             // Locally, ensureClickHouse() would have started it
-            const clickHouseTimeout = process.env.CI ? 120000 : 30000;
+            // CI can take longer to become healthy even after /ping responds
+            const clickHouseTimeout = process.env.CI ? 90000 : 30000;
             await waitForClickHouse(sharedClickHouseManager, clickHouseTimeout);
 
             // Initialize schema

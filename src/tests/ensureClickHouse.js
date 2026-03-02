@@ -3,6 +3,19 @@ const { ClickHouseClientManager } = require('../utils/clickHouseClientManager');
 const { ConfigManager } = require('../utils/configManager');
 
 /**
+ * Get the docker compose command (v2 plugin preferred over v1 standalone)
+ * @returns {string}
+ */
+function getDockerComposeCommand() {
+    try {
+        execSync('docker compose version', { stdio: 'ignore' });
+        return 'docker compose';
+    } catch {
+        return 'docker-compose';
+    }
+}
+
+/**
  * Checks if ClickHouse container is running
  * @returns {boolean}
  */
@@ -27,7 +40,7 @@ async function startClickHouse(maxWaitMs = 60000) {
     console.log('Starting ClickHouse container...');
 
     try {
-        execSync('docker-compose up -d clickhouse', {
+        execSync(`${getDockerComposeCommand()} up -d clickhouse`, {
             stdio: 'inherit',
             cwd: process.cwd()
         });
@@ -106,7 +119,7 @@ async function ensureClickHouse(options = {}) {
 function stopClickHouse() {
     console.log('Stopping ClickHouse container...');
     try {
-        execSync('docker-compose stop clickhouse', {
+        execSync(`${getDockerComposeCommand()} stop clickhouse`, {
             stdio: 'inherit',
             cwd: process.cwd()
         });

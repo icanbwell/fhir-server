@@ -16,10 +16,13 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     let requestId;
     let sharedClickHouseManager;
 
+    // CI can be slow, increase default timeout
+    const defaultWaitMs = process.env.CI ? 90000 : 30000;
+
     /**
      * Waits for ClickHouse to be ready
      */
-    async function waitForClickHouse(manager, maxWaitMs = 30000) {
+    async function waitForClickHouse(manager, maxWaitMs = defaultWaitMs) {
         const startTime = Date.now();
         let attempt = 0;
 

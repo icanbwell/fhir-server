@@ -18,8 +18,11 @@ class SubscriptionExpirationProcessor {
      * @param {ConstructorParams} params
      */
     constructor({ databaseQueryFactory, configManager }) {
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        assertTypeEquals(configManager, ConfigManager);
+        // Use structural checks to allow mocks in unit tests
+        assertIsValid(databaseQueryFactory, 'databaseQueryFactory is required');
+        assertIsValid(typeof databaseQueryFactory.createQuery === 'function', 'databaseQueryFactory.createQuery is required');
+
+        assertIsValid(configManager, 'configManager is required');
 
         /**
          * @type {DatabaseQueryFactory}
