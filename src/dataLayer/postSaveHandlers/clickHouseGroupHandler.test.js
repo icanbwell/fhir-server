@@ -111,7 +111,8 @@ describe('ClickHouseGroupHandler', () => {
                         versionId: '1',
                         lastUpdated: '2024-01-01T00:00:00Z'
                     }
-                }
+                },
+                contextData: { groupMembers: members }
             });
 
             expect(mockGroupMemberRepository.appendEvents).toHaveBeenCalled();
@@ -195,7 +196,7 @@ describe('ClickHouseGroupHandler', () => {
 
             await handler.afterSaveAsync({
                 requestId: 'req-1',
-                eventType: 'C',
+                eventType: OPERATION_TYPES.CREATE,
                 resourceType: 'Group',
                 doc: {
                     id: groupId,
@@ -209,7 +210,8 @@ describe('ClickHouseGroupHandler', () => {
                         versionId: '1',
                         lastUpdated: '2024-01-01T00:00:00Z'
                     }
-                }
+                },
+                contextData: { groupMembers: members }
             });
 
             expect(writeCompleted).toBe(true);
