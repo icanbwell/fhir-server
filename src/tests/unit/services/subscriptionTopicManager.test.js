@@ -124,10 +124,12 @@ describe('SubscriptionTopicManager Tests', () => {
         });
 
         test('should filter by resource type', () => {
+            // Note: searchTopics uses 'resource' param, not 'resource-type'
             const topics = topicManager.searchTopics({
-                'resource-type': 'Patient'
+                resource: 'Patient'
             });
-            expect(topics.length).toBe(2); // patient-changes and all-resources
+            // patient-changes and all-resources (which matches any resource)
+            expect(topics.length).toBe(2);
         });
 
         test('should filter by status', () => {
@@ -147,24 +149,28 @@ describe('SubscriptionTopicManager Tests', () => {
 
     describe('validateSubscriptionTopic', () => {
         test('should validate a known topic URL', () => {
-            const result = topicManager.validateSubscriptionTopic(
-                'https://bwell.zone/fhir/SubscriptionTopic/patient-changes'
-            );
+            // validateSubscriptionTopic expects a subscription object with topic/criteria property
+            const result = topicManager.validateSubscriptionTopic({
+                topic: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes'
+            });
             expect(result.valid).toBe(true);
             expect(result.topic).toBeDefined();
         });
 
         test('should reject unknown topic URL', () => {
-            const result = topicManager.validateSubscriptionTopic(
-                'https://unknown.com/topic'
-            );
+            // validateSubscriptionTopic expects a subscription object with topic/criteria property
+            const result = topicManager.validateSubscriptionTopic({
+                topic: 'https://unknown.com/topic'
+            });
             expect(result.valid).toBe(false);
-            expect(result.error).toContain('SubscriptionTopic not found');
+            expect(result.error).toContain('Unknown SubscriptionTopic');
         });
 
         test('should reject empty topic URL', () => {
-            const result = topicManager.validateSubscriptionTopic('');
+            // validateSubscriptionTopic expects a subscription object
+            const result = topicManager.validateSubscriptionTopic({});
             expect(result.valid).toBe(false);
+            expect(result.error).toContain('Subscription must specify a topic URL or criteria');
         });
     });
 

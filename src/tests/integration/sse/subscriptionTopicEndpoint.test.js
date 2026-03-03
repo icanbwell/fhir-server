@@ -6,7 +6,7 @@
 process.env.ENABLE_SSE_SUBSCRIPTIONS = 'true';
 
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, getTestContainer } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const { createApp } = require('../../../app');
 const supertest = require('supertest');
@@ -74,7 +74,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
         test('should return list of subscription topics', async () => {
             const response = await request
                 .get('/4_0_0/SubscriptionTopic')
-                .set('Accept', 'application/fhir+json');
+                .set(getHeaders());
 
             expect(response.status).toBe(200);
             expect(response.body.resourceType).toBe('Bundle');
@@ -86,7 +86,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
             const response = await request
                 .get('/4_0_0/SubscriptionTopic')
                 .query({ url: 'https://bwell.zone/fhir/SubscriptionTopic/patient-changes' })
-                .set('Accept', 'application/fhir+json');
+                .set(getHeaders());
 
             expect(response.status).toBe(200);
             expect(response.body.total).toBe(1);
@@ -98,7 +98,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
         test('should return specific subscription topic', async () => {
             const response = await request
                 .get('/4_0_0/SubscriptionTopic/patient-changes')
-                .set('Accept', 'application/fhir+json');
+                .set(getHeaders());
 
             expect(response.status).toBe(200);
             expect(response.body.resourceType).toBe('SubscriptionTopic');
@@ -108,7 +108,7 @@ describe('SSE Subscription Endpoint Integration Tests', () => {
         test('should return 404 for unknown topic', async () => {
             const response = await request
                 .get('/4_0_0/SubscriptionTopic/unknown-topic')
-                .set('Accept', 'application/fhir+json');
+                .set(getHeaders());
 
             expect(response.status).toBe(404);
             expect(response.body.resourceType).toBe('OperationOutcome');

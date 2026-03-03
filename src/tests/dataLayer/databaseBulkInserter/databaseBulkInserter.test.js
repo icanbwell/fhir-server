@@ -357,7 +357,13 @@ describe('databaseBulkInserter Tests', () => {
                         type: 'person',
                         actual: true,
                         member: [{ entity: { reference: 'Patient/1' } }],
-                        meta: { versionId: '1' }
+                        meta: {
+                            versionId: '1',
+                            security: [
+                                { system: 'https://www.icanbwell.com/access', code: 'bwell' },
+                                { system: 'https://www.icanbwell.com/owner', code: 'bwell' }
+                            ]
+                        }
                     }),
                     {
                         groupMembers: [{ entity: { reference: 'Patient/1' } }],
@@ -375,7 +381,13 @@ describe('databaseBulkInserter Tests', () => {
                         type: 'person',
                         actual: true,
                         member: [{ entity: { reference: 'Patient/2' } }],
-                        meta: { versionId: '1' }
+                        meta: {
+                            versionId: '1',
+                            security: [
+                                { system: 'https://www.icanbwell.com/access', code: 'bwell' },
+                                { system: 'https://www.icanbwell.com/owner', code: 'bwell' }
+                            ]
+                        }
                     }),
                     null,
                     false
@@ -386,7 +398,13 @@ describe('databaseBulkInserter Tests', () => {
                     () => new Patient({
                         id: 'patient-1',
                         resourceType: 'Patient',
-                        meta: { versionId: '1' }
+                        meta: {
+                            versionId: '1',
+                            security: [
+                                { system: 'https://www.icanbwell.com/access', code: 'bwell' },
+                                { system: 'https://www.icanbwell.com/owner', code: 'bwell' }
+                            ]
+                        }
                     }),
                     null,
                     false
@@ -394,6 +412,11 @@ describe('databaseBulkInserter Tests', () => {
             ])('%s', async (_, resourceType, docFactory, contextData, shouldStripMember) => {
                 const container = createTestContainer();
                 const databaseBulkInserter = container.databaseBulkInserter;
+                /**
+                 * @type {MongoDatabaseManager}
+                 */
+                const mongoDatabaseManager = container.mongoDatabaseManager;
+                const fhirDb = await mongoDatabaseManager.getClientDbAsync();
                 const requestId = '1234';
                 const requestInfo = getTestRequestInfo({ requestId });
                 const doc = docFactory();
@@ -410,6 +433,13 @@ describe('databaseBulkInserter Tests', () => {
                     requestInfo,
                     base_version
                 });
+
+                /**
+                 * @type {PostRequestProcessor}
+                 */
+                const postRequestProcessor = container.postRequestProcessor;
+                await postRequestProcessor.executeAsync({ requestId });
+                await postRequestProcessor.waitTillDoneAsync({ requestId });
 
                 expect(mergeResults).not.toBeNull();
                 expect(mergeResults.length).toBe(1);

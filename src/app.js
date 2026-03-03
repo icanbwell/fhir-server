@@ -295,12 +295,76 @@ function createApp({fnGetContainer}) {
 
     app.use('/oauth', express.static(path.join(__dirname, 'oauth')));
 
+    /**
+     * Validates the Host header against allowed hosts whitelist
+     * @param {string} hostHeader - The Host header from the request
+     * @returns {string|null} - Validated host or null if invalid
+     */
+    const validateHostHeader = (hostHeader) => {
+        if (!hostHeader) {
+            return null;
+        }
+        // Get allowed hosts from configuration (comma-separated list)
+        const allowedHosts = (process.env.ALLOWED_HOSTS || process.env.HOST_SERVER || 'localhost')
+            .split(',')
+            .map(h => h.trim().toLowerCase());
+
+        const hostLower = hostHeader.toLowerCase().split(':')[0]; // Remove port if present
+
+        // Check if the host is in the allowed list
+        if (allowedHosts.some(allowed => hostLower === allowed || hostLower.endsWith('.' + allowed))) {
+            return hostHeader;
+        }
+        return null;
+    };
+
+    /**
+     * Validates the resource/redirect URL against allowed patterns
+     * @param {string} resourceUrl - The resource URL to validate
+     * @returns {string|null} - Validated URL or null if invalid
+     */
+    const validateResourceUrl = (resourceUrl) => {
+        if (!resourceUrl) {
+            return null;
+        }
+        // Only allow relative URLs or URLs to our own domain
+        // Reject absolute URLs to external domains (open redirect prevention)
+        if (resourceUrl.startsWith('/')) {
+            return resourceUrl; // Relative URL is safe
+        }
+        try {
+            const url = new URL(resourceUrl);
+            const allowedHosts = (process.env.ALLOWED_HOSTS || process.env.HOST_SERVER || 'localhost')
+                .split(',')
+                .map(h => h.trim().toLowerCase());
+            if (allowedHosts.some(allowed => url.hostname === allowed || url.hostname.endsWith('.' + allowed))) {
+                return resourceUrl;
+            }
+        } catch (e) {
+            // Not a valid URL, might be a resource type like "Patient"
+            // Allow simple alphanumeric strings (FHIR resource types)
+            if (/^[A-Za-z][A-Za-z0-9]*$/.test(resourceUrl)) {
+                return resourceUrl;
+            }
+        }
+        return null;
+    };
+
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
     app.get('/authcallback', (req, res) => {
         const state = req.query.state;
-        const resourceUrl = state
-            ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
-        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        const decodedResource = state
+            ? Buffer.from(state, 'base64').toString('ascii') : '';
+        const resourceUrl = validateResourceUrl(decodedResource)
+            ? encodeURIComponent(decodedResource) : '';
+
+        // Validate Host header against whitelist
+        const validatedHost = validateHostHeader(req.headers.host);
+        if (!validatedHost) {
+            return res.status(400).send('Invalid Host header');
+        }
+
+        const redirectUrl = `${httpProtocol}://${validatedHost}/authcallback`;
         res.redirect(
             `/oauth/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
             `&clientId=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
@@ -310,9 +374,24 @@ function createApp({fnGetContainer}) {
 
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
-        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+
+        // Validate the resource parameter to prevent open redirect
+        const validatedResource = validateResourceUrl(resourceUrl);
+        if (resourceUrl && !validatedResource) {
+            return res.status(400).send('Invalid resource parameter');
+        }
+
+        // Validate Host header against whitelist
+        const validatedHost = validateHostHeader(req.headers.host);
+        if (!validatedHost) {
+            return res.status(400).send('Invalid Host header');
+        }
+
+        const redirectUrl = `${httpProtocol}://${validatedHost}/authcallback`;
+        // Base64 encode the state to prevent injection
+        const state = validatedResource ? Buffer.from(validatedResource).toString('base64') : '';
         res.redirect(`${process.env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}` +
-            `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
+            `&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${state}`);
     });
 
     app.get('/health', (req, res) => handleHealthCheck(
@@ -327,8 +406,13 @@ function createApp({fnGetContainer}) {
 
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
-        const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
-        const logoutUrl = `${process.env.AUTH_CODE_FLOW_URL}/logout?client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
+        // Validate Host header against whitelist
+        const validatedHost = validateHostHeader(req.headers.host);
+        if (!validatedHost) {
+            return res.status(400).send('Invalid Host header');
+        }
+        const returnUrl = `${httpProtocol}://${validatedHost}/logout`;
+        const logoutUrl = `${process.env.AUTH_CODE_FLOW_URL}/logout?client_id=${process.env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${encodeURIComponent(returnUrl)}`;
         res.redirect(logoutUrl);
     });
 
