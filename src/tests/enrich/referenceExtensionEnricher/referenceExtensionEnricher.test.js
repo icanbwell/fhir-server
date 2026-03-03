@@ -17,7 +17,7 @@ describe('Reference Extension enricher tests', () => {
         await commonAfterEach();
     });
 
-    test('Extension enricher gives same response when extension are not present in DB', async () => {
+    test('Extension enricher gives same response when extensions are not present in DB', async () => {
         const request = await createTestRequest();
         const container = getTestContainer();
 
