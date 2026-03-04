@@ -1,7 +1,7 @@
 # icanbwell - AI Agent Instructions
 
 > **Scope:** Organization-wide baseline. Applies to all repositories in the icanbwell GitHub organization.
-> **Owner:** Enterprise Architecture (@bwell/enterprise-architecture)
+> **Owner:** Enterprise Architecture (@icanbwell/enterprise-architecture)
 > **Precedence:** This file sets the floor. Repo-level instruction files (copilot-instructions.md, CLAUDE.md) may add stricter requirements or repo-specific context but must not weaken or contradict these directives. If there is a conflict, this baseline wins. Repo-level overrides may only tighten rules, never loosen them. Any true exception to this baseline requires EA approval with documented rationale, scope, owner, JIRA ticket, and expiry date.
 
 ---
@@ -56,7 +56,7 @@ Client-facing capabilities go through the federated graph. Do not create point-t
 Tenant isolation is mandatory on every persistence model and every query path. This is a correctness constraint, not a best-effort optimization. Every read and write must enforce tenant ownership boundaries. If you are adding a new data access path, verify tenant filtering is present. If you cannot confirm it, flag it.
 
 ### No Unapproved Technology
-Do not introduce new datastores, caches, queues, search engines, observability sinks, vendors, or significant libraries without checking `approved-tech.yaml` first. The approved technology list lives in the org-level `icanbwell/.github` repository and is distributed to repos via the policy sync workflow. If the technology is not listed, the change requires a Tech Design Review with EA. Infrastructure changes go through Terraform PRs - never provide console instructions or manual steps as the solution.
+Do not introduce new datastores, caches, queues, search engines, observability sinks, vendors, or significant libraries without checking the org-wide approved-tech.yaml (https://github.com/icanbwell/.github/blob/main/policies/approved-tech.yaml) first. The approved technology list lives in the org-level `icanbwell/.github` repository and is distributed to repos via the policy sync workflow. If the technology is not listed, the change requires a Tech Design Review with EA. Infrastructure changes go through Terraform PRs - never provide console instructions or manual steps as the solution.
 
 ---
 
