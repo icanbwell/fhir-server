@@ -1,7 +1,3 @@
-const {
-    VERSIONS
-} = require('./constants');
-
 const serializerR4B = require('../../../fhir/serializers/4_0_0/resources');
 const serializerComplexTypeR4B = require('../../../fhir/serializers/4_0_0/complex_types');
 const serializersCustom = require('../../../fhir/serializers/4_0_0/custom_resources');
