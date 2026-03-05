@@ -71,7 +71,7 @@
                     {
                         "id": "sourceAssigningAuthority",
                         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                        "valueString": "bwell"
+                        "valueString": "mps-api"
                     }
                 ],
                 "reference": "Person/2"
