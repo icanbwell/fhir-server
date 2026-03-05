@@ -6,7 +6,8 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 // expected
 const expectedCompositionGet = require('./fixtures/expected/expected_composition_get.json');
 const expectedObservationGet = require('./fixtures/expected/expected_observation_get.json');
-const expectedObservationGetElements = require('./fixtures/expected/expected_observation_get_elements.json');
+const expectedObservationGetIdentifierId = require('./fixtures/expected/expected_observation_get_identifier_id.json');
+const expectedObservationGetId = require('./fixtures/expected/expected_observation_get_id.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
@@ -73,6 +74,9 @@ describe('Resource identifier enricher tests', () => {
         expect(resp).toHaveResponse(expectedObservationGet);
 
         resp = await request.get('/4_0_0/Observation?_elements=id,identifier').set(getHeaders());
-        expect(resp).toHaveResponse(expectedObservationGetElements);
+        expect(resp).toHaveResponse(expectedObservationGetIdentifierId);
+
+        resp = await request.get('/4_0_0/Observation?_elements=id').set(getHeaders());
+        expect(resp).toHaveResponse(expectedObservationGetId);
     });
 });

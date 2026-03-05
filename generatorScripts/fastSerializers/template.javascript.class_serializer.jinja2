@@ -7,11 +7,7 @@
 {% endmacro %}
 {# Collect unique types and their import info #}
 {% set imported_types = {} %}
-{% set ns = namespace(identifier_list_property=false) %}
 {% for property in fhir_entity.properties %}
-    {% if fhir_entity.is_resource and property.name == "identifier" and property.is_list %}
-        {% set ns.identifier_list_property = true %}
-    {% endif %}
     {% if property.cleaned_type != fhir_entity.cleaned_name %}
         {% if property.is_resource %}
             {% set _ = imported_types.update({property.cleaned_type: '../resources/' + lower_case_first_letter(property.type_snake_case) + '.js'}) %}
@@ -26,9 +22,6 @@
 {% endfor %}
 {% if fhir_entity.cleaned_name == "Reference" %}
 const { enrichReferenceExtension } = require('../custom_utils/referenceEnricher.js');
-{% endif %}
-{% if ns.identifier_list_property %}
-const { enrichIdentifierList } = require('../custom_utils/identifierEnricher.js');
 {% endif %}
 
 {# Generate lazy loaded imports #}
@@ -116,11 +109,6 @@ class {{ fhir_entity.cleaned_name }}Serializer {
 
         // enrich the reference extension before serialization
         enrichReferenceExtension(rawJson);
-        {% endif %}
-        {% if ns.identifier_list_property %}
-
-        // enrich the identifier list before serialization
-        enrichIdentifierList(rawJson);
         {% endif %}
 
         Object.keys(rawJson).forEach(propertyName => {

@@ -59,6 +59,7 @@ const {PreSaveManager} = require('./preSaveHandlers/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
 const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
 const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
+const {IdentifierEnrichmentProvider} = require('./enrich/providers/identifierEnrichmentProvider');
 const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
 const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
@@ -156,6 +157,7 @@ const createContainer = function () {
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
             new IdEnrichmentProvider(),
+            c.identifierEnrichmentProvider,
             new GlobalIdEnrichmentProvider(),
             new ProxyPatientReferenceEnrichmentProvider({
                 configManager: c.configManager
@@ -164,12 +166,16 @@ const createContainer = function () {
             new MetaUuidEnrichmentProvider()
         ]
     }));
+    container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
+        fhirTypesManager: c.fhirTypesManager
+    }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
             enrichmentManager: c.enrichmentManager,
-            resourceManager: c.resourceManager
+            resourceManager: c.resourceManager,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('preSaveManager', (c) => new PreSaveManager({
