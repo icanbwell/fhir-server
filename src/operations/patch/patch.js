@@ -317,7 +317,7 @@ class PatchOperation {
             // ============ EXECUTE GROUP MEMBER OPERATIONS (AFTER VALIDATION) ============
             // Now that we've validated the resource exists and user has access, handle member operations
             if (groupMemberOperations && groupMemberOperations.length > 0) {
-                await this.groupMemberPatchStrategy.executeMemberOperations({
+                const updatedResource = await this.groupMemberPatchStrategy.executeMemberOperations({
                     requestInfo,
                     parsedArgs,
                     resourceType,
@@ -335,7 +335,7 @@ class PatchOperation {
                         resourceType,
                         id,
                         base_version,
-                        foundResource
+                        updatedResource
                     });
                 }
                 // Mixed operations: continue with non-member patch below

@@ -7,9 +7,9 @@
  * @returns {Object|null} contextData object or null if not a hybrid storage resource
  */
 function buildContextDataForHybridStorage(resourceType, resource) {
-    if (resourceType === 'Group' && resource.member) {
+    if (resourceType === 'Group') {
         return {
-            groupMembers: resource.member,
+            groupMembers: resource.member || [],
             resourceType,
             resourceId: resource.id
         };

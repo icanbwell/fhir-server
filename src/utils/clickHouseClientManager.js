@@ -1,10 +1,19 @@
 const { createClient } = require('@clickhouse/client');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { RethrownError } = require('./rethrownError');
+const { trace } = require('@opentelemetry/api');
+
+// Create OpenTelemetry tracer for ClickHouse operations
+const tracer = trace.getTracer('clickhouse-client', '1.0.0');
 
 /**
  * Manages ClickHouse client connections with connection pooling.
  * Uses official @clickhouse/client library v1.17.0+.
+ *
+ * Instrumented with OpenTelemetry for observability:
+ * - Traces all query and insert operations
+ * - Captures latency metrics
+ * - Logs errors with context
  */
 class ClickHouseClientManager {
     /**
@@ -67,7 +76,7 @@ class ClickHouseClientManager {
                 username: this.configManager.clickHouseUsername,
                 password: this.configManager.clickHousePassword,
                 request_timeout: this.configManager.clickHouseRequestTimeout,
-                max_open_connections: 10,
+                max_open_connections: this.configManager.clickHouseMaxConnections,
                 compression: {
                     request: true,   // Enable gzip compression for inserts (70-90% smaller payload)
                     response: true   // Enable gzip compression for queries
@@ -140,36 +149,80 @@ class ClickHouseClientManager {
      * @returns {Promise<Object>}
      */
     async queryAsync({ query, query_params = {}, format = 'JSONEachRow' }) {
-        try {
-            const client = await this.getClientAsync();
+        const startTime = Date.now();
+        const queryStr = typeof query === 'string' ? query : (query || '');
+        const queryPreview = queryStr.substring(0, 200);
 
-            logDebug('Executing ClickHouse query', {
-                query: query ? query.substring(0, 200) : '',
-                hasParams: Object.keys(query_params).length > 0
-            });
+        // Extract operation type (SELECT, INSERT, UPDATE, etc.) for better observability
+        const operationMatch = queryStr.trim().match(/^(\w+)/i);
+        const operation = operationMatch ? operationMatch[1].toUpperCase() : 'UNKNOWN';
 
-            const resultSet = await client.query({
-                query,
-                query_params,
-                format
-            });
+        return tracer.startActiveSpan('clickhouse.query', {
+            attributes: {
+                'db.system': 'clickhouse',
+                'db.operation': operation,
+                'db.statement': queryPreview,
+                'db.clickhouse.has_params': Object.keys(query_params).length > 0,
+                'db.clickhouse.format': format
+            }
+        }, async (span) => {
+            try {
+                const client = await this.getClientAsync();
 
-            const result = await resultSet.json();
-            // JSONEachRow format returns array directly, other formats return {data: [...]}
-            return Array.isArray(result) ? result : (result.data || []);
-        } catch (error) {
-            const queryStr = typeof query === 'string' ? query : (query || '');
-            logError('ClickHouse query failed', {
-                error: error.message,
-                query: queryStr.substring(0, 200)
-            });
+                logDebug('Executing ClickHouse query', {
+                    query: queryPreview,
+                    hasParams: Object.keys(query_params).length > 0
+                });
 
-            throw new RethrownError({
-                message: 'Error executing ClickHouse query',
-                error,
-                args: { query: queryStr.substring(0, 200) }
-            });
-        }
+                const resultSet = await client.query({
+                    query,
+                    query_params,
+                    format
+                });
+
+                const result = await resultSet.json();
+                const parsedResult = Array.isArray(result) ? result : (result.data || []);
+
+                const duration = Date.now() - startTime;
+
+                // Add success metrics to span
+                span.setAttributes({
+                    'db.clickhouse.row_count': parsedResult.length,
+                    'db.clickhouse.duration_ms': duration
+                });
+
+                span.setStatus({ code: 1 }); // SpanStatusCode.OK
+                span.end();
+
+                return parsedResult;
+            } catch (error) {
+                const duration = Date.now() - startTime;
+
+                logError('ClickHouse query failed', {
+                    error: error.message,
+                    query: queryPreview,
+                    duration_ms: duration
+                });
+
+                // Add error details to span
+                span.setAttributes({
+                    'db.clickhouse.duration_ms': duration,
+                    'db.clickhouse.error': error.message
+                });
+                span.setStatus({
+                    code: 2, // SpanStatusCode.ERROR
+                    message: error.message
+                });
+                span.recordException(error);
+                span.end();
+
+                throw new RethrownError({
+                    message: 'Error executing ClickHouse query',
+                    error,
+                    args: { query: queryPreview }
+                });
+            }
+        });
     }
 
     /**
@@ -181,43 +234,82 @@ class ClickHouseClientManager {
      * @returns {Promise<void>}
      */
     async insertAsync({ table, values, format = 'JSONEachRow' }) {
-        try {
-            if (!values || values.length === 0) {
-                logDebug('No values to insert, skipping', { table });
-                return;
-            }
+        const startTime = Date.now();
+        const rowCount = values?.length || 0;
 
-            const client = await this.getClientAsync();
-
-            logDebug('Inserting into ClickHouse', {
-                table,
-                rowCount: values.length,
-                syncMode: this.configManager.clickHouseWriteMode
-            });
-
-            await client.insert({
-                table,
-                values,
-                format
-            });
-
-            logDebug('ClickHouse insert successful', {
-                table,
-                rowCount: values.length
-            });
-        } catch (error) {
-            logError('ClickHouse insert failed', {
-                error: error.message,
-                table,
-                rowCount: values?.length
-            });
-
-            throw new RethrownError({
-                message: 'Error inserting into ClickHouse',
-                error,
-                args: { table, rowCount: values?.length }
-            });
+        if (!values || rowCount === 0) {
+            logDebug('No values to insert, skipping', { table });
+            return;
         }
+
+        return tracer.startActiveSpan('clickhouse.insert', {
+            attributes: {
+                'db.system': 'clickhouse',
+                'db.operation': 'INSERT',
+                'db.clickhouse.table': table,
+                'db.clickhouse.row_count': rowCount,
+                'db.clickhouse.format': format,
+                'db.clickhouse.write_mode': this.configManager.clickHouseWriteMode
+            }
+        }, async (span) => {
+            try {
+                const client = await this.getClientAsync();
+
+                logDebug('Inserting into ClickHouse', {
+                    table,
+                    rowCount,
+                    syncMode: this.configManager.clickHouseWriteMode
+                });
+
+                await client.insert({
+                    table,
+                    values,
+                    format
+                });
+
+                const duration = Date.now() - startTime;
+
+                logDebug('ClickHouse insert successful', {
+                    table,
+                    rowCount,
+                    duration_ms: duration
+                });
+
+                // Add success metrics to span
+                span.setAttributes({
+                    'db.clickhouse.duration_ms': duration
+                });
+                span.setStatus({ code: 1 }); // SpanStatusCode.OK
+                span.end();
+            } catch (error) {
+                const duration = Date.now() - startTime;
+
+                logError('ClickHouse insert failed', {
+                    error: error.message,
+                    table,
+                    rowCount,
+                    duration_ms: duration
+                });
+
+                // Add error details to span
+                span.setAttributes({
+                    'db.clickhouse.duration_ms': duration,
+                    'db.clickhouse.error': error.message
+                });
+                span.setStatus({
+                    code: 2, // SpanStatusCode.ERROR
+                    message: error.message
+                });
+                span.recordException(error);
+                span.end();
+
+                throw new RethrownError({
+                    message: 'Error inserting into ClickHouse',
+                    error,
+                    args: { table, rowCount: values?.length }
+                });
+            }
+        });
     }
 
     /**

@@ -11,6 +11,7 @@ const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@je
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const fs = require('fs');
 const path = require('path');
@@ -303,11 +304,12 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
                         argMax(period_end, (event_time, event_id)) as period_end,
                         argMax(inactive, (event_time, event_id)) as inactive
                     FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${actualGroupId}'
+                    WHERE group_id = {groupId:String}
                     AND entity_reference IN ('Patient/r4b-full-patient-1', 'Patient/r4b-full-patient-2')
                     GROUP BY entity_reference
                     HAVING argMax(event_type, (event_time, event_id)) = 'added'
-                    ORDER BY entity_reference`
+                    ORDER BY entity_reference`,
+            query_params: { groupId: actualGroupId }
         });
 
         expect(events.length).toBeGreaterThanOrEqual(0);
@@ -598,9 +600,10 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         // Verify members were stored (even if IDs aren't)
         const events = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${actualGroupId}'
-                    AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
-                    ORDER BY entity_reference`
+                    WHERE group_id = {groupId:String}
+                    AND event_type = {eventType:String}
+                    ORDER BY entity_reference`,
+            query_params: { groupId: actualGroupId, eventType: EVENT_TYPES.MEMBER_ADDED }
         });
 
         expect(events.length).toBeGreaterThanOrEqual(0);
@@ -662,10 +665,11 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
             const events = await clickHouseManager.queryAsync({
                 query: `SELECT entity_reference, period_start, period_end, inactive
                         FROM fhir.fhir_group_member_events
-                        WHERE group_id = '${actualGroupId}'
+                        WHERE group_id = {groupId:String}
                         AND entity_reference IN ('Practitioner/r4b-roundtrip-1', 'Practitioner/r4b-roundtrip-2')
-                        AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
-                        ORDER BY entity_reference`
+                        AND event_type = {eventType:String}
+                        ORDER BY entity_reference`,
+                query_params: { groupId: actualGroupId, eventType: EVENT_TYPES.MEMBER_ADDED }
             });
             expect(events.length).toBe(2);
         }
@@ -703,10 +707,11 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const addedEvents = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference
                     FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${actualGroupId}'
+                    WHERE group_id = {groupId:String}
                     AND entity_reference = 'Patient/r4b-removal-patient'
                     GROUP BY entity_reference
-                    HAVING argMax(event_type, (event_time, event_id)) = 'added'`
+                    HAVING argMax(event_type, (event_time, event_id)) = 'added'`,
+            query_params: { groupId: actualGroupId }
         });
         expect(addedEvents.length).toBeGreaterThanOrEqual(0);
 

@@ -23,16 +23,7 @@ const CONTEXT_KEYS = {
      * @param {string} groupId - The Group resource ID
      * @returns {string} Context key for change flag
      */
-    GROUP_MEMBERS_CHANGED: (groupId) => `group-members-changed-${groupId}`,
-
-    /**
-     * Generates the context key for indicating member events were already written
-     * Used by PATCH operations that write events directly to ClickHouse
-     * When set to true, post-save handler skips member event processing
-     * @param {string} groupId - The Group resource ID
-     * @returns {string} Context key for events written flag
-     */
-    GROUP_MEMBER_EVENTS_WRITTEN: (groupId) => `group-member-events-written-${groupId}`
+    GROUP_MEMBERS_CHANGED: (groupId) => `group-members-changed-${groupId}`
 };
 
 /**
@@ -57,6 +48,15 @@ const PATCH_PATHS = {
  * Default ClickHouse configuration values
  *
  * These are used as fallbacks when environment variables are not set.
+ *
+ * CONNECTION POOL SIZING:
+ * - Default: 100 connections per pod (matches MongoDB's maxPoolSize pattern)
+ * - Configurable via CLICKHOUSE_MAX_CONNECTIONS env var
+ * - PRODUCTION REQUIREMENT: ClickHouse server must be configured with:
+ *   max_connections >= (pod_count × max_pool_size × 1.25)
+ *   Example: 100 pods × 100 connections × 1.25 = 12,500 minimum
+ * - ClickHouse default max_connections = 4096 (too low for production scale)
+ * - Configure in ClickHouse config.xml: <max_connections>15000</max_connections>
  */
 const DEFAULT_CLICKHOUSE = {
     HOST: '127.0.0.1',
@@ -65,7 +65,7 @@ const DEFAULT_CLICKHOUSE = {
     USERNAME: 'default',
     PASSWORD: '',
     REQUEST_TIMEOUT_MS: 180000, // 3 minutes
-    MAX_CONNECTIONS: 10
+    MAX_CONNECTIONS: 100 // Matches MongoDB pattern; see CONNECTION POOL SIZING above
 };
 
 module.exports = {

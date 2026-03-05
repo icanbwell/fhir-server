@@ -1,8 +1,7 @@
 const { BadRequestError } = require('../../../utils/httpErrors');
-const { PATCH_PATHS, PATCH_OPERATIONS, CONTEXT_KEYS } = require('../../../constants/groupConstants');
+const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../../constants/groupConstants');
 const { createTooCostlyError } = require('../../../utils/fhirErrorFactory');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const httpContext = require('express-http-context');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
 
 /**
@@ -88,7 +87,7 @@ class GroupMemberPatchStrategy {
      * @param {string} params.base_version
      * @param {Array<Object>} params.memberOperations - JSON Patch operations on /member
      * @param {Resource} params.foundResource - The validated Group resource from MongoDB
-     * @returns {Promise<void>}
+     * @returns {Promise<Resource>} The updated Group resource
      */
     async executeMemberOperations({
         requestInfo,
@@ -165,23 +164,51 @@ class GroupMemberPatchStrategy {
             }
         }
 
-        // 3. Write events to storage (NO MongoDB member array update)
+        // 3. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
+        // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
+        // Different write orders = different failure modes = unpredictable behavior
+        const updatedResource = foundResource.clone ? foundResource.clone() : { ...foundResource };
+        this.resourceMerger.updateMeta({
+            patched_resource_incoming: updatedResource,
+            currentResource: foundResource,
+            original_source: foundResource.meta?.source,
+            incrementVersion: true
+        });
+
+        // Build contextData and set flag to skip post-save handler
+        // buildContextDataForHybridStorage now always returns an object for Groups (never null)
+        const contextData = buildContextDataForHybridStorage(resourceType, foundResource);
+        if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
+            contextData.groupMemberEventsWritten = true;
+        }
+
+        // Update MongoDB metadata only (no member array)
+        await this.databaseBulkInserter.replaceOneAsync({
+            base_version,
+            requestInfo,
+            resourceType,
+            doc: updatedResource,
+            uuid: updatedResource._uuid,
+            contextData
+        });
+
+        await this.databaseBulkInserter.executeAsync({
+            requestInfo,
+            base_version
+        });
+
+        // 4. Write events to ClickHouse (AFTER MongoDB commit)
         // Direct translation: 1 operation = 1 event (added or removed)
         if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
             await groupHandler.writeEventsAsync({
                 groupId,
                 added: eventsToAdd,
                 removed: eventsToRemove,
-                groupResource: foundResource
+                groupResource: updatedResource // Use updated resource with new versionId
             });
-
-            // Set flag to tell post-save handler that events were already written
-            // This prevents the handler from trying to compute a diff (which would be incorrect)
-            httpContext.set(CONTEXT_KEYS.GROUP_MEMBER_EVENTS_WRITTEN(groupId), true);
         }
 
-        // 4. Update Group metadata in MongoDB (increment versionId, update lastUpdated)
-        // Note: This is handled by the response builder or the mixed patch logic
+        return updatedResource;
     }
 
     /**
@@ -191,13 +218,15 @@ class GroupMemberPatchStrategy {
      * SECURITY: This method is called AFTER the resource has been validated to exist
      * and the user's access has been verified by scopesValidator.
      *
+     * NOTE: MongoDB update has already been performed by executeMemberOperations (correct write order)
+     *
      * @param {Object} params
      * @param {FhirRequestInfo} params.requestInfo
      * @param {ParsedArgs} params.parsedArgs
      * @param {string} params.resourceType
      * @param {string} params.id
      * @param {string} params.base_version
-     * @param {Resource} params.foundResource - The validated Group resource from MongoDB
+     * @param {Resource} params.updatedResource - The updated Group resource from executeMemberOperations
      * @returns {Promise<{id: string, created: boolean, resource_version: string, resource: Resource}>}
      */
     async buildMemberPatchResponse({
@@ -206,31 +235,8 @@ class GroupMemberPatchStrategy {
         resourceType,
         id,
         base_version,
-        foundResource
+        updatedResource
     }) {
-        // Increment version and update lastUpdated
-        const updatedResource = foundResource.clone();
-        this.resourceMerger.updateMeta({
-            patched_resource_incoming: updatedResource,
-            currentResource: foundResource,
-            original_source: foundResource.meta?.source,
-            incrementVersion: true
-        });
-
-        // Update MongoDB metadata only (no member array)
-        await this.databaseBulkInserter.replaceOneAsync({
-            base_version,
-            requestInfo,
-            resourceType,
-            doc: updatedResource,
-            uuid: updatedResource._uuid,
-            contextData: buildContextDataForHybridStorage(resourceType, foundResource)
-        });
-
-        await this.databaseBulkInserter.executeAsync({
-            requestInfo,
-            base_version
-        });
 
         // Return 200 OK with metadata only (no member array)
         return {
