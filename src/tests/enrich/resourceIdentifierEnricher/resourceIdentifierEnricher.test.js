@@ -49,21 +49,16 @@ describe('Resource identifier enricher tests', () => {
         const mongoDatabaseManager = container.mongoDatabaseManager;
         const fhirDB = await mongoDatabaseManager.getClientDbAsync();
 
-        const compositionInDB = await fhirDB
-            .collection('Composition_4_0_0')
-            .findOne({ id: expectedCompositionGet[0].id });
-        await fhirDB.collection('Composition_4_0_0').replaceOne({ id: expectedCompositionGet[0].id }, compositionInDB);
-
         const observation1InDB = await fhirDB
             .collection('Observation_4_0_0')
             .findOne({ id: expectedObservationGet[0].id });
-        observation1InDB.identifier = observation1InDB.identifier.filter(iden => [IdentifierSystem.sourceId, IdentifierSystem.uuid].includes(iden.system));
+        observation1InDB.identifier = observation1InDB.identifier.filter(iden => ![IdentifierSystem.sourceId, IdentifierSystem.uuid].includes(iden.system));
         await fhirDB.collection('Observation_4_0_0').replaceOne({ id: expectedObservationGet[0].id }, observation1InDB);
 
         const observation2InDB = await fhirDB
             .collection('Observation_4_0_0')
             .findOne({ id: expectedObservationGet[1].id });
-        observation1InDB.identifier = observation1InDB.identifier.filter(iden => [IdentifierSystem.sourceId, IdentifierSystem.uuid].includes(iden.system));
+        observation2InDB.identifier = observation2InDB.identifier.filter(iden => ![IdentifierSystem.sourceId, IdentifierSystem.uuid].includes(iden.system));
         await fhirDB.collection('Observation_4_0_0').replaceOne({ id: expectedObservationGet[1].id }, observation2InDB);
 
         // ACT & ASSERT

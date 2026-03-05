@@ -126,19 +126,21 @@ class R4ArgsParser {
             let queryParameterValue = args[`${argName}`];
             // if _elements parameter is passed we should also fetch _uuid to generate the nextLink if not present already
             if (queryParameter === '_elements' && queryParameterValue) {
-                if (!queryParameterValue.includes(this.configManager.defaultSortId)) {
-                    queryParameterValue += `,${this.configManager.defaultSortId}`;
+                const queryParameterList = queryParameterValue.split(',').map(param => param.trim());
+                if (!queryParameterList.includes(this.configManager.defaultSortId)) {
+                    queryParameterList.push(this.configManager.defaultSortId);
                 }
-                if (queryParameterValue.includes('identifier')) {
+                if (queryParameterList.includes('identifier')) {
                     // if identifier is requested then also request the _uuid and _sourceId fields
                     // since they are needed to populate the identifier system and value
-                    if (!queryParameterValue.includes('_uuid')) {
-                        queryParameterValue += `,_uuid`;
+                    if (!queryParameterList.includes('_uuid')) {
+                        queryParameterList.push('_uuid');
                     }
-                    if (!queryParameterValue.includes('_sourceId')) {
-                        queryParameterValue += `,_sourceId`;
+                    if (!queryParameterList.includes('_sourceId')) {
+                        queryParameterList.push('_sourceId');
                     }
                 }
+                queryParameterValue = queryParameterList.join(',');
             }
             if (!propertyObj) {
                 // In case of an unrecognized argument while searching and handling type is strict throw an error.
