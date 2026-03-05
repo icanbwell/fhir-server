@@ -126,7 +126,9 @@ class R4ArgsParser {
             let queryParameterValue = args[`${argName}`];
             // if _elements parameter is passed we should also fetch _uuid to generate the nextLink if not present already
             if (queryParameter === '_elements' && queryParameterValue) {
-                const queryParameterList = queryParameterValue.split(',').map(param => param.trim());
+                const queryParameterList = Array.isArray(queryParameterValue)
+                    ? queryParameterValue
+                    : queryParameterValue.split(',').map((param) => param.trim());
                 if (!queryParameterList.includes(this.configManager.defaultSortId)) {
                     queryParameterList.push(this.configManager.defaultSortId);
                 }
