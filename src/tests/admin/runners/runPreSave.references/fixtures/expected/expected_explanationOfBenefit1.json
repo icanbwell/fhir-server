@@ -15,23 +15,6 @@
         "_sourceAssigningAuthority": "client",
         "_sourceId": "Organization/2645",
         "_uuid": "Organization/838c95c7-f15f-5d4b-a9d0-577d3ac26a83",
-        "extension": [
-          {
-            "id": "sourceId",
-            "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "Organization/2645"
-          },
-          {
-            "id": "uuid",
-            "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Organization/838c95c7-f15f-5d4b-a9d0-577d3ac26a83"
-          },
-          {
-            "id": "sourceAssigningAuthority",
-            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "client"
-          }
-        ],
         "reference": "Organization/2645"
       },
       "role": {
@@ -159,23 +142,6 @@
         "_sourceAssigningAuthority": "client",
         "_sourceId": "Coverage/3288",
         "_uuid": "Coverage/fa39f6ed-8160-5165-bad5-4fb371e2c129",
-        "extension": [
-          {
-            "id": "sourceId",
-            "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "Coverage/3288"
-          },
-          {
-            "id": "uuid",
-            "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Coverage/fa39f6ed-8160-5165-bad5-4fb371e2c129"
-          },
-          {
-            "id": "sourceAssigningAuthority",
-            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "client"
-          }
-        ],
         "reference": "Coverage/3288"
       },
       "focal": true
@@ -185,23 +151,6 @@
     "_sourceAssigningAuthority": "client",
     "_sourceId": "Organization/3287",
     "_uuid": "Organization/fcd26b9f-0541-5389-86c0-1fa9e27593d9",
-    "extension": [
-      {
-        "id": "sourceId",
-        "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Organization/3287"
-      },
-      {
-        "id": "uuid",
-        "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Organization/fcd26b9f-0541-5389-86c0-1fa9e27593d9"
-      },
-      {
-        "id": "sourceAssigningAuthority",
-        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "client"
-      }
-    ],
     "reference": "Organization/3287"
   },
   "item": [
@@ -447,23 +396,6 @@
     "_sourceAssigningAuthority": "client",
     "_sourceId": "Patient/Client-3286",
     "_uuid": "Patient/13b445ec-68da-502d-bc4c-e255f97a20e9",
-    "extension": [
-      {
-        "id": "sourceId",
-        "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Patient/Client-3286"
-      },
-      {
-        "id": "uuid",
-        "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Patient/13b445ec-68da-502d-bc4c-e255f97a20e9"
-      },
-      {
-        "id": "sourceAssigningAuthority",
-        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "client"
-      }
-    ],
     "reference": "Patient/Client-3286"
   },
   "payee": {
@@ -471,23 +403,6 @@
       "_sourceAssigningAuthority": "client",
       "_sourceId": "Patient/3286",
       "_uuid": "Patient/fa8c97bc-bd63-53f3-9cf6-689fe22b5944",
-      "extension": [
-        {
-          "id": "sourceId",
-          "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "Patient/3286"
-        },
-        {
-          "id": "uuid",
-          "url": "https://www.icanbwell.com/uuid",
-          "valueString": "Patient/fa8c97bc-bd63-53f3-9cf6-689fe22b5944"
-        },
-        {
-          "id": "sourceAssigningAuthority",
-          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-          "valueString": "client"
-        }
-      ],
       "reference": "Patient/3286"
     },
     "type": {
@@ -549,23 +464,6 @@
     "_sourceAssigningAuthority": "client",
     "_sourceId": "Organization/2645",
     "_uuid": "Organization/838c95c7-f15f-5d4b-a9d0-577d3ac26a83",
-    "extension": [
-      {
-        "id": "sourceId",
-        "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Organization/2645"
-      },
-      {
-        "id": "uuid",
-        "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Organization/838c95c7-f15f-5d4b-a9d0-577d3ac26a83"
-      },
-      {
-        "id": "sourceAssigningAuthority",
-        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "client"
-      }
-    ],
     "reference": "Organization/2645"
   },
   "related": [

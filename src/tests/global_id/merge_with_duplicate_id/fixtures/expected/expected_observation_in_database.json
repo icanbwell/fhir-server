@@ -81,23 +81,6 @@
       "_sourceAssigningAuthority": "A",
       "_sourceId": "Patient/2354",
       "_uuid": "Patient/a28ad76e-41dd-5c0d-b52d-a5841690c3bd",
-      "extension": [
-        {
-          "id": "sourceId",
-          "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "Patient/2354"
-        },
-        {
-          "id": "uuid",
-          "url": "https://www.icanbwell.com/uuid",
-          "valueString": "Patient/a28ad76e-41dd-5c0d-b52d-a5841690c3bd"
-        },
-        {
-          "id": "sourceAssigningAuthority",
-          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-          "valueString": "A"
-        }
-      ],
       "reference": "Patient/2354"
     },
     "valueBoolean": false
@@ -184,23 +167,6 @@
       "_sourceAssigningAuthority": "C",
       "_sourceId": "Patient/2354",
       "_uuid": "Patient/6fbec29e-053e-51d6-8281-76f200e48fb8",
-      "extension": [
-        {
-          "id": "sourceId",
-          "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "Patient/2354"
-        },
-        {
-          "id": "uuid",
-          "url": "https://www.icanbwell.com/uuid",
-          "valueString": "Patient/6fbec29e-053e-51d6-8281-76f200e48fb8"
-        },
-        {
-          "id": "sourceAssigningAuthority",
-          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-          "valueString": "C"
-        }
-      ],
       "reference": "Patient/2354"
     },
     "valueBoolean": false

@@ -1,12 +1,15 @@
 // test file
 const composition1Resource = require('./fixtures/Composition/composition1.json');
 const observationDB1Resource = require('./fixtures/Observation/observation_db_1.json');
+const observation2 = require('./fixtures/Observation/observation_2.json');
 
 // expected
 const expectedCompositionGet = require('./fixtures/expected/expected_composition_get.json');
 const expectedCompositionInDB = require('./fixtures/expected/expected_composition_db.json');
 const expectedObservation = require('./fixtures/expected/expected_observation.json');
 const expectedObservationInDBAfterUpdate = require('./fixtures/expected/expected_observation_in_db.json');
+const expectedObservationHistory = require('./fixtures/expected/expected_observation_history.json');
+const expectedObservationHistoryByVersionId = require('./fixtures/expected/expected_observation_history_by_version_id.json');
 
 const {
     commonBeforeEach,
@@ -154,15 +157,12 @@ describe('Reference Extension enricher tests', () => {
         const request = await createTestRequest();
         const container = getTestContainer();
 
-        let resp = await request
-            .post('/4_0_0/Observation')
-            .send(expectedObservation)
-            .set(getHeaders());
+        let resp = await request.post('/4_0_0/Observation').send(expectedObservation).set(getHeaders());
 
         const expectedCreateObservation = deepcopy(expectedObservation);
         expectedCreateObservation.id = resp.body.id;
         expectedCreateObservation.meta.versionId = '1';
-        expectedCreateObservation.identifier = expectedCreateObservation.identifier.map(identifier => {
+        expectedCreateObservation.identifier = expectedCreateObservation.identifier.map((identifier) => {
             if ([IdentifierSystem.sourceId, IdentifierSystem.uuid].includes(identifier.system)) {
                 return {
                     ...identifier,
@@ -187,16 +187,18 @@ describe('Reference Extension enricher tests', () => {
 
         const expectedObservationInDBAfterCreate = deepcopy(expectedObservationInDBAfterUpdate);
         expectedObservationInDBAfterCreate.id = resp.body.id;
-        expectedObservationInDBAfterCreate.identifier = expectedObservationInDBAfterCreate.identifier.map(identifier => {
-            if ([IdentifierSystem.sourceId, IdentifierSystem.uuid].includes(identifier.system)) {
-                return {
-                    ...identifier,
-                    value: resp.body.id
-                };
-            } else {
-                return identifier;
+        expectedObservationInDBAfterCreate.identifier = expectedObservationInDBAfterCreate.identifier.map(
+            (identifier) => {
+                if ([IdentifierSystem.sourceId, IdentifierSystem.uuid].includes(identifier.system)) {
+                    return {
+                        ...identifier,
+                        value: resp.body.id
+                    };
+                } else {
+                    return identifier;
+                }
             }
-        });
+        );
         expectedObservationInDBAfterCreate.meta.versionId = '1';
         expectedObservationInDBAfterCreate._uuid = resp.body.id;
         expectedObservationInDBAfterCreate._sourceId = resp.body.id;
@@ -208,10 +210,7 @@ describe('Reference Extension enricher tests', () => {
         const request = await createTestRequest();
         const container = getTestContainer();
 
-        let resp = await request
-            .post('/4_0_0/Observation/$merge')
-            .send(expectedObservation)
-            .set(getHeaders());
+        let resp = await request.post('/4_0_0/Observation/$merge').send(expectedObservation).set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
         /**
@@ -261,5 +260,43 @@ describe('Reference Extension enricher tests', () => {
 
         resp = await request.get('/4_0_0/Observation/77253a67-f7a1-454d-aaba-56009ba897b4').set(getHeaders());
         expect(resp).toHaveResponse(observationForPut);
+    });
+
+    test('Reference extension are added in response for $expand', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/Observation/$merge').send(expectedObservation).set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const expectedObservationAfterMerge = deepcopy(expectedObservation);
+        expectedObservationAfterMerge.meta.versionId = '1';
+        resp = await request.get('/4_0_0/Observation/77253a67-f7a1-454d-aaba-56009ba897b4/$expand').set(getHeaders());
+        expect(resp).toHaveResponse(expectedObservationAfterMerge);
+    });
+
+    test('Reference extension are added in resource history', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request.post('/4_0_0/Observation/$merge').send(observation2).set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        observation2.performer[0].reference = 'Practitioner/abc|testClient';
+
+        resp = await request.post('/4_0_0/Observation/$merge').send(observation2).set(getHeaders());
+        expect(resp).toHaveMergeResponse({ updated: true });
+
+        // get resource history
+        resp = await request.get('/4_0_0/Observation/_history').set(getHeaders());
+        expect(resp).toHaveResponse(expectedObservationHistory);
+
+        // get history by resource id
+        resp = await request.get('/4_0_0/Observation/77253a67-f7a1-454d-aaba-56009ba897b4-2/_history').set(getHeaders());
+        expect(resp).toHaveResponse(expectedObservationHistory);
+
+        // get specific version of resource
+        resp = await request
+            .get('/4_0_0/Observation/77253a67-f7a1-454d-aaba-56009ba897b4-2/_history/2')
+            .set(getHeaders());
+        expect(resp).toHaveResponse(expectedObservationHistoryByVersionId);
     });
 });

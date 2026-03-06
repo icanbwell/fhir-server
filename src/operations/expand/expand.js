@@ -8,6 +8,8 @@ const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { RETRIEVE } = require('../../constants').GRIDFS;
 
 class ExpandOperation {
@@ -20,6 +22,7 @@ class ExpandOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -29,7 +32,8 @@ class ExpandOperation {
             fhirLoggingManager,
             scopesValidator,
             enrichmentManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -70,6 +74,12 @@ class ExpandOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     /**
@@ -163,7 +173,11 @@ class ExpandOperation {
                 action: currentOperationName
             });
 
-            resource = this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+            resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+
+            // enrich resource
+            resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
+            this.identifierEnrichmentProvider.enrichIdentifierList(resource);
 
             return resource;
         } else {
