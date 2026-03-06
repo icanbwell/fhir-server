@@ -1,4 +1,5 @@
-const { logDebug, logWarn } = require('./fhirLogger');
+const { logWarn, logDebug } = require("../operations/common/logging");
+
 
 /**
  * Check if an IP address string is a private or loopback address
@@ -86,10 +87,10 @@ function validateUrl(url) {
     // bare "svc.cluster.local" hostname without a service/namespace prefix.
     const isInternal = hostname === 'localhost' || hostname === '127.0.0.1';
 
-    // Only allow HTTPS (with internal/localhost exception)
-    if (parsed.protocol !== 'https:' && !(parsed.protocol === 'http:' && isInternal)) {
+    // Only allow HTTP and HTTPS protocols (reject file://, ftp://, gopher://, etc.)
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
         const scheme = parsed.protocol.replace(':', '');
-        throw new Error(`URL must use HTTPS, got: ${scheme}`);
+        throw new Error(`URL must use HTTP or HTTPS, got: ${scheme}`);
     }
 
     // Block private/loopback IPs and cloud metadata endpoints
