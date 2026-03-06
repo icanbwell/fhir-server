@@ -1037,6 +1037,8 @@ class FhirOperationsManager {
      * @returns {Promise<Resource>}
      */
     async expand(args, {req}, resourceType) {
+        // to be enabled after operation is updated
+        return {};
         /**
          * combined args
          * @type {Object}

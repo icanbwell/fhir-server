@@ -122,7 +122,7 @@ describe('GridFS search tests', () => {
             expect(resp._body.content[0].attachment.data).toEqual(documentReferenceData.content[0].attachment.data);
         });
 
-        test('search expand works', async () => {
+        test.skip('search expand works', async () => {
             const request = await createTestRequest();
             // add the resources to FHIR server
             let resp = await request

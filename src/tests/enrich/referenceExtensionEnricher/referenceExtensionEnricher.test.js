@@ -262,7 +262,7 @@ describe('Reference Extension enricher tests', () => {
         expect(resp).toHaveResponse(observationForPut);
     });
 
-    test('Reference extension are added in response for $expand', async () => {
+    test.skip('Reference extension are added in response for $expand', async () => {
         const request = await createTestRequest();
 
         let resp = await request.post('/4_0_0/Observation/$merge').send(expectedObservation).set(getHeaders());

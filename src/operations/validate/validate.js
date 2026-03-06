@@ -13,6 +13,7 @@ const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory')
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
+const { validateUrl } = require('../../utils/urlParser');
 const { READ } = require('../../constants').OPERATIONS;
 
 class ValidateOperation {
@@ -292,6 +293,29 @@ class ValidateOperation {
                 });
             }
             resource_incoming = resourceParameter.resource;
+        }
+
+        // validate profile url
+        if (specifiedProfile) {
+            try {
+                validateUrl(specifiedProfile);
+            } catch (e) {
+                return new OperationOutcome({
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'invalid',
+                            details: new CodeableConcept({
+                                text: `Invalid profile URL: ${specifiedProfile}`
+                            }),
+                            expression: [
+                                resourceType
+                            ]
+                        })
+                    ]
+                });
+            }
         }
 
         // The FHIR validator wants meta.lastUpdated to be string instead of data

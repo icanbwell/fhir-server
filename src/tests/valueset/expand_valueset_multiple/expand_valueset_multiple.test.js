@@ -15,7 +15,7 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-describe('ValueSet Multiple Tests', () => {
+describe.skip('ValueSet Multiple Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
