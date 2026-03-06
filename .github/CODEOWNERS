@@ -1,1 +1,5 @@
 * @icanbwell/fhir-team
+
+# Architecture instruction files owned by Enterprise Architecture
+/AGENTS.md @icanbwell/enterprise-architecture
+/CLAUDE.md @icanbwell/enterprise-architecture
