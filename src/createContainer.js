@@ -190,13 +190,9 @@ const createContainer = function () {
             }),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
-            new UuidColumnHandler({
-                configManager: c.configManager
-            }),
+            new UuidColumnHandler(),
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
-            new ReferenceGlobalIdHandler({
-                configManager: c.configManager
-            })
+            new ReferenceGlobalIdHandler()
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -584,8 +580,7 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -603,7 +598,6 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder,
                 searchManager: c.searchManager
             }
         )
@@ -618,7 +612,6 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder,
             mergeValidator: c.mergeValidator
         }
     ));
@@ -707,7 +700,6 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder,
             searchManager: c.searchManager,
             resourceMerger: c.resourceMerger,
             resourceValidator: c.resourceValidator

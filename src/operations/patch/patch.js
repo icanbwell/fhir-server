@@ -15,7 +15,6 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { ConfigManager } = require('../../utils/configManager');
-const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
@@ -36,7 +35,6 @@ class PatchOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {ConfigManager} configManager
-     * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
@@ -51,7 +49,6 @@ class PatchOperation {
             databaseBulkInserter,
             databaseAttachmentManager,
             configManager,
-            bwellPersonFinder,
             searchManager,
             resourceMerger,
             resourceValidator
@@ -98,12 +95,6 @@ class PatchOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {BwellPersonFinder}
-         */
-        this.bwellPersonFinder = bwellPersonFinder;
-        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
 
         /**
          * @type {SearchManager}
