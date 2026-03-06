@@ -449,8 +449,8 @@ class UpdateOperation {
                 });
 
                 // enrich resource
-                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;
             } else {
@@ -484,8 +484,8 @@ class UpdateOperation {
                 });
 
                 // enrich resource
-                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
                 this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;
             }

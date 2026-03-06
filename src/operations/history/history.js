@@ -405,11 +405,11 @@ class BaseHistoryOperationProcessor {
         );
 
         // serialize bundle
-        FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
         resultBundle.entry = await this.identifierEnrichmentProvider.enrichBundleEntriesAsync({
             entries: resultBundle.entry,
             parsedArgs
         });
+        FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
 
         return resultBundle;
     }

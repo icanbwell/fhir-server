@@ -270,8 +270,8 @@ class CreateOperation {
             });
 
             // enrich resource
-            doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
             this.identifierEnrichmentProvider.enrichIdentifierList(doc);
+            doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
 
             return doc;
         } catch (/** @type {Error} */ e) {

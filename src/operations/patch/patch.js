@@ -394,8 +394,8 @@ class PatchOperation {
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
 
             // enrich resource
-            resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
             this.identifierEnrichmentProvider.enrichIdentifierList(resource);
+            resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
 
             return {
                 id: resource.id,
