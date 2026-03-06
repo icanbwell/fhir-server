@@ -1,4 +1,4 @@
-const { NotFoundError, ForbiddenError } = require('../../utils/httpErrors');
+const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -175,9 +175,13 @@ class SearchByVersionIdOperation {
                 operation: READ
             });
 
+            if (typeof version_id !== 'string') {
+                throw new BadRequestError('version_id must be a string');
+            }
             const queryForVersionId = {
                 'resource.meta.versionId': version_id
             };
+
             if (query.$and) {
                 query.$and.push(queryForVersionId);
             } else {
