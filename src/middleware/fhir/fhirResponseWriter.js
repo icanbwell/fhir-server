@@ -209,7 +209,7 @@ class FhirResponseWriter {
         if (req.headers.prefer && req.headers.prefer === 'return=minimal') {
             res.status(status).json({}).end();
         } else { // or return=representation
-            res.status(status).json(result.resource.toJSON()).end();
+            res.status(status).json(result.resource).end();
         }
         // TODO: handle return=OperationOutcome
     }

@@ -22,6 +22,8 @@ const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isUuid } = require('../../utils/uid.util');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 /**
  * Update Operation
@@ -40,6 +42,7 @@ class UpdateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchManager} searchManager
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -53,7 +56,8 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
-            searchManager
+            searchManager,
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -115,6 +119,12 @@ class UpdateOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     /**
@@ -438,6 +448,10 @@ class UpdateOperation {
                     operationResult: mergeResults
                 });
 
+                // enrich resource
+                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
+                this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+
                 return result;
             } else {
                 await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
@@ -468,6 +482,10 @@ class UpdateOperation {
                         resourceType: foundResource.resourceType
                     }]
                 });
+
+                // enrich resource
+                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
+                this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
 
                 return result;
             }

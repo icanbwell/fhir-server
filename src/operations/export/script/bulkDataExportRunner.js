@@ -27,11 +27,11 @@ const {
 } = require('../../../constants');
 const { SearchManager } = require('../../search/searchManager');
 const { ResourceLocatorFactory } = require('../../common/resourceLocatorFactory');
-const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
+const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 
 class BulkDataExportRunner {
     /**
@@ -712,7 +712,7 @@ class BulkDataExportRunner {
                 let currentBatchSize = 0;
                 while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
                     let doc = await cursor.next();
-                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
+                    doc = FhirResourceSerializer.serializeByResourceType(doc, resourceType);
                     await this.enrichmentManager.enrichAsync({
                         resources: [doc],
                         parsedArgs
@@ -822,7 +822,7 @@ class BulkDataExportRunner {
 
                 while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
                     let doc = await cursor.next();
-                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
+                    doc = FhirResourceSerializer.serializeByResourceType(doc, resourceType);
                     await this.enrichmentManager.enrichAsync({
                         resources: [doc],
                         parsedArgs

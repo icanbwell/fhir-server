@@ -580,7 +580,8 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider
             }
         )
     );
@@ -598,7 +599,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                searchManager: c.searchManager
+                searchManager: c.searchManager,
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider
             }
         )
     );
@@ -657,7 +659,8 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -672,7 +675,8 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -687,7 +691,8 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -702,7 +707,8 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             resourceMerger: c.resourceMerger,
-            resourceValidator: c.resourceValidator
+            resourceValidator: c.resourceValidator,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(

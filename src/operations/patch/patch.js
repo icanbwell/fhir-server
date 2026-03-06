@@ -23,6 +23,8 @@ const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 const httpContext = require('express-http-context');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 
 class PatchOperation {
     /**
@@ -38,6 +40,7 @@ class PatchOperation {
      * @param {SearchManager} searchManager
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -51,7 +54,8 @@ class PatchOperation {
             configManager,
             searchManager,
             resourceMerger,
-            resourceValidator
+            resourceValidator,
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -113,6 +117,12 @@ class PatchOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     /**
@@ -382,6 +392,10 @@ class PatchOperation {
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+
+            // enrich resource
+            resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
+            this.identifierEnrichmentProvider.enrichIdentifierList(resource);
 
             return {
                 id: resource.id,

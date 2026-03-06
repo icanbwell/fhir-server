@@ -16,6 +16,8 @@ const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 class CreateOperation {
     /**
@@ -28,6 +30,7 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -38,7 +41,8 @@ class CreateOperation {
             resourceValidator,
             databaseBulkInserter,
             configManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -84,6 +88,12 @@ class CreateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -200,7 +210,7 @@ class CreateOperation {
             /**
              * @type {Resource}
              */
-            const doc = resource;
+            let doc = resource;
             Object.assign(doc, { id: resource_incoming.id });
 
             if (resourceType !== 'AuditEvent') {
@@ -258,6 +268,10 @@ class CreateOperation {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: mergeResults
             });
+
+            // enrich resource
+            doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
+            this.identifierEnrichmentProvider.enrichIdentifierList(doc);
 
             return doc;
         } catch (/** @type {Error} */ e) {

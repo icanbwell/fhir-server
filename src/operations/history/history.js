@@ -17,6 +17,7 @@ const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { getLastUpdatedISO } = require('../../utils/date.util');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 
 class BaseHistoryOperationProcessor {
     /**
@@ -32,6 +33,7 @@ class BaseHistoryOperationProcessor {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {ScopesManager} scopesManager
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -45,7 +47,8 @@ class BaseHistoryOperationProcessor {
             resourceManager,
             databaseAttachmentManager,
             scopesManager,
-            historyResourceCloudStorageClient
+            historyResourceCloudStorageClient,
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -111,6 +114,12 @@ class BaseHistoryOperationProcessor {
         if (historyResourceCloudStorageClient) {
             assertTypeEquals(historyResourceCloudStorageClient, CloudStorageClient);
         }
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     /**
@@ -397,6 +406,10 @@ class BaseHistoryOperationProcessor {
 
         // serialize bundle
         FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
+        resultBundle.entry = await this.identifierEnrichmentProvider.enrichBundleEntriesAsync({
+            entries: resultBundle.entry,
+            parsedArgs
+        });
 
         return resultBundle;
     }

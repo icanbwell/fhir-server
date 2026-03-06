@@ -103,13 +103,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
                 IdentifierSystem.sourceId,
                 SecurityTagSystem.sourceAssigningAuthority
             ];
-            const extensions = reference.extension.filter((ext) => !excludedUrls.includes(ext.url));
-
-            if (extensions.length > 0) {
-                reference.extension = extensions;
-            } else {
-                delete reference.extension;
-            }
+            reference.extension = reference.extension.filter((ext) => !excludedUrls.includes(ext.url));
         }
 
         return reference;

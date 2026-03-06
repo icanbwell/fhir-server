@@ -13,6 +13,7 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 class SearchByVersionIdOperation {
     /**
@@ -244,6 +245,10 @@ class SearchByVersionIdOperation {
                     startTime,
                     action: currentOperationName
                 });
+
+                // serialize the resource
+                FhirResourceSerializer.serialize(historyResource);
+
                 return historyResource;
             } else {
                 throw new NotFoundError(`History not found for ${resourceType}/${id} with versionId:${version_id}`);
