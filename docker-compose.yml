@@ -4,6 +4,7 @@ services:
       - mongo
       - keycloak
       - redis
+      - clickhouse
     build:
       context: .
       dockerfile: Dockerfile
@@ -101,6 +102,14 @@ services:
       ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION: 1
       ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION: 1
       SUMMARY_CACHE_TTL_SECONDS: 300
+      # ClickHouse configuration
+      ENABLE_CLICKHOUSE: '1'
+      CLICKHOUSE_HOST: 'clickhouse'
+      CLICKHOUSE_PORT: '8123'
+      CLICKHOUSE_DATABASE: 'fhir'
+      CLICKHOUSE_USERNAME: 'default'
+      CLICKHOUSE_PASSWORD: ''
+      MONGO_WITH_CLICKHOUSE_RESOURCES: 'Group'
     ports:
       - '3000:3000'
     volumes:
@@ -193,6 +202,31 @@ services:
       retries: 5
       start_period: 30s
 
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: fhir-clickhouse
+    ports:
+      - '8123:8123'   # HTTP interface
+      - '9900:9000'   # Native TCP interface
+    environment:
+      CLICKHOUSE_DB: fhir
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '-q', 'localhost:8123/ping']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
   # kafkaUI:
   #   image: provectuslabs/kafka-ui
   #   ports:
@@ -214,3 +248,4 @@ services:
 
 volumes:
   mongo_data:
+  clickhouse_data:

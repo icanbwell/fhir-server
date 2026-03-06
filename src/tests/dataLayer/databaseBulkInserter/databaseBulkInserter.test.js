@@ -1,13 +1,16 @@
 const observation = require('./fixtures/observation.json');
 const consent = require('./fixtures/consent.json');
-const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, beforeAll, afterAll, jest, test, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 const Consent = require('../../../fhir/classes/4_0_0/resources/consent');
+const Group = require('../../../fhir/classes/4_0_0/resources/group');
+const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
 const { Collection, MongoInvalidArgumentError } = require('mongodb');
 const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
+const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { MONGO_ERROR } = require('../../../constants');
 
 const observationObject = new Observation(observation);
@@ -342,6 +345,120 @@ describe('databaseBulkInserter Tests', () => {
 
             expect(onResourceChangeAsync).toBeCalledTimes(0);
             expect(mockBulkWrite).toHaveBeenCalledTimes(2);
+        });
+
+        describe('contextData parameter', () => {
+            // Enable ClickHouse for contextData tests
+            beforeAll(() => {
+                process.env.ENABLE_CLICKHOUSE = '1';
+                process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
+            });
+
+            afterAll(() => {
+                delete process.env.ENABLE_CLICKHOUSE;
+                delete process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
+            });
+
+            test.each([
+                [
+                    'Group resource with contextData',
+                    'Group',
+                    new Group({
+                        id: 'group-1',
+                        resourceType: 'Group',
+                        type: 'person',
+                        actual: true,
+                        member: [{ entity: { reference: 'Patient/1' } }],
+                        meta: {
+                            versionId: '1',
+                            security: [
+                                { system: 'https://www.icanbwell.com/owner', code: 'test-owner' },
+                                { system: 'https://www.icanbwell.com/access', code: 'test-access' }
+                            ]
+                        }
+                    }),
+                    {
+                        groupMembers: [{ entity: { reference: 'Patient/1' } }],
+                        resourceType: 'Group',
+                        resourceId: 'group-1'
+                    },
+                    true
+                ],
+                [
+                    'Group resource without contextData',
+                    'Group',
+                    new Group({
+                        id: 'group-2',
+                        resourceType: 'Group',
+                        type: 'person',
+                        actual: true,
+                        member: [{ entity: { reference: 'Patient/2' } }],
+                        meta: {
+                            versionId: '1',
+                            security: [
+                                { system: 'https://www.icanbwell.com/owner', code: 'test-owner' },
+                                { system: 'https://www.icanbwell.com/access', code: 'test-access' }
+                            ]
+                        }
+                    }),
+                    null,
+                    false
+                ],
+                [
+                    'Patient resource with contextData null',
+                    'Patient',
+                    new Patient({
+                        id: 'patient-1',
+                        resourceType: 'Patient',
+                        meta: {
+                            versionId: '1',
+                            security: [
+                                { system: 'https://www.icanbwell.com/owner', code: 'test-owner' },
+                                { system: 'https://www.icanbwell.com/access', code: 'test-access' }
+                            ]
+                        }
+                    }),
+                    null,
+                    false
+                ]
+            ])('%s', async (_, resourceType, doc, contextData, shouldStripMember) => {
+                const container = createTestContainer((c) => {
+                    // Mock postSaveProcessor to skip ClickHouse writes (unit test for bulk inserter, not integration)
+                    c.register('postSaveProcessor', () => new PostSaveProcessor({ handlers: [] }));
+                    return c;
+                });
+                const databaseBulkInserter = container.databaseBulkInserter;
+                const mongoDatabaseManager = container.mongoDatabaseManager;
+                const requestId = '1234';
+                const requestInfo = getTestRequestInfo({ requestId });
+
+                await databaseBulkInserter.insertOneAsync({
+                    base_version,
+                    requestInfo,
+                    resourceType,
+                    doc,
+                    contextData
+                });
+
+                const mergeResults = await databaseBulkInserter.executeAsync({
+                    requestInfo,
+                    base_version
+                });
+
+                expect(mergeResults).not.toBeNull();
+                expect(mergeResults.length).toBe(1);
+                expect(mergeResults[0].created).toBe(true);
+
+                if (shouldStripMember && resourceType === 'Group') {
+                    const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+                    const collection = `Group_${base_version}`;
+                    const savedGroups = await fhirDb.collection(collection).find({ id: doc.id }).toArray();
+                    expect(savedGroups.length).toBe(1);
+                    // Member array should be stripped (either [] or undefined, both mean no members in MongoDB)
+                    const member = savedGroups[0].member;
+                    expect(member === undefined || (Array.isArray(member) && member.length === 0)).toBe(true);
+                }
+            });
         });
     });
 });

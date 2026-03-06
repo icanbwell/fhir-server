@@ -24,17 +24,33 @@ class PostSaveProcessor {
     }
 
     /**
+     * Checks if any handler requires synchronous writes for this resource type
+     * @param {string} resourceType
+     * @return {boolean}
+     */
+    needsSyncFor ({ resourceType }) {
+        for (const handler of this.handlers) {
+            if (typeof handler.shouldBlockForResource === 'function' &&
+                handler.shouldBlockForResource(resourceType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Fires events when a resource is changed
      * @param {string} requestId
      * @param {string} eventType.  Can be C = create or U = update
      * @param {string} resourceType
      * @param {Resource} doc
+     * @param {Object|null} contextData
      * @return {Promise<void>}
      */
-    async afterSaveAsync ({ requestId, eventType, resourceType, doc }) {
+    async afterSaveAsync ({ requestId, eventType, resourceType, doc, contextData = null }) {
         try {
             for (const handler of this.handlers) {
-                await handler.afterSaveAsync({ requestId, eventType, resourceType, doc });
+                await handler.afterSaveAsync({ requestId, eventType, resourceType, doc, contextData });
             }
         } catch (e) {
             throw new RethrownError({

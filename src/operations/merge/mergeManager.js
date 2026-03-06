@@ -28,6 +28,7 @@ const { groupByLambda } = require('../../utils/list.util');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 
 class MergeManager {
     /**
@@ -588,6 +589,8 @@ class MergeManager {
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
             // Insert/update our resource record
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge);
+
             await this.databaseBulkInserter.mergeOneAsync(
                 {
                     base_version,
@@ -595,7 +598,8 @@ class MergeManager {
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge,
                     previousVersionId,
-                    patches
+                    patches,
+                    contextData
                 }
             );
         } catch (e) {
@@ -630,11 +634,14 @@ class MergeManager {
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
             // Insert/update our resource record
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge);
+
             await this.databaseBulkInserter.insertOneAsync({
                     base_version,
                     requestInfo,
                     resourceType: resourceToMerge.resourceType,
-                    doc: resourceToMerge
+                    doc: resourceToMerge,
+                    contextData
                 }
             );
         } catch (e) {

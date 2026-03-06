@@ -8,8 +8,9 @@ class DatabaseQueryFactory {
      * Constructor
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {import('./providers/storageProviderFactory').StorageProviderFactory} [storageProviderFactory]
      */
-    constructor ({ resourceLocatorFactory, databaseAttachmentManager }) {
+    constructor ({ resourceLocatorFactory, databaseAttachmentManager, storageProviderFactory }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
@@ -21,6 +22,11 @@ class DatabaseQueryFactory {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {import('./providers/storageProviderFactory').StorageProviderFactory|null}
+         */
+        this.storageProviderFactory = storageProviderFactory || null;
     }
 
     /**
@@ -30,9 +36,20 @@ class DatabaseQueryFactory {
      */
     createQuery ({ resourceType, base_version }) {
         assertIsValid(resourceType, 'resourceType is null');
+
+        // If storage provider factory is available, create storage provider
+        let storageProvider = null;
+        if (this.storageProviderFactory) {
+            storageProvider = this.storageProviderFactory.createProvider({
+                resourceType,
+                base_version
+            });
+        }
+
         return new DatabaseQueryManager(
             {
                 resourceLocatorFactory: this.resourceLocatorFactory,
+                storageProvider,
                 resourceType,
                 base_version,
                 databaseAttachmentManager: this.databaseAttachmentManager

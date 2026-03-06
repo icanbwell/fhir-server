@@ -22,12 +22,14 @@ class DatabaseQueryManager {
     /**
      * Constructor
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {import('./providers/storageProvider').StorageProvider|null} storageProvider
      * @param {string} resourceType
      * @param {string} base_version
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor({
         resourceLocatorFactory,
+        storageProvider,
         resourceType,
         base_version,
         databaseAttachmentManager
@@ -43,6 +45,10 @@ class DatabaseQueryManager {
          * @private
          */
         this._base_version = base_version;
+        /**
+         * @type {import('./providers/storageProvider').StorageProvider|null}
+         */
+        this.storageProvider = storageProvider;
         /**
          * @type {ResourceLocator}
          */
@@ -70,6 +76,12 @@ class DatabaseQueryManager {
      */
     async findOneAsync({ query, options = null }) {
         try {
+            // Use storage provider if available
+            if (this.storageProvider) {
+                return await this.storageProvider.findOneAsync({ query, options });
+            }
+
+            // Fall back to direct MongoDB access
             const collection = await this.resourceLocator.getCollectionAsync({});
             /**
              * @type { Promise<Resource|null>}
@@ -97,6 +109,12 @@ class DatabaseQueryManager {
      */
     async findAsync({ query, options = null, extraInfo = {} }) {
         try {
+            // Use storage provider if available
+            if (this.storageProvider) {
+                return await this.storageProvider.findAsync({ query, options, extraInfo });
+            }
+
+            // Fall back to direct MongoDB access
             const collection = await this.resourceLocator.getCollectionAsync({
                 extraInfo
             });
@@ -169,6 +187,12 @@ class DatabaseQueryManager {
      */
     async exactDocumentCountAsync({ query, options }) {
         try {
+            // Check if storage provider handles counts (e.g., ClickHouse for Group member queries)
+            if (this.storageProvider && typeof this.storageProvider.countAsync === 'function') {
+                return await this.storageProvider.countAsync({ query, options });
+            }
+
+            // Fallback to MongoDB
             const collection = await this.resourceLocator.getCollectionAsync({});
             return await collection.countDocuments(query, options);
         } catch (e) {

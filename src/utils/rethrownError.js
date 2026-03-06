@@ -33,7 +33,9 @@ class RethrownError extends Error {
 
         this.nested = error;
 
-        this.statusCode = error.statusCode || error.code; // keep same statusCode
+        // Only use statusCode if it's a number (HTTP status codes are integers)
+        // error.code might be a string error code (ECONNREFUSED, etc.) or FHIR issue type
+        this.statusCode = (typeof error.statusCode === 'number') ? error.statusCode : 500;
 
         if (message instanceof Error) {
             error = message;
