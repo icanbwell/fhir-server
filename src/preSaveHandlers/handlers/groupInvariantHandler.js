@@ -56,20 +56,21 @@ class GroupInvariantHandler extends PreSaveHandler {
             });
         }
 
+        // TODO: Update to skip this flow when clickhouse is disabled
         // Check member count limit for CREATE/PUT operations
-        if (hasMembers) {
-            const memberCount = resource.member.length;
-            const limit = this.configManager.groupMemberLimit;
+        // if (hasMembers) {
+        //     const memberCount = resource.member.length;
+        //     const limit = this.configManager.groupMemberLimit;
 
-            if (memberCount > limit) {
-                const { message, options } = createTooCostlyError({
-                    actual: memberCount,
-                    limit,
-                    operation: 'PUT'
-                });
-                throw new BadRequestError({ message }, options);
-            }
-        }
+        //     if (memberCount > limit) {
+        //         const { message, options } = createTooCostlyError({
+        //             actual: memberCount,
+        //             limit,
+        //             operation: 'PUT'
+        //         });
+        //         throw new BadRequestError({ message }, options);
+        //     }
+        // }
 
         // Valid - return unchanged
         return resource;
