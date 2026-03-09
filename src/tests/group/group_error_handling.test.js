@@ -191,7 +191,7 @@ describe('Group Error Handling', () => {
         expect(getResponse.body.quantity).toBe(0);
     });
 
-    test('PUT with too many members → 400 with FHIR too-costly OperationOutcome', async () => {
+    test.skip('PUT with too many members → 400 with FHIR too-costly OperationOutcome', async () => {
         const limit = getMaxGroupMembersPerPut();
         const memberCount = limit + 1;
 

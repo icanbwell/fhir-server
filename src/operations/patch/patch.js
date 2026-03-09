@@ -15,7 +15,6 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { ConfigManager } = require('../../utils/configManager');
-const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
@@ -29,6 +28,8 @@ const { createTooCostlyError } = require('../../utils/fhirErrorFactory');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { GroupMemberPatchStrategy } = require('./strategies/groupMemberPatchStrategy');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 
 class PatchOperation {
     /**
@@ -41,11 +42,11 @@ class PatchOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {ConfigManager} configManager
-     * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -57,11 +58,11 @@ class PatchOperation {
             databaseBulkInserter,
             databaseAttachmentManager,
             configManager,
-            bwellPersonFinder,
             searchManager,
             resourceMerger,
             resourceValidator,
-            postSaveHandlerFactory
+            postSaveHandlerFactory,
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -105,12 +106,6 @@ class PatchOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {BwellPersonFinder}
-         */
-        this.bwellPersonFinder = bwellPersonFinder;
-        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
 
         /**
          * @type {SearchManager}
@@ -157,6 +152,12 @@ class PatchOperation {
             resourceMerger: this.resourceMerger,
             databaseBulkInserter: this.databaseBulkInserter
         });
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     /**
@@ -481,6 +482,10 @@ class PatchOperation {
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+
+            // enrich resource
+            this.identifierEnrichmentProvider.enrichIdentifierList(resource);
+            resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
 
             return {
                 id: resource.id,

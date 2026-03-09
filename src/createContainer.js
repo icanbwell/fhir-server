@@ -201,13 +201,9 @@ const createContainer = function () {
             }),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
-            new UuidColumnHandler({
-                configManager: c.configManager
-            }),
+            new UuidColumnHandler(),
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
-            new ReferenceGlobalIdHandler({
-                configManager: c.configManager
-            })
+            new ReferenceGlobalIdHandler()
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -617,7 +613,7 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider
             }
         )
     );
@@ -635,9 +631,9 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder,
                 searchManager: c.searchManager,
-                postSaveHandlerFactory: c.postSaveHandlerFactory
+                postSaveHandlerFactory: c.postSaveHandlerFactory,
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider
             }
         )
     );
@@ -651,7 +647,6 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder,
             mergeValidator: c.mergeValidator
         }
     ));
@@ -697,7 +692,8 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -712,7 +708,8 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -727,7 +724,8 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -740,11 +738,11 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder,
             searchManager: c.searchManager,
             resourceMerger: c.resourceMerger,
             resourceValidator: c.resourceValidator,
-            postSaveHandlerFactory: c.postSaveHandlerFactory
+            postSaveHandlerFactory: c.postSaveHandlerFactory,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -774,7 +772,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
 
