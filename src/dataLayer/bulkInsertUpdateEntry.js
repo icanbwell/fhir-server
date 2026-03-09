@@ -21,6 +21,7 @@ class BulkInsertUpdateEntry {
      * @param {MergePatchEntry[]|undefined|null} patches
      * @param {boolean|undefined} [skipped]
      * @param {string} sourceAssigningAuthority
+     * @param {Object|null} [contextData] - Optional context data for resource-specific handling (e.g., Group members)
      */
     constructor ({
                     operationType,
@@ -33,7 +34,8 @@ class BulkInsertUpdateEntry {
                     operation,
                     patches,
                     skipped,
-                    sourceAssigningAuthority
+                    sourceAssigningAuthority,
+                    contextData = null
                 }
     ) {
         /**
@@ -80,6 +82,10 @@ class BulkInsertUpdateEntry {
          * @type {boolean|undefined}
          */
         this.skipped = skipped;
+        /**
+         * @type {Object|null}
+         */
+        this.contextData = contextData;
     }
 }
 

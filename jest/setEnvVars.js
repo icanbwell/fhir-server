@@ -38,3 +38,11 @@ process.env.EXTERNAL_REQUEST_TIMEOUT_SEC = '5';
 process.env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES = "Resource";
 process.env.RESOURCE_SERVER = "http://localhost:3000";
 process.env.SERVER_PORT = 3000;
+// ClickHouse configuration (disabled by default in tests)
+process.env.ENABLE_CLICKHOUSE = '0';
+process.env.CLICKHOUSE_HOST = '127.0.0.1';
+process.env.CLICKHOUSE_PORT = '8123';
+process.env.CLICKHOUSE_DATABASE = 'fhir_test';
+process.env.CLICKHOUSE_USERNAME = 'default';
+process.env.CLICKHOUSE_PASSWORD = '';
+process.env.CLICKHOUSE_ENABLED_RESOURCES = '';

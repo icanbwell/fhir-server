@@ -22,6 +22,7 @@ const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isUuid } = require('../../utils/uid.util');
+const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
@@ -42,6 +43,7 @@ class UpdateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchManager} searchManager
+     * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
@@ -57,6 +59,7 @@ class UpdateOperation {
             configManager,
             databaseAttachmentManager,
             searchManager,
+            postSaveHandlerFactory,
             identifierEnrichmentProvider
         }
     ) {
@@ -119,6 +122,12 @@ class UpdateOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory}
+         */
+        this.postSaveHandlerFactory = postSaveHandlerFactory;
+        assertTypeEquals(postSaveHandlerFactory, require('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory);
 
         /**
          * @type {IdentifierEnrichmentProvider}
@@ -185,6 +194,10 @@ class UpdateOperation {
 
         const { id: rawId } = IdParser.parse(id);
         resource_incoming_json.id = rawId;
+
+        // For resources with mongo-with-clickhouse dual-write storage, track if externally-stored fields present
+        // Used later to force UPDATE even if MongoDB sees no changes (member array stripped before save)
+        const hasMemberField = resourceType === 'Group' && resource_incoming_json.member !== undefined;
 
         // create a resource with incoming data
         /**
@@ -336,6 +349,18 @@ class UpdateOperation {
                     databaseAttachmentManager: this.databaseAttachmentManager
                 }));
                 doc = updatedResource;
+
+                // Check if dual-write storage fields changed
+                // If so, force the update even if mergeResourceAsync returned null (MongoDB sees no changes)
+                const postSaveHandlers2 = this.postSaveHandlerFactory.getHandlers(resourceType);
+                if (!doc && postSaveHandlers2.length > 0) {
+                    // Check resource-specific mongo-with-clickhouse dual-write storage
+                    // Currently only Group.member uses dual-write (MongoDB + ClickHouse)
+                    if (hasMemberField) {
+                        doc = resource_incoming;
+                    }
+                    // Future: Add other mongo-with-clickhouse dual-write resources here
+                }
             } else {
                 if (ifMatch) {
                     precondition_failed_error = new PreconditionFailedError(`Version conflict: Resource does not exist, but If-Match header was provided. If-Match: ${ifMatch}`);
@@ -368,7 +393,10 @@ class UpdateOperation {
                 }
                 // Update attachments after all validations
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
+
                 if (data && data.meta) {
+                    const contextData = buildContextDataForHybridStorage(resourceType, doc);
+
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             base_version,
@@ -376,7 +404,8 @@ class UpdateOperation {
                             resourceType,
                             doc,
                             uuid: doc._uuid,
-                            patches
+                            patches,
+                            contextData
                         }
                     );
                 } else {
@@ -386,7 +415,16 @@ class UpdateOperation {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource: doc, requestInfo, base_version
                     });
-                    await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
+
+                    const contextData = buildContextDataForHybridStorage(resourceType, doc);
+
+                    await this.databaseBulkInserter.insertOneAsync({
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        doc,
+                        contextData
+                    });
                 }
             }
 
