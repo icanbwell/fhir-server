@@ -1,0 +1,287 @@
+[
+  {
+    "author": [
+      {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "healthsystem1"
+          }
+        ],
+        "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+        "type": "Organization"
+      }
+    ],
+    "date": "2025-01-01",
+    "id": "f46e14e8-c523-5f82-8fac-49ec548a3722",
+    "identifier": {
+      "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/bwell",
+      "value": "bwell_composition_for_health_data_summary"
+    },
+    "meta": {
+      "versionId": "1",
+      "source": "http://healthsystem1health.org/provider",
+      "security": [
+        {
+          "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthsystem1"
+        },
+        {
+          "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+          "system": "https://www.icanbwell.com/owner",
+          "code": "healthsystem1"
+        },
+        {
+          "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "healthsystem1"
+        }
+      ]
+    },
+    "resourceType": "Composition",
+    "section": [
+      {
+        "id": "9463f1fc-fa47-5d25-939a-35c90b63a991",
+        "entry": [
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Observation/d8d704a7-49c1-4510-b283-3a05ea09e3937"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Observation/d8d704a7-49c1-4510-b283-3a05ea09e3937"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "healthsystem1"
+              }
+            ],
+            "reference": "Observation/d8d704a7-49c1-4510-b283-3a05ea09e3937"
+          }
+        ],
+        "section": [
+          {
+            "title": "Vital Name",
+            "text": {
+              "status": "generated",
+              "div": "Heart rate"
+            }
+          },
+          {
+            "title": "effectiveDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2023-04-05T01:21:00+00:00"
+            }
+          },
+          {
+            "title": "valueQuantity.value",
+            "text": {
+              "status": "generated",
+              "div": "69"
+            }
+          },
+          {
+            "title": "valueQuantity.unit",
+            "text": {
+              "status": "generated",
+              "div": "/min"
+            }
+          },
+          {
+            "title": "referenceRange.low.value",
+            "text": {
+              "status": "generated",
+              "div": "60"
+            }
+          },
+          {
+            "title": "referenceRange.low.unit",
+            "text": {
+              "status": "generated",
+              "div": "/min"
+            }
+          },
+          {
+            "title": "referenceRange.high.value",
+            "text": {
+              "status": "generated",
+              "div": "100"
+            }
+          },
+          {
+            "title": "referenceRange.high.unit",
+            "text": {
+              "status": "generated",
+              "div": "/min"
+            }
+          }
+        ]
+      },
+      {
+        "entry": [
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Observation/a8d76bac-8218-459b-a1c5-5866a2910fb1"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Observation/a8d76bac-8218-459b-a1c5-5866a2910fb1"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "healthsystem1"
+              }
+            ],
+            "reference": "Observation/a8d76bac-8218-459b-a1c5-5866a2910fb1"
+          }
+        ],
+        "section": [
+          {
+            "title": "Vital Name",
+            "text": {
+              "status": "generated",
+              "div": "Blood Pressure"
+            }
+          },
+          {
+            "title": "effectiveDateTime",
+            "text": {
+              "status": "generated",
+              "div": "2023-01-01T09:00:00+00:00"
+            }
+          },
+          {
+            "title": "referenceRange.low.value",
+            "text": {
+              "status": "generated",
+              "div": "7.5"
+            }
+          },
+          {
+            "title": "referenceRange.low.unit",
+            "text": {
+              "status": "generated",
+              "div": "g/dl"
+            }
+          },
+          {
+            "title": "referenceRange.high.value",
+            "text": {
+              "status": "generated",
+              "div": "10"
+            }
+          },
+          {
+            "title": "referenceRange.high.unit",
+            "text": {
+              "status": "generated",
+              "div": "g/dl"
+            }
+          },
+          {
+            "title": "Systolic Blood Pressure",
+            "section": [
+              {
+                "title": "Systolic Blood Pressure",
+                "section": [
+                  {
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "status": "generated",
+                      "div": "120"
+                    }
+                  },
+                  {
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "status": "generated",
+                      "div": "mmHg"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Diastolic Blood Pressure",
+            "section": [
+              {
+                "title": "Diastolic Blood Pressure",
+                "section": [
+                  {
+                    "title": "valueQuantity.value",
+                    "text": {
+                      "status": "generated",
+                      "div": "80"
+                    }
+                  },
+                  {
+                    "title": "valueQuantity.unit",
+                    "text": {
+                      "status": "generated",
+                      "div": "mmHg"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "status": "final",
+    "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/patient1"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "healthsystem1"
+        }
+      ],
+      "reference": "Patient/patient1"
+    },
+    "title": "summary",
+    "type": {
+      "coding": [
+        {
+          "id": "7c309be4-4a7a-528a-bf79-32e602df12cc",
+          "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/type",
+          "code": "vital_group_code"
+        }
+      ]
+    }
+  }
+]

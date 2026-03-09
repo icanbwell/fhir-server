@@ -32,6 +32,7 @@ const { ResourceLocator } = require('../../common/resourceLocator');
 const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
+const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
 
 class BulkDataExportRunner {
     /**
@@ -721,6 +722,7 @@ class BulkDataExportRunner {
                         resource: doc,
                         operation: GRIDFS.RETRIEVE
                     });
+                    doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
 
@@ -831,6 +833,7 @@ class BulkDataExportRunner {
                         resource: doc,
                         operation: GRIDFS.RETRIEVE
                     });
+                    doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
 

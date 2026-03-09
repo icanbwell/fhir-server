@@ -97,6 +97,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     }
@@ -152,6 +164,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -160,6 +184,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             id: uuid2,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "2"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid2
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     }
@@ -237,6 +273,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -245,7 +293,31 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             id: uuid10,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "10"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid10
+                                }
+                            ],
                             practitioner: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Practitioner/1"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Practitioner/${uuid1}`
+                                    }
+                                ],
                                 reference: `Practitioner/${uuid1}`
                             },
                             resourceType: 'PractitionerRole'
@@ -308,6 +380,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -316,7 +400,31 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             id: uuid10,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "10"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid10
+                                }
+                            ],
                             practitioner: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Practitioner/1"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Practitioner/${uuid1}`
+                                    }
+                                ],
                                 reference: `Practitioner/${uuid1}`
                             },
                             resourceType: 'PractitionerRole'
@@ -381,13 +489,49 @@ describe('graphHelper Tests', () => {
                             contained: [
                                 {
                                     id: uuid10,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "10"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid10
+                                        }
+                                    ],
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/1"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid1}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid1}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 }
                             ],
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     }
@@ -451,13 +595,49 @@ describe('graphHelper Tests', () => {
                                 {
 
                                     id: uuid10,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "10"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid10
+                                        }
+                                    ],
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/1"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid1}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid1}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 }
                             ],
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     }
@@ -532,10 +712,46 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             id: uuid10,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "10"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid10
+                                }
+                            ],
                             organization: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: `Organization/${uuid100}`
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Organization/${uuid100}`
+                                    }
+                                ],
                                 reference: `Organization/${uuid100}`
                             },
                             practitioner: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: `Practitioner/${uuid1}`
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Practitioner/${uuid1}`
+                                    }
+                                ],
                                 reference: `Practitioner/${uuid1}`
                             },
                             resourceType: 'PractitionerRole'
@@ -546,6 +762,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
                             id: uuid100,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "100"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid100
+                                }
+                            ],
                             resourceType: 'Organization'
                         }
                     }
@@ -608,13 +836,49 @@ describe('graphHelper Tests', () => {
                             contained: [
                                 {
                                     id: uuid10,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "10"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid10
+                                        }
+                                    ],
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/1"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid1}`
+                                            }
+                                        ],
                                         reference: `Practitioner/#${uuid1}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 }
                             ],
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     }
@@ -691,6 +955,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -699,10 +975,46 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             id: uuid10,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "10"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid10
+                                }
+                            ],
                             organization: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Organization/100"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Organization/${uuid100}`
+                                    }
+                                ],
                                 reference: `Organization/${uuid100}`
                             },
                             practitioner: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Practitioner/1"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Practitioner/${uuid1}`
+                                    }
+                                ],
                                 reference: `Practitioner/${uuid1}`
                             },
                             resourceType: 'PractitionerRole'
@@ -713,6 +1025,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
                             id: uuid100,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "100"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid100
+                                }
+                            ],
                             resourceType: 'Organization'
                         }
                     }
@@ -821,6 +1145,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -829,6 +1165,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             id: uuid2,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "2"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid2
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -837,10 +1185,46 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             id: uuid10,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "10"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid10
+                                }
+                            ],
                             organization: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Organization/100"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Organization/${uuid100}`
+                                    }
+                                ],
                                 reference: `Organization/${uuid100}`
                             },
                             practitioner: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Practitioner/1"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Practitioner/${uuid1}`
+                                    }
+                                ],
                                 reference: `Practitioner/${uuid1}`
                             },
                             resourceType: 'PractitionerRole'
@@ -851,6 +1235,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
                             id: uuid100,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "100"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid100
+                                }
+                            ],
                             resourceType: 'Organization'
                         }
                     },
@@ -859,10 +1255,46 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid20}`,
                         resource: {
                             id: uuid20,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "20"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid20
+                                }
+                            ],
                             organization: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Organization/200"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Organization/${uuid200}`
+                                    }
+                                ],
                                 reference: `Organization/${uuid200}`
                             },
                             practitioner: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Practitioner/2"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Practitioner/${uuid2}`
+                                    }
+                                ],
                                 reference: `Practitioner/${uuid2}`
                             },
                             resourceType: 'PractitionerRole'
@@ -873,6 +1305,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Organization/${uuid200}`,
                         resource: {
                             id: uuid200,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "200"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid200
+                                }
+                            ],
                             resourceType: 'Organization'
                         }
                     }
@@ -984,20 +1428,80 @@ describe('graphHelper Tests', () => {
                             contained: [
                                 {
                                     id: uuid10,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "10"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid10
+                                        }
+                                    ],
                                     organization: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Organization/100"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Organization/${uuid100}`
+                                            }
+                                        ],
                                         reference: `Organization/${uuid100}`
                                     },
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/1"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid1}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid1}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuid100,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "100"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid100
+                                        }
+                                    ],
                                     resourceType: 'Organization'
                                 }
                             ],
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -1008,20 +1512,80 @@ describe('graphHelper Tests', () => {
                             contained: [
                                 {
                                     id: uuid20,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "20"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid20
+                                        }
+                                    ],
                                     organization: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Organization/200"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Organization/${uuid200}`
+                                            }
+                                        ],
                                         reference: `Organization/${uuid200}`
                                     },
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/2"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid2}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid2}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuid200,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "200"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid200
+                                        }
+                                    ],
                                     resourceType: 'Organization'
                                 }
                             ],
                             id: uuid2,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "2"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid2
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     }
@@ -1121,6 +1685,19 @@ describe('graphHelper Tests', () => {
                         id: uuid10,
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
+                            id: uuid10,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "10"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid10
+                                }
+                            ],
                             extension: [
                                 {
                                     extension: [
@@ -1141,6 +1718,18 @@ describe('graphHelper Tests', () => {
                                         {
                                             url: 'plan',
                                             valueReference: {
+                                                extension: [
+                                                    {
+                                                        id: "sourceId",
+                                                        url: "https://www.icanbwell.com/sourceId",
+                                                        valueString: `InsurancePlan/${uuidAetna}`
+                                                    },
+                                                    {
+                                                        id: "uuid",
+                                                        url: "https://www.icanbwell.com/uuid",
+                                                        valueString: `InsurancePlan/${uuidAetna}`
+                                                    }
+                                                ],
                                                 reference:
                                                     `InsurancePlan/${uuidAetna}`
                                             }
@@ -1149,7 +1738,6 @@ describe('graphHelper Tests', () => {
                                     url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
                                 }
                             ],
-                            id: uuid10,
                             organization: {
                                 reference: `Organization/${uuid100}`
                             },
@@ -1165,6 +1753,18 @@ describe('graphHelper Tests', () => {
                             `https://host/4_0_0/InsurancePlan/${uuidAetna}`,
                         resource: {
                             id: uuidAetna,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuidAetna
+                                }
+                            ],
                             resourceType: 'InsurancePlan'
                         }
                     }
@@ -1323,6 +1923,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -1330,19 +1942,43 @@ describe('graphHelper Tests', () => {
                         id: uuid2,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
+                            id: uuid2,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "2"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid2
+                                }
+                            ],
                             extension: [
                                 {
                                     extension: [
                                         {
                                             url: 'plan',
                                             valueReference: {
+                                                extension: [
+                                                    {
+                                                        id: "sourceId",
+                                                        url: "https://www.icanbwell.com/sourceId",
+                                                        valueString: `InsurancePlan/${uuid2000}`
+                                                    },
+                                                    {
+                                                        id: "uuid",
+                                                        url: "https://www.icanbwell.com/uuid",
+                                                        valueString: `InsurancePlan/${uuid2000}`
+                                                    }
+                                                ],
                                                 reference: `InsurancePlan/${uuid2000}`
                                             }
                                         }
                                     ]
                                 }
                             ],
-                            id: uuid2,
                             resourceType: 'Practitioner'
                         }
                     },
@@ -1350,6 +1986,19 @@ describe('graphHelper Tests', () => {
                         id: uuid10,
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
+                            id: uuid10,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "10"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid10
+                                }
+                            ],
                             extension: [
                                 {
                                     extension: [
@@ -1370,6 +2019,18 @@ describe('graphHelper Tests', () => {
                                         {
                                             url: 'plan',
                                             valueReference: {
+                                                extension: [
+                                                    {
+                                                        id: "sourceId",
+                                                        url: "https://www.icanbwell.com/sourceId",
+                                                        valueString: `InsurancePlan/${uuidAetna}`
+                                                    },
+                                                    {
+                                                        id: "uuid",
+                                                        url: "https://www.icanbwell.com/uuid",
+                                                        valueString: `InsurancePlan/${uuidAetna}`
+                                                    }
+                                                ],
                                                 reference: `InsurancePlan/${uuidAetna}`
                                             }
                                         }
@@ -1377,11 +2038,34 @@ describe('graphHelper Tests', () => {
                                     url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
                                 }
                             ],
-                            id: uuid10,
                             organization: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Organization/100"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Organization/${uuid100}`
+                                    }
+                                ],
                                 reference: `Organization/${uuid100}`
                             },
                             practitioner: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Practitioner/1"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Practitioner/${uuid1}`
+                                    }
+                                ],
                                 reference: `Practitioner/${uuid1}`
                             },
                             resourceType: 'PractitionerRole'
@@ -1393,6 +2077,18 @@ describe('graphHelper Tests', () => {
                             `https://host/4_0_0/InsurancePlan/${uuidAetna}`,
                         resource: {
                             id: uuidAetna,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuidAetna
+                                }
+                            ],
                             resourceType: 'InsurancePlan'
                         }
                     },
@@ -1401,6 +2097,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
                             id: uuid100,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "100"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid100
+                                }
+                            ],
                             resourceType: 'Organization'
                         }
                     },
@@ -1409,10 +2117,46 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid20}`,
                         resource: {
                             id: uuid20,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "20"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid20
+                                }
+                            ],
                             organization: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Organization/200"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Organization/${uuid200}`
+                                    }
+                                ],
                                 reference: `Organization/${uuid200}`
                             },
                             practitioner: {
+                                extension: [
+                                    {
+                                        id: "sourceId",
+                                        url: "https://www.icanbwell.com/sourceId",
+                                        valueString: "Practitioner/2"
+                                    },
+                                    {
+                                        id: "uuid",
+                                        url: "https://www.icanbwell.com/uuid",
+                                        valueString: `Practitioner/${uuid2}`
+                                    }
+                                ],
                                 reference: `Practitioner/${uuid2}`
                             },
                             resourceType: 'PractitionerRole'
@@ -1423,6 +2167,18 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Organization/${uuid200}`,
                         resource: {
                             id: uuid200,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "200"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid200
+                                }
+                            ],
                             resourceType: 'Organization'
                         }
                     }
@@ -1580,6 +2336,19 @@ describe('graphHelper Tests', () => {
                         resource: {
                             contained: [
                                 {
+                                    id: uuid10,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "10"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid10
+                                        }
+                                    ],
                                     extension: [
                                         {
                                             extension: [
@@ -1600,6 +2369,18 @@ describe('graphHelper Tests', () => {
                                                 {
                                                     url: 'plan',
                                                     valueReference: {
+                                                        extension: [
+                                                            {
+                                                                id: "sourceId",
+                                                                url: "https://www.icanbwell.com/sourceId",
+                                                                valueString: `InsurancePlan/${uuidAetna}`
+                                                            },
+                                                            {
+                                                                id: "uuid",
+                                                                url: "https://www.icanbwell.com/uuid",
+                                                                valueString: `InsurancePlan/${uuidAetna}`
+                                                            }
+                                                        ],
                                                         reference: `InsurancePlan/${uuidAetna}`
                                                     }
                                                 }
@@ -1607,25 +2388,84 @@ describe('graphHelper Tests', () => {
                                             url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
                                         }
                                     ],
-                                    id: uuid10,
                                     organization: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Organization/100"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Organization/${uuid100}`
+                                            }
+                                        ],
                                         reference: `Organization/${uuid100}`
                                     },
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/1"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid1}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid1}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuidAetna,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuidAetna
+                                        }
+                                    ],
                                     resourceType: 'InsurancePlan'
                                 },
                                 {
                                     id: uuid100,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "100"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid100
+                                        }
+                                    ],
                                     resourceType: 'Organization'
                                 }
                             ],
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -1636,17 +2476,78 @@ describe('graphHelper Tests', () => {
                             contained: [
                                 {
                                     id: uuid20,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "20"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid20
+                                        }
+                                    ],
                                     organization: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Organization/200"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Organization/${uuid200}`
+                                            }
+                                        ],
                                         reference: `Organization/${uuid200}`
                                     },
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/2"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid2}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid2}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuid200,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "200"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid200
+                                        }
+                                    ],
                                     resourceType: 'Organization'
+                                }
+                            ],
+                            id: uuid2,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "2"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid2
                                 }
                             ],
                             extension: [
@@ -1661,7 +2562,6 @@ describe('graphHelper Tests', () => {
                                     ]
                                 }
                             ],
-                            id: uuid2,
                             resourceType: 'Practitioner'
                         }
                     }
@@ -1833,6 +2733,18 @@ describe('graphHelper Tests', () => {
                         resource: {
                             contained: [
                                 {
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "10"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid10
+                                        }
+                                    ],
                                     extension: [
                                         {
                                             extension: [
@@ -1853,6 +2765,18 @@ describe('graphHelper Tests', () => {
                                                 {
                                                     url: 'plan',
                                                     valueReference: {
+                                                        extension: [
+                                                            {
+                                                                id: "sourceId",
+                                                                url: "https://www.icanbwell.com/sourceId",
+                                                                valueString: `InsurancePlan/${uuidAetna}`
+                                                            },
+                                                            {
+                                                                id: "uuid",
+                                                                url: "https://www.icanbwell.com/uuid",
+                                                                valueString: `InsurancePlan/${uuidAetna}`
+                                                            }
+                                                        ],
                                                         reference: `InsurancePlan/${uuidAetna}`
                                                     }
                                                 }
@@ -1862,23 +2786,83 @@ describe('graphHelper Tests', () => {
                                     ],
                                     id: uuid10,
                                     organization: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Organization/100"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Organization/${uuid100}`
+                                            }
+                                        ],
                                         reference: `Organization/${uuid100}`
                                     },
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/1"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid1}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid1}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuidAetna,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuidAetna
+                                        }
+                                    ],
                                     resourceType: 'InsurancePlan'
                                 },
                                 {
                                     id: uuid100,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "100"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid100
+                                        }
+                                    ],
                                     resourceType: 'Organization'
                                 }
                             ],
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             resourceType: 'Practitioner'
                         }
                     },
@@ -1889,17 +2873,78 @@ describe('graphHelper Tests', () => {
                             contained: [
                                 {
                                     id: uuid20,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "20"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid20
+                                        }
+                                    ],
                                     organization: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Organization/200"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Organization/${uuid200}`
+                                            }
+                                        ],
                                         reference: `Organization/${uuid200}`
                                     },
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/2"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid2}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid2}`
                                     },
                                     resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuid200,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "200"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid200
+                                        }
+                                    ],
                                     resourceType: 'Organization'
+                                }
+                            ],
+                            id: uuid2,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "2"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid2
                                 }
                             ],
                             extension: [
@@ -1914,7 +2959,6 @@ describe('graphHelper Tests', () => {
                                     ]
                                 }
                             ],
-                            id: uuid2,
                             resourceType: 'Practitioner'
                         }
                     }
@@ -2156,10 +3200,34 @@ describe('graphHelper Tests', () => {
                         resource: {
                             resourceType: 'Practitioner',
                             id: uuid1,
+                            identifier: [
+                                {
+                                    id: "sourceId",
+                                    system: "https://www.icanbwell.com/sourceId",
+                                    value: "1"
+                                },
+                                {
+                                    id: "uuid",
+                                    system: "https://www.icanbwell.com/uuid",
+                                    value: uuid1
+                                }
+                            ],
                             contained: [
                                 {
                                     resourceType: 'PractitionerRole',
                                     id: uuid10,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "10"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid10
+                                        }
+                                    ],
                                     extension: [
                                         {
                                             id: 'IDHP',
@@ -2180,6 +3248,18 @@ describe('graphHelper Tests', () => {
                                                 {
                                                     url: 'plan',
                                                     valueReference: {
+                                                        extension: [
+                                                            {
+                                                                id: "sourceId",
+                                                                url: "https://www.icanbwell.com/sourceId",
+                                                                valueString: `InsurancePlan/${uuidAetna}`
+                                                            },
+                                                            {
+                                                                id: "uuid",
+                                                                url: "https://www.icanbwell.com/uuid",
+                                                                valueString: `InsurancePlan/${uuidAetna}`
+                                                            }
+                                                        ],
                                                         reference: `InsurancePlan/${uuidAetna}`
                                                     }
                                                 }
@@ -2188,19 +3268,67 @@ describe('graphHelper Tests', () => {
                                         }
                                     ],
                                     practitioner: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Practitioner/1"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Practitioner/${uuid1}`
+                                            }
+                                        ],
                                         reference: `Practitioner/${uuid1}`
                                     },
                                     organization: {
+                                        extension: [
+                                            {
+                                                id: "sourceId",
+                                                url: "https://www.icanbwell.com/sourceId",
+                                                valueString: "Organization/100"
+                                            },
+                                            {
+                                                id: "uuid",
+                                                url: "https://www.icanbwell.com/uuid",
+                                                valueString: `Organization/${uuid100}`
+                                            }
+                                        ],
                                         reference: `Organization/${uuid100}`
                                     }
                                 },
                                 {
                                     resourceType: 'InsurancePlan',
-                                    id: uuidAetna
+                                    id: uuidAetna,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuidAetna
+                                        }
+                                    ]
                                 },
                                 {
                                     resourceType: 'Organization',
-                                    id: uuid100
+                                    id: uuid100,
+                                    identifier: [
+                                        {
+                                            id: "sourceId",
+                                            system: "https://www.icanbwell.com/sourceId",
+                                            value: "100"
+                                        },
+                                        {
+                                            id: "uuid",
+                                            system: "https://www.icanbwell.com/uuid",
+                                            value: uuid100
+                                        }
+                                    ]
                                 }
                             ]
                         }

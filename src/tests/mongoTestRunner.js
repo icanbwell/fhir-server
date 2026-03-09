@@ -27,6 +27,11 @@ async function stopTestMongoServerAsync () {
 }
 
 async function getMongoUrlAsync () {
+    // For performance tests, use Docker MongoDB instead of in-memory server
+    if (process.env.USE_DOCKER_MONGO === '1' && process.env.MONGO_URL) {
+        return process.env.MONGO_URL;
+    }
+
     if (!myMongoUrl) {
         await startTestMongoServerAsync();
     }

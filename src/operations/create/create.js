@@ -15,8 +15,10 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 class CreateOperation {
     /**
@@ -29,7 +31,7 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {BwellPersonFinder} bwellPersonFinder
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -41,7 +43,7 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
-            bwellPersonFinder
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -89,10 +91,10 @@ class CreateOperation {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
-         * @type {BwellPersonFinder}
+         * @type {IdentifierEnrichmentProvider}
          */
-        this.bwellPersonFinder = bwellPersonFinder;
-        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -209,7 +211,7 @@ class CreateOperation {
             /**
              * @type {Resource}
              */
-            const doc = resource;
+            let doc = resource;
             Object.assign(doc, { id: resource_incoming.id });
 
             if (resourceType !== 'AuditEvent') {
@@ -236,7 +238,15 @@ class CreateOperation {
             logDebug('Inserting', { user, args: { doc } });
 
             // Insert our resource record
-            await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
+            const contextData = buildContextDataForHybridStorage(resourceType, doc);
+
+            await this.databaseBulkInserter.insertOneAsync({
+                base_version,
+                requestInfo,
+                resourceType,
+                doc,
+                contextData
+            });
             /**
              * @type {MergeResultEntry[]}
              */
@@ -267,6 +277,10 @@ class CreateOperation {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: mergeResults
             });
+
+            // enrich resource
+            this.identifierEnrichmentProvider.enrichIdentifierList(doc);
+            doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
 
             return doc;
         } catch (/** @type {Error} */ e) {

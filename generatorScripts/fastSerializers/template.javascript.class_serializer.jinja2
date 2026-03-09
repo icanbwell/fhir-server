@@ -20,6 +20,9 @@
         {% endif %}
     {% endif %}
 {% endfor %}
+{% if fhir_entity.cleaned_name == "Reference" %}
+const { enrichReferenceExtension } = require('../custom_utils/referenceEnricher.js');
+{% endif %}
 
 {# Generate lazy loaded imports #}
 {% for type, path in imported_types.items() %}
@@ -102,6 +105,11 @@ class {{ fhir_entity.cleaned_name }}Serializer {
         
         // Handle non-object case
         if (typeof rawJson !== 'object') return rawJson;
+        {% if fhir_entity.cleaned_name == "Reference" %}
+
+        // enrich the reference extension before serialization
+        enrichReferenceExtension(rawJson);
+        {% endif %}
 
         Object.keys(rawJson).forEach(propertyName => {
             const value = rawJson[propertyName];

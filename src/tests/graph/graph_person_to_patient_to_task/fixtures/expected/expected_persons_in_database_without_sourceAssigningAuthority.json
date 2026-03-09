@@ -51,23 +51,6 @@
           "_sourceAssigningAuthority": "healthsystem2",
           "_sourceId": "Patient/aab16fc4c5914e38b489bcd096369623",
           "_uuid": "Patient/b2ee7ab4-c3b1-50af-8017-dbecc28177bf",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/aab16fc4c5914e38b489bcd096369623"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/b2ee7ab4-c3b1-50af-8017-dbecc28177bf"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "healthsystem2"
-            }
-          ],
           "reference": "Patient/aab16fc4c5914e38b489bcd096369623",
           "type": "Patient"
         }
@@ -77,23 +60,6 @@
           "_sourceAssigningAuthority": "healthsystem2",
           "_sourceId": "Patient/0318898e65044aaab3115d048d44c434",
           "_uuid": "Patient/516376f2-c326-5ecb-8ab8-033c9b7a8bbc",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/0318898e65044aaab3115d048d44c434"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/516376f2-c326-5ecb-8ab8-033c9b7a8bbc"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "healthsystem2"
-            }
-          ],
           "reference": "Patient/0318898e65044aaab3115d048d44c434",
           "type": "Patient"
         }

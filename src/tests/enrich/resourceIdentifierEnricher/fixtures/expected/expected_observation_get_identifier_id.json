@@ -1,0 +1,39 @@
+[
+  {
+    "id": "2354-InAgeCohort",
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "2354-InAgeCohort"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "61886699-c643-5e3b-a074-569e4c43bddf"
+      }
+    ],
+    "resourceType": "Observation"
+  },
+  {
+    "id": "2354-InAgeCohort-2",
+    "identifier": [
+      {
+        "id": "test",
+        "system": "https://www.icanbwell.com/test",
+        "value": "value"
+      },
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "2354-InAgeCohort-2"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "8b6fdea4-a6bd-517c-9277-f07970becf66"
+      }
+    ],
+    "resourceType": "Observation"
+  }
+]

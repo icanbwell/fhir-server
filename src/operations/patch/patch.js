@@ -15,7 +15,6 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { ConfigManager } = require('../../utils/configManager');
-const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
@@ -24,6 +23,13 @@ const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
 const httpContext = require('express-http-context');
+const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../constants/groupConstants');
+const { createTooCostlyError } = require('../../utils/fhirErrorFactory');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { GroupMemberPatchStrategy } = require('./strategies/groupMemberPatchStrategy');
+const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 
 class PatchOperation {
     /**
@@ -36,10 +42,11 @@ class PatchOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {ConfigManager} configManager
-     * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
+     * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -51,10 +58,11 @@ class PatchOperation {
             databaseBulkInserter,
             databaseAttachmentManager,
             configManager,
-            bwellPersonFinder,
             searchManager,
             resourceMerger,
-            resourceValidator
+            resourceValidator,
+            postSaveHandlerFactory,
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -100,12 +108,6 @@ class PatchOperation {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
-         * @type {BwellPersonFinder}
-         */
-        this.bwellPersonFinder = bwellPersonFinder;
-        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
-
-        /**
          * @type {SearchManager}
          */
         this.searchManager = searchManager;
@@ -122,6 +124,40 @@ class PatchOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory}
+         */
+        this.postSaveHandlerFactory = postSaveHandlerFactory;
+        assertTypeEquals(postSaveHandlerFactory, require('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory);
+
+        /**
+         * Strategy for handling resource-specific PATCH operations
+         *
+         * NOTE: When adding a second strategy (e.g., ObservationComponentPatchStrategy),
+         * refactor to use a PatchStrategyFactory to avoid violating Open/Closed Principle:
+         *
+         * this.patchStrategyFactory = new PatchStrategyFactory({...});
+         * this.patchStrategyFactory.register('Group', GroupMemberPatchStrategy);
+         * this.patchStrategyFactory.register('Observation', ObservationComponentPatchStrategy);
+         *
+         * Then in patchAsync:
+         * const strategy = this.patchStrategyFactory.getStrategy(resourceType);
+         *
+         * @type {GroupMemberPatchStrategy}
+         */
+        this.groupMemberPatchStrategy = new GroupMemberPatchStrategy({
+            postSaveHandlerFactory: this.postSaveHandlerFactory,
+            configManager: this.configManager,
+            resourceMerger: this.resourceMerger,
+            databaseBulkInserter: this.databaseBulkInserter
+        });
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     /**
@@ -190,6 +226,29 @@ class PatchOperation {
             // http://hl7.org/fhir/http.html#patch
             // patchContent is passed in JSON Patch format https://jsonpatch.com/
             const { base_version, id } = parsedArgs;
+
+            // ============ SPECIAL HANDLING FOR GROUP MEMBER OPERATIONS ============
+            // For storage-synced Groups, member operations bypass MongoDB array updates
+            // and write directly to event log (FHIR R4B PATCH with RFC 6902)
+            // IMPORTANT: We detect member ops early but validate/write AFTER security checks below
+            let groupMemberOperations = null;
+            let hasOnlyMemberOperations = false;
+            let effectivePatchContent = patchContent;
+            const memberOpsResult = this.groupMemberPatchStrategy.detectMemberOperations({
+                patchContent,
+                resourceType
+            });
+            if (memberOpsResult) {
+                groupMemberOperations = memberOpsResult.memberOps;
+                hasOnlyMemberOperations = memberOpsResult.hasOnlyMemberOperations;
+
+                if (!hasOnlyMemberOperations) {
+                    // Mixed patch: will handle member ops after validation, then continue with non-member ops
+                    effectivePatchContent = memberOpsResult.nonMemberOps;
+                }
+            }
+            // ====================================================================
+
             // Get current record
             // Query our collection for this observation
             /**
@@ -255,13 +314,42 @@ class PatchOperation {
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource: foundResource, base_version
             });
+
+            // ============ EXECUTE GROUP MEMBER OPERATIONS (AFTER VALIDATION) ============
+            // Now that we've validated the resource exists and user has access, handle member operations
+            if (groupMemberOperations && groupMemberOperations.length > 0) {
+                const updatedResource = await this.groupMemberPatchStrategy.executeMemberOperations({
+                    requestInfo,
+                    parsedArgs,
+                    resourceType,
+                    id,
+                    base_version,
+                    memberOperations: groupMemberOperations,
+                    foundResource
+                });
+
+                // If only member operations, update metadata and return
+                if (hasOnlyMemberOperations) {
+                    return await this.groupMemberPatchStrategy.buildMemberPatchResponse({
+                        requestInfo,
+                        parsedArgs,
+                        resourceType,
+                        id,
+                        base_version,
+                        updatedResource
+                    });
+                }
+                // Mixed operations: continue with non-member patch below
+            }
+            // ====================================================================
+
             const originalResource = foundResource.clone();
             foundResource = await this.databaseAttachmentManager.transformAttachments(
-                foundResource, RETRIEVE, patchContent
+                foundResource, RETRIEVE, effectivePatchContent
             );
 
             // Validate the patch
-            const errors = validate(patchContent, foundResource);
+            const errors = validate(effectivePatchContent, foundResource);
             if (errors) {
                 const error = Array.isArray(errors) && errors.length && errors.find(e => !!e) ? errors.find(e => !!e) : errors;
                 throw new BadRequestError(error);
@@ -271,7 +359,7 @@ class PatchOperation {
              * @type {Object}
              */
             const resource_incoming = this.resourceMerger.applyPatch({
-                currentResource: foundResource, patchContent
+                currentResource: foundResource, patchContent: effectivePatchContent
             });
             /**
              * @type {Resource}
@@ -346,6 +434,8 @@ class PatchOperation {
 
                 // Same as update from this point on
                 // Insert/update our resource record
+                const contextData = buildContextDataForHybridStorage(resourceType, resource);
+
                 await this.databaseBulkInserter.replaceOneAsync(
                     {
                         base_version,
@@ -353,7 +443,7 @@ class PatchOperation {
                         resourceType,
                         doc: resource,
                         uuid: resource._uuid,
-                        patches: patchContent.map(
+                        patches: effectivePatchContent.map(
                             p => {
                                 return {
                                     op: p.op,
@@ -361,7 +451,8 @@ class PatchOperation {
                                     value: p.value
                                 };
                             }
-                        )
+                        ),
+                        contextData
                     }
                 );
                 /**
@@ -391,6 +482,10 @@ class PatchOperation {
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+
+            // enrich resource
+            this.identifierEnrichmentProvider.enrichIdentifierList(resource);
+            resource = FhirResourceSerializer.serialize(resource.toJSONInternal());
 
             return {
                 id: resource.id,

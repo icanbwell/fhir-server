@@ -352,6 +352,26 @@ module.exports = {
                 }
             }
         ],
+        Consent_4_0_0: [
+            {
+                keys: {
+                    status: 1,
+                    'patient._uuid': 1
+                },
+                options: {
+                    name: CONSENT_OF_LINKED_PERSON_INDEX
+                }
+            },
+            {
+                keys: {
+                    _uuid: 1,
+                    dateTime: 1
+                },
+                options: {
+                    name: '_uuid_1_dateTime_1'
+                }
+            }
+        ],
         Coverage_4_0_0: [
             {
                 keys: {
@@ -1304,17 +1324,6 @@ module.exports = {
                 },
                 options: {
                     name: 'health_vitals_1'
-                }
-            }
-        ],
-        Consent_4_0_0: [
-            {
-                keys: {
-                    status: 1,
-                    'patient._uuid': 1
-                },
-                options: {
-                    name: CONSENT_OF_LINKED_PERSON_INDEX
                 }
             }
         ]

@@ -1059,6 +1059,18 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@clickhouse/client-common@1.17.0":
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@clickhouse/client-common/-/client-common-1.17.0.tgz#403f10601e960f002bf4aa3512e7cfd22ac4da74"
+  integrity sha512-MiwwgXViFAQA2YZkN4ymF1ynzG0K49KeSX9/iOcmJetWkxqSekDdpyp1GjwATWa9R215uQ+hGzJtJujeQVZZIw==
+
+"@clickhouse/client@^1.17.0":
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@clickhouse/client/-/client-1.17.0.tgz#373a507371575653373f4fbba3a95268fb8d9f7f"
+  integrity sha512-Y3DQoamKZ/Iyosoq7Lj7lqpDkQDK4R/5mI52yJs4ZLPIO+d6/CYDqTbFBIb4No3C/AlXUYE4TKhj/kXDpe6rOA==
+  dependencies:
+    "@clickhouse/client-common" "1.17.0"
+
 "@colors/colors@1.6.0", "@colors/colors@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.6.0.tgz#ec6cd237440700bc23ca23087f513c75508958b0"

@@ -30,23 +30,6 @@
     "agent": [
         {
             "who": {
-                "extension": [
-                    {
-                        "id": "sourceId",
-                        "url": "https://www.icanbwell.com/sourceId",
-                        "valueString": "Patient/person.person1"
-                    },
-                    {
-                        "id": "uuid",
-                        "url": "https://www.icanbwell.com/uuid",
-                        "valueString": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5"
-                    },
-                    {
-                        "id": "sourceAssigningAuthority",
-                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                        "valueString": "bwell"
-                    }
-                ],
                 "reference": "Patient/person.person1",
                 "_sourceAssigningAuthority": "bwell",
                 "_uuid": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5",
@@ -62,23 +45,6 @@
     ],
     "source": {
         "observer": {
-            "extension": [
-                {
-                    "id": "sourceId",
-                    "url": "https://www.icanbwell.com/sourceId",
-                    "valueString": "Patient/person.person1"
-                },
-                {
-                    "id": "uuid",
-                    "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5"
-                },
-                {
-                    "id": "sourceAssigningAuthority",
-                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "bwell"
-                }
-            ],
             "reference": "Patient/person.person1",
             "_sourceAssigningAuthority": "bwell",
             "_uuid": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5",
@@ -88,23 +54,6 @@
     "entity": [
         {
             "what": {
-                "extension": [
-                    {
-                        "id": "sourceId",
-                        "url": "https://www.icanbwell.com/sourceId",
-                        "valueString": "Observation/2354-InAgeCohort"
-                    },
-                    {
-                        "id": "uuid",
-                        "url": "https://www.icanbwell.com/uuid",
-                        "valueString": "Observation/bad1a7ed-b88a-530c-bbdf-3a36e5887a96"
-                    },
-                    {
-                        "id": "sourceAssigningAuthority",
-                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                        "valueString": "bwell"
-                    }
-                ],
                 "reference": "Observation/2354-InAgeCohort",
                 "_sourceAssigningAuthority": "bwell",
                 "_uuid": "Observation/bad1a7ed-b88a-530c-bbdf-3a36e5887a96",

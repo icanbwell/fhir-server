@@ -3,26 +3,12 @@ const { isUuid, generateUUIDv5, generateUUID } = require('../../utils/uid.util')
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { ConfigManager } = require('../../utils/configManager');
+const { assertIsValid } = require('../../utils/assertType');
 
 /**
  * @classdesc Adds the uuid to the resource if not present
  */
 class UuidColumnHandler extends PreSaveHandler {
-    /**
-     * constructor
-     * @param {ConfigManager} configManager
-     */
-    constructor ({ configManager }) {
-        super();
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-    }
-
     /**
      * fixes up any resources before they are saved
      * @typedef {Object} PreSaveAsyncProps

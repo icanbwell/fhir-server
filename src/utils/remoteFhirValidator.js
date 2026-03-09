@@ -8,6 +8,7 @@ const request = require('superagent');
 const { ProfileUrlMapper } = require('./profileMapper');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const { ExternalTimeoutError } = require('./httpErrors');
+const { validateUrl } = require('./urlParser');
 
 class RemoteFhirValidator {
     /**
@@ -43,6 +44,7 @@ class RemoteFhirValidator {
         assertIsValid(url, 'url must be specified');
         const originalUrl = this.profileUrlMapper.getOriginalUrl(url);
         try {
+            validateUrl(originalUrl);
             const response = await request
                 .get(originalUrl.toString())
                 .set('Accept', 'application/json')

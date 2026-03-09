@@ -34,7 +34,24 @@ const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
+const { CONTEXT_KEYS } = require('../constants/groupConstants');
+
+/**
+ * Configuration for resources that need array field stripping for ClickHouse hybrid storage
+ * Resources with large arrays (>16MB MongoDB limit) store metadata in MongoDB, array data in ClickHouse
+ *
+ * Currently configured: Group.member
+ * Future: List.entry would follow the same pattern if needed
+ *
+ * NOTE: Other ClickHouse resources (AuditEvent, MeasureReport, Observation) write directly
+ * to ClickHouse event logs without MongoDB storage, so don't need this stripping pattern.
+ */
+const ARRAY_STRIPPING_CONFIG = {
+    Group: { field: 'member', contextKey: 'GROUP_MEMBERS' }
+    // List: { field: 'entry', contextKey: 'LIST_ENTRIES' } // Add when needed
+};
 const { MongoInvalidArgumentError } = require('mongodb');
+const httpContext = require('express-http-context');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -122,6 +139,48 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * Handles array field stripping for ClickHouse-backed resources with large arrays
+     * This prevents 16MB MongoDB document size limit errors
+     *
+     * Generic implementation that works for any resource type configured in ARRAY_STRIPPING_CONFIG.
+     * Currently handles Group.member, easily extensible to List.entry or similar patterns.
+     *
+     * @param {Resource} resource - FHIR resource being saved
+     * @param {string} requestId - Request ID for httpContext storage
+     * @param {Object|null} contextData - Optional context data (preferred over httpContext)
+     * @param {Array} contextData.groupMembers - Array data (e.g., Group members, List entries)
+     * @param {string} contextData.resourceType - Resource type
+     * @param {string} contextData.resourceId - Resource ID
+     * @returns {Resource} Resource with array field stripped (if applicable)
+     * @private
+     */
+    _handleArrayFieldStripping ({ resource, requestId, contextData = null }) {
+        // Check if this resource type needs array stripping
+        const config = ARRAY_STRIPPING_CONFIG[resource.resourceType];
+        if (!config) {
+            return resource; // Resource not configured for array stripping
+        }
+
+        if (!this.configManager.enableClickHouse ||
+            !this.configManager.mongoWithClickHouseResources.includes(resource.resourceType)) {
+            return resource;
+        }
+
+        // Get array data from contextData (preferred) or resource field (fallback)
+        const fieldName = config.field;
+        const contextFieldName = `${resource.resourceType.toLowerCase()}${config.field.charAt(0).toUpperCase()}${config.field.slice(1)}s`;
+        const arrayData = contextData?.[contextFieldName] || resource[fieldName] || [];
+
+        // Strip array from resource (hybrid storage: MongoDB stores metadata, ClickHouse stores array data)
+        // This prevents 16MB document size limit errors for large arrays
+        // Array data is passed to post-save handler via contextData parameter (explicit threading)
+        // IMPORTANT: Modify in place to preserve Resource type
+        resource[fieldName] = [];
+
+        return resource;
+    }
+
+    /**
      * This map stores an entry per resourceType where the value is a list of operations to perform
      * on that resourceType
      * <resourceType, list of operations>
@@ -160,7 +219,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resource,
             operationType,
             operation,
-            patches
+            patches,
+            contextData = null
         }
     ) {
         assertIsValid(requestId, 'requestId is null');
@@ -185,7 +245,8 @@ class DatabaseBulkInserter extends EventEmitter {
                 doc: resource,
                 operationType,
                 operation,
-                patches
+                patches,
+                contextData
             })
         );
     }
@@ -207,7 +268,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resource,
             operationType,
             operation,
-            patches
+            patches,
+            contextData = null
         }
     ) {
         // If there is no entry for this collection then create one
@@ -233,7 +295,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     operationType,
                     patches,
                     isCreateOperation: true,
-                    isUpdateOperation: false
+                    isUpdateOperation: false,
+                    contextData
                 }
             )
         );
@@ -249,6 +312,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @property {import('mongodb').AnyBulkWriteOperation} operation
      * @property {MergePatchEntry[]|null} patches
      * @property {boolean} isAccessLogOperation
+     * @property {Object|null} contextData
      *
      * @param {getOperationForResourceAsyncParam}
      * @returns {BulkInsertUpdateEntry}
@@ -260,7 +324,8 @@ class DatabaseBulkInserter extends EventEmitter {
         operationType,
         operation,
         patches,
-        isAccessLogOperation = false
+        isAccessLogOperation = false,
+        contextData = null
     }) {
         try {
             if (!isAccessLogOperation) {
@@ -287,7 +352,8 @@ class DatabaseBulkInserter extends EventEmitter {
                 operationType,
                 patches,
                 isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
-                isUpdateOperation: operationType === 'replace' || operationType === 'merge'
+                isUpdateOperation: operationType === 'replace' || operationType === 'merge',
+                contextData
             });
         } catch (e) {
             throw new RethrownError({
@@ -302,9 +368,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Resource} doc
+     * @param {Object|null} contextData - Optional context data for resource-specific handling
      * @returns {Promise<void>}
      */
-    async insertOneAsync ({ base_version, requestInfo, resourceType, doc }) {
+    async insertOneAsync ({ base_version, requestInfo, resourceType, doc, contextData = null }) {
         try {
             assertTypeEquals(doc, Resource);
             if (!doc.meta) {
@@ -313,7 +380,10 @@ class DatabaseBulkInserter extends EventEmitter {
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
+            // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
+            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
@@ -339,7 +409,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         resourceType,
                         doc,
                         previousVersionId: `${previousVersionId}`,
-                        patches: null
+                        patches: null,
+                        contextData
                     }
                 );
             } else {
@@ -370,7 +441,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         }
                     },
                     operationType: 'insertUniqueId',
-                    patches: null
+                    patches: null,
+                    contextData
                 });
             }
             if (doc._id) {
@@ -396,9 +468,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} doc
      * @param {MergePatchEntry[]|null} patches
      * @param {boolean} skipResourceAssertion Skip assertion for doc to be as instance of Resource
+     * @param {Object|null} contextData Optional context data for resource-specific handling
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches, skipResourceAssertion = false }) {
+    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches, skipResourceAssertion = false, contextData = null }) {
         if (!skipResourceAssertion) {
             assertTypeEquals(doc, Resource);
         }
@@ -440,7 +513,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         }).toJSONInternal()
                     }
                 },
-                patches
+                patches,
+                contextData
             });
         } catch (e) {
             throw new RethrownError({
@@ -457,6 +531,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} doc
      * @param {boolean} [upsert]
      * @param {MergePatchEntry[]|null} patches
+     * @param {Object|null} contextData - Optional context data for resource-specific handling (e.g., Group members)
+     * @param {Array} contextData.groupMembers - Group member array (for Group resources)
+     * @param {string} contextData.resourceType - Resource type
+     * @param {string} contextData.resourceId - Resource ID
      * @returns {Promise<void>}
      */
     async replaceOneAsync (
@@ -466,16 +544,21 @@ class DatabaseBulkInserter extends EventEmitter {
             uuid,
             doc,
             upsert = false,
-            patches
+            patches,
+            contextData = null
         }
     ) {
         assertTypeEquals(doc, Resource);
         assertTypeEquals(requestInfo, FhirRequestInfo);
 
         const requestId = requestInfo.requestId;
+
         try {
             assertTypeEquals(doc, Resource);
+            // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
+            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -525,7 +608,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                     replacement: doc.toJSONInternal()
                                 }
                             },
-                            patches
+                            patches,
+                            contextData
                         }
                     );
                 }
@@ -546,6 +630,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} doc
      * @param {boolean} [upsert]
      * @param {MergePatchEntry[]|null} patches
+     * @param {Object|null} contextData - Optional context data for resource-specific handling
      * @returns {Promise<void>}
      */
     async mergeOneAsync (
@@ -556,7 +641,8 @@ class DatabaseBulkInserter extends EventEmitter {
             previousVersionId,
             doc,
             upsert = false,
-            patches
+            patches,
+            contextData = null
         }
     ) {
         assertTypeEquals(doc, Resource);
@@ -566,7 +652,10 @@ class DatabaseBulkInserter extends EventEmitter {
         const lastVersionId = previousVersionId;
         try {
             assertTypeEquals(doc, Resource);
+            // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
+            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -661,7 +750,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                     replacement: doc.toJSONInternal()
                                 }
                             },
-                            patches
+                            patches,
+                            contextData
                         }
                     );
                 }
@@ -1260,15 +1350,31 @@ class DatabaseBulkInserter extends EventEmitter {
             !useHistoryCollection &&
             !isAccessLogOperation
         ) {
-            this.postRequestProcessor.add({
+            const eventType = bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U';
+            const contextData = bulkInsertUpdateEntry.contextData || null;
+
+            const afterSaveTask = async () => await this.postSaveProcessor.afterSaveAsync({
                 requestId,
-                fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
-                    requestId,
-                    eventType: bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U',
-                    resourceType,
-                    doc: bulkInsertUpdateEntry.resource
-                })
+                eventType,
+                resourceType,
+                doc: bulkInsertUpdateEntry.resource,
+                contextData
             });
+
+            // Check if any handler needs sync mode for this resource
+            const needsSync = this.postSaveProcessor.needsSyncFor({ resourceType });
+
+            if (needsSync) {
+                // Sync mode: Block API response until hybrid storage write completes
+                // (e.g., ClickHouse write for Group members must complete before returning)
+                await afterSaveTask();
+            } else {
+                // Async mode: Defer to post-request processor
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: afterSaveTask
+                });
+            }
         }
 
         return mergeResultEntry;

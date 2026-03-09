@@ -1,9 +1,23 @@
 const {isTrue} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME} = require('../constants');
+const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 
 const env = process.env;
 
 class ConfigManager {
+    /**
+     * Helper method to parse comma-separated environment variables
+     * Reduces duplication across configuration getters
+     *
+     * @param {string|undefined} envVar - Environment variable value
+     * @param {Array} defaultValue - Default value if envVar is undefined
+     * @returns {Array<string>} Parsed and trimmed array
+     * @private
+     */
+    _parseCommaSeparatedList(envVar, defaultValue = []) {
+        return (envVar && envVar.split(',').map(item => item.trim())) || defaultValue;
+    }
+
     get resourcesWithAccessIndex() {
         return (
             env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',')
@@ -979,6 +993,137 @@ class ConfigManager {
      */
     get summaryCacheTtlSeconds() {
         return parseInt(process.env.SUMMARY_CACHE_TTL_SECONDS) || 300;
+    }
+
+    // ========== ClickHouse Configuration ==========
+
+    /**
+     * whether ClickHouse is enabled
+     * @return {boolean}
+     */
+    get enableClickHouse() {
+        return isTrue(env.ENABLE_CLICKHOUSE);
+    }
+
+    /**
+     * ClickHouse host
+     * @return {string}
+     */
+    get clickHouseHost() {
+        // Use 127.0.0.1 instead of localhost to avoid IPv6 issues
+        return env.CLICKHOUSE_HOST || DEFAULT_CLICKHOUSE.HOST;
+    }
+
+    /**
+     * ClickHouse port
+     * @return {number}
+     */
+    get clickHousePort() {
+        return parseInt(env.CLICKHOUSE_PORT || String(DEFAULT_CLICKHOUSE.PORT), 10);
+    }
+
+    /**
+     * ClickHouse database name
+     * @return {string}
+     */
+    get clickHouseDatabase() {
+        return env.CLICKHOUSE_DATABASE || DEFAULT_CLICKHOUSE.DATABASE;
+    }
+
+    /**
+     * ClickHouse username
+     * @return {string}
+     */
+    get clickHouseUsername() {
+        return env.CLICKHOUSE_USERNAME || DEFAULT_CLICKHOUSE.USERNAME;
+    }
+
+    /**
+     * ClickHouse password
+     * @return {string}
+     */
+    get clickHousePassword() {
+        return env.CLICKHOUSE_PASSWORD || DEFAULT_CLICKHOUSE.PASSWORD;
+    }
+
+    /**
+     * Resources using MongoDB + ClickHouse dual-write storage
+     *
+     * Dual-write storage architecture:
+     * - MongoDB: Resource metadata (id, name, type, meta, etc.)
+     * - ClickHouse: Event-sourced fields (e.g., Group.member as MEMBER_ADDED/REMOVED events)
+     *
+     * Configuration:
+     * MONGO_WITH_CLICKHOUSE_RESOURCES=Group,ResourceType2
+     *
+     * @return {string[]} Resource types using MongoDB + ClickHouse storage
+     *
+     * @example
+     * // Group uses MongoDB + ClickHouse storage
+     * MONGO_WITH_CLICKHOUSE_RESOURCES=Group
+     * // Result: Group metadata in MongoDB, member events in ClickHouse
+     */
+    get mongoWithClickHouseResources() {
+        return this._parseCommaSeparatedList(env.MONGO_WITH_CLICKHOUSE_RESOURCES, []);
+    }
+
+    /**
+     * Resources using ClickHouse-only storage (no MongoDB)
+     *
+     * ClickHouse-only architecture:
+     * - All data stored in ClickHouse tables
+     * - Typically append-only logs, audit trails, time-series data
+     * - No MongoDB fallback
+     *
+     * Configuration:
+     * CLICKHOUSE_ONLY_RESOURCES=AuditEvent,Metric
+     *
+     * @return {string[]} Resource types using ClickHouse-only storage
+     *
+     * @example
+     * // AuditEvent stored only in ClickHouse
+     * CLICKHOUSE_ONLY_RESOURCES=AuditEvent
+     * // Result: All AuditEvent data in ClickHouse (append-only audit log)
+     */
+    get clickHouseOnlyResources() {
+        return this._parseCommaSeparatedList(env.CLICKHOUSE_ONLY_RESOURCES, []);
+    }
+
+    /**
+     * Maximum number of members allowed in Group.member array for CREATE/PUT operations
+     * Default: 50000 (can be overridden in production based on infrastructure)
+     * PATCH operations bypass this limit (they append events, not full arrays)
+     * @returns {number}
+     */
+    get groupMemberLimit() {
+        return parseInt(env.MAX_GROUP_MEMBERS_PER_PUT || '50000', 10);
+    }
+
+    /**
+     * Maximum number of JSON Patch operations allowed per PATCH request for Group.member
+     * Default: 10000 (empirically determined based on performance testing)
+     * Can be overridden via GROUP_PATCH_OPERATIONS_LIMIT environment variable
+     * @returns {number}
+     */
+    get groupPatchOperationsLimit() {
+        return parseInt(env.GROUP_PATCH_OPERATIONS_LIMIT || '10000', 10);
+    }
+
+    /**
+     * ClickHouse request timeout in milliseconds
+     * Default: 180000ms (3 minutes) for large batch inserts
+     * @returns {number}
+     */
+    get clickHouseRequestTimeout() {
+        return parseInt(env.CLICKHOUSE_REQUEST_TIMEOUT || String(DEFAULT_CLICKHOUSE.REQUEST_TIMEOUT_MS), 10);
+    }
+
+    /**
+     * ClickHouse maximum number of connections in pool
+     * @returns {number}
+     */
+    get clickHouseMaxConnections() {
+        return parseInt(env.CLICKHOUSE_MAX_CONNECTIONS || String(DEFAULT_CLICKHOUSE.MAX_CONNECTIONS), 10);
     }
 }
 
