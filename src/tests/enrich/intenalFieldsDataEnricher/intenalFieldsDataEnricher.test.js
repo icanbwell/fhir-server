@@ -2,8 +2,13 @@
 const composition1Resource = require('./fixtures/Composition/composition1.json');
 const observationDB1Resource = require('./fixtures/Observation/observation_db_1.json');
 const observation2 = require('./fixtures/Observation/observation_2.json');
+const observation1Resource = require('./fixtures/Observation/observation1.json');
+const observation2Resource = require('./fixtures/Observation/observation2.json');
 
 // expected
+const expectedObservationGet = require('./fixtures/expected/expected_observation_get.json');
+const expectedObservationGetIdentifierId = require('./fixtures/expected/expected_observation_get_identifier_id.json');
+const expectedObservationGetId = require('./fixtures/expected/expected_observation_get_id.json');
 const expectedCompositionGet = require('./fixtures/expected/expected_composition_get.json');
 const expectedCompositionInDB = require('./fixtures/expected/expected_composition_db.json');
 const expectedObservation = require('./fixtures/expected/expected_observation.json');
@@ -24,13 +29,38 @@ const { MongoDatabaseManager } = require('../../../utils/mongoDatabaseManager');
 const deepcopy = require('deepcopy');
 const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
-describe('Reference Extension enricher tests', () => {
+describe('Internal Fields Data enrichers tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         await commonAfterEach();
+    });
+
+    test('Resource identifier enricher gives same response when identifiers are not present in DB', async () => {
+        const request = await createTestRequest();
+
+        // ARRANGE
+        // add the resources to FHIR server
+        let resp = await request
+            .post('/4_0_0/Composition/$merge')
+            .send([composition1Resource, observation1Resource, observation2Resource])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
+
+        // ACT & ASSERT
+        resp = await request.get('/4_0_0/Composition').set(getHeaders());
+        expect(resp).toHaveResponse(expectedCompositionGet);
+
+        resp = await request.get('/4_0_0/Observation').set(getHeaders());
+        expect(resp).toHaveResponse(expectedObservationGet);
+
+        resp = await request.get('/4_0_0/Observation?_elements=id,identifier').set(getHeaders());
+        expect(resp).toHaveResponse(expectedObservationGetIdentifierId);
+
+        resp = await request.get('/4_0_0/Observation?_elements=id').set(getHeaders());
+        expect(resp).toHaveResponse(expectedObservationGetId);
     });
 
     test('Extension enricher gives same response when extensions are not present in DB', async () => {
