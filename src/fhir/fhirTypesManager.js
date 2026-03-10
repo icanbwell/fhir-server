@@ -46,7 +46,7 @@ class FhirTypesManager {
      */
     getDataForField ({ resourceType, field }) {
         const resourceAndField = `${resourceType}.${field}`;
-        const dataType = customDataElementsMap.get(resourceAndField);
+        const dataType = combinedDataElementsMap.get(resourceAndField);
         return dataType;
     }
 }
