@@ -1,7 +1,6 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const { isUuid, generateUUIDv5, generateUUID } = require('../../utils/uid.util');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { assertIsValid } = require('../../utils/assertType');
 
 /**
