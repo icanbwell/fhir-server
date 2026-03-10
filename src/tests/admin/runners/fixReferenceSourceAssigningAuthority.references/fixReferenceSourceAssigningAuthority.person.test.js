@@ -139,9 +139,6 @@ describe('Person Tests', () => {
             expect(person1.meta.lastUpdated).toBeDefined();
             expect(person1.meta.lastUpdated).not.toStrictEqual(expectedPerson1DatabaseAfterRun.meta.lastUpdated);
             expectedPerson1DatabaseAfterRun.meta.lastUpdated = person1.meta.lastUpdated;
-            expectedPerson1DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = person1._uuid;
             expect(person1).toStrictEqual(expectedPerson1DatabaseAfterRun);
         });
         test('fixReferenceSourceAssigningAuthority works for patient 1 with specified properties', async () => {
@@ -222,9 +219,6 @@ describe('Person Tests', () => {
             expect(person1.meta.lastUpdated).toBeDefined();
             // expect(person1.meta.lastUpdated).not.toStrictEqual(expectedPerson1DatabaseAfterRun.meta.lastUpdated);
             expectedPerson1DatabaseAfterRun.meta.lastUpdated = person1.meta.lastUpdated;
-            expectedPerson1DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = person1._uuid;
             expect(person1).toStrictEqual(expectedPerson1DatabaseAfterRun);
         });
     });
