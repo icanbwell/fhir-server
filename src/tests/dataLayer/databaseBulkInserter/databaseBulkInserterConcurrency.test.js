@@ -13,7 +13,6 @@ const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operatio
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
-const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
 const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
 
 
@@ -349,18 +348,6 @@ describe('databaseBulkInserter Tests', () => {
                         })
                     ]
                 }),
-                identifier: [
-                    new Identifier({
-                        id: 'sourceId',
-                        system: 'https://www.icanbwell.com/sourceId',
-                        value: 'loinc-1'
-                    }),
-                    new Identifier({
-                        id: 'uuid',
-                        system: 'https://www.icanbwell.com/uuid',
-                        value: 'b627381e-4838-46cf-b9b0-02ad7b179219'
-                    })
-                ],
                 concept: [
                     new CodeSystemConcept(
                         {
@@ -404,7 +391,6 @@ describe('databaseBulkInserter Tests', () => {
             actualCodeSystem = new CodeSystem(codeSystems[0]);
             actualCodeSystem.meta.lastUpdated = null;
             expectedCodeSystem.meta.lastUpdated = null;
-            expectedCodeSystem.identifier[1].value = actualCodeSystem.identifier[1].value;
 
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
 
@@ -440,18 +426,6 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }),
-                        identifier: [
-                            new Identifier({
-                                id: 'sourceId',
-                                system: 'https://www.icanbwell.com/sourceId',
-                                value: 'loinc-1'
-                            }),
-                            new Identifier({
-                                id: 'uuid',
-                                system: 'https://www.icanbwell.com/uuid',
-                                value: 'e7f9d7f5-f443-4aa6-aaa8-90bbb676f252'
-                            })
-                        ],
                         concept: [
                             new CodeSystemConcept(
                                 {
@@ -507,13 +481,6 @@ describe('databaseBulkInserter Tests', () => {
                                         diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"e7f9d7f5-f443-4aa6-aaa8-90bbb676f252"}]}',
                                         severity: 'information'
                                     }
-                                ),
-                                new OperationOutcomeIssue(
-                                    {
-                                        severity: 'information',
-                                        code: 'informational',
-                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}'
-                                    }
                                 )
                             ],
                             resourceType: 'OperationOutcome'
@@ -526,7 +493,6 @@ describe('databaseBulkInserter Tests', () => {
             const actualCodeSystemHistoryEntry = new BundleEntry(actualCodeSystemHistoryEntries[0]);
             actualCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
             expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
-            expectedCodeSystemHistoryEntry.resource.identifier[1].value = actualCodeSystemHistoryEntry.resource.identifier[1].value;
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
@@ -816,18 +782,6 @@ describe('databaseBulkInserter Tests', () => {
                         })
                     ]
                 }),
-                identifier: [
-                    new Identifier({
-                        id: 'sourceId',
-                        system: 'https://www.icanbwell.com/sourceId',
-                        value: 'loinc-1'
-                    }),
-                    new Identifier({
-                        id: 'uuid',
-                        system: 'https://www.icanbwell.com/uuid',
-                        value: '30567620-6073-44c1-b77a-83cb11fc971e'
-                    })
-                ],
                 concept: [
                     new CodeSystemConcept(
                         {
@@ -871,7 +825,6 @@ describe('databaseBulkInserter Tests', () => {
             actualCodeSystem = new CodeSystem(codeSystems[0]);
             actualCodeSystem.meta.lastUpdated = null;
             expectedCodeSystem.meta.lastUpdated = null;
-            expectedCodeSystem.identifier[1].value = actualCodeSystem.identifier[1].value;
 
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
 
@@ -907,18 +860,6 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }),
-                        identifier: [
-                            new Identifier({
-                                id: 'sourceId',
-                                system: 'https://www.icanbwell.com/sourceId',
-                                value: 'loinc-1'
-                            }),
-                            new Identifier({
-                                id: 'uuid',
-                                system: 'https://www.icanbwell.com/uuid',
-                                value: 'f67ac4cf-d135-46ac-b23d-a16289a61074'
-                            })
-                        ],
                         concept: [
                             new CodeSystemConcept(
                                 {
@@ -974,13 +915,6 @@ describe('databaseBulkInserter Tests', () => {
                                         diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"f67ac4cf-d135-46ac-b23d-a16289a61074"}]}',
                                         severity: 'information'
                                     }
-                                ),
-                                new OperationOutcomeIssue(
-                                    {
-                                        code: 'informational',
-                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}',
-                                        severity: 'information'
-                                    }
                                 )
                             ],
                             resourceType: 'OperationOutcome'
@@ -993,7 +927,6 @@ describe('databaseBulkInserter Tests', () => {
             const actualCodeSystemHistoryEntry = new BundleEntry(actualCodeSystemHistoryEntries[0]);
             actualCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
             expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
-            expectedCodeSystemHistoryEntry.resource.identifier[1].value = actualCodeSystemHistoryEntry.resource.identifier[1].value;
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
         });
@@ -1195,18 +1128,6 @@ describe('databaseBulkInserter Tests', () => {
                         })
                     ]
                 }),
-                identifier: [
-                    new Identifier({
-                        id: 'sourceId',
-                        system: 'https://www.icanbwell.com/sourceId',
-                        value: 'loinc-1'
-                    }),
-                    new Identifier({
-                        id: 'uuid',
-                        system: 'https://www.icanbwell.com/uuid',
-                        value: '946e32d8-2645-4d3c-8fac-5fd96ee3a29c'
-                    })
-                ],
                 concept: [
                     new CodeSystemConcept(
                         {
@@ -1250,7 +1171,6 @@ describe('databaseBulkInserter Tests', () => {
             const actualCodeSystem = new CodeSystem(codeSystems[0]);
             actualCodeSystem.meta.lastUpdated = null;
             expectedCodeSystem.meta.lastUpdated = null;
-            expectedCodeSystem.identifier[1].value = actualCodeSystem.identifier[1].value;
 
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });
@@ -1405,18 +1325,6 @@ describe('databaseBulkInserter Tests', () => {
                         )
                     ]
                 }),
-                identifier: [
-                    new Identifier({
-                        id: 'sourceId',
-                        system: 'https://www.icanbwell.com/sourceId',
-                        value: 'loinc-1'
-                    }),
-                    new Identifier({
-                        id: 'uuid',
-                        system: 'https://www.icanbwell.com/uuid',
-                        value: 'd05fce76-7645-41f0-968a-9b42dd579a6d'
-                    })
-                ],
                 resourceType: 'CodeSystem',
                 status: 'active'
             });
@@ -1424,7 +1332,6 @@ describe('databaseBulkInserter Tests', () => {
             const actualCodeSystem = new CodeSystem(codeSystems[0]);
             actualCodeSystem.meta.lastUpdated = null;
             expectedCodeSystem.meta.lastUpdated = null;
-            expectedCodeSystem.identifier[1].value = actualCodeSystem.identifier[1].value;
 
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });

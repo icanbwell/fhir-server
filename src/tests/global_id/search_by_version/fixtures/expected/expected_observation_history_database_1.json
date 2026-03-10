@@ -42,16 +42,6 @@
       {
         "system": "https://www.icanbwell.com",
         "value": "0074890c-bcdd-4a8e-9d7e-532e4ea8a702"
-      },
-      {
-        "id": "sourceId",
-        "system": "https://www.icanbwell.com/sourceId",
-        "value": "0028735c-80ac-4d14-9e35-a097d01b0b28"
-      },
-      {
-        "id": "uuid",
-        "system": "https://www.icanbwell.com/uuid",
-        "value": "0028735c-80ac-4d14-9e35-a097d01b0b28"
       }
     ],
     "meta": {

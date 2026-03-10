@@ -31,16 +31,6 @@
         ]
       },
       "value": "bwell-aba5bcf41cf64435839cf0568c121843"
-    },
-    {
-      "id": "sourceId",
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "aba5bcf41cf64435839cf0568c121843"
-    },
-    {
-      "id": "uuid",
-      "system": "https://www.icanbwell.com/uuid",
-      "value": "849cb4f0-033b-5d6e-a614-9bbbbb3ba11e"
     }
   ],
   "link": [

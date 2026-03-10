@@ -124,16 +124,6 @@
         "text": "Claim Number"
       },
       "value": "3289"
-    },
-    {
-      "id": "sourceId",
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "Client-3289"
-    },
-    {
-      "id": "uuid",
-      "system": "https://www.icanbwell.com/uuid",
-      "value": "6acd3e2e-4e87-5e93-a125-542a89251ca0"
     }
   ],
   "insurance": [

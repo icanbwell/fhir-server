@@ -37,16 +37,6 @@
       "use": "official",
       "system": "http://www.bmc.nl/zorgportal/identifiers/observations",
       "value": "6327"
-    },
-    {
-      "id": "sourceId",
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "77253a67-f7a1-454d-aaba-56009ba897b4"
-    },
-    {
-      "id": "uuid",
-      "system": "https://www.icanbwell.com/uuid",
-      "value": "77253a67-f7a1-454d-aaba-56009ba897b4"
     }
   ],
   "status": "final",

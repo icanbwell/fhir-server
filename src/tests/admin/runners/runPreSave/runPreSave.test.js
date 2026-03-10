@@ -140,9 +140,6 @@ describe('Patient Tests', () => {
             expect(patient1.meta.lastUpdated).toBeDefined();
             expect(patient1.meta.lastUpdated).not.toStrictEqual(expectedPatient1DatabaseAfterRun.meta.lastUpdated);
             expectedPatient1DatabaseAfterRun.meta.lastUpdated = patient1.meta.lastUpdated;
-            expectedPatient1DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = patient1._uuid;
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
         });
         test('runPreSave works for patient 2', async () => {
@@ -204,9 +201,6 @@ describe('Patient Tests', () => {
             expect(patient2.meta.lastUpdated).toBeDefined();
             expect(patient2.meta.lastUpdated).not.toStrictEqual(expectedPatient2DatabaseAfterRun.meta.lastUpdated);
             expectedPatient2DatabaseAfterRun.meta.lastUpdated = patient2.meta.lastUpdated;
-            expectedPatient2DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = patient2._uuid;
             expect(patient2).toStrictEqual(expectedPatient2DatabaseAfterRun);
         });
         test('runPreSave works for patient 3 with uuid but no identifier', async () => {
@@ -268,10 +262,6 @@ describe('Patient Tests', () => {
             expect(patient3.meta.lastUpdated).toBeDefined();
             expect(patient3.meta.lastUpdated).not.toStrictEqual(expectedPatient3DatabaseAfterRun.meta.lastUpdated);
             expectedPatient3DatabaseAfterRun.meta.lastUpdated = patient3.meta.lastUpdated;
-            expect(patient3.identifier).toBeDefined();
-            expectedPatient3DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = patient3._uuid;
             expect(patient3).toStrictEqual(expectedPatient3DatabaseAfterRun);
         });
         test('runPreSave works with patient 4 with all fields but sourceAssigningAuthority', async () => {
@@ -574,9 +564,6 @@ describe('Patient Tests', () => {
             expect(patient8.meta.lastUpdated).toBeDefined();
             expect(patient8.meta.lastUpdated).not.toStrictEqual(expectedPatient8DatabaseAfterRun.meta.lastUpdated);
             expectedPatient8DatabaseAfterRun.meta.lastUpdated = patient8.meta.lastUpdated;
-            expectedPatient8DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = patient8._uuid;
             expect(patient8).toStrictEqual(expectedPatient8DatabaseAfterRun);
         });
         test('runPreSave is skipped using afterLastUpdatedDate works', async () => {
@@ -694,9 +681,6 @@ describe('Patient Tests', () => {
             console.log(patient1.meta.lastUpdated, expectedPatient1DatabaseAfterRun.meta.lastUpdated, 'patient1.meta.lastUpdated1');
             expect(patient1.meta.lastUpdated).not.toStrictEqual(expectedPatient1DatabaseAfterRun.meta.lastUpdated);
             expectedPatient1DatabaseAfterRun.meta.lastUpdated = patient1.meta.lastUpdated;
-            expectedPatient1DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = patient1._uuid;
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
         });
         test('runPreSave is skipped using afterLastUpdatedDate and beforeLastUpdatedDate works', async () => {

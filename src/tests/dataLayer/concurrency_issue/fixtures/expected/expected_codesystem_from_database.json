@@ -353,18 +353,6 @@
   "content": "fragment",
   "description": "This is MedlinePlus's LOINC lab code definitions.",
   "id": "medline-loinc-labs",
-  "identifier": [
-    {
-      "id": "sourceId",
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "medline-loinc-labs"
-    },
-    {
-      "id": "uuid",
-      "system": "https://www.icanbwell.com/uuid",
-      "value": "dabb6ef3-7207-5719-98df-fd520be27e48"
-    }
-  ],
   "meta": {
     "security": [
       {

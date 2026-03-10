@@ -174,16 +174,6 @@
         "text": "Passport Number"
       },
       "value": "X82793920X"
-    },
-    {
-      "id": "sourceId",
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "d29e5ba6-0115-725c-ffc3-c7de4391fee6"
-    },
-    {
-      "id": "uuid",
-      "system": "https://www.icanbwell.com/uuid",
-      "value": "d29e5ba6-0115-725c-ffc3-c7de4391fee6"
     }
   ],
   "maritalStatus": {

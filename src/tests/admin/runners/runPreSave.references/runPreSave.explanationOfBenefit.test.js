@@ -112,10 +112,6 @@ describe('ExplanationOfBenefit Tests', () => {
             expect(explanationOfBenefit1.meta.lastUpdated).toBeDefined();
             expect(explanationOfBenefit1.meta.lastUpdated).not.toStrictEqual(expectedExplanationOfBenefit1DatabaseAfterRun.meta.lastUpdated);
             expectedExplanationOfBenefit1DatabaseAfterRun.meta.lastUpdated = explanationOfBenefit1.meta.lastUpdated;
-            expectedExplanationOfBenefit1DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = explanationOfBenefit1._uuid;
-
             expect(explanationOfBenefit1).toStrictEqual(expectedExplanationOfBenefit1DatabaseAfterRun);
         });
     });

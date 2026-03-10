@@ -6,6 +6,14 @@ const customDataElementsMap = new Map([
         {
             code: 'code'
         }
+    ],
+    [
+        'ExportStatus.identifier',
+        {
+            code: 'Identifier',
+            min: '0',
+            max: '*'
+        }
     ]
 ]);
 
@@ -38,7 +46,7 @@ class FhirTypesManager {
      */
     getDataForField ({ resourceType, field }) {
         const resourceAndField = `${resourceType}.${field}`;
-        const dataType = dataElementMap.get(resourceAndField);
+        const dataType = combinedDataElementsMap.get(resourceAndField);
         return dataType;
     }
 }

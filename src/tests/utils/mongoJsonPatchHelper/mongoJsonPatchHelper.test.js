@@ -157,18 +157,6 @@ describe('mongoJsonPatchHelper Tests', () => {
                 _sourceId: '1',
                 _uuid: '87ec3599-51e3-510c-9bf4-537608fbaf7e',
                 id: '1',
-                identifier: [
-                    {
-                        id: 'sourceId',
-                        system: 'https://www.icanbwell.com/sourceId',
-                        value: '1'
-                    },
-                    {
-                        id: 'uuid',
-                        system: 'https://www.icanbwell.com/uuid',
-                        value: '87ec3599-51e3-510c-9bf4-537608fbaf7e'
-                    }
-                ],
                 link: [
                     {
                         target: {
@@ -326,18 +314,6 @@ describe('mongoJsonPatchHelper Tests', () => {
                 _sourceId: '1',
                 _uuid: '87ec3599-51e3-510c-9bf4-537608fbaf7e',
                 id: '1',
-                identifier: [
-                    {
-                        id: 'sourceId',
-                        system: 'https://www.icanbwell.com/sourceId',
-                        value: '1'
-                    },
-                    {
-                        id: 'uuid',
-                        system: 'https://www.icanbwell.com/uuid',
-                        value: '87ec3599-51e3-510c-9bf4-537608fbaf7e'
-                    }
-                ],
                 link: [
                     {
                         id: '1',

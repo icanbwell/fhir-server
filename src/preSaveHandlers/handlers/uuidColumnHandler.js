@@ -1,8 +1,6 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const { isUuid, generateUUIDv5, generateUUID } = require('../../utils/uid.util');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
-const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { assertIsValid } = require('../../utils/assertType');
 
 /**
@@ -17,64 +15,22 @@ class UuidColumnHandler extends PreSaveHandler {
      * @param {PreSaveAsyncProps}
      * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
      */
-    async preSaveAsync ({ resource }) {
+    async preSaveAsync({ resource }) {
         if (isUuid(resource.id)) {
             resource._uuid = resource.id;
         } else if (!resource.id) {
             resource._uuid = generateUUID();
         } else {
-            assertIsValid(resource.meta.security,
-                `No meta security tags defined for resource: ${resource.resourceType}/${resource.id}`);
-            /**
-             * @type {string[]}
-             */
-            const sourceAssigningAuthorityCodes = resource.meta.security.filter(
-                s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
-            const idToGenerateUuid = sourceAssigningAuthorityCodes
-                ? resource.id + '|' + sourceAssigningAuthorityCodes[0]
-                : resource.id;
-            resource._uuid = `${generateUUIDv5(idToGenerateUuid)}`;
+            const sourceAssigningAuthority = resource._sourceAssigningAuthority;
+            assertIsValid(
+                sourceAssigningAuthority,
+                `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`
+            );
+            resource._uuid = generateUUIDv5(`${resource.id}|${sourceAssigningAuthority}`);
         }
 
-        if (resource.identifier &&
-            Array.isArray(resource.identifier) &&
-            !resource.identifier.some(s => s.system === IdentifierSystem.uuid)
-        ) {
-            resource.identifier.push(
-                new Identifier(
-                    {
-                        id: 'uuid',
-                        system: IdentifierSystem.uuid,
-                        value: resource._uuid
-                    }
-                )
-            );
-        } else if (resource.identifier && // uuid exists but is wrong
-            Array.isArray(resource.identifier)) {
-            const currentUuidResource = new Identifier(
-                {
-                    id: 'uuid',
-                    system: IdentifierSystem.uuid,
-                    value: resource._uuid
-                }
-            );
-            // Remove if more than one uuid exists
-            resource.identifier = resource.identifier.filter(s => s.system !== IdentifierSystem.uuid);
-            if (resource.identifier && Array.isArray(resource.identifier)) {
-                resource.identifier.push(currentUuidResource);
-            } else {
-                resource.identifier = [currentUuidResource];
-            }
-        } else if (!resource.identifier) {
-            resource.identifier = [
-                new Identifier(
-                    {
-                        id: 'uuid',
-                        system: IdentifierSystem.uuid,
-                        value: resource._uuid
-                    }
-                )
-            ];
+        if (resource.identifier && Array.isArray(resource.identifier)) {
+            resource.identifier = resource.identifier.filter((s) => s.system !== IdentifierSystem.uuid);
         }
 
         return resource;
