@@ -54,7 +54,7 @@ After the query returns:
 ### Error Cases
 - No active Consent Found: Forbidden 403 with error message: "actor {actor} doesn't have enough permissions to perform this action"
 - Multiple Conset Found: Forbidden 403 with error message: "ambiguous permissions found for the actor {actor}" 
-- Feature Flag `ENABLE_DELEGATED_ACCESS_FILTERING` disabled but still detecting any `act` field: 401 `Unauthorized: Delegated access not allowed` (Temporarily this error will only be thrown when `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled)
+- Feature Flag `ENABLE_DELEGATED_ACCESS_FILTERING` disabled but still detecting any `act` field: 401 `Unauthorized: Delegated access not allowed` (Temporarily this error will only be thrown when `VALIDATE_DELEGATED_ACCESS_TOKEN` is enabled)
 
 ## Building Filtering Rules
 
@@ -109,10 +109,14 @@ This correctly handles resources that may have **multiple** sensitive-category c
 - If **denied categories** exist: the filter is applied to exclude those resources.
 
 ## Audit Logging
-Audit logs will have the reference of delegated actor as the auditEvent.agent.
+When a delegated actor is present, the audit event contains **two agents**:
+- **Patient agent** (`requestor: false`): the patient on whose behalf the action is performed (`Patient/person.<personId>`)
+- **Delegated actor agent** (`requestor: true`): the actor from `act.reference`
+
+The `source.observer` references the delegated actor.
 
 ## Config
 
 - `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false (enables delegated access filtering).
-- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false (temporary: when enabled start detecting the `act` field. This is temporary to avoid any services to get impacted which are currently using `act` field in jwt)
+- `VALIDATE_DELEGATED_ACCESS_TOKEN`: true/false (when enabled, validates the `act` claim format and throws if it is malformed. When disabled, a malformed `act` claim is silently ignored)
 - sensitiveCategorySystemIdentifier: https://terminology.hl7.org/7.0.1/CodeSystem-v3-Confidentiality.html
