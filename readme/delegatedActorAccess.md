@@ -52,9 +52,11 @@ After the query returns:
 - If **multiple Consents** are found: access is rejected as ambiguous.
 
 ### Error Cases
-- No active Consent Found: Forbidden 403 with error message: "actor {actor} doesn't have enough permissions to perform this action"
-- Multiple Conset Found: Forbidden 403 with error message: "ambiguous permissions found for the actor {actor}" 
-- Feature Flag `ENABLE_DELEGATED_ACCESS_FILTERING` disabled but still detecting any `act` field: 401 `Unauthorized: Delegated access not allowed` (Temporarily this error will only be thrown when `VALIDATE_DELEGATED_ACCESS_TOKEN` is enabled)
+- No active Consent found: Forbidden 403 — `"actor {actor} doesn't have enough permissions to perform this action"`
+- Multiple Consents found: Forbidden 403 — `"ambiguous permissions found for the actor {actor}"`
+- Invalid `act.reference` format (when filtering enabled): 401 Unauthorized — the `act.reference` must be a valid `ResourceType/id` string
+- Malformed `act` claim (missing `reference` field): 401 Unauthorized only when `VALIDATE_DELEGATED_ACCESS_TOKEN` is enabled; otherwise silently ignored
+- `ENABLE_DELEGATED_ACCESS_FILTERING` disabled: the `act` claim is completely ignored, no error is thrown
 
 ## Building Filtering Rules
 
@@ -117,6 +119,5 @@ The `source.observer` references the delegated actor.
 
 ## Config
 
-- `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false (enables delegated access filtering).
-- `VALIDATE_DELEGATED_ACCESS_TOKEN`: true/false (when enabled, validates the `act` claim format and throws if it is malformed. When disabled, a malformed `act` claim is silently ignored)
-- sensitiveCategorySystemIdentifier: https://terminology.hl7.org/7.0.1/CodeSystem-v3-Confidentiality.html
+- `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false — **enables the delegated access logic**. When `false`, the `act` claim in the JWT is completely ignored and no delegated actor detection, consent lookup, or filtering occurs. When `true`, the server parses the `act.reference` field, performs consent lookups, applies filtering rules, and generates two-agent audit events.
+- `VALIDATE_DELEGATED_ACCESS_TOKEN`: true/false — **controls strict validation of the `act` claim format**. Only relevant when the `act` claim is present but malformed (e.g. missing `reference` field, or `reference` is not a string). When `true`, a malformed `act` claim causes authentication failure (401). When `false` and `ENABLE_DELEGATED_ACCESS_FILTERING` is `true`, a malformed `act` claim is silently ignored (the request proceeds without a delegated actor). 

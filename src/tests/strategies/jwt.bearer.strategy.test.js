@@ -410,6 +410,10 @@ describe('JWT Bearer Strategy', () => {
             get externalAuthWellKnownUrls() {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
+
+            get enableDelegatedAccessFiltering() {
+                return true;
+            }
         }
 
         const configManager = new MockConfigManager();
@@ -451,7 +455,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should handle invalid delegated actor reference format', async () => {
+    test('should reject invalid reference format when filtering is enabled (401)', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -522,6 +526,10 @@ describe('JWT Bearer Strategy', () => {
             get externalAuthWellKnownUrls() {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
+
+            get enableDelegatedAccessFiltering() {
+                return true;
+            }
         }
 
         const configManager = new MockConfigManager();
@@ -540,9 +548,183 @@ describe('JWT Bearer Strategy', () => {
         return new Promise((resolve, reject) => {
             passport.authenticate('jwt', {}, (error, user, info) => {
                 try {
-                    expect(error).toBeTruthy();
-                    expect(error.message).toContain('Invalid act.reference format');
+                    expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
+                    expect(info).toBeDefined();
+                    expect(info.message).toContain('Invalid act.reference format');
+
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
+    test('should ignore invalid act when filtering is disabled and authenticate normally', async () => {
+        const mockJwtPayload = {
+            iss: 'https://example.com',
+            sub: 'john',
+            client_id: 'testClientId',
+            username: 'testUser',
+            scope: 'patient/*.read access/*.read',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            token_use: 'access',
+            act: {
+                reference: 'invalid-reference-format'
+            }
+        };
+
+        const jwtWithInvalidActor = jwt.sign(mockJwtPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const req = {
+            headers: {authorization: `Bearer ${jwtWithInvalidActor}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+
+            get enableDelegatedAccessFiltering() {
+                return false;
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toBeTruthy();
+                    expect(info.context.delegatedActor).toBeNull();
+
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
+    test('should reject (401) when act claim has no reference field and validation is enabled', async () => {
+        const mockJwtPayload = {
+            iss: 'https://example.com',
+            sub: 'john',
+            client_id: 'testClientId',
+            username: 'testUser',
+            scope: 'patient/*.read access/*.read',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            token_use: 'access',
+            act: {
+                sub: 'RelatedPerson/8c655e20-e9fc-45f7-8803-b0fade71ff69'
+            }
+        };
+
+        const jwtWithActNoRef = jwt.sign(mockJwtPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const req = {
+            headers: {authorization: `Bearer ${jwtWithActNoRef}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+
+            get validateDelegatedAccessToken() {
+                return true;
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeFalsy();
+                    expect(user).toBeFalsy();
+                    expect(info).toBeDefined();
+                    expect(info.message).toContain('Invalid act claim: expected object with reference field');
 
                     resolve();
                 } catch (assertionError) {
@@ -603,10 +785,6 @@ describe('JWT Bearer Strategy', () => {
 
             get externalAuthWellKnownUrls() {
                 return [];
-            }
-
-            get validateDelegatedAccessToken() {
-                return false;
             }
         }
 

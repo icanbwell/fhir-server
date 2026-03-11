@@ -216,7 +216,12 @@ class AuthService {
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
-            context.delegatedActor = this._getDelegatedActor({ jwt_payload });
+            try {
+                context.delegatedActor = this._getDelegatedActor({ jwt_payload });
+            } catch (error) {
+                logError('Error extracting delegated actor information from token', { error });
+                return done(null, false, { message: error.message });
+            }
         }
         logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
 
@@ -404,6 +409,10 @@ class AuthService {
             if (this.configManager.validateDelegatedAccessToken) {
                 throw new Error(`Invalid act.reference format: ${act.reference}`);
             }
+            return null;
+        }
+
+        if (!this.configManager.enableDelegatedAccessFiltering) {
             return null;
         }
 

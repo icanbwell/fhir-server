@@ -135,7 +135,7 @@ class AuditLogger {
             patientOrPersonReference = `Person/${requestInfo.user}`;
         }
 
-        const hasDelegatedActor = isUser && requestInfo.actorReference;
+        const hasDelegatedActor = isUser && requestInfo.delegatedActor;
 
         /**
          * @type {AuditEventAgent[]}
@@ -160,9 +160,9 @@ class AuditLogger {
                 }),
                 new AuditEventAgent({
                     who: new Reference({
-                        reference: requestInfo.actorReference
+                        reference: requestInfo.delegatedActor
                     }),
-                    altId: requestInfo.actorSub,
+                    altId: requestInfo.delegatedActorSub,
                     requestor: true,
                     network: new AuditEventNetwork({
                         address: requestInfo.remoteIpAddress,
@@ -170,7 +170,7 @@ class AuditLogger {
                     })
                 })
             ];
-            observerReference = requestInfo.actorReference;
+            observerReference = requestInfo.delegatedActor;
         } else {
             agents = [
                 new AuditEventAgent({

@@ -27,8 +27,8 @@ class FhirRequestInfo {
      * @param {Object} params.headers
      * @param {string} params.method
      * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
-     * @param {string|null} [params.actorSub]
-     * @param {string|null} [params.actorReference]
+     * @param {string|null} [params.delegatedActorSub]
+     * @param {string|null} [params.delegatedActor]
      */
     constructor (
         {
@@ -51,8 +51,8 @@ class FhirRequestInfo {
             method,
             contentTypeFromHeader,
             alternateUserId,
-            actorSub,
-            actorReference
+            delegatedActorSub,
+            delegatedActor
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -137,12 +137,12 @@ class FhirRequestInfo {
         /**
          * @type {string|null}
          */
-        this.actorSub = actorSub || null;
+        this.delegatedActorSub = delegatedActorSub || null;
 
         /**
          * @type {string|null}
          */
-        this.actorReference = actorReference || null;
+        this.delegatedActor = delegatedActor || null;
 
         /**
          * whether the client wants to use global ids
