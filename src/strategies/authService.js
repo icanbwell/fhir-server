@@ -11,6 +11,7 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const { ReferenceParser } = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -81,7 +82,7 @@ class AuthService {
         this.cidCheckClientIds = this.configManager.authCidCheckClientIds;
 
         if (AuthService.jwksCache === undefined) {
-        AuthService.jwksCache = new LRUCache(this.cacheOptions);
+            AuthService.jwksCache = new LRUCache(this.cacheOptions);
         }
 
         if (AuthService.userInfoCache === undefined) {
@@ -215,6 +216,7 @@ class AuthService {
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
+            context.delegatedActor = this._getDelegatedActor({ jwt_payload });
         }
         logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
 
@@ -353,7 +355,7 @@ class AuthService {
      * @param {string} token
      * @returns {Promise<UserInfo|undefined>}
      */
-    async getUserInfoFromUserInfoEndpoint({jwt_payload, token}) {
+    async getUserInfoFromUserInfoEndpoint({ jwt_payload, token }) {
         const cacheKey = jwt_payload.iss && jwt_payload.sub && jwt_payload.cid ? `${jwt_payload.iss}-${jwt_payload.cid}-${jwt_payload.sub}` : null;
         if (cacheKey && AuthService.userInfoCache.has(cacheKey)) {
             return AuthService.userInfoCache.get(cacheKey);
@@ -380,6 +382,33 @@ class AuthService {
             }
         }
         return jwt_payload;
+    }
+
+    /**
+     * Extracts delegated actor information from the JWT act claim.
+     * @param {Object} params
+     * @param {Object} params.jwt_payload
+     * @returns {{ actorSub: string, actorReference: string } | null}
+     */
+    _getDelegatedActor({ jwt_payload }) {
+        const act = jwt_payload.act;
+
+        if (!act || typeof act !== 'object' || !act.reference) {
+            if (this.configManager.validateDelegatedAccessToken && act) {
+                throw new Error(`Invalid act claim: expected object with reference field.`);
+            }
+            return null;
+        }
+
+        const { resourceType, id } = ReferenceParser.parseReference(act.reference);
+        if (!resourceType || !id) {
+            throw new Error(`Invalid act.reference format: ${act.reference}. Expected ResourceType/id.`);
+        }
+
+        return {
+            actorSub: act.sub || null,
+            actorReference: act.reference
+        };
     }
 
     /**

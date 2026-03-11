@@ -123,16 +123,68 @@ class AuditLogger {
         /**
          * @type {string}
          */
-        let actorReference;
+        let patientOrPersonReference;
         /**
          * @type {string|null}
          */
         const alternateId = requestInfo.alternateUserId;
 
         if (isUser) {
-            actorReference = `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}`;
+            patientOrPersonReference = `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}`;
         } else {
-            actorReference = `Person/${requestInfo.user}`;
+            patientOrPersonReference = `Person/${requestInfo.user}`;
+        }
+
+        const hasDelegatedActor = isUser && requestInfo.actorReference;
+
+        /**
+         * @type {AuditEventAgent[]}
+         */
+        let agents;
+        /**
+         * @type {string}
+         */
+        let observerReference;
+
+        if (hasDelegatedActor) {
+            agents = [
+                new AuditEventAgent({
+                    who: new Reference({
+                        reference: patientOrPersonReference
+                    }),
+                    altId: alternateId,
+                    requestor: false,
+                    network: new AuditEventNetwork({
+                        type: '2'
+                    })
+                }),
+                new AuditEventAgent({
+                    who: new Reference({
+                        reference: requestInfo.actorReference
+                    }),
+                    altId: requestInfo.actorSub,
+                    requestor: true,
+                    network: new AuditEventNetwork({
+                        type: '2'
+                    })
+                })
+            ];
+            observerReference = requestInfo.actorReference;
+        } else {
+            agents = [
+                new AuditEventAgent({
+                    who: new Reference({
+                        reference: patientOrPersonReference
+                    }),
+                    altId: alternateId,
+                    requestor: true,
+                    network: new AuditEventNetwork({
+                        address: requestInfo.remoteIpAddress,
+                        type: '2'
+                    })
+                })
+            ];
+            observerReference = patientOrPersonReference;
         }
 
         const resource = new AuditEvent({
@@ -157,23 +209,11 @@ class AuditLogger {
                 code: '110112',
                 display: 'Query'
             }),
-            agent: [
-                new AuditEventAgent({
-                    who: new Reference({
-                        reference: actorReference
-                    }),
-                    altId: alternateId,
-                    requestor: true,
-                    network: new AuditEventNetwork({
-                        address: requestInfo.remoteIpAddress,
-                        type: '2'
-                    })
-                })
-            ],
+            agent: agents,
             source: new AuditEventSource({
                 observer: new Reference(
                     {
-                        reference: actorReference
+                        reference: observerReference
                     }
                 )
             }),
