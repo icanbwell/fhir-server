@@ -165,6 +165,7 @@ class AuditLogger {
                     altId: requestInfo.actorSub,
                     requestor: true,
                     network: new AuditEventNetwork({
+                        address: requestInfo.remoteIpAddress,
                         type: '2'
                     })
                 })

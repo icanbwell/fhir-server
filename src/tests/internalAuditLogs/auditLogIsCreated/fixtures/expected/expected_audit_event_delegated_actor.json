@@ -51,6 +51,7 @@
             "altId": "related-person-sub-123",
             "requestor": true,
             "network": {
+                "address": "::ffff:127.0.0.1",
                 "type": "2"
             }
         }

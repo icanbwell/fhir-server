@@ -388,26 +388,33 @@ class AuthService {
      * Extracts delegated actor information from the JWT act claim.
      * @param {Object} params
      * @param {Object} params.jwt_payload
-     * @returns {{ actorSub: string, actorReference: string } | null}
+     * @returns {{ sub: string|null, reference: string } | null}
      */
     _getDelegatedActor({ jwt_payload }) {
         const act = jwt_payload.act;
 
         if (!act || typeof act !== 'object' || !act.reference) {
             if (this.configManager.validateDelegatedAccessToken && act) {
-                throw new Error(`Invalid act claim: expected object with reference field.`);
+               throw new Error(`Invalid act claim: expected object with reference field.`);
+            }
+            return null;
+        }
+
+        if (typeof act.reference !== 'string') {
+            if (this.configManager.validateDelegatedAccessToken) {
+                throw new Error(`Invalid act.reference format: ${act.reference}`);
             }
             return null;
         }
 
         const { resourceType, id } = ReferenceParser.parseReference(act.reference);
         if (!resourceType || !id) {
-            throw new Error(`Invalid act.reference format: ${act.reference}. Expected ResourceType/id.`);
+            throw new Error(`Invalid act.reference format: ${act.reference}.`);
         }
 
         return {
-            actorSub: act.sub || null,
-            actorReference: act.reference
+            sub: act.sub || null,
+            reference: act.reference
         };
     }
 

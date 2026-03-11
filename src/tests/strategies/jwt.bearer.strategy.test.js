@@ -439,8 +439,8 @@ describe('JWT Bearer Strategy', () => {
                     expect(info).toBeTruthy();
                     expect(info.context).toBeTruthy();
                     expect(info.context.delegatedActor).toStrictEqual({
-                        actorReference: delegatedActorReference,
-                        actorSub: 'delegated-sub-123'
+                        reference: delegatedActorReference,
+                        sub: 'delegated-sub-123'
                     });
 
                     resolve();
@@ -603,6 +603,10 @@ describe('JWT Bearer Strategy', () => {
 
             get externalAuthWellKnownUrls() {
                 return [];
+            }
+
+            get validateDelegatedAccessToken() {
+                return false;
             }
         }
 
