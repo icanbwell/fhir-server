@@ -36,12 +36,8 @@ let setupPromise = null;
 
 /**
  * Waits for ClickHouse to be ready with exponential backoff
- * @returns {Promise<boolean>} True if ready, false if not available
  */
-// CI can be slow, increase default timeout
-const defaultWaitMs = process.env.CI ? 90000 : 30000;
-
-async function waitForClickHouse(manager, maxWaitMs = defaultWaitMs) {
+async function waitForClickHouse(manager, maxWaitMs = 30000) {
     const startTime = Date.now();
     let attempt = 0;
     let delay = 100; // Start with 100ms
@@ -63,8 +59,7 @@ async function waitForClickHouse(manager, maxWaitMs = defaultWaitMs) {
         delay = Math.min(delay * 2, 1000);
     }
 
-    // Return false instead of throwing - allows graceful skip
-    return false;
+    throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
 }
 
 /**
@@ -105,9 +100,6 @@ async function initializeClickHouseSchema(clickHouseManager) {
     }
 }
 
-// Track whether ClickHouse is available for conditional skipping
-let clickHouseAvailable = false;
-
 /**
  * Sets up shared test infrastructure (call once in beforeAll)
  * Uses singleton pattern to ensure setup only happens once
@@ -141,16 +133,7 @@ async function setupGroupTests() {
             // Wait for ClickHouse to be ready
             // In CI, ClickHouse service should be running (GitHub Actions service)
             // Locally, ensureClickHouse() would have started it
-            // CI can take longer to become healthy even after /ping responds
-            const clickHouseTimeout = process.env.CI ? 90000 : 30000;
-            clickHouseAvailable = await waitForClickHouse(sharedClickHouseManager, clickHouseTimeout);
-
-            if (!clickHouseAvailable) {
-                // ClickHouse not available - tests will be skipped
-                console.warn('ClickHouse not available - Group integration tests will be skipped');
-                isSetupComplete = true;
-                return;
-            }
+            await waitForClickHouse(sharedClickHouseManager, 30000);
 
             // Initialize schema
             await initializeClickHouseSchema(sharedClickHouseManager);
@@ -371,27 +354,6 @@ function getTestHeaders() {
     return getHeaders();
 }
 
-/**
- * Checks if ClickHouse is available for testing
- * Call this in tests to conditionally skip when ClickHouse is not available
- *
- * @returns {boolean} True if ClickHouse is available
- */
-function isClickHouseAvailable() {
-    return clickHouseAvailable;
-}
-
-/**
- * Skips the test if ClickHouse is not available
- * Use at the start of each test that requires ClickHouse
- */
-function skipIfClickHouseUnavailable() {
-    if (!clickHouseAvailable) {
-        return true; // Indicates test should be skipped
-    }
-    return false;
-}
-
 module.exports = {
     setupGroupTests,
     teardownGroupTests,
@@ -402,7 +364,5 @@ module.exports = {
     getSharedRequest,
     getClickHouseManager,
     getTestHeaders,
-    waitForData,
-    isClickHouseAvailable,
-    skipIfClickHouseUnavailable
+    waitForData
 };

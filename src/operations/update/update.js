@@ -17,13 +17,14 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
 const { isUuid } = require('../../utils/uid.util');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 /**
  * Update Operation
@@ -41,9 +42,9 @@ class UpdateOperation {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
         {
@@ -57,9 +58,9 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
-            bwellPersonFinder,
             searchManager,
-            postSaveHandlerFactory
+            postSaveHandlerFactory,
+            identifierEnrichmentProvider
         }
     ) {
         /**
@@ -117,12 +118,6 @@ class UpdateOperation {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
-         * @type {BwellPersonFinder}
-         */
-        this.bwellPersonFinder = bwellPersonFinder;
-        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
-
-        /**
          * @type {SearchManager}
          */
         this.searchManager = searchManager;
@@ -133,6 +128,12 @@ class UpdateOperation {
          */
         this.postSaveHandlerFactory = postSaveHandlerFactory;
         assertTypeEquals(postSaveHandlerFactory, require('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory);
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     /**
@@ -485,6 +486,10 @@ class UpdateOperation {
                     operationResult: mergeResults
                 });
 
+                // enrich resource
+                this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
+
                 return result;
             } else {
                 await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
@@ -515,6 +520,10 @@ class UpdateOperation {
                         resourceType: foundResource.resourceType
                     }]
                 });
+
+                // enrich resource
+                this.identifierEnrichmentProvider.enrichIdentifierList(result.resource);
+                result.resource = FhirResourceSerializer.serialize(result.resource.toJSONInternal());
 
                 return result;
             }

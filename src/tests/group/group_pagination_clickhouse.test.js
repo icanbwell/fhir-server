@@ -5,8 +5,7 @@ const {
     cleanupBetweenTests,
     getSharedRequest,
     getTestHeaders,
-    waitForData,
-    isClickHouseAvailable
+    waitForData
 } = require('./groupTestSetup');
 
 describe('Group Pagination with ClickHouse', () => {
@@ -34,10 +33,9 @@ describe('Group Pagination with ClickHouse', () => {
 
     beforeAll(async () => {
         await setupGroupTests();
-    }, 180000); // Allow extra time on CI
+    });
 
     beforeEach(async () => {
-        if (!isClickHouseAvailable()) return;
         await cleanupBetweenTests();
     });
 
@@ -73,7 +71,6 @@ describe('Group Pagination with ClickHouse', () => {
     }
 
     test('Multi-page navigation through large result set', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = `Patient/pagination-test-${Date.now()}`;
         const groupIds = [];
 
@@ -148,7 +145,6 @@ describe('Group Pagination with ClickHouse', () => {
     }, 120000); // 2 minute timeout
 
     test('_getpagesoffset parameter skips to correct offset', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = `Patient/offset-test-${Date.now()}`;
         const groupIds = [];
 
@@ -208,7 +204,6 @@ describe('Group Pagination with ClickHouse', () => {
     }, 60000);
 
     test('Pagination beyond available results returns empty', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = `Patient/beyond-test-${Date.now()}`;
 
         // Create single Group
@@ -243,7 +238,6 @@ describe('Group Pagination with ClickHouse', () => {
     }, 30000);
 
     test('Pagination with _count=1 returns single result', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = `Patient/single-page-test-${Date.now()}`;
 
         for (let i = 0; i < TEST_DATA_SIZES.SMALL; i++) {

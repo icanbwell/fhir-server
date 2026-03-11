@@ -17,7 +17,6 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { QueryItem } = require('../graph/queryItem');
 const { ConfigManager } = require('../../utils/configManager');
-const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { MergeValidator } = require('./mergeValidator');
 const { logError } = require('../common/logging');
 const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
@@ -39,7 +38,6 @@ class MergeOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
-     * @param {BwellPersonFinder} bwellPersonFinder
      * @param {MergeValidator} mergeValidator
      */
     constructor (
@@ -52,7 +50,6 @@ class MergeOperation {
             fhirLoggingManager,
             bundleManager,
             configManager,
-            bwellPersonFinder,
             mergeValidator
         }
     ) {
@@ -99,12 +96,6 @@ class MergeOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {BwellPersonFinder}
-         */
-        this.bwellPersonFinder = bwellPersonFinder;
-        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
 
         /**
          * @type {MergeValidator}

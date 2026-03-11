@@ -3,9 +3,11 @@ const { logInfo, logError, logDebug } = require('../../operations/common/logging
 const { RethrownError } = require('../../utils/rethrownError');
 const { OPERATION_TYPES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { GroupMemberEventBuilder } = require('../builders/groupMemberEventBuilder');
-const { CONTEXT_KEYS } = require('../../constants/groupConstants');
 const { GroupMemberDiffComputer } = require('../../domain/group/groupMemberDiffComputer');
-const httpContext = require('express-http-context');
+const { trace } = require('@opentelemetry/api');
+
+// Create OpenTelemetry tracer for Group operations
+const tracer = trace.getTracer('clickhouse-group-handler', '1.0.0');
 
 /**
  * Post-save handler for ClickHouse Group member event tracking
@@ -97,9 +99,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
 
         try {
             // Check if member events were already written (e.g., by PATCH operations)
-            // PATCH calls writeEventsAsync to write events, so post-save handler should skip member processing
-            const eventsWrittenKey = CONTEXT_KEYS.GROUP_MEMBER_EVENTS_WRITTEN(doc.id);
-            if (httpContext.get(eventsWrittenKey)) {
+            // PATCH writes events directly and sets this flag in contextData
+            if (contextData?.groupMemberEventsWritten) {
                 logDebug('POST-save: Member events already written, skipping member processing', {
                     groupId: doc.id,
                     eventType
@@ -139,10 +140,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 return;
             }
 
-            // If no members to write, nothing to do
             // CREATE: Write all members as 'added' events
             if (eventType === OPERATION_TYPES.CREATE) {
-                // For CREATE, if no members, nothing to do
                 if (!originalMembers || originalMembers.length === 0) {
                     logDebug('No members to write for CREATE', {
                         groupId: doc.id
@@ -181,8 +180,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 await this._handleUpdateAsync(docWithMembers);
 
                 logInfo('ClickHouse UPDATE events written', {
-                    groupId: doc.id,
-                    memberCount: originalMembers.length
+                    groupId: doc.id
                 });
             }
 
@@ -358,7 +356,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * Queries repository for current state, computes diff, writes events
      *
      * @param {Object} groupResource - FHIR Group resource
-     * @returns {Promise<void>}
+     * @returns {Promise<{added: number, removed: number, finalCount: number}>} Member change statistics
      * @private
      */
     async _handleUpdateAsync(groupResource) {
@@ -372,12 +370,16 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 groupResource.member
             );
 
+            const currentCount = currentReferences.size;
+            const finalCount = currentCount + additions.length - removals.length;
+
             logDebug('Computed member diff', {
                 groupId: groupResource.id,
                 additions: additions.length,
                 removals: removals.length,
-                current: currentReferences.size,
-                incoming: (groupResource.member || []).length
+                current: currentCount,
+                incoming: (groupResource.member || []).length,
+                finalCount
             });
 
             // Write combined events in single INSERT
@@ -391,8 +393,15 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             logInfo('Processed Group update', {
                 groupId: groupResource.id,
                 added: additions.length,
-                removed: removals.length
+                removed: removals.length,
+                finalCount
             });
+
+            return {
+                added: additions.length,
+                removed: removals.length,
+                finalCount
+            };
         } catch (error) {
             throw new RethrownError({
                 message: 'Error handling Group update in ClickHouse',
@@ -418,37 +427,73 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @public
      */
     async writeEventsAsync({ groupId, added = [], removed = [], groupResource }) {
-        try {
-            logDebug('Writing Group member events directly', {
-                groupId,
-                addedCount: added.length,
-                removedCount: removed.length
-            });
+        const startTime = Date.now();
+        const totalEvents = added.length + removed.length;
 
-            if (!groupResource) {
-                throw new Error(`groupResource is required for writeEventsAsync (groupId: ${groupId})`);
+        return tracer.startActiveSpan('group.write_events', {
+            attributes: {
+                'group.id': groupId,
+                'group.events.added': added.length,
+                'group.events.removed': removed.length,
+                'group.events.total': totalEvents
             }
+        }, async (span) => {
+            try {
+                logDebug('Writing Group member events directly', {
+                    groupId,
+                    addedCount: added.length,
+                    removedCount: removed.length
+                });
 
-            // Write combined events in single INSERT
-            await this._writeCombinedEventsAsync({
-                groupId,
-                additions: added,
-                removals: removed,
-                groupResource
-            });
+                if (!groupResource) {
+                    throw new Error(`groupResource is required for writeEventsAsync (groupId: ${groupId})`);
+                }
 
-            logInfo('Successfully wrote Group member events', {
-                groupId,
-                addedCount: added.length,
-                removedCount: removed.length
-            });
-        } catch (error) {
-            throw new RethrownError({
-                message: 'Error writing Group member events to ClickHouse',
-                error,
-                args: { groupId, addedCount: added.length, removedCount: removed.length }
-            });
-        }
+                // Write combined events in single INSERT
+                await this._writeCombinedEventsAsync({
+                    groupId,
+                    additions: added,
+                    removals: removed,
+                    groupResource
+                });
+
+                const duration = Date.now() - startTime;
+
+                logInfo('Successfully wrote Group member events', {
+                    groupId,
+                    addedCount: added.length,
+                    removedCount: removed.length,
+                    duration_ms: duration
+                });
+
+                // Add success metrics to span
+                span.setAttributes({
+                    'group.write.duration_ms': duration
+                });
+                span.setStatus({ code: 1 }); // SpanStatusCode.OK
+                span.end();
+            } catch (error) {
+                const duration = Date.now() - startTime;
+
+                // Add error details to span
+                span.setAttributes({
+                    'group.write.duration_ms': duration,
+                    'group.write.error': error.message
+                });
+                span.setStatus({
+                    code: 2, // SpanStatusCode.ERROR
+                    message: error.message
+                });
+                span.recordException(error);
+                span.end();
+
+                throw new RethrownError({
+                    message: 'Error writing Group member events to ClickHouse',
+                    error,
+                    args: { groupId, addedCount: added.length, removedCount: removed.length }
+                });
+            }
+        });
     }
 
 }

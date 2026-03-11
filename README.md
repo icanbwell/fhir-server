@@ -114,11 +114,6 @@ Use `/health` as the url for health check in Kubernetes or other systems
 The FHIR server can optionally send various Kafka Events
 [Kafka Events](readme/kafkaEvents.md)
 
-## SSE-based FHIR Subscriptions
-
-The FHIR server supports real-time push notifications via Server-Sent Events (SSE) for FHIR R5 Subscriptions.
-[SSE Subscriptions](readme/sseSubscriptions.md)
-
 ## ClickHouse Integration
 
 For Groups approaching MongoDB's 16MB document limit, the FHIR server supports event-sourced ClickHouse storage for scalable member queries

@@ -17,8 +17,7 @@ const {
     getSharedRequest,
     getClickHouseManager,
     getTestHeaders,
-    waitForData,
-    isClickHouseAvailable
+    waitForData
 } = require('./groupTestSetup');
 
 /**
@@ -42,7 +41,7 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     beforeAll(async () => {
         await setupGroupTests();
         await cleanupBetweenTests(); // Clean data from previous Jest runs
-    }, 180000); // Allow extra time on CI
+    });
 
     beforeEach(async () => {
         await cleanupBetweenTests();
@@ -140,14 +139,12 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     }
 
     beforeEach(async () => {
-        if (!isClickHouseAvailable()) return;
         testGroup = await createTestGroup();
     }, 30000);
 
     // ============ MONGODB-BACKED PARAMETERS ============
 
     test('1. actual=true → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const response = await searchGroups({ actual: 'true' });
         expect(response.status).toBe(200);
 
@@ -157,7 +154,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     });
 
     test('2. type=person → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const response = await searchGroups({ type: 'person' });
         expect(response.status).toBe(200);
 
@@ -167,7 +163,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     });
 
     test('3. code=cohort → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const response = await searchGroups({ code: 'cohort' });
         expect(response.status).toBe(200);
 
@@ -177,7 +172,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     });
 
     test('4. identifier=COMPREHENSIVE-001 → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const response = await searchGroups({ identifier: 'COMPREHENSIVE-001' });
         expect(response.status).toBe(200);
 
@@ -187,7 +181,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     });
 
     test('5. characteristic=age-group → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const response = await searchGroups({ characteristic: 'age-group' });
         expect(response.status).toBe(200);
 
@@ -197,7 +190,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     });
 
     test('6. characteristic-value (composite) → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         // Format: characteristic-value=<characteristic-code>$<value-code>
         const response = await searchGroups({
             'characteristic-value': 'age-group$adult'
@@ -211,7 +203,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     });
 
     test('7. exclude=true → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const response = await searchGroups({ exclude: 'true' });
         expect(response.status).toBe(200);
 
@@ -222,7 +213,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     });
 
     test('8. managing-entity=Organization/test-org → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const response = await searchGroups({
             'managing-entity': 'Organization/test-org'
         });
@@ -234,7 +224,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     });
 
     test('9. value=adult → MongoDB search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const response = await searchGroups({ value: 'adult' });
         expect(response.status).toBe(200);
 
@@ -247,7 +236,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     // ============ CLICKHOUSE-BACKED PARAMETER ============
 
     test('10. member=Patient/2 → ClickHouse search', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         // With CLICKHOUSE_WRITE_MODE=sync, data should be immediately available
         const response = await searchGroups({ member: 'Patient/2' });
 
@@ -263,7 +251,6 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
     // ============ SUMMARY TEST ============
 
     test('All 10 parameters: Summary verification', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         expect(true).toBe(true);
     });
 });

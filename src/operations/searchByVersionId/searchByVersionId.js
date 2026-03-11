@@ -1,4 +1,4 @@
-const { NotFoundError, ForbiddenError } = require('../../utils/httpErrors');
+const { NotFoundError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
@@ -13,6 +13,7 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 
 class SearchByVersionIdOperation {
     /**
@@ -174,9 +175,13 @@ class SearchByVersionIdOperation {
                 operation: READ
             });
 
+            if (typeof version_id !== 'string') {
+                throw new BadRequestError('version_id must be a string');
+            }
             const queryForVersionId = {
                 'resource.meta.versionId': version_id
             };
+
             if (query.$and) {
                 query.$and.push(queryForVersionId);
             } else {
@@ -244,6 +249,10 @@ class SearchByVersionIdOperation {
                     startTime,
                     action: currentOperationName
                 });
+
+                // serialize the resource
+                FhirResourceSerializer.serialize(historyResource);
+
                 return historyResource;
             } else {
                 throw new NotFoundError(`History not found for ${resourceType}/${id} with versionId:${version_id}`);

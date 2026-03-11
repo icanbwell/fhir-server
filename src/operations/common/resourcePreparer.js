@@ -1,6 +1,5 @@
-
-
 const { EnrichmentManager } = require('../../enrich/enrich');
+const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
 const { AccessIndexManager } = require('./accessIndexManager');
@@ -13,12 +12,15 @@ class ResourcePreparer {
      * @param {AccessIndexManager} accessIndexManager
      * @param {EnrichmentManager} enrichmentManager
      * @param {ResourceManager} resourceManager
+     * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
-    constructor ({
-                    scopesManager, accessIndexManager,
-                    enrichmentManager,
-                    resourceManager
-                }) {
+    constructor({
+        scopesManager,
+        accessIndexManager,
+        enrichmentManager,
+        resourceManager,
+        identifierEnrichmentProvider
+    }) {
         /**
          * @type {ScopesManager}
          */
@@ -42,6 +44,12 @@ class ResourcePreparer {
          */
         this.resourceManager = resourceManager;
         assertTypeEquals(resourceManager, ResourceManager);
+
+        /**
+         * @type {IdentifierEnrichmentProvider}
+         */
+        this.identifierEnrichmentProvider = identifierEnrichmentProvider;
+        assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
     }
 
     /**
@@ -51,12 +59,16 @@ class ResourcePreparer {
      * @param {string} resourceType
      * @return {Resource}
      */
-    selectSpecificElements ({ parsedArgs, element, resourceType }) {
+    selectSpecificElements({ parsedArgs, element, resourceType }) {
         /**
          * @type {string[]|null}
          */
         const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue.values;
         properties_to_return_list.push('resourceType');
+
+        if (properties_to_return_list.includes('identifier')) {
+            this.identifierEnrichmentProvider.enrichIdentifierList(element);
+        }
 
         let element_to_return = Object.keys(element)
             .filter((key) => properties_to_return_list.includes(key))

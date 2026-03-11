@@ -11,6 +11,7 @@ const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@je
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const fs = require('fs');
 const path = require('path');
@@ -27,12 +28,8 @@ const path = require('path');
 
 describe('FHIR R4B Group Compliance with ClickHouse', () => {
     let clickHouseManager;
-    let clickHouseAvailable = false;
 
-    // CI can be slow, increase default timeout
-    const defaultWaitMs = process.env.CI ? 90000 : 30000;
-
-    async function waitForClickHouse(manager, maxWaitMs = defaultWaitMs) {
+    async function waitForClickHouse(manager, maxWaitMs = 30000) {
         const startTime = Date.now();
         while (Date.now() - startTime < maxWaitMs) {
             try {
@@ -46,8 +43,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
             }
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        console.warn(`ClickHouse not ready after ${maxWaitMs}ms - tests will be skipped`);
-        return false;
+        throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
     }
 
     async function initializeClickHouseSchema(manager) {
@@ -100,11 +96,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
 
-        clickHouseAvailable = await waitForClickHouse(clickHouseManager);
-        if (!clickHouseAvailable) {
-            console.warn('ClickHouse not available - Group R4B compliance tests will be skipped');
-            return;
-        }
+        await waitForClickHouse(clickHouseManager);
         await initializeClickHouseSchema(clickHouseManager);
 
         try {
@@ -112,10 +104,9 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         } catch (e) {
             // Ignore if table doesn't exist
         }
-    }, 120000); // 120 second timeout for ClickHouse initialization
+    });
 
     beforeEach(async () => {
-        if (!clickHouseAvailable) return;
         // Clean slate for each test to ensure proper isolation
         try {
             await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
@@ -157,7 +148,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     }
 
     test('Required fields: type and actual must be present', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -179,7 +170,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     });
 
     test('Member with period: start and end dates preserved', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -225,7 +216,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     });
 
     test('Member with inactive flag preserved', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -266,7 +257,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     });
 
     test('Member with all optional fields: period + inactive', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -313,11 +304,12 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
                         argMax(period_end, (event_time, event_id)) as period_end,
                         argMax(inactive, (event_time, event_id)) as inactive
                     FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${actualGroupId}'
+                    WHERE group_id = {groupId:String}
                     AND entity_reference IN ('Patient/r4b-full-patient-1', 'Patient/r4b-full-patient-2')
                     GROUP BY entity_reference
                     HAVING argMax(event_type, (event_time, event_id)) = 'added'
-                    ORDER BY entity_reference`
+                    ORDER BY entity_reference`,
+            query_params: { groupId: actualGroupId }
         });
 
         expect(events.length).toBeGreaterThanOrEqual(0);
@@ -395,7 +387,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     // Phase 3.2: Optional Field Coverage Tests
 
     test('Group.active field preserved in MongoDB', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -419,7 +411,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     });
 
     test('characteristic.valueBoolean round-trip', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -453,7 +445,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     });
 
     test('characteristic.valueQuantity preserved', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -494,7 +486,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     });
 
     test('characteristic.valueRange preserved', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -534,7 +526,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     });
 
     test('characteristic.period validity window', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -575,7 +567,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     });
 
     test('member[].id element IDs preserved', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const group = {
             resourceType: 'Group',
             meta: {
@@ -608,16 +600,17 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         // Verify members were stored (even if IDs aren't)
         const events = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${actualGroupId}'
-                    AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
-                    ORDER BY entity_reference`
+                    WHERE group_id = {groupId:String}
+                    AND event_type = {eventType:String}
+                    ORDER BY entity_reference`,
+            query_params: { groupId: actualGroupId, eventType: EVENT_TYPES.MEMBER_ADDED }
         });
 
         expect(events.length).toBeGreaterThanOrEqual(0);
     });
 
     test('Round-trip integrity: All member fields survive storage', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         const originalGroup = {
             resourceType: 'Group',
             meta: {
@@ -672,17 +665,18 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
             const events = await clickHouseManager.queryAsync({
                 query: `SELECT entity_reference, period_start, period_end, inactive
                         FROM fhir.fhir_group_member_events
-                        WHERE group_id = '${actualGroupId}'
+                        WHERE group_id = {groupId:String}
                         AND entity_reference IN ('Practitioner/r4b-roundtrip-1', 'Practitioner/r4b-roundtrip-2')
-                        AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
-                        ORDER BY entity_reference`
+                        AND event_type = {eventType:String}
+                        ORDER BY entity_reference`,
+                query_params: { groupId: actualGroupId, eventType: EVENT_TYPES.MEMBER_ADDED }
             });
             expect(events.length).toBe(2);
         }
     });
 
     test('MEMBER_REMOVED events preserve original member data', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
+
         // Create Group with member that has period and inactive flag
         const group = {
             resourceType: 'Group',
@@ -713,10 +707,11 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const addedEvents = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference
                     FROM fhir.fhir_group_member_events
-                    WHERE group_id = '${actualGroupId}'
+                    WHERE group_id = {groupId:String}
                     AND entity_reference = 'Patient/r4b-removal-patient'
                     GROUP BY entity_reference
-                    HAVING argMax(event_type, (event_time, event_id)) = 'added'`
+                    HAVING argMax(event_type, (event_time, event_id)) = 'added'`,
+            query_params: { groupId: actualGroupId }
         });
         expect(addedEvents.length).toBeGreaterThanOrEqual(0);
 

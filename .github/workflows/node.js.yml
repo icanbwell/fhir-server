@@ -41,12 +41,12 @@ jobs:
         run: |
           docker compose up -d clickhouse
           echo "Waiting for ClickHouse to be ready..."
-          for i in {1..60}; do
-            if curl -s "http://localhost:8123/?query=SELECT%201" 2>/dev/null | grep -q '1'; then
+          for i in {1..30}; do
+            if curl -s http://localhost:8123/ping > /dev/null; then
               echo "✓ ClickHouse is ready"
               break
             fi
-            echo "Waiting... ($i/60)"
+            echo "Waiting... ($i/30)"
             sleep 2
           done
       - name: Use Node.js

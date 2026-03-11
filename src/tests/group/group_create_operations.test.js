@@ -5,8 +5,7 @@ const {
     cleanupBetweenTests,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders,
-    isClickHouseAvailable
+    getTestHeaders
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -24,10 +23,9 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 describe('Group CREATE operations', () => {
     beforeAll(async () => {
         await setupGroupTests();
-    }, 180000); // Allow extra time on CI
+    });
 
     beforeEach(async () => {
-        if (!isClickHouseAvailable()) return;
         await cleanupBetweenTests();
     });
 
@@ -54,7 +52,6 @@ describe('Group CREATE operations', () => {
     }
 
     test('POST Group without members → MongoDB only', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const clickHouseManager = getClickHouseManager();
         const response = await createGroup({
             type: 'person',
@@ -84,7 +81,6 @@ describe('Group CREATE operations', () => {
 
 
     test('POST Group with same member path uses same code (no threshold)', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const clickHouseManager = getClickHouseManager();
 
         // Small batch
@@ -126,5 +122,64 @@ describe('Group CREATE operations', () => {
         expect(parseInt(events50[0].count)).toBe(50);
         expect(parseInt(events1000[0].count)).toBe(1000);
 
+    });
+
+    test('POST Group → quantity available via GET', async () => {
+        const clickHouseManager = getClickHouseManager();
+        const members = Array.from({ length: 3 }, (_, i) => ({
+            entity: { reference: `Patient/quantity-test-${i}` }
+        }));
+
+        const response = await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Quantity Enrichment Test',
+            member: members
+        });
+
+        expect(response.status).toBe(201);
+
+        // Quantity not in POST response (FHIR compliant)
+        // Must GET to retrieve computed field
+        const groupId = response.body.id;
+        const request = getSharedRequest();
+        const getResponse = await request
+            .get(`/4_0_0/Group/${groupId}`)
+            .set(getTestHeaders());
+
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body.quantity).toBeDefined();
+        expect(getResponse.body.quantity).not.toBeNull();
+        expect(getResponse.body.quantity).toBe(3);
+        expect(getResponse.body.member).toBeUndefined(); // Member array stripped (hybrid storage)
+
+        // Verify ClickHouse count matches
+        const events = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+                    WHERE group_id = '${groupId}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
+        });
+        expect(parseInt(events[0].count)).toBe(3);
+    });
+
+    test('POST Group without members → quantity=0 via GET', async () => {
+        const response = await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Empty Group Quantity Test'
+        });
+
+        expect(response.status).toBe(201);
+
+        // GET to verify quantity
+        const groupId = response.body.id;
+        const request = getSharedRequest();
+        const getResponse = await request
+            .get(`/4_0_0/Group/${groupId}`)
+            .set(getTestHeaders());
+
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body.quantity).toBeDefined();
+        expect(getResponse.body.quantity).toBe(0);
+        expect(getResponse.body.member).toBeUndefined();
     });
 });

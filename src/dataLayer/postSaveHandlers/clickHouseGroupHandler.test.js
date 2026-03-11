@@ -87,14 +87,6 @@ describe('ClickHouseGroupHandler', () => {
                 entity: { reference: 'Patient/patient-1' }
             }];
 
-            // Mock httpContext to return members (simulating what databaseBulkInserter does)
-            httpContext.get = jest.fn((key) => {
-                if (key === `group-members-${groupId}`) {
-                    return members;
-                }
-                return undefined;
-            });
-
             await handler.afterSaveAsync({
                 requestId: 'req-1',
                 eventType: OPERATION_TYPES.CREATE,
@@ -102,7 +94,7 @@ describe('ClickHouseGroupHandler', () => {
                 doc: {
                     id: 'group-1',
                     _uuid: 'uuid-1',
-                    member: members,
+                    member: [],
                     meta: {
                         security: [
                             { system: 'https://www.icanbwell.com/owner', code: 'owner1' },
@@ -112,7 +104,11 @@ describe('ClickHouseGroupHandler', () => {
                         lastUpdated: '2024-01-01T00:00:00Z'
                     }
                 },
-                contextData: { groupMembers: members }
+                contextData: {
+                    groupMembers: members,
+                    resourceType: 'Group',
+                    resourceId: 'group-1'
+                }
             });
 
             expect(mockGroupMemberRepository.appendEvents).toHaveBeenCalled();
@@ -123,14 +119,6 @@ describe('ClickHouseGroupHandler', () => {
             const members = [{
                 entity: { reference: 'Patient/test' }
             }];
-
-            // Mock httpContext to return members
-            httpContext.get = jest.fn((key) => {
-                if (key === `group-members-${groupId}`) {
-                    return members;
-                }
-                return undefined;
-            });
 
             // Mock appendEvents to reject with error
             mockGroupMemberRepository.appendEvents.mockRejectedValue(new Error('ClickHouse connection error'));
@@ -143,14 +131,18 @@ describe('ClickHouseGroupHandler', () => {
                 doc: {
                     id: groupId,
                     _uuid: 'uuid-1',
-                    member: members,
+                    member: [],
                     meta: {
                         security: [],
                         versionId: '1',
                         lastUpdated: '2024-01-01T00:00:00Z'
                     }
                 },
-                contextData: { groupMembers: members }
+                contextData: {
+                    groupMembers: members,
+                    resourceType: 'Group',
+                    resourceId: groupId
+                }
             })).rejects.toThrow();
         });
     });
@@ -179,14 +171,6 @@ describe('ClickHouseGroupHandler', () => {
             const groupId = 'group-1';
             const members = [{ entity: { reference: 'Patient/1' } }];
 
-            // Mock httpContext to return members
-            httpContext.get = jest.fn((key) => {
-                if (key === `group-members-${groupId}`) {
-                    return members;
-                }
-                return undefined;
-            });
-
             let writeCompleted = false;
             mockGroupMemberRepository.appendEvents.mockImplementation(async () => {
                 const WRITE_DELAY_MS = 100;
@@ -201,7 +185,7 @@ describe('ClickHouseGroupHandler', () => {
                 doc: {
                     id: groupId,
                     _uuid: 'uuid-1',
-                    member: members,
+                    member: [],
                     meta: {
                         security: [
                             { system: 'https://www.icanbwell.com/owner', code: 'owner1' },
@@ -211,7 +195,11 @@ describe('ClickHouseGroupHandler', () => {
                         lastUpdated: '2024-01-01T00:00:00Z'
                     }
                 },
-                contextData: { groupMembers: members }
+                contextData: {
+                    groupMembers: members,
+                    resourceType: 'Group',
+                    resourceId: groupId
+                }
             });
 
             expect(writeCompleted).toBe(true);

@@ -14,8 +14,7 @@ const {
     cleanupBetweenTests,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders,
-    isClickHouseAvailable
+    getTestHeaders
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -27,21 +26,16 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
  * - ClickHouse events retained (audit trail)
  * - GET returns 404 after delete
  * - Orphaned events are harmless
- *
- * NOTE: These tests require ClickHouse. They will be skipped if ClickHouse is unavailable.
  */
 describe('Group DELETE operations', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
         await setupGroupTests();
-        if (isClickHouseAvailable()) {
-            clickHouseManager = getClickHouseManager();
-        }
-    }, 180000); // Allow extra time on CI
+        clickHouseManager = getClickHouseManager();
+    });
 
     beforeEach(async () => {
-        if (!isClickHouseAvailable()) return;
         await cleanupBetweenTests();
     });
 
@@ -83,7 +77,6 @@ describe('Group DELETE operations', () => {
     }
 
     test('DELETE Group → MongoDB deleted, ClickHouse events remain', async () => {
-        if (!isClickHouseAvailable()) return; // Skip if ClickHouse unavailable
         const members = Array.from({ length: 5 }, (_, i) => ({
             entity: { reference: `Patient/delete-${i}` }
         }));
@@ -121,7 +114,6 @@ describe('Group DELETE operations', () => {
     });
 
     test('GET deleted Group → 404', async () => {
-        if (!isClickHouseAvailable()) return; // Skip if ClickHouse unavailable
         const created = await createGroup({
             type: 'person',
             actual: true
@@ -135,7 +127,6 @@ describe('Group DELETE operations', () => {
     });
 
     test('ClickHouse events visible after delete (audit trail)', async () => {
-        if (!isClickHouseAvailable()) return; // Skip if ClickHouse unavailable
         const members = Array.from({ length: 3 }, (_, i) => ({
             entity: { reference: `Patient/delete-audit-${i}` }
         }));

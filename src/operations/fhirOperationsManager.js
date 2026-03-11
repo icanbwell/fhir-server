@@ -1037,27 +1037,29 @@ class FhirOperationsManager {
      * @returns {Promise<Resource>}
      */
     async expand(args, {req}, resourceType) {
-        /**
-         * combined args
-         * @type {Object}
-         */
-        let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
-        /**
-         * @type {ParsedArgs}
-         */
-        const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
-        );
+        // to be enabled after operation is updated
+        return {};
+        // /**
+        //  * combined args
+        //  * @type {Object}
+        //  */
+        // let combined_args = get_all_args(req, args);
+        // combined_args = this.parseParametersFromBody({req, combined_args});
+        // /**
+        //  * @type {ParsedArgs}
+        //  */
+        // const parsedArgs = await this.getParsedArgsAsync({
+        //         args: combined_args, resourceType, headers: req.headers, operation: READ
+        //     }
+        // );
 
-        return await this.expandOperation.expandAsync(
-            {
-                requestInfo: this.getRequestInfo(req),
-                parsedArgs,
-                resourceType
-            }
-        );
+        // return await this.expandOperation.expandAsync(
+        //     {
+        //         requestInfo: this.getRequestInfo(req),
+        //         parsedArgs,
+        //         resourceType
+        //     }
+        // );
     }
 
     /**

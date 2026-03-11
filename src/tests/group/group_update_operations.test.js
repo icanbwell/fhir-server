@@ -21,24 +21,21 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
  * - Membership diff computation (ClickHouse)
  * - Validation before MongoDB writes (prevent partial writes)
  * - 100K cap enforcement
- *
- * NOTE: These tests require ClickHouse. They will be skipped if ClickHouse is unavailable.
  */
 describe('Group UPDATE operations', () => {
     let clickHouseManager;
-    let clickHouseAvailable = false;
 
     beforeAll(async () => {
         await commonBeforeEach();
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
 
-        // Try to connect to ClickHouse with timeout
+        let ready = false;
         for (let i = 0; i < 30; i++) {
             try {
                 await clickHouseManager.getClientAsync();
                 if (await clickHouseManager.isHealthyAsync()) {
-                    clickHouseAvailable = true;
+                    ready = true;
                     break;
                 }
             } catch (e) {
@@ -46,13 +43,10 @@ describe('Group UPDATE operations', () => {
             }
             await new Promise(r => setTimeout(r, 1000));
         }
-        if (!clickHouseAvailable) {
-            console.warn('ClickHouse not available - Group UPDATE tests will be skipped');
-        }
-    }, 180000); // Allow extra time on CI
+        if (!ready) throw new Error('ClickHouse not ready');
+    });
 
     beforeEach(async () => {
-        if (!clickHouseAvailable) return;
         try {
             await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
         } catch (e) {
@@ -96,10 +90,6 @@ describe('Group UPDATE operations', () => {
     }
 
     test('PUT metadata only → MongoDB only, no ClickHouse', async () => {
-        if (!clickHouseAvailable) {
-            console.log('Skipping test - ClickHouse not available');
-            return;
-        }
         const created = await createGroup({
             type: 'person',
             actual: true,
@@ -133,10 +123,6 @@ describe('Group UPDATE operations', () => {
     });
 
     test('PUT with 10 new members → ClickHouse add events', async () => {
-        if (!clickHouseAvailable) {
-            console.log('Skipping test - ClickHouse not available');
-            return;
-        }
         const created = await createGroup({
             type: 'person',
             actual: true
@@ -163,10 +149,6 @@ describe('Group UPDATE operations', () => {
     });
 
     test('PUT removing 3 members → ClickHouse remove events', async () => {
-        if (!clickHouseAvailable) {
-            console.log('Skipping test - ClickHouse not available');
-            return;
-        }
         const initialMembers = Array.from({ length: 5 }, (_, i) => ({
             entity: { reference: `Patient/update-remove-${i}` }
         }));
@@ -209,10 +191,6 @@ describe('Group UPDATE operations', () => {
     });
 
     test('PUT empty member array → Remove all current members', async () => {
-        if (!clickHouseAvailable) {
-            console.log('Skipping test - ClickHouse not available');
-            return;
-        }
         const MEMBER_COUNT = 5;
         const initialMembers = Array.from({ length: MEMBER_COUNT }, (_, i) => ({
             entity: { reference: `Patient/update-empty-${i}` }
@@ -259,5 +237,80 @@ describe('Group UPDATE operations', () => {
         });
         expect(parseInt(currentCount[0].count)).toBe(0);
 
+    });
+
+    test('PUT Group → quantity available via GET', async () => {
+        // Create initial group with 2 members
+        const initialMembers = Array.from({ length: 2 }, (_, i) => ({
+            entity: { reference: `Patient/quantity-update-${i}` }
+        }));
+
+        const created = await createGroup({
+            type: 'person',
+            actual: true,
+            member: initialMembers
+        });
+
+        // Update with 5 members
+        const updatedMembers = Array.from({ length: 5 }, (_, i) => ({
+            entity: { reference: `Patient/quantity-update-new-${i}` }
+        }));
+
+        const response = await updateGroup(created.id, {
+            ...created,
+            member: updatedMembers
+        });
+
+        expect([200, 201]).toContain(response.status);
+
+        // Quantity not in PUT response (FHIR compliant)
+        // GET to retrieve computed field
+        const request = await createTestRequest();
+        const getResponse = await request
+            .get(`/4_0_0/Group/${created.id}`)
+            .set(getHeaders());
+
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body.quantity).toBeDefined();
+        expect(getResponse.body.quantity).not.toBeNull();
+        expect(getResponse.body.quantity).toBe(5);
+        expect(getResponse.body.member).toBeUndefined(); // Member array stripped (hybrid storage)
+
+        // Verify ClickHouse count matches
+        const events = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM (
+                        SELECT entity_reference FROM fhir.fhir_group_member_events
+                        WHERE group_id = '${created.id}'
+                        GROUP BY entity_reference
+                        HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
+                    )`
+        });
+        expect(parseInt(events[0].count)).toBe(5);
+    });
+
+    test('PUT Group metadata only → quantity=0 via GET', async () => {
+        const created = await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Original Name'
+        });
+
+        const response = await updateGroup(created.id, {
+            ...created,
+            name: 'Updated Name'
+        });
+
+        expect([200, 201]).toContain(response.status);
+
+        // GET to verify quantity
+        const request = await createTestRequest();
+        const getResponse = await request
+            .get(`/4_0_0/Group/${created.id}`)
+            .set(getHeaders());
+
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body.quantity).toBeDefined();
+        expect(getResponse.body.quantity).toBe(0);
+        expect(getResponse.body.member).toBeUndefined();
     });
 });

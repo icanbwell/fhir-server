@@ -59,6 +59,7 @@ const {PreSaveManager} = require('./preSaveHandlers/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
 const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
 const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
+const {IdentifierEnrichmentProvider} = require('./enrich/providers/identifierEnrichmentProvider');
 const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
 const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
@@ -131,14 +132,6 @@ const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
-const { getSSEConnectionManager } = require('./services/sseConnectionManager');
-const { SubscriptionMatcher } = require('./services/subscriptionMatcher');
-const { SubscriptionEventStore } = require('./dataLayer/subscriptionEventStore');
-const { SubscriptionKafkaConsumer } = require('./services/subscriptionKafkaConsumer');
-const { SSEEventDispatcher } = require('./services/sseEventDispatcher');
-const { SubscriptionTopicManager } = require('./services/subscriptionTopicManager');
-const { SubscriptionPreSaveHandler } = require('./preSaveHandlers/handlers/subscriptionPreSaveHandler');
-const { SubscriptionExpirationProcessor } = require('./utils/subscriptionExpirationProcessor');
 
 /**
  * Creates a container and sets up all the services
@@ -167,6 +160,7 @@ const createContainer = function () {
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
             new IdEnrichmentProvider(),
+            c.identifierEnrichmentProvider,
             new GlobalIdEnrichmentProvider(),
             new ProxyPatientReferenceEnrichmentProvider({
                 configManager: c.configManager
@@ -179,12 +173,16 @@ const createContainer = function () {
             })
         ]
     }));
+    container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
+        fhirTypesManager: c.fhirTypesManager
+    }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
             enrichmentManager: c.enrichmentManager,
-            resourceManager: c.resourceManager
+            resourceManager: c.resourceManager,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('preSaveManager', (c) => new PreSaveManager({
@@ -203,20 +201,9 @@ const createContainer = function () {
             }),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
-            new UuidColumnHandler({
-                configManager: c.configManager
-            }),
+            new UuidColumnHandler(),
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
-            new ReferenceGlobalIdHandler({
-                configManager: c.configManager
-            }),
-            // SubscriptionPreSaveHandler validates SSE subscriptions
-            ...(c.configManager.enableSSESubscriptions ? [
-                new SubscriptionPreSaveHandler({
-                    configManager: c.configManager,
-                    subscriptionTopicManager: c.subscriptionTopicManager
-                })
-            ] : [])
+            new ReferenceGlobalIdHandler()
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -533,13 +520,6 @@ const createContainer = function () {
             }
         )
     );
-    container.register('subscriptionExpirationProcessor', (c) => new SubscriptionExpirationProcessor(
-            {
-                databaseQueryFactory: c.databaseQueryFactory,
-                configManager: c.configManager
-            }
-        )
-    );
 
     container.register('graphHelper', (c) => new GraphHelper(
             {
@@ -633,7 +613,7 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider
             }
         )
     );
@@ -651,9 +631,9 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder,
                 searchManager: c.searchManager,
-                postSaveHandlerFactory: c.postSaveHandlerFactory
+                postSaveHandlerFactory: c.postSaveHandlerFactory,
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider
             }
         )
     );
@@ -667,7 +647,6 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder,
             mergeValidator: c.mergeValidator
         }
     ));
@@ -713,7 +692,8 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -728,7 +708,8 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -743,7 +724,8 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient
+            historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -756,11 +738,11 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder,
             searchManager: c.searchManager,
             resourceMerger: c.resourceMerger,
             resourceValidator: c.resourceValidator,
-            postSaveHandlerFactory: c.postSaveHandlerFactory
+            postSaveHandlerFactory: c.postSaveHandlerFactory,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -790,7 +772,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
     ));
 
@@ -1088,63 +1071,6 @@ const createContainer = function () {
     container.register('redisManager', (c) => new RedisManager({
         redisClient: c.redisClient
     }));
-
-    // SSE Subscription Services
-    container.register('sseConnectionManager', () => getSSEConnectionManager());
-
-    container.register('subscriptionTopicManager', (c) => {
-        if (c.configManager.enableSSESubscriptions) {
-            return new SubscriptionTopicManager({
-                databaseQueryFactory: c.databaseQueryFactory,
-                configManager: c.configManager
-            });
-        }
-        return null;
-    });
-
-    container.register('subscriptionEventStore', (c) => {
-        if (c.configManager.enableSSESubscriptions && c.configManager.enableClickHouse) {
-            return new SubscriptionEventStore({
-                clickHouseClientManager: c.clickHouseClientManager,
-                configManager: c.configManager
-            });
-        }
-        return null;
-    });
-
-    container.register('subscriptionMatcher', (c) => {
-        if (c.configManager.enableSSESubscriptions) {
-            return new SubscriptionMatcher({
-                databaseQueryFactory: c.databaseQueryFactory,
-                configManager: c.configManager
-            });
-        }
-        return null;
-    });
-
-    container.register('sseEventDispatcher', (c) => {
-        if (c.configManager.enableSSESubscriptions) {
-            return new SSEEventDispatcher({
-                redisClient: c.redisClient,
-                configManager: c.configManager,
-                sseConnectionManager: c.sseConnectionManager
-            });
-        }
-        return null;
-    });
-
-    container.register('subscriptionKafkaConsumer', (c) => {
-        if (c.configManager.enableSSESubscriptions && c.configManager.kafkaEnableEvents) {
-            return new SubscriptionKafkaConsumer({
-                kafkaClient: c.kafkaClient,
-                subscriptionMatcher: c.subscriptionMatcher,
-                sseEventDispatcher: c.sseEventDispatcher,
-                subscriptionEventStore: c.subscriptionEventStore,
-                configManager: c.configManager
-            });
-        }
-        return null;
-    });
 
     return container;
 };

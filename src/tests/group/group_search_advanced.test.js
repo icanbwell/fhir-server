@@ -14,8 +14,7 @@ const {
     getSharedRequest,
     getClickHouseManager,
     getTestHeaders,
-    waitForData,
-    isClickHouseAvailable
+    waitForData
 } = require('./groupTestSetup');
 
 describe('Group Advanced Search', () => {
@@ -26,10 +25,9 @@ describe('Group Advanced Search', () => {
 
     beforeAll(async () => {
         await setupGroupTests();
-    }, 180000); // Allow extra time on CI
+    });
 
     beforeEach(async () => {
-        if (!isClickHouseAvailable()) return;
         await cleanupBetweenTests();
     });
 
@@ -59,7 +57,6 @@ describe('Group Advanced Search', () => {
     }
 
     test('Combined filters: member AND name', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = 'Patient/search-combined-1';
 
         await createGroup({
@@ -102,7 +99,6 @@ describe('Group Advanced Search', () => {
     }, 30000);
 
     test('Search with pagination (100+ results)', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = `Patient/search-pagination-${Date.now()}`;
 
         for (let i = 0; i < TEST_GROUP_COUNTS.PAGINATION_TEST; i++) {
@@ -132,7 +128,6 @@ describe('Group Advanced Search', () => {
     }, 60000);
 
     test('Search with sorting', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = `Patient/search-sort-${Date.now()}`;
 
         await createGroup({
@@ -177,7 +172,6 @@ describe('Group Advanced Search', () => {
     }, 30000);
 
     test('Filter by member inactive flag', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const activeRef = 'Patient/search-active';
         const inactiveRef = 'Patient/search-inactive';
 
@@ -208,7 +202,6 @@ describe('Group Advanced Search', () => {
     }, 30000);
 
     test('Search by member with wildcard/partial match', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         const member1 = 'Patient/search-wild-001';
         const member2 = 'Patient/search-wild-002';
 
@@ -262,7 +255,6 @@ describe('Group Advanced Search', () => {
     // Phase 2.2: Query Injection Protection Tests
 
     test('SQL injection pattern → Properly escaped', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         // Test that SQL injection attempts are safely handled
         const maliciousRef = "Patient/'; DROP TABLE fhir_group_member_events; --";
 
@@ -294,7 +286,6 @@ describe('Group Advanced Search', () => {
     }, 15000);
 
     test('Member reference >10KB → Rejected or truncated', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         // Test handling of extremely long member references
         const longRef = 'Patient/' + 'A'.repeat(10000);
 
@@ -329,7 +320,6 @@ describe('Group Advanced Search', () => {
     }, 30000);
 
     test('Unicode member reference → UTF-8 preserved', async () => {
-        if (!isClickHouseAvailable()) { console.log('Skipping - ClickHouse not available'); return; }
         // Test that Unicode characters (including emojis) are correctly preserved
         const unicodeRef = 'Patient/测试-👨‍⚕️-emoji-ñ-é';
 

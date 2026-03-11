@@ -36,12 +36,8 @@ class MockConfigManagerStreaming extends ConfigManager {
 
 describe('Group Streaming with ClickHouse', () => {
     let clickHouseManager;
-    let clickHouseAvailable = false;
 
-    // CI can be slow, increase default timeout
-    const defaultWaitMs = process.env.CI ? 90000 : 30000;
-
-    async function waitForClickHouse(manager, maxWaitMs = defaultWaitMs) {
+    async function waitForClickHouse(manager, maxWaitMs = 30000) {
         const startTime = Date.now();
         while (Date.now() - startTime < maxWaitMs) {
             try {
@@ -55,8 +51,7 @@ describe('Group Streaming with ClickHouse', () => {
             }
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        console.warn(`ClickHouse not ready after ${maxWaitMs}ms - tests will be skipped`);
-        return false;
+        throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
     }
 
     async function initializeClickHouseSchema(manager) {
@@ -109,11 +104,7 @@ describe('Group Streaming with ClickHouse', () => {
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
 
-        clickHouseAvailable = await waitForClickHouse(clickHouseManager);
-        if (!clickHouseAvailable) {
-            console.warn('ClickHouse not available - Group streaming tests will be skipped');
-            return;
-        }
+        await waitForClickHouse(clickHouseManager);
         await initializeClickHouseSchema(clickHouseManager);
 
         try {
@@ -121,7 +112,7 @@ describe('Group Streaming with ClickHouse', () => {
         } catch (e) {
             // Ignore if table doesn't exist
         }
-    }, 120000); // 120 second timeout for ClickHouse initialization
+    });
 
     afterAll(async () => {
         if (clickHouseManager) {
@@ -158,7 +149,6 @@ describe('Group Streaming with ClickHouse', () => {
     }
 
     test('Stream Groups by member reference with ClickHouse enabled', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         // Create Groups with shared members
         const groupId1 = `stream-group-1-${Date.now()}`;
         const groupId2 = `stream-group-2-${Date.now()}`;
@@ -190,7 +180,7 @@ describe('Group Streaming with ClickHouse', () => {
 
         const response = await request
             .get('/4_0_0/Group')
-            .query({ 'member.entity._reference': 'Patient/streaming-patient-1' })
+            .query({ 'member.entity._reference': 'Patient/streaming-patient-1', _total: 'accurate' })
             .set(getHeaders())
             .expect(200);
 
@@ -224,7 +214,6 @@ describe('Group Streaming with ClickHouse', () => {
     });
 
     test('Streaming works with large member lists', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `stream-large-${Date.now()}`;
         const memberCount = 1000;
 
@@ -251,7 +240,7 @@ describe('Group Streaming with ClickHouse', () => {
         const startTime = Date.now();
         const response = await request
             .get('/4_0_0/Group')
-            .query({ 'member.entity._reference': targetMember })
+            .query({ 'member.entity._reference': targetMember, _total: 'accurate' })
             .set(getHeaders())
             .expect(200);
         const queryTime = Date.now() - startTime;
@@ -275,7 +264,6 @@ describe('Group Streaming with ClickHouse', () => {
     });
 
     test('Streaming query performance vs non-streaming', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = `stream-perf-${Date.now()}`;
         const memberCount = 500;
 
@@ -301,7 +289,7 @@ describe('Group Streaming with ClickHouse', () => {
         const streamStart = Date.now();
         const streamResponse = await streamingRequest
             .get('/4_0_0/Group')
-            .query({ 'member.entity._reference': targetMember })
+            .query({ 'member.entity._reference': targetMember, _total: 'accurate' })
             .set(getHeaders())
             .expect(200);
         const streamTime = Date.now() - streamStart;
@@ -311,7 +299,7 @@ describe('Group Streaming with ClickHouse', () => {
         const normalStart = Date.now();
         const normalResponse = await normalRequest
             .get('/4_0_0/Group')
-            .query({ 'member.entity._reference': targetMember })
+            .query({ 'member.entity._reference': targetMember, _total: 'accurate' })
             .set(getHeaders())
             .expect(200);
         const normalTime = Date.now() - normalStart;
@@ -326,7 +314,6 @@ describe('Group Streaming with ClickHouse', () => {
     });
 
     test('Streaming respects _count pagination parameter', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = `Patient/stream-paginate-${Date.now()}`;
 
         // Create 25 Groups with same member

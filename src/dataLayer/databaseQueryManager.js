@@ -187,6 +187,12 @@ class DatabaseQueryManager {
      */
     async exactDocumentCountAsync({ query, options }) {
         try {
+            // Check if storage provider handles counts (e.g., ClickHouse for Group member queries)
+            if (this.storageProvider && typeof this.storageProvider.countAsync === 'function') {
+                return await this.storageProvider.countAsync({ query, options });
+            }
+
+            // Fallback to MongoDB
             const collection = await this.resourceLocator.getCollectionAsync({});
             return await collection.countDocuments(query, options);
         } catch (e) {

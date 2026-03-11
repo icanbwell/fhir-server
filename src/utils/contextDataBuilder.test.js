@@ -45,7 +45,11 @@ describe('contextDataBuilder', () => {
                     id: 'group-3',
                     resourceType: 'Group'
                 },
-                null
+                {
+                    groupMembers: [],
+                    resourceType: 'Group',
+                    resourceId: 'group-3'
+                }
             ],
             [
                 'Patient resource',

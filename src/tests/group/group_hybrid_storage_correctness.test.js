@@ -30,7 +30,6 @@ const ORIGINAL_MAX_GROUP_MEMBERS = process.env.MAX_GROUP_MEMBERS_PER_PUT;
 
 describe('Hybrid Storage Architecture - Correctness Test', () => {
     let clickHouseManager;
-    let clickHouseAvailable = false;
 
     beforeAll(async () => {
         // Set up for tests
@@ -45,11 +44,12 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         clickHouseManager = new ClickHouseClientManager({ configManager });
 
         // Wait for ClickHouse to be ready
+        let ready = false;
         for (let i = 0; i < 30; i++) {
             try {
                 await clickHouseManager.getClientAsync();
                 if (await clickHouseManager.isHealthyAsync()) {
-                    clickHouseAvailable = true;
+                    ready = true;
                     break;
                 }
             } catch (e) {
@@ -57,9 +57,7 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
             }
             await new Promise(r => setTimeout(r, 1000));
         }
-        if (!clickHouseAvailable) {
-            console.warn('ClickHouse not ready - Hybrid storage tests will be skipped');
-        }
+        if (!ready) throw new Error('ClickHouse not ready');
 
         await commonBeforeEach();
     }, 60000);
@@ -136,10 +134,6 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
     }
 
     test('Hybrid storage correctly stores 30K members', async () => {
-        if (!clickHouseAvailable) {
-            console.log('Skipping test - ClickHouse not available');
-            return;
-        }
         // Enable ClickHouse - use hybrid storage
         process.env.ENABLE_CLICKHOUSE = '1';
         process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
@@ -195,7 +189,6 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
     }, 300000); // 5 minute timeout
 
     test('Summary: Architecture verification', () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║       Hybrid Storage Architecture - Correctness Verified      ║

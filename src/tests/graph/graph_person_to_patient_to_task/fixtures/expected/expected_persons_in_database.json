@@ -32,16 +32,6 @@
           ]
         },
         "value": "bwell-002126287fbd412d8b52115e48edbd4c"
-      },
-      {
-        "id": "sourceId",
-        "system": "https://www.icanbwell.com/sourceId",
-        "value": "002126287fbd412d8b52115e48edbd4c"
-      },
-      {
-        "id": "uuid",
-        "system": "https://www.icanbwell.com/uuid",
-        "value": "0115f5e0-cf82-5fce-9a3d-bd3f43f059a4"
       }
     ],
     "link": [
@@ -51,23 +41,6 @@
           "_sourceAssigningAuthority": "healthsystem2",
           "_sourceId": "Patient/aab16fc4c5914e38b489bcd096369623",
           "_uuid": "Patient/b2ee7ab4-c3b1-50af-8017-dbecc28177bf",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/aab16fc4c5914e38b489bcd096369623"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/b2ee7ab4-c3b1-50af-8017-dbecc28177bf"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "healthsystem2"
-            }
-          ],
           "reference": "Patient/aab16fc4c5914e38b489bcd096369623|healthsystem2",
           "type": "Patient"
         }
@@ -77,23 +50,6 @@
           "_sourceAssigningAuthority": "healthsystem1",
           "_sourceId": "Patient/0318898e65044aaab3115d048d44c434",
           "_uuid": "Patient/3a088efc-f7ac-5906-8e32-0d2ed29f7051",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/0318898e65044aaab3115d048d44c434"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/3a088efc-f7ac-5906-8e32-0d2ed29f7051"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "healthsystem1"
-            }
-          ],
           "reference": "Patient/0318898e65044aaab3115d048d44c434|healthsystem1",
           "type": "Patient"
         }

@@ -33,18 +33,18 @@ describe('Group PATCH operations', () => {
     const HEALTH_CHECK_DELAY_MS = 1000;
 
     let clickHouseManager;
-    let clickHouseAvailable = false;
 
     beforeAll(async () => {
         await commonBeforeEach();
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
 
+        let ready = false;
         for (let i = 0; i < HEALTH_CHECK_MAX_ATTEMPTS; i++) {
             try {
                 await clickHouseManager.getClientAsync();
                 if (await clickHouseManager.isHealthyAsync()) {
-                    clickHouseAvailable = true;
+                    ready = true;
                     break;
                 }
             } catch (e) {
@@ -52,13 +52,10 @@ describe('Group PATCH operations', () => {
             }
             await new Promise(r => setTimeout(r, HEALTH_CHECK_DELAY_MS));
         }
-        if (!clickHouseAvailable) {
-            console.warn('ClickHouse not ready - Group PATCH tests will be skipped');
-        }
+        if (!ready) throw new Error('ClickHouse not ready');
     });
 
     beforeEach(async () => {
-        if (!clickHouseAvailable) return;
         try {
             await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
         } catch (e) {
@@ -102,7 +99,6 @@ describe('Group PATCH operations', () => {
     }
 
     test('PATCH add member operations → SUCCESS (FHIR R4B compliant)', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const group = await createGroup({
             type: 'person',
             actual: true,
@@ -135,7 +131,6 @@ describe('Group PATCH operations', () => {
     });
 
     test('PATCH add member with inactive=true → SUCCESS', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const group = await createGroup({
             type: 'person',
             actual: true,
@@ -156,7 +151,6 @@ describe('Group PATCH operations', () => {
     });
 
     test('PATCH remove by reference → Creates MEMBER_REMOVED event', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const group = await createGroup({
             type: 'person',
             actual: true,
@@ -198,7 +192,6 @@ describe('Group PATCH operations', () => {
     });
 
     test('PATCH metadata only → MongoDB only, no ClickHouse events', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const group = await createGroup({
             type: 'person',
             actual: true,
@@ -229,7 +222,6 @@ describe('Group PATCH operations', () => {
     });
 
     test('PATCH mixed operations → Both member and metadata updated', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const group = await createGroup({
             type: 'person',
             actual: true,
@@ -258,7 +250,6 @@ describe('Group PATCH operations', () => {
     });
 
     test('PATCH operations limit → 400 with FHIR too-costly OperationOutcome', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const group = await createGroup({
             type: 'person',
             actual: true,
@@ -284,7 +275,6 @@ describe('Group PATCH operations', () => {
     // Phase 4.2: PATCH Boundary Tests
 
     test('PATCH with invalid path → 400 Bad Request', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const group = await createGroup({
             type: 'person',
             actual: true,
@@ -311,7 +301,6 @@ describe('Group PATCH operations', () => {
     });
 
     test('PATCH with malformed operation object → 400 Bad Request', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const group = await createGroup({
             type: 'person',
             actual: true,
@@ -343,5 +332,107 @@ describe('Group PATCH operations', () => {
         if (response.body && response.body.resourceType) {
             expect(response.body.resourceType).toBe('OperationOutcome');
         }
+    });
+
+    test('PATCH add members → quantity available via GET', async () => {
+        // Create group with 1 member
+        const group = await createGroup({
+            type: 'person',
+            actual: true,
+            member: [
+                { entity: { reference: 'Patient/patch-quantity-initial' } }
+            ]
+        });
+
+        // PATCH add 2 more members
+        const patches = [
+            {
+                op: 'add',
+                path: '/member/-',
+                value: { entity: { reference: 'Patient/patch-quantity-1' } }
+            },
+            {
+                op: 'add',
+                path: '/member/-',
+                value: { entity: { reference: 'Patient/patch-quantity-2' } }
+            }
+        ];
+
+        const response = await patchGroup(group.id, patches);
+
+        expect(response.status).toBe(200);
+
+        // Quantity not in PATCH response (FHIR compliant)
+        // GET to retrieve computed field
+        const request = await createTestRequest();
+        const getResponse = await request
+            .get(`/4_0_0/Group/${group.id}`)
+            .set(getHeaders());
+
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body.quantity).toBeDefined();
+        expect(getResponse.body.quantity).not.toBeNull();
+        expect(getResponse.body.quantity).toBe(3); // 1 initial + 2 added
+        expect(getResponse.body.member).toBeUndefined(); // Member array stripped (hybrid storage)
+
+        // Verify ClickHouse count matches
+        const events = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM (
+                        SELECT entity_reference FROM fhir.fhir_group_member_events
+                        WHERE group_id = '${group.id}'
+                        GROUP BY entity_reference
+                        HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
+                    )`
+        });
+        expect(parseInt(events[0].count)).toBe(3);
+    });
+
+    test('PATCH remove member → quantity available via GET', async () => {
+        // Create group with 3 members
+        const group = await createGroup({
+            type: 'person',
+            actual: true,
+            member: [
+                { entity: { reference: 'Patient/patch-remove-qty-1' } },
+                { entity: { reference: 'Patient/patch-remove-qty-2' } },
+                { entity: { reference: 'Patient/patch-remove-qty-3' } }
+            ]
+        });
+
+        // PATCH remove 1 member
+        const patches = [
+            {
+                op: 'remove',
+                path: '/member',
+                value: { entity: { reference: 'Patient/patch-remove-qty-2' } }
+            }
+        ];
+
+        const response = await patchGroup(group.id, patches);
+
+        expect(response.status).toBe(200);
+
+        // GET to retrieve quantity
+        const request = await createTestRequest();
+        const getResponse = await request
+            .get(`/4_0_0/Group/${group.id}`)
+            .set(getHeaders());
+
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body.quantity).toBeDefined();
+        expect(getResponse.body.quantity).not.toBeNull();
+        expect(getResponse.body.quantity).toBe(2); // 3 initial - 1 removed
+        expect(getResponse.body.member).toBeUndefined();
+
+        // Verify ClickHouse count matches
+        const events = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM (
+                        SELECT entity_reference FROM fhir.fhir_group_member_events
+                        WHERE group_id = '${group.id}'
+                        GROUP BY entity_reference
+                        HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
+                    )`
+        });
+        expect(parseInt(events[0].count)).toBe(2);
     });
 });

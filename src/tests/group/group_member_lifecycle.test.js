@@ -2,7 +2,6 @@
 const { describe, beforeAll, afterAll, beforeEach, test, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
-const { isClickHouseAvailable } = require('./groupTestSetup');
 
 // Enable ClickHouse for this test
 process.env.ENABLE_CLICKHOUSE = '1';
@@ -16,15 +15,11 @@ process.env.STREAM_RESPONSE = '0';
 describe('Group Member Lifecycle in ClickHouse', () => {
     let requestId;
     let sharedClickHouseManager;
-    let clickHouseAvailable = false;
-
-    // CI can be slow, increase default timeout
-    const defaultWaitMs = process.env.CI ? 60000 : 30000;
 
     /**
      * Waits for ClickHouse to be ready
      */
-    async function waitForClickHouse(manager, maxWaitMs = defaultWaitMs) {
+    async function waitForClickHouse(manager, maxWaitMs = 30000) {
         const startTime = Date.now();
         let attempt = 0;
 
@@ -44,8 +39,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        console.warn(`ClickHouse not ready after ${maxWaitMs}ms - tests will be skipped`);
-        return false;
+        const connInfo = manager.getConnectionInfo();
+        throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
     }
 
     /**
@@ -117,15 +112,11 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         sharedClickHouseManager = new ClickHouseClientManager({ configManager: new ConfigManager() });
 
         // Wait for ClickHouse to be ready
-        clickHouseAvailable = await waitForClickHouse(sharedClickHouseManager);
-        if (!clickHouseAvailable) {
-            console.warn('ClickHouse not available - Group lifecycle tests will be skipped');
-            return;
-        }
+        await waitForClickHouse(sharedClickHouseManager);
 
         // Ensure schema is initialized
         await initializeClickHouseSchema(sharedClickHouseManager);
-    }, 120000); // 120 second timeout for ClickHouse initialization
+    });
 
     afterAll(async () => {
         // Close shared manager
@@ -136,7 +127,6 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     });
 
     beforeEach(async () => {
-        if (!clickHouseAvailable) return;
         requestId = undefined;
 
         // Clean ClickHouse between tests for isolation
@@ -257,14 +247,12 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     }
 
     test('Verify ClickHouse is enabled', () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const configManager = new ConfigManager();
         expect(configManager.enableClickHouse).toBe(true);
         expect(configManager.mongoWithClickHouseResources).toContain('Group');
     });
 
     test('Verify ClickHouse connectivity', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
         const configManager = new ConfigManager();
 
@@ -288,7 +276,6 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     });
 
     test('Member added, removed, then re-added appears as active', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = 'test-group-lifecycle-1';
         const memberRef = 'Patient/patient-123-lifecycle';
 
@@ -357,7 +344,6 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     }, 300000); // 5-minute timeout
 
     test('Query Groups by member shows only active memberships', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = 'Patient/patient-456-multi';
 
 
@@ -424,7 +410,6 @@ describe('Group Member Lifecycle in ClickHouse', () => {
 
 
     test('Multiple add/remove cycles maintain correct state', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const memberRef = 'Patient/patient-cycles';
 
 
@@ -502,7 +487,6 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     }, 300000);
 
     test('Remove member that was never added → No-op', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = 'test-remove-never-added';
         const memberRef = 'Patient/never-added';
 
@@ -535,7 +519,6 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     }, 60000);
 
     test('Duplicate remove events → Idempotent', async () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
         const groupId = 'test-duplicate-remove';
         const memberRef = 'Patient/duplicate-remove';
 
@@ -590,6 +573,5 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     }, 60000);
 
     test('Summary', () => {
-        if (!clickHouseAvailable) { console.log('Skipping - ClickHouse not available'); return; }
     });
 });

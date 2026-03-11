@@ -1,28 +1,13 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { assertIsValid } = require('../../utils/assertType');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
-const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
-const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * @classdesc Adds global id fields to every reference
  */
 class ReferenceGlobalIdHandler extends PreSaveHandler {
-    /**
-     * constructor
-     * @param {ConfigManager} configManager
-     */
-    constructor ({ configManager }) {
-        super();
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-    }
-
     /**
      * fixes up any resources before they are saved
      * @typedef {Object} PreSaveAsyncProps
@@ -31,32 +16,23 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * @param {PreSaveAsyncProps}
      * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
      */
-    async preSaveAsync ({ resource }) {
+    async preSaveAsync({ resource }) {
         // get sourceAssigningAuthority of resource
-        /**
-         * @type {string[]}
-         */
-        const sourceAssigningAuthorityCodes = resource.meta.security.filter(
-            s => s.system === SecurityTagSystem.sourceAssigningAuthority
-        ).map(s => s.code);
-        assertIsValid(sourceAssigningAuthorityCodes.length > 0,
-            `No sourceAssigningAuthority codes found for resource id: ${resource.id}`);
         /**
          * @type {string}
          */
-        const sourceAssigningAuthority = sourceAssigningAuthorityCodes[0];
-        assertIsValid(sourceAssigningAuthority,
-            `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`);
-        await resource.updateReferencesAsync(
-            {
-                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
-                    {
-                        sourceAssigningAuthority,
-                        reference
-                    }
-                )
-            }
+        const sourceAssigningAuthority = resource._sourceAssigningAuthority;
+        assertIsValid(
+            sourceAssigningAuthority,
+            `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`
         );
+        await resource.updateReferencesAsync({
+            fnUpdateReferenceAsync: async (reference) =>
+                await this.updateReferenceAsync({
+                    sourceAssigningAuthority,
+                    reference
+                })
+        });
         return resource;
     }
 
@@ -66,7 +42,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * @param {Reference} reference
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync ({ sourceAssigningAuthority, reference }) {
+    async updateReferenceAsync({ sourceAssigningAuthority, reference }) {
         assertIsValid(sourceAssigningAuthority, 'sourceAssigningAuthority is null');
         /**
          * @type {string}
@@ -113,85 +89,23 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
             // get sourceAssigningAuthority of parent
             uuid = generateUUIDv5(`${referenceId}|${sourceAssigningAuthority}`);
         }
-        /**
-         * @type {Extension[]}
-         */
-        const extensions = reference.extension || [];
 
-        let referenceUpdated = false;
-
-        const referenceValueUuid = referenceResourceType ? `${referenceResourceType}/${uuid}` : uuid;
-        reference._uuid = referenceValueUuid;
-        const referenceValueSourceId = referenceResourceType ? `${referenceResourceType}/${referenceId}` : referenceId;
-        reference._sourceId = referenceValueSourceId;
+        const resourcePrefix = referenceResourceType ? `${referenceResourceType}/` : '';
+        reference._uuid = resourcePrefix + uuid;
+        reference._sourceId = resourcePrefix + referenceId;
         reference._sourceAssigningAuthority = sourceAssigningAuthority;
-        // reference.type = referenceResourceType;
-        // update sourceId extension if needed
-        /**
-         * @type {Extension|undefined}
-         */
-        const sourceIdExtension = extensions.find(ext => ext.url === IdentifierSystem.sourceId);
-        if (!sourceIdExtension) {
-            extensions.push(
-                new Extension(
-                    {
-                        id: 'sourceId',
-                        url: IdentifierSystem.sourceId,
-                        valueString: referenceValueSourceId
-                    }
-                )
-            );
-            referenceUpdated = true;
-        } else if (sourceIdExtension.valueString !== referenceValueSourceId) {
-            sourceIdExtension.valueString = referenceValueSourceId;
-            referenceUpdated = true;
+
+        // remove extension having url for uuid, sourceId or sourceAssigningAuthority
+        // Only process if extensions exist
+        if (reference.extension && reference.extension.length > 0) {
+            const excludedUrls = [
+                IdentifierSystem.uuid,
+                IdentifierSystem.sourceId,
+                SecurityTagSystem.sourceAssigningAuthority
+            ];
+            reference.extension = reference.extension.filter((ext) => !excludedUrls.includes(ext.url));
         }
 
-        // update uuid extension if needed
-        /**
-         * @type {Extension|undefined}
-         */
-        const uuidExtension = extensions.find(ext => ext.url === IdentifierSystem.uuid);
-        if (!uuidExtension) {
-            extensions.push(
-                new Extension(
-                    {
-                        id: 'uuid',
-                        url: IdentifierSystem.uuid,
-                        valueString: referenceValueUuid
-                    }
-                )
-            );
-            referenceUpdated = true;
-        } else if (uuidExtension.valueString !== referenceValueUuid) {
-            uuidExtension.valueString = referenceValueUuid;
-            referenceUpdated = true;
-        }
-
-        // update sourceAssigningAuthority extension if needed
-        /**
-         * @type {Extension|undefined}
-         */
-        const sourceAssigningAuthorityExtension = extensions.find(ext => ext.url === SecurityTagSystem.sourceAssigningAuthority);
-        if (!sourceAssigningAuthorityExtension) {
-            extensions.push(
-                new Extension(
-                    {
-                        id: 'sourceAssigningAuthority',
-                        url: SecurityTagSystem.sourceAssigningAuthority,
-                        valueString: sourceAssigningAuthority
-                    }
-                )
-            );
-            referenceUpdated = true;
-        } else if (sourceAssigningAuthorityExtension.valueString !== sourceAssigningAuthority) {
-            sourceAssigningAuthorityExtension.valueString = sourceAssigningAuthority;
-            referenceUpdated = true;
-        }
-
-        if (referenceUpdated) {
-            reference.extension = extensions;
-        }
         return reference;
     }
 }

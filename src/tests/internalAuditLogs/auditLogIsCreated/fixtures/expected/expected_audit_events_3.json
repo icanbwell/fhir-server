@@ -17,23 +17,6 @@
           "_sourceAssigningAuthority": "bwell",
           "_sourceId": "Person/imran",
           "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Person/imran"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Person/63d18720-c48b-534c-9127-76e01034414f"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "bwell"
-            }
-          ],
           "reference": "Person/imran"
         }
       }
@@ -54,23 +37,6 @@
           "_sourceAssigningAuthority": "bwell",
           "_sourceId": "Practitioner/1679033641",
           "_uuid": "Practitioner/b3f870ff-dcbd-51bb-95a9-567cd3b142d4",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Practitioner/1679033641"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Practitioner/b3f870ff-dcbd-51bb-95a9-567cd3b142d4"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "bwell"
-            }
-          ],
           "reference": "Practitioner/1679033641"
         }
       }
@@ -101,23 +67,6 @@
         "_sourceAssigningAuthority": "bwell",
         "_sourceId": "Person/imran",
         "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-        "extension": [
-          {
-            "id": "sourceId",
-            "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "Person/imran"
-          },
-          {
-            "id": "uuid",
-            "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Person/63d18720-c48b-534c-9127-76e01034414f"
-          },
-          {
-            "id": "sourceAssigningAuthority",
-            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "bwell"
-          }
-        ],
         "reference": "Person/imran"
       }
     },
@@ -146,23 +95,6 @@
           "_sourceAssigningAuthority": "bwell",
           "_sourceId": "Person/imran",
           "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Person/imran"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Person/63d18720-c48b-534c-9127-76e01034414f"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "bwell"
-            }
-          ],
           "reference": "Person/imran"
         }
       }
@@ -179,23 +111,6 @@
           "_sourceAssigningAuthority": "bwell",
           "_sourceId": "Practitioner/0",
           "_uuid": "Practitioner/9b2ff503-a4e1-56f6-8772-49e7a6a4099d",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Practitioner/0"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Practitioner/9b2ff503-a4e1-56f6-8772-49e7a6a4099d"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "bwell"
-            }
-          ],
           "reference": "Practitioner/0"
         }
       }
@@ -226,23 +141,6 @@
         "_sourceAssigningAuthority": "bwell",
         "_sourceId": "Person/imran",
         "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-        "extension": [
-          {
-            "id": "sourceId",
-            "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "Person/imran"
-          },
-          {
-            "id": "uuid",
-            "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Person/63d18720-c48b-534c-9127-76e01034414f"
-          },
-          {
-            "id": "sourceAssigningAuthority",
-            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "bwell"
-          }
-        ],
         "reference": "Person/imran"
       }
     },
@@ -271,23 +169,6 @@
           "_sourceAssigningAuthority": "bwell",
           "_sourceId": "Person/imran",
           "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Person/imran"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Person/63d18720-c48b-534c-9127-76e01034414f"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "bwell"
-            }
-          ],
           "reference": "Person/imran"
         }
       }
@@ -304,23 +185,6 @@
           "_sourceAssigningAuthority": "bwell",
           "_sourceId": "Practitioner/0",
           "_uuid": "Practitioner/9b2ff503-a4e1-56f6-8772-49e7a6a4099d",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Practitioner/0"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Practitioner/9b2ff503-a4e1-56f6-8772-49e7a6a4099d"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "bwell"
-            }
-          ],
           "reference": "Practitioner/0"
         }
       }
@@ -351,23 +215,6 @@
         "_sourceAssigningAuthority": "bwell",
         "_sourceId": "Person/imran",
         "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-        "extension": [
-          {
-            "id": "sourceId",
-            "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "Person/imran"
-          },
-          {
-            "id": "uuid",
-            "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Person/63d18720-c48b-534c-9127-76e01034414f"
-          },
-          {
-            "id": "sourceAssigningAuthority",
-            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "bwell"
-          }
-        ],
         "reference": "Person/imran"
       }
     },

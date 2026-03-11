@@ -10,18 +10,6 @@
     "birthDate": "2017-01-01",
     "gender": "female",
     "id": "2354",
-    "identifier": [
-      {
-        "id": "sourceId",
-        "system": "https://www.icanbwell.com/sourceId",
-        "value": "2354"
-      },
-      {
-        "id": "uuid",
-        "system": "https://www.icanbwell.com/uuid",
-        "value": "f752caa1-8585-5e6f-bb32-a5b949b7e5f6"
-      }
-    ],
     "meta": {
       "lastUpdated": "2023-01-19T21:57:39.000Z",
       "security": [
