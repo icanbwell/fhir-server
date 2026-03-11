@@ -155,7 +155,9 @@ module.exports = {
     HTTP_CONTEXT_KEYS: {
         LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
         PERSON_OWNER_PREFIX: 'personOwnerFor-',
-        CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed'
+        CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed',
+        DELEGATED_ACTOR_FILTERING_RULES_PREFIX: 'delegatedActorFilteringRulesFor-',
+        DELEGATED_ACTOR_CONSENT_POLICY: 'delegatedActorConsentPolicy'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',

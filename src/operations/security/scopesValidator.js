@@ -7,6 +7,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {PatientScopeManager} = require('./patientScopeManager');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {RESOURCE_RESTRICTION_TAG} = require('../../constants');
+const {DelegatedActorScopeManager} = require('./delegatedActorScopeManager');
 
 class ScopesValidator {
     /**
@@ -16,13 +17,15 @@ class ScopesValidator {
      * @param {ConfigManager} configManager
      * @param {PatientScopeManager} patientScopeManager
      * @param {PreSaveManager} preSaveManager
+     * @param {DelegatedActorScopeManager} delegatedActorScopeManager
      */
     constructor({
                     scopesManager,
                     fhirLoggingManager,
                     configManager,
                     patientScopeManager,
-                    preSaveManager
+                    preSaveManager,
+                    delegatedActorScopeManager
                 }) {
         /**
          * @type {ScopesManager}
@@ -49,18 +52,38 @@ class ScopesValidator {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+        /**
+         * @type {DelegatedActorScopeManager}
+         */
+        this.delegatedActorScopeManager = delegatedActorScopeManager;
+        assertTypeEquals(delegatedActorScopeManager, DelegatedActorScopeManager);
     }
 
     /**
-     * Throws an error if no scope is valid for this request
+     * Central scope validation — checks delegated actor consent + standard scopes.
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
-     * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
-     * @returns {ForbiddenError}
+     * @param {("read"|"write")} accessRequested
+     * @returns {Promise<ForbiddenError|undefined>}
      */
-    verifyHasValidScopes({requestInfo, resourceType, accessRequested}) {
+    async isScopesValidAsync({requestInfo, resourceType, accessRequested}) {
         // eslint-disable-next-line no-useless-catch
         try {
+            // Check delegated actor consent first
+            if (requestInfo.delegatedActor && this.configManager.enableDelegatedAccessFiltering) {
+                const isAllowed = await this.delegatedActorScopeManager.isAccessAllowedAsync({
+                    delegatedActor: requestInfo.delegatedActor,
+                    personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                    base_version: '4_0_0',
+                    accessRequested
+                });
+                if (!isAllowed) {
+                    return new ForbiddenError(
+                        'User does not have valid permission for delegated access'
+                    );
+                }
+            }
+
             const {user, scope} = requestInfo;
             let errorMessage, forbiddenError;
 
@@ -137,7 +160,7 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             // Verify if scopes are valid
-            const forbiddenError = this.verifyHasValidScopes({requestInfo, resourceType, accessRequested});
+            const forbiddenError = await this.isScopesValidAsync({requestInfo, resourceType, accessRequested});
 
             if (forbiddenError) {
                 await this.fhirLoggingManager.logOperationFailureAsync({
@@ -163,9 +186,9 @@ class ScopesValidator {
      * @param {number|null} startTime
      * @param {string} action
      * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
-     * @returns {boolean}
+     * @returns {Promise<boolean>}
      */
-    hasValidScopes(
+    async hasValidScopesAsync(
         {
             requestInfo,
             parsedArgs,
@@ -175,9 +198,8 @@ class ScopesValidator {
             accessRequested
         }
     ) {
-         const forbiddenError = this.verifyHasValidScopes({requestInfo, resourceType, accessRequested});
-
-         return !forbiddenError;
+        const forbiddenError = await this.isScopesValidAsync({requestInfo, resourceType, accessRequested});
+        return !forbiddenError;
     }
 
 

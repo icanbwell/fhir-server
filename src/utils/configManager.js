@@ -1133,6 +1133,14 @@ class ConfigManager {
     get validateDelegatedAccessToken() {
         return isTrue(env.VALIDATE_DELEGATED_ACCESS_TOKEN);
     }
+
+    get sensitiveCategorySystemIdentifier() {
+        return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER || 'https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category';
+    }
+
+    get delegatedAccessFilteringRulesCacheTtlSeconds() {
+        return parseInt(env.DELEGATED_ACCESS_FILTERING_RULES_CACHE_TTL_SECONDS) || 300;
+    }
 }
 
 module.exports = {
