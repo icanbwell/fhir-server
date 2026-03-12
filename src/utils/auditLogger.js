@@ -141,10 +141,6 @@ class AuditLogger {
          * @type {AuditEventAgent[]}
          */
         let agents;
-        /**
-         * @type {string}
-         */
-        let observerReference;
 
         if (hasDelegatedActor) {
             agents = [
@@ -170,7 +166,6 @@ class AuditLogger {
                     })
                 })
             ];
-            observerReference = requestInfo.delegatedActor;
         } else {
             agents = [
                 new AuditEventAgent({
@@ -185,7 +180,6 @@ class AuditLogger {
                     })
                 })
             ];
-            observerReference = patientOrPersonReference;
         }
 
         const resource = new AuditEvent({
@@ -214,7 +208,7 @@ class AuditLogger {
             source: new AuditEventSource({
                 observer: new Reference(
                     {
-                        reference: observerReference
+                        reference: patientOrPersonReference
                     }
                 )
             }),
