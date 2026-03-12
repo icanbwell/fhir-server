@@ -193,7 +193,11 @@ class DelegatedActorRulesManager {
             );
             if (redisCacheKey) {
                 try {
-                    await this.redisManager.writeBundleAsync(redisCacheKey, filteringRulesObj.filteringRules);
+                    await this.redisManager.writeBundleAsync(
+                        redisCacheKey,
+                        filteringRulesObj.filteringRules,
+                        this.configManager.delegatedAccessFilteringRulesCacheTtlSeconds
+                    );
                 } catch (error) {
                     logError('Error writing filtering rules to Redis cache', { error });
                 }

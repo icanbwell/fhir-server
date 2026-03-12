@@ -21,7 +21,7 @@ class DelegatedActorScopeManager {
      * @param {string} accessRequested
      * @returns {Promise<boolean>}
      */
-    async isAccessAllowedAsync({delegatedActor, personIdFromJwtToken, base_version, accessRequested}) {
+    async isAccessAllowedAsync({delegatedActor, personIdFromJwtToken, base_version}) {
         if (!this.delegatedActorRulesManager.isUserDelegatedActor({delegatedActor})) {
             return true;
         }

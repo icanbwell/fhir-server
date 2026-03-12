@@ -42,6 +42,7 @@ describe('DelegatedActorRulesManager Tests', () => {
     });
 
     afterAll(() => {
+        cursorSpy.mockRestore();
         if (originalEnableDelegatedAccessFiltering !== undefined) {
             process.env.ENABLE_DELEGATED_ACCESS_FILTERING = originalEnableDelegatedAccessFiltering;
         } else {

@@ -5,6 +5,7 @@ const auditEvent = require('./fixtures/auditEvent/audit_event.json');
 const patient = require('./fixtures/Patient/patient1.json');
 const person = require('./fixtures/Person/person1.json');
 const observation = require('./fixtures/Observation/observation1.json');
+const consent = require('./fixtures/Consent/consent1.json');
 
 // expected
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
@@ -23,9 +24,10 @@ const {
     getTestContainer,
     mockHttpContext
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const moment = require('moment-timezone');
 const { AuditLogger } = require('../../../utils/auditLogger');
+const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
 const headers = {
     ...getHeadersWithCustomPayload({
@@ -435,6 +437,7 @@ describe('InternalAuditLog Tests', () => {
         });
 
         test('InternalAuditLog creates audit logs with delegated actor (act claim)', async () => {
+            const hintSpy = jest.spyOn(DatabaseCursor.prototype, 'hint').mockImplementation(() => {});
             process.env.ENABLE_DELEGATED_ACCESS_FILTERING = 'true';
             const request = await createTestRequest((container) => {
                 // Using unmocked audit logger to test creation of audit logs in db
@@ -504,6 +507,14 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
+            // merge consent for delegated actor
+            resp = await request
+                .post(`/4_0_0/Consent/${consent.id}/$merge?validate=true`)
+                .send(consent)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
 
@@ -551,6 +562,7 @@ describe('InternalAuditLog Tests', () => {
             delete latestLog.recorded;
             expect(latestLog).toStrictEqual(expectedDelegatedActorAuditEvent);
             delete process.env.ENABLE_DELEGATED_ACCESS_FILTERING;
+            hintSpy.mockRestore();
         });
     });
 });
