@@ -455,6 +455,94 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
+    test('should reject non-RelatedPerson act.reference when filtering is enabled (401)', async () => {
+        const mockJwtPayload = {
+            iss: 'https://example.com',
+            sub: 'john',
+            client_id: 'testClientId',
+            username: 'testUser',
+            scope: 'patient/*.read access/*.read',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            token_use: 'access',
+            act: {
+                reference: 'Practitioner/some-practitioner-id',
+                sub: 'practitioner-sub'
+            }
+        };
+
+        const jwtWithPractitionerActor = jwt.sign(mockJwtPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const req = {
+            headers: {authorization: `Bearer ${jwtWithPractitionerActor}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+
+            get enableDelegatedAccessFiltering() {
+                return true;
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeFalsy();
+                    expect(user).toBeFalsy();
+                    expect(info).toBeDefined();
+                    expect(info.message).toContain('expected RelatedPerson reference but got Practitioner');
+
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
     test('should reject invalid reference format when filtering is enabled (401)', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',

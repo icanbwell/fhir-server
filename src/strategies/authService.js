@@ -421,6 +421,10 @@ class AuthService {
             throw new Error(`Invalid act.reference format: ${act.reference}.`);
         }
 
+        if (resourceType !== 'RelatedPerson') {
+            throw new Error(`Invalid act.reference: expected RelatedPerson reference but got ${resourceType}.`);
+        }
+
         return {
             sub: act.sub || null,
             reference: act.reference

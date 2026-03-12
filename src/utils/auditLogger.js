@@ -142,10 +142,6 @@ class AuditLogger {
          * @type {AuditEventAgent[]}
          */
         let agents;
-        /**
-         * @type {string}
-         */
-        let observerReference;
 
         if (hasDelegatedActor) {
             const consentPolicy = httpContext.get(HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_CONSENT_POLICY);
@@ -173,7 +169,6 @@ class AuditLogger {
                     })
                 })
             ];
-            observerReference = requestInfo.delegatedActor;
         } else {
             agents = [
                 new AuditEventAgent({
@@ -188,7 +183,6 @@ class AuditLogger {
                     })
                 })
             ];
-            observerReference = patientOrPersonReference;
         }
 
         const resource = new AuditEvent({
@@ -217,7 +211,7 @@ class AuditLogger {
             source: new AuditEventSource({
                 observer: new Reference(
                     {
-                        reference: observerReference
+                        reference: patientOrPersonReference
                     }
                 )
             }),
