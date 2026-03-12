@@ -955,7 +955,7 @@ describe('Patient $summary Tests', () => {
             .get('/4_0_0/Patient/person.0eb80391-0f61-5ce6-b221-a5428f2f38a7/$summary?_debug=true')
             .set(getHeaders());
 
-        expect(resp).toHaveResourceCount(4);
+        expect(resp).toHaveResourceCount(5);
         expect(redisReadSpy).not.toHaveBeenCalled();
         expect(Array.from(redisData.keys())).toHaveLength(0);
         redisReadSpy.mockClear();
@@ -966,7 +966,7 @@ describe('Patient $summary Tests', () => {
             .get('/4_0_0/Patient/24a5930e-11b4-5525-b482-669174917044/$summary')
             .set(getHeaders());
 
-        expect(resp).toHaveResourceCount(3);
+        expect(resp).toHaveResourceCount(4);
         expect(redisReadSpy).not.toHaveBeenCalled();
         redisData.clear();
 
@@ -986,22 +986,22 @@ describe('Patient $summary Tests', () => {
             .get('/4_0_0/Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639/$summary')
             .set(patientHeader);
 
-        expect(resp).toHaveResourceCount(3);
+        expect(resp).toHaveResourceCount(4);
         cacheKey = 'ClientPerson:7b99904f-2f85-51a3-9398-e2eed6854639:Summary:Generation:1:Scopes:41b78b54-0a8e-5477-af30-d99864d04833';
         expect(cacheKey).toBeDefined();
         let cachedBundle = JSON.parse(redisData.get(cacheKey));
-        expect(cachedBundle.entry).toHaveLength(9);
+        expect(cachedBundle.entry).toHaveLength(10);
 
         resp = await request
             .get('/4_0_0/Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639/$summary')
             .set(patientHeader);
 
-        expect(resp).toHaveResourceCount(3);
+        expect(resp).toHaveResourceCount(4);
         expect(resp.headers).toHaveProperty('x-cache', 'Hit');
         // Cache key should be the same for the same patient
         expect(redisData.keys()).toContain(cacheKey);
         cachedBundle = JSON.parse(redisData.get(cacheKey));
-        expect(cachedBundle.entry).toHaveLength(9);
+        expect(cachedBundle.entry).toHaveLength(10);
         redisData.clear();
 
         // Testing Multiple patients linked with same sourceId
@@ -1049,14 +1049,14 @@ describe('Patient $summary Tests', () => {
             .get('/4_0_0/Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639/$summary')
             .set(patientHeader);
 
-        expect(resp).toHaveResourceCount(4);
+        expect(resp).toHaveResourceCount(5);
 
         // Testing redis
         resp = await request
             .get('/4_0_0/Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639/$summary')
             .set(patientHeader);
 
-        expect(resp).toHaveResourceCount(4);
+        expect(resp).toHaveResourceCount(5);
         expect(redisReadSpy).toHaveBeenCalled();
         redisReadSpy.mockClear();
 
