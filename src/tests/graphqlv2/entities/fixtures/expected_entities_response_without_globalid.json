@@ -32,6 +32,26 @@
                         ]
                     }
                 ],
+                "subject": {
+                    "reference": "Patient/WPS-0559166162|client",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/WPS-0559166162"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/88d5028b-42d5-569b-8b3c-beb24c00c6c4"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ]
+                },
                 "careTeamName": "Favorites",
                 "status": "active"
             },
@@ -48,6 +68,26 @@
                         ]
                     }
                 ],
+                "subject": {
+                    "reference": "Patient/WPS-0559166162|client",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/WPS-0559166162"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/88d5028b-42d5-569b-8b3c-beb24c00c6c4"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client"
+                        }
+                    ]
+                },
                 "careTeamName": "Favorites",
                 "status": "active"
             },

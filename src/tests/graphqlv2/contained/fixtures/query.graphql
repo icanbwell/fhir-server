@@ -18,6 +18,14 @@ query {
               postalCode
               line
             }
+            managingOrganization {
+              reference
+              extension {
+                id
+                url
+                valueString
+              }
+            }
           }
           ... on Organization {
             resourceType
@@ -33,6 +41,14 @@ query {
               system
               value
             }
+          }
+        }
+        subject {
+        reference
+          extension {
+            id
+            url
+            valueString
           }
         }
       }

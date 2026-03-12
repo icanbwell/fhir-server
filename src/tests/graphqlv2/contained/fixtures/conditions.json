@@ -13,6 +13,9 @@
                     "state": "NJ",
                     "postalCode": "08873",
                     "country": "USA"
+                },
+                "managingOrganization": {
+                    "reference": "Organization/org1"
                 }
             },
             {

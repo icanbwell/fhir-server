@@ -19,6 +19,26 @@
                                     "state": "NJ",
                                     "postalCode": "08873",
                                     "line": ["123 Medical Drive"]
+                                },
+                                "managingOrganization": {
+                                    "reference": "Organization/0531207b-5790-5fd7-84c7-0226a6dd8e11",
+                                    "extension": [
+                                        {
+                                            "id": "sourceId",
+                                            "url": "https://www.icanbwell.com/sourceId",
+                                            "valueString": "Organization/org1"
+                                        },
+                                        {
+                                            "id": "uuid",
+                                            "url": "https://www.icanbwell.com/uuid",
+                                            "valueString": "Organization/0531207b-5790-5fd7-84c7-0226a6dd8e11"
+                                        },
+                                        {
+                                            "id": "sourceAssigningAuthority",
+                                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                            "valueString": "mps-api"
+                                        }
+                                    ]
                                 }
                             },
                             {
@@ -42,7 +62,27 @@
                                     }
                                 ]
                             }
-                        ]
+                        ],
+                        "subject": {
+                            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "mps-api"
+                                }
+                            ]
+                        }
                     }
                 }
             ],
