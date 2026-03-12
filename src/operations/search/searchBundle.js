@@ -326,7 +326,7 @@ class SearchBundleOperation {
             }
 
             await Promise.all(resources.map(resource => resourceReferenceUpdater(resource, (reference) => {
-                enrichReferenceExtension(reference)
+                enrichReferenceExtension(reference);
                 return reference;
             })));
 
