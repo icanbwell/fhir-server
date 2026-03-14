@@ -105,10 +105,11 @@ class SearchBundleOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAggregationPipeline
+     * @param {string|null} userType
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (
-        { requestInfo, parsedArgs, resourceType, useAggregationPipeline }
+        { requestInfo, parsedArgs, resourceType, useAggregationPipeline, userType }
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -180,6 +181,7 @@ class SearchBundleOperation {
                     user,
                     scope,
                     isUser,
+                    userType,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,

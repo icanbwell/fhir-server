@@ -36,7 +36,8 @@ const {
     DB_SEARCH_LIMIT_FOR_IDS,
     DB_SEARCH_LIMIT,
     OPERATIONS: { READ },
-    GRIDFS: { RETRIEVE }
+    GRIDFS: { RETRIEVE },
+    AUTH_USER_TYPES
 } = require('../../constants');
 
 class SearchManager {
@@ -169,6 +170,7 @@ class SearchManager {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {boolean | null} isUser
+     * @param {string | null} userType
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
@@ -187,6 +189,7 @@ class SearchManager {
             user,
             scope,
             isUser,
+            userType,
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
@@ -258,6 +261,14 @@ class SearchManager {
                     }
                     else {
                         query = this.patientQueryCreator.applyCommonPatientFilters({
+                            query
+                        });
+                    }
+
+                    if (resourceType === 'Patient' && userType === AUTH_USER_TYPES.cmsPartnerUser) {
+                        query = await this.dataSharingManager.updateQueryConsideringCmsDataSharing({
+                            patientIds: allPatientIdsFromJwtToken,
+                            resourceType,
                             query
                         });
                     }

@@ -89,6 +89,40 @@
       }
     },
     {
+      "id": "1ecaa0de-a3e9-532c-8a3b-7c0018cb3428",
+      "username": "${CMS_USER_NAME}",
+      "firstName": "CMS",
+      "lastName": "Account",
+      "email": "cms@tester.com",
+      "emailVerified": true,
+      "createdTimestamp": 1718982320512,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "6dcd0803-6253-4b3c-909a-f545d54444d9",
+          "type": "password",
+          "createdDate": 1718987296927,
+          "value": "${CMS_USER_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "realmRoles": [
+      ],
+      "attributes": {
+        "custom:scope": "${CMS_USER_SCOPE}",
+        "clientFhirPersonId": "${CMS_USER_CLIENT_PERSON_ID}",
+        "clientFhirPatientId": "${CMS_USER_CLIENT_PATIENT_ID}",
+        "bwellFhirPersonId": "${CMS_USER_BWELL_PERSON_ID}",
+        "bwellFhirPatientId": "${CMS_USER_BWELL_PATIENT_ID}",
+        "token_use": "access",
+        "username": "${CMS_USER_TOKEN_USERNAME}"
+      }
+    },
+    {
       "id": "d3c80de8-6727-4a05-8f0f-59094edcc763",
       "username": "${MY_ADMIN_USER_NAME}",
       "firstName": "Tester",

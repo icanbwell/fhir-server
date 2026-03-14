@@ -86,6 +86,7 @@ const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHand
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {ProaConsentManager} = require('./operations/search/proaConsentManager');
+const {CmsConsentManager} = require('./operations/search/cmsConsentManager');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -279,6 +280,9 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager
     }));
+    container.register('cmsConsentManager', (c) => new CmsConsentManager({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
     container.register('dataSharingManager', (c) => new DataSharingManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
@@ -286,6 +290,7 @@ const createContainer = function () {
         searchQueryBuilder: c.searchQueryBuilder,
         bwellPersonFinder: c.bwellPersonFinder,
         proaConsentManager: c.proaConsentManager,
+        cmsConsentManager: c.cmsConsentManager,
         requestSpecificCache: c.requestSpecificCache
     }));
     container.register('indexProvider', (c) => new IndexProvider({
