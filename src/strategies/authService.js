@@ -187,7 +187,7 @@ class AuthService {
      * @param {import("passport-jwt").VerifiedCallback} done
      * @param {string} client_id
      * @param {string} scope
-     * @param {string} userType
+     * @param {string|undefined} userType
      * @return {void}
      */
     processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope, userType}) {
