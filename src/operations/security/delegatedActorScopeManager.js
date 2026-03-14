@@ -3,7 +3,8 @@ const {DelegatedActorRulesManager} = require('../../utils/delegatedActorRulesMan
 
 class DelegatedActorScopeManager {
     /**
-     * @param {DelegatedActorRulesManager} delegatedActorRulesManager
+     * @param {Object} params
+     * @param {DelegatedActorRulesManager} params.delegatedActorRulesManager
      */
     constructor({delegatedActorRulesManager}) {
         /**
@@ -15,10 +16,11 @@ class DelegatedActorScopeManager {
 
     /**
      * Checks if the delegated actor has valid access
-     * @param {string} delegatedActor
-     * @param {string} personIdFromJwtToken
-     * @param {string} base_version
-     * @param {string} accessRequested
+     * @param {Object} params
+     * @param {string | null} params.delegatedActor
+     * @param {string} params.personIdFromJwtToken
+     * @param {string} params.base_version
+     * @param {string} params.accessRequested
      * @returns {Promise<boolean>}
      */
     async isAccessAllowedAsync({delegatedActor, personIdFromJwtToken, base_version}) {

@@ -249,7 +249,7 @@ class DelegatedActorRulesManager {
         }
 
         return {
-            consentId: consent.id,
+            consentId: consent._uuid || consent.id,
             consentVersion: consent.meta?.versionId || null,
             provisionPeriodStart: consent.provision?.period?.start || null,
             provisionPeriodEnd: consent.provision?.period?.end || null,

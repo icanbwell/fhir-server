@@ -50,7 +50,7 @@
             },
             "altId": "related-person-sub-123",
             "policy": [
-                "Consent/consent-for-delegated-actor?version=1"
+                "Consent/05eb6663-b84b-5ec2-9a4d-cf20d61400dd?version=1"
             ],
             "requestor": true,
             "network": {
