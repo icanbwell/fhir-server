@@ -34,7 +34,6 @@ const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
-const { CONTEXT_KEYS } = require('../constants/groupConstants');
 
 /**
  * Configuration for resources that need array field stripping for ClickHouse hybrid storage
@@ -51,7 +50,6 @@ const ARRAY_STRIPPING_CONFIG = {
     // List: { field: 'entry', contextKey: 'LIST_ENTRIES' } // Add when needed
 };
 const { MongoInvalidArgumentError } = require('mongodb');
-const httpContext = require('express-http-context');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -364,14 +362,13 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Inserts item into collection if item doesn't exists else updates the item
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Resource} doc
      * @param {Object|null} contextData - Optional context data for resource-specific handling
      * @returns {Promise<void>}
      */
-    async insertOneAsync ({ base_version, requestInfo, resourceType, doc, contextData = null }) {
+    async insertOneAsync ({ requestInfo, resourceType, doc, contextData = null }) {
         try {
             assertTypeEquals(doc, Resource);
             if (!doc.meta) {
@@ -404,7 +401,6 @@ class DatabaseBulkInserter extends EventEmitter {
                 const previousVersionId = 1;
                 await this.mergeOneAsync(
                     {
-                        base_version,
                         requestInfo,
                         resourceType,
                         doc,
@@ -623,7 +619,6 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Replaces a document in Mongo with this one
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string|null} previousVersionId
@@ -635,7 +630,6 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async mergeOneAsync (
         {
-            base_version,
             requestInfo,
             resourceType,
             previousVersionId,
@@ -681,7 +675,6 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const { updatedResource, patches: mergePatches } = await this.resourceMerger.mergeResourceAsync(
                     {
-                        base_version,
                         requestInfo,
                         currentResource: previousResource,
                         resourceToMerge: doc,
@@ -717,7 +710,6 @@ class DatabaseBulkInserter extends EventEmitter {
                      * @type {Resource|null}
                      */
                     const { updatedResource } = await this.resourceMerger.mergeResourceAsync({
-                        base_version,
                         requestInfo,
                         currentResource: previousResource,
                         resourceToMerge: doc,
@@ -1458,41 +1450,6 @@ class DatabaseBulkInserter extends EventEmitter {
                 bulkInsertUpdateEntry.skipped = true;
             }
         }
-    }
-
-    // noinspection JSUnusedGlobalSymbols
-    /**
-     * A function that adds a operation to be performed on any document to the requestSpecificCache
-     * @param {String} requestId
-     * @param {Resource} resource
-     * @param {String} fieldName - field that is to be patched
-     * @param {Object} fieldValue - The new document with which the field is to be updated
-     * @param {boolean} upsert - If true a new document is created if filter is not matched
-     */
-    async patchFieldAsync ({
-                              requestId, resource, fieldName, fieldValue, upsert = false
-                          }) {
-        if (resource._id) {
-            delete resource._id;
-        }
-        this.addOperationForResourceType({
-            requestId,
-            resourceType: resource.resourceType,
-            resource,
-            operationType: 'merge',
-            operation: {
-                updateOne: {
-                    filter: {
-                        _uuid: resource._uuid
-                    },
-                    upsert,
-                    update: {
-                        $set: { [fieldName]: fieldValue }
-                    }
-                }
-            },
-            patches: null
-        });
     }
 }
 

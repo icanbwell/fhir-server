@@ -1,18 +1,13 @@
 const async = require('async');
-const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
-const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { ConfigManager } = require('../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -29,13 +24,18 @@ const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
+const deepcopy = require('deepcopy');
+const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 
 class MergeManager {
     /**
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
-     * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {FastDatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {ScopesManager} scopesManager
      * @param {ScopesValidator} scopesValidator
@@ -73,10 +73,10 @@ class MergeManager {
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
         /**
-         * @type {DatabaseBulkInserter}
+         * @type {FastDatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        assertTypeEquals(databaseBulkInserter, FastDatabaseBulkInserter);
         /**
          * @type {DatabaseBulkLoader}
          */
@@ -132,8 +132,8 @@ class MergeManager {
 
     /**
      * resource to merge
-     * @param {Resource} resourceToMerge
-     * @param {Resource} currentResource
+     * @param {Object} resourceToMerge
+     * @param {Object} currentResource
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {boolean} smartMerge
@@ -146,8 +146,6 @@ class MergeManager {
         requestInfo,
         smartMerge=true
     }) {
-        assertTypeEquals(resourceToMerge, Resource);
-        assertTypeEquals(currentResource, Resource);
         assertTypeEquals(requestInfo, FhirRequestInfo);
 
         /**
@@ -162,12 +160,11 @@ class MergeManager {
         });
 
         /**
-         * @type {Resource|null}
+         * @type {Object|null}
          */
         const {
             updatedResource: patched_resource_incoming, patches
-        } = await this.resourceMerger.mergeResourceAsync({
-            base_version,
+        } = await this.resourceMerger.fastMergeResourceAsync({
             requestInfo,
             currentResource,
             resourceToMerge,
@@ -182,13 +179,17 @@ class MergeManager {
             let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
                 patched_resource_incoming
             );
+
+            const resourceToValidate = deepcopy(patched_resource_incoming);
+            FhirResourceSerializer.serialize(resourceToValidate);
+
             if (!validationOperationOutcome) {
                 validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                     base_version,
                     requestInfo,
                     id: patched_resource_incoming.id,
                     resourceType: patched_resource_incoming.resourceType,
-                    resourceToValidate: patched_resource_incoming,
+                    resourceToValidate,
                     path: requestInfo.path,
                     resourceObj: patched_resource_incoming,
                     currentResource
@@ -199,7 +200,6 @@ class MergeManager {
             }
 
             await this.performMergeDbUpdateAsync({
-                    base_version,
                     requestInfo,
                     resourceToMerge: patched_resource_incoming,
                     previousVersionId: currentResource.meta.versionId,
@@ -214,7 +214,7 @@ class MergeManager {
      * merge insert
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @param {Resource} resourceToMerge
+     * @param {Object} resourceToMerge
      * @returns {Promise<OperationOutcome|null>}
      */
     async mergeInsertAsync ({
@@ -222,7 +222,6 @@ class MergeManager {
         requestInfo,
         resourceToMerge
     }) {
-        assertTypeEquals(resourceToMerge, Resource);
         // not found so insert
         logDebug(
             'Merging new resource',
@@ -236,16 +235,19 @@ class MergeManager {
             resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         }
 
+        const resourceToValidate = deepcopy(resourceToMerge);
+        FhirResourceSerializer.serialize(resourceToValidate);
+
         /**
          * Validate resource to create with fhir schema
-         * @type {OperationOutcome|null}
+         * @type {Object|null}
          */
         const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
             base_version,
             requestInfo,
             id: resourceToMerge.id,
             resourceType: resourceToMerge.resourceType,
-            resourceToValidate: resourceToMerge,
+            resourceToValidate,
             path: requestInfo.path,
             resourceObj: resourceToMerge
         });
@@ -255,7 +257,6 @@ class MergeManager {
         }
 
         await this.performMergeDbInsertAsync({
-            base_version,
             requestInfo,
             resourceToMerge
         });
@@ -264,7 +265,7 @@ class MergeManager {
 
     /**
      * Merges a single resource
-     * @param {Resource} resourceToMerge
+     * @param {Object} resourceToMerge
      * @param {string} resourceType
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
@@ -280,7 +281,6 @@ class MergeManager {
             smartMerge=true
         }
     ) {
-        assertTypeEquals(resourceToMerge, Resource);
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const {
             /** @type {string|null} */
@@ -304,7 +304,7 @@ class MergeManager {
                 { resourceType: resourceToMerge.resourceType, base_version }
             );
             /**
-             * @type {Resource|null}
+             * @type {Object|null}
              */
             let currentResource;
 
@@ -377,7 +377,7 @@ class MergeManager {
                         severity: 'error',
                         code: 'exception',
                         details: {
-                            text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                            text: 'Error merging: ' + JSON.stringify(resourceToMerge)
                         },
                         diagnostics: e.toString(),
                         expression: [
@@ -415,8 +415,9 @@ class MergeManager {
         if (!Array.isArray(resources)) {
             return resources;
         }
+        // mergetodo - can simplify
         /**
-         * @type {{string: Resource[]}}
+         * @type {{string: Object[]}}
          */
         const resourceGroups = groupByLambda(resources, resource => {
             if (
@@ -434,45 +435,34 @@ class MergeManager {
             }
             return generateUUIDv5(`${resource?.id}|${resource?.resourceType}`);
         });
+
         /**
-         * @type {string[]}
-         */
-        const duplicateResources = [];
-        /**
-         * @type {Resource[]}
+         * @type {Object[]}
          */
         const mergedResources = [];
         Object.values(resourceGroups).forEach((duplicateResourceArray) => {
             if (duplicateResourceArray.length > 1) {
-                duplicateResources.push(duplicateResourceArray[0].id);
                 const mergedResource = duplicateResourceArray.reduce(
-                    (mergedResource, resource) => mergeObject(mergedResource, resource.toJSON()),
+                    (mergedResource, resource) => mergeObject(mergedResource, resource),
                     {}
                 );
-                mergedResources.push(FhirResourceCreator.create(mergedResource));
+                mergedResources.push(FhirResourceWriteSerializer.serialize({obj: mergedResource}));
             } else {
                 mergedResources.push(duplicateResourceArray[0]);
             }
         });
-
-        if (duplicateResources.length > 0) {
-            logWarn(
-                'Resource with same body is present multiple times in the request body, ' +
-                `resource ids are ${duplicateResources.join(', ')}`
-            );
-        }
 
         return mergedResources;
     }
 
     /**
      * merges a list of resources
-     * @param {Resource[]} resources_incoming
+     * @param {Object[]} resources_incoming
      * @param {string} resourceType
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {boolean} smartMerge
-     * @returns {Promise<{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]>}
+     * @returns {Promise<{resource: (Object|null), mergeError: (MergeResultEntry|null)}[]>}
      */
     async mergeResourceListAsync (
         {
@@ -507,7 +497,7 @@ class MergeManager {
             });
 
             /**
-             * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
+             * @type {{resource: (Object|null), mergeError: (MergeResultEntry|null)}[]}
              */
             const result = await async.mapLimit(
                 resources_incoming,
@@ -526,12 +516,12 @@ class MergeManager {
      * Tries to merge and retries if there is an error to protect against race conditions where 2 calls are happening
      *  in parallel for the same resource. Both of them see that the resource does not exist, one of them inserts it
      *  and then the other ones tries to insert too
-     * @param {Resource} resourceToMerge
+     * @param {Object} resourceToMerge
      * @param {string} resourceType
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {boolean} smartMerge
-     * @return {Promise<{resource: Resource|null, mergeError: MergeResultEntry|null}>}
+     * @return {Promise<{resource: (Object|null), mergeError: (MergeResultEntry|null)}>}
      */
     async mergeResourceWithRetryAsync (
         {
@@ -542,7 +532,6 @@ class MergeManager {
             smartMerge=true
         }
     ) {
-        assertTypeEquals(resourceToMerge, Resource);
         try {
             const mergeError = await this.mergeResourceAsync({
                 resourceToMerge,
@@ -563,16 +552,14 @@ class MergeManager {
 
     /**
      * performs the db update
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @param {Resource} resourceToMerge
+     * @param {Object} resourceToMerge
      * @param {string} previousVersionId
      * @param {MergePatchEntry[]} patches
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync (
         {
-            base_version,
             requestInfo,
             resourceToMerge,
             previousVersionId,
@@ -580,7 +567,6 @@ class MergeManager {
         }
     ) {
         try {
-            assertTypeEquals(resourceToMerge, Resource);
             resourceToMerge = await this.preSaveManager.preSaveAsync({
                 resource: resourceToMerge
             });
@@ -593,7 +579,6 @@ class MergeManager {
 
             await this.databaseBulkInserter.mergeOneAsync(
                 {
-                    base_version,
                     requestInfo,
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge,
@@ -604,7 +589,7 @@ class MergeManager {
             );
         } catch (e) {
             throw new RethrownError({
-                message: `Error updating: ${JSON.stringify(resourceToMerge.toJSON())}`,
+                message: `Error updating: ${JSON.stringify(resourceToMerge)}`,
                 error: e
             });
         }
@@ -612,21 +597,17 @@ class MergeManager {
 
     /**
      * performs the db insert
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @param {Resource} resourceToMerge
+     * @param {Object} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync (
         {
-            base_version,
             requestInfo,
             resourceToMerge
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
-        assertTypeEquals(resourceToMerge, Resource);
         try {
-            assertTypeEquals(resourceToMerge, Resource);
             await this.preSaveManager.preSaveAsync({
                 resource: resourceToMerge
             });
@@ -637,7 +618,6 @@ class MergeManager {
             const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge);
 
             await this.databaseBulkInserter.insertOneAsync({
-                    base_version,
                     requestInfo,
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge,
@@ -646,7 +626,7 @@ class MergeManager {
             );
         } catch (e) {
             throw new RethrownError({
-                message: `Error inserting: ${JSON.stringify(resourceToMerge.toJSON())}`,
+                message: `Error inserting: ${JSON.stringify(resourceToMerge)}`,
                 error: e
             });
         }
@@ -654,7 +634,7 @@ class MergeManager {
 
     /**
      * run any pre-checks before merge
-     * @param {Resource} resourceToMerge
+     * @param {Object} resourceToMerge
      * @param {string} resourceType
      * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<MergeResultEntry|null>}
@@ -665,7 +645,6 @@ class MergeManager {
         resourceType
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
-        assertTypeEquals(resourceToMerge, Resource);
         try {
             /**
              * @type {string} id
@@ -682,7 +661,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
                             }),
                             diagnostics: 'resource is missing id',
                             expression: [
@@ -716,7 +695,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
                             }),
                             diagnostics: 'resource is missing resourceType',
                             expression: [
@@ -754,7 +733,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
                             }),
                             diagnostics: 'Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present',
                             expression: [
@@ -802,24 +781,10 @@ class MergeManager {
                     }
                 );
             }
-
-            // ----- validate schema ----
-            // The FHIR validator wants meta.lastUpdated to be string instead of data
-            // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
-            const resourceObjectToValidate = deepcopy(resourceToMerge.toJSON());
-            // Truncate id to 64 so it passes the validator since we support more than 64 internally
-            if (resourceObjectToValidate.id) {
-                resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
-            }
-            if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
-                // noinspection JSValidateTypes
-                resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
-            }
-
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge.toJSON())}`,
+                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge)}`,
                 error: e
             });
         }
@@ -828,8 +793,8 @@ class MergeManager {
     /**
      * run any pre-checks on multiple resources before merge
      * @param {FhirRequestInfo} requestInfo
-     * @param {Resource[]} resourcesToMerge
-     * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Resource[]}>}
+     * @param {Object[]} resourcesToMerge
+     * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Object[]}>}
      */
     async preMergeChecksMultipleAsync (
         {
@@ -844,10 +809,10 @@ class MergeManager {
              */
             const mergePreCheckErrors = [];
             /**
-             * @type {Resource[]}
+             * @type {Object[]}
              */
             const validResources = [];
-            for (const /** @type {Resource} */ r of resourcesToMerge) {
+            for (const /** @type {Object} */ r of resourcesToMerge) {
                 /**
                  * @type {MergeResultEntry|null}
                  */

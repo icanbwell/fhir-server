@@ -3,6 +3,8 @@ const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { assertIsValid } = require('../../utils/assertType');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
+const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 /**
  * @classdesc Adds global id fields to every reference
@@ -26,13 +28,23 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
             sourceAssigningAuthority,
             `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`
         );
-        await resource.updateReferencesAsync({
-            fnUpdateReferenceAsync: async (reference) =>
-                await this.updateReferenceAsync({
+
+        if (typeof resource === Resource) {
+            await resource.updateReferencesAsync({
+                fnUpdateReferenceAsync: async (reference) =>
+                    await this.updateReferenceAsync({
+                        sourceAssigningAuthority,
+                        reference
+                    })
+            });
+        } else {
+            await resourceReferenceUpdater(resource, async (reference) => await this.updateReferenceAsync(
+                {
                     sourceAssigningAuthority,
                     reference
-                })
-        });
+                }
+            ));
+        }
         return resource;
     }
 

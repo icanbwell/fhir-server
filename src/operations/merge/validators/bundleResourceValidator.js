@@ -26,20 +26,15 @@ class BundleResourceValidator extends BaseValidator {
         // if the incoming request is a bundle then unwrap the bundle
         if (!Array.isArray(incomingResources) && incomingResources.resourceType === 'Bundle') {
             /**
-             * @type {Bundle}
-             * @type {Resource}
-             */
-            const bundle1 = incomingResources;
-            /**
              * @type {OperationOutcome|null}
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
                 {
                     base_version,
                     requestInfo,
-                    id: bundle1.id,
+                    id: incomingResources.id,
                     resourceType: 'Bundle',
-                    resourceToValidate: bundle1,
+                    resourceToValidate: incomingResources,
                     path: requestInfo.path
                 }
             );

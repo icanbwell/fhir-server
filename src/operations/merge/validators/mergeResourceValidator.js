@@ -2,7 +2,6 @@ const async = require('async');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
-const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { MergeManager } = require('../mergeManager');
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
 const { ResourceValidator } = require('../../common/resourceValidator');
@@ -71,10 +70,8 @@ class MergeResourceValidator extends BaseValidator {
          * @type {boolean}
          */
         const wasIncomingAList = Array.isArray(incomingResources);
-        /**
-         * @type {Resource[]}
-         */
-        let resourcesIncomingArray = FhirResourceCreator.createArray(incomingResources);
+
+        let resourcesIncomingArray = wasIncomingAList ? incomingResources : [incomingResources];
 
         resourcesIncomingArray = resourcesIncomingArray.map(resource => {
             if (resource.id) {

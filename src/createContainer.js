@@ -5,6 +5,7 @@ const {AccessLogger} = require('./utils/accessLogger');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
 const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
+const {FastDatabaseBulkInserter} = require('./dataLayer/fastDatabaseBulkInserter');
 const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
 const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
@@ -132,6 +133,7 @@ const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
+const BaseSerializer = require('./fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 
 /**
  * Creates a container and sets up all the services
@@ -415,7 +417,7 @@ const createContainer = function () {
             {
                 databaseQueryFactory: c.databaseQueryFactory,
                 auditLogger: c.auditLogger,
-                databaseBulkInserter: c.databaseBulkInserter,
+                databaseBulkInserter: c.fastDatabaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
                 scopesManager: c.scopesManager,
                 scopesValidator: c.scopesValidator,
@@ -466,11 +468,26 @@ const createContainer = function () {
             }
         )
     );
+
+    container.register('fastDatabaseBulkInserter', (c) => new FastDatabaseBulkInserter(
+            {
+                resourceManager: c.resourceManager,
+                postRequestProcessor: c.postRequestProcessor,
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                postSaveProcessor: c.postSaveProcessor,
+                preSaveManager: c.preSaveManager,
+                requestSpecificCache: c.requestSpecificCache,
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
+            }
+        )
+    );
     container.register('databaseBulkLoader', (c) => new DatabaseBulkLoader(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            requestSpecificCache: c.requestSpecificCache,
-            configManager: c.configManager
+            requestSpecificCache: c.requestSpecificCache
         }));
     container.register('postRequestProcessor', (c) => new PostRequestProcessor(
         {
@@ -641,8 +658,7 @@ const createContainer = function () {
         {
             mergeManager: c.mergeManager,
             postRequestProcessor: c.postRequestProcessor,
-            databaseBulkLoader: c.databaseBulkLoader,
-            databaseBulkInserter: c.databaseBulkInserter,
+            databaseBulkInserter: c.fastDatabaseBulkInserter,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,
@@ -1071,6 +1087,9 @@ const createContainer = function () {
     container.register('redisManager', (c) => new RedisManager({
         redisClient: c.redisClient
     }));
+
+    // Initialize configManager for all serializers
+    BaseSerializer.setConfigManager(container.configManager);
 
     return container;
 };

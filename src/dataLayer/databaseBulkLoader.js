@@ -4,7 +4,7 @@ const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
-const { ConfigManager } = require('../utils/configManager');
+const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -14,13 +14,11 @@ class DatabaseBulkLoader {
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {RequestSpecificCache} requestSpecificCache
-     * @param {ConfigManager} configManager
      */
     constructor ({
-                    databaseQueryFactory,
-                    requestSpecificCache,
-                    configManager
-                }) {
+        databaseQueryFactory,
+        requestSpecificCache
+    }) {
         /**
          * @type {RequestSpecificCache}
          */
@@ -33,12 +31,6 @@ class DatabaseBulkLoader {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
 
         /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-
-        /**
          * @type {string}
          */
         this.cacheName = 'bulkLoaderCache';
@@ -48,8 +40,8 @@ class DatabaseBulkLoader {
      * Finds all documents with the specified resource type and ids
      * @param {string} requestId
      * @param {string} base_version
-     * @param {Resource[]} requestedResources
-     * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
+     * @param {Object[]} requestedResources
+     * @returns {Promise<{resources: Object[], resourceType: string}[]>}
      */
     async loadResourcesAsync ({ requestId, base_version, requestedResources }) {
         try {
@@ -63,18 +55,18 @@ class DatabaseBulkLoader {
 
             /**
              * Load all specified resource groups in async
-             * @type {{resources: Resource[], resourceType: string}[]}
+             * @type {{resources: Object[], resourceType: string}[]}
              */
             const result = await async.map(
                 Object.entries(groupByResourceType),
                 async x => await this.getResourcesAsync(
                     {
-                        requestId, base_version, resourceType: x[0], resources: x[1]
+                        base_version, resourceType: x[0], resources: x[1]
                     }
                 )
             );
             /**
-             * @type {Map<string, Resource[]>}
+             * @type {Map<string, Object[]>}
              */
             const bulkCache = this.getBulkCache({ requestId });
             // Now add them to our cache
@@ -92,7 +84,7 @@ class DatabaseBulkLoader {
     /**
      * Gets bulk cache
      * @param {string} requestId
-     * @returns {Map<string, Resource[]>}
+     * @returns {Map<string, Object[]>}
      */
     getBulkCache ({ requestId }) {
         return this.requestSpecificCache.getMap({ requestId, name: this.cacheName });
@@ -100,14 +92,13 @@ class DatabaseBulkLoader {
 
     /**
      * Get resources by id for this resourceType
-     * @param {string} requestId
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {Resource[]} resources
-     * @returns {Promise<{resources: Resource[], resourceType: string}>}
+     * @param {Object[]} resources
+     * @returns {Promise<{resources: Object[], resourceType: string}>}
      */
 
-    async getResourcesAsync ({ requestId, base_version, resourceType, resources }) {
+    async getResourcesAsync ({ base_version, resourceType, resources }) {
         try {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {
@@ -121,37 +112,12 @@ class DatabaseBulkLoader {
             const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources });
 
             /**
-             * @type {Resource[]}
+             * @type {Object[]}
              */
-            const foundResources = await this.cursorToResourcesAsync({ cursor });
-            return { resourceType, resources: foundResources };
-        } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
-        }
-    }
+            let foundResources = await cursor.toArrayAsync();
+            foundResources = FhirResourceWriteSerializer.serializeArray({obj: foundResources});
 
-    /**
-     * Reads resources from cursor
-     * @param {import('../dataLayer/databaseCursor').DatabaseCursor} cursor
-     * @returns {Promise<Resource[]>}
-     */
-    async cursorToResourcesAsync ({ cursor }) {
-        try {
-            /**
-             * @type {Resource[]}
-             */
-            const result = [];
-            while (await cursor.hasNext()) {
-                /**
-                 * element
-                 * @type {Resource|null}
-                 */
-                const resource = await cursor.nextObject();
-                result.push(resource);
-            }
-            return result;
+            return { resourceType, resources: foundResources };
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -164,13 +130,13 @@ class DatabaseBulkLoader {
      * @param {string} requestId
      * @param {string} resourceType
      * @param {string} uuid
-     * @return {null|Resource}
+     * @return {null|Object}
      */
     getResourceFromExistingList ({ requestId, resourceType, uuid }) {
         const bulkCache = this.getBulkCache({ requestId });
         // see if there is cache for this resourceType
         /**
-         * @type {Resource[]}
+         * @type {Object[]}
          */
         const cacheEntryResources = bulkCache.get(resourceType);
         if (cacheEntryResources) {
@@ -186,13 +152,13 @@ class DatabaseBulkLoader {
 
     /**
      * Gets matching resources from list
-     * @param {Resource[]} cacheEntryResources
+     * @param {Object[]} cacheEntryResources
      * @param {string} uuid
-     * @return {Resource|null}
+     * @return {Object|null}
      */
     getMatchingResource ({ cacheEntryResources, uuid }) {
         /**
-         * @type {Resource[]}
+         * @type {Object[]}
          */
         let matchingResources = [];
         matchingResources = cacheEntryResources.filter(

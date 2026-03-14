@@ -132,13 +132,12 @@ class DatabaseUpdateManager {
     /**
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
-     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
      * @param {Boolean} [smartMerge]
      * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
-    async replaceOneAsync ({ base_version, requestInfo, doc, smartMerge = true }) {
+    async replaceOneAsync ({ requestInfo, doc, smartMerge = true }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertTypeEquals(doc, Resource);
         const originalDoc = doc.clone();
@@ -192,7 +191,6 @@ class DatabaseUpdateManager {
              */
             let { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                 {
-                    base_version,
                     requestInfo,
                     currentResource: resourceInDatabase,
                     resourceToMerge: doc,
@@ -248,7 +246,6 @@ class DatabaseUpdateManager {
                         // merge with our resource
                         ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                                 {
-                                    base_version,
                                     requestInfo,
                                     currentResource: resourceInDatabase,
                                     resourceToMerge: doc

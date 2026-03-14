@@ -206,7 +206,7 @@ class DatabaseQueryManager {
 
     /**
      * Finds and returns subset of passed in resources that exist in the database
-     * @param {Resource[]} resources
+     * @param {Object[]} resources
      * @return {Promise<DatabaseCursor>}
      */
     async findResourcesInDatabaseAsync({ resources }) {
@@ -225,9 +225,7 @@ class DatabaseQueryManager {
             });
         } catch (e) {
             throw new RethrownError({
-                message:
-                    'Error in findResourcesInDatabaseAsync(): ' +
-                    `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
+                message: 'Error in findResourcesInDatabaseAsync()',
                 error: e,
                 args: { resources }
             });

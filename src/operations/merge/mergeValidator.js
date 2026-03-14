@@ -1,4 +1,5 @@
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { FhirResourceWriteSerializer } = require("../../fhir/fhirResourceWriteSerializer");
+
 
 class MergeValidator {
     /**
@@ -17,7 +18,7 @@ class MergeValidator {
      * @param {Object|Object[]} incomingObjects
      * @param {string} resourceType
      * @param {FhirRequestInfo} requestInfo
-     * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Resource[], wasIncomingAList: boolean}>}
+     * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Object[], wasIncomingAList: boolean}>}
      */
     async validateAsync ({
         base_version,
@@ -36,11 +37,11 @@ class MergeValidator {
         let wasIncomingAList = false;
 
         /**
-         * @type {Resource[]|Resource}
+         * @type {Object[]|Object}
          */
         let incomingResources = Array.isArray(incomingObjects)
-            ? incomingObjects.map(o => FhirResourceCreator.create(o))
-            : FhirResourceCreator.create(incomingObjects);
+            ? incomingObjects.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
+            : FhirResourceWriteSerializer.serialize({obj: incomingObjects});
 
         for (const validator of this.validators) {
             const {

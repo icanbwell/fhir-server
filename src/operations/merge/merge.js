@@ -3,8 +3,7 @@ require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { MergeManager } = require('./mergeManager');
 const { NdjsonParser } = require('./ndJsonParser');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
-const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -31,8 +30,7 @@ const { fhirContentTypes } = require('../../utils/contentTypes');
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
-     * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {DatabaseBulkLoader} databaseBulkLoader
+     * @param {FastDatabaseBulkInserter} databaseBulkInserter
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
@@ -44,7 +42,6 @@ class MergeOperation {
         {
             mergeManager,
             databaseBulkInserter,
-            databaseBulkLoader,
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
@@ -59,15 +56,10 @@ class MergeOperation {
         this.mergeManager = mergeManager;
         assertTypeEquals(mergeManager, MergeManager);
         /**
-         * @type {DatabaseBulkInserter}
+         * @type {FastDatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        /**
-         * @type {DatabaseBulkLoader}
-         */
-        this.databaseBulkLoader = databaseBulkLoader;
-        assertTypeEquals(databaseBulkLoader, DatabaseBulkLoader);
+        assertTypeEquals(databaseBulkInserter, FastDatabaseBulkInserter);
         /**
          * @type {PostRequestProcessor}
          */
@@ -106,7 +98,7 @@ class MergeOperation {
 
     /**
      * Add successful merges
-     * @param {Resource[]} resourcesIncomingArray
+     * @param {Object[]} resourcesIncomingArray
      * @param {MergeResultEntry[]} currentMergeResults
      * @return {MergeResultEntry[]}
      */
@@ -142,7 +134,7 @@ class MergeOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
+     * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Object>}
      */
     async mergeAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
@@ -189,7 +181,7 @@ class MergeOperation {
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
-                /** @type {Resource[]} */ resourcesIncomingArray,
+                /** @type {Object[]} */ resourcesIncomingArray,
                 /** @type {boolean} */ wasIncomingAList
             } = await this.mergeValidator.validateAsync({
                 base_version,
@@ -199,22 +191,30 @@ class MergeOperation {
                 requestInfo
             });
 
-            let validResources = resourcesIncomingArray;
-
             // merge the resources
             /**
-             * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
+             * @type {{resource: (Object|null), mergeError: (MergeResultEntry|null)}[]}
              */
             const mergeResourceResults = await this.mergeManager.mergeResourceListAsync({
-                resources_incoming: validResources,
+                resources_incoming: resourcesIncomingArray,
                 resourceType:resourceType,
                 base_version:base_version,
                 requestInfo:requestInfo,
                 smartMerge:effectiveSmartMerge
             });
-            validResources = mergeResourceResults
-                .flatMap(m => m.resource)
-                .filter(r => r !== null);
+
+            /**
+             * @type {{validResources: Object[], mergeErrors: MergeResultEntry[]}}
+             */
+            const { validResources, mergeErrors } = mergeResourceResults.reduce(
+                (acc, result) => {
+                    if (result.resource) acc.validResources.push(result.resource);
+                    if (result.mergeError) acc.mergeErrors.push(result.mergeError);
+                    return acc;
+                },
+                { validResources: [], mergeErrors: [] }
+            );
+
             /**
              * mergeResults
              * @type {MergeResultEntry[]}
@@ -226,12 +226,7 @@ class MergeOperation {
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
-
-            mergeResults = mergeResults.concat(
-                mergeResourceResults
-                    .flatMap(m => m.mergeError)
-                    .filter(m => m !== null)
-            );
+            mergeResults = mergeResults.concat(mergeErrors);
 
             mergeResults = mergeResults.concat(
                 this.addSuccessfulMergesToMergeResult(validResources, mergeResults)
@@ -404,7 +399,7 @@ class MergeOperation {
                 try {
                     const {
                         /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
-                        /** @type {Resource[]} */ resourcesIncomingArray,
+                        /** @type {Object[]} */ resourcesIncomingArray,
                         /** @type {boolean} */ wasIncomingAList
                     } = await self.mergeValidator.validateAsync({
                         base_version:base_version,
@@ -422,7 +417,7 @@ class MergeOperation {
                     if (!resourcesIncomingArray) return callback(); // skip if validation failed
                     // merge resources
                     /**
-                     * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
+                     * @type {{resource: (Object|null), mergeError: (MergeResultEntry|null)}[]}
                      */
                     const mergeResourceResults = await self.mergeManager.mergeResourceListAsync({
                         resources_incoming: resourcesIncomingArray,
@@ -535,7 +530,7 @@ class MergeOperation {
     /**
      * Helper to insert, push results, log audit entries, and update context
      * @param {Array<MergeResultEntry>} finalMergeResults
-     * @param {Resource[]} resourcesToMerge - Array of resources for merge
+     * @param {Object[]} resourcesToMerge - Array of resources for merge
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {ParsedArgs} parsedArgs

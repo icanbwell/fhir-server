@@ -227,6 +227,12 @@ fastSerializers:
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/fastSerializers/generate_serializers.py && python3 generatorScripts/fastSerializers/generate_classes_serializer_index.py" && \
 	eslint --fix "src/fhir/serializers/4_0_0/**/*.js"
 
+.PHONY:serializers
+serializers:
+	. ${NVM_DIR}/nvm.sh && nvm use && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/writeSerializers/generate_write_serializers.py" && \
+	eslint --fix "src/fhir/writeSerializers/4_0_0/**/*.js"
+
 .PHONY:audit_fix
 audit_fix:
 	. ${NVM_DIR}/nvm.sh && nvm use && \

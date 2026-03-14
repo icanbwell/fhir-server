@@ -2,6 +2,8 @@
  * This file implement calling the FHIR validator
  */
 
+const { REGEX } = require("../constants");
+
 /**
  * Validate if the provided reference object is valid or not
  * @param {Object} referenceObj
@@ -14,8 +16,7 @@ function checkReferenceValue (referenceObj, path) {
         return null;
     }
     const isContainedReference = referenceValue => referenceValue[0] === '#';
-    const absoluteUrlRegex = /^(?:[a-z+]+:)?\/\//i;
-    const isAbsoluteUrl = referenceValue => absoluteUrlRegex.test(referenceValue);
+    const isAbsoluteUrl = referenceValue => REGEX.ABSOLUTE_URL.test(referenceValue);
     const isRelativeUrl = referenceValue => referenceValue.split('/').length - 1 === 1;
     if (!(isContainedReference(reference) || isAbsoluteUrl(reference) || isRelativeUrl(reference))) {
         return `${path}.reference: ${reference} is an invalid reference`;
@@ -63,4 +64,37 @@ function validateReferences (resourceObj, path) {
     return errors;
 }
 
-module.exports = { validateReferences };
+
+/**
+ * Validate if the references in a resource object/array are valid or not
+ * @param {Object} resourceObj
+ * @param {string} path
+ * @returns {*[]}
+ */
+function fastValidateReferences (resourceObj, path) {
+    // mergeTodo - test
+    const errors = [];
+    if (!resourceObj || typeof resourceObj !== 'object') {
+        return errors;
+    }
+
+    const entries = Object.entries(resourceObj);
+    for (const [key, value] of entries) {
+        if (typeof value === 'object' && value !== null) {
+            if (Object.prototype.hasOwnProperty.call(value, 'reference')) {
+                const err = checkReferenceValue(value, path);
+                if (err) {
+                    errors.push(err);
+                }
+            } else {
+                const newPath = path ? `${path}.${key}` : `${key}`;
+                const objErrors = fastValidateReferences(value, newPath);
+                errors.push(...objErrors);
+            }
+        }
+    }
+
+    return errors;
+}
+
+module.exports = { validateReferences, fastValidateReferences };
