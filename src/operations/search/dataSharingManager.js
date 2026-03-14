@@ -285,21 +285,17 @@ class DataSharingManager {
             return { id: '__invalid__' };
         }
 
-        const consentedPatientIdsArray = Array.from(consentedPatientIds);
-        const uuidFilter = { _uuid: { $in: consentedPatientIdsArray } };
+        const uuidFilter = { _uuid: { $in: Array.from(consentedPatientIds) } };
 
         if (query.$and && query.$and.length > 0) {
-            if (query.$and.some(condition => condition._uuid)) {
-                // Replace existing _uuid conditions with consented patient IDs
-                query.$and = query.$and.map(condition =>
-                    condition._uuid ? uuidFilter : condition
-                );
-            } else {
-                // Add new _uuid condition
-                query.$and.push(uuidFilter);
-            }
+            query.$and.push(uuidFilter);
         } else {
-            query._uuid = { $in: consentedPatientIdsArray };
+            query = {
+                $and: [
+                    query,
+                    uuidFilter
+                ]
+            }
         }
         return query;
     }
