@@ -39,6 +39,8 @@ The delegated actor Consent lookup is a MongoDB query against `Consent_<base_ver
   - `patient.reference = Patient/person.<personIdFromJwtToken>`
 - `provision.actor.reference` must match the delegated actor reference (`act.reference`):
   - `provision.actor.reference._uuid = <delegatedActor>`
+- `category.coding` must contain the data sharing access consent category:
+  - `system = http://www.icanbwell.com/consent-category` and `code` in configured `DATA_SHARING_ACCESS_CONSENT_CODES`
 - the Consent must be currently effective (open-ended allowed):
   - `provision.period.start <= now` OR `provision.period.start` is missing
   - `provision.period.end >= now` OR `provision.period.end` is missing
@@ -120,4 +122,8 @@ The `source.observer` references the delegated actor.
 ## Config
 
 - `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false — **enables the delegated access logic**. When `false`, the `act` claim in the JWT is completely ignored and no delegated actor detection, consent lookup, or filtering occurs. When `true`, the server parses the `act.reference` field, performs consent lookups, applies filtering rules, and generates two-agent audit events.
-- `VALIDATE_DELEGATED_ACCESS_TOKEN`: true/false — **controls strict validation of the `act` claim format**. Only relevant when the `act` claim is present but malformed (e.g. missing `reference` field, or `reference` is not a string). When `true`, a malformed `act` claim causes authentication failure (401). When `false` and `ENABLE_DELEGATED_ACCESS_FILTERING` is `true`, a malformed `act` claim is silently ignored (the request proceeds without a delegated actor). 
+- `VALIDATE_DELEGATED_ACCESS_TOKEN`: true/false — **controls strict validation of the `act` claim format**. Only relevant when the `act` claim is present but malformed (e.g. missing `reference` field, or `reference` is not a string). When `true`, a malformed `act` claim causes authentication failure (401). When `false` and `ENABLE_DELEGATED_ACCESS_FILTERING` is `true`, a malformed `act` claim is silently ignored (the request proceeds without a delegated actor).
+- `DATA_SHARING_ACCESS_CONSENT_CODES`: comma-separated list of consent category codes used to identify data-sharing-access consents. Defaults to `dataSharingAccess`. Used in `category.coding` filter when querying for delegated actor consents.
+- `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER`: the system URI for sensitive data category codes in `meta.security`. Defaults to `https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category`.
+- `DELEGATED_ACCESS_FILTERING_RULES_CACHE_TTL_SECONDS`: TTL (in seconds) for caching filtering rules in Redis. Defaults to `300`.
+- `ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT`: true/false — **gates reading cached filtering rules from Redis**. Requires `ENABLE_REDIS` to also be `true`. When disabled, filtering rules are always fetched from the database (but still written to Redis for warming). When enabled, cached rules are read from Redis to avoid repeated database lookups.

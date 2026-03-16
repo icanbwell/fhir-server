@@ -26,6 +26,11 @@
                 "system": "http://terminology.hl7.org/CodeSystem/consentscope",
                 "code": "patient-privacy",
                 "display": "Privacy Consent"
+            },
+            {
+                "system": "http://www.icanbwell.com/consent-category",
+                "code": "dataSharingAccess",
+                "display": "Data Sharing Access"
             }
         ]
     },
@@ -36,6 +41,14 @@
                     "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
                     "code": "IDSCL",
                     "display": "Information Disclosure"
+                }
+            ]
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://www.icanbwell.com/consent-category",
+                    "code": "dataSharingAccess"
                 }
             ]
         }

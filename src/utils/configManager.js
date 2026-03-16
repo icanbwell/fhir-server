@@ -1,5 +1,5 @@
 const {isTrue} = require('./isTrue');
-const {DEFAULT_CACHE_EXPIRY_TIME} = require('../constants');
+const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 
 const env = process.env;
@@ -1134,12 +1134,20 @@ class ConfigManager {
         return isTrue(env.VALIDATE_DELEGATED_ACCESS_TOKEN);
     }
 
+    get dataSharingAccessCodes() {
+        return env.DATA_SHARING_ACCESS_CONSENT_CODES ? env.DATA_SHARING_ACCESS_CONSENT_CODES.split(',') : [CONSENT_CATEGORY.DATA_SHARING_ACCESS.CODE];
+    }
+
     get sensitiveCategorySystemIdentifier() {
         return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER || 'https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category';
     }
 
     get delegatedAccessFilteringRulesCacheTtlSeconds() {
         return parseInt(env.DELEGATED_ACCESS_FILTERING_RULES_CACHE_TTL_SECONDS) || 300;
+    }
+
+    get readFromCacheForDataSharingAccessConsent() {
+        return isTrue(process.env.ENABLE_REDIS) && isTrue(process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT);
     }
 }
 

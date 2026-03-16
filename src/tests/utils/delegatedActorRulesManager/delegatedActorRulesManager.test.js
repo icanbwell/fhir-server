@@ -34,11 +34,17 @@ describe('DelegatedActorRulesManager Tests', () => {
     let requestId;
     const MOCK_DATE = new Date('2025-12-24T20:00:00.000Z');
     let originalEnableDelegatedAccessFiltering;
+    let originalEnableRedis;
+    let originalEnableRedisCacheRead;
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeAll(() => {
         originalEnableDelegatedAccessFiltering = process.env.ENABLE_DELEGATED_ACCESS_FILTERING;
+        originalEnableRedis = process.env.ENABLE_REDIS;
+        originalEnableRedisCacheRead = process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
         process.env.ENABLE_DELEGATED_ACCESS_FILTERING = 'true';
+        process.env.ENABLE_REDIS = 'true';
+        process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT = 'true';
     });
 
     afterAll(() => {
@@ -47,6 +53,16 @@ describe('DelegatedActorRulesManager Tests', () => {
             process.env.ENABLE_DELEGATED_ACCESS_FILTERING = originalEnableDelegatedAccessFiltering;
         } else {
             delete process.env.ENABLE_DELEGATED_ACCESS_FILTERING;
+        }
+        if (originalEnableRedis !== undefined) {
+            process.env.ENABLE_REDIS = originalEnableRedis;
+        } else {
+            delete process.env.ENABLE_REDIS;
+        }
+        if (originalEnableRedisCacheRead !== undefined) {
+            process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT = originalEnableRedisCacheRead;
+        } else {
+            delete process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
         }
     });
 

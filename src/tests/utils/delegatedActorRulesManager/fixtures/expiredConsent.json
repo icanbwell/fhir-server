@@ -8,6 +8,14 @@
                     "display": "Information Disclosure"
                 }
             ]
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://www.icanbwell.com/consent-category",
+                    "code": "dataSharingAccess"
+                }
+            ]
         }
     ],
     "dateTime": "2025-12-23T20:00:00.000Z",

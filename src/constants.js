@@ -259,6 +259,10 @@ module.exports = {
         S3_CLIENT: "S3Client"
     },
     CONSENT_CATEGORY: {
+        DATA_SHARING_ACCESS: {
+            SYSTEM: 'http://www.icanbwell.com/consent-category',
+            CODE: 'dataSharingAccess'
+        },
         DATA_CONNECTION_VIEW_CONTROL: {
             SYSTEM: "http://www.icanbwell.com/consent-category",
             CODE: "dataConnectionViewControl"

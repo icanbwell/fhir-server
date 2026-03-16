@@ -15,7 +15,8 @@ const { ForbiddenError } = require('./httpErrors');
 const {
     CONSENT_OF_LINKED_PERSON_INDEX,
     PERSON_PROXY_PREFIX,
-    HTTP_CONTEXT_KEYS
+    HTTP_CONTEXT_KEYS,
+    CONSENT_CATEGORY
 } = require('../constants');
 const { dateQueryBuilder } = require('./querybuilder.util');
 const { logError } = require('../operations/common/logging');
@@ -122,23 +123,25 @@ class DelegatedActorRulesManager {
             }
 
             // Check Redis cache (generation-based key)
-            const redisCacheKey = await this.filteringRulesCacheKeyGenerator.generateCacheKeyAsync(
-                personIdFromJwtToken, delegatedActor
-            );
-            if (redisCacheKey) {
-                try {
-                    const redisFilteringRules = await this.redisManager.readBundleFromCacheAsync(redisCacheKey);
-                    if (redisFilteringRules) {
-                        httpContext.set(cacheKey, redisFilteringRules);
-                        this._setConsentPolicyInContext(redisFilteringRules);
-                        return {
-                            filteringRules: redisFilteringRules,
-                            actorConsentQueries: [],
-                            actorConsentQueryOptions: []
-                        };
+            if (this.configManager.readFromCacheForDataSharingAccessConsent) {
+                const redisCacheKey = await this.filteringRulesCacheKeyGenerator.generateCacheKeyAsync(
+                    personIdFromJwtToken, delegatedActor
+                );
+                if (redisCacheKey) {
+                    try {
+                        const redisFilteringRules = await this.redisManager.readBundleFromCacheAsync(redisCacheKey);
+                        if (redisFilteringRules) {
+                            httpContext.set(cacheKey, redisFilteringRules);
+                            this._setConsentPolicyInContext(redisFilteringRules);
+                            return {
+                                filteringRules: redisFilteringRules,
+                                actorConsentQueries: [],
+                                actorConsentQueryOptions: []
+                            };
+                        }
+                    } catch (error) {
+                        logError('Error reading filtering rules from Redis cache', { error });
                     }
-                } catch (error) {
-                    logError('Error reading filtering rules from Redis cache', { error });
                 }
             }
         }
@@ -313,6 +316,14 @@ class DelegatedActorRulesManager {
                     { $or: actorReferenceFilter },
                     // Provision type must be permit
                     { 'provision.type': 'permit' },
+                    {
+                        'category.coding': {
+                            $elemMatch: {
+                                system: CONSENT_CATEGORY.DATA_SHARING_ACCESS.SYSTEM,
+                                code: { $in: this.configManager.dataSharingAccessCodes }
+                            }
+                        }
+                    },
                     // Period start must not be in the future OR not exist
                     {
                         $or: [

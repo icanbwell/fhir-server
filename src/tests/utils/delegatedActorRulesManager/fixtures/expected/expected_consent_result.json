@@ -122,6 +122,14 @@
                 "provision.type": "permit"
             },
             {
+                "category.coding": {
+                    "$elemMatch": {
+                        "system": "http://www.icanbwell.com/consent-category",
+                        "code": "dataSharingAccess"
+                    }
+                }
+            },
+            {
                 "$or": [
                     {
                         "provision.period.start": {
