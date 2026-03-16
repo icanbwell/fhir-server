@@ -1,8 +1,6 @@
-const httpContext = require('express-http-context');
 const { MongoError } = require('../../utils/mongoErrors');
 const { isTrue } = require('../../utils/isTrue');
 const { fhirContentTypes, hasNdJsonContentType } = require('../../utils/contentTypes');
-const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SearchManager } = require('./searchManager');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
@@ -112,6 +110,8 @@ class SearchStreamingOperation {
             /** @type {string | null} */
             user,
             /** @type {string | null} */
+            userType,
+            /** @type {string | null} */
             scope,
             /** @type {string | null} */
             originalUrl,
@@ -168,6 +168,7 @@ class SearchStreamingOperation {
                     user,
                     scope,
                     isUser,
+                    userType,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,

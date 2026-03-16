@@ -133,7 +133,7 @@ services:
 
   keycloak:
     # https://github.com/keycloak/keycloak/releases
-    image: quay.io/keycloak/keycloak:26.3.2
+    image: quay.io/keycloak/keycloak:26.5.4
     environment:
       # Enable HTTP for development
       KC_HOSTNAME: localhost
@@ -160,9 +160,18 @@ services:
       MY_USER_CLIENT_PATIENT_ID: 22aa18af-af51-5799-bc55-367c22c85407
       MY_USER_BWELL_PERSON_ID: 0eb80391-0f61-5ce6-b221-a5428f2f38a7
       MY_USER_BWELL_PATIENT_ID: 668d0748-1484-4bba-9cbe-0faf0de8965c
+      # This is the user and password that will be created in the realm for CMS scope token
+      CMS_USER_NAME: cmsUser
+      CMS_USER_PASSWORD: password
+      CMS_USER_SCOPE: cmsPartnerUser patient/*.read user/*.read access/*.read
+      CMS_USER_TOKEN_USERNAME: cmsUser
+      CMS_USER_CLIENT_PERSON_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed023
+      CMS_USER_CLIENT_PATIENT_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed024
+      CMS_USER_BWELL_PERSON_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed021
+      CMS_USER_BWELL_PATIENT_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed022
       # This is the user and password that will be created in the realm for admin scope token
       MY_ADMIN_USER_NAME: admin
-      MY_ADMIN_USER_PASSWORD: password
+      MY_ADMIN_USER_PASSWORD: password@#$%^&873
       MY_ADMIN_USER_SCOPE: user/*.* access/*.* admin/*.*
       MY_ADMIN_USER_TOKEN_USERNAME: admin
     ports:
