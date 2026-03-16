@@ -52,6 +52,8 @@ class BaseSerializer {
                     });
                     if (serializedValue === null || serializedValue === undefined) {
                         delete obj[propertyName];
+                    } else if (Array.isArray(serializedValue) && serializedValue.length === 0) {
+                        delete obj[propertyName];
                     } else {
                         obj[propertyName] = serializedValue;
                     }

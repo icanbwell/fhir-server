@@ -20,7 +20,7 @@ const getSerializer = (version = '4_0_0', schema = '') => {
         serializersCustom = require('./writeSerializers/4_0_0/customSerializers');
     }
 
-    const schemaName = `${schema[0].toLowerCase()}${schema.slice(1)}WriteSerializer`;
+    const schemaName = `${schema[0].toLowerCase()}${schema.slice(1)}Serializer`;
 
     switch (version) {
         case '4_0_0':

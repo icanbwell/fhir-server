@@ -59,9 +59,9 @@ class MergeResourceValidator extends BaseValidator {
 
     /**
      * @param {FhirRequestInfo} requestInfo
-     * @param {Resource|Resource[]} incomingResources
+     * @param {Object|Object[]} incomingResources
      * @param {string} base_version
-     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
+     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Object[], wasAList: boolean}>}
      */
     async validate ({ requestInfo, incomingResources, base_version }) {
         // Merge duplicate resources from the incomingObjects array
@@ -82,7 +82,7 @@ class MergeResourceValidator extends BaseValidator {
 
         let {
             /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
-            /** @type {Resource[]} */ validResources
+            /** @type {Object[]} */ validResources
         } = await this.mergeManager.preMergeChecksMultipleAsync({
             requestInfo,
             resourcesToMerge: resourcesIncomingArray
@@ -92,7 +92,7 @@ class MergeResourceValidator extends BaseValidator {
         resourcesIncomingArray = validResources;
 
         /**
-         * @type {({resource: Resource | null, mergePreCheckError: MergeResultEntry | null})[]}
+         * @type {({resource: Object | null, mergePreCheckError: MergeResultEntry | null})[]}
          */
         const preSaveResults = await async.map(
             resourcesIncomingArray,
@@ -138,7 +138,7 @@ class MergeResourceValidator extends BaseValidator {
         );
 
         validResources = [];
-        for (const /** @type {Resource} */ resource of resourcesIncomingArray) {
+        for (const /** @type {Object} */ resource of resourcesIncomingArray) {
             const foundResource = this.databaseBulkLoader.getResourceFromExistingList({
                 requestId: requestInfo.requestId,
                 resourceType: resource.resourceType,

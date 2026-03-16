@@ -3,9 +3,6 @@ const BaseSerializer = require('../customSerializers/baseSerializer.js');
 
 
 class AgeSerializer extends BaseSerializer {
-    // Private cache for lazy-loaded property configs
-    #configCache = {};
-
     fhirPropertyToSerializerMap = {
         value: null,
         comparator: null,

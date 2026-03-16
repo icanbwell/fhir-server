@@ -317,7 +317,7 @@ class MergeManager {
                     }
                 );
             } else {
-                currentResource = await databaseQueryManager.findOneAsync({
+                currentResource = await databaseQueryManager.fastFindOneAsync({
                     query: { _uuid: uuid.toString() }
                 });
             }

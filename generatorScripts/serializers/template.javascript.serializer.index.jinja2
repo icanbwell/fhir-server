@@ -4,11 +4,11 @@
 {% endmacro %}
 
 {% for fhir_entity in fhir_entities %}
-const {{ lower_case_first_letter(fhir_entity.cleaned_name) }}WriteSerializer = require('./{{ lower_case_first_letter(fhir_entity.cleaned_name) }}');
+const {{ lower_case_first_letter(fhir_entity.cleaned_name) }}Serializer = require('./{{ lower_case_first_letter(fhir_entity.cleaned_name) }}');
 {%  endfor %}
 
 module.exports = {
 {% for fhir_entity in fhir_entities %}
-    {{ lower_case_first_letter(fhir_entity.cleaned_name) }}WriteSerializer,
+    {{ lower_case_first_letter(fhir_entity.cleaned_name) }}Serializer,
 {%  endfor %}
 };

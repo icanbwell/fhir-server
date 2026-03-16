@@ -15,12 +15,12 @@ sys.path.insert(0, str(project_root))
 
 from generatorScripts.fhir_xml_schema_parser import FhirEntity, FhirXmlSchemaParser
 
-# Configuration for custom write serializers
+# Configuration for custom serializers
 # Maps entity name to custom Jinja template file path
 # Each custom template should contain all custom imports and methods
 # For making custom serializer, copy the main jinja file and modify as needed,
 # then add an entry here with the entity name and template path
-CUSTOM_SERIALIZERS_CONFIG = {"Coding": "custom_write_serializers/coding.jinja2"}
+CUSTOM_SERIALIZERS_CONFIG = {"Coding": "custom_serializers/coding.jinja2"}
 
 CUSTOM_SERIALIZER_PROPERTIES_CONFIG = {
     "Resource": [
@@ -41,28 +41,28 @@ CUSTOM_SERIALIZER_PROPERTIES_CONFIG = {
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
     fhir_dir = Path("src/fhir/")
-    write_serializers_dir: Path = fhir_dir.joinpath("writeSerializers/4_0_0/")
-    write_serializer_template_file_name = "template.javascript.write_serializer.jinja2"
+    serializers_dir: Path = fhir_dir.joinpath("writeSerializers/4_0_0/")
+    serializer_template_file_name = "template.javascript.serializer.jinja2"
 
-    # clean out old stuff for write serializers
-    write_serializers_resources_folder = write_serializers_dir.joinpath("resources")
-    if os.path.exists(write_serializers_resources_folder):
-        shutil.rmtree(write_serializers_resources_folder)
-    write_serializers_resources_folder.mkdir(parents=True, exist_ok=True)
+    # clean out old stuff for serializers
+    serializers_resources_folder = serializers_dir.joinpath("resources")
+    if os.path.exists(serializers_resources_folder):
+        shutil.rmtree(serializers_resources_folder)
+    serializers_resources_folder.mkdir(parents=True, exist_ok=True)
 
-    write_serializers_complex_types_folder = write_serializers_dir.joinpath(
+    serializers_complex_types_folder = serializers_dir.joinpath(
         "complexTypes"
     )
-    if os.path.exists(write_serializers_complex_types_folder):
-        shutil.rmtree(write_serializers_complex_types_folder)
-    write_serializers_complex_types_folder.mkdir(parents=True, exist_ok=True)
+    if os.path.exists(serializers_complex_types_folder):
+        shutil.rmtree(serializers_complex_types_folder)
+    serializers_complex_types_folder.mkdir(parents=True, exist_ok=True)
 
-    write_serializers_backbone_elements_folder = write_serializers_dir.joinpath(
+    serializers_backbone_elements_folder = serializers_dir.joinpath(
         "backboneElements"
     )
-    if os.path.exists(write_serializers_backbone_elements_folder):
-        shutil.rmtree(write_serializers_backbone_elements_folder)
-    write_serializers_backbone_elements_folder.mkdir(parents=True, exist_ok=True)
+    if os.path.exists(serializers_backbone_elements_folder):
+        shutil.rmtree(serializers_backbone_elements_folder)
+    serializers_backbone_elements_folder.mkdir(parents=True, exist_ok=True)
 
     fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
 
@@ -73,14 +73,14 @@ def main() -> int:
 
         # Check if this entity has a custom template
         template_file_path = CUSTOM_SERIALIZERS_CONFIG.get(
-            fhir_entity.cleaned_name, write_serializer_template_file_name
+            fhir_entity.cleaned_name, serializer_template_file_name
         )
 
         # Check if there are extra properties to be added to the serializer for this entity
         extra_properties = CUSTOM_SERIALIZER_PROPERTIES_CONFIG.get(
             fhir_entity.cleaned_name, []
         )
-        output_folder = write_serializers_resources_folder
+        output_folder = serializers_resources_folder
 
         if fhir_entity.is_value_set:
             continue
@@ -88,17 +88,17 @@ def main() -> int:
         elif fhir_entity.is_resource:
             if not extra_properties:
                 extra_properties = CUSTOM_SERIALIZER_PROPERTIES_CONFIG.get("Resource", [])
-            output_folder = write_serializers_resources_folder
+            output_folder = serializers_resources_folder
 
         elif fhir_entity.type_ == "BackboneElement" or fhir_entity.is_back_bone_element:
-            output_folder = write_serializers_backbone_elements_folder
+            output_folder = serializers_backbone_elements_folder
 
         elif (
             fhir_entity.is_extension
             or fhir_entity.type_ == "Element"
             or fhir_entity.type_ in ["Quantity"]
         ):
-            output_folder = write_serializers_complex_types_folder
+            output_folder = serializers_complex_types_folder
         else:
             print(
                 f"Skipping {fhir_entity.cleaned_name} as it is not a resource, backbone element, extension, or complex type."
@@ -120,21 +120,21 @@ def main() -> int:
                 file2.write(result)
 
     # Add indexes
-    write_indexFilePath = write_serializers_resources_folder.joinpath("index.js")
-    write_complexTypeIndexFilePath = write_serializers_complex_types_folder.joinpath(
+    indexFilePath = serializers_resources_folder.joinpath("index.js")
+    complexTypeIndexFilePath = serializers_complex_types_folder.joinpath(
         "index.js"
     )
-    write_index_template_name = "template.javascript.write_serializer.index.jinja2"
+    index_template_name = "template.javascript.serializer.index.jinja2"
 
     fhir_index_entities: List[FhirEntity] = [f for f in fhir_entities if f.is_resource]
 
-    with open(data_dir.joinpath(write_index_template_name), "r") as file:
+    with open(data_dir.joinpath(index_template_name), "r") as file:
         template = Template(file.read(), trim_blocks=True, lstrip_blocks=True, autoescape=True)
         result = template.render(
             fhir_entities=fhir_index_entities,
         )
-    if not path.exists(write_indexFilePath):
-        with open(write_indexFilePath, "w") as file2:
+    if not path.exists(indexFilePath):
+        with open(indexFilePath, "w") as file2:
             file2.write(result)
 
     fhir_entities: List[FhirEntity] = [
@@ -143,13 +143,13 @@ def main() -> int:
         if f.type_ == "Element" and f.cleaned_name != "Resource"
     ]
 
-    with open(data_dir.joinpath(write_index_template_name), "r") as file:
+    with open(data_dir.joinpath(index_template_name), "r") as file:
         template = Template(file.read(), trim_blocks=True, lstrip_blocks=True, autoescape=True)
         result = template.render(
             fhir_entities=fhir_entities,
         )
-    if not path.exists(write_complexTypeIndexFilePath):
-        with open(write_complexTypeIndexFilePath, "w") as file2:
+    if not path.exists(complexTypeIndexFilePath):
+        with open(complexTypeIndexFilePath, "w") as file2:
             file2.write(result)
 
     return 0

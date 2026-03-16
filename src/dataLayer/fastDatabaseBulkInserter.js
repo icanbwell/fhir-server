@@ -9,7 +9,6 @@ const { ResourceLocatorFactory } = require('../operations/common/resourceLocator
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
-const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const { RethrownError } = require('../utils/rethrownError');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
@@ -17,7 +16,6 @@ const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
-const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
@@ -136,13 +134,13 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * Generic implementation that works for any resource type configured in ARRAY_STRIPPING_CONFIG.
      * Currently handles Group.member, easily extensible to List.entry or similar patterns.
      *
-     * @param {Resource} resource - FHIR resource being saved
+     * @param {Object} resource - FHIR resource being saved
      * @param {string} requestId - Request ID for httpContext storage
      * @param {Object|null} contextData - Optional context data (preferred over httpContext)
      * @param {Array} contextData.groupMembers - Array data (e.g., Group members, List entries)
      * @param {string} contextData.resourceType - Resource type
      * @param {string} contextData.resourceId - Resource ID
-     * @returns {Resource} Resource with array field stripped (if applicable)
+     * @returns {Object} Resource with array field stripped (if applicable)
      * @private
      */
     _handleArrayFieldStripping({ resource, requestId, contextData = null }) {
@@ -259,7 +257,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * Adds a history operation
      * @param {string} requestId
      * @param {string} resourceType
-     * @param {Resource} resource
+     * @param {Object} resource
      * @param {OperationType} operationType
      * @param {import('mongodb').AnyBulkWriteOperation} operation
      * @param {MergePatchEntry[]|null} patches
@@ -373,7 +371,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
     async insertOneAsync({ requestInfo, resourceType, doc, contextData = null }) {
         try {
             if (!doc.meta) {
-                doc.meta = new Meta({});
+                doc.meta = {};
             }
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
@@ -522,7 +520,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string|null} previousVersionId
-     * @param {Resource} doc
+     * @param {Object} doc
      * @param {boolean} [upsert]
      * @param {MergePatchEntry[]|null} patches
      * @param {Object|null} contextData - Optional context data for resource-specific handling
@@ -564,12 +562,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
             const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
             if (previousUpdate) {
                 /**
-                 * @type {Resource}
+                 * @type {Object}
                  */
                 const previousResource = previousUpdate.resource;
                 /**
                  * returns null if doc is the same
-                 * @type {Resource|null}
+                 * @type {Object|null}
                  */
                 const { updatedResource, patches: mergePatches } = await this.resourceMerger.fastMergeResourceAsync({
                     requestInfo,
@@ -599,12 +597,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
                 if (previousInsert) {
                     /**
-                     * @type {Resource}
+                     * @type {Object}
                      */
                     const previousResource = previousInsert.resource;
                     /**
                      * returns null if doc is the same
-                     * @type {Resource|null}
+                     * @type {Object|null}
                      */
                     const { updatedResource } = await this.resourceMerger.fastMergeResourceAsync({
                         requestInfo,
@@ -856,7 +854,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
             });
             for (const /** @type {BulkInsertUpdateEntry} */ operation of operations) {
                 /**
-                 * @type {Resource}
+                 * @type {Object}
                  */
                 const resource = operation.resource;
                 assertIsValid(resource, 'resource is null');
@@ -1304,7 +1302,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 base_version: '4_0_0'
             });
             /**
-             * @type {Resource|null}
+             * @type {Object|null}
              */
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
                 base_version,

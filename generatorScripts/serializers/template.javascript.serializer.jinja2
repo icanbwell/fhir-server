@@ -26,9 +26,11 @@ let {{ type }}Serializer;
 {% endfor %}
 
 class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
+    {% if imported_types %}
     // Private cache for lazy-loaded property configs
     #configCache = {};
 
+    {% endif %}
     fhirPropertyToSerializerMap = {
     {% for property in fhir_entity.properties %}
     {% if not property.is_v2_supported %}
