@@ -42,6 +42,7 @@ const ARRAY_STRIPPING_CONFIG = {
 const { MongoInvalidArgumentError } = require('mongodb');
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
+const { FastDatabaseUpdateManager } = require('./fastDatabaseUpdateManager.js');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -509,96 +510,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 patches,
                 contextData
             });
-        } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
-        }
-    }
-
-    /**
-     * Replaces a document in Mongo with this one
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} resourceType
-     * @param {string} uuid
-     * @param {Resource} doc
-     * @param {boolean} [upsert]
-     * @param {MergePatchEntry[]|null} patches
-     * @param {Object|null} contextData - Optional context data for resource-specific handling (e.g., Group members)
-     * @param {Array} contextData.groupMembers - Group member array (for Group resources)
-     * @param {string} contextData.resourceType - Resource type
-     * @param {string} contextData.resourceId - Resource ID
-     * @returns {Promise<void>}
-     */
-    async replaceOneAsync({ requestInfo, resourceType, uuid, doc, upsert = false, patches, contextData = null }) {
-        assertTypeEquals(doc, Resource);
-        assertTypeEquals(requestInfo, FhirRequestInfo);
-
-        const requestId = requestInfo.requestId;
-
-        try {
-            assertTypeEquals(doc, Resource);
-            // Run preSave handlers FIRST (includes invariant validation)
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
-            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
-
-            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
-
-            // see if there are any other pending updates for this doc
-            /**
-             * @type {BulkInsertUpdateEntry[]}
-             */
-            const pendingUpdates = this.getPendingUpdates({ requestId, resourceType }).filter(
-                (a) => a.uuid === doc._uuid
-            );
-            // noinspection JSValidateTypes
-            /**
-             * @type {BulkInsertUpdateEntry|null}
-             */
-            const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
-            if (previousUpdate) {
-                // don't merge but replace
-                previousUpdate.resource = doc;
-                previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
-                // replace without a filter so we replace regardless of version in db
-                previousUpdate.operation.replaceOne.filter = null;
-            } else {
-                /**
-                 * @type {BulkInsertUpdateEntry[]}
-                 */
-                const pendingInserts = this.getPendingInsertsWithUniqueId({ requestId, resourceType }).filter(
-                    (a) => a.uuid === doc._uuid
-                );
-                // noinspection JSValidateTypes
-                /**
-                 * @type {BulkInsertUpdateEntry|null}
-                 */
-                const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
-                if (previousInsert) {
-                    previousInsert.resource = doc;
-                    previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
-                } else {
-                    // no previuous insert or update found
-                    const filter = { _uuid: uuid };
-                    // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
-                    this.addOperationForResourceType({
-                        requestId,
-                        resourceType,
-                        resource: doc,
-                        operationType: 'replace',
-                        operation: {
-                            replaceOne: {
-                                filter,
-                                upsert,
-                                replacement: doc.toJSONInternal()
-                            }
-                        },
-                        patches,
-                        contextData
-                    });
-                }
-            }
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -1386,9 +1297,9 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 }
             });
             /**
-             * @type {DatabaseUpdateManager}
+             * @type {FastDatabaseUpdateManager}
              */
-            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            const databaseUpdateManager = this.databaseUpdateFactory.createFastDatabaseUpdateManager({
                 resourceType: bulkInsertUpdateEntry.resourceType,
                 base_version: '4_0_0'
             });

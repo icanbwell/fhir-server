@@ -101,9 +101,6 @@ class EvidenceAttributeEstimateSerializer extends BaseSerializer {
         attributeEstimate: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['attributeEstimate']) {
-                if (!EvidenceAttributeEstimateSerializer) {
-                    EvidenceAttributeEstimateSerializer = require('');
-                }
                 this.#configCache['attributeEstimate'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: EvidenceAttributeEstimateSerializer

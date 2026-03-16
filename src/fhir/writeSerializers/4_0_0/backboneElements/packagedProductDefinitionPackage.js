@@ -156,9 +156,6 @@ class PackagedProductDefinitionPackageSerializer extends BaseSerializer {
         package: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['package']) {
-                if (!PackagedProductDefinitionPackageSerializer) {
-                    PackagedProductDefinitionPackageSerializer = require('');
-                }
                 this.#configCache['package'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: PackagedProductDefinitionPackageSerializer

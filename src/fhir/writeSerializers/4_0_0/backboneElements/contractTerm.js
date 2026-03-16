@@ -187,9 +187,6 @@ class ContractTermSerializer extends BaseSerializer {
         group: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['group']) {
-                if (!ContractTermSerializer) {
-                    ContractTermSerializer = require('');
-                }
                 this.#configCache['group'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: ContractTermSerializer

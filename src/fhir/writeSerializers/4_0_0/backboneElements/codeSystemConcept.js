@@ -72,9 +72,6 @@ class CodeSystemConceptSerializer extends BaseSerializer {
         concept: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['concept']) {
-                if (!CodeSystemConceptSerializer) {
-                    CodeSystemConceptSerializer = require('');
-                }
                 this.#configCache['concept'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: CodeSystemConceptSerializer

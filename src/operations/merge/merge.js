@@ -25,6 +25,7 @@ const { pipeline } = require('stream/promises'); // <- for async pipeline
 const { HttpResponseWriter } = require('../streaming/responseWriter');
 const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
 const { fhirContentTypes } = require('../../utils/contentTypes');
+const deepcopy = require('deepcopy');
 
 
 class MergeOperation {
@@ -186,7 +187,8 @@ class MergeOperation {
             } = await this.mergeValidator.validateAsync({
                 base_version,
                 currentOperationName,
-                incomingObjects,
+                // copy incoming objects to avoid mutation of data for access logs
+                incomingObjects: deepcopy(incomingObjects),
                 resourceType,
                 requestInfo
             });
@@ -404,7 +406,8 @@ class MergeOperation {
                     } = await self.mergeValidator.validateAsync({
                         base_version:base_version,
                         currentOperationName:currentOperationName,
-                        incomingObjects:resource,
+                        // copy incoming objects to avoid mutation of data for access logs
+                        incomingObjects:deepcopy(resource),
                         resourceType:resourceType,
                         requestInfo:requestInfo
                     });

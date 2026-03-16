@@ -84,9 +84,6 @@ class EvidenceCertaintySerializer extends BaseSerializer {
         subcomponent: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['subcomponent']) {
-                if (!EvidenceCertaintySerializer) {
-                    EvidenceCertaintySerializer = require('');
-                }
                 this.#configCache['subcomponent'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: EvidenceCertaintySerializer

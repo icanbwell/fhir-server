@@ -60,9 +60,6 @@ class ValueSetContainsSerializer extends BaseSerializer {
         contains: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['contains']) {
-                if (!ValueSetContainsSerializer) {
-                    ValueSetContainsSerializer = require('');
-                }
                 this.#configCache['contains'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: ValueSetContainsSerializer

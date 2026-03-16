@@ -112,9 +112,6 @@ class SubstanceDefinitionNameSerializer extends BaseSerializer {
         synonym: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['synonym']) {
-                if (!SubstanceDefinitionNameSerializer) {
-                    SubstanceDefinitionNameSerializer = require('');
-                }
                 this.#configCache['synonym'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: SubstanceDefinitionNameSerializer
@@ -125,9 +122,6 @@ class SubstanceDefinitionNameSerializer extends BaseSerializer {
         translation: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['translation']) {
-                if (!SubstanceDefinitionNameSerializer) {
-                    SubstanceDefinitionNameSerializer = require('');
-                }
                 this.#configCache['translation'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: SubstanceDefinitionNameSerializer

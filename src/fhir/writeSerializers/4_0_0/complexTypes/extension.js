@@ -67,9 +67,6 @@ class ExtensionSerializer extends BaseSerializer {
         extension: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['extension']) {
-                if (!ExtensionSerializer) {
-                    ExtensionSerializer = require('');
-                }
                 this.#configCache['extension'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: ExtensionSerializer

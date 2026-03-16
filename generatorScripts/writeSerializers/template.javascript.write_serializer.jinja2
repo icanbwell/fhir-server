@@ -36,9 +36,11 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
         '{{ property.name }}': () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['{{ property.name }}']) {
+            {% if imported_types[property.cleaned_type] %}
                 if (!{{ property.cleaned_type | replace(".","") }}Serializer) {
                     {{ property.cleaned_type | replace(".","") }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
                 }
+            {% endif %}
                 this.#configCache['{{ property.name }}'] = {
             {% if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
                 {% if property.is_list %}
@@ -78,9 +80,11 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
         '{{ property.name }}': () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['{{ property.name }}']) {
+            {% if imported_types[property.cleaned_type] %}
                 if (!{{ property.cleaned_type | replace(".","") }}Serializer) {
                     {{ property.cleaned_type | replace(".","") }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
                 }
+            {% endif %}
                 this.#configCache['{{ property.name }}'] = {
             {% if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
                 {% if property.is_list %}

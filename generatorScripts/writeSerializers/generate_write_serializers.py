@@ -109,7 +109,7 @@ def main() -> int:
             template_contents = file.read()
             file_path = output_folder.joinpath(f"{entity_file_name}.js")
             print(f"Writing: {entity_file_name} to {file_path}...")
-            template = Template(template_contents, trim_blocks=True, lstrip_blocks=True)
+            template = Template(template_contents, trim_blocks=True, lstrip_blocks=True, autoescape=True)
             result = template.render(
                 fhir_entity=fhir_entity,
                 extra_properties=extra_properties,
@@ -129,7 +129,7 @@ def main() -> int:
     fhir_index_entities: List[FhirEntity] = [f for f in fhir_entities if f.is_resource]
 
     with open(data_dir.joinpath(write_index_template_name), "r") as file:
-        template = Template(file.read(), trim_blocks=True, lstrip_blocks=True)
+        template = Template(file.read(), trim_blocks=True, lstrip_blocks=True, autoescape=True)
         result = template.render(
             fhir_entities=fhir_index_entities,
         )
@@ -144,7 +144,7 @@ def main() -> int:
     ]
 
     with open(data_dir.joinpath(write_index_template_name), "r") as file:
-        template = Template(file.read(), trim_blocks=True, lstrip_blocks=True)
+        template = Template(file.read(), trim_blocks=True, lstrip_blocks=True, autoescape=True)
         result = template.render(
             fhir_entities=fhir_entities,
         )

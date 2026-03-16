@@ -166,9 +166,6 @@ class EvidenceReportSectionSerializer extends BaseSerializer {
         section: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['section']) {
-                if (!EvidenceReportSectionSerializer) {
-                    EvidenceReportSectionSerializer = require('');
-                }
                 this.#configCache['section'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: EvidenceReportSectionSerializer

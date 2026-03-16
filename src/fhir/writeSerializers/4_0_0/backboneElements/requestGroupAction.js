@@ -224,9 +224,6 @@ class RequestGroupActionSerializer extends BaseSerializer {
         action: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['action']) {
-                if (!RequestGroupActionSerializer) {
-                    RequestGroupActionSerializer = require('');
-                }
                 this.#configCache['action'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: RequestGroupActionSerializer

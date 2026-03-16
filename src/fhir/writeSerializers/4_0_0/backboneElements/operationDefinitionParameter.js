@@ -77,9 +77,6 @@ class OperationDefinitionParameterSerializer extends BaseSerializer {
         part: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['part']) {
-                if (!OperationDefinitionParameterSerializer) {
-                    OperationDefinitionParameterSerializer = require('');
-                }
                 this.#configCache['part'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: OperationDefinitionParameterSerializer

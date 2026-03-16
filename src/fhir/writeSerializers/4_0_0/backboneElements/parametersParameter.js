@@ -530,9 +530,6 @@ class ParametersParameterSerializer extends BaseSerializer {
         part: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['part']) {
-                if (!ParametersParameterSerializer) {
-                    ParametersParameterSerializer = require('');
-                }
                 this.#configCache['part'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: ParametersParameterSerializer

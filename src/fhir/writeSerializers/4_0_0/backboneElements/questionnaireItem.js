@@ -110,9 +110,6 @@ class QuestionnaireItemSerializer extends BaseSerializer {
         item: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['item']) {
-                if (!QuestionnaireItemSerializer) {
-                    QuestionnaireItemSerializer = require('');
-                }
                 this.#configCache['item'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: QuestionnaireItemSerializer

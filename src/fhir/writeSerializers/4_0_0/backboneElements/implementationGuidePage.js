@@ -57,9 +57,6 @@ class ImplementationGuidePageSerializer extends BaseSerializer {
         page: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['page']) {
-                if (!ImplementationGuidePageSerializer) {
-                    ImplementationGuidePageSerializer = require('');
-                }
                 this.#configCache['page'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: ImplementationGuidePageSerializer

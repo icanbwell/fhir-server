@@ -334,7 +334,6 @@ const createContainer = function () {
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
         {
             resourceLocatorFactory: c.resourceLocatorFactory,
-            databaseAttachmentManager: c.databaseAttachmentManager,
             storageProviderFactory: c.storageProviderFactory
         }));
     container.register('databaseHistoryFactory', (c) => new DatabaseHistoryFactory(

@@ -72,9 +72,6 @@ class StructureMapRuleSerializer extends BaseSerializer {
         rule: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['rule']) {
-                if (!StructureMapRuleSerializer) {
-                    StructureMapRuleSerializer = require('');
-                }
                 this.#configCache['rule'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: StructureMapRuleSerializer

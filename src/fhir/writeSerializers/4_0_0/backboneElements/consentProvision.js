@@ -167,9 +167,6 @@ class ConsentProvisionSerializer extends BaseSerializer {
         provision: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['provision']) {
-                if (!ConsentProvisionSerializer) {
-                    ConsentProvisionSerializer = require('');
-                }
                 this.#configCache['provision'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: ConsentProvisionSerializer

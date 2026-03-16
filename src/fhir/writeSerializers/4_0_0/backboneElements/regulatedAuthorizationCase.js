@@ -98,9 +98,6 @@ class RegulatedAuthorizationCaseSerializer extends BaseSerializer {
         application: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['application']) {
-                if (!RegulatedAuthorizationCaseSerializer) {
-                    RegulatedAuthorizationCaseSerializer = require('');
-                }
                 this.#configCache['application'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: RegulatedAuthorizationCaseSerializer

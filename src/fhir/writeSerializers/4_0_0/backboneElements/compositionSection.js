@@ -138,9 +138,6 @@ class CompositionSectionSerializer extends BaseSerializer {
         section: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['section']) {
-                if (!CompositionSectionSerializer) {
-                    CompositionSectionSerializer = require('');
-                }
                 this.#configCache['section'] = {
                     serializeFunction: 'serializeArray',
                     serializerClass: CompositionSectionSerializer
