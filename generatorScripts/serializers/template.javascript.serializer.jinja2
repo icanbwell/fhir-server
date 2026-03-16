@@ -39,8 +39,8 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['{{ property.name }}']) {
             {% if imported_types[property.cleaned_type] %}
-                if (!{{ property.cleaned_type | replace(".","") }}Serializer) {
-                    {{ property.cleaned_type | replace(".","") }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
+                if (!{{ property.cleaned_type }}Serializer) {
+                    {{ property.cleaned_type }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
                 }
             {% endif %}
                 this.#configCache['{{ property.name }}'] = {
@@ -50,7 +50,11 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
                 {% else %}
                     serializeFunction: 'serialize',
                 {% endif %}
-                    serializerClass: {{ property.cleaned_type | replace(".","") }}Serializer
+                {% if fhir_entity.cleaned_name == property.cleaned_type %}
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
+                {% else %}
+                    serializerClass: {{ property.cleaned_type }}Serializer
+                {% endif %}
             {% elif property.cleaned_type == "ResourceContainer" %}
                 {% if property.is_list %}
                     serializeFunction: 'serializeArray'
@@ -83,8 +87,8 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['{{ property.name }}']) {
             {% if imported_types[property.cleaned_type] %}
-                if (!{{ property.cleaned_type | replace(".","") }}Serializer) {
-                    {{ property.cleaned_type | replace(".","") }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
+                if (!{{ property.cleaned_type }}Serializer) {
+                    {{ property.cleaned_type }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
                 }
             {% endif %}
                 this.#configCache['{{ property.name }}'] = {
@@ -94,7 +98,11 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
                 {% else %}
                     serializeFunction: 'serialize',
                 {% endif %}
-                    serializerClass: {{ property.cleaned_type | replace(".","") }}Serializer
+                {% if fhir_entity.cleaned_name == property.cleaned_type %}
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
+                {% else %}
+                    serializerClass: {{ property.cleaned_type }}Serializer
+                {% endif %}
             {% elif property.cleaned_type == "ResourceContainer" %}
                 {% if property.is_list %}
                     serializeFunction: 'serializeArray'

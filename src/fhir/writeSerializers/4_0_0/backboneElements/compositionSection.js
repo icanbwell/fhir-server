@@ -140,7 +140,7 @@ class CompositionSectionSerializer extends BaseSerializer {
             if (!this.#configCache['section']) {
                 this.#configCache['section'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: CompositionSectionSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['section'];

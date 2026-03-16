@@ -100,7 +100,7 @@ class RegulatedAuthorizationCaseSerializer extends BaseSerializer {
             if (!this.#configCache['application']) {
                 this.#configCache['application'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: RegulatedAuthorizationCaseSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['application'];

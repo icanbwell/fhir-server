@@ -169,7 +169,7 @@ class ConsentProvisionSerializer extends BaseSerializer {
             if (!this.#configCache['provision']) {
                 this.#configCache['provision'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: ConsentProvisionSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['provision'];

@@ -230,7 +230,7 @@ fastSerializers:
 .PHONY:serializers
 serializers:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/writeSerializers/generate_write_serializers.py" && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/serializers/generate_fast_serializers.py" && \
 	eslint --fix "src/fhir/writeSerializers/4_0_0/**/*.js"
 
 .PHONY:audit_fix
@@ -266,4 +266,9 @@ dbSchema:
 .PHONY:restart_fhir
 restart_fhir:
 	docker compose -p fhir-dev -f docker-compose.yml down fhir && \
-	docker compose -p fhir-dev -f docker-compose.yml up fhir -d --no-deps
+	docker compose -p fhir-dev -f docker-compose.yml up fhir -d --no-deps && \
+	docker logs -f fhir-dev-fhir-1 2>&1 | jq -RCc '. as $$line | try fromjson catch $$line'
+
+.PHONY:fhir_logs
+fhir_logs:
+	docker logs -f fhir-dev-fhir-1 2>&1 | jq -RCc '. as $$line | try fromjson catch $$line'

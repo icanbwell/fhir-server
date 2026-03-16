@@ -74,7 +74,7 @@ class StructureMapRuleSerializer extends BaseSerializer {
             if (!this.#configCache['rule']) {
                 this.#configCache['rule'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: StructureMapRuleSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['rule'];

@@ -168,7 +168,7 @@ class EvidenceReportSectionSerializer extends BaseSerializer {
             if (!this.#configCache['section']) {
                 this.#configCache['section'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: EvidenceReportSectionSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['section'];

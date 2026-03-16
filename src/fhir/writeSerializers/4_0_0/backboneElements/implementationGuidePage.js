@@ -59,7 +59,7 @@ class ImplementationGuidePageSerializer extends BaseSerializer {
             if (!this.#configCache['page']) {
                 this.#configCache['page'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: ImplementationGuidePageSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['page'];

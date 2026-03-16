@@ -103,7 +103,7 @@ class EvidenceAttributeEstimateSerializer extends BaseSerializer {
             if (!this.#configCache['attributeEstimate']) {
                 this.#configCache['attributeEstimate'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: EvidenceAttributeEstimateSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['attributeEstimate'];

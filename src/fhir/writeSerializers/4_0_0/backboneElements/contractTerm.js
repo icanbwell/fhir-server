@@ -189,7 +189,7 @@ class ContractTermSerializer extends BaseSerializer {
             if (!this.#configCache['group']) {
                 this.#configCache['group'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: ContractTermSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['group'];

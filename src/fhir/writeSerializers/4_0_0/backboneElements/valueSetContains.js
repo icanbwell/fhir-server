@@ -62,7 +62,7 @@ class ValueSetContainsSerializer extends BaseSerializer {
             if (!this.#configCache['contains']) {
                 this.#configCache['contains'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: ValueSetContainsSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['contains'];

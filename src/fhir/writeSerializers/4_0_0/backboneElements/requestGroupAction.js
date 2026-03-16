@@ -226,7 +226,7 @@ class RequestGroupActionSerializer extends BaseSerializer {
             if (!this.#configCache['action']) {
                 this.#configCache['action'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: RequestGroupActionSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['action'];

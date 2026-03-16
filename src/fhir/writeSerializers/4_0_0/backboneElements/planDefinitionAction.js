@@ -317,7 +317,7 @@ class PlanDefinitionActionSerializer extends BaseSerializer {
             if (!this.#configCache['action']) {
                 this.#configCache['action'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: PlanDefinitionActionSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['action'];

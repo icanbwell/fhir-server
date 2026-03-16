@@ -69,7 +69,7 @@ class ExtensionSerializer extends BaseSerializer {
             if (!this.#configCache['extension']) {
                 this.#configCache['extension'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: ExtensionSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['extension'];

@@ -112,7 +112,7 @@ class QuestionnaireItemSerializer extends BaseSerializer {
             if (!this.#configCache['item']) {
                 this.#configCache['item'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: QuestionnaireItemSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['item'];

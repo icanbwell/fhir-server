@@ -86,7 +86,7 @@ class EvidenceCertaintySerializer extends BaseSerializer {
             if (!this.#configCache['subcomponent']) {
                 this.#configCache['subcomponent'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: EvidenceCertaintySerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['subcomponent'];

@@ -79,7 +79,7 @@ class OperationDefinitionParameterSerializer extends BaseSerializer {
             if (!this.#configCache['part']) {
                 this.#configCache['part'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: OperationDefinitionParameterSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['part'];

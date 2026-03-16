@@ -114,7 +114,7 @@ class SubstanceDefinitionNameSerializer extends BaseSerializer {
             if (!this.#configCache['synonym']) {
                 this.#configCache['synonym'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: SubstanceDefinitionNameSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['synonym'];
@@ -124,7 +124,7 @@ class SubstanceDefinitionNameSerializer extends BaseSerializer {
             if (!this.#configCache['translation']) {
                 this.#configCache['translation'] = {
                     serializeFunction: 'serializeArray',
-                    serializerClass: SubstanceDefinitionNameSerializer
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
                 };
             }
             return this.#configCache['translation'];
