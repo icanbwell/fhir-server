@@ -12,6 +12,14 @@ query documentReferencesWithBinary {
                 id
                 contentType
                 data
+                securityContext {
+                  reference
+                  extension {
+                    id
+                    url
+                    valueString
+                  }
+                }
               }
             }
           }

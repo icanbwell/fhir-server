@@ -141,11 +141,18 @@ class BwellPersonFinder {
 
         // get all persons
         const linkedPersonCursor = await databaseQueryManager.findAsync({
-            query
+            query, options: {
+                projection: {
+                    _uuid: 1,
+                    resourceType: 1,
+                    _sourceAssigningAuthority: 1,
+                    link: 1
+                }
+            }
         });
 
         while (await linkedPersonCursor.hasNext()) {
-            const linkedPerson = await linkedPersonCursor.nextObject();
+            const linkedPerson = await linkedPersonCursor.next();
             const allLinkedIds = this.getAllLinkedReferencesFromPerson(linkedPerson);
             personToLinkedPatientsMap.set(linkedPerson._uuid, allLinkedIds);
 
@@ -160,22 +167,25 @@ class BwellPersonFinder {
 
         // build map of patient to person
         for (const [person, linkedReferences] of personToLinkedPatientsMap.entries()) {
-            if (linkedReferences && linkedReferences.length > 0) {
-                linkedReferences.forEach((currentReference) => {
-                    const { id: patientId } = ReferenceParser.parseReference(currentReference);
-                    if (!patientReferencesString.includes(currentReference) || patientId.startsWith('person.')) {
-                        return;
-                    }
-                    const immediatePersons = patientReferenceToPersonUuid[patientId] || [];
+            if (!linkedReferences || linkedReferences.length === 0) {
+                continue;
+            }
 
-                    if (asObject) {
-                        immediatePersons.push(personRefToPersonRefObj.get(person));
-                        patientReferenceToPersonUuid[patientId] = immediatePersons;
-                    } else {
-                        immediatePersons.push(person);
-                        patientReferenceToPersonUuid[patientId] = immediatePersons;
-                    }
-                });
+            for (const currentReference of linkedReferences) {
+                const { id: patientId } = ReferenceParser.parseReference(currentReference);
+                if (!patientReferencesString.includes(currentReference) || patientId.startsWith('person.')) {
+                    continue;
+                }
+
+                if (!patientReferenceToPersonUuid[patientId]) {
+                    patientReferenceToPersonUuid[patientId] = [];
+                }
+
+                if (asObject) {
+                    patientReferenceToPersonUuid[patientId].push(personRefToPersonRefObj.get(person));
+                } else {
+                    patientReferenceToPersonUuid[patientId].push(person);
+                }
             }
         }
 

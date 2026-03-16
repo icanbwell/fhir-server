@@ -125,6 +125,7 @@ class FhirRequestInfoBuilder {
             body: this.req.body,
             accept: accepts(this.req).types(),
             isUser: this.isUser,
+            userType: this.req.authInfo?.context?.userType,
             personIdFromJwtToken: this.personId,
             masterPersonIdFromJwtToken: this.req.authInfo?.context?.masterPersonIdFromJwtToken,
             managingOrganizationId: this.req.authInfo?.context?.managingOrganizationId,

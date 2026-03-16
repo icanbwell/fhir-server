@@ -21,6 +21,7 @@ class FhirRequestInfo {
      * @param {Object | Object[] | null} params.body
      * @param {string | string[] | null} params.accept
      * @param {boolean | null} params.isUser
+     * @param {string | null} params.userType
      * @param {string | null} params.personIdFromJwtToken
      * @param {string | null} params.masterPersonIdFromJwtToken
      * @param {string | null} params.managingOrganizationId
@@ -44,6 +45,7 @@ class FhirRequestInfo {
             body,
             accept,
             isUser,
+            userType,
             personIdFromJwtToken,
             masterPersonIdFromJwtToken,
             managingOrganizationId,
@@ -104,6 +106,10 @@ class FhirRequestInfo {
          * @type {boolean}
          */
         this.isUser = isUser;
+        /**
+         * @type {string | null}
+         */
+        this.userType = userType;
         /**
          * @type {string | null}
          */

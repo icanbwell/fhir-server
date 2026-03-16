@@ -18,6 +18,14 @@ query entities($representations: [_Any!]!) {
           code
         }
       }
+      subject {
+        reference
+        extension {
+          id
+          url
+          valueString
+        }
+      }
       careTeamName: name
       status
     }
