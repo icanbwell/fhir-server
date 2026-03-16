@@ -81,7 +81,7 @@ function fastValidateReferences (resourceObj, path) {
     const entries = Object.entries(resourceObj);
     for (const [key, value] of entries) {
         if (typeof value === 'object' && value !== null) {
-            if (Object.prototype.hasOwnProperty.call(value, 'reference')) {
+            if (Object.prototype.hasOwnProperty.call(value, 'reference') && typeof value.reference === 'string') {
                 const err = checkReferenceValue(value, path);
                 if (err) {
                     errors.push(err);
