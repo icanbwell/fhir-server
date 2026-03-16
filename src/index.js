@@ -9,6 +9,7 @@ const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { getImageVersion } = require('./utils/getImageVersion');
+const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
 
 Sentry.init({
     release: getImageVersion(),
@@ -30,6 +31,9 @@ const main = async function () {
         await createServer(() => container);
         // Initialize cron tasks processor for processing scheduled tasks
         await container.cronTasksProcessor.initiateTasks();
+
+        // Initialize configManager for all serializers
+        BaseSerializer.setConfigManager(container.configManager);
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
         console.log(JSON.stringify({ method: 'main', message: e.message, stack: JSON.stringify(e.stack, getCircularReplacer()) }));

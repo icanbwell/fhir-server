@@ -133,7 +133,6 @@ const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
-const BaseSerializer = require('./fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 
 /**
  * Creates a container and sets up all the services
@@ -1086,9 +1085,6 @@ const createContainer = function () {
     container.register('redisManager', (c) => new RedisManager({
         redisClient: c.redisClient
     }));
-
-    // Initialize configManager for all serializers
-    BaseSerializer.setConfigManager(container.configManager);
 
     return container;
 };

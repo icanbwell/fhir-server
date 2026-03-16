@@ -1,6 +1,6 @@
-const {BaseFhirResourceSerializer} = require('../../../baseFhirResourceSerializer');
-const {FhirResourceWriteSerializer} = require('../../../fhirResourceWriteSerializer');
-const {FhirResourceNormalizeSerializer} = require('../../../fhirResourceNormalizeSerializer');
+const { BaseFhirResourceSerializer } = require('../../../baseFhirResourceSerializer');
+const { FhirResourceWriteSerializer } = require('../../../fhirResourceWriteSerializer');
+const { FhirResourceNormalizeSerializer } = require('../../../fhirResourceNormalizeSerializer');
 // const {FhirResourceReadSerializer} = require('../../../fhirResourceReadSerializer');
 
 /**
@@ -76,12 +76,8 @@ class BaseSerializer {
      * @returns {any} Cleaned object
      */
     writeSerialize(obj, context = {}) {
-        if (!obj) return obj;
+        if (!obj || typeof obj !== 'object') return null;
 
-        // Handle non-object case
-        if (typeof obj !== 'object') {
-            throw new Error(`Expected an object to serialize, but got ${typeof obj}`);
-        }
         return this.baseSerialize(FhirResourceWriteSerializer, this.allPropertyToSerializerMap, obj, context);
     }
 
@@ -92,12 +88,7 @@ class BaseSerializer {
      * @returns {Object} Normalized object
      */
     normalize(obj, context = {}) {
-        if (!obj) return obj;
-
-        // Handle non-object case
-        if (typeof obj !== 'object') {
-            throw new Error(`Expected an object to serialize, but got ${typeof obj}`);
-        }
+        if (!obj || typeof obj !== 'object') return null;
 
         return this.baseSerialize(FhirResourceNormalizeSerializer, this.fhirPropertyToSerializerMap, obj, context);
     }
