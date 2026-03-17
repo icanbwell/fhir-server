@@ -128,6 +128,7 @@ const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
+const { SseChangeEventProducer } = require('./utils/sseChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { RedisManager } = require('./utils/redisManager');
@@ -271,6 +272,13 @@ const createContainer = function () {
        configManager: c.configManager,
        patientPersonLinkEventTopic: process.env.KAFKA_PATIENT_PERSON_LINK_EVENT_TOPIC || 'fhir.manual.person.linking.events',
        kafkaClient: c.kafkaClient
+    }));
+
+    // SSE Subscriptions - publishes resource changes for real-time push notifications
+    container.register('sseChangeEventProducer', (c) => new SseChangeEventProducer({
+        kafkaClient: c.kafkaClient,
+        sseResourceChangeTopic: process.env.KAFKA_SSE_RESOURCE_CHANGE_TOPIC || 'fhir.resource.change',
+        configManager: c.configManager
     }));
 
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
@@ -944,7 +952,8 @@ const createContainer = function () {
     container.register('postSaveProcessor', (c) => {
         const handlers = [
             c.changeEventProducer,
-            c.patientPersonDataChangeEventProducer
+            c.patientPersonDataChangeEventProducer,
+            c.sseChangeEventProducer
         ];
 
         // Add ClickHouse handler for Group resources if enabled

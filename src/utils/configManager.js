@@ -262,6 +262,43 @@ class ConfigManager {
     }
 
     /**
+     * Whether SSE subscription events are enabled
+     * @return {boolean}
+     */
+    get enableSseKafkaEvents() {
+        return isTrue(env.ENABLE_SSE_KAFKA_EVENTS);
+    }
+
+    /**
+     * List of resources for which SSE change events are published
+     * Default includes clinical resources commonly used with subscriptions
+     * @return {string[]}
+     */
+    get sseEnabledResources() {
+        return (
+            (
+                env.SSE_ENABLED_RESOURCES && env.SSE_ENABLED_RESOURCES.split(',')
+                    .map((col) => col.trim())
+            ) || [
+                // Default resources for SSE subscriptions
+                'Patient',
+                'Observation',
+                'Condition',
+                'Procedure',
+                'MedicationRequest',
+                'DiagnosticReport',
+                'Encounter',
+                'AllergyIntolerance',
+                'Immunization',
+                'CarePlan',
+                'CareTeam',
+                'Goal',
+                'DocumentReference'
+            ]
+        );
+    }
+
+    /**
      * gets url to person matching service
      * @return {string|undefined}
      */
