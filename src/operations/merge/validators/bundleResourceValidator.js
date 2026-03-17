@@ -18,9 +18,9 @@ class BundleResourceValidator extends BaseValidator {
     /**
      * @param {FhirRequestInfo} requestInfo
      * @param {string} currentOperationName
-     * @param {Resource|Resource[]} incomingResources
+     * @param {Object|Object[]} incomingResources
      * @param {string} base_version
-     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
+     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Object[], wasAList: boolean}>}
      */
     async validate ({ requestInfo, currentOperationName, incomingResources, base_version }) {
         // if the incoming request is a bundle then unwrap the bundle

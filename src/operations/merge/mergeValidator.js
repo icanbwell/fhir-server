@@ -1,3 +1,4 @@
+const deepcopy = require("deepcopy");
 const { FhirResourceWriteSerializer } = require("../../fhir/fhirResourceWriteSerializer");
 
 
@@ -36,12 +37,15 @@ class MergeValidator {
          */
         let wasIncomingAList = false;
 
+        // copy incoming objects to avoid mutation of data for access logs
         /**
          * @type {Object[]|Object}
          */
-        let incomingResources = Array.isArray(incomingObjects)
-            ? incomingObjects.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
-            : FhirResourceWriteSerializer.serialize({obj: incomingObjects});
+        let incomingResources = deepcopy(incomingObjects);
+
+        incomingResources = Array.isArray(incomingResources)
+            ? incomingResources.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
+            : FhirResourceWriteSerializer.serialize({obj: incomingResources});
 
         for (const validator of this.validators) {
             const {

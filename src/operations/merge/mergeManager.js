@@ -25,10 +25,10 @@ const { mergeObject } = require('../../utils/mergeHelper');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const deepcopy = require('deepcopy');
-const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const { FhirResourceNormalizeSerializer } = require('../../fhir/fhirResourceNormalizeSerializer');
 
 class MergeManager {
     /**
@@ -181,7 +181,7 @@ class MergeManager {
             );
 
             const resourceToValidate = deepcopy(patched_resource_incoming);
-            FhirResourceSerializer.serialize(resourceToValidate);
+            FhirResourceNormalizeSerializer.serialize(resourceToValidate);
 
             if (!validationOperationOutcome) {
                 validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
@@ -236,7 +236,7 @@ class MergeManager {
         }
 
         const resourceToValidate = deepcopy(resourceToMerge);
-        FhirResourceSerializer.serialize(resourceToValidate);
+        FhirResourceNormalizeSerializer.serialize(resourceToValidate);
 
         /**
          * Validate resource to create with fhir schema
@@ -299,10 +299,6 @@ class MergeManager {
         }
 
         try {
-            // Query our collection for this id
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                { resourceType: resourceToMerge.resourceType, base_version }
-            );
             /**
              * @type {Object|null}
              */
@@ -317,6 +313,11 @@ class MergeManager {
                     }
                 );
             } else {
+                // Query our collection for this id
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                    { resourceType: resourceToMerge.resourceType, base_version }
+                );
+
                 currentResource = await databaseQueryManager.fastFindOneAsync({
                     query: { _uuid: uuid.toString() }
                 });

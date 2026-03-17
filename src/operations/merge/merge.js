@@ -187,8 +187,7 @@ class MergeOperation {
             } = await this.mergeValidator.validateAsync({
                 base_version,
                 currentOperationName,
-                // copy incoming objects to avoid mutation of data for access logs
-                incomingObjects: deepcopy(incomingObjects),
+                incomingObjects: incomingObjects,
                 resourceType,
                 requestInfo
             });
@@ -406,8 +405,7 @@ class MergeOperation {
                     } = await self.mergeValidator.validateAsync({
                         base_version:base_version,
                         currentOperationName:currentOperationName,
-                        // copy incoming objects to avoid mutation of data for access logs
-                        incomingObjects:deepcopy(resource),
+                        incomingObjects: resource,
                         resourceType:resourceType,
                         requestInfo:requestInfo
                     });

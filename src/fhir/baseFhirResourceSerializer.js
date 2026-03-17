@@ -11,7 +11,7 @@ let serializersCustom;
  *
  * @param {String} version
  * @param {String} schema
- * @returns {import('./writeSerializers/4_0_0/customSerializers/baseSerializer.js').BaseSerializer}
+ * @returns {import('./writeSerializers/4_0_0/customSerializers').BaseSerializer}
  */
 const getSerializer = (version = '4_0_0', schema = '') => {
     if (!serializerR4B) {

@@ -76,19 +76,19 @@ class BaseSerializer {
      * @returns {any} Cleaned object
      */
     writeSerialize(obj, context = {}) {
-        if (!obj || typeof obj !== 'object') return null;
+        if (!obj || typeof obj !== 'object') return {};
 
         return this.baseSerialize(FhirResourceWriteSerializer, this.allPropertyToSerializerMap, obj, context);
     }
 
     /**
-     * This method is used to remove any fields which are not as per FHIR Specs
+     * This method is used to remove any fields which are not as per FHIR Specs without verifying resource structure
      * @param {Object} obj
      * @param {Object} [context]
      * @returns {Object} Normalized object
      */
     normalize(obj, context = {}) {
-        if (!obj || typeof obj !== 'object') return null;
+        if (!obj || typeof obj !== 'object') return obj;
 
         return this.baseSerialize(FhirResourceNormalizeSerializer, this.fhirPropertyToSerializerMap, obj, context);
     }
