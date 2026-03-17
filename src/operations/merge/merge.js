@@ -187,7 +187,7 @@ class MergeOperation {
             } = await this.mergeValidator.validateAsync({
                 base_version,
                 currentOperationName,
-                incomingObjects: incomingObjects,
+                incomingObjects,
                 resourceType,
                 requestInfo
             });
@@ -405,7 +405,7 @@ class MergeOperation {
                     } = await self.mergeValidator.validateAsync({
                         base_version:base_version,
                         currentOperationName:currentOperationName,
-                        incomingObjects: resource,
+                        incomingObjects:resource,
                         resourceType:resourceType,
                         requestInfo:requestInfo
                     });

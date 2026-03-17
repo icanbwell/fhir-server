@@ -33,34 +33,38 @@ class BaseSerializer {
      * @param {Object} propertyToSerializerMap
      * @param {*} obj
      * @param {*} context
+     * @param {Function} isEmpty
      */
-    baseSerialize(serializerClass, propertyToSerializerMap, obj, context) {
+    baseSerialize(serializerClass, propertyToSerializerMap, obj, context, isEmpty) {
         Object.entries(obj).forEach(([propertyName, value]) => {
-            if (value === null || value === undefined) {
+            // Remove property if not defined in the serializer map
+            if (!(propertyName in propertyToSerializerMap)) {
                 delete obj[propertyName];
                 return;
             }
 
-            if (propertyName in propertyToSerializerMap) {
-                const serializeDataFunc = propertyToSerializerMap[propertyName];
-                if (serializeDataFunc) {
-                    const serializeData = serializeDataFunc();
-                    const serializedValue = serializerClass[serializeData.serializeFunction]({
-                        obj: value,
-                        SerializerClass: serializeData.serializerClass,
-                        context
-                    });
-                    if (serializedValue === null || serializedValue === undefined) {
-                        delete obj[propertyName];
-                    } else if (Array.isArray(serializedValue) && serializedValue.length === 0) {
-                        delete obj[propertyName];
-                    } else {
-                        obj[propertyName] = serializedValue;
-                    }
-                }
-            } else {
-                // remove property if not defined in the serializer map
+            // Remove property if value is empty
+            if (isEmpty(value)) {
                 delete obj[propertyName];
+                return;
+            }
+
+            const serializeDataFunc = propertyToSerializerMap[propertyName];
+            if (!serializeDataFunc) {
+                return;
+            }
+
+            const serializeData = serializeDataFunc();
+            const serializedValue = serializerClass[serializeData.serializeFunction]({
+                obj: value,
+                SerializerClass: serializeData.serializerClass,
+                context
+            });
+
+            if (isEmpty(serializedValue)) {
+                delete obj[propertyName];
+            } else {
+                obj[propertyName] = serializedValue;
             }
         });
 
@@ -78,7 +82,11 @@ class BaseSerializer {
     writeSerialize(obj, context = {}) {
         if (!obj || typeof obj !== 'object') return {};
 
-        return this.baseSerialize(FhirResourceWriteSerializer, this.allPropertyToSerializerMap, obj, context);
+        const isEmptyFunction = (val) => {
+            return val === null || val === undefined || (Array.isArray(val) && val.length === 0);
+        };
+
+        return this.baseSerialize(FhirResourceWriteSerializer, this.allPropertyToSerializerMap, obj, context, isEmptyFunction);
     }
 
     /**
@@ -90,7 +98,11 @@ class BaseSerializer {
     normalize(obj, context = {}) {
         if (!obj || typeof obj !== 'object') return obj;
 
-        return this.baseSerialize(FhirResourceNormalizeSerializer, this.fhirPropertyToSerializerMap, obj, context);
+        const isEmptyFunction = (val) => {
+            return val === null || val === undefined;
+        };
+
+        return this.baseSerialize(FhirResourceNormalizeSerializer, this.fhirPropertyToSerializerMap, obj, context, isEmptyFunction);
     }
 
     /**

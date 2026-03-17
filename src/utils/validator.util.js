@@ -38,9 +38,6 @@ const fhirGeneratedValidator = new JSONValidator(generatedSchema, validatorConfi
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
 function validateResource ({ resourceBody, resourceName, path, resourceObj = null }) {
-    if (resourceObj && !(resourceObj instanceof Resource)) {
-        return fastValidateResource({ resourceBody, resourceName, path, resourceObj });
-    }
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -57,7 +54,15 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     }
 
     const errors = fhirGeneratedValidator.validate(resourceBody);
-    const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
+    let referenceErrors = null;
+
+    if (resourceObj) {
+        if (resourceObj instanceof Resource) {
+            referenceErrors = validateReferences(resourceObj);
+        } else {
+            referenceErrors = fastValidateReferences(resourceObj);
+        }
+    }
     let issue;
     if (errors && errors.length) {
         issue = errors.map((elm) => {
@@ -84,69 +89,6 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
         return new OperationOutcome({
             issue
         });
-    }
-
-    return null;
-}
-
-/**
- * @function fastValidateResource
- * @description - validates name is correct for resource body and resource body conforms to FHIR specification
- * @param {Object} resourceBody - payload of req.body
- * @param {string} resourceName - name of resource in url
- * @param {string} path - req.path from express
- * @param {Object} resourceObj - fhir resource object
- * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
- */
-function fastValidateResource({ resourceBody, resourceName, path, resourceObj = null }) {
-    if (resourceBody.resourceType !== resourceName) {
-        return {
-            issue: [
-                {
-                    severity: 'error',
-                    code: 'invalid',
-                    details: {
-                        text:
-                            `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
-                            ' ResourceType does not match the endpoint you are posting to.'
-                    }
-                }
-            ]
-        };
-    }
-
-    const errors = fhirGeneratedValidator.validate(resourceBody);
-    const referenceErrors = resourceObj ? fastValidateReferences(resourceObj) : null;
-    let issue;
-    if (errors && errors.length) {
-        issue = errors.map((elm) => {
-            return {
-                severity: 'error',
-                code: 'invalid',
-                details: {
-                    text: `${path} ${elm.message} :${JSON.stringify(elm.params)}: at position ${
-                        elm.dataPath ? elm.dataPath : 'root'
-                    }`
-                }
-            };
-        });
-    }
-    if (referenceErrors && referenceErrors.length) {
-        issue = issue || [];
-        issue.push(
-            ...referenceErrors.map((err) => ({
-                severity: 'error',
-                code: 'invalid',
-                details: {
-                    text: err
-                }
-            }))
-        );
-    }
-    if (issue && issue.length) {
-        return {
-            issue
-        };
     }
 
     return null;
