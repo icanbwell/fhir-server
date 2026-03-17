@@ -181,7 +181,7 @@ class MergeManager {
             );
 
             const resourceToValidate = deepcopy(patched_resource_incoming);
-            FhirResourceNormalizeSerializer.serialize(resourceToValidate);
+            FhirResourceNormalizeSerializer.serialize({obj: resourceToValidate});
 
             if (!validationOperationOutcome) {
                 validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
@@ -236,7 +236,7 @@ class MergeManager {
         }
 
         const resourceToValidate = deepcopy(resourceToMerge);
-        FhirResourceNormalizeSerializer.serialize(resourceToValidate);
+        FhirResourceNormalizeSerializer.serialize({obj: resourceToValidate});
 
         /**
          * Validate resource to create with fhir schema
