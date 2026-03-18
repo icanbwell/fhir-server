@@ -325,7 +325,7 @@ describe('JWT Bearer Strategy', () => {
                             personIdFromJwtToken: 'clientFhirPerson',
                             masterPersonIdFromJwtToken: 'bwellFhirPerson',
                             managingOrganizationId: 'org1',
-                            delegatedActor: null
+                            actor: null
                         }
                     });
                     resolve();
@@ -442,7 +442,7 @@ describe('JWT Bearer Strategy', () => {
                     });
                     expect(info).toBeTruthy();
                     expect(info.context).toBeTruthy();
-                    expect(info.context.delegatedActor).toStrictEqual({
+                    expect(info.context.actor).toStrictEqual({
                         reference: delegatedActorReference,
                         sub: 'delegated-sub-123'
                     });
@@ -725,7 +725,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeNull();
                     expect(user).toBeTruthy();
-                    expect(info.context.delegatedActor).toBeNull();
+                    expect(info.context.actor).toBeNull();
 
                     resolve();
                 } catch (assertionError) {
@@ -874,6 +874,10 @@ describe('JWT Bearer Strategy', () => {
             get externalAuthWellKnownUrls() {
                 return [];
             }
+
+            get validateDelegatedAccessToken() {
+                return false;
+            }
         }
 
         const configManager = new MockConfigManager();
@@ -894,7 +898,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeNull();
                     expect(user).toBeTruthy();
-                    expect(info.context.delegatedActor).toBeNull();
+                    expect(info.context.actor).toBeNull();
 
                     resolve();
                 } catch (assertionError) {
