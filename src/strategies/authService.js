@@ -219,7 +219,11 @@ class AuthService {
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
             try {
-                context.delegatedActor = this._getDelegatedActor({ jwt_payload });
+                context.actor = this._getDelegatedActor({ jwt_payload });
+                // if delegated actor exists, set userType to delegatedUser regardless of what the token says, as long as it's a user token. This is to prevent misuse of the userType claim in the token.
+                if (context.actor) {
+                    userType = AUTH_USER_TYPES.delegatedUser;
+                }
             } catch (error) {
                 logError('Error extracting delegated actor information from token', { error });
                 return done(null, false, { message: error.message });
