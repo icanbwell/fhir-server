@@ -125,14 +125,18 @@ class FhirRequestInfoBuilder {
             body: this.req.body,
             accept: accepts(this.req).types(),
             isUser: this.isUser,
+            userType: this.req.authInfo?.context?.userType,
             personIdFromJwtToken: this.personId,
             masterPersonIdFromJwtToken: this.req.authInfo?.context?.masterPersonIdFromJwtToken,
             managingOrganizationId: this.req.authInfo?.context?.managingOrganizationId,
             headers: headers,
             method: this.req.method,
             contentTypeFromHeader: headers['content-type'] ? contentType.parse(headers['content-type']) : null,
-            delegatedActorSub: this.req.authInfo?.context?.delegatedActor?.sub || null,
-            delegatedActor: this.req.authInfo?.context?.delegatedActor?.reference || null,
+            actor: this.req.authInfo?.context?.actor
+                ? {
+                    ...this.req.authInfo.context.actor
+                }
+                : null,
             ...overrides
         });
     }

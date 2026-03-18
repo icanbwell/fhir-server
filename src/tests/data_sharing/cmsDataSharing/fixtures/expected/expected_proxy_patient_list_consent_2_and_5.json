@@ -1,0 +1,168 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "birthDate": "2001-08-08",
+        "gender": "male",
+        "id": "person.08f1b73a-e27c-456d-8a61-277f164a9a57-1",
+        "meta": {
+          "versionId": "1",
+          "source": "test",
+          "security": [
+            {
+              "id": "e5a8040b-ba54-51e9-aaf0-f3b9cf680092",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "cms-proa-partner"
+            },
+            {
+              "id": "cb1171d5-a3d6-5841-a879-791d9c3061ba",
+              "system": "https://www.icanbwell.com/access",
+              "code": "cms-proa-partner"
+            },
+            {
+              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9",
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            },
+            {
+              "id": "9e5cf8a7-91e6-52c7-9742-13b601d69305",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "cms-proa-partner"
+            }
+          ]
+        },
+        "multipleBirthBoolean": false,
+        "name": [
+          {
+            "family": "family",
+            "given": [
+              "given2"
+            ]
+          }
+        ],
+        "resourceType": "Patient",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "1234567890",
+            "use": "home"
+          }
+        ],
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "08f1b73a-e27c-456d-8a61-277f164a9a57-2"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "08f1b73a-e27c-456d-8a61-277f164a9a57-2"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "birthDate": "2001-08-08",
+        "gender": "male",
+        "id": "person.08f1b73a-e27c-456d-8a61-277f164a9a57-1",
+        "meta": {
+          "versionId": "1",
+          "source": "test",
+          "security": [
+            {
+              "id": "c315acf5-1439-5d45-b294-7f69c6470e25",
+              "system": "https://www.icanbwell.com/owner",
+              "code": "cms-hie-partner"
+            },
+            {
+              "id": "c1c9e9b9-a6e6-5d74-b74c-6e0f19cf367a",
+              "system": "https://www.icanbwell.com/access",
+              "code": "cms-hie-partner"
+            },
+            {
+              "id": "df9a9d4c-f747-534a-93fc-0c100769aa0b",
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "hie"
+            },
+            {
+              "id": "ec2b8490-fe4b-5e1f-ab29-436a9b8490e5",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "cms-hie-partner"
+            }
+          ]
+        },
+        "multipleBirthBoolean": false,
+        "name": [
+          {
+            "family": "family",
+            "given": [
+              "given5"
+            ]
+          }
+        ],
+        "resourceType": "Patient",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "1234567890",
+            "use": "home"
+          }
+        ],
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "08f1b73a-e27c-456d-8a61-277f164a9a57-5"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "08f1b73a-e27c-456d-8a61-277f164a9a57-5"
+          }
+        ]
+      }
+    }
+  ],
+  "type": "searchset",
+  "resourceType": "Bundle",
+  "total": 0,
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Patient_4_0_0.find({'$and':[{'_uuid':{'$in':['08f1b73a-e27c-456d-8a61-277f164a9a57-1','08f1b73a-e27c-456d-8a61-277f164a9a57-2','08f1b73a-e27c-456d-8a61-277f164a9a57-5','person.08f1b73a-e27c-456d-8a61-277f164a9a57-1']}},{'_uuid':{'$in':['person.08f1b73a-e27c-456d-8a61-277f164a9a57-1','08f1b73a-e27c-456d-8a61-277f164a9a57-1','08f1b73a-e27c-456d-8a61-277f164a9a57-2','08f1b73a-e27c-456d-8a61-277f164a9a57-5']}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}},{'_uuid':{'$in':['08f1b73a-e27c-456d-8a61-277f164a9a57-2','08f1b73a-e27c-456d-8a61-277f164a9a57-5']}}]}, {}).sort({'_uuid':1}).limit(100)"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Patient_4_0_0"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'limit':100,'sort':{'_uuid':1}}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "['_uuid','meta.security.system','meta.security.code']"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptimization",
+        "display": "{'useTwoStepSearchOptimization':false}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryDatabase",
+        "code": "fhir"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  }
+}

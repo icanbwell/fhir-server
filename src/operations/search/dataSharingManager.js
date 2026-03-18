@@ -13,6 +13,7 @@ const { ReferenceParser } = require('../../utils/referenceParser');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { IdParser } = require('../../utils/idParser');
 const { ProaConsentManager } = require('./proaConsentManager');
+const { CmsConsentManager } = require('./cmsConsentManager');
 const { isUuid } = require('../../utils/uid.util');
 const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
 const httpContext = require('express-http-context');
@@ -26,19 +27,19 @@ class DataSharingManager {
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {ProaConsentManager} proaConsentManager
+     * @param {CmsConsentManager} cmsConsentManager
      * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor (
-        {
-            databaseQueryFactory,
-            configManager,
-            patientFilterManager,
-            searchQueryBuilder,
-            bwellPersonFinder,
-            proaConsentManager,
-            requestSpecificCache
-        }
-    ) {
+    constructor({
+        databaseQueryFactory,
+        configManager,
+        patientFilterManager,
+        searchQueryBuilder,
+        bwellPersonFinder,
+        proaConsentManager,
+        cmsConsentManager,
+        requestSpecificCache
+    }) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -73,6 +74,12 @@ class DataSharingManager {
          */
         this.proaConsentManager = proaConsentManager;
         assertTypeEquals(proaConsentManager, ProaConsentManager);
+
+        /**
+         * @type {CmsConsentManager}
+         */
+        this.cmsConsentManager = cmsConsentManager;
+        assertTypeEquals(cmsConsentManager, CmsConsentManager);
 
         /**
          * @type {RequestSpecificCache}
@@ -243,6 +250,52 @@ class DataSharingManager {
             query = { $or: [query, queryWithConsentedData] };
         } else if (queryWithHIETreatmentData) {
             query = { $or: [query, queryWithHIETreatmentData] };
+        }
+        return query;
+    }
+
+    /**
+     * Function to update the query considering CMS data sharing.
+     * @typedef {Object} UpdateQueryConsideringCmsDataSharing
+     * @property {string} resourceType Resource type
+     * @property {string[]} patientIds Set of patient ids from JWT token
+     * @property {object} query Query object
+     *
+     * @param {UpdateQueryConsideringCmsDataSharing} param
+     * @returns {Promise<object>} Updated query object considering CMS data sharing
+     */
+    async updateQueryConsideringCmsDataSharing({ resourceType, patientIds, query }) {
+        // CMS data sharing is only applicable for Patient resource type as of now.
+        if (resourceType !== 'Patient') {
+            return query;
+        }
+
+        const { patientReferenceToPersonUuid } = await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
+            patientReferences: patientIds
+                .filter((id) => !id.startsWith(PERSON_PROXY_PREFIX))
+                .map((id) => ({
+                    id,
+                    resourceType: 'Patient'
+                }))
+        });
+
+        const consentedPatientIds = await this.cmsConsentManager.getPatientIdsWithConsent(patientReferenceToPersonUuid);
+
+        if (consentedPatientIds.size === 0) {
+            return { id: '__invalid__' };
+        }
+
+        const uuidFilter = { _uuid: { $in: Array.from(consentedPatientIds) } };
+
+        if (query.$and && query.$and.length > 0) {
+            query.$and.push(uuidFilter);
+        } else {
+            query = {
+                $and: [
+                    query,
+                    uuidFilter
+                ]
+            }
         }
         return query;
     }

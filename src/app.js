@@ -142,7 +142,7 @@ function createApp({fnGetContainer}) {
             const username = req.authInfo?.context?.username ||
                 req.authInfo?.context?.subject ||
                 ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
-            const delegatedActor = req.authInfo?.context?.delegatedActor ??  undefined;
+            const actor = req.authInfo?.context?.actor ??  undefined;
             const finishTime = new Date().getTime();
             const logData = {
                 status: res.statusCode,
@@ -153,7 +153,7 @@ function createApp({fnGetContainer}) {
                 originService: req.headers['origin-service'],
                 scope: req.authInfo?.scope,
                 altId: username,
-                delegatedActor,
+                actor: actor,
                 requestCount: getRequestCount()
             };
             if (res.statusCode === 401 || res.statusCode === 403) {

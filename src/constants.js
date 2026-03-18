@@ -266,6 +266,10 @@ module.exports = {
         DATA_CONNECTION_VIEW_CONTROL: {
             SYSTEM: "http://www.icanbwell.com/consent-category",
             CODE: "dataConnectionViewControl"
+        },
+        CMS_DATA_SHARING: {
+            SYSTEM: "http://www.icanbwell.com/consent-category",
+            CODE: "cms:share:records"
         }
     },
     MONGO_ERROR: {
@@ -278,5 +282,9 @@ module.exports = {
     CACHE_STATUS: {
         HIT: 'Hit',
         MISS: 'Miss'
+    },
+    AUTH_USER_TYPES: {
+        cmsPartnerUser: 'cmsPartnerUser',
+        delegatedUser: 'delegatedUser'
     }
 };

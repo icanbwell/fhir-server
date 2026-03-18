@@ -1,4 +1,10 @@
 {
+    "resourceType": "Bundle",
+    "type": "document",
+    "identifier": {
+        "system": "urn:ietf:rfc:3986",
+        "value": "urn:uuid:4dcfd353-49fd-4ab0-b521-c8d57ced74d6"
+    },
     "entry": [
         {
             "resource": {
@@ -79,6 +85,29 @@
                             "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">There is no information available about the subject's medication use or administration.</div>"
                         },
                         "entry": []
+                    },
+                    {
+                        "title": "Social History",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "29762-2",
+                                    "display": "Social History"
+                                }
+                            ],
+                            "text": "Social History"
+                        },
+                        "text": {
+                            "status": "generated",
+                            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This list includes all information about the patient's social history, sorted by effective date (most recent first).</p> <table> <thead> <tr> <th>Name</th> <th>Code (System)</th> <th>Result</th> <th>Unit</th> <th>Comments</th> <th>Date</th> <th>Source</th> </tr> </thead> <tbody> <tr> <td>Alcohol Use</td> <td>74013-4 (LOINC)</td> <td>Social drinker</td> <td></td> <td>abc<br/>edf</td> <td>4/5/2024, 5:30 AM EDT - 6/5/2025, 5:30 AM EDT</td> <td>healthsystem1</td> </tr> </tbody> </table></div>"
+                        },
+                        "entry": [
+                            {
+                                "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
+                                "display": "Observation"
+                            }
+                        ]
                     }
                 ],
                 "text": {
@@ -88,12 +117,6 @@
             }
         }
     ],
-    "resourceType": "Bundle",
-    "type": "document",
-    "identifier": {
-        "system": "urn:ietf:rfc:3986",
-        "value": "urn:uuid:4dcfd353-49fd-4ab0-b521-c8d57ced74d6"
-    },
     "meta": {
         "tag": [
             {

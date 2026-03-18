@@ -265,12 +265,14 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers, operation: READ
             }
         );
+        const requestInfo = this.getRequestInfo(req);
         return await this.searchBundleOperation.searchBundleAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo,
                 parsedArgs,
                 resourceType,
-                useAggregationPipeline: false
+                useAggregationPipeline: false,
+                userType: requestInfo.userType
             });
     }
 
