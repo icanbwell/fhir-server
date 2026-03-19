@@ -83,7 +83,7 @@ class DelegatedActorRulesManager {
      *
      * @param {Object} params
      * @param {string} params.base_version
-     * @param {string | null} params.delegatedActor
+     * @param {import('./fhirRequestInfo').JwtActor} params.actor
      * @param {string} params.personIdFromJwtToken
      * @param {boolean} params._debug
      *
@@ -94,18 +94,13 @@ class DelegatedActorRulesManager {
      * } | null>}
      */
     async getFilteringRulesAsync({
-        delegatedActor,
+        actor,
         personIdFromJwtToken,
         base_version = '4_0_0',
         _debug = false
     }) {
-        if (!this.isUserDelegatedActor({ delegatedActor })) {
-            return null;
-        }
-
-        assertIsValid(personIdFromJwtToken, 'personIdFromJwtToken is required');
-        assertIsValid(delegatedActor, 'delegatedActor is required');
-        const cacheKey = `${HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_FILTERING_RULES_PREFIX}${base_version}-${personIdFromJwtToken}-${delegatedActor}`;
+        const actorReference = actor.reference;
+        const cacheKey = `${HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_FILTERING_RULES_PREFIX}${base_version}-${personIdFromJwtToken}-${actorReference}`;
 
         // If _debug is enabled, force a fresh DB fetch (no cache read).
         // Still cache the computed filteringRules so subsequent non-debug code paths can reuse it.
@@ -125,7 +120,7 @@ class DelegatedActorRulesManager {
             // Check Redis cache (generation-based key)
             if (this.configManager.readFromCacheForDataSharingAccessConsent) {
                 const redisCacheKey = await this.filteringRulesCacheKeyGenerator.generateCacheKeyAsync(
-                    personIdFromJwtToken, delegatedActor
+                    personIdFromJwtToken, actorReference
                 );
                 if (redisCacheKey) {
                     try {
@@ -153,7 +148,7 @@ class DelegatedActorRulesManager {
                 const { consentResources, queryItem, options } =
                     await this.fetchConsentResourcesAsync({
                         personIdFromJwtToken,
-                        delegatedActor,
+                        actorReference,
                         base_version,
                         _debug
                     });
@@ -170,7 +165,7 @@ class DelegatedActorRulesManager {
                 // Multiple consents found - ambiguous, deny access for safety
                 if (consentResources.length > 1) {
                     throw new ForbiddenError(
-                        `ambiguous permissions found for the actor ${delegatedActor}`
+                        `ambiguous permissions found for the actor ${actorReference}`
                     );
                 }
 
@@ -192,7 +187,7 @@ class DelegatedActorRulesManager {
         if (filteringRulesObj.filteringRules) {
             this._setConsentPolicyInContext(filteringRulesObj.filteringRules);
             const redisCacheKey = await this.filteringRulesCacheKeyGenerator.generateCacheKeyAsync(
-                personIdFromJwtToken, delegatedActor
+                personIdFromJwtToken, actorReference
             );
             if (redisCacheKey) {
                 try {
@@ -252,10 +247,10 @@ class DelegatedActorRulesManager {
         }
 
         return {
-            consentId: consent._uuid || consent.id,
-            consentVersion: consent.meta?.versionId || null,
-            provisionPeriodStart: consent.provision?.period?.start || null,
-            provisionPeriodEnd: consent.provision?.period?.end || null,
+            consentId: consent._uuid,
+            consentVersion: consent.meta?.versionId,
+            provisionPeriodStart: consent.provision?.period?.start,
+            provisionPeriodEnd: consent.provision?.period?.end,
             deniedSensitiveCategories
         };
     }
@@ -264,7 +259,7 @@ class DelegatedActorRulesManager {
      * Fetches active Consent resources for the delegated actor
      * @param {Object} params
      * @param {string} params.personIdFromJwtToken
-     * @param {string} params.delegatedActor
+     * @param {string} params.actorReference
      * @param {string} params.base_version
      * @param {boolean} params._debug
      * @returns {Promise<{
@@ -275,7 +270,7 @@ class DelegatedActorRulesManager {
      */
     async fetchConsentResourcesAsync({
         personIdFromJwtToken,
-        delegatedActor,
+        actorReference,
         base_version,
         _debug = false
     }) {
@@ -286,13 +281,15 @@ class DelegatedActorRulesManager {
                 'patient'
             );
 
-            // Parse delegatedActor reference and build actor reference filter
+            // Parse actor reference and build actor reference filter
             const {
                 id: actorId,
                 resourceType: actorResourceType,
                 sourceAssigningAuthority: actorSourceAssigningAuthority
-            } = ReferenceParser.parseReference(delegatedActor);
+            } = ReferenceParser.parseReference(actorReference);
 
+            assertIsValid(actorId, 'Actor reference must have an ID');
+            assertIsValid(actorResourceType, 'Actor reference must have a resource type');
             const actorReferenceFilter = SearchFilterFromReference.buildFilter(
                 [
                     {
@@ -404,7 +401,7 @@ class DelegatedActorRulesManager {
                 source: 'DelegatedActorRulesManager.fetchConsentResourcesAsync',
                 args: {
                     personIdFromJwtToken,
-                    delegatedActor
+                    actorReference
                 }
             });
         }
@@ -412,33 +409,18 @@ class DelegatedActorRulesManager {
 
     /**
      * Checks if a valid consent exists for the delegated actor
-     * @param {string} delegatedActor
+     * @param {import('./fhirRequestInfo').JwtActor} actor
      * @param {string} personIdFromJwtToken
      * @param {string} base_version
      * @returns {Promise<boolean>}
      */
-    async hasValidConsentAsync({ delegatedActor, personIdFromJwtToken, base_version }) {
+    async hasValidConsentAsync({ actor, personIdFromJwtToken, base_version }) {
         const result = await this.getFilteringRulesAsync({
-            delegatedActor,
+            actor,
             personIdFromJwtToken,
             base_version
         });
-        // null means not a delegated actor — no consent needed
-        if (result === null) {
-            return true;
-        }
-        // filteringRules is null when no consent found
         return result.filteringRules !== null;
-    }
-
-    /**
-     * Check if the user is a delegated actor
-     * @param {Object} params
-     * @param {string | null} params.delegatedActor
-     * @returns {boolean}
-     */
-    isUserDelegatedActor({ delegatedActor }) {
-        return this.configManager.enableDelegatedAccessFiltering && !!delegatedActor;
     }
 }
 

@@ -18,23 +18,23 @@ class FilteringRulesCacheKeyGenerator {
     /**
      * Gets the generation key for a person+actor pair
      * @param {string} personIdFromJwtToken
-     * @param {string} delegatedActor
+     * @param {string} actorReference
      * @returns {string}
      * @private
      */
-    _getGenerationKey(personIdFromJwtToken, delegatedActor) {
-        return `delegatedAccessFilteringRules:${personIdFromJwtToken}:${delegatedActor}:Generation`;
+    _getGenerationKey(personIdFromJwtToken, actorReference) {
+        return `delegatedAccessFilteringRules:${personIdFromJwtToken}:${actorReference}:Generation`;
     }
 
     /**
      * Gets the current generation, or initializes it if missing
      * @param {string} personIdFromJwtToken
-     * @param {string} delegatedActor
+     * @param {string} actorReference
      * @returns {Promise<number|undefined>}
      */
-    async getGenerationAsync(personIdFromJwtToken, delegatedActor) {
+    async getGenerationAsync(personIdFromJwtToken, actorReference) {
         try {
-            const generationKey = this._getGenerationKey(personIdFromJwtToken, delegatedActor);
+            const generationKey = this._getGenerationKey(personIdFromJwtToken, actorReference);
             const existing = await this.redisManager.getCacheAsync(generationKey);
             if (existing) {
                 const parsed = Number.parseInt(existing, 10);
@@ -53,15 +53,15 @@ class FilteringRulesCacheKeyGenerator {
      * Generates the full cache key with generation embedded.
      * Returns undefined if generation is unavailable (cache should be skipped).
      * @param {string} personIdFromJwtToken
-     * @param {string} delegatedActor
+     * @param {string} actorReference
      * @returns {Promise<string|undefined>}
      */
-    async generateCacheKeyAsync(personIdFromJwtToken, delegatedActor) {
-        const generation = await this.getGenerationAsync(personIdFromJwtToken, delegatedActor);
+    async generateCacheKeyAsync(personIdFromJwtToken, actorReference) {
+        const generation = await this.getGenerationAsync(personIdFromJwtToken, actorReference);
         if (generation === undefined) {
             return undefined;
         }
-        return `delegatedAccessFilteringRules:${personIdFromJwtToken}:${delegatedActor}:Gen:${generation}`;
+        return `delegatedAccessFilteringRules:${personIdFromJwtToken}:${actorReference}:Gen:${generation}`;
     }
 }
 

@@ -17,19 +17,15 @@ class DelegatedActorScopeManager {
     /**
      * Checks if the delegated actor has valid access
      * @param {Object} params
-     * @param {string | null} params.delegatedActor
+     * @param {import('../../utils/fhirRequestInfo').JwtActor} params.actor
      * @param {string} params.personIdFromJwtToken
      * @param {string} params.base_version
      * @param {string} params.accessRequested
      * @returns {Promise<boolean>}
      */
-    async isAccessAllowedAsync({delegatedActor, personIdFromJwtToken, base_version}) {
-        if (!this.delegatedActorRulesManager.isUserDelegatedActor({delegatedActor})) {
-            return true;
-        }
-
+    async isAccessAllowedAsync({actor, personIdFromJwtToken, base_version}) {
         return await this.delegatedActorRulesManager.hasValidConsentAsync({
-            delegatedActor,
+            actor,
             personIdFromJwtToken,
             base_version
         });

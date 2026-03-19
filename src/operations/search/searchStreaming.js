@@ -110,8 +110,6 @@ class SearchStreamingOperation {
             /** @type {string | null} */
             user,
             /** @type {string | null} */
-            userType,
-            /** @type {string | null} */
             scope,
             /** @type {string | null} */
             originalUrl,
@@ -168,7 +166,7 @@ class SearchStreamingOperation {
                     user,
                     scope,
                     isUser,
-                    userType,
+                    userType: requestInfo.userType,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,

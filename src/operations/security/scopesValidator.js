@@ -6,7 +6,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {PatientScopeManager} = require('./patientScopeManager');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const {RESOURCE_RESTRICTION_TAG} = require('../../constants');
+const {RESOURCE_RESTRICTION_TAG, AUTH_USER_TYPES} = require('../../constants');
 const {DelegatedActorScopeManager} = require('./delegatedActorScopeManager');
 
 class ScopesValidator {
@@ -70,9 +70,9 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             // Check delegated actor consent first
-            if (requestInfo.delegatedActor && this.configManager.enableDelegatedAccessFiltering) {
+            if (this.configManager.enableDelegatedAccessDetection && requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
                 const isAllowed = await this.delegatedActorScopeManager.isAccessAllowedAsync({
-                    delegatedActor: requestInfo.delegatedActor,
+                    actor: requestInfo.actor,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                     base_version: '4_0_0',
                     accessRequested

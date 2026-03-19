@@ -97,7 +97,7 @@ describe('DelegatedActorRulesManager Tests', () => {
             // Fetch consent resources with debug enabled
             const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
                 _debug: true
             });
@@ -136,7 +136,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
             const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
                 _debug: false
             });
@@ -157,7 +157,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
             const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
                 _debug: false
             });
@@ -178,7 +178,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
             const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
                 _debug: false
             });
@@ -199,7 +199,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
             const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
                 _debug: false
             });
@@ -220,7 +220,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
             const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
                 _debug: false
             });
@@ -241,7 +241,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
             const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
                 _debug: false
             });
@@ -257,26 +257,12 @@ describe('DelegatedActorRulesManager Tests', () => {
     });
 
     describe('getFilteringRulesAsync', () => {
-        test('should return null when no delegated actor provided', async () => {
-            await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
-
-            const result = await delegatedActorRulesManager.getFilteringRulesAsync({
-                delegatedActor: null,
-                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
-                base_version: '4_0_0',
-                _debug: false
-            });
-
-            expect(result).toBeNull();
-        });
-
         test('should return filteringRules as null when no consent found', async () => {
             const request = await createTestRequest();
             const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
 
             const result = await delegatedActorRulesManager.getFilteringRulesAsync({
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 base_version: '4_0_0',
                 _debug: false
@@ -301,7 +287,7 @@ describe('DelegatedActorRulesManager Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const result = await delegatedActorRulesManager.getFilteringRulesAsync({
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 base_version: '4_0_0',
                 _debug: false
@@ -329,7 +315,7 @@ describe('DelegatedActorRulesManager Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             const result = await delegatedActorRulesManager.getFilteringRulesAsync({
-                delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 base_version: '4_0_0',
                 _debug: false
@@ -362,7 +348,7 @@ describe('DelegatedActorRulesManager Tests', () => {
             // Use _debug: true to bypass Redis cache from prior tests
             await expect(
                 delegatedActorRulesManager.getFilteringRulesAsync({
-                    delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                    actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                     personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                     base_version: '4_0_0',
                     _debug: true
@@ -371,7 +357,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
             try {
                 await delegatedActorRulesManager.getFilteringRulesAsync({
-                    delegatedActor: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                    actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                     personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                     base_version: '4_0_0',
                     _debug: true
@@ -438,34 +424,11 @@ describe('DelegatedActorRulesManager Tests', () => {
             expect(filteringRules).toStrictEqual({
                 consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
                 consentVersion: '1',
-                provisionPeriodStart: null,
-                provisionPeriodEnd: null,
+                provisionPeriodStart: undefined,
+                provisionPeriodEnd: undefined,
                 deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
             });
         });
     });
 
-    describe('isUserDelegatedActor', () => {
-        test('should return true when enableDelegatedAccessFiltering is true and delegatedActor exists', async () => {
-            await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
-
-            const result = delegatedActorRulesManager.isUserDelegatedActor({
-                delegatedActor: 'RelatedPerson/123'
-            });
-
-            expect(result).toBe(true);
-        });
-
-        test('should return false when delegatedActor is null', async () => {
-            await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
-
-            const result = delegatedActorRulesManager.isUserDelegatedActor({
-                delegatedActor: null
-            });
-
-            expect(result).toBe(false);
-        });
-    });
 });
