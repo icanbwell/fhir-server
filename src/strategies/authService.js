@@ -218,15 +218,15 @@ class AuthService {
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
-            try {
-                context.actor = this._getDelegatedActor({ jwt_payload });
-                // if delegated actor exists, set userType to delegatedUser regardless of what the token says, as long as it's a user token. This is to prevent misuse of the userType claim in the token.
+            if (this.configManager.enableDelegatedAccessDetection) {
+                try {
+                    context.actor = this._getDelegatedActor({ jwt_payload });
+                } catch (error) {
+                    return done(null, false, { message: error.message });
+                }
                 if (context.actor) {
                     userType = AUTH_USER_TYPES.delegatedUser;
                 }
-            } catch (error) {
-                logError('Error extracting delegated actor information from token', { error });
-                return done(null, false, { message: error.message });
             }
         }
         if (userType) {
@@ -414,40 +414,35 @@ class AuthService {
      * @param {Object} params.jwt_payload
      * @returns {{ sub: string|null, reference: string } | null}
      */
+    /**
+     * @param {Object} params
+     * @param {Object} params.jwt_payload
+     * @returns {{sub: string|null, reference: string}|null|false} null if no actor, false if done() was called with 403
+     */
     _getDelegatedActor({ jwt_payload }) {
         const act = jwt_payload.act;
-
-        if (!act || typeof act !== 'object' || !act.reference) {
-            if (this.configManager.validateDelegatedAccessToken && act) {
-               throw new Error(`Invalid act claim: expected object with reference field.`);
-            }
+        if (!act) {
             return null;
         }
 
-        if (typeof act.reference !== 'string') {
-            if (this.configManager.validateDelegatedAccessToken) {
-                throw new Error(`Invalid act.reference format: ${act.reference}`);
-            }
+        // TODO: handle string act claims (future format)
+        if (typeof act === 'string') {
+            logInfo('Skipping act claim: string format not yet supported', { act });
             return null;
         }
 
-        if (!this.configManager.enableDelegatedAccessFiltering) {
-            return null;
+        const { resourceType, id } = typeof act === 'object' && typeof act.reference === 'string'
+            ? ReferenceParser.parseReference(act.reference)
+            : {};
+
+        if (resourceType === 'RelatedPerson' && id) {
+            return {
+                sub: act.sub || null,
+                reference: act.reference
+            };
         }
 
-        const { resourceType, id } = ReferenceParser.parseReference(act.reference);
-        if (!resourceType || !id) {
-            throw new Error(`Invalid act.reference format: ${act.reference}.`);
-        }
-
-        if (resourceType !== 'RelatedPerson') {
-            throw new Error(`Invalid act.reference: expected RelatedPerson reference but got ${resourceType}.`);
-        }
-
-        return {
-            sub: act.sub || null,
-            reference: act.reference
-        };
+        throw new Error(`Invalid act claim: expected {reference: "RelatedPerson/<id>"}. Got: ${JSON.stringify(act)}`);
     }
 
     /**

@@ -1126,12 +1126,8 @@ class ConfigManager {
         return parseInt(env.CLICKHOUSE_MAX_CONNECTIONS || String(DEFAULT_CLICKHOUSE.MAX_CONNECTIONS), 10);
     }
 
-    get enableDelegatedAccessFiltering() {
-        return isTrue(env.ENABLE_DELEGATED_ACCESS_FILTERING);
-    }
-
-    get validateDelegatedAccessToken() {
-        return isTrue(env.VALIDATE_DELEGATED_ACCESS_TOKEN);
+    get enableDelegatedAccessDetection() {
+        return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
     }
 }
 

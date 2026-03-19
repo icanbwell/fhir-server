@@ -324,8 +324,7 @@ describe('JWT Bearer Strategy', () => {
                             subject: 'jwt-subject',
                             personIdFromJwtToken: 'clientFhirPerson',
                             masterPersonIdFromJwtToken: 'bwellFhirPerson',
-                            managingOrganizationId: 'org1',
-                            actor: null
+                            managingOrganizationId: 'org1'
                         }
                     });
                     resolve();
@@ -411,7 +410,7 @@ describe('JWT Bearer Strategy', () => {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
 
-            get enableDelegatedAccessFiltering() {
+            get enableDelegatedAccessDetection() {
                 return true;
             }
         }
@@ -455,7 +454,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should reject non-RelatedPerson act.reference when filtering is enabled (401)', async () => {
+    test('should reject non-RelatedPerson act.reference when detection is enabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -509,7 +508,7 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            get enableDelegatedAccessFiltering() {
+            get enableDelegatedAccessDetection() {
                 return true;
             }
         }
@@ -533,7 +532,7 @@ describe('JWT Bearer Strategy', () => {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
                     expect(info).toBeDefined();
-                    expect(info.message).toContain('expected RelatedPerson reference but got Practitioner');
+                    expect(info.message).toContain('Invalid act claim: expected {reference: "RelatedPerson/<id>"}');
 
                     resolve();
                 } catch (assertionError) {
@@ -543,7 +542,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should reject invalid reference format when filtering is enabled (401)', async () => {
+    test('should reject invalid reference format when detection is enabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -615,7 +614,7 @@ describe('JWT Bearer Strategy', () => {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
 
-            get enableDelegatedAccessFiltering() {
+            get enableDelegatedAccessDetection() {
                 return true;
             }
         }
@@ -639,7 +638,7 @@ describe('JWT Bearer Strategy', () => {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
                     expect(info).toBeDefined();
-                    expect(info.message).toContain('Invalid act.reference format');
+                    expect(info.message).toContain('Invalid act claim: expected {reference: "RelatedPerson/<id>"}');
 
                     resolve();
                 } catch (assertionError) {
@@ -649,7 +648,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should ignore invalid act when filtering is disabled and authenticate normally', async () => {
+    test('should ignore invalid act when detection is disabled and authenticate normally', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -702,7 +701,7 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            get enableDelegatedAccessFiltering() {
+            get enableDelegatedAccessDetection() {
                 return false;
             }
         }
@@ -725,7 +724,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeNull();
                     expect(user).toBeTruthy();
-                    expect(info.context.actor).toBeNull();
+                    expect(info.context.actor).toBeFalsy();
 
                     resolve();
                 } catch (assertionError) {
@@ -735,7 +734,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should reject (401) when act claim has no reference field and validation is enabled', async () => {
+    test('should reject when act claim has no reference field and detection is enabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -788,7 +787,7 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            get validateDelegatedAccessToken() {
+            get enableDelegatedAccessDetection() {
                 return true;
             }
         }
@@ -812,7 +811,7 @@ describe('JWT Bearer Strategy', () => {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
                     expect(info).toBeDefined();
-                    expect(info.message).toContain('Invalid act claim: expected object with reference field');
+                    expect(info.message).toContain('Invalid act claim: expected {reference: "RelatedPerson/<id>"}');
 
                     resolve();
                 } catch (assertionError) {
@@ -822,7 +821,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should return null delegatedActor when act claim has no reference field and validation is disabled', async () => {
+    test('should return null actor when act claim has no reference field and detection is disabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -875,7 +874,7 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            get validateDelegatedAccessToken() {
+            get enableDelegatedAccessDetection() {
                 return false;
             }
         }
@@ -898,7 +897,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeNull();
                     expect(user).toBeTruthy();
-                    expect(info.context.actor).toBeNull();
+                    expect(info.context.actor).toBeFalsy();
 
                     resolve();
                 } catch (assertionError) {
