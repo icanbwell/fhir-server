@@ -437,7 +437,7 @@ describe('InternalAuditLog Tests', () => {
         });
 
         test('InternalAuditLog creates audit logs with delegated actor (act claim)', async () => {
-            const hintSpy = jest.spyOn(DatabaseCursor.prototype, 'hint').mockImplementation(() => {});
+            const hintSpy = jest.spyOn(DatabaseCursor.prototype, 'hint').mockReturnThis();
             process.env.ENABLE_DELEGATED_ACCESS_DETECTION = 'true';
             const request = await createTestRequest((container) => {
                 // Using unmocked audit logger to test creation of audit logs in db

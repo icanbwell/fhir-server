@@ -1131,7 +1131,10 @@ class ConfigManager {
     }
 
     get dataSharingAccessCodes() {
-        return env.DATA_SHARING_ACCESS_CONSENT_CODES ? env.DATA_SHARING_ACCESS_CONSENT_CODES.split(',') : [CONSENT_CATEGORY.DATA_SHARING_ACCESS.CODE];
+        return this._parseCommaSeparatedList(
+            env.DATA_SHARING_ACCESS_CONSENT_CODES,
+            [CONSENT_CATEGORY.DATA_SHARING_ACCESS.CODE]
+        );
     }
 
     get sensitiveCategorySystemIdentifier() {
