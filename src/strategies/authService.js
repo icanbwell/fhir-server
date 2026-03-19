@@ -12,7 +12,6 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
-const { ReferenceParser } = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -432,9 +431,9 @@ class AuthService {
 
         let isValidInput = true;
         // validate reference
-        isValidInput &= typeof act[this.requiredActorFields.reference] === 'string' && act[this.requiredActorFields.reference].startsWith('RelatedPerson/');
+        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' && act[this.requiredActorFields.reference].startsWith('RelatedPerson/');
         // validate sub
-        isValidInput &= typeof act[this.requiredActorFields.sub] === 'string';
+        isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
         if (!isValidInput) {
             logInfo('Invalid act claim: missing or invalid reference field or sub field', { act });
