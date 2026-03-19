@@ -1,13 +1,14 @@
-# Delegated Actor Consent Based Filtering (Upcoming Changes)
+# Delegated Actor Consent Based Filtering (WIP)
 
-A delegated access token is a patient-scoped token which has an `act` field indicating an actor acting on behalf of `clientFhirPersonId`.
+A delegated access token is a patient-scoped token which has an `act` and `sub` field indicating an actor acting on behalf of `clientFhirPersonId`.
 
 ```
 // JWT Payload
 {
   "clientFhirPersonId": <personId>,
   "act": {
-    "reference": <Reference to delegated actor>
+    "reference": "RelatedPerson/<id>",
+    "sub": "<sub claim>"
   }
   // rest of the payload
 }
@@ -21,9 +22,22 @@ When we access the patient data using a delegated access token, it will look up 
 
 Given below is the detailed process that will happen once a delegated token is detected.
 
+## Delegated Actor Detection
+
+When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled, the server inspects the JWT `act` claim during authentication:
+
+1. **No `act` claim**: proceeds normally (no delegated actor)
+2. **`act` is a string**: logged and skipped (future format, not yet supported)
+3. **`act` is an object with `reference: "RelatedPerson/<id>" and sub: "<sub>"`**: delegated actor is detected and set on `context.actor`
+4. **Any other format**: authentication fails (401) with message indicating the expected format
+
+When a delegated actor is detected, `userType` is set to `delegatedUser` regardless of what the token claims.
+
+When `ENABLE_DELEGATED_ACCESS_DETECTION` is disabled, the `act` claim is completely ignored.
+
 ## Delegated Actor Consent Fetching
 
-When **delegated access filtering** is enabled, the server looks up a single active `Consent` that ties:
+When a delegated actor is detected, the server looks up a single active `Consent` that ties:
 
 - grantor person (as a proxy `Patient/person.<personIdFromJwtToken>`)
 - grantee delegated actor (from the JWT `act.reference` reference)
@@ -52,9 +66,9 @@ After the query returns:
 - If **multiple Consents** are found: access is rejected as ambiguous.
 
 ### Error Cases
-- No active Consent Found: Forbidden 403 with error message: "actor {actor} doesn't have enough permissions to perform this action"
-- Multiple Conset Found: Forbidden 403 with error message: "ambiguous permissions found for the actor {actor}" 
-- Feature Flag `ENABLE_DELEGATED_ACCESS_FILTERING` disabled but still detecting any `act` field: 401 `Unauthorized: Delegated access not allowed` (Temporarily this error will only be thrown when `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled)
+- No active Consent found: Forbidden 403 — `"actor {actor} doesn't have enough permissions to perform this action"`
+- Multiple Consents found: Forbidden 403 — `"ambiguous permissions found for the actor {actor}"`
+- Invalid `act` claim format (when detection enabled): 401 Unauthorized — the `act` must be an object with `reference` and `sub` field.
 
 ## Building Filtering Rules
 
@@ -109,10 +123,12 @@ This correctly handles resources that may have **multiple** sensitive-category c
 - If **denied categories** exist: the filter is applied to exclude those resources.
 
 ## Audit Logging
-Audit logs will have the reference of delegated actor as the auditEvent.agent.
+When a delegated actor is present, the audit event contains **two agents**:
+- **Patient agent** (`requestor: false`): the patient on whose behalf the action is performed (`Patient/person.<personId>`)
+- **Delegated actor agent** (`requestor: true`): the actor from `act.reference`
+
+The `source.observer` references the delegated actor.
 
 ## Config
 
-- `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false (enables delegated access filtering).
-- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false (temporary: when enabled start detecting the `act` field. This is temporary to avoid any services to get impacted which are currently using `act` field in jwt)
-- sensitiveCategorySystemIdentifier: https://terminology.hl7.org/7.0.1/CodeSystem-v3-Confidentiality.html
+- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules, and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.

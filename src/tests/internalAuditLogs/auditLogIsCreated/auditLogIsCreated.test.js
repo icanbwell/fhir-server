@@ -12,6 +12,7 @@ const expectedAuditEvents1 = require('./fixtures/expected/expected_audit_events_
 const expectedAuditEvents2 = require('./fixtures/expected/expected_audit_events_2.json');
 const expectedAuditEvents3 = require('./fixtures/expected/expected_audit_events_3.json');
 const expectedPatientScopeAuditEvent = require('./fixtures/expected/expected_audit_event_patient_scope.json');
+const expectedDelegatedActorAuditEvent = require('./fixtures/expected/expected_audit_event_delegated_actor.json');
 
 const {
     commonBeforeEach,
@@ -431,6 +432,125 @@ describe('InternalAuditLog Tests', () => {
             delete latestLog._sourceId;
             delete latestLog.recorded;
             expect(latestLog).toStrictEqual(expectedPatientScopeAuditEvent);
+        });
+
+        test('InternalAuditLog creates audit logs with delegated actor (act claim)', async () => {
+            process.env.ENABLE_DELEGATED_ACCESS_DETECTION = 'true';
+            const request = await createTestRequest((container) => {
+                // Using unmocked audit logger to test creation of audit logs in db
+                container.register(
+                    'auditLogger',
+                    (c) =>
+                        new AuditLogger({
+                            postRequestProcessor: c.postRequestProcessor,
+                            databaseBulkInserter: c.databaseBulkInserter,
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager,
+                            auditEventKafkaProducer: c.auditEventKafkaProducer
+                        })
+                );
+                return container;
+            });
+            const container = getTestContainer();
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
+            /**
+             * @type {string}
+             */
+            const mongoCollectionName = 'AuditEvent_4_0_0';
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            const auditEventCollection = auditEventDb.collection(mongoCollectionName);
+
+            expect(await auditEventCollection.countDocuments()).toStrictEqual(0);
+
+            // create setup records with normal headers so patient-scoped read can find them
+            let resp = await request
+                .post(`/4_0_0/Patient/${patient.id}/$merge?validate=true`)
+                .send(patient)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post(`/4_0_0/Person/${person.id}/$merge?validate=true`)
+                .send(person)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .post(`/4_0_0/Observation/${observation.id}/$merge?validate=true`)
+                .send(observation)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+
+            const initialCount = await auditEventCollection.countDocuments();
+
+            // build headers with a delegated actor (act claim)
+            const delegatedHeaders = {
+                ...getHeadersWithCustomPayload({
+                    scope: 'patient/*.* user/*.* access/*.*',
+                    username: 'patient-123@example.com',
+                    clientFhirPersonId: person.id,
+                    clientFhirPatientId: patient.id,
+                    bwellFhirPersonId: person.id,
+                    bwellFhirPatientId: patient.id,
+                    sub: 'unique-identifier-123',
+                    token_use: 'access',
+                    act: {
+                        reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                        sub: 'related-person-sub-123'
+                    }
+                }),
+                Host: 'localhost:3000'
+            };
+
+            // read observation with delegated-actor patient-scoped headers
+           // now read it back using patient-scoped headers (to generate an AuditEvent under patient scope)
+            resp = await request.get(`/4_0_0/Observation/${observation.id}`).set(delegatedHeaders);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+
+            const logs = await auditEventCollection
+                .find({})
+                .sort({ 'meta.lastUpdated': -1, _id: -1 })
+                .toArray();
+            expect(logs.length).toStrictEqual(initialCount + 1);
+            const latestLog = logs[0];
+            delete latestLog.meta.lastUpdated;
+            delete latestLog._id;
+            delete latestLog.id;
+            delete latestLog._uuid;
+            delete latestLog._sourceId;
+            delete latestLog.recorded;
+            expect(latestLog).toStrictEqual(expectedDelegatedActorAuditEvent);
+            delete process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
         });
     });
 });

@@ -21,7 +21,7 @@ const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { AuditEventKafkaProducer } = require('./auditEventKafkaProducer');
 const { ConfigManager } = require('./configManager');
-const { PERSON_PROXY_PREFIX } = require('../constants');
+const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES } = require('../constants');
 const mutex = new Mutex();
 
 class AuditLogger {
@@ -123,16 +123,63 @@ class AuditLogger {
         /**
          * @type {string}
          */
-        let actorReference;
+        let patientOrPersonReference;
         /**
          * @type {string|null}
          */
         const alternateId = requestInfo.alternateUserId;
 
         if (isUser) {
-            actorReference = `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}`;
+            patientOrPersonReference = `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}`;
         } else {
-            actorReference = `Person/${requestInfo.user}`;
+            patientOrPersonReference = `Person/${requestInfo.user}`;
+        }
+
+        const hasDelegatedActor = requestInfo.userType === AUTH_USER_TYPES.delegatedUser;
+
+        /**
+         * @type {AuditEventAgent[]}
+         */
+        let agents;
+
+        if (hasDelegatedActor) {
+            agents = [
+                new AuditEventAgent({
+                    who: new Reference({
+                        reference: patientOrPersonReference
+                    }),
+                    altId: alternateId,
+                    requestor: false,
+                    network: new AuditEventNetwork({
+                        type: '2'
+                    })
+                }),
+                new AuditEventAgent({
+                    who: new Reference({
+                        reference: requestInfo.actor?.reference
+                    }),
+                    altId: requestInfo.actor?.sub,
+                    requestor: true,
+                    network: new AuditEventNetwork({
+                        address: requestInfo.remoteIpAddress,
+                        type: '2'
+                    })
+                })
+            ];
+        } else {
+            agents = [
+                new AuditEventAgent({
+                    who: new Reference({
+                        reference: patientOrPersonReference
+                    }),
+                    altId: alternateId,
+                    requestor: true,
+                    network: new AuditEventNetwork({
+                        address: requestInfo.remoteIpAddress,
+                        type: '2'
+                    })
+                })
+            ];
         }
 
         const resource = new AuditEvent({
@@ -157,23 +204,11 @@ class AuditLogger {
                 code: '110112',
                 display: 'Query'
             }),
-            agent: [
-                new AuditEventAgent({
-                    who: new Reference({
-                        reference: actorReference
-                    }),
-                    altId: alternateId,
-                    requestor: true,
-                    network: new AuditEventNetwork({
-                        address: requestInfo.remoteIpAddress,
-                        type: '2'
-                    })
-                })
-            ],
+            agent: agents,
             source: new AuditEventSource({
                 observer: new Reference(
                     {
-                        reference: actorReference
+                        reference: patientOrPersonReference
                     }
                 )
             }),

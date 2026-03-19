@@ -278,6 +278,7 @@ module.exports = {
         MISS: 'Miss'
     },
     AUTH_USER_TYPES: {
-        cmsPartnerUser: 'cmsPartnerUser'
+        cmsPartnerUser: 'cmsPartnerUser',
+        delegatedUser: 'delegatedUser'
     }
 };

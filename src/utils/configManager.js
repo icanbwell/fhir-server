@@ -1125,6 +1125,10 @@ class ConfigManager {
     get clickHouseMaxConnections() {
         return parseInt(env.CLICKHOUSE_MAX_CONNECTIONS || String(DEFAULT_CLICKHOUSE.MAX_CONNECTIONS), 10);
     }
+
+    get enableDelegatedAccessDetection() {
+        return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
+    }
 }
 
 module.exports = {

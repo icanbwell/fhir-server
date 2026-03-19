@@ -2,6 +2,12 @@ const { assertIsValid } = require('./assertType');
 const { isTrue } = require('./isTrue');
 
 /**
+ * @typedef {Object} JwtActor
+ * @property {string} sub - The subject of the actor
+ * @property {string} reference - A reference string that identifies the actor
+ */
+
+/**
  * Store information about the HTTP request
  */
 class FhirRequestInfo {
@@ -28,6 +34,7 @@ class FhirRequestInfo {
      * @param {Object} params.headers
      * @param {string} params.method
      * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
+     * @param {JwtActor|null} [params.actor]
      */
     constructor (
         {
@@ -50,7 +57,8 @@ class FhirRequestInfo {
             headers,
             method,
             contentTypeFromHeader,
-            alternateUserId
+            alternateUserId,
+            actor
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -135,6 +143,11 @@ class FhirRequestInfo {
          * @type {import('content-type').ContentType|null}
          */
         this.contentTypeFromHeader = contentTypeFromHeader;
+
+        /**
+         * @type {JwtActor|null}
+         */
+        this.actor = actor;
 
         /**
          * whether the client wants to use global ids

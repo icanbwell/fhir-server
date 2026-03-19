@@ -70,6 +70,10 @@ class AuthService {
             max: DEFAULT_CACHE_MAX_COUNT,
             ttl: DEFAULT_CACHE_EXPIRY_TIME
         };
+        this.requiredActorFields = {
+            reference: 'reference',
+            sub: 'sub'
+        };
 
         /**
          * @type {string}
@@ -82,7 +86,7 @@ class AuthService {
         this.cidCheckClientIds = this.configManager.authCidCheckClientIds;
 
         if (AuthService.jwksCache === undefined) {
-        AuthService.jwksCache = new LRUCache(this.cacheOptions);
+            AuthService.jwksCache = new LRUCache(this.cacheOptions);
         }
 
         if (AuthService.userInfoCache === undefined) {
@@ -217,6 +221,16 @@ class AuthService {
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
+            if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act) {
+                const result = this.processForDelegatedActor({ jwt_payload });
+                if (result.failure) {
+                    done(null, false);
+                    return;
+                } else if (result.actor) {
+                    context.actor = result.actor;
+                    userType = AUTH_USER_TYPES.delegatedUser;
+                }
+            }
         }
         if (userType) {
             if (!isUser) {
@@ -368,7 +382,7 @@ class AuthService {
      * @param {string} token
      * @returns {Promise<UserInfo|undefined>}
      */
-    async getUserInfoFromUserInfoEndpoint({jwt_payload, token}) {
+    async getUserInfoFromUserInfoEndpoint({ jwt_payload, token }) {
         const cacheKey = jwt_payload.iss && jwt_payload.sub && jwt_payload.cid ? `${jwt_payload.iss}-${jwt_payload.cid}-${jwt_payload.sub}` : null;
         if (cacheKey && AuthService.userInfoCache.has(cacheKey)) {
             return AuthService.userInfoCache.get(cacheKey);
@@ -395,6 +409,43 @@ class AuthService {
             }
         }
         return jwt_payload;
+    }
+
+    /**
+     * Extracts delegated actor information from the JWT act claim.
+     * @param {Object} params
+     * @param {Object} params.jwt_payload
+     * @returns {{actor: import('../utils/fhirRequestInfo').JwtActor|null, failure: boolean}} Response object containing the actor information and failure status
+     */
+    processForDelegatedActor({ jwt_payload }) {
+        const act = jwt_payload.act;
+        const response = {
+            actor: null,
+            failure: false
+        };
+        // TODO: handle string act claims (future format)
+        if (typeof act === 'string') {
+            logInfo('Skipping act claim: string format not yet supported', { act });
+            return response;
+        }
+
+        let isValidInput = true;
+        // validate reference
+        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' && act[this.requiredActorFields.reference].startsWith('RelatedPerson/');
+        // validate sub
+        isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
+
+        if (!isValidInput) {
+            logInfo('Invalid act claim: missing or invalid reference field or sub field', { act });
+            response.failure = true;
+            return response;
+        }
+
+        response.actor = {
+            reference: act[this.requiredActorFields.reference],
+            sub: act[this.requiredActorFields.sub]
+        };
+        return response;
     }
 
     /**
