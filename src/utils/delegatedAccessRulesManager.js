@@ -23,7 +23,7 @@ const { logError } = require('../operations/common/logging');
 const httpContext = require('express-http-context');
 
 /**
- * @typedef DelegatedActorFilteringRules
+ * @typedef DelegatedAccessFilteringRules
  * @property {string} consentId - ID of the consent resource
  * @property {string | null} consentVersion - Version of the consent resource
  * @property {string | null} provisionPeriodStart - Start date of the provision period
@@ -34,7 +34,7 @@ const httpContext = require('express-http-context');
 /**
  * Manager for handling filtering rules for delegated actors
  */
-class DelegatedActorRulesManager {
+class DelegatedAccessRulesManager {
     /**
      * @param {Object} params
      * @param {ConfigManager} params.configManager
@@ -88,7 +88,7 @@ class DelegatedActorRulesManager {
      * @param {boolean} params._debug
      *
      * @return {Promise<{
-     *  filteringRules: DelegatedActorFilteringRules | null,
+     *  filteringRules: DelegatedAccessFilteringRules | null,
      *  actorConsentQueries: QueryItem[],
      *  actorConsentQueryOptions: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]
      * } | null>}
@@ -106,7 +106,7 @@ class DelegatedActorRulesManager {
         // Still cache the computed filteringRules so subsequent non-debug code paths can reuse it.
         if (!_debug) {
             /**
-             * @type {DelegatedActorFilteringRules | null | undefined}
+             * @type {DelegatedAccessFilteringRules | null | undefined}
              */
             const cachedFilteringRulesObj = httpContext.get(cacheKey);
             if (cachedFilteringRulesObj !== undefined) {
@@ -142,7 +142,7 @@ class DelegatedActorRulesManager {
         }
 
         const filteringRulesObj = await this.customTracer.trace({
-            name: 'DelegatedActorRulesManager.getFilteringRulesAsync',
+            name: 'DelegatedAccessRulesManager.getFilteringRulesAsync',
             func: async () => {
                 // Fetch Consent resources from database
                 const { consentResources, queryItem, options } =
@@ -207,7 +207,7 @@ class DelegatedActorRulesManager {
 
     /**
      * Stores the consent policy URI in httpContext for audit logging
-     * @param {DelegatedActorFilteringRules} filteringRules
+     * @param {DelegatedAccessFilteringRules} filteringRules
      * @private
      */
     _setConsentPolicyInContext(filteringRules) {
@@ -222,7 +222,7 @@ class DelegatedActorRulesManager {
      * Parses a Consent resource to extract filtering rules
      * @param {Object} params
      * @param {Object} params.consent - The Consent resource
-     * @returns {DelegatedActorFilteringRules}
+     * @returns {DelegatedAccessFilteringRules}
      */
     parseConsentFilteringRules({ consent }) {
         /**
@@ -398,7 +398,7 @@ class DelegatedActorRulesManager {
             throw new RethrownError({
                 message: `Error while fetching Consent resources for delegated actor: ${error.message}`,
                 error,
-                source: 'DelegatedActorRulesManager.fetchConsentResourcesAsync',
+                source: 'DelegatedAccessRulesManager.fetchConsentResourcesAsync',
                 args: {
                     personIdFromJwtToken,
                     actorReference
@@ -425,5 +425,5 @@ class DelegatedActorRulesManager {
 }
 
 module.exports = {
-    DelegatedActorRulesManager
+    DelegatedAccessRulesManager
 };

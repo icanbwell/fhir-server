@@ -7,7 +7,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {PatientScopeManager} = require('./patientScopeManager');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {RESOURCE_RESTRICTION_TAG, AUTH_USER_TYPES} = require('../../constants');
-const {DelegatedActorScopeManager} = require('./delegatedActorScopeManager');
+const {DelegatedAccessScopeManager} = require('./delegatedAccessScopeManager');
 
 class ScopesValidator {
     /**
@@ -17,7 +17,7 @@ class ScopesValidator {
      * @param {ConfigManager} configManager
      * @param {PatientScopeManager} patientScopeManager
      * @param {PreSaveManager} preSaveManager
-     * @param {DelegatedActorScopeManager} delegatedActorScopeManager
+     * @param {DelegatedAccessScopeManager} delegatedAccessScopeManager
      */
     constructor({
                     scopesManager,
@@ -25,7 +25,7 @@ class ScopesValidator {
                     configManager,
                     patientScopeManager,
                     preSaveManager,
-                    delegatedActorScopeManager
+                    delegatedAccessScopeManager
                 }) {
         /**
          * @type {ScopesManager}
@@ -53,10 +53,10 @@ class ScopesValidator {
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
         /**
-         * @type {DelegatedActorScopeManager}
+         * @type {DelegatedAccessScopeManager}
          */
-        this.delegatedActorScopeManager = delegatedActorScopeManager;
-        assertTypeEquals(delegatedActorScopeManager, DelegatedActorScopeManager);
+        this.delegatedAccessScopeManager = delegatedAccessScopeManager;
+        assertTypeEquals(delegatedAccessScopeManager, DelegatedAccessScopeManager);
     }
 
     /**
@@ -71,7 +71,7 @@ class ScopesValidator {
         try {
             // Check delegated actor consent first
             if (this.configManager.enableDelegatedAccessDetection && requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
-                const isAllowed = await this.delegatedActorScopeManager.isAccessAllowedAsync({
+                const isAllowed = await this.delegatedAccessScopeManager.isAccessAllowedAsync({
                     actor: requestInfo.actor,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                     base_version: '4_0_0',

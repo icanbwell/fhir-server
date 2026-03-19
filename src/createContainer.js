@@ -133,9 +133,9 @@ const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
-const { DelegatedActorRulesManager } = require('./utils/delegatedActorRulesManager');
+const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { FilteringRulesCacheKeyGenerator } = require('./utils/filteringRulesCacheKeyGenerator');
-const { DelegatedActorScopeManager } = require('./operations/security/delegatedActorScopeManager');
+const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 
 /**
  * Creates a container and sets up all the services
@@ -216,15 +216,15 @@ const createContainer = function () {
     container.register('filteringRulesCacheKeyGenerator', (c) => new FilteringRulesCacheKeyGenerator({
         redisManager: c.redisManager
     }));
-    container.register('delegatedActorRulesManager', (c) => new DelegatedActorRulesManager({
+    container.register('delegatedAccessRulesManager', (c) => new DelegatedAccessRulesManager({
         configManager: c.configManager,
         databaseQueryFactory: c.databaseQueryFactory,
         filteringRulesCacheKeyGenerator: c.filteringRulesCacheKeyGenerator,
         redisManager: c.redisManager,
         customTracer: c.customTracer
     }));
-    container.register('delegatedActorScopeManager', (c) => new DelegatedActorScopeManager({
-        delegatedActorRulesManager: c.delegatedActorRulesManager
+    container.register('delegatedAccessScopeManager', (c) => new DelegatedAccessScopeManager({
+        delegatedAccessRulesManager: c.delegatedAccessRulesManager
     }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
@@ -232,7 +232,7 @@ const createContainer = function () {
         configManager: c.configManager,
         patientScopeManager: c.patientScopeManager,
         preSaveManager: c.preSaveManager,
-        delegatedActorScopeManager: c.delegatedActorScopeManager
+        delegatedAccessScopeManager: c.delegatedAccessScopeManager
     }));
     container.register('profileUrlMapper', (_c) => new ProfileUrlMapper());
 

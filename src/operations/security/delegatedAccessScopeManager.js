@@ -1,17 +1,17 @@
 const {assertTypeEquals} = require('../../utils/assertType');
-const {DelegatedActorRulesManager} = require('../../utils/delegatedActorRulesManager');
+const {DelegatedAccessRulesManager} = require('../../utils/delegatedAccessRulesManager');
 
-class DelegatedActorScopeManager {
+class DelegatedAccessScopeManager {
     /**
      * @param {Object} params
-     * @param {DelegatedActorRulesManager} params.delegatedActorRulesManager
+     * @param {DelegatedAccessRulesManager} params.delegatedAccessRulesManager
      */
-    constructor({delegatedActorRulesManager}) {
+    constructor({delegatedAccessRulesManager}) {
         /**
-         * @type {DelegatedActorRulesManager}
+         * @type {DelegatedAccessRulesManager}
          */
-        this.delegatedActorRulesManager = delegatedActorRulesManager;
-        assertTypeEquals(delegatedActorRulesManager, DelegatedActorRulesManager);
+        this.delegatedAccessRulesManager = delegatedAccessRulesManager;
+        assertTypeEquals(delegatedAccessRulesManager, DelegatedAccessRulesManager);
     }
 
     /**
@@ -24,7 +24,7 @@ class DelegatedActorScopeManager {
      * @returns {Promise<boolean>}
      */
     async isAccessAllowedAsync({actor, personIdFromJwtToken, base_version}) {
-        return await this.delegatedActorRulesManager.hasValidConsentAsync({
+        return await this.delegatedAccessRulesManager.hasValidConsentAsync({
             actor,
             personIdFromJwtToken,
             base_version
@@ -33,5 +33,5 @@ class DelegatedActorScopeManager {
 }
 
 module.exports = {
-    DelegatedActorScopeManager
+    DelegatedAccessScopeManager
 };

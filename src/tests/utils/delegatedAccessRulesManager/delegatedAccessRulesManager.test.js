@@ -30,7 +30,7 @@ const futureStartConsent = require('./fixtures/futureStartConsent.json');
 const noStartDateConsent = require('./fixtures/noStartDateConsent.json');
 const noEndDateConsent = require('./fixtures/noEndDateConsent.json');
 
-describe('DelegatedActorRulesManager Tests', () => {
+describe('DelegatedAccessRulesManager Tests', () => {
     let requestId;
     const MOCK_DATE = new Date('2025-12-24T20:00:00.000Z');
     let originalEnableDelegatedAccessFiltering;
@@ -83,9 +83,9 @@ describe('DelegatedActorRulesManager Tests', () => {
         test('should fetch active consent resources and validate query structure', async () => {
             const request = await createTestRequest();
             /**
-             * @type {DelegatedActorRulesManager}
+             * @type {DelegatedAccessRulesManager}
              */
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             // Insert consent resources
             let resp = await request
@@ -95,7 +95,7 @@ describe('DelegatedActorRulesManager Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // Fetch consent resources with debug enabled
-            const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
+            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
@@ -126,7 +126,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should return empty when only inactive consent exists', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -134,7 +134,7 @@ describe('DelegatedActorRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
+            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
@@ -147,7 +147,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should return empty when only expired consent exists', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -155,7 +155,7 @@ describe('DelegatedActorRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
+            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
@@ -168,7 +168,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should return empty when consent start date is in the future', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -176,7 +176,7 @@ describe('DelegatedActorRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
+            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
@@ -189,7 +189,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should return consent when period.start is not defined (open-ended start)', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -197,7 +197,7 @@ describe('DelegatedActorRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
+            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
@@ -210,7 +210,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should return consent when period.end is not defined (open-ended expiration)', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -218,7 +218,7 @@ describe('DelegatedActorRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
+            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
@@ -231,7 +231,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should return multiple consents when multiple valid consents exist', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -239,7 +239,7 @@ describe('DelegatedActorRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const result = await delegatedActorRulesManager.fetchConsentResourcesAsync({
+            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
                 base_version: '4_0_0',
@@ -259,9 +259,9 @@ describe('DelegatedActorRulesManager Tests', () => {
     describe('getFilteringRulesAsync', () => {
         test('should return filteringRules as null when no consent found', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
-            const result = await delegatedActorRulesManager.getFilteringRulesAsync({
+            const result = await delegatedAccessRulesManager.getFilteringRulesAsync({
                 actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 base_version: '4_0_0',
@@ -278,7 +278,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should parse filtering rules from consent with denied categories', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -286,7 +286,7 @@ describe('DelegatedActorRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const result = await delegatedActorRulesManager.getFilteringRulesAsync({
+            const result = await delegatedAccessRulesManager.getFilteringRulesAsync({
                 actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 base_version: '4_0_0',
@@ -306,7 +306,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should return only active consent when multiple consents with different statuses exist', async () => {
             const request = await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -314,7 +314,7 @@ describe('DelegatedActorRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            const result = await delegatedActorRulesManager.getFilteringRulesAsync({
+            const result = await delegatedAccessRulesManager.getFilteringRulesAsync({
                 actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                 personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                 base_version: '4_0_0',
@@ -335,9 +335,9 @@ describe('DelegatedActorRulesManager Tests', () => {
         test('should throw ForbiddenError when multiple active consents found', async () => {
             const request = await createTestRequest();
             /**
-             * @type {DelegatedActorRulesManager}
+             * @type {DelegatedAccessRulesManager}
              */
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             let resp = await request
                 .post('/4_0_0/Consent/$merge/?validate=true')
@@ -347,7 +347,7 @@ describe('DelegatedActorRulesManager Tests', () => {
 
             // Use _debug: true to bypass Redis cache from prior tests
             await expect(
-                delegatedActorRulesManager.getFilteringRulesAsync({
+                delegatedAccessRulesManager.getFilteringRulesAsync({
                     actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                     personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                     base_version: '4_0_0',
@@ -356,7 +356,7 @@ describe('DelegatedActorRulesManager Tests', () => {
             ).rejects.toThrow(/ambiguous permissions found for the actor/);
 
             try {
-                await delegatedActorRulesManager.getFilteringRulesAsync({
+                await delegatedAccessRulesManager.getFilteringRulesAsync({
                     actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
                     personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
                     base_version: '4_0_0',
@@ -372,9 +372,9 @@ describe('DelegatedActorRulesManager Tests', () => {
     describe('parseConsentFilteringRules', () => {
         test('should extract denied categories', async () => {
             await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
-            const filteringRules = delegatedActorRulesManager.parseConsentFilteringRules({
+            const filteringRules = delegatedAccessRulesManager.parseConsentFilteringRules({
                 consent: activeConsent
             });
 
@@ -390,14 +390,14 @@ describe('DelegatedActorRulesManager Tests', () => {
         test('should handle consent without nested provisions', async () => {
             await createTestRequest();
             /**
-             * @type {import('../../../utils/delegatedActorRulesManager').DelegatedActorRulesManager}
+             * @type {import('../../../utils/delegatedAccessRulesManager').DelegatedAccessRulesManager}
              */
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             const consentWithoutNestedProvisions = deepcopy(activeConsent);
             consentWithoutNestedProvisions.provision.provision = [];
 
-            const filteringRules = delegatedActorRulesManager.parseConsentFilteringRules({
+            const filteringRules = delegatedAccessRulesManager.parseConsentFilteringRules({
                 consent: consentWithoutNestedProvisions
             });
 
@@ -412,12 +412,12 @@ describe('DelegatedActorRulesManager Tests', () => {
 
         test('should return null for period dates when not present', async () => {
             await createTestRequest();
-            const delegatedActorRulesManager = getTestContainer().delegatedActorRulesManager;
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
 
             const consentWithoutPeriod = deepcopy(activeConsent);
             delete consentWithoutPeriod.provision.period;
 
-            const filteringRules = delegatedActorRulesManager.parseConsentFilteringRules({
+            const filteringRules = delegatedAccessRulesManager.parseConsentFilteringRules({
                 consent: consentWithoutPeriod
             });
 
