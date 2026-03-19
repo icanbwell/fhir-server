@@ -1,13 +1,14 @@
-# Delegated Actor Consent Based Filtering (Upcoming Changes)
+# Delegated Actor Consent Based Filtering (WIP)
 
-A delegated access token is a patient-scoped token which has an `act` field indicating an actor acting on behalf of `clientFhirPersonId`.
+A delegated access token is a patient-scoped token which has an `act` and `sub` field indicating an actor acting on behalf of `clientFhirPersonId`.
 
 ```
 // JWT Payload
 {
   "clientFhirPersonId": <personId>,
   "act": {
-    "reference": <Reference to delegated actor>
+    "reference": "RelatedPerson/<id>",
+    "sub": "<sub claim>"
   }
   // rest of the payload
 }
@@ -21,9 +22,22 @@ When we access the patient data using a delegated access token, it will look up 
 
 Given below is the detailed process that will happen once a delegated token is detected.
 
+## Delegated Actor Detection
+
+When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled, the server inspects the JWT `act` claim during authentication:
+
+1. **No `act` claim**: proceeds normally (no delegated actor)
+2. **`act` is a string**: logged and skipped (future format, not yet supported)
+3. **`act` is an object with `reference: "RelatedPerson/<id>" and sub: "<sub>"`**: delegated actor is detected and set on `context.actor`
+4. **Any other format**: authentication fails (401) with message indicating the expected format
+
+When a delegated actor is detected, `userType` is set to `delegatedUser` regardless of what the token claims.
+
+When `ENABLE_DELEGATED_ACCESS_DETECTION` is disabled, the `act` claim is completely ignored.
+
 ## Delegated Actor Consent Fetching
 
-When **delegated access filtering** is enabled, the server looks up a single active `Consent` that ties:
+When a delegated actor is detected, the server looks up a single active `Consent` that ties:
 
 - grantor person (as a proxy `Patient/person.<personIdFromJwtToken>`)
 - grantee delegated actor (from the JWT `act.reference` reference)
@@ -56,9 +70,7 @@ After the query returns:
 ### Error Cases
 - No active Consent found: Forbidden 403 — `"actor {actor} doesn't have enough permissions to perform this action"`
 - Multiple Consents found: Forbidden 403 — `"ambiguous permissions found for the actor {actor}"`
-- Invalid `act.reference` format (when filtering enabled): 401 Unauthorized — the `act.reference` must be a valid `ResourceType/id` string
-- Malformed `act` claim (missing `reference` field): 401 Unauthorized only when `VALIDATE_DELEGATED_ACCESS_TOKEN` is enabled; otherwise silently ignored
-- `ENABLE_DELEGATED_ACCESS_FILTERING` disabled: the `act` claim is completely ignored, no error is thrown
+- Invalid `act` claim format (when detection enabled): 401 Unauthorized — the `act` must be an object with `reference` and `sub` field.
 
 ## Building Filtering Rules
 
@@ -121,9 +133,4 @@ The `source.observer` references the delegated actor.
 
 ## Config
 
-- `ENABLE_DELEGATED_ACCESS_FILTERING`: true/false — **enables the delegated access logic**. When `false`, the `act` claim in the JWT is completely ignored and no delegated actor detection, consent lookup, or filtering occurs. When `true`, the server parses the `act.reference` field, performs consent lookups, applies filtering rules, and generates two-agent audit events.
-- `VALIDATE_DELEGATED_ACCESS_TOKEN`: true/false — **controls strict validation of the `act` claim format**. Only relevant when the `act` claim is present but malformed (e.g. missing `reference` field, or `reference` is not a string). When `true`, a malformed `act` claim causes authentication failure (401). When `false` and `ENABLE_DELEGATED_ACCESS_FILTERING` is `true`, a malformed `act` claim is silently ignored (the request proceeds without a delegated actor).
-- `DATA_SHARING_ACCESS_CONSENT_CODES`: comma-separated list of consent category codes used to identify data-sharing-access consents. Defaults to `dataSharingAccess`. Used in `category.coding` filter when querying for delegated actor consents.
-- `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER`: the system URI for sensitive data category codes in `meta.security`. Defaults to `https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category`.
-- `DELEGATED_ACCESS_FILTERING_RULES_CACHE_TTL_SECONDS`: TTL (in seconds) for caching filtering rules in Redis. Defaults to `300`.
-- `ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT`: true/false — **gates reading cached filtering rules from Redis**. Requires `ENABLE_REDIS` to also be `true`. When disabled, filtering rules are always fetched from the database (but still written to Redis for warming). When enabled, cached rules are read from Redis to avoid repeated database lookups.
+- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules, and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.

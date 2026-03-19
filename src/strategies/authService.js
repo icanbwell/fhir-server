@@ -12,7 +12,6 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
-const { ReferenceParser } = require('../utils/referenceParser');
 
 /**
  * @typedef {Object} UserInfo
@@ -70,6 +69,10 @@ class AuthService {
         this.cacheOptions = {
             max: DEFAULT_CACHE_MAX_COUNT,
             ttl: DEFAULT_CACHE_EXPIRY_TIME
+        };
+        this.requiredActorFields = {
+            reference: 'reference',
+            sub: 'sub'
         };
 
         /**
@@ -218,15 +221,15 @@ class AuthService {
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
-            try {
-                context.actor = this._getDelegatedActor({ jwt_payload });
-                // if delegated actor exists, set userType to delegatedUser regardless of what the token says, as long as it's a user token. This is to prevent misuse of the userType claim in the token.
-                if (context.actor) {
+            if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act) {
+                const result = this.processForDelegatedActor({ jwt_payload });
+                if (result.failure) {
+                    done(null, false);
+                    return;
+                } else if (result.actor) {
+                    context.actor = result.actor;
                     userType = AUTH_USER_TYPES.delegatedUser;
                 }
-            } catch (error) {
-                logError('Error extracting delegated actor information from token', { error });
-                return done(null, false, { message: error.message });
             }
         }
         if (userType) {
@@ -412,42 +415,37 @@ class AuthService {
      * Extracts delegated actor information from the JWT act claim.
      * @param {Object} params
      * @param {Object} params.jwt_payload
-     * @returns {{ sub: string|null, reference: string } | null}
+     * @returns {{actor: import('../utils/fhirRequestInfo').JwtActor|null, failure: boolean}} Response object containing the actor information and failure status
      */
-    _getDelegatedActor({ jwt_payload }) {
+    processForDelegatedActor({ jwt_payload }) {
         const act = jwt_payload.act;
-
-        if (!act || typeof act !== 'object' || !act.reference) {
-            if (this.configManager.validateDelegatedAccessToken && act) {
-               throw new Error(`Invalid act claim: expected object with reference field.`);
-            }
-            return null;
-        }
-
-        if (typeof act.reference !== 'string') {
-            if (this.configManager.validateDelegatedAccessToken) {
-                throw new Error(`Invalid act.reference format: ${act.reference}`);
-            }
-            return null;
-        }
-
-        if (!this.configManager.enableDelegatedAccessFiltering) {
-            return null;
-        }
-
-        const { resourceType, id } = ReferenceParser.parseReference(act.reference);
-        if (!resourceType || !id) {
-            throw new Error(`Invalid act.reference format: ${act.reference}.`);
-        }
-
-        if (resourceType !== 'RelatedPerson') {
-            throw new Error(`Invalid act.reference: expected RelatedPerson reference but got ${resourceType}.`);
-        }
-
-        return {
-            sub: act.sub || null,
-            reference: act.reference
+        const response = {
+            actor: null,
+            failure: false
         };
+        // TODO: handle string act claims (future format)
+        if (typeof act === 'string') {
+            logInfo('Skipping act claim: string format not yet supported', { act });
+            return response;
+        }
+
+        let isValidInput = true;
+        // validate reference
+        isValidInput &&= typeof act[this.requiredActorFields.reference] === 'string' && act[this.requiredActorFields.reference].startsWith('RelatedPerson/');
+        // validate sub
+        isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
+
+        if (!isValidInput) {
+            logInfo('Invalid act claim: missing or invalid reference field or sub field', { act });
+            response.failure = true;
+            return response;
+        }
+
+        response.actor = {
+            reference: act[this.requiredActorFields.reference],
+            sub: act[this.requiredActorFields.sub]
+        };
+        return response;
     }
 
     /**

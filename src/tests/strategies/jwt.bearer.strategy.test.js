@@ -324,8 +324,7 @@ describe('JWT Bearer Strategy', () => {
                             subject: 'jwt-subject',
                             personIdFromJwtToken: 'clientFhirPerson',
                             masterPersonIdFromJwtToken: 'bwellFhirPerson',
-                            managingOrganizationId: 'org1',
-                            actor: null
+                            managingOrganizationId: 'org1'
                         }
                     });
                     resolve();
@@ -411,7 +410,7 @@ describe('JWT Bearer Strategy', () => {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
 
-            get enableDelegatedAccessFiltering() {
+            get enableDelegatedAccessDetection() {
                 return true;
             }
         }
@@ -455,7 +454,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should reject non-RelatedPerson act.reference when filtering is enabled (401)', async () => {
+    test('should reject non-RelatedPerson act.reference when detection is enabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -509,7 +508,7 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            get enableDelegatedAccessFiltering() {
+            get enableDelegatedAccessDetection() {
                 return true;
             }
         }
@@ -532,9 +531,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeDefined();
-                    expect(info.message).toContain('expected RelatedPerson reference but got Practitioner');
-
+                    expect(info).toBeFalsy();
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -543,7 +540,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should reject invalid reference format when filtering is enabled (401)', async () => {
+    test('should reject invalid reference format when detection is enabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -615,7 +612,7 @@ describe('JWT Bearer Strategy', () => {
                 return ['https://example.com/.well-known/openid-configuration'];
             }
 
-            get enableDelegatedAccessFiltering() {
+            get enableDelegatedAccessDetection() {
                 return true;
             }
         }
@@ -638,9 +635,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeDefined();
-                    expect(info.message).toContain('Invalid act.reference format');
-
+                    expect(info).toBeFalsy();
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -649,7 +644,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should ignore invalid act when filtering is disabled and authenticate normally', async () => {
+    test('should ignore invalid act when detection is disabled and authenticate normally', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -702,7 +697,7 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            get enableDelegatedAccessFiltering() {
+            get enableDelegatedAccessDetection() {
                 return false;
             }
         }
@@ -725,7 +720,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeNull();
                     expect(user).toBeTruthy();
-                    expect(info.context.actor).toBeNull();
+                    expect(info.context.actor).toBeFalsy();
 
                     resolve();
                 } catch (assertionError) {
@@ -735,7 +730,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should reject (401) when act claim has no reference field and validation is enabled', async () => {
+    test('should reject when act claim has no reference field and detection is enabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -788,7 +783,7 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            get validateDelegatedAccessToken() {
+            get enableDelegatedAccessDetection() {
                 return true;
             }
         }
@@ -811,8 +806,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeDefined();
-                    expect(info.message).toContain('Invalid act claim: expected object with reference field');
+                    expect(info).toBeFalsy();
 
                     resolve();
                 } catch (assertionError) {
@@ -822,7 +816,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should return null delegatedActor when act claim has no reference field and validation is disabled', async () => {
+    test('should return null actor when act claim has no reference field and detection is disabled', async () => {
         const mockJwtPayload = {
             iss: 'https://example.com',
             sub: 'john',
@@ -875,7 +869,7 @@ describe('JWT Bearer Strategy', () => {
                 return [];
             }
 
-            get validateDelegatedAccessToken() {
+            get enableDelegatedAccessDetection() {
                 return false;
             }
         }
@@ -898,7 +892,92 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeNull();
                     expect(user).toBeTruthy();
-                    expect(info.context.actor).toBeNull();
+                    expect(info.context.actor).toBeFalsy();
+
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
+    test('should reject when act.sub is not present and detection is enabled', async () => {
+        const mockJwtPayload = {
+            iss: 'https://example.com',
+            sub: 'john',
+            client_id: 'testClientId',
+            username: 'testUser',
+            scope: 'patient/*.read access/*.read',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            token_use: 'access',
+            act: {
+                reference: 'RelatedPerson/8c655e20-e9fc-45f7-8803-b0fade71ff69'
+            }
+        };
+
+        const jwtWithActNoSub = jwt.sign(mockJwtPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const req = {
+            headers: {authorization: `Bearer ${jwtWithActNoSub}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+
+            get enableDelegatedAccessDetection() {
+                return true;
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeFalsy();
+                    expect(user).toBeFalsy();
 
                     resolve();
                 } catch (assertionError) {
