@@ -1,6 +1,6 @@
 # Delegated Actor Consent Based Filtering (WIP)
 
-A delegated access token is a patient-scoped token which has an `act` field indicating an actor acting on behalf of `clientFhirPersonId`.
+A delegated access token is a patient-scoped token which has an `act` and `sub` field indicating an actor acting on behalf of `clientFhirPersonId`.
 
 ```
 // JWT Payload
@@ -8,7 +8,7 @@ A delegated access token is a patient-scoped token which has an `act` field indi
   "clientFhirPersonId": <personId>,
   "act": {
     "reference": "RelatedPerson/<id>",
-    "sub": "<optional sub claim>"
+    "sub": "<sub claim>"
   }
   // rest of the payload
 }

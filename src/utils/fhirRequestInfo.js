@@ -2,6 +2,12 @@ const { assertIsValid } = require('./assertType');
 const { isTrue } = require('./isTrue');
 
 /**
+ * @typedef {Object} JwtActor
+ * @property {string} sub - The subject of the actor
+ * @property {string} reference - A reference string that identifies the actor
+ */
+
+/**
  * Store information about the HTTP request
  */
 class FhirRequestInfo {
@@ -28,7 +34,7 @@ class FhirRequestInfo {
      * @param {Object} params.headers
      * @param {string} params.method
      * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
-     * @param {{reference: string, sub: string|null}|null} [params.actor]
+     * @param {JwtActor|null} [params.actor]
      */
     constructor (
         {

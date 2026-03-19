@@ -71,6 +71,10 @@ class AuthService {
             max: DEFAULT_CACHE_MAX_COUNT,
             ttl: DEFAULT_CACHE_EXPIRY_TIME
         };
+        this.requiredActorFields = {
+            reference: 'reference',
+            sub: 'sub'
+        };
 
         /**
          * @type {string}
@@ -218,13 +222,13 @@ class AuthService {
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
-            if (this.configManager.enableDelegatedAccessDetection) {
-                try {
-                    context.actor = this._getDelegatedActor({ jwt_payload });
-                } catch (error) {
-                    return done(null, false, { message: error.message });
-                }
-                if (context.actor) {
+            if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act) {
+                const result = this.processForDelegatedActor({ jwt_payload });
+                if (result.failure) {
+                    done(null, false);
+                    return;
+                } else if (result.actor) {
+                    context.actor = result.actor;
                     userType = AUTH_USER_TYPES.delegatedUser;
                 }
             }
@@ -412,37 +416,37 @@ class AuthService {
      * Extracts delegated actor information from the JWT act claim.
      * @param {Object} params
      * @param {Object} params.jwt_payload
-     * @returns {{ sub: string|null, reference: string } | null}
+     * @returns {{actor: import('../utils/fhirRequestInfo').JwtActor|null, failure: boolean}} Response object containing the actor information and failure status
      */
-    /**
-     * @param {Object} params
-     * @param {Object} params.jwt_payload
-     * @returns {{sub: string|null, reference: string}|null|false} null if no actor, false if done() was called with 403
-     */
-    _getDelegatedActor({ jwt_payload }) {
+    processForDelegatedActor({ jwt_payload }) {
         const act = jwt_payload.act;
-        if (!act) {
-            return null;
-        }
-
+        const response = {
+            actor: null,
+            failure: false
+        };
         // TODO: handle string act claims (future format)
         if (typeof act === 'string') {
             logInfo('Skipping act claim: string format not yet supported', { act });
-            return null;
+            return response;
         }
 
-        const { resourceType, id } = typeof act === 'object' && typeof act.reference === 'string'
-            ? ReferenceParser.parseReference(act.reference)
-            : {};
+        let isValidInput = true;
+        // validate reference
+        isValidInput &= typeof act[this.requiredActorFields.reference] === 'string' && act[this.requiredActorFields.reference].startsWith('RelatedPerson/');
+        // validate sub
+        isValidInput &= typeof act[this.requiredActorFields.sub] === 'string';
 
-        if (resourceType === 'RelatedPerson' && id) {
-            return {
-                sub: act.sub || null,
-                reference: act.reference
-            };
+        if (!isValidInput) {
+            logInfo('Invalid act claim: missing or invalid reference field or sub field', { act });
+            response.failure = true;
+            return response;
         }
 
-        throw new Error(`Invalid act claim: expected {reference: "RelatedPerson/<id>"}. Got: ${JSON.stringify(act)}`);
+        response.actor = {
+            reference: act[this.requiredActorFields.reference],
+            sub: act[this.requiredActorFields.sub]
+        };
+        return response;
     }
 
     /**

@@ -531,9 +531,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeDefined();
-                    expect(info.message).toContain('Invalid act claim: expected {reference: "RelatedPerson/<id>"}');
-
+                    expect(info).toBeFalsy();
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -637,9 +635,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeDefined();
-                    expect(info.message).toContain('Invalid act claim: expected {reference: "RelatedPerson/<id>"}');
-
+                    expect(info).toBeFalsy();
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -810,8 +806,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toBeDefined();
-                    expect(info.message).toContain('Invalid act claim: expected {reference: "RelatedPerson/<id>"}');
+                    expect(info).toBeFalsy();
 
                     resolve();
                 } catch (assertionError) {
@@ -898,6 +893,91 @@ describe('JWT Bearer Strategy', () => {
                     expect(error).toBeNull();
                     expect(user).toBeTruthy();
                     expect(info.context.actor).toBeFalsy();
+
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
+    test('should reject when act.sub is not present and detection is enabled', async () => {
+        const mockJwtPayload = {
+            iss: 'https://example.com',
+            sub: 'john',
+            client_id: 'testClientId',
+            username: 'testUser',
+            scope: 'patient/*.read access/*.read',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            token_use: 'access',
+            act: {
+                reference: 'RelatedPerson/8c655e20-e9fc-45f7-8803-b0fade71ff69'
+            }
+        };
+
+        const jwtWithActNoSub = jwt.sign(mockJwtPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const req = {
+            headers: {authorization: `Bearer ${jwtWithActNoSub}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+
+            get enableDelegatedAccessDetection() {
+                return true;
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeFalsy();
+                    expect(user).toBeFalsy();
 
                     resolve();
                 } catch (assertionError) {
