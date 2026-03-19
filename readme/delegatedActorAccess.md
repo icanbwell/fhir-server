@@ -28,7 +28,7 @@ When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled, the server inspects the JWT
 
 1. **No `act` claim**: proceeds normally (no delegated actor)
 2. **`act` is a string**: logged and skipped (future format, not yet supported)
-3. **`act` is an object with `reference: "RelatedPerson/<id>"`**: delegated actor is detected and set on `context.actor`
+3. **`act` is an object with `reference: "RelatedPerson/<id>" and sub: "<sub>"`**: delegated actor is detected and set on `context.actor`
 4. **Any other format**: authentication fails (401) with message indicating the expected format
 
 When a delegated actor is detected, `userType` is set to `delegatedUser` regardless of what the token claims.
@@ -68,7 +68,7 @@ After the query returns:
 ### Error Cases
 - No active Consent found: Forbidden 403 — `"actor {actor} doesn't have enough permissions to perform this action"`
 - Multiple Consents found: Forbidden 403 — `"ambiguous permissions found for the actor {actor}"`
-- Invalid `act` claim format (when detection enabled): 401 Unauthorized — the `act` must be an object with `reference` set to a valid `RelatedPerson/<id>` string
+- Invalid `act` claim format (when detection enabled): 401 Unauthorized — the `act` must be an object with `reference` and `sub` field.
 
 ## Building Filtering Rules
 

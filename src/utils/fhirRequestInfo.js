@@ -145,9 +145,9 @@ class FhirRequestInfo {
         this.contentTypeFromHeader = contentTypeFromHeader;
 
         /**
-         * @type {{reference: string|null, sub: string|null}|null}
+         * @type {JwtActor|null}
          */
-        this.actor = actor || null;
+        this.actor = actor;
 
         /**
          * whether the client wants to use global ids
