@@ -42,6 +42,7 @@ const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
 const { BadRequestError } = require('../utils/httpErrors');
 const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHandlerFactory');
 const { BaseResponseHandler } = require('../utils/responseHandler/baseResponseHandler');
+const { CMSManager } = require('./security/cmsManager');
 
 class FhirOperationsManager {
     /**
@@ -67,6 +68,7 @@ class FhirOperationsManager {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ConfigManager} configManager
+     * @param {CMSManager} cmsManager
      */
     constructor(
         {
@@ -90,7 +92,8 @@ class FhirOperationsManager {
             exportByIdOperation,
             r4ArgsParser,
             queryRewriterManager,
-            configManager
+            configManager,
+            cmsManager
         }
     ) {
         /**
@@ -201,6 +204,11 @@ class FhirOperationsManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {CMSManager}
+         */
+        this.cmsManager = cmsManager;
     }
 
     /**
@@ -252,6 +260,7 @@ class FhirOperationsManager {
      * @return {Resource[] | Resource} array of resources
      */
     async search(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'search' });
         /**
          * combined args
          * @type {Object}
@@ -285,6 +294,7 @@ class FhirOperationsManager {
      * @return {Resource[] | Resource} array of resources
      */
     async searchStreaming(args, {req, res}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'search' });
         /**
          * combined args
          * @type {Object}
@@ -439,6 +449,7 @@ class FhirOperationsManager {
      * @returns {Promise<Resource | null | undefined>}
      */
     async searchById(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'searchById' });
         /**
          * combined args
          * @type {Object}
@@ -469,6 +480,7 @@ class FhirOperationsManager {
      * @returns {Promise<Resource>}
      */
     async create(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'create' });
         /**
          * combined args
          * @type {Object}
@@ -504,6 +516,7 @@ class FhirOperationsManager {
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
     async update(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'update' });
         /**
          * combined args
          * @type {Object}
@@ -536,6 +549,7 @@ class FhirOperationsManager {
      * @return {Promise<Resource | Resource[] | void>}
      */
     async merge(args, {req, res}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'merge' });
         // Combine args
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({req, combined_args});
@@ -579,12 +593,20 @@ class FhirOperationsManager {
      * @returns {Promise<Bundle | undefined>}
      */
     async everything(args, {req, res}, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo, resourceType, operation: 'everything' });
+
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({req, combined_args});
+
+        this.cmsManager.verifyNotProxyPatientId({
+            requestInfo,
+            patientId: combined_args.id || combined_args._id
+        });
 
         // map Person GET $everything to Patient GET $everything
         if (resourceType === 'Person' && req.method === 'GET') {
@@ -607,10 +629,8 @@ class FhirOperationsManager {
             }
         );
 
-        /**
-         * @type {FhirRequestInfo}
-         */
-        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.sanitizeEverythingParams({ requestInfo, parsedArgs });
+
         if (shouldStreamResponse(req)) {
             /**
              * response streamer to use
@@ -689,6 +709,7 @@ class FhirOperationsManager {
      * @returns {Promise<Bundle|undefined>}
      */
     async summary(args, {req, res}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'summary' });
         /**
          * combined args
          * @type {Object}
@@ -753,6 +774,7 @@ class FhirOperationsManager {
      * @returns {Promise<{deleted: number}>}
      */
     async remove(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'remove' });
         /**
          * combined args
          * @type {Object}
@@ -813,6 +835,7 @@ class FhirOperationsManager {
      * @returns {Promise<any | undefined>}
      */
     async searchByVersionId(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'searchByVersionId' });
         /**
          * combined args
          * @type {Object}
@@ -844,6 +867,7 @@ class FhirOperationsManager {
      * @returns {Promise<any>}
      */
     async history(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'history' });
         /**
          * combined args
          * @type {Object}
@@ -876,6 +900,7 @@ class FhirOperationsManager {
      * @returns { Promise<any | undefined>}
      */
     async historyById(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'historyById' });
         /**
          * combined args
          * @type {Object}
@@ -906,6 +931,7 @@ class FhirOperationsManager {
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
     async patch(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'patch' });
         /**
          * combined args
          * @type {Object}
@@ -936,6 +962,7 @@ class FhirOperationsManager {
      * @returns {Promise<Resource>}
      */
     async validate(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'validate' });
         /**
          * combined args
          * @type {Object}
@@ -1039,6 +1066,7 @@ class FhirOperationsManager {
      * @returns {Promise<Resource>}
      */
     async expand(args, {req}, resourceType) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'expand' });
         // to be enabled after operation is updated
         return {};
         // /**
@@ -1071,6 +1099,7 @@ class FhirOperationsManager {
      * @return {Promise<Resource | Resource[]>}
      */
     async export(args, {req}) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType: 'export', operation: 'export' });
         /**
          * combined args
          * @type {Object}
@@ -1092,6 +1121,7 @@ class FhirOperationsManager {
      * @return {Promise<Resource | Resource[]>}
      */
     async exportById(args, {req}) {
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType: 'export', operation: 'exportById' });
         /**
          * combined args
          * @type {Object}

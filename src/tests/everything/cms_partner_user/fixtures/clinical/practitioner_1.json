@@ -1,0 +1,12 @@
+{
+  "resourceType": "Practitioner",
+  "id": "ee47139a-7930-4fc9-85da-e3f2ca3a32a5",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" }
+    ]
+  },
+  "name": [{ "family": "Smith", "given": ["Dr"] }]
+}

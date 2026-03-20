@@ -1,0 +1,32 @@
+{
+  "clinicalResources": [
+    "AllergyIntolerance",
+    "CarePlan",
+    "CareTeam",
+    "Condition",
+    "Coverage",
+    "Device",
+    "DiagnosticReport",
+    "DocumentReference",
+    "Encounter",
+    "Goal",
+    "Immunization",
+    "Medication",
+    "MedicationDispense",
+    "MedicationRequest",
+    "Observation",
+    "Patient",
+    "Procedure",
+    "Provenance",
+    "QuestionnaireResponse",
+    "RelatedPerson",
+    "ServiceRequest",
+    "Specimen"
+  ],
+  "nonClinicalResources": [
+    "Location",
+    "Organization",
+    "Practitioner",
+    "PractitionerRole"
+  ]
+}

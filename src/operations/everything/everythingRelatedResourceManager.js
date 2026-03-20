@@ -2,6 +2,8 @@ const resourcesMap = require('./generated.resource_types.json');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { addElementsToSet } = require('../../utils/list.util');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
+const uscdiResourcesMap = require('./uscdi_resource_types.json');
+const { AUTH_USER_TYPES } = require('../../constants');
 
 /**
  * @type {Record<string, string[]>}
@@ -11,6 +13,8 @@ const requiredRsourcesMap =
 
 const nonClinicaResourcesSet = new Set(resourcesMap.nonClinicalResources);
 const clinicalResourcesSet = new Set(resourcesMap.clinicalResources);
+const uscdiClinicalResourcesSet = new Set(uscdiResourcesMap.clinicalResources);
+const uscdiNonClinicalResourcesSet = new Set(uscdiResourcesMap.nonClinicalResources);
 
 class EverythingRelatedResourceManager {
     /**
@@ -21,13 +25,31 @@ class EverythingRelatedResourceManager {
      *
      * @param {EverythingRelatedResourceManagerConstructor} options
      */
-    constructor({ resourceFilterList, everythingRelatedResourceMapper }) {
+    constructor({ resourceFilterList, everythingRelatedResourceMapper, userType }) {
         /**
          * @type {boolean}
          */
         this._sendAllResources = true;
 
-        if (resourceFilterList) {
+        if (userType === AUTH_USER_TYPES.cmsPartnerUser) {
+            // CMS partner users are restricted to USCDI v3 resources
+            this._sendAllResources = false;
+            this.clinicalResources = new Set();
+            this.nonClinicalResources = new Set();
+
+            if (resourceFilterList) {
+                for (const res of resourceFilterList) {
+                    if (uscdiClinicalResourcesSet.has(res)) {
+                        this.clinicalResources.add(res);
+                    } else if (uscdiNonClinicalResourcesSet.has(res)) {
+                        this.nonClinicalResources.add(res);
+                    }
+                }
+            } else {
+                addElementsToSet(this.clinicalResources, uscdiClinicalResourcesSet);
+                addElementsToSet(this.nonClinicalResources, uscdiNonClinicalResourcesSet);
+            }
+        } else if (resourceFilterList) {
             this._sendAllResources = false;
             /**
              * @type {Set<string> | undefined}

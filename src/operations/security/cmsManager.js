@@ -1,0 +1,74 @@
+const { ForbiddenError } = require('../../utils/httpErrors');
+const { AUTH_USER_TYPES, CMS_PARTNER_ACCESS, PERSON_PROXY_PREFIX } = require('../../constants');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+
+class CMSManager {
+    /**
+     * Returns whether the given request is from a CMS partner user
+     * @param {FhirRequestInfo} requestInfo
+     * @returns {boolean}
+     */
+    isCmsPartnerUser(requestInfo) {
+        return requestInfo?.userType === AUTH_USER_TYPES.cmsPartnerUser;
+    }
+
+    /**
+     * Verifies that a CMS partner user has access to the given operation and resource type.
+     * Throws ForbiddenError if access is denied.
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} resourceType
+     * @param {string} operation
+     */
+    verifyAccess({ requestInfo, resourceType, operation }) {
+        if (!this.isCmsPartnerUser(requestInfo)) {
+            return;
+        }
+
+        if (!CMS_PARTNER_ACCESS.ALLOWED_OPERATIONS.includes(operation) ||
+            !CMS_PARTNER_ACCESS.ALLOWED_RESOURCE_TYPES.includes(resourceType)) {
+            throw new ForbiddenError(
+                `CMS partner user does not have access to ${resourceType} ${operation}`
+            );
+        }
+    }
+
+    /**
+     * Verifies CMS partner user is not using a proxy patient ID (person.{id}).
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} patientId
+     */
+    verifyNotProxyPatientId({ requestInfo, patientId }) {
+        if (!this.isCmsPartnerUser(requestInfo)) {
+            return;
+        }
+
+        if (patientId && patientId.startsWith(PERSON_PROXY_PREFIX)) {
+            throw new ForbiddenError(
+                'CMS partner user cannot use proxy patient ID in $everything'
+            );
+        }
+    }
+
+    /**
+     * Strips restricted query args from parsedArgs for CMS partner users.
+     * Args in CMS_PARTNER_ACCESS.RESTRICTED_EVERYTHING_PARAMS are removed.
+     * @param {FhirRequestInfo} requestInfo
+     * @param {ParsedArgs} parsedArgs
+     */
+    sanitizeEverythingParams({ requestInfo, parsedArgs }) {
+        if (!this.isCmsPartnerUser(requestInfo)) {
+            return;
+        }
+
+        for (const item of [...parsedArgs.parsedArgItems]) {
+            if (CMS_PARTNER_ACCESS.RESTRICTED_EVERYTHING_PARAMS.includes(item.queryParameter)) {
+                parsedArgs.remove(item.queryParameter);
+                parsedArgs[item.queryParameter] = null;
+            }
+        }
+
+    }
+}
+
+module.exports = { CMSManager };
