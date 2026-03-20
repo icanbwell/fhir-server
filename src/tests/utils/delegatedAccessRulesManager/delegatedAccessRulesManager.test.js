@@ -29,6 +29,7 @@ const aboutToExpireConsent = require('./fixtures/aboutToExpireConsent.json');
 const futureStartConsent = require('./fixtures/futureStartConsent.json');
 const noStartDateConsent = require('./fixtures/noStartDateConsent.json');
 const noEndDateConsent = require('./fixtures/noEndDateConsent.json');
+const noPeriodConsent = require('./fixtures/noPeriodConsent.json');
 
 describe('DelegatedAccessRulesManager Tests', () => {
     let requestId;
@@ -227,6 +228,26 @@ describe('DelegatedAccessRulesManager Tests', () => {
 
             expect(result.consentResources).toHaveLength(1);
             expect(result.consentResources[0].id).toBe('7d8e9f0a-6b5c-4d3e-2a1b-0c9d8e7f6a5b');
+        });
+
+        test('should return empty when consent has no period (neither start nor end)', async () => {
+            const request = await createTestRequest();
+            const delegatedAccessRulesManager = getTestContainer().delegatedAccessRulesManager;
+
+            let resp = await request
+                .post('/4_0_0/Consent/$merge/?validate=true')
+                .send(noPeriodConsent)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const result = await delegatedAccessRulesManager.fetchConsentResourcesAsync({
+                personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                actorReference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7',
+                base_version: '4_0_0',
+                _debug: false
+            });
+
+            expect(result.consentResources).toHaveLength(0);
         });
 
         test('should return multiple consents when multiple valid consents exist', async () => {

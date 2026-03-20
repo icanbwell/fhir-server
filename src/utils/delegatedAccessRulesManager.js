@@ -306,6 +306,13 @@ class DelegatedAccessRulesManager {
                             }
                         }
                     },
+                    // At least one of start or end must exist (FHIR period requires at least one)
+                    {
+                        $or: [
+                            { 'provision.period.start': { $exists: true } },
+                            { 'provision.period.end': { $exists: true } }
+                        ]
+                    },
                     // Period start must not be in the future OR not exist
                     {
                         $or: [
