@@ -72,9 +72,7 @@ class ScopesValidator {
             if (this.configManager.enableDelegatedAccessDetection && requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
                 const isAllowed = await this.delegatedAccessScopeManager.isAccessAllowedAsync({
                     actor: requestInfo.actor,
-                    personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                    base_version: '4_0_0',
-                    accessRequested
+                    personIdFromJwtToken: requestInfo.personIdFromJwtToken
                 });
                 if (!isAllowed) {
                     return new ForbiddenError(

@@ -210,7 +210,7 @@ class DelegatedAccessRulesManager {
      */
     _setConsentPolicyInContext(filteringRules) {
         const { consentId, consentVersion } = filteringRules;
-        const consentPolicy = `Consent/${consentId}?version=${consentVersion}`
+        const consentPolicy = `Consent/${consentId}?version=${consentVersion}`;
         httpContext.set(HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_CONSENT_POLICY, consentPolicy);
     }
 
@@ -407,14 +407,12 @@ class DelegatedAccessRulesManager {
      * Checks if a valid consent exists for the delegated actor
      * @param {import('./fhirRequestInfo').JwtActor} actor
      * @param {string} personIdFromJwtToken
-     * @param {string} base_version
      * @returns {Promise<boolean>}
      */
-    async hasValidConsentAsync({ actor, personIdFromJwtToken, base_version }) {
+    async hasValidConsentAsync({ actor, personIdFromJwtToken }) {
         const result = await this.getFilteringRulesAsync({
             actor,
-            personIdFromJwtToken,
-            base_version
+            personIdFromJwtToken
         });
         return result.filteringRules !== null;
     }

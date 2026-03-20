@@ -19,15 +19,12 @@ class DelegatedAccessScopeManager {
      * @param {Object} params
      * @param {import('../../utils/fhirRequestInfo').JwtActor} params.actor
      * @param {string} params.personIdFromJwtToken
-     * @param {string} params.base_version
-     * @param {string} params.accessRequested
      * @returns {Promise<boolean>}
      */
-    async isAccessAllowedAsync({actor, personIdFromJwtToken, base_version}) {
+    async isAccessAllowedAsync({actor, personIdFromJwtToken}) {
         return await this.delegatedAccessRulesManager.hasValidConsentAsync({
             actor,
-            personIdFromJwtToken,
-            base_version
+            personIdFromJwtToken
         });
     }
 }
