@@ -1,4 +1,4 @@
-const { ForbiddenError } = require('./httpErrors');
+const { ForbiddenError, BadRequestError } = require('./httpErrors');
 const { AUTH_USER_TYPES, CMS_PARTNER_ACCESS, PERSON_PROXY_PREFIX } = require('../constants');
 const { ParsedArgs } = require('../operations/query/parsedArgs');
 const { FhirRequestInfo } = require('./fhirRequestInfo');
@@ -59,6 +59,10 @@ class CMSManager {
     sanitizeEverythingParams({ requestInfo, parsedArgs }) {
         if (!this.isCmsPartnerUser(requestInfo)) {
             return;
+        }
+
+        if (parsedArgs.id?.includes(',')) {
+            throw new BadRequestError(new Error('Multiple IDs are not allowed'));
         }
 
         for (const item of [...parsedArgs.parsedArgItems]) {

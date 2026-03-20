@@ -307,6 +307,17 @@ describe('CMS Partner User - Patient $everything', () => {
                 expect(['Observation'].includes(type)).toBe(true);
             }
         }
+
+        // Muttiple IDs in _id should throw error before reaching anything that applies CMS partner user restrictions
+        resp = await request
+            .get(`/4_0_0/Patient/$everything?_id=1,2,3`)
+            .set(cmsHeaders);
+
+        entries = resp.body.entry || [];
+        const resourceType = entries.length > 0 ? entries[0].resource.resourceType : null;
+        expect(resourceType).toBe('OperationOutcome');
+        const issue = entries.length > 0 ? entries[0].resource.issue[0]?.details.text : null;
+        expect(issue).toBe('Multiple IDs are not allowed');
     });
 
     test('Restricted endpoints return 403 for CMS partner user', async () => {
