@@ -15,6 +15,7 @@ const practitioner1 = require('./fixtures/clinical/practitioner_1.json');
 const organization1 = require('./fixtures/clinical/organization_1.json');
 
 const account1 = require('./fixtures/non_uscdi/account_1.json');
+const orgNonUscdiRef = require('./fixtures/non_uscdi/organization_non_uscdi_ref.json');
 
 const {
     commonBeforeEach,
@@ -349,6 +350,36 @@ describe('CMS Partner User - Patient $everything', () => {
             })
             .set(cmsHeaders);
         expect(resp.statusCode).toBe(403);
+    });
+
+    test('Non-clinical resource only referenced by non-USCDI resource is excluded', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([...baseResources, consent1, orgNonUscdiRef])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
+            .set(getCmsHeaders(CMS_PERSON_ID));
+
+        expect(resp).toHaveStatusCode(200);
+
+        const entries = resp.body.entry || [];
+
+        // The USCDI-referenced Organization (from Encounter.serviceProvider) should be present
+        const orgIds = entries
+            .filter((e) => e.resource.resourceType === 'Organization')
+            .map((e) => e.resource.id);
+        expect(orgIds).toContain(organization1.id);
+
+        // The non-USCDI-referenced Organization (only from Account.owner) should NOT be present
+        expect(orgIds).not.toContain(orgNonUscdiRef.id);
+
+        // Account itself should also not appear
+        expect(entries.some((e) => e.resource.resourceType === 'Account')).toBe(false);
     });
 
     test('Non-CMS user: returns all resource types including non-USCDI', async () => {

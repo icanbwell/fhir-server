@@ -5,11 +5,15 @@ const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourc
 const uscdiResourcesMap = require('./uscdi_resource_types.json');
 const { AUTH_USER_TYPES } = require('../../constants');
 
+const nonClinicalReachability = require('./generated.non_clinical_resources_reachablity.json');
 /**
  * @type {Record<string, string[]>}
  */
-const requiredRsourcesMap =
-    require('./generated.non_clinical_resources_reachablity.json')['level2'];
+const requiredRsourcesMap = nonClinicalReachability['level2'];
+/**
+ * @type {Record<string, string[]>}
+ */
+const uscdiRequiredResourcesMap = nonClinicalReachability['uscdiLevel2'];
 
 const nonClinicaResourcesSet = new Set(resourcesMap.nonClinicalResources);
 const clinicalResourcesSet = new Set(resourcesMap.clinicalResources);
@@ -31,7 +35,9 @@ class EverythingRelatedResourceManager {
          */
         this._sendAllResources = true;
 
-        if (userType === AUTH_USER_TYPES.cmsPartnerUser) {
+        this._isCmsPartnerUser = userType === AUTH_USER_TYPES.cmsPartnerUser;
+
+        if (this._isCmsPartnerUser) {
             // CMS partner users are restricted to USCDI v3 resources
             this._sendAllResources = false;
             this.clinicalResources = new Set();
@@ -119,10 +125,11 @@ class EverythingRelatedResourceManager {
             return this._nonClinicalResourcePool;
         }
 
+        const reachabilityMap = this._isCmsPartnerUser ? uscdiRequiredResourcesMap : requiredRsourcesMap;
         const resourcePool = new Set();
         if (this.nonClinicalResources.size > 0) {
             for (const nonClinicalResource of this.nonClinicalResources) {
-                addElementsToSet(resourcePool, requiredRsourcesMap[nonClinicalResource]);
+                addElementsToSet(resourcePool, reachabilityMap[nonClinicalResource]);
             }
         }
 

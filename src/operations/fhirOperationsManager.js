@@ -816,6 +816,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers, operation: WRITE
             }
         );
+        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'remove_by_query' });
         return await this.removeOperation.removeAsync(
             {
                 requestInfo: this.getRequestInfo(req),
