@@ -2,6 +2,7 @@ const { PreSaveHandler } = require('./preSaveHandler');
 const { isUuid, generateUUIDv5, generateUUID } = require('../../utils/uid.util');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { assertIsValid } = require('../../utils/assertType');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 /**
  * @classdesc Adds the uuid to the resource if not present
@@ -31,6 +32,9 @@ class UuidColumnHandler extends PreSaveHandler {
 
         if (resource.identifier && Array.isArray(resource.identifier)) {
             resource.identifier = resource.identifier.filter((s) => s.system !== IdentifierSystem.uuid);
+            if (!(resource instanceof Resource) && resource.identifier.length === 0) {
+                delete resource.identifier;
+            }
         }
 
         return resource;

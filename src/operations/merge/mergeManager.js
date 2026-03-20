@@ -28,7 +28,8 @@ const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const { FhirResourceNormalizeSerializer } = require('../../fhir/fhirResourceNormalizeSerializer');
+const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
+const { COLLECTION } = require('../../constants');
 
 class MergeManager {
     /**
@@ -181,7 +182,7 @@ class MergeManager {
             );
 
             const resourceToValidate = deepcopy(patched_resource_incoming);
-            FhirResourceNormalizeSerializer.serialize({obj: resourceToValidate});
+            FhirResourceWriteNormalizeSerializer.serialize({obj: resourceToValidate});
 
             if (!validationOperationOutcome) {
                 validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
@@ -236,7 +237,7 @@ class MergeManager {
         }
 
         const resourceToValidate = deepcopy(resourceToMerge);
-        FhirResourceNormalizeSerializer.serialize({obj: resourceToValidate});
+        FhirResourceWriteNormalizeSerializer.serialize({obj: resourceToValidate});
 
         /**
          * Validate resource to create with fhir schema
@@ -634,6 +635,42 @@ class MergeManager {
     }
 
     /**
+     * Helper to create error response with OperationOutcome and MergeResultEntry
+     * @param {Object} resourceToMerge
+     * @param {string} resourceType
+     * @param {string} diagnostics
+     * @param {string} expression
+     * @returns {MergeResultEntry}
+     */
+    createMergeError(resourceToMerge, resourceType, diagnostics, expression) {
+        const operationOutcome = new OperationOutcome({
+            resourceType: 'OperationOutcome',
+            issue: [
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'exception',
+                    details: new CodeableConcept({
+                        text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                    }),
+                    diagnostics,
+                    expression: [expression]
+                })
+            ]
+        });
+
+        return new MergeResultEntry({
+            id: resourceToMerge.id,
+            uuid: resourceToMerge._uuid,
+            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+            created: false,
+            updated: false,
+            issue: operationOutcome.issue?.[0] || null,
+            operationOutcome,
+            resourceType
+        });
+    }
+
+    /**
      * run any pre-checks before merge
      * @param {Object} resourceToMerge
      * @param {string} resourceType
@@ -647,114 +684,30 @@ class MergeManager {
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         try {
-            /**
-             * @type {string} id
-             */
             const id = resourceToMerge.id;
+
             if (!id) {
-                /**
-                 * @type {OperationOutcome}
-                 */
-                const operationOutcome = new OperationOutcome({
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                            }),
-                            diagnostics: 'resource is missing id',
-                            expression: [
-                                resourceType
-                            ]
-                        })
-                    ]
-                });
-                const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
-                return new MergeResultEntry(
-                    {
-                        id,
-                        uuid: resourceToMerge._uuid,
-                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        created: false,
-                        updated: false,
-                        issue,
-                        operationOutcome,
-                        resourceType
-                    }
-                );
+                return this.createMergeError(resourceToMerge, resourceType, 'resource is missing id', resourceType);
             }
+
             if (!resourceToMerge.resourceType) {
-                /**
-                 * @type {OperationOutcome}
-                 */
-                const operationOutcome = new OperationOutcome({
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                            }),
-                            diagnostics: 'resource is missing resourceType',
-                            expression: [
-                                resourceType + '/' + id
-                            ]
-                        })
-                    ]
-                });
-                const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
-                return new MergeResultEntry(
-                    {
-                        id,
-                        uuid: resourceToMerge._uuid,
-                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        created: false,
-                        updated: false,
-                        issue,
-                        operationOutcome,
-                        resourceType
-                    }
-                );
+                return this.createMergeError(resourceToMerge, resourceType, 'resource is missing resourceType', `${resourceType}/${id}`);
             }
+
+            if (COLLECTION[resourceToMerge.resourceType.toUpperCase()] !== resourceToMerge.resourceType) {
+                return this.createMergeError(resourceToMerge, resourceType, 'resourceType is not supported', `${resourceType}/${id}`);
+            }
+
             if (
                 !isUuid(resourceToMerge.id) &&
                 !this.scopesManager.doesResourceHaveSourceAssigningAuthority(resourceToMerge) &&
                 !this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)
             ) {
-                /**
-                 * @type {OperationOutcome}
-                 */
-                const operationOutcome = new OperationOutcome({
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                            }),
-                            diagnostics: 'Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present',
-                            expression: [
-                                resourceType + '/' + id
-                            ]
-                        })
-                    ]
-                });
-                const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
-                return new MergeResultEntry(
-                    {
-                        id,
-                        uuid: resourceToMerge._uuid,
-                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        created: false,
-                        updated: false,
-                        issue,
-                        operationOutcome,
-                        resourceType
-                    }
+                return this.createMergeError(
+                    resourceToMerge,
+                    resourceType,
+                    'Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present',
+                    `${resourceType}/${id}`
                 );
             }
 
@@ -769,19 +722,18 @@ class MergeManager {
                     issue: forbiddenError.issue
                 });
 
-                return new MergeResultEntry(
-                    {
-                        id,
-                        uuid: resourceToMerge._uuid,
-                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        created: false,
-                        updated: false,
-                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                        operationOutcome,
-                        resourceType: resourceToMerge.resourceType
-                    }
-                );
+                return new MergeResultEntry({
+                    id,
+                    uuid: resourceToMerge._uuid,
+                    sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                    created: false,
+                    updated: false,
+                    issue: operationOutcome.issue?.[0] || null,
+                    operationOutcome,
+                    resourceType: resourceToMerge.resourceType
+                });
             }
+
             return null;
         } catch (e) {
             throw new RethrownError({

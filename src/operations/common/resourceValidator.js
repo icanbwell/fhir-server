@@ -217,30 +217,20 @@ class ResourceValidator {
                 }
             );
 
+        if (validationOperationOutcome) {
+            return validationOperationOutcome;
+        }
+
         const { isUser } = requestInfo;
 
-        if (!validationOperationOutcome && currentResource) {
+        if (currentResource) {
             validationOperationOutcome = this.validatePatientReference({
                 currentResource,
                 resourceToValidateJson,
                 isUser
             });
         }
-        if (validationOperationOutcome) {
-            validationOperationOutcome.expression = [
-                resourceType + '/' + id
-            ];
-            if (!(validationOperationOutcome.details) || !(validationOperationOutcome.details.text)) {
-                validationOperationOutcome.details = {
-                    text: JSON.stringify(resourceToValidateJson, getCircularReplacer())
-                };
-            } else {
-                validationOperationOutcome.details.text = validationOperationOutcome.details.text +
-                    ',' + JSON.stringify(resourceToValidateJson, getCircularReplacer());
-            }
 
-            return validationOperationOutcome;
-        }
         return null;
     }
 

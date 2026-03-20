@@ -81,13 +81,13 @@ function fastValidateReferences (resourceObj, path) {
     const entries = Object.entries(resourceObj);
     for (const [key, value] of entries) {
         if (typeof value === 'object' && value !== null) {
+            const newPath = path ? `${path}.${key}` : `${key}`;
             if (Object.prototype.hasOwnProperty.call(value, 'reference') && typeof value.reference === 'string') {
-                const err = checkReferenceValue(value, path);
+                const err = checkReferenceValue(value, newPath);
                 if (err) {
                     errors.push(err);
                 }
             } else {
-                const newPath = path ? `${path}.${key}` : `${key}`;
                 const objErrors = fastValidateReferences(value, newPath);
                 errors.push(...objErrors);
             }

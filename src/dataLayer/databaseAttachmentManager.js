@@ -9,6 +9,7 @@ const Attachment = require('../fhir/classes/4_0_0/complex_types/attachment');
 const { NotFoundError } = require('../utils/httpErrors');
 const { logInfo } = require('../operations/common/logging');
 const { INSERT, RETRIEVE, DELETE } = require('../constants').GRIDFS;
+const attachmentResourceFields = require('./generated.databaseAttachmentResources.json');
 
 /**
  * @classdesc This class handles attachments with Mongodb GridFS i.e. converts attachment.data
@@ -87,7 +88,8 @@ class DatabaseAttachmentManager {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
-                if (enabledGridFsResources.includes(resources[parseInt(resourceIndex)].resourceType)) {
+                const resourceType = resources[parseInt(resourceIndex)].resourceType
+                if (enabledGridFsResources.includes(resourceType)) {
                     if (resources[parseInt(resourceIndex)]._id) {
                         delete resources[parseInt(resourceIndex)]._id;
                     }
@@ -97,7 +99,8 @@ class DatabaseAttachmentManager {
                         index: resourceIndex,
                         metadata: this.getMetadata(resources[parseInt(resourceIndex)], operation),
                         operation,
-                        patchContent
+                        patchContent,
+                        resourceType
                     });
                 }
             }
@@ -110,7 +113,8 @@ class DatabaseAttachmentManager {
                 resourceId: resources.id,
                 metadata: this.getMetadata(resources, operation),
                 operation,
-                patchContent
+                patchContent,
+                resourceType: resources.resourceType
             });
         }
         return resources;
@@ -126,6 +130,7 @@ class DatabaseAttachmentManager {
      * @param {Object} patchContent
      * @param {String} path
      * @param {Number} retryCount
+     * @param {String} resourceType
     */
     async changeAttachmentWithGridFS({
         resource,
@@ -135,12 +140,23 @@ class DatabaseAttachmentManager {
         operation = null,
         patchContent = null,
         path = '',
-        retryCount = 0
+        retryCount = 0,
+        resourceType = null
     }) {
         if (!resource) {
             return resource;
         }
-        if (resource instanceof Attachment || (resource instanceof Object && resource._file_id)) {
+
+        // replace index digits with [] in the path to match the attachmentResourceFields paths
+        const cleanedPath = path.replace(/\d+/g, '[]');
+
+        if (
+            resource instanceof Attachment ||
+            (resource instanceof Object && resource._file_id) ||
+            (resourceType &&
+                attachmentResourceFields[resourceType] &&
+                attachmentResourceFields[resourceType].includes(cleanedPath))
+        ) {
             let gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
             if (retryCount >= 2) {
                 gridFSBucket = new GridFSBucket(
@@ -178,7 +194,8 @@ class DatabaseAttachmentManager {
                                     operation,
                                     patchContent,
                                     path,
-                                    retryCount: retryCount + 1
+                                    retryCount: retryCount + 1,
+                                    resourceType
                                 });
                             } else {
                                 throw new NotFoundError('Unable to fetch the attachment or not found');
@@ -205,7 +222,8 @@ class DatabaseAttachmentManager {
                         index: Array.isArray(resource) ? key : index,
                         operation,
                         patchContent,
-                        path: `${path}/${key}`
+                        path: `${path}/${key}`,
+                        resourceType
                     });
                 }
             }

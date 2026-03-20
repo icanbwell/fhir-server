@@ -5,6 +5,7 @@ const { assertIsValid } = require('../../utils/assertType');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
+const Reference = require('../../fhir/classes/4_0_0/complex_types/reference');
 
 /**
  * @classdesc Adds global id fields to every reference
@@ -116,6 +117,9 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
                 SecurityTagSystem.sourceAssigningAuthority
             ];
             reference.extension = reference.extension.filter((ext) => !excludedUrls.includes(ext.url));
+            if (!(reference instanceof Reference) && reference.extension.length === 0) {
+                delete reference.extension;
+            }
         }
 
         return reference;

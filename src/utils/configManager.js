@@ -361,7 +361,12 @@ class ConfigManager {
      * @returns {string[]}
      */
     get enabledGridFsResources() {
-        return env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
+        const gridFsResources = env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
+        // restrict gridFs resources to DocumentReference for now
+        if (gridFsResources.length > 1 || gridFsResources[0] !== "DocumentReference") {
+            throw new Error('Only DocumentReference is supported as a GridFS resource');
+        }
+        return gridFsResources;
     }
 
     /**

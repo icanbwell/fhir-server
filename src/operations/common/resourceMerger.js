@@ -11,7 +11,7 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
 const deepcopy = require('deepcopy');
-const { FhirResourceNormalizeSerializer } = require('../../fhir/fhirResourceNormalizeSerializer');
+const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
@@ -540,7 +540,7 @@ class ResourceMerger {
         let mergedObject;
         if (smartMerge) {
             const currentResourceWithAttachmentDataObject = this.removeOwnerTagIfDisplayFieldMissing({
-                currentResource: currentResourceWithAttachmentData,
+                currentResource: deepcopy(currentResourceWithAttachmentData),
                 resourceToMerge
             });
             mergedObject = mergeObject(currentResourceWithAttachmentDataObject, resourceToMerge);
@@ -558,16 +558,14 @@ class ResourceMerger {
         dateColumnHandler.setFlag(true);
         currentResourceWithAttachmentData = await dateColumnHandler.preSaveAsync({ resource: currentResourceWithAttachmentData });
         mergedObject = await dateColumnHandler.preSaveAsync({ resource: mergedObject });
-        const currentObjectJson = deepcopy(currentResourceWithAttachmentData);
-        const mergedObjectJson = deepcopy(mergedObject);
 
         // serialize to remove internal fields
-        FhirResourceNormalizeSerializer.serialize({obj: currentObjectJson});
-        FhirResourceNormalizeSerializer.serialize({obj: mergedObjectJson});
+        FhirResourceWriteNormalizeSerializer.serialize({obj: currentResourceWithAttachmentData});
+        FhirResourceWriteNormalizeSerializer.serialize({obj: mergedObject});
 
         const patchContent = this.compareObjects({
-            currentObject: currentObjectJson,
-            mergedObject: mergedObjectJson,
+            currentObject: currentResourceWithAttachmentData,
+            mergedObject,
             limitToPaths
         });
 

@@ -40,7 +40,7 @@ class BaseFhirResourceSerializer {
      * serializes a resource
      * @typedef {Object} serializeParams
      * @property {Object} obj
-     * @property {import('./writeSerializers/4_0_0/customSerializers/baseSerializer.js').BaseSerializer} [SerializerClass]
+     * @property {import('./writeSerializers/4_0_0/customSerializers').BaseSerializer} [SerializerClass]
      * @property {Object} [context]
      *
      * @param {serializeParams} params
@@ -64,7 +64,7 @@ class BaseFhirResourceSerializer {
 
             if (!serializer) {
                 throw new BadRequestError(
-                    new Error(`Serialization of ResourceType ${obj.resourceType} is not supported`)
+                    new Error(`ResourceType ${obj.resourceType} is not supported`)
                 );
             }
             // Add resourceType to context
@@ -115,7 +115,7 @@ class BaseFhirResourceSerializer {
      * serializes an array of resources
      * @typedef {Object} serializeArrayParams
      * @property {Object | Object[]} obj
-     * @property {import('./writeSerializers/4_0_0/customSerializers/baseSerializer.js').BaseSerializer} [SerializerClass]
+     * @property {import('./writeSerializers/4_0_0/customSerializers').BaseSerializer} [SerializerClass]
      * @property {Object} [context]
      *
      * @param {serializeArrayParams} params
