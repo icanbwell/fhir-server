@@ -769,8 +769,7 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             resourceValidator: c.resourceValidator,
-            resourceLocatorFactory: c.resourceLocatorFactory,
-            cmsManager: c.cmsManager
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('expandOperation', (c) => new ExpandOperation(

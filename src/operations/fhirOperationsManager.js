@@ -1011,6 +1011,8 @@ class FhirOperationsManager {
          */
         const requestInfo = this.getRequestInfo(req);
 
+        this.cmsManager.verifyAccess({ requestInfo, resourceType, operation: 'graph' });
+
         /**
          * @type {BaseResponseStreamer}
          */
