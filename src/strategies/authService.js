@@ -64,7 +64,6 @@ class AuthService {
             bwellFhirPatientId: 'bwellFhirPatientId',
             managingOrganization: 'managingOrganization'
         };
-        this.optionalJWTFields = {};
         this.cacheOptions = {
             max: DEFAULT_CACHE_MAX_COUNT,
             ttl: DEFAULT_CACHE_EXPIRY_TIME
