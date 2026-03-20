@@ -111,8 +111,18 @@ class FamilyMemberHistorySerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        instantiatesCanonical: null,
-        instantiatesUri: null,
+        instantiatesCanonical: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        instantiatesUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         dataAbsentReason: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -376,8 +386,18 @@ class FamilyMemberHistorySerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        instantiatesCanonical: null,
-        instantiatesUri: null,
+        instantiatesCanonical: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        instantiatesUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         dataAbsentReason: () => {
             // Lazy load serializer only when first accessed (with caching)

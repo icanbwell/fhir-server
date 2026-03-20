@@ -42,7 +42,12 @@ class StructureMapTargetSerializer extends BaseSerializer {
         contextType: null,
         element: null,
         variable: null,
-        listMode: null,
+        listMode: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         listRuleId: null,
         transform: null,
         parameter: () => {

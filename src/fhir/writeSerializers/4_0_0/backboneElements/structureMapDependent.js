@@ -37,7 +37,12 @@ class StructureMapDependentSerializer extends BaseSerializer {
             return this.#configCache['modifierExtension'];
         },
         name: null,
-        variable: null
+        variable: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

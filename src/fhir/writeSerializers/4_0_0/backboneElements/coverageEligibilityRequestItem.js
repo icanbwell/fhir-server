@@ -46,7 +46,12 @@ class CoverageEligibilityRequestItemSerializer extends BaseSerializer {
             }
             return this.#configCache['modifierExtension'];
         },
-        supportingInfoSequence: null,
+        supportingInfoSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         category: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['category']) {

@@ -39,7 +39,12 @@ class SubscriptionChannelSerializer extends BaseSerializer {
         type: null,
         endpoint: null,
         payload: null,
-        header: null
+        header: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

@@ -109,8 +109,18 @@ class DeviceRequestSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        instantiatesCanonical: null,
-        instantiatesUri: null,
+        instantiatesCanonical: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        instantiatesUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         basedOn: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['basedOn']) {
@@ -447,8 +457,18 @@ class DeviceRequestSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        instantiatesCanonical: null,
-        instantiatesUri: null,
+        instantiatesCanonical: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        instantiatesUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         basedOn: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['basedOn']) {

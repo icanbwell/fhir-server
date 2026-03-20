@@ -149,8 +149,18 @@ class CapabilityStatementSerializer extends BaseSerializer {
         purpose: null,
         copyright: null,
         kind: null,
-        instantiates: null,
-        imports: null,
+        instantiates: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        imports: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         software: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['software']) {
@@ -178,9 +188,24 @@ class CapabilityStatementSerializer extends BaseSerializer {
             return this.#configCache['implementation'];
         },
         fhirVersion: null,
-        format: null,
-        patchFormat: null,
-        implementationGuide: null,
+        format: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        patchFormat: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        implementationGuide: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         rest: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['rest']) {
@@ -342,8 +367,18 @@ class CapabilityStatementSerializer extends BaseSerializer {
         purpose: null,
         copyright: null,
         kind: null,
-        instantiates: null,
-        imports: null,
+        instantiates: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        imports: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         software: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['software']) {
@@ -371,9 +406,24 @@ class CapabilityStatementSerializer extends BaseSerializer {
             return this.#configCache['implementation'];
         },
         fhirVersion: null,
-        format: null,
-        patchFormat: null,
-        implementationGuide: null,
+        format: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        patchFormat: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        implementationGuide: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         rest: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['rest']) {

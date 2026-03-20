@@ -131,7 +131,12 @@ class ObservationDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        permittedDataType: null,
+        permittedDataType: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         multipleResultsAllowed: null,
         method: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -335,7 +340,12 @@ class ObservationDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        permittedDataType: null,
+        permittedDataType: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         multipleResultsAllowed: null,
         method: () => {
             // Lazy load serializer only when first accessed (with caching)

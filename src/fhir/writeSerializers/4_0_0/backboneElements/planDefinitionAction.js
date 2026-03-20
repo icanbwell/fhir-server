@@ -106,7 +106,12 @@ class PlanDefinitionActionSerializer extends BaseSerializer {
             }
             return this.#configCache['documentation'];
         },
-        goalId: null,
+        goalId: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         subjectCodeableConcept: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['subjectCodeableConcept']) {

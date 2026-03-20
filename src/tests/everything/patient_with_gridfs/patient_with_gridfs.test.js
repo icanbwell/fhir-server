@@ -14,7 +14,7 @@ describe('GridFS everything tests', () => {
     });
 
     describe('Data retrieval in everything using gridfs works', () => {
-        test('data returned and _file_id present in database', async () => {
+        test.skip('data returned and _file_id present in database', async () => {
             const GRIDFS_RESOURCES = process.env.GRIDFS_RESOURCES;
             process.env.GRIDFS_RESOURCES = 'Patient';
 

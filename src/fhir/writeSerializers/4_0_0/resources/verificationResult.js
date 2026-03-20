@@ -107,7 +107,12 @@ class VerificationResultSerializer extends BaseSerializer {
             }
             return this.#configCache['target'];
         },
-        targetLocation: null,
+        targetLocation: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         need: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['need']) {
@@ -300,7 +305,12 @@ class VerificationResultSerializer extends BaseSerializer {
             }
             return this.#configCache['target'];
         },
-        targetLocation: null,
+        targetLocation: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         need: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['need']) {

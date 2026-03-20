@@ -52,7 +52,12 @@ class ExplanationOfBenefitInsuranceSerializer extends BaseSerializer {
             }
             return this.#configCache['coverage'];
         },
-        preAuthRef: null
+        preAuthRef: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

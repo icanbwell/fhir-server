@@ -38,7 +38,12 @@ class CodeSystemFilterSerializer extends BaseSerializer {
         },
         code: null,
         description: null,
-        operator: null,
+        operator: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         value: null
     };
 

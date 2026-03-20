@@ -138,7 +138,12 @@ class AllergyIntoleranceSerializer extends BaseSerializer {
             return this.#configCache['verificationStatus'];
         },
         type: null,
-        category: null,
+        category: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         criticality: null,
         code: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -385,7 +390,12 @@ class AllergyIntoleranceSerializer extends BaseSerializer {
             return this.#configCache['verificationStatus'];
         },
         type: null,
-        category: null,
+        category: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         criticality: null,
         code: () => {
             // Lazy load serializer only when first accessed (with caching)

@@ -91,9 +91,24 @@ class TimingRepeatSerializer extends BaseSerializer {
         period: null,
         periodMax: null,
         periodUnit: null,
-        dayOfWeek: null,
-        timeOfDay: null,
-        when: null,
+        dayOfWeek: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        timeOfDay: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        when: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         offset: null
     };
 

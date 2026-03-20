@@ -88,7 +88,12 @@ class ContractActionSerializer extends BaseSerializer {
             }
             return this.#configCache['intent'];
         },
-        linkId: null,
+        linkId: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['status']) {
@@ -115,7 +120,12 @@ class ContractActionSerializer extends BaseSerializer {
             }
             return this.#configCache['context'];
         },
-        contextLinkId: null,
+        contextLinkId: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         occurrenceDateTime: null,
         occurrencePeriod: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -156,7 +166,12 @@ class ContractActionSerializer extends BaseSerializer {
             }
             return this.#configCache['requester'];
         },
-        requesterLinkId: null,
+        requesterLinkId: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         performerType: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['performerType']) {
@@ -196,7 +211,12 @@ class ContractActionSerializer extends BaseSerializer {
             }
             return this.#configCache['performer'];
         },
-        performerLinkId: null,
+        performerLinkId: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         reasonCode: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['reasonCode']) {
@@ -223,8 +243,18 @@ class ContractActionSerializer extends BaseSerializer {
             }
             return this.#configCache['reasonReference'];
         },
-        reason: null,
-        reasonLinkId: null,
+        reason: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        reasonLinkId: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         note: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['note']) {
@@ -238,7 +268,12 @@ class ContractActionSerializer extends BaseSerializer {
             }
             return this.#configCache['note'];
         },
-        securityLabelNumber: null
+        securityLabelNumber: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

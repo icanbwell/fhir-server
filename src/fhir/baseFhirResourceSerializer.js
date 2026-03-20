@@ -140,6 +140,32 @@ class BaseFhirResourceSerializer {
             });
         }
     }
+
+    /**
+     * Funtion to validate primitive array fields like string[]
+     * @param {Object} param
+     * @param {Object | Object[]} param.obj
+     * @returns {Object[]}
+     */
+    static serializePrimitiveArray({ obj }) {
+        if (!obj) return obj;
+        try {
+            if (Array.isArray(obj)) {
+                return obj.filter((v) => v);
+            } else {
+                return [obj];
+            }
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in serializePrimitiveArray',
+                error: e,
+                args: {
+                    resource: obj
+                },
+                source: `${this.name}.serializePrimitiveArray`
+            });
+        }
+    }
 }
 
 module.exports = {

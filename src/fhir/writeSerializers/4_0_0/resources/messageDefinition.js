@@ -113,7 +113,12 @@ class MessageDefinitionSerializer extends BaseSerializer {
         version: null,
         name: null,
         title: null,
-        replaces: null,
+        replaces: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         experimental: null,
         date: null,
@@ -161,7 +166,12 @@ class MessageDefinitionSerializer extends BaseSerializer {
         purpose: null,
         copyright: null,
         base: null,
-        parent: null,
+        parent: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         eventCoding: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['eventCoding']) {
@@ -204,7 +214,12 @@ class MessageDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['allowedResponse'];
         },
-        graph: null,
+        graph: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         resourceType: null
     };
 
@@ -293,7 +308,12 @@ class MessageDefinitionSerializer extends BaseSerializer {
         version: null,
         name: null,
         title: null,
-        replaces: null,
+        replaces: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         experimental: null,
         date: null,
@@ -341,7 +361,12 @@ class MessageDefinitionSerializer extends BaseSerializer {
         purpose: null,
         copyright: null,
         base: null,
-        parent: null,
+        parent: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         eventCoding: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['eventCoding']) {
@@ -384,7 +409,12 @@ class MessageDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['allowedResponse'];
         },
-        graph: null,
+        graph: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         resourceType: null,
         _access: null,
         _sourceAssigningAuthority: null,

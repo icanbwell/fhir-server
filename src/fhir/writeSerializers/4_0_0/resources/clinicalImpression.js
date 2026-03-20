@@ -230,7 +230,12 @@ class ClinicalImpressionSerializer extends BaseSerializer {
             }
             return this.#configCache['investigation'];
         },
-        protocol: null,
+        protocol: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         summary: null,
         finding: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -502,7 +507,12 @@ class ClinicalImpressionSerializer extends BaseSerializer {
             }
             return this.#configCache['investigation'];
         },
-        protocol: null,
+        protocol: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         summary: null,
         finding: () => {
             // Lazy load serializer only when first accessed (with caching)

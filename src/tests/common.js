@@ -8,7 +8,6 @@ const nock = require('nock');
 const { createTestContainer } = require('./createTestContainer');
 const supertest = require('supertest');
 const { createApp } = require('../app');
-const { createServer } = require('../server');
 const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
 const { fhirContentTypes } = require('../utils/contentTypes');

@@ -114,9 +114,24 @@ class ChargeItemDefinitionSerializer extends BaseSerializer {
         },
         version: null,
         title: null,
-        derivedFromUri: null,
-        partOf: null,
-        replaces: null,
+        derivedFromUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        partOf: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        replaces: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         experimental: null,
         date: null,
@@ -316,9 +331,24 @@ class ChargeItemDefinitionSerializer extends BaseSerializer {
         },
         version: null,
         title: null,
-        derivedFromUri: null,
-        partOf: null,
-        replaces: null,
+        derivedFromUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        partOf: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        replaces: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         experimental: null,
         date: null,

@@ -37,9 +37,24 @@ class ElementDefinitionTypeSerializer extends BaseSerializer {
             return this.#configCache['modifierExtension'];
         },
         code: null,
-        profile: null,
-        targetProfile: null,
-        aggregation: null,
+        profile: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        targetProfile: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        aggregation: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         versioning: null
     };
 

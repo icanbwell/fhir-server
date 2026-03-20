@@ -242,7 +242,12 @@ class ContractSerializer extends BaseSerializer {
         name: null,
         title: null,
         subtitle: null,
-        alias: null,
+        alias: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         author: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['author']) {
@@ -660,7 +665,12 @@ class ContractSerializer extends BaseSerializer {
         name: null,
         title: null,
         subtitle: null,
-        alias: null,
+        alias: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         author: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['author']) {

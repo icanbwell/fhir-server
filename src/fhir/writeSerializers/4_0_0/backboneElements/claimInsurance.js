@@ -69,7 +69,12 @@ class ClaimInsuranceSerializer extends BaseSerializer {
             return this.#configCache['coverage'];
         },
         businessArrangement: null,
-        preAuthRef: null,
+        preAuthRef: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         claimResponse: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['claimResponse']) {

@@ -284,7 +284,12 @@ class MeasureSerializer extends BaseSerializer {
             }
             return this.#configCache['relatedArtifact'];
         },
-        library: null,
+        library: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         disclaimer: null,
         scoring: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -342,7 +347,12 @@ class MeasureSerializer extends BaseSerializer {
             }
             return this.#configCache['improvementNotation'];
         },
-        definition: null,
+        definition: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         guidance: null,
         group: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -625,7 +635,12 @@ class MeasureSerializer extends BaseSerializer {
             }
             return this.#configCache['relatedArtifact'];
         },
-        library: null,
+        library: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         disclaimer: null,
         scoring: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -683,7 +698,12 @@ class MeasureSerializer extends BaseSerializer {
             }
             return this.#configCache['improvementNotation'];
         },
-        definition: null,
+        definition: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         guidance: null,
         group: () => {
             // Lazy load serializer only when first accessed (with caching)

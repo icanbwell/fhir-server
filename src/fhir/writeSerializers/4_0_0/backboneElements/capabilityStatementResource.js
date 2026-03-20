@@ -44,7 +44,12 @@ class CapabilityStatementResourceSerializer extends BaseSerializer {
         },
         type: null,
         profile: null,
-        supportedProfile: null,
+        supportedProfile: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         documentation: null,
         interaction: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -66,9 +71,24 @@ class CapabilityStatementResourceSerializer extends BaseSerializer {
         conditionalRead: null,
         conditionalUpdate: null,
         conditionalDelete: null,
-        referencePolicy: null,
-        searchInclude: null,
-        searchRevInclude: null,
+        referencePolicy: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        searchInclude: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        searchRevInclude: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         searchParam: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['searchParam']) {

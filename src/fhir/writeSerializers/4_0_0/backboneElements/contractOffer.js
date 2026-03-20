@@ -138,8 +138,18 @@ class ContractOfferSerializer extends BaseSerializer {
             return this.#configCache['answer'];
         },
         text: null,
-        linkId: null,
-        securityLabelNumber: null
+        linkId: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        securityLabelNumber: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

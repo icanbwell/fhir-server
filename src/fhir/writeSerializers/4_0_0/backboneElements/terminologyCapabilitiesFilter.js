@@ -37,7 +37,12 @@ class TerminologyCapabilitiesFilterSerializer extends BaseSerializer {
             return this.#configCache['modifierExtension'];
         },
         code: null,
-        op: null
+        op: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

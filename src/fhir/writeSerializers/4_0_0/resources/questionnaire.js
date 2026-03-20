@@ -113,10 +113,20 @@ class QuestionnaireSerializer extends BaseSerializer {
         version: null,
         name: null,
         title: null,
-        derivedFrom: null,
+        derivedFrom: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         experimental: null,
-        subjectType: null,
+        subjectType: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         date: null,
         publisher: null,
         contact: () => {
@@ -290,10 +300,20 @@ class QuestionnaireSerializer extends BaseSerializer {
         version: null,
         name: null,
         title: null,
-        derivedFrom: null,
+        derivedFrom: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         experimental: null,
-        subjectType: null,
+        subjectType: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         date: null,
         publisher: null,
         contact: () => {

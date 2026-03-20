@@ -110,7 +110,12 @@ class ExplanationOfBenefitSubDetail1Serializer extends BaseSerializer {
             }
             return this.#configCache['net'];
         },
-        noteNumber: null,
+        noteNumber: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         adjudication: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['adjudication']) {

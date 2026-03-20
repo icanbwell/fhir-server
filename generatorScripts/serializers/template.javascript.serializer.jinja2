@@ -69,7 +69,16 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
             return this.#configCache['{{ property.name }}'];
         },
         {% else %}
+        {% if property.is_list %}
+        '{{ property.name }}': () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        {% else %}
         '{{ property.name }}': null,
+        {% endif %}
         {% endif %}
     {% endif %}
     {% endfor %}
@@ -117,7 +126,16 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
             return this.#configCache['{{ property.name }}'];
         },
         {% else %}
+        {% if property.is_list %}
+        '{{ property.name }}': () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        {% else %}
         '{{ property.name }}': null,
+        {% endif %}
         {% endif %}
     {% endif %}
     {% endfor %}

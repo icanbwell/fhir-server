@@ -108,7 +108,12 @@ class CoverageEligibilityResponseSerializer extends BaseSerializer {
             return this.#configCache['identifier'];
         },
         status: null,
-        purpose: null,
+        purpose: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         patient: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['patient']) {
@@ -303,7 +308,12 @@ class CoverageEligibilityResponseSerializer extends BaseSerializer {
             return this.#configCache['identifier'];
         },
         status: null,
-        purpose: null,
+        purpose: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         patient: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['patient']) {

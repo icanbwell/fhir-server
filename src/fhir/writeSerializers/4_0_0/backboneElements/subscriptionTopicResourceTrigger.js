@@ -40,7 +40,12 @@ class SubscriptionTopicResourceTriggerSerializer extends BaseSerializer {
         },
         description: null,
         resource: null,
-        supportedInteraction: null,
+        supportedInteraction: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         queryCriteria: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['queryCriteria']) {

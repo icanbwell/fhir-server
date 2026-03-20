@@ -41,7 +41,12 @@ class TerminologyCapabilitiesVersionSerializer extends BaseSerializer {
         code: null,
         isDefault: null,
         compositional: null,
-        language: null,
+        language: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         filter: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['filter']) {
@@ -55,7 +60,12 @@ class TerminologyCapabilitiesVersionSerializer extends BaseSerializer {
             }
             return this.#configCache['filter'];
         },
-        property: null
+        property: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

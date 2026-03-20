@@ -161,7 +161,12 @@ class ResearchElementDefinitionSerializer extends BaseSerializer {
             return this.#configCache['contact'];
         },
         description: null,
-        comment: null,
+        comment: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         useContext: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['useContext']) {
@@ -284,7 +289,12 @@ class ResearchElementDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['relatedArtifact'];
         },
-        library: null,
+        library: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         type: null,
         variableType: null,
         characteristic: () => {
@@ -434,7 +444,12 @@ class ResearchElementDefinitionSerializer extends BaseSerializer {
             return this.#configCache['contact'];
         },
         description: null,
-        comment: null,
+        comment: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         useContext: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['useContext']) {
@@ -557,7 +572,12 @@ class ResearchElementDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['relatedArtifact'];
         },
-        library: null,
+        library: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         type: null,
         variableType: null,
         characteristic: () => {

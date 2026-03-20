@@ -121,8 +121,18 @@ class ProdCharacteristicSerializer extends BaseSerializer {
             return this.#configCache['externalDiameter'];
         },
         shape: null,
-        color: null,
-        imprint: null,
+        color: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        imprint: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         image: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['image']) {

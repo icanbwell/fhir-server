@@ -293,7 +293,12 @@ class ActivityDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['relatedArtifact'];
         },
-        library: null,
+        library: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         kind: null,
         profile: null,
         code: () => {
@@ -778,7 +783,12 @@ class ActivityDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['relatedArtifact'];
         },
-        library: null,
+        library: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         kind: null,
         profile: null,
         code: () => {

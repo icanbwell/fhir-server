@@ -170,7 +170,12 @@ class StructureMapSerializer extends BaseSerializer {
             }
             return this.#configCache['structure'];
         },
-        import: null,
+        import: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         group: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['group']) {
@@ -331,7 +336,12 @@ class StructureMapSerializer extends BaseSerializer {
             }
             return this.#configCache['structure'];
         },
-        import: null,
+        import: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         group: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['group']) {

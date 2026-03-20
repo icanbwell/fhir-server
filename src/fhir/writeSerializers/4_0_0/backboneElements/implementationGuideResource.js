@@ -51,7 +51,12 @@ class ImplementationGuideResourceSerializer extends BaseSerializer {
             }
             return this.#configCache['reference'];
         },
-        fhirVersion: null,
+        fhirVersion: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         name: null,
         description: null,
         exampleBoolean: null,

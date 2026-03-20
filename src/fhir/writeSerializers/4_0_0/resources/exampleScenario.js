@@ -196,7 +196,12 @@ class ExampleScenarioSerializer extends BaseSerializer {
             }
             return this.#configCache['process'];
         },
-        workflow: null,
+        workflow: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         resourceType: null
     };
 
@@ -368,7 +373,12 @@ class ExampleScenarioSerializer extends BaseSerializer {
             }
             return this.#configCache['process'];
         },
-        workflow: null,
+        workflow: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         resourceType: null,
         _access: null,
         _sourceAssigningAuthority: null,

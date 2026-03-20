@@ -34,7 +34,12 @@ class DataRequirementSerializer extends BaseSerializer {
             return this.#configCache['extension'];
         },
         type: null,
-        profile: null,
+        profile: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         subjectCodeableConcept: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['subjectCodeableConcept']) {
@@ -61,7 +66,12 @@ class DataRequirementSerializer extends BaseSerializer {
             }
             return this.#configCache['subjectReference'];
         },
-        mustSupport: null,
+        mustSupport: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         codeFilter: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['codeFilter']) {

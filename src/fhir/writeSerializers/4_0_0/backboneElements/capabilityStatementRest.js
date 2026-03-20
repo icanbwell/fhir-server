@@ -113,7 +113,12 @@ class CapabilityStatementRestSerializer extends BaseSerializer {
             }
             return this.#configCache['operation'];
         },
-        compartment: null
+        compartment: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

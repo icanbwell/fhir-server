@@ -40,7 +40,12 @@ class SubscriptionTopicCanFilterBySerializer extends BaseSerializer {
         resource: null,
         filterParameter: null,
         filterDefinition: null,
-        modifier: null
+        modifier: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

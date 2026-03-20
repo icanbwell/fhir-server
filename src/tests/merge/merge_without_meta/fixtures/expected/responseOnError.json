@@ -18,7 +18,7 @@
                 {
                     "code": "exception",
                     "details": {
-                        "text": "Error merging: {\"resourceType\":\"Person\",\"id\":\"1\",\"birthDate\":\"1991-09-11\"}"
+                        "text": "Error merging: {\"id\":\"1\",\"resourceType\":\"Person\",\"birthDate\":\"1991-09-11\"}"
                     },
                     "diagnostics": "Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present",
                     "expression": [

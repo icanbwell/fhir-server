@@ -205,7 +205,12 @@ class StructureDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['context'];
         },
-        contextInvariant: null,
+        contextInvariant: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         type: null,
         baseDefinition: null,
         derivation: null,
@@ -411,7 +416,12 @@ class StructureDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['context'];
         },
-        contextInvariant: null,
+        contextInvariant: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         type: null,
         baseDefinition: null,
         derivation: null,

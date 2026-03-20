@@ -122,7 +122,12 @@ class OrganizationSerializer extends BaseSerializer {
             return this.#configCache['type'];
         },
         name: null,
-        alias: null,
+        alias: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         telecom: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['telecom']) {
@@ -287,7 +292,12 @@ class OrganizationSerializer extends BaseSerializer {
             return this.#configCache['type'];
         },
         name: null,
-        alias: null,
+        alias: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         telecom: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['telecom']) {

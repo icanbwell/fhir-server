@@ -107,7 +107,12 @@ class ElementDefinitionSerializer extends BaseSerializer {
             return this.#configCache['modifierExtension'];
         },
         path: null,
-        representation: null,
+        representation: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         sliceName: null,
         sliceIsConstraining: null,
         label: null,
@@ -141,7 +146,12 @@ class ElementDefinitionSerializer extends BaseSerializer {
         definition: null,
         comment: null,
         requirements: null,
-        alias: null,
+        alias: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         min: null,
         max: null,
         base: () => {
@@ -1534,7 +1544,12 @@ class ElementDefinitionSerializer extends BaseSerializer {
             return this.#configCache['maxValueQuantity'];
         },
         maxLength: null,
-        condition: null,
+        condition: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         constraint: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['constraint']) {

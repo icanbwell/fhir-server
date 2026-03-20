@@ -37,7 +37,12 @@ class CompartmentDefinitionResourceSerializer extends BaseSerializer {
             return this.#configCache['modifierExtension'];
         },
         code: null,
-        param: null,
+        param: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         documentation: null
     };
 

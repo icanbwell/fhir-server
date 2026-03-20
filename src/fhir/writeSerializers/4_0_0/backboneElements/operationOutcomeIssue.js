@@ -54,8 +54,18 @@ class OperationOutcomeIssueSerializer extends BaseSerializer {
             return this.#configCache['details'];
         },
         diagnostics: null,
-        location: null,
-        expression: null
+        location: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        expression: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

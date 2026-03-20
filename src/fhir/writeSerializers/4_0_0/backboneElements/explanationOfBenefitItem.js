@@ -53,10 +53,30 @@ class ExplanationOfBenefitItemSerializer extends BaseSerializer {
             return this.#configCache['modifierExtension'];
         },
         sequence: null,
-        careTeamSequence: null,
-        diagnosisSequence: null,
-        procedureSequence: null,
-        informationSequence: null,
+        careTeamSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        diagnosisSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        procedureSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        informationSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         revenue: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['revenue']) {
@@ -267,7 +287,12 @@ class ExplanationOfBenefitItemSerializer extends BaseSerializer {
             }
             return this.#configCache['encounter'];
         },
-        noteNumber: null,
+        noteNumber: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         adjudication: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['adjudication']) {

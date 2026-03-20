@@ -126,7 +126,12 @@ class LocationSerializer extends BaseSerializer {
             return this.#configCache['operationalStatus'];
         },
         name: null,
-        alias: null,
+        alias: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         description: null,
         mode: null,
         type: () => {
@@ -346,7 +351,12 @@ class LocationSerializer extends BaseSerializer {
             return this.#configCache['operationalStatus'];
         },
         name: null,
-        alias: null,
+        alias: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         description: null,
         mode: null,
         type: () => {

@@ -374,7 +374,12 @@ class ExplanationOfBenefitSerializer extends BaseSerializer {
         },
         outcome: null,
         disposition: null,
-        preAuthRef: null,
+        preAuthRef: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         preAuthRefPeriod: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['preAuthRefPeriod']) {
@@ -920,7 +925,12 @@ class ExplanationOfBenefitSerializer extends BaseSerializer {
         },
         outcome: null,
         disposition: null,
-        preAuthRef: null,
+        preAuthRef: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         preAuthRefPeriod: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['preAuthRefPeriod']) {

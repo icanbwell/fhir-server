@@ -146,7 +146,12 @@ class OperationDefinitionSerializer extends BaseSerializer {
         code: null,
         comment: null,
         base: null,
-        resource: null,
+        resource: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         system: null,
         type: null,
         instance: null,
@@ -303,7 +308,12 @@ class OperationDefinitionSerializer extends BaseSerializer {
         code: null,
         comment: null,
         base: null,
-        resource: null,
+        resource: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         system: null,
         type: null,
         instance: null,

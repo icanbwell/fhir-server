@@ -28,7 +28,12 @@ class MetaSerializer extends BaseSerializer {
         versionId: null,
         lastUpdated: null,
         source: null,
-        profile: null,
+        profile: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         security: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['security']) {

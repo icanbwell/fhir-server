@@ -46,7 +46,12 @@ class OperationDefinitionParameterSerializer extends BaseSerializer {
         max: null,
         documentation: null,
         type: null,
-        targetProfile: null,
+        targetProfile: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         searchType: null,
         binding: () => {
             // Lazy load serializer only when first accessed (with caching)

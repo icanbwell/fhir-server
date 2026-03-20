@@ -68,7 +68,12 @@ class ValueSetIncludeSerializer extends BaseSerializer {
             }
             return this.#configCache['filter'];
         },
-        valueSet: null
+        valueSet: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

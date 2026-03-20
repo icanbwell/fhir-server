@@ -38,7 +38,12 @@ class ContractSecurityLabelSerializer extends BaseSerializer {
             }
             return this.#configCache['modifierExtension'];
         },
-        number: null,
+        number: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         classification: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['classification']) {

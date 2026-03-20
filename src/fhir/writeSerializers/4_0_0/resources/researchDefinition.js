@@ -159,7 +159,12 @@ class ResearchDefinitionSerializer extends BaseSerializer {
             return this.#configCache['contact'];
         },
         description: null,
-        comment: null,
+        comment: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         useContext: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['useContext']) {
@@ -282,7 +287,12 @@ class ResearchDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['relatedArtifact'];
         },
-        library: null,
+        library: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         population: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['population']) {
@@ -469,7 +479,12 @@ class ResearchDefinitionSerializer extends BaseSerializer {
             return this.#configCache['contact'];
         },
         description: null,
-        comment: null,
+        comment: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         useContext: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['useContext']) {
@@ -592,7 +607,12 @@ class ResearchDefinitionSerializer extends BaseSerializer {
             }
             return this.#configCache['relatedArtifact'];
         },
-        library: null,
+        library: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         population: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['population']) {

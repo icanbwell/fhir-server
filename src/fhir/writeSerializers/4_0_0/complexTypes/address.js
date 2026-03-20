@@ -28,7 +28,12 @@ class AddressSerializer extends BaseSerializer {
         use: null,
         type: null,
         text: null,
-        line: null,
+        line: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         city: null,
         district: null,
         state: null,

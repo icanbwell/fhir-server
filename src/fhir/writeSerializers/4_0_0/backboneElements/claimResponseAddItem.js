@@ -52,9 +52,24 @@ class ClaimResponseAddItemSerializer extends BaseSerializer {
             }
             return this.#configCache['modifierExtension'];
         },
-        itemSequence: null,
-        detailSequence: null,
-        subdetailSequence: null,
+        itemSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        detailSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        subdetailSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         provider: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['provider']) {
@@ -226,7 +241,12 @@ class ClaimResponseAddItemSerializer extends BaseSerializer {
             }
             return this.#configCache['subSite'];
         },
-        noteNumber: null,
+        noteNumber: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         adjudication: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['adjudication']) {

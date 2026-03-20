@@ -116,7 +116,12 @@ class SubscriptionTopicSerializer extends BaseSerializer {
         },
         version: null,
         title: null,
-        derivedFrom: null,
+        derivedFrom: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         experimental: null,
         date: null,
@@ -317,7 +322,12 @@ class SubscriptionTopicSerializer extends BaseSerializer {
         },
         version: null,
         title: null,
-        derivedFrom: null,
+        derivedFrom: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         experimental: null,
         date: null,

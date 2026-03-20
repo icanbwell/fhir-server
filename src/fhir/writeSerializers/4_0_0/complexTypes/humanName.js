@@ -28,9 +28,24 @@ class HumanNameSerializer extends BaseSerializer {
         use: null,
         text: null,
         family: null,
-        given: null,
-        prefix: null,
-        suffix: null,
+        given: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        prefix: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        suffix: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         period: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['period']) {

@@ -36,7 +36,12 @@ class LocationHoursOfOperationSerializer extends BaseSerializer {
             }
             return this.#configCache['modifierExtension'];
         },
-        daysOfWeek: null,
+        daysOfWeek: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         allDay: null,
         openingTime: null,
         closingTime: null

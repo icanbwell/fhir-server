@@ -66,7 +66,12 @@ class MedicationKnowledgePatientCharacteristicsSerializer extends BaseSerializer
             }
             return this.#configCache['characteristicQuantity'];
         },
-        value: null
+        value: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

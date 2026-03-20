@@ -37,8 +37,18 @@ class SubscriptionTopicNotificationShapeSerializer extends BaseSerializer {
             return this.#configCache['modifierExtension'];
         },
         resource: null,
-        include: null,
-        revInclude: null
+        include: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        revInclude: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

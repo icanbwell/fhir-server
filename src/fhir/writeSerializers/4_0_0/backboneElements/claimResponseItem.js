@@ -41,7 +41,12 @@ class ClaimResponseItemSerializer extends BaseSerializer {
             return this.#configCache['modifierExtension'];
         },
         itemSequence: null,
-        noteNumber: null,
+        noteNumber: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         adjudication: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['adjudication']) {

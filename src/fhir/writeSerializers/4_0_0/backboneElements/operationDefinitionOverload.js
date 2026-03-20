@@ -36,7 +36,12 @@ class OperationDefinitionOverloadSerializer extends BaseSerializer {
             }
             return this.#configCache['modifierExtension'];
         },
-        parameterName: null,
+        parameterName: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         comment: null
     };
 

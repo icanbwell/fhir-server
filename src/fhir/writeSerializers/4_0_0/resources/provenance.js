@@ -122,7 +122,12 @@ class ProvenanceSerializer extends BaseSerializer {
         },
         occurredDateTime: null,
         recorded: null,
-        policy: null,
+        policy: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         location: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['location']) {
@@ -300,7 +305,12 @@ class ProvenanceSerializer extends BaseSerializer {
         },
         occurredDateTime: null,
         recorded: null,
-        policy: null,
+        policy: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         location: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['location']) {

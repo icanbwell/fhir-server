@@ -52,9 +52,24 @@ class ExplanationOfBenefitAddItemSerializer extends BaseSerializer {
             }
             return this.#configCache['modifierExtension'];
         },
-        itemSequence: null,
-        detailSequence: null,
-        subDetailSequence: null,
+        itemSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        detailSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        subDetailSequence: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         provider: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['provider']) {
@@ -226,7 +241,12 @@ class ExplanationOfBenefitAddItemSerializer extends BaseSerializer {
             }
             return this.#configCache['subSite'];
         },
-        noteNumber: null,
+        noteNumber: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         adjudication: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['adjudication']) {

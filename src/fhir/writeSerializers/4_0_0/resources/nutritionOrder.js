@@ -109,9 +109,24 @@ class NutritionOrderSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        instantiatesCanonical: null,
-        instantiatesUri: null,
-        instantiates: null,
+        instantiatesCanonical: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        instantiatesUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        instantiates: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         intent: null,
         patient: () => {
@@ -329,9 +344,24 @@ class NutritionOrderSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        instantiatesCanonical: null,
-        instantiatesUri: null,
-        instantiates: null,
+        instantiatesCanonical: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        instantiatesUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        instantiates: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         intent: null,
         patient: () => {

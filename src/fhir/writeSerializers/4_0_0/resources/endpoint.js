@@ -174,9 +174,19 @@ class EndpointSerializer extends BaseSerializer {
             }
             return this.#configCache['payloadType'];
         },
-        payloadMimeType: null,
+        payloadMimeType: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         address: null,
-        header: null,
+        header: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         resourceType: null
     };
 
@@ -328,9 +338,19 @@ class EndpointSerializer extends BaseSerializer {
             }
             return this.#configCache['payloadType'];
         },
-        payloadMimeType: null,
+        payloadMimeType: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         address: null,
-        header: null,
+        header: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         resourceType: null,
         _access: null,
         _sourceAssigningAuthority: null,

@@ -140,17 +140,42 @@ class SearchParameterSerializer extends BaseSerializer {
         },
         purpose: null,
         code: null,
-        base: null,
+        base: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         type: null,
         expression: null,
         xpath: null,
         xpathUsage: null,
-        target: null,
+        target: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         multipleOr: null,
         multipleAnd: null,
-        comparator: null,
-        modifier: null,
-        chain: null,
+        comparator: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        modifier: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        chain: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         component: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['component']) {
@@ -285,17 +310,42 @@ class SearchParameterSerializer extends BaseSerializer {
         },
         purpose: null,
         code: null,
-        base: null,
+        base: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         type: null,
         expression: null,
         xpath: null,
         xpathUsage: null,
-        target: null,
+        target: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         multipleOr: null,
         multipleAnd: null,
-        comparator: null,
-        modifier: null,
-        chain: null,
+        comparator: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        modifier: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        chain: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         component: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['component']) {

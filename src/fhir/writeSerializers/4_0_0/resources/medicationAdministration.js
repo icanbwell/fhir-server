@@ -109,7 +109,12 @@ class MedicationAdministrationSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        instantiates: null,
+        instantiates: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         partOf: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['partOf']) {
@@ -417,7 +422,12 @@ class MedicationAdministrationSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        instantiates: null,
+        instantiates: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         partOf: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['partOf']) {

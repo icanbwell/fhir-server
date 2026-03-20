@@ -67,8 +67,18 @@ class ImplementationGuideManifestSerializer extends BaseSerializer {
             }
             return this.#configCache['page'];
         },
-        image: null,
-        other: null
+        image: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        other: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;

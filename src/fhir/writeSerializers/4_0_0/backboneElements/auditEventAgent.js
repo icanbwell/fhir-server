@@ -99,7 +99,12 @@ class AuditEventAgentSerializer extends BaseSerializer {
             }
             return this.#configCache['location'];
         },
-        policy: null,
+        policy: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         media: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['media']) {

@@ -39,9 +39,19 @@ class TestScriptCapabilitySerializer extends BaseSerializer {
         required: null,
         validated: null,
         description: null,
-        origin: null,
+        origin: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         destination: null,
-        link: null,
+        link: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         capabilities: null
     };
 

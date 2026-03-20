@@ -113,8 +113,18 @@ class ChargeItemSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        definitionUri: null,
-        definitionCanonical: null,
+        definitionUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        definitionCanonical: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         partOf: () => {
             // Lazy load serializer only when first accessed (with caching)
@@ -477,8 +487,18 @@ class ChargeItemSerializer extends BaseSerializer {
             }
             return this.#configCache['identifier'];
         },
-        definitionUri: null,
-        definitionCanonical: null,
+        definitionUri: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        definitionCanonical: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         status: null,
         partOf: () => {
             // Lazy load serializer only when first accessed (with caching)

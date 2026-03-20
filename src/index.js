@@ -28,12 +28,12 @@ const main = async function () {
     try {
         initialize();
         const container = createContainer();
+        // Initialize configManager for all serializers
+        BaseSerializer.setConfigManager(container.configManager);
+
         await createServer(() => container);
         // Initialize cron tasks processor for processing scheduled tasks
         await container.cronTasksProcessor.initiateTasks();
-
-        // Initialize configManager for all serializers
-        BaseSerializer.setConfigManager(container.configManager);
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
         console.log(JSON.stringify({ method: 'main', message: e.message, stack: JSON.stringify(e.stack, getCircularReplacer()) }));

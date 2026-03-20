@@ -147,7 +147,12 @@ class ImplementationGuideSerializer extends BaseSerializer {
         copyright: null,
         packageId: null,
         license: null,
-        fhirVersion: null,
+        fhirVersion: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         dependsOn: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['dependsOn']) {
@@ -322,7 +327,12 @@ class ImplementationGuideSerializer extends BaseSerializer {
         copyright: null,
         packageId: null,
         license: null,
-        fhirVersion: null,
+        fhirVersion: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         dependsOn: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['dependsOn']) {

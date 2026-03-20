@@ -169,7 +169,12 @@ class ContractAssetSerializer extends BaseSerializer {
             return this.#configCache['usePeriod'];
         },
         text: null,
-        linkId: null,
+        linkId: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         answer: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['answer']) {
@@ -183,7 +188,12 @@ class ContractAssetSerializer extends BaseSerializer {
             }
             return this.#configCache['answer'];
         },
-        securityLabelNumber: null,
+        securityLabelNumber: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
         valuedItem: () => {
             // Lazy load serializer only when first accessed (with caching)
             if (!this.#configCache['valuedItem']) {

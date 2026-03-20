@@ -38,7 +38,12 @@ class ImplementationGuidePage1Serializer extends BaseSerializer {
         },
         name: null,
         title: null,
-        anchor: null
+        anchor: () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        }
     };
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;
