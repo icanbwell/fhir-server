@@ -401,8 +401,7 @@ describe('CMS Partner User - Patient $everything', () => {
         const returnedTypes = new Set(entries.map((e) => e.resource.resourceType));
 
         // Non-CMS user should see Account (no USCDI filtering)
-        if (entries.length > 0) {
-            expect(returnedTypes.has('Account')).toBe(true);
-        }
+        expect(entries.length).toBeGreaterThan(0);
+        expect(returnedTypes.has('Account')).toBe(true);
     });
 });

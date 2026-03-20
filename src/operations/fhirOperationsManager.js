@@ -209,6 +209,7 @@ class FhirOperationsManager {
          * @type {CMSManager}
          */
         this.cmsManager = cmsManager;
+        assertTypeEquals(cmsManager, CMSManager);
     }
 
     /**

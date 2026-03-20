@@ -9,7 +9,7 @@ const nonClinicalReachability = require('./generated.non_clinical_resources_reac
 /**
  * @type {Record<string, string[]>}
  */
-const requiredRsourcesMap = nonClinicalReachability['level2'];
+const requiredResourcesMap = nonClinicalReachability['level2'];
 /**
  * @type {Record<string, string[]>}
  */
@@ -26,6 +26,7 @@ class EverythingRelatedResourceManager {
      * @typedef EverythingRelatedResourceManagerConstructor
      * @property {string[]} resourceFilterList Resources which all allowed to be sent in response
      * @property {EverythingRelatedResourcesMapper} everythingRelatedResourceMapper
+     * @property {string|null} userType - type of user making the request, used for determining resource restrictions
      *
      * @param {EverythingRelatedResourceManagerConstructor} options
      */
@@ -125,7 +126,7 @@ class EverythingRelatedResourceManager {
             return this._nonClinicalResourcePool;
         }
 
-        const reachabilityMap = this._isCmsPartnerUser ? uscdiRequiredResourcesMap : requiredRsourcesMap;
+        const reachabilityMap = this._isCmsPartnerUser ? uscdiRequiredResourcesMap : requiredResourcesMap;
         const resourcePool = new Set();
         if (this.nonClinicalResources.size > 0) {
             for (const nonClinicalResource of this.nonClinicalResources) {
