@@ -131,37 +131,7 @@ When a delegated actor is present, the audit event contains **two agents**:
 
 The `source.observer` references the delegated actor.
 
-## Local Testing with Keycloak
-
-A dedicated Keycloak user (`MY_DELEGATED_ACCESS_USER_*`) is configured in `keycloak-config/realm-import.json` with `act.reference` and `act.sub` attributes that map to the `act` claim in the JWT.
-
-Configure the following env vars in `docker-compose.yml` for the delegated access user:
-
-```
-MY_DELEGATED_ACCESS_USER_NAME=delegated-patient
-MY_DELEGATED_ACCESS_USER_PASSWORD=password
-MY_DELEGATED_ACCESS_USER_TOKEN_USERNAME=delegated-patient@example.com
-MY_DELEGATED_ACCESS_USER_SCOPE=patient/Patient.read patient/Practitioner.write patient/MedicationStatement.read access/*.read patient/Consent.* patient/Condition.* patient/Observation.read
-MY_DELEGATED_ACCESS_USER_CLIENT_PERSON_ID=4100e07d-60a8-48b3-840f-8b64e1f7fa16
-MY_DELEGATED_ACCESS_USER_CLIENT_PATIENT_ID=dc75150f-892c-4a34-b9b9-2b21223a21d3
-MY_DELEGATED_ACCESS_USER_BWELL_PERSON_ID=4100e07d-60a8-48b3-840f-8b64e1f7fa16
-MY_DELEGATED_ACCESS_USER_BWELL_PATIENT_ID=dc75150f-892c-4a34-b9b9-2b21223a21d3
-DELEGATED_ACT_REFERENCE=RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425
-DELEGATED_ACT_SUB=RelatedPerson/46265db4-0da2-4436-b4e8-85bf7e52a426-sub
-```
-
-The generated token will contain:
-```json
-{
-  "clientFhirPersonId": "4100e07d-60a8-48b3-840f-8b64e1f7fa16",
-  "clientFhirPatientId": "dc75150f-892c-4a34-b9b9-2b21223a21d3",
-  "custom:scope": "patient/Patient.read patient/Practitioner.write ...",
-  "act": {
-    "reference": "RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425",
-    "sub": "RelatedPerson/46265db4-0da2-4436-b4e8-85bf7e52a426-sub"
-  }
-}
-```
+## Local Testing
 
 ### Generate a delegated access token
 
@@ -177,7 +147,17 @@ curl --request POST \
   --data 'scope=patient/Patient.read patient/Practitioner.write patient/MedicationStatement.read access/*.read patient/Consent.* patient/Condition.* patient/Observation.read'
 ```
 
-Note: the corresponding Person and Patient resources for `clientFhirPersonId` and `clientFhirPatientId` must exist in the database.
+The generated token will contain:
+```json
+{
+  "clientFhirPersonId": "4100e07d-60a8-48b3-840f-8b64e1f7fa16",
+  "clientFhirPatientId": "dc75150f-892c-4a34-b9b9-2b21223a21d3",
+  "act": {
+    "reference": "RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425",
+    "sub": "46265db4-0da2-4436-b4e8-85bf7e52a426"
+  }
+}
+```
 
 ## Config
 
