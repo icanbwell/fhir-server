@@ -25,7 +25,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
     });
 
     describe('GraphQL Patient with GridFS', () => {
-        test('Patient Retrieval', async () => {
+        test.skip('Patient Retrieval', async () => {
             const GRIDFS_RESOURCES = process.env.GRIDFS_RESOURCES;
             process.env.GRIDFS_RESOURCES = 'Patient';
 

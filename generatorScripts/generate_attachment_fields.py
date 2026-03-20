@@ -24,6 +24,7 @@ recursive_fields_depth = 1
 
 # configure whether to skip extension types
 skip_extension = False
+skip_nested_extension = True
 
 # restrict to specific resources
 restricted_resources = ["DocumentReference"]
@@ -84,6 +85,8 @@ class AttachmentFieldsData:
             if prop.is_v2_supported:
                 continue
             # check extnsion type upto configured nested depth only
+            if skip_nested_extension and prop.cleaned_type in ["Extension", "ModifierExtension"]:
+                continue
             if field_class.cleaned_type in ["Extension", "ModifierExtension"]:
                 if prop.cleaned_type not in ["Extension", "ModifierExtension", "Attachment"]:
                     continue

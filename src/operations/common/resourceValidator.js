@@ -217,18 +217,18 @@ class ResourceValidator {
                 }
             );
 
-        if (validationOperationOutcome) {
-            return validationOperationOutcome;
-        }
-
         const { isUser } = requestInfo;
 
-        if (currentResource) {
+        if (!validationOperationOutcome && currentResource) {
             validationOperationOutcome = this.validatePatientReference({
                 currentResource,
                 resourceToValidateJson,
                 isUser
             });
+        }
+
+        if (validationOperationOutcome) {
+            return validationOperationOutcome;
         }
 
         return null;
