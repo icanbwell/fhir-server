@@ -42,7 +42,7 @@ const { ResponseStreamerFactory } = require('../utils/responseStreamerFactory');
 const { BadRequestError } = require('../utils/httpErrors');
 const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHandlerFactory');
 const { BaseResponseHandler } = require('../utils/responseHandler/baseResponseHandler');
-const { CMSManager } = require('./security/cmsManager');
+const { CMSManager } = require('../utils/cmsManager');
 
 class FhirOperationsManager {
     /**

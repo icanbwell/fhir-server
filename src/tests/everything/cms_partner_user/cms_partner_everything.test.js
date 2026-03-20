@@ -273,7 +273,7 @@ describe('CMS Partner User - Patient $everything', () => {
         const allowedTypes = new Set(CMS_USCDI_RESOURCE_TYPES);
 
         resp = await request
-            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_includeHidden=1&_includeUuidOnly=1&_rewritePatientReference=true`)
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_includeHidden=1&_includeUuidOnly=1&_rewritePatientReference=false`)
             .set(cmsHeaders);
         expect(resp).toHaveStatusCode(200);
         let entries = resp.body.entry || [];
@@ -335,6 +335,19 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(resp.statusCode).toBe(403);
 
         resp = await request.get('/4_0_0/Condition/test-id').set(cmsHeaders);
+        expect(resp.statusCode).toBe(403);
+
+        resp = await request
+            .post(`/4_0_0/Patient/${PATIENT_ID}/$graph`)
+            .send({
+                resourceType: 'GraphDefinition',
+                id: 'test-graph',
+                name: 'TestGraph',
+                status: 'active',
+                start: 'Patient',
+                link: []
+            })
+            .set(cmsHeaders);
         expect(resp.statusCode).toBe(403);
     });
 

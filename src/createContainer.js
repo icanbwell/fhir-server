@@ -87,7 +87,7 @@ const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedRef
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {ProaConsentManager} = require('./operations/search/proaConsentManager');
 const {CmsConsentManager} = require('./operations/search/cmsConsentManager');
-const {CMSManager} = require('./operations/security/cmsManager');
+const {CMSManager} = require('./utils/cmsManager');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -768,7 +768,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             resourceValidator: c.resourceValidator,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            cmsManager: c.cmsManager
         }
     ));
     container.register('expandOperation', (c) => new ExpandOperation(

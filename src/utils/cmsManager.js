@@ -1,7 +1,7 @@
-const { ForbiddenError } = require('../../utils/httpErrors');
-const { AUTH_USER_TYPES, CMS_PARTNER_ACCESS, PERSON_PROXY_PREFIX } = require('../../constants');
-const { ParsedArgs } = require('../query/parsedArgs');
-const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { ForbiddenError } = require('./httpErrors');
+const { AUTH_USER_TYPES, CMS_PARTNER_ACCESS, PERSON_PROXY_PREFIX } = require('../constants');
+const { ParsedArgs } = require('../operations/query/parsedArgs');
+const { FhirRequestInfo } = require('./fhirRequestInfo');
 
 class CMSManager {
     /**

@@ -11,6 +11,7 @@ const { getFirstElementOrNull } = require('../../utils/list.util');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
 const { ParsedArgs } = require('../query/parsedArgs');
+const { CMSManager } = require('../../utils/cmsManager');
 
 class GraphOperation {
     /**
@@ -19,6 +20,7 @@ class GraphOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {CMSManager} cmsManager
      */
     constructor (
         {
@@ -26,7 +28,8 @@ class GraphOperation {
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
-            resourceLocatorFactory
+            resourceLocatorFactory,
+            cmsManager
         }
     ) {
         /**
@@ -56,6 +59,12 @@ class GraphOperation {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
+         * @type {CMSManager}
+         */
+        this.cmsManager = cmsManager;
+        assertTypeEquals(cmsManager, CMSManager);
     }
 
     /**
@@ -78,6 +87,7 @@ class GraphOperation {
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'graph';
+        this.cmsManager.verifyAccess({requestInfo: requestInfo, resourceType, operation: currentOperationName});
 
         /**
          * @type {number}
