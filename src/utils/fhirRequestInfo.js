@@ -150,6 +150,13 @@ class FhirRequestInfo {
         this.actor = actor;
 
         /**
+         * Consent policy URI for delegated access audit logging.
+         * Set by DelegatedAccessRulesManager when filtering rules are resolved.
+         * @type {string|null}
+         */
+        this.consentPolicy = null;
+
+        /**
          * whether the client wants to use global ids
          * @type {boolean}
          */

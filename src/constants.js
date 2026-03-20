@@ -156,8 +156,7 @@ module.exports = {
         LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
         PERSON_OWNER_PREFIX: 'personOwnerFor-',
         CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed',
-        DELEGATED_ACTOR_FILTERING_RULES_PREFIX: 'delegatedActorFilteringRulesFor-',
-        DELEGATED_ACTOR_CONSENT_POLICY: 'delegatedActorConsentPolicy'
+        DELEGATED_ACTOR_FILTERING_RULES_PREFIX: 'delegatedActorFilteringRulesFor-'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',

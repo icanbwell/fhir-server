@@ -125,7 +125,6 @@ class DelegatedAccessRulesManager {
                         const redisFilteringRules = await this.redisManager.readBundleFromCacheAsync(redisCacheKey);
                         if (redisFilteringRules) {
                             httpContext.set(cacheKey, redisFilteringRules);
-                            this._setConsentPolicyInContext(redisFilteringRules);
                             return {
                                 filteringRules: redisFilteringRules,
                                 actorConsentQueries: [],
@@ -183,7 +182,6 @@ class DelegatedAccessRulesManager {
 
         // Cache in Redis for cross-request reuse
         if (filteringRulesObj.filteringRules) {
-            this._setConsentPolicyInContext(filteringRulesObj.filteringRules);
             const redisCacheKey = await this.filteringRulesCacheKeyGenerator.generateCacheKeyAsync(
                 personIdFromJwtToken, actorReference
             );
@@ -203,16 +201,7 @@ class DelegatedAccessRulesManager {
         return filteringRulesObj;
     }
 
-    /**
-     * Stores the consent policy URI in httpContext for audit logging
-     * @param {DelegatedAccessFilteringRules} filteringRules
-     * @private
-     */
-    _setConsentPolicyInContext(filteringRules) {
-        const { consentId, consentVersion } = filteringRules;
-        const consentPolicy = `Consent/${consentId}?version=${consentVersion}`;
-        httpContext.set(HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_CONSENT_POLICY, consentPolicy);
-    }
+
 
     /**
      * Parses a Consent resource to extract filtering rules
@@ -407,14 +396,22 @@ class DelegatedAccessRulesManager {
      * Checks if a valid consent exists for the delegated actor
      * @param {import('./fhirRequestInfo').JwtActor} actor
      * @param {string} personIdFromJwtToken
-     * @returns {Promise<boolean>}
+     * @returns {Promise<{isAllowed: boolean, consentPolicy: string|null}>}
      */
     async hasValidConsentAsync({ actor, personIdFromJwtToken }) {
         const result = await this.getFilteringRulesAsync({
             actor,
             personIdFromJwtToken
         });
-        return result.filteringRules !== null;
+        const filteringRules = result.filteringRules;
+        if (!filteringRules) {
+            return { isAllowed: false, consentPolicy: null };
+        }
+        const { consentId, consentVersion } = filteringRules;
+        return {
+            isAllowed: true,
+            consentPolicy: `Consent/${consentId}?version=${consentVersion}`
+        };
     }
 }
 

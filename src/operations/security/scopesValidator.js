@@ -70,7 +70,7 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             if (this.configManager.enableDelegatedAccessDetection && requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
-                const isAllowed = await this.delegatedAccessScopeManager.isAccessAllowedAsync({
+                const { isAllowed, consentPolicy } = await this.delegatedAccessScopeManager.isAccessAllowedAsync({
                     actor: requestInfo.actor,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken
                 });
@@ -79,6 +79,8 @@ class ScopesValidator {
                         'User does not have valid permission for delegated access'
                     );
                 }
+                // assign this so to access later
+                requestInfo.consentPolicy = consentPolicy;
             }
 
             const {user, scope} = requestInfo;

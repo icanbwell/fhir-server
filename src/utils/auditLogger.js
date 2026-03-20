@@ -21,8 +21,7 @@ const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { AuditEventKafkaProducer } = require('./auditEventKafkaProducer');
 const { ConfigManager } = require('./configManager');
-const { PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS, AUTH_USER_TYPES } = require('../constants');
-const httpContext = require('express-http-context');
+const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES } = require('../constants');
 const mutex = new Mutex();
 
 class AuditLogger {
@@ -144,7 +143,7 @@ class AuditLogger {
         let agents;
 
         if (hasDelegatedActor) {
-            const consentPolicy = httpContext.get(HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_CONSENT_POLICY);
+            const consentPolicy = requestInfo.consentPolicy;
             agents = [
                 new AuditEventAgent({
                     who: new Reference({
