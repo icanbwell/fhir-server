@@ -994,7 +994,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should return 401 for patient-scoped token without managingOrganization', async () => {
+    test('should fail authentication for patient-scoped token without managingOrganization', async () => {
         const mockJwks = {
             keys: [
                 await createJwksKeyAsync(
