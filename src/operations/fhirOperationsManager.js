@@ -271,7 +271,8 @@ class FhirOperationsManager {
                 requestInfo,
                 parsedArgs,
                 resourceType,
-                useAggregationPipeline: false
+                useAggregationPipeline: false,
+                userType: requestInfo.userType
             });
     }
 
