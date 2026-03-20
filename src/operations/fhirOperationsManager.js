@@ -629,8 +629,6 @@ class FhirOperationsManager {
             }
         );
 
-        this.cmsManager.sanitizeEverythingParams({ requestInfo, parsedArgs });
-
         if (shouldStreamResponse(req)) {
             /**
              * response streamer to use

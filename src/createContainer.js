@@ -664,7 +664,8 @@ const createContainer = function () {
         configManager: c.configManager,
         everythingHelper: c.everythingHelper,
         fhirOperationUsageEventProducer: c.fhirOperationUsageEventProducer,
-        postRequestProcessor: c.postRequestProcessor
+        postRequestProcessor: c.postRequestProcessor,
+        cmsManager: c.cmsManager
     }));
 
     container.register('removeHelper', c => new RemoveHelper({
