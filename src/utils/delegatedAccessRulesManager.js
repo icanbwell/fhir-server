@@ -244,7 +244,7 @@ class DelegatedAccessRulesManager {
 
         return {
             consentId: consent._uuid,
-            consentVersion: consent.meta.versionId,
+            consentVersion: consent.meta?.versionId,
             provisionPeriodStart: consent.provision?.period?.start,
             provisionPeriodEnd: consent.provision?.period?.end,
             deniedSensitiveCategories
