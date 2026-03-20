@@ -69,7 +69,6 @@ class ScopesValidator {
     async isScopesValidAsync({requestInfo, resourceType, accessRequested}) {
         // eslint-disable-next-line no-useless-catch
         try {
-            // Check delegated actor consent first
             if (this.configManager.enableDelegatedAccessDetection && requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
                 const isAllowed = await this.delegatedAccessScopeManager.isAccessAllowedAsync({
                     actor: requestInfo.actor,

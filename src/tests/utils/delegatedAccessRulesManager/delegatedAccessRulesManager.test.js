@@ -39,10 +39,10 @@ describe('DelegatedAccessRulesManager Tests', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeAll(() => {
-        originalEnableDelegatedAccessFiltering = process.env.ENABLE_DELEGATED_ACCESS_FILTERING;
+        originalEnableDelegatedAccessFiltering = process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
         originalEnableRedis = process.env.ENABLE_REDIS;
         originalEnableRedisCacheRead = process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
-        process.env.ENABLE_DELEGATED_ACCESS_FILTERING = 'true';
+        process.env.ENABLE_DELEGATED_ACCESS_DETECTION = 'true';
         process.env.ENABLE_REDIS = 'true';
         process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT = 'true';
     });
@@ -50,9 +50,9 @@ describe('DelegatedAccessRulesManager Tests', () => {
     afterAll(() => {
         cursorSpy.mockRestore();
         if (originalEnableDelegatedAccessFiltering !== undefined) {
-            process.env.ENABLE_DELEGATED_ACCESS_FILTERING = originalEnableDelegatedAccessFiltering;
+            process.env.ENABLE_DELEGATED_ACCESS_DETECTION = originalEnableDelegatedAccessFiltering;
         } else {
-            delete process.env.ENABLE_DELEGATED_ACCESS_FILTERING;
+            delete process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
         }
         if (originalEnableRedis !== undefined) {
             process.env.ENABLE_REDIS = originalEnableRedis;

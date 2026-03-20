@@ -25,7 +25,7 @@ const httpContext = require('express-http-context');
 /**
  * @typedef DelegatedAccessFilteringRules
  * @property {string} consentId - ID of the consent resource
- * @property {string | null} consentVersion - Version of the consent resource
+ * @property {string} consentVersion - Version of the consent resource
  * @property {string | null} provisionPeriodStart - Start date of the provision period
  * @property {string | null} provisionPeriodEnd - End date of the provision period
  * @property {string[]} deniedSensitiveCategories - List of sensitive categories denied
@@ -77,8 +77,6 @@ class DelegatedAccessRulesManager {
 
     /**
      * Returns the filtering rules for a delegated actor.
-     * If no delegated actor present, then return null.
-     * If delegated actor doesn't have valid consent, then return empty filtering results.
      * filteringRules as null represents no consent found.
      *
      * @param {Object} params
@@ -91,7 +89,7 @@ class DelegatedAccessRulesManager {
      *  filteringRules: DelegatedAccessFilteringRules | null,
      *  actorConsentQueries: QueryItem[],
      *  actorConsentQueryOptions: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]
-     * } | null>}
+     * }>}
      */
     async getFilteringRulesAsync({
         actor,
@@ -154,7 +152,7 @@ class DelegatedAccessRulesManager {
                     });
 
                 // No consent found - deny access
-                if (!consentResources || consentResources.length === 0) {
+                if (consentResources.length === 0) {
                     return {
                         filteringRules: null,
                         actorConsentQueries: [queryItem],
@@ -212,9 +210,7 @@ class DelegatedAccessRulesManager {
      */
     _setConsentPolicyInContext(filteringRules) {
         const { consentId, consentVersion } = filteringRules;
-        const consentPolicy = consentVersion
-            ? `Consent/${consentId}?version=${consentVersion}`
-            : `Consent/${consentId}`;
+        const consentPolicy = `Consent/${consentId}?version=${consentVersion}`
         httpContext.set(HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_CONSENT_POLICY, consentPolicy);
     }
 
@@ -232,13 +228,13 @@ class DelegatedAccessRulesManager {
 
         // Extract denied sensitive categories from nested provisions
         if (consent.provision?.provision && Array.isArray(consent.provision.provision)) {
-            const sensitiveCategoryIdentifier = this.configManager.sensitiveCategorySystemIdentifier;
+            const lowerSensitiveCategoryId = this.configManager.sensitiveCategorySystemIdentifier.toLowerCase();
             for (const nestedProvision of consent.provision.provision) {
                 if (nestedProvision.type === 'deny' && nestedProvision.securityLabel) {
                     for (const securityLabel of nestedProvision.securityLabel) {
                         if (securityLabel.code && securityLabel.system &&
                             // match with case insensitive
-                            securityLabel.system.toLowerCase() === sensitiveCategoryIdentifier.toLowerCase()) {
+                            securityLabel.system.toLowerCase() === lowerSensitiveCategoryId) {
                             deniedSensitiveCategories.push(securityLabel.code);
                         }
                     }
@@ -248,7 +244,7 @@ class DelegatedAccessRulesManager {
 
         return {
             consentId: consent._uuid,
-            consentVersion: consent.meta?.versionId,
+            consentVersion: consent.meta.versionId,
             provisionPeriodStart: consent.provision?.period?.start,
             provisionPeriodEnd: consent.provision?.period?.end,
             deniedSensitiveCategories
