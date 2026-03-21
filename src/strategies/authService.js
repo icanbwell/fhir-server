@@ -61,10 +61,8 @@ class AuthService {
             clientFhirPersonId: 'clientFhirPersonId',
             clientFhirPatientId: 'clientFhirPatientId',
             bwellFhirPersonId: 'bwellFhirPersonId',
-            bwellFhirPatientId: 'bwellFhirPatientId'
-        };
-        this.optionalJWTFields = {
-            bwellManagingOrganizationId: 'managingOrganization'
+            bwellFhirPatientId: 'bwellFhirPatientId',
+            managingOrganization: 'managingOrganization'
         };
         this.cacheOptions = {
             max: DEFAULT_CACHE_MAX_COUNT,
@@ -217,7 +215,7 @@ class AuthService {
             }
             context.personIdFromJwtToken = jwt_payload[this.requiredJWTFields.clientFhirPersonId];
             context.masterPersonIdFromJwtToken = jwt_payload[this.requiredJWTFields.bwellFhirPersonId];
-            context.managingOrganizationId = jwt_payload[this.optionalJWTFields.bwellManagingOrganizationId];
+            context.managingOrganizationId = jwt_payload[this.requiredJWTFields.managingOrganization];
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
