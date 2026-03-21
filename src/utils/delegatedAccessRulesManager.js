@@ -1,8 +1,6 @@
 const { assertTypeEquals, assertIsValid } = require('./assertType');
 const { ConfigManager } = require('./configManager');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
-const { FilteringRulesCacheKeyGenerator } = require('./filteringRulesCacheKeyGenerator');
-const { RedisManager } = require('./redisManager');
 const { CustomTracer } = require('./customTracer');
 const { MongoQuerySimplifier } = require('./mongoQuerySimplifier');
 const { RethrownError } = require('./rethrownError');
@@ -19,7 +17,6 @@ const {
     CONSENT_CATEGORY
 } = require('../constants');
 const { dateQueryBuilder } = require('./querybuilder.util');
-const { logError } = require('../operations/common/logging');
 const httpContext = require('express-http-context');
 
 /**
@@ -39,28 +36,14 @@ class DelegatedAccessRulesManager {
      * @param {Object} params
      * @param {ConfigManager} params.configManager
      * @param {DatabaseQueryFactory} params.databaseQueryFactory
-     * @param {FilteringRulesCacheKeyGenerator} params.filteringRulesCacheKeyGenerator
-     * @param {RedisManager} params.redisManager
      * @param {CustomTracer} params.customTracer
      */
-    constructor({ configManager, databaseQueryFactory, filteringRulesCacheKeyGenerator, redisManager, customTracer }) {
+    constructor({ configManager, databaseQueryFactory, customTracer }) {
         /**
          * @type {ConfigManager}
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {FilteringRulesCacheKeyGenerator}
-         */
-        this.filteringRulesCacheKeyGenerator = filteringRulesCacheKeyGenerator;
-        assertTypeEquals(filteringRulesCacheKeyGenerator, FilteringRulesCacheKeyGenerator);
-
-        /**
-         * @type {RedisManager}
-         */
-        this.redisManager = redisManager;
-        assertTypeEquals(redisManager, RedisManager);
 
         /**
          * @type {DatabaseQueryFactory}
@@ -115,27 +98,6 @@ class DelegatedAccessRulesManager {
                 };
             }
 
-            // Check Redis cache (generation-based key)
-            if (this.configManager.readFromCacheForDataSharingAccessConsent) {
-                const redisCacheKey = await this.filteringRulesCacheKeyGenerator.generateCacheKeyAsync(
-                    personIdFromJwtToken, actorReference
-                );
-                if (redisCacheKey) {
-                    try {
-                        const redisFilteringRules = await this.redisManager.readBundleFromCacheAsync(redisCacheKey);
-                        if (redisFilteringRules) {
-                            httpContext.set(cacheKey, redisFilteringRules);
-                            return {
-                                filteringRules: redisFilteringRules,
-                                actorConsentQueries: [],
-                                actorConsentQueryOptions: []
-                            };
-                        }
-                    } catch (error) {
-                        logError('Error reading filtering rules from Redis cache', { error });
-                    }
-                }
-            }
         }
 
         const filteringRulesObj = await this.customTracer.trace({
@@ -179,24 +141,6 @@ class DelegatedAccessRulesManager {
 
         // Cache in httpContext for same-request reuse
         httpContext.set(cacheKey, filteringRulesObj.filteringRules);
-
-        // Cache in Redis for cross-request reuse
-        if (filteringRulesObj.filteringRules) {
-            const redisCacheKey = await this.filteringRulesCacheKeyGenerator.generateCacheKeyAsync(
-                personIdFromJwtToken, actorReference
-            );
-            if (redisCacheKey) {
-                try {
-                    await this.redisManager.writeBundleAsync(
-                        redisCacheKey,
-                        filteringRulesObj.filteringRules,
-                        this.configManager.delegatedAccessFilteringRulesCacheTtlSeconds
-                    );
-                } catch (error) {
-                    logError('Error writing filtering rules to Redis cache', { error });
-                }
-            }
-        }
 
         return filteringRulesObj;
     }

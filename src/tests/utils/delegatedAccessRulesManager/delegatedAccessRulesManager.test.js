@@ -35,17 +35,11 @@ describe('DelegatedAccessRulesManager Tests', () => {
     let requestId;
     const MOCK_DATE = new Date('2025-12-24T20:00:00.000Z');
     let originalEnableDelegatedAccessFiltering;
-    let originalEnableRedis;
-    let originalEnableRedisCacheRead;
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeAll(() => {
         originalEnableDelegatedAccessFiltering = process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
-        originalEnableRedis = process.env.ENABLE_REDIS;
-        originalEnableRedisCacheRead = process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
         process.env.ENABLE_DELEGATED_ACCESS_DETECTION = 'true';
-        process.env.ENABLE_REDIS = 'true';
-        process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT = 'true';
     });
 
     afterAll(() => {
@@ -54,16 +48,6 @@ describe('DelegatedAccessRulesManager Tests', () => {
             process.env.ENABLE_DELEGATED_ACCESS_DETECTION = originalEnableDelegatedAccessFiltering;
         } else {
             delete process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
-        }
-        if (originalEnableRedis !== undefined) {
-            process.env.ENABLE_REDIS = originalEnableRedis;
-        } else {
-            delete process.env.ENABLE_REDIS;
-        }
-        if (originalEnableRedisCacheRead !== undefined) {
-            process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT = originalEnableRedisCacheRead;
-        } else {
-            delete process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
         }
     });
 
@@ -366,7 +350,6 @@ describe('DelegatedAccessRulesManager Tests', () => {
                 .set(getHeaders());
             expect(resp).toHaveMergeResponse({ created: true });
 
-            // Use _debug: true to bypass Redis cache from prior tests
             await expect(
                 delegatedAccessRulesManager.getFilteringRulesAsync({
                     actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
