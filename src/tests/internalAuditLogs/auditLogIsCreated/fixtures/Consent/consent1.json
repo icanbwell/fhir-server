@@ -3,7 +3,7 @@
     "id": "consent-for-delegated-actor",
     "meta": {
         "versionId": "1",
-        "source": "https://www.icanbwell.com/personal-access-relationship-service",
+        "source": "https://delegated-access-rules-manager-tests",
         "security": [
             {
                 "system": "https://www.icanbwell.com/owner",

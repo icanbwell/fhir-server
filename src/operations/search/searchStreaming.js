@@ -111,6 +111,8 @@ class SearchStreamingOperation {
             /** @type {string | null} */
             user,
             /** @type {string | null} */
+            userType,
+            /** @type {string | null} */
             scope,
             /** @type {string | null} */
             originalUrl,
@@ -125,8 +127,7 @@ class SearchStreamingOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
-            userRequestId,
-            userType
+            userRequestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(

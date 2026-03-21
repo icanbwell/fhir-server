@@ -5,6 +5,7 @@ const { isTrue } = require('./isTrue');
  * @typedef {Object} JwtActor
  * @property {string} sub - The subject of the actor
  * @property {string} reference - A reference string that identifies the actor
+ * @property {string|null} [consentPolicy] - Consent policy URI, set after consent validation
  */
 
 /**
@@ -148,13 +149,6 @@ class FhirRequestInfo {
          * @type {JwtActor|null}
          */
         this.actor = actor;
-
-        /**
-         * Consent policy URI for delegated access audit logging.
-         * Set by DelegatedAccessRulesManager when filtering rules are resolved.
-         * @type {string|null}
-         */
-        this.consentPolicy = null;
 
         /**
          * whether the client wants to use global ids

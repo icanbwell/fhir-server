@@ -32,7 +32,7 @@
     "_uuid": "6db13a4f-fee5-485a-b245-18881c0232ac",
     "meta": {
         "versionId": "1",
-        "source": "https://www.icanbwell.com/personal-access-relationship-service",
+        "source": "https://delegated-access-rules-manager-tests",
         "security": [
             {
                 "system": "https://www.icanbwell.com/owner",

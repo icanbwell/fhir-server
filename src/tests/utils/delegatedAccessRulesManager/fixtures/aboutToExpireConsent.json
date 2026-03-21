@@ -30,7 +30,7 @@
     ],
     "id": "f1e2d3c4-b5a6-9788-0c1d-2e3f4a5b6c7d",
     "meta": {
-        "source": "https://www.icanbwell.com/personal-access-relationship-service",
+        "source": "https://delegated-access-rules-manager-tests",
         "security": [
             {
                 "system": "https://www.icanbwell.com/owner",

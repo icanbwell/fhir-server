@@ -143,7 +143,7 @@ class AuditLogger {
         let agents;
 
         if (hasDelegatedActor) {
-            const consentPolicy = requestInfo.consentPolicy;
+            const consentPolicy = requestInfo.actor.consentPolicy;
             agents = [
                 new AuditEventAgent({
                     who: new Reference({

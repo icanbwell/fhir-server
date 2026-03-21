@@ -79,8 +79,7 @@ class ScopesValidator {
                         'User does not have valid permission for delegated access'
                     );
                 }
-                // assign this so to access later
-                requestInfo.consentPolicy = consentPolicy;
+                requestInfo.actor.consentPolicy = consentPolicy;
             }
 
             const {user, scope} = requestInfo;
