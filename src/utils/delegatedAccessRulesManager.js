@@ -345,9 +345,11 @@ class DelegatedAccessRulesManager {
 
     /**
      * Checks if a valid consent exists for the delegated actor
+     * It also sets the consentPolicy on the actor if valid consent is found,
+     * which can be used later in the request processing pipeline
      * @param {import('./fhirRequestInfo').JwtActor} actor
      * @param {string} personIdFromJwtToken
-     * @returns {Promise<{isAllowed: boolean, consentPolicy: string|null}>}
+     * @returns {Promise<boolean>}
      */
     async hasValidConsentAsync({ actor, personIdFromJwtToken }) {
         const result = await this.getFilteringRulesAsync({
@@ -359,10 +361,9 @@ class DelegatedAccessRulesManager {
             return { isAllowed: false, consentPolicy: null };
         }
         const { consentId, consentVersion } = filteringRules;
-        return {
-            isAllowed: true,
-            consentPolicy: `Consent/${consentId}?version=${consentVersion}`
-        };
+        // set the actor policy
+        actor.consentPolicy = `Consent/${consentId}?version=${consentVersion}`;
+        return true;
     }
 }
 
