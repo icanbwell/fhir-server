@@ -358,7 +358,7 @@ class DelegatedAccessRulesManager {
         });
         const filteringRules = result.filteringRules;
         if (!filteringRules) {
-            return { isAllowed: false, consentPolicy: null };
+            return false;
         }
         const { consentId, consentVersion } = filteringRules;
         // set the actor policy
