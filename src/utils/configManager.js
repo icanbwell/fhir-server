@@ -1141,6 +1141,13 @@ class ConfigManager {
         return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER || 'https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category';
     }
 
+    get delegatedAccessFilteringRulesCacheTtlSeconds() {
+        return parseInt(env.DELEGATED_ACCESS_FILTERING_RULES_CACHE_TTL_SECONDS) || 300;
+    }
+
+    get readFromCacheForDataSharingAccessConsent() {
+        return isTrue(env.ENABLE_REDIS) && isTrue(env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT);
+    }
 }
 
 module.exports = {

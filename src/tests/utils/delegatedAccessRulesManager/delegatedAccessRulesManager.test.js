@@ -35,11 +35,18 @@ describe('DelegatedAccessRulesManager Tests', () => {
     let requestId;
     const MOCK_DATE = new Date('2025-12-24T20:00:00.000Z');
     let originalEnableDelegatedAccessFiltering;
+    let originalEnableRedis;
+    let originalEnableRedisCacheRead;
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeAll(() => {
         originalEnableDelegatedAccessFiltering = process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
+        originalEnableRedis = process.env.ENABLE_REDIS;
+        originalEnableRedisCacheRead = process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
         process.env.ENABLE_DELEGATED_ACCESS_DETECTION = 'true';
+        // Disable Redis caching in tests to ensure DB queries are always exercised
+        delete process.env.ENABLE_REDIS;
+        delete process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
     });
 
     afterAll(() => {
@@ -48,6 +55,16 @@ describe('DelegatedAccessRulesManager Tests', () => {
             process.env.ENABLE_DELEGATED_ACCESS_DETECTION = originalEnableDelegatedAccessFiltering;
         } else {
             delete process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
+        }
+        if (originalEnableRedis !== undefined) {
+            process.env.ENABLE_REDIS = originalEnableRedis;
+        } else {
+            delete process.env.ENABLE_REDIS;
+        }
+        if (originalEnableRedisCacheRead !== undefined) {
+            process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT = originalEnableRedisCacheRead;
+        } else {
+            delete process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
         }
     });
 
@@ -369,6 +386,87 @@ describe('DelegatedAccessRulesManager Tests', () => {
             } catch (error) {
                 expect(error.statusCode).toBe(403);
                 expect(error.message).toContain('ambiguous permissions found for the actor');
+            }
+        });
+
+        test('should return updated filtering rules after consent is updated and cache generation is bumped', async () => {
+            const request = await createTestRequest();
+            const container = getTestContainer();
+            const delegatedAccessRulesManager = container.delegatedAccessRulesManager;
+            const filteringRulesCacheKeyGenerator = container.filteringRulesCacheKeyGenerator;
+
+            // Enable Redis caching for this test (MockRedisClient handles storage)
+            process.env.ENABLE_REDIS = 'true';
+            process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT = 'true';
+
+            try {
+                // 1. Insert consent and fetch filtering rules (populates Redis cache)
+                let resp = await request
+                    .post('/4_0_0/Consent/$merge/?validate=true')
+                    .send(activeConsent)
+                    .set(getHeaders());
+                expect(resp).toHaveMergeResponse({ created: true });
+
+                const result1 = await delegatedAccessRulesManager.getFilteringRulesAsync({
+                    actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
+                    personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                    base_version: '4_0_0',
+                    _debug: true // bypass httpContext cache to hit DB then write to Redis
+                });
+
+                expect(result1.filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
+
+                // 2. Verify Redis cache returns the same result
+                mockHttpContext();
+                const result1Cached = await delegatedAccessRulesManager.getFilteringRulesAsync({
+                    actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
+                    personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                    base_version: '4_0_0',
+                    _debug: false
+                });
+                expect(result1Cached.filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
+
+                // 3. Update consent — add a new denied sensitive category (SUBSTANCE_ABUSE)
+                const updatedConsent = deepcopy(activeConsent);
+                updatedConsent.provision.provision.push({
+                    type: 'deny',
+                    securityLabel: [
+                        {
+                            system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category',
+                            code: 'SUBSTANCE_ABUSE',
+                            display: 'Substance Abuse'
+                        }
+                    ]
+                });
+                resp = await request
+                    .post('/4_0_0/Consent/$merge/?validate=true')
+                    .send(updatedConsent)
+                    .set(getHeaders());
+                expect(resp).toHaveMergeResponse({ updated: true });
+
+                // 4. Bump the cache generation (simulates invalidation by external service)
+                const generationKey = filteringRulesCacheKeyGenerator._getGenerationKey(
+                    'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                    'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7'
+                );
+                const redisClient = container.redisClient;
+                await redisClient.incr(generationKey);
+
+                // 5. Clear httpContext cache and fetch again — should get updated rules from DB
+                mockHttpContext();
+                const result2 = await delegatedAccessRulesManager.getFilteringRulesAsync({
+                    actor: { reference: 'RelatedPerson/fc2b3779-1db9-4780-bea1-73dc941b02a7' },
+                    personIdFromJwtToken: 'd5ad4ef0-1a68-4e8c-9871-819cdfa25da9',
+                    base_version: '4_0_0',
+                    _debug: false
+                });
+
+                expect(result2.filteringRules.deniedSensitiveCategories).toStrictEqual([
+                    'MENTAL_HEALTH', 'HIV_AIDS', 'SUBSTANCE_ABUSE'
+                ]);
+            } finally {
+                delete process.env.ENABLE_REDIS;
+                delete process.env.ENABLE_REDIS_CACHE_READ_FOR_DATA_SHARING_ACCESS_CONSENT;
             }
         });
     });

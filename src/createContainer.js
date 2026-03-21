@@ -134,6 +134,7 @@ const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
+const { FilteringRulesCacheKeyGenerator } = require('./utils/filteringRulesCacheKeyGenerator');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 
 /**
@@ -212,9 +213,14 @@ const createContainer = function () {
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
     }));
+    container.register('filteringRulesCacheKeyGenerator', (c) => new FilteringRulesCacheKeyGenerator({
+        redisManager: c.redisManager
+    }));
     container.register('delegatedAccessRulesManager', (c) => new DelegatedAccessRulesManager({
         configManager: c.configManager,
         databaseQueryFactory: c.databaseQueryFactory,
+        filteringRulesCacheKeyGenerator: c.filteringRulesCacheKeyGenerator,
+        redisManager: c.redisManager,
         customTracer: c.customTracer
     }));
     container.register('delegatedAccessScopeManager', (c) => new DelegatedAccessScopeManager({
