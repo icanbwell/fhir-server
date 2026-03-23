@@ -51,7 +51,8 @@
         "clientFhirPersonId": "${MY_USER_CLIENT_PERSON_ID}",
         "clientFhirPatientId": "${MY_USER_CLIENT_PATIENT_ID}",
         "bwellFhirPersonId": "${MY_USER_BWELL_PERSON_ID}",
-        "bwellFhirPatientId": "${MY_USER_BWELL_PATIENT_ID}"
+        "bwellFhirPatientId": "${MY_USER_BWELL_PATIENT_ID}",
+        "managingOrganization": "${MY_USER_BWELL_ORGANIZATION_ID}"
       }
     },
     {
@@ -84,6 +85,7 @@
         "clientFhirPatientId": "${MY_USER_CLIENT_PATIENT_ID}",
         "bwellFhirPersonId": "${MY_USER_BWELL_PERSON_ID}",
         "bwellFhirPatientId": "${MY_USER_BWELL_PATIENT_ID}",
+        "managingOrganization": "${MY_USER_BWELL_ORGANIZATION_ID}",
         "token_use": "access",
         "username": "${MY_USER_TOKEN_USERNAME}"
       }
@@ -118,6 +120,7 @@
         "clientFhirPatientId": "${CMS_USER_CLIENT_PATIENT_ID}",
         "bwellFhirPersonId": "${CMS_USER_BWELL_PERSON_ID}",
         "bwellFhirPatientId": "${CMS_USER_BWELL_PATIENT_ID}",
+        "managingOrganization": "${CMS_USER_MANAGING_ORGANIZATION_ID}",
         "token_use": "access",
         "username": "${CMS_USER_TOKEN_USERNAME}"
       }
@@ -310,6 +313,20 @@
           }
         },
         {
+          "name": "managing-organization-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "managingOrganization",
+            "claim.name": "managingOrganization",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
           "name": "bwell-token-use-mapper",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-attribute-mapper",
@@ -452,6 +469,20 @@
           "config": {
             "user.attribute": "bwellFhirPatientId",
             "claim.name": "bwellFhirPatientId",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "managing-organization-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "managingOrganization",
+            "claim.name": "managingOrganization",
             "jsonType.label": "String",
             "id.token.claim": "true",
             "access.token.claim": "true",

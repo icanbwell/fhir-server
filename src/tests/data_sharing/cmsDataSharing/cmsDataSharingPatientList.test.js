@@ -24,6 +24,8 @@ const expectedPatientListConsent2DeniedResponse = require('./fixtures/expected/e
 const expectedPatientListConsent2ResponseIdFilter = require('./fixtures/expected/expected_patient_list_consent_2_id_filter.json');
 const expectedPatientListNoConsentResponseIdFilter = require('./fixtures/expected/expected_patient_list_no_consent_id_filter.json');
 
+const organizationCms = require('./fixtures/organization/organization_cms.json');
+
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -41,12 +43,13 @@ const PATIENT_ID_3 = '08f1b73a-e27c-456d-8a61-277f164a9a57-3';
 // Helper to create CMS partner user headers with patient scope
 const getCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'cmsPartnerUser patient/*.read user/*.read access/*.read',
+        scope: 'patient/*.read user/*.read access/*.read',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
         clientFhirPatientId: `person.${personId}`,
-        bwellFhirPatientId: `person.${personId}`
+        bwellFhirPatientId: `person.${personId}`,
+        managingOrganization: organizationCms.id
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -59,7 +62,7 @@ const getCmsHeaders = (personId) => {
 // Helper to create invalid scope headers (cmsPartnerUser without patient scope)
 const getInvalidCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'user/*.read cmsPartnerUser',
+        scope: 'user/*.read',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId
@@ -77,14 +80,16 @@ describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
 
     beforeEach(async () => {
         cursorSpy.mockReturnThis();
+        process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION = 'true';
         await commonBeforeEach();
     });
 
     afterEach(async () => {
+        delete process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION;
         await commonAfterEach();
     });
 
-    test('Invalid scope: cmsPartnerUser without patient scope should return 401', async () => {
+    test('Without patient scope: treated as regular user, not CMS', async () => {
         const request = await createTestRequest();
 
         // Add all persons and patients
@@ -100,16 +105,16 @@ describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
                 patient2Resource,
                 patient3Resource,
                 patient4Resource,
-                patient5Resource
+                patient5Resource,
+                organizationCms
             ])
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
-        // Query with invalid scope (user/*.read instead of patient/*.read)
+        // Query with non-patient scope and no access scope - should be forbidden
         resp = await request.get('/4_0_0/Patient?_bundle=1&_count=100').set(getInvalidCmsHeaders(PERSON_ID_1));
 
-        // Should return 401 Unauthorized
-        expect(resp.statusCode).toBe(401);
+        expect(resp).toHaveStatusCode(403);
     });
 
     test('Patient list without consent: Should return 0 patients', async () => {
@@ -128,7 +133,8 @@ describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
                 patient2Resource,
                 patient3Resource,
                 patient4Resource,
-                patient5Resource
+                patient5Resource,
+                organizationCms
             ])
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
@@ -158,7 +164,8 @@ describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
                 patient3Resource,
                 patient4Resource,
                 patient5Resource,
-                consent2Resource
+                consent2Resource,
+                organizationCms
             ])
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
@@ -191,7 +198,8 @@ describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
                 patient4Resource,
                 patient5Resource,
                 consent2Resource,
-                consent5Resource
+                consent5Resource,
+                organizationCms
             ])
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
@@ -230,7 +238,8 @@ describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
                 patient3Resource,
                 patient4Resource,
                 patient5Resource,
-                consent2DeniedResource
+                consent2DeniedResource,
+                organizationCms
             ])
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
@@ -263,7 +272,8 @@ describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
                 patient4Resource,
                 patient5Resource,
                 consent2Resource,
-                consent5Resource
+                consent5Resource,
+                organizationCms
             ])
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
@@ -297,7 +307,8 @@ describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
                 patient3Resource,
                 patient4Resource,
                 patient5Resource,
-                consent2Resource
+                consent2Resource,
+                organizationCms
             ])
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });

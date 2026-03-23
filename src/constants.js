@@ -281,6 +281,7 @@ module.exports = {
         cmsPartnerUser: 'cmsPartnerUser',
         delegatedUser: 'delegatedUser'
     },
+    CMS_NETWORK_TENANT_ORGANIZATION_TYPE: 'bwell-network-tenant',
     CMS_PARTNER_ACCESS: {
         RESTRICTED_EVERYTHING_PARAMS: [
             '_includePatientLinkedOnly',

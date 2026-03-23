@@ -12,6 +12,8 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const {UserTypeManager} = require("../utils/userTypeManager");
+const {ForbiddenError} = require("../utils/httpErrors");
 
 /**
  * @typedef {Object} UserInfo
@@ -39,10 +41,12 @@ class AuthService {
      * Constructor for the AuthService
      * @param {ConfigManager} configManager
      * @param {WellKnownConfigurationManager} wellKnownConfigurationManager
+     * @param {UserTypeManager} userTypeManager
      */
     constructor({
                     configManager,
-                    wellKnownConfigurationManager
+                    wellKnownConfigurationManager,
+                    userTypeManager
                 }) {
         /**
          * @type {ConfigManager}
@@ -55,6 +59,12 @@ class AuthService {
          */
         this.wellKnownConfigurationManager = wellKnownConfigurationManager;
         assertTypeEquals(wellKnownConfigurationManager, WellKnownConfigurationManager);
+
+        /**
+         * @type {UserTypeManager}
+         */
+        this.userTypeManager = userTypeManager;
+        assertTypeEquals(userTypeManager, UserTypeManager);
 
         this.requestTimeout = (this.configManager.externalRequestTimeoutSec || 30) * 1000;
         this.requiredJWTFields = {
@@ -189,10 +199,9 @@ class AuthService {
      * @param {import("passport-jwt").VerifiedCallback} done
      * @param {string} client_id
      * @param {string} scope
-     * @param {string|undefined} userType
      * @return {void}
      */
-    processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope, userType}) {
+    processUserInfo({username, subject, isUser, jwt_payload, done, client_id, scope}) {
         const context = {};
         if (username) {
             context.username = username;
@@ -226,23 +235,37 @@ class AuthService {
                     return;
                 } else if (result.actor) {
                     context.actor = result.actor;
-                    userType = AUTH_USER_TYPES.delegatedUser;
+                    context.userType = AUTH_USER_TYPES.delegatedUser;
                 }
             }
+            if (this.configManager.enableUserTypeResolutionFromOrganization) {
+                this.userTypeManager.resolveUserTypeAsync({
+                    managingOrganizationId: jwt_payload[this.requiredJWTFields.managingOrganization]
+                }).then((resolvedUserType) => {
+                    if (resolvedUserType) {
+                        context.userType = resolvedUserType;
+                    }
+                    logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
+                    const effectiveUsername = context.username || username;
+                    done(null, {id: client_id, isUser, name: effectiveUsername, username: effectiveUsername}, {scope, context});
+                }).catch((error) => {
+                    logError(`Error resolving user type: ${error.message}`, {error: error});
+                    done(new ForbiddenError('Unable to verify organization for user type detection'));
+                });
+                return;
+            }
         }
-        if (userType) {
+        if (context.userType) {
             if (!isUser) {
-                logError(`userType ${userType} is not valid for non-patient token`, {
+                logError(`userType ${context.userType} is not valid for non-patient token`, {
                     username: context.username,
-                    userType
+                    userType: context.userType
                 });
                 done(null, false);
                 return;
             }
-            context.userType = userType;
         }
         logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
-
         const effectiveUsername = context.username || username;
         done(null, {id: client_id, isUser, name: effectiveUsername, username: effectiveUsername}, {scope, context});
     }
@@ -297,7 +320,7 @@ class AuthService {
     /**
      * Extracts fields from the JWT payload.
      * @param {Object} jwt_payload
-     * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined, clientId: string|undefined, userType: string|undefined}}
+     * @returns {{scope: string, isUser: boolean, username: string|undefined, subject: string|undefined, clientId: string|undefined}}
      */
     getFieldsFromToken(jwt_payload) {
         /**
@@ -468,7 +491,7 @@ class AuthService {
                 }
             }
 
-            let {scope, isUser, username, subject, clientId, userType} = this.getFieldsFromToken(jwt_payload);
+            let {scope, isUser, username, subject, clientId} = this.getFieldsFromToken(jwt_payload);
 
             // if there are no scopes try to get the userInfo from userInfo endpoint
             if (!scope && jwt_payload.iss) {
@@ -481,8 +504,7 @@ class AuthService {
                             isUser: isUser1,
                             username: username1,
                             subject: subject1,
-                            clientId: clientId1,
-                            userType: userType1
+                            clientId: clientId1
                         } = userInfo;
                         this.processUserInfo({
                             username: username1 || username,
@@ -491,8 +513,7 @@ class AuthService {
                             jwt_payload,
                             done,
                             client_id: clientId1 || clientId,
-                            scope: scope1 || scope,
-                            userType: userType1 || userType
+                            scope: scope1 || scope
                         });
                     } else {
                         this.processUserInfo({
@@ -502,8 +523,7 @@ class AuthService {
                             jwt_payload,
                             done,
                             client_id: clientId,
-                            scope,
-                            userType
+                            scope
                         });
                     }
 
@@ -521,8 +541,7 @@ class AuthService {
                             jwt_payload,
                             done,
                             client_id: clientId,
-                            scope,
-                            userType
+                            scope
                         }
                     }
                 });
@@ -533,8 +552,7 @@ class AuthService {
                     jwt_payload,
                     done,
                     client_id: clientId,
-                    scope,
-                    userType
+                    scope
                 });
             }
         } else {

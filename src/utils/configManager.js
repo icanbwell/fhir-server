@@ -1129,6 +1129,14 @@ class ConfigManager {
     get enableDelegatedAccessDetection() {
         return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
     }
+
+    /**
+     * whether to enable user type resolution using orgnaization type.
+     */
+    get enableUserTypeResolutionFromOrganization() {
+        return isTrue(env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION);
+    }
+
 }
 
 module.exports = {
