@@ -5,6 +5,7 @@ const { isTrue } = require('./isTrue');
  * @typedef {Object} JwtActor
  * @property {string} sub - The subject of the actor
  * @property {string} reference - A reference string that identifies the actor
+ * @property {string|null} [consentPolicy] - Consent policy URI, set after consent validation
  */
 
 /**

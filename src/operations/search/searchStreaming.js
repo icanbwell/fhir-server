@@ -88,10 +88,11 @@ class SearchStreamingOperation {
 
     /**
      * does a FHIR Search
-     * @param {FhirRequestInfo} requestInfo
-     * @param {import('express').Response} res
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @param {Object} options
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} options.requestInfo
+     * @param {import('express').Response} options.res
+     * @param {ParsedArgs} options.parsedArgs
+     * @param {string} options.resourceType
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreamingAsync (
