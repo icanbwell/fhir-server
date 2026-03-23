@@ -501,4 +501,73 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(entries.length).toBeGreaterThan(0);
         expect(returnedTypes.has('Account')).toBe(true);
     });
+
+    test('User without matching access scope for CMS org returns 403', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([...baseResources, consent1])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Token with access scope that does NOT match the CMS org's access tag (client-1)
+        const tokenWithWrongAccess = getTokenWithCustomPayload({
+            scope: 'patient/*.read user/*.read access/client.read',
+            username: CMS_PERSON_ID,
+            clientFhirPersonId: CMS_PERSON_ID,
+            bwellFhirPersonId: CMS_PERSON_ID,
+            clientFhirPatientId: `person.${CMS_PERSON_ID}`,
+            bwellFhirPatientId: `person.${CMS_PERSON_ID}`,
+            managingOrganization: organization1.id
+        });
+
+        resp = await request
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
+            .set({
+                'Content-Type': 'application/fhir+json',
+                Accept: 'application/fhir+json',
+                Authorization: `Bearer ${tokenWithWrongAccess}`,
+                Host: 'localhost:3000'
+            });
+
+        expect(resp).toHaveStatusCode(403);
+    });
+
+    test('User with matching access scope for CMS org resolves as CMS user', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([...baseResources, consent1])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Token with access scope matching the CMS org's access tag (client-1)
+        const tokenWithCorrectAccess = getTokenWithCustomPayload({
+            scope: 'patient/*.read user/*.read access/client-1.read',
+            username: CMS_PERSON_ID,
+            clientFhirPersonId: CMS_PERSON_ID,
+            bwellFhirPersonId: CMS_PERSON_ID,
+            clientFhirPatientId: `person.${CMS_PERSON_ID}`,
+            bwellFhirPatientId: `person.${CMS_PERSON_ID}`,
+            managingOrganization: organization1.id
+        });
+
+        resp = await request
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
+            .set({
+                'Content-Type': 'application/fhir+json',
+                Accept: 'application/fhir+json',
+                Authorization: `Bearer ${tokenWithCorrectAccess}`,
+                Host: 'localhost:3000'
+            });
+
+        expect(resp).toHaveStatusCode(200);
+        const entries = resp.body.entry || [];
+        const returnedTypes = new Set(entries.map((e) => e.resource.resourceType));
+
+        // Should be treated as CMS user - Account should NOT be present
+        expect(returnedTypes.has('Account')).toBe(false);
+    });
 });

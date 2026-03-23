@@ -1131,7 +1131,7 @@ class ConfigManager {
     }
 
     /**
-     * whether to enable user type resolution using orgnaization type.
+     * Whether to enable user type resolution using organization type.
      */
     get enableUserTypeResolutionFromOrganization() {
         return isTrue(env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION);

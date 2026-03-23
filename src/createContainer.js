@@ -1057,7 +1057,8 @@ const createContainer = function () {
     });
 
     container.register('userTypeManager', (c) => new UserTypeManager({
-        databaseQueryFactory: c.databaseQueryFactory
+        databaseQueryFactory: c.databaseQueryFactory,
+        scopesManager: c.scopesManager
     }));
 
     container.register('authService', (c) => {

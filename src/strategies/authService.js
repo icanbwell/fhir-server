@@ -13,7 +13,6 @@ const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 const {UserTypeManager} = require("../utils/userTypeManager");
-const {ForbiddenError} = require("../utils/httpErrors");
 
 /**
  * @typedef {Object} UserInfo
@@ -240,7 +239,9 @@ class AuthService {
             }
             if (this.configManager.enableUserTypeResolutionFromOrganization) {
                 this.userTypeManager.resolveUserTypeAsync({
-                    managingOrganizationId: jwt_payload[this.requiredJWTFields.managingOrganization]
+                    managingOrganizationId: jwt_payload[this.requiredJWTFields.managingOrganization],
+                    scope,
+                    user: context.username
                 }).then((resolvedUserType) => {
                     if (resolvedUserType) {
                         context.userType = resolvedUserType;
@@ -250,7 +251,7 @@ class AuthService {
                     done(null, {id: client_id, isUser, name: effectiveUsername, username: effectiveUsername}, {scope, context});
                 }).catch((error) => {
                     logError(`Error resolving user type: ${error.message}`, {error: error});
-                    done(new ForbiddenError('Unable to verify organization for user type detection'));
+                    done(error);
                 });
                 return;
             }

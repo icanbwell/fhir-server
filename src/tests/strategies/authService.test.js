@@ -1,25 +1,9 @@
 const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
-const {
-    MyJwtStrategy
-} = require("../../strategies/jwt.bearer.strategy");
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
-const jwt = require("jsonwebtoken");
-const crypto = require('crypto');
 const {AuthService} = require("../../strategies/authService");
 const {ConfigManager} = require("../../utils/configManager");
-const {UserTypeManager} = require("../../utils/userTypeManager");
-const {DatabaseQueryFactory} = require("../../dataLayer/databaseQueryFactory");
-
-class MockUserTypeManager extends UserTypeManager {
-    constructor() {
-        super({ databaseQueryFactory: Object.create(DatabaseQueryFactory.prototype) });
-    }
-}
-
-function createTestUserTypeManager() {
-    return new MockUserTypeManager();
-}
+const {createTestContainer} = require("../createTestContainer");
 
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
@@ -53,7 +37,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager
                     }
                 ),
-                userTypeManager: createTestUserTypeManager()
+                userTypeManager: createTestContainer().userTypeManager
             }
         );
 
@@ -89,7 +73,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager
                     }
                 ),
-                userTypeManager: createTestUserTypeManager()
+                userTypeManager: createTestContainer().userTypeManager
             }
         );
         authService.clearAuthCache();
@@ -124,7 +108,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager
                     }
                 ),
-                userTypeManager: createTestUserTypeManager()
+                userTypeManager: createTestContainer().userTypeManager
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -159,7 +143,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager: configManager
                     }
                 ),
-                userTypeManager: createTestUserTypeManager()
+                userTypeManager: createTestContainer().userTypeManager
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -211,7 +195,7 @@ describe('JWT Bearer Strategy', () => {
             {
                 configManager: configManager,
                 wellKnownConfigurationManager: wellKnownManager,
-                userTypeManager: createTestUserTypeManager()
+                userTypeManager: createTestContainer().userTypeManager
             }
         );
         const userInfoResponse = await authService.getExternalJwksAsync();
