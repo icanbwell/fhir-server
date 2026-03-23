@@ -17,6 +17,8 @@ const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
 const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
+const {AUTH_USER_TYPES} = require('./constants');
+const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
@@ -372,9 +374,12 @@ function createApp({fnGetContainer}) {
     if (isTrue(process.env.ENABLE_GRAPHQL) || configManager.enableGraphQLV2) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
+        const forbidRestrictedUserTypes = forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]);
+
         const router = express.Router();
         router.use(passport.initialize());
         router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+        router.use(forbidRestrictedUserTypes);
         router.use(cors(fhirServerConfig.server.corsOptions));
         router.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
@@ -408,6 +413,7 @@ function createApp({fnGetContainer}) {
         const routerv2 = express.Router();
         routerv2.use(passport.initialize());
         routerv2.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+        routerv2.use(forbidRestrictedUserTypes);
         routerv2.use(cors(fhirServerConfig.server.corsOptions));
         routerv2.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui

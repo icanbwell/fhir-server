@@ -1,0 +1,17 @@
+{
+  "resourceType": "Person",
+  "id": "ba8ab1f9-549f-4675-9d75-e8b7864b5cb7",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/connectionType", "code": "proa" }
+    ]
+  },
+  "name": [{ "family": "Client", "given": ["Person1"] }],
+  "link": [
+    { "id": "link-client-patient", "target": { "reference": "Patient/db9b5696-4d7d-4e50-bc72-095acce6e2e1" } },
+    { "id": "link-proa-patient", "target": { "reference": "Patient/a25d86d2-5d31-4e9c-8a01-a3899426fac0" } }
+  ]
+}

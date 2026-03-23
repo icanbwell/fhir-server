@@ -1,0 +1,12 @@
+{
+  "resourceType": "Organization",
+  "id": "85974688-f37c-4eac-aee7-7d5e2580809b",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" }
+    ]
+  },
+  "name": "Test Hospital"
+}

@@ -1,0 +1,15 @@
+{
+  "resourceType": "Patient",
+  "id": "a25d86d2-5d31-4e9c-8a01-a3899426fac0",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/connectionType", "code": "proa" }
+    ]
+  },
+  "gender": "male",
+  "birthDate": "1975-03-20",
+  "name": [{ "given": ["PROA"], "family": "PatientA" }]
+}

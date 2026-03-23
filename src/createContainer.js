@@ -87,6 +87,7 @@ const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedRef
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {ProaConsentManager} = require('./operations/search/proaConsentManager');
 const {CmsConsentManager} = require('./operations/search/cmsConsentManager');
+const {CMSManager} = require('./utils/cmsManager');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -283,6 +284,7 @@ const createContainer = function () {
     container.register('cmsConsentManager', (c) => new CmsConsentManager({
         databaseQueryFactory: c.databaseQueryFactory
     }));
+    container.register('cmsManager', () => new CMSManager());
     container.register('dataSharingManager', (c) => new DataSharingManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
@@ -662,7 +664,8 @@ const createContainer = function () {
         configManager: c.configManager,
         everythingHelper: c.everythingHelper,
         fhirOperationUsageEventProducer: c.fhirOperationUsageEventProducer,
-        postRequestProcessor: c.postRequestProcessor
+        postRequestProcessor: c.postRequestProcessor,
+        cmsManager: c.cmsManager
     }));
 
     container.register('removeHelper', c => new RemoveHelper({
@@ -833,7 +836,8 @@ const createContainer = function () {
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager,
                 configManager: c.configManager,
-                summaryOperation: c.summaryOperation
+                summaryOperation: c.summaryOperation,
+                cmsManager: c.cmsManager
             }
         )
     );

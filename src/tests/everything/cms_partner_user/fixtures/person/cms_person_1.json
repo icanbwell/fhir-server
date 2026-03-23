@@ -1,0 +1,16 @@
+{
+  "resourceType": "Person",
+  "id": "9fc1f393-d33e-491a-8e58-9d3065f24d05",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "cms-client" },
+      { "system": "https://www.icanbwell.com/access", "code": "cms-client" }
+    ]
+  },
+  "name": [{ "family": "CMS", "given": ["Person1"] }],
+  "link": [
+    { "id": "link-cms-patient", "target": { "reference": "Patient/28b7172d-0922-44cb-bce1-dc5a3e8407f4" } },
+    { "id": "link-patient", "target": { "reference": "Patient/a25d86d2-5d31-4e9c-8a01-a3899426fac0" } }
+  ]
+}

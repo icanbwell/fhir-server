@@ -1,0 +1,15 @@
+{
+  "resourceType": "Account",
+  "id": "690b09db-ebe0-467b-a393-0e9a215a9e5f",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" }
+    ]
+  },
+  "status": "active",
+  "subject": [{ "reference": "Patient/a25d86d2-5d31-4e9c-8a01-a3899426fac0" }],
+  "owner": { "reference": "Organization/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d" },
+  "name": "Test Account"
+}
