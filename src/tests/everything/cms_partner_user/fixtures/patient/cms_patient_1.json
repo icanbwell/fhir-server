@@ -1,0 +1,14 @@
+{
+  "resourceType": "Patient",
+  "id": "28b7172d-0922-44cb-bce1-dc5a3e8407f4",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "cms-client" },
+      { "system": "https://www.icanbwell.com/access", "code": "cms-client" }
+    ]
+  },
+  "gender": "female",
+  "birthDate": "1985-05-15",
+  "name": [{ "given": ["CMS"], "family": "Patient1" }]
+}

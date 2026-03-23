@@ -412,6 +412,36 @@ def get_non_clinical_rechability_map(
     }
 
 
+def get_uscdi_resources():
+    """
+    Reads USCDI v3 resource types from uscdi_v3_resource_types.json.
+    Returns (uscdi_clinical, uscdi_non_clinical) as sets.
+    """
+    uscdi_path = everything_operation.joinpath("uscdi_v3_resource_types.json")
+    with open(uscdi_path, "r") as f:
+        uscdi = json.load(f)
+    return set(uscdi["clinicalResources"]), set(uscdi["nonClinicalResources"])
+
+
+def get_uscdi_non_clinical_reachability_map(
+    full_reachability_map: Dict[str, List[str]],
+    uscdi_clinical: set,
+    uscdi_non_clinical: set
+) -> Dict[str, List[str]]:
+    """
+    Filters the full reachability map to only include:
+    - Keys that are USCDI v3 non-clinical resources
+    - Values intersected with USCDI v3 clinical + USCDI v3 non-clinical resources
+
+    """
+    uscdi_all = uscdi_clinical | uscdi_non_clinical
+    filtered = {}
+    for resource, references in full_reachability_map.items():
+        if resource in uscdi_non_clinical:
+            filtered[resource] = sorted([r for r in references if r in uscdi_all])
+    return dict(sorted(filtered.items()))
+
+
 def main():
     non_clinical_data = NonClinicalFieldsData()
     non_clinical_data.generate_non_clinical_resource_fields_data()
@@ -420,6 +450,16 @@ def main():
     non_clinical_resources = sorted(list(non_clininical_to_required_resources.keys()))
 
     print_non_clinical_stats(non_clininical_to_required_resources)
+
+    # Generate USCDI v3-filtered reachability map for CMS partner users
+    uscdi_clinical, uscdi_non_clinical = get_uscdi_resources()
+    uscdi_reachability = get_uscdi_non_clinical_reachability_map(
+        non_clininical_to_required_resources, uscdi_clinical, uscdi_non_clinical
+    )
+
+    print("\nUSCDI v3 Non-Clinical Reachability Map:")
+    for resource, refs in uscdi_reachability.items():
+        print(f"  {resource}: {len(refs)} resources")
 
     json_file_path = everything_operation.joinpath("generated.resource_types.json")
     with open(json_file_path, "w") as json_file:
@@ -440,6 +480,7 @@ def main():
         json.dump(
             {
                 "level2": non_clininical_to_required_resources,
+                "uscdiV3Level2": uscdi_reachability,
             },
             json_file,
             indent=2,

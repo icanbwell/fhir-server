@@ -1,0 +1,14 @@
+{
+  "resourceType": "Patient",
+  "id": "db9b5696-4d7d-4e50-bc72-095acce6e2e1",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" }
+    ]
+  },
+  "gender": "male",
+  "birthDate": "1990-01-01",
+  "name": [{ "given": ["Client"], "family": "Patient1" }]
+}

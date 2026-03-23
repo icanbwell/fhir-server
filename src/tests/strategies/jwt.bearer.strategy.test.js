@@ -348,6 +348,7 @@ describe('JWT Bearer Strategy', () => {
             clientFhirPatientId: 'clientFhirPatient',
             bwellFhirPersonId: 'bwellFhirPerson',
             bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'org1',
             token_use: 'access',
             act: {
                 reference: delegatedActorReference,
@@ -465,6 +466,7 @@ describe('JWT Bearer Strategy', () => {
             clientFhirPatientId: 'clientFhirPatient',
             bwellFhirPersonId: 'bwellFhirPerson',
             bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'org1',
             token_use: 'access',
             act: {
                 reference: 'Practitioner/some-practitioner-id',
@@ -551,6 +553,7 @@ describe('JWT Bearer Strategy', () => {
             clientFhirPatientId: 'clientFhirPatient',
             bwellFhirPersonId: 'bwellFhirPerson',
             bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'org1',
             token_use: 'access',
             act: {
                 reference: 'invalid-reference-format'
@@ -655,6 +658,7 @@ describe('JWT Bearer Strategy', () => {
             clientFhirPatientId: 'clientFhirPatient',
             bwellFhirPersonId: 'bwellFhirPerson',
             bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'org1',
             token_use: 'access',
             act: {
                 reference: 'invalid-reference-format'
@@ -741,6 +745,7 @@ describe('JWT Bearer Strategy', () => {
             clientFhirPatientId: 'clientFhirPatient',
             bwellFhirPersonId: 'bwellFhirPerson',
             bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'org1',
             token_use: 'access',
             act: {
                 sub: 'RelatedPerson/8c655e20-e9fc-45f7-8803-b0fade71ff69'
@@ -827,6 +832,7 @@ describe('JWT Bearer Strategy', () => {
             clientFhirPatientId: 'clientFhirPatient',
             bwellFhirPersonId: 'bwellFhirPerson',
             bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'org1',
             token_use: 'access',
             act: {
                 sub: 'RelatedPerson/8c655e20-e9fc-45f7-8803-b0fade71ff69'
@@ -913,6 +919,7 @@ describe('JWT Bearer Strategy', () => {
             clientFhirPatientId: 'clientFhirPatient',
             bwellFhirPersonId: 'bwellFhirPerson',
             bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'org1',
             token_use: 'access',
             act: {
                 reference: 'RelatedPerson/8c655e20-e9fc-45f7-8803-b0fade71ff69'
@@ -979,6 +986,88 @@ describe('JWT Bearer Strategy', () => {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
 
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
+    test('should fail authentication for patient-scoped token without managingOrganization', async () => {
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync(
+                    {
+                        pub: publicKey,
+                        kid: '123'
+                    }
+                )
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const patientScopedPayload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId',
+            scope: 'patient/*.* user/*.* access/*.*',
+            username: 'imran',
+            sub: 'jwt-subject',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient'
+        };
+
+        const patientScopedToken = jwt.sign(patientScopedPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const req = {
+            headers: {authorization: `Bearer ${patientScopedToken}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService(
+                {
+                    configManager: configManager,
+                    wellKnownConfigurationManager: new WellKnownConfigurationManager(
+                        {
+                            configManager: configManager
+                        }
+                    )
+                }
+            ),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toBe(false);
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);

@@ -310,11 +310,11 @@ class EverythingHelper {
 
         return idForCache
             ? await keyGenerator.generateCacheKey({
-                  id: idForCache,
-                  isPersonId: isProxyPatient,
-                  parsedArgs: parsedArgs,
-                  scope: requestInfo.scope
-              })
+                id: idForCache,
+                isPersonId: isProxyPatient,
+                parsedArgs: parsedArgs,
+                scope: requestInfo.scope
+            })
             : undefined;
     }
 
@@ -430,7 +430,7 @@ class EverythingHelper {
                     }
                 }
             }
-            if(!readFromCache || fallbackToMongo) {
+            if (!readFromCache || fallbackToMongo) {
                 for (const idChunk of idChunks) {
                     const parsedArgsForChunk = parsedArgs.clone();
                     parsedArgsForChunk.id = idChunk;
@@ -464,17 +464,17 @@ class EverythingHelper {
                         streamedResources: streamedRes1
                     } = await this.retrieveEverythingMulipleIdsAsync(
                         {
-                        base_version,
-                        requestInfo,
-                        resourceType,
-                        explain: !!parsedArgs._explain,
-                        debug: !!parsedArgs._debug,
-                        parsedArgs: parsedArgsForChunk,
-                        bundleEntryIdsProcessedTracker,
-                        responseStreamer,
-                        includeNonClinicalResources,
-                        proxyPatientIds,
-                        cachedStreamer
+                            base_version,
+                            requestInfo,
+                            resourceType,
+                            explain: !!parsedArgs._explain,
+                            debug: !!parsedArgs._debug,
+                            parsedArgs: parsedArgsForChunk,
+                            bundleEntryIdsProcessedTracker,
+                            responseStreamer,
+                            includeNonClinicalResources,
+                            proxyPatientIds,
+                            cachedStreamer
                         }
                     );
 
@@ -519,7 +519,7 @@ class EverythingHelper {
 
             // Log audit events for resources accessed (max 1000 per audit event per resource type)
             // Works for both streaming and non-streaming modes
-            const resourcesToAudit = responseStreamer ? streamedResources : resources.map((r) => ({id: r.id, resourceType: r.resourceType}));
+            const resourcesToAudit = responseStreamer ? streamedResources : resources.map((r) => ({ id: r.id, resourceType: r.resourceType }));
 
             if (resourcesToAudit.length > 0 && resourceType !== 'AuditEvent') {
                 const requestId = requestInfo.requestId;
@@ -624,7 +624,8 @@ class EverythingHelper {
         try {
             const everythingRelatedResourceManager = new EverythingRelatedResourceManager({
                 resourceFilterList: parsedArgs.resourceFilterList,
-                everythingRelatedResourceMapper: this.everythingRelatedResourceMapper
+                everythingRelatedResourceMapper: this.everythingRelatedResourceMapper,
+                userType: requestInfo.userType
             });
 
             /**
@@ -889,7 +890,7 @@ class EverythingHelper {
 
                             depthParallelProcess.push(result);
 
-                            if(depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
+                            if (depthParallelProcess.length >= this.configManager.everythingMaxParallelProcess) {
                                 const depthResults = await Promise.all(depthParallelProcess);
                                 depthResults.forEach((result) => {
                                     queries.push(...(result.queryItems || []));
@@ -1038,6 +1039,7 @@ class EverythingHelper {
                 user: requestInfo.user,
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
+                userType: requestInfo.userType,
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
@@ -1179,7 +1181,7 @@ class EverythingHelper {
         resourceToExcludeIdsMap,
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null
-        }
+    }
     ) {
 
         /**
@@ -1291,6 +1293,7 @@ class EverythingHelper {
                 user: requestInfo.user,
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
+                userType: requestInfo.userType,
                 resourceType: relatedResourceType,
                 useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
@@ -1639,7 +1642,7 @@ class EverythingHelper {
                 }
 
                 if (sendResource) {
-                    if (useUuidProjection){
+                    if (useUuidProjection) {
                         if (parentLookupField) {
                             // remove parent lookup field from result
                             let fieldTodelete = parentLookupField.split('.')[0];

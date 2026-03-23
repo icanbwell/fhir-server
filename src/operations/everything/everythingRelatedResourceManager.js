@@ -2,15 +2,23 @@ const resourcesMap = require('./generated.resource_types.json');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { addElementsToSet } = require('../../utils/list.util');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
+const uscdiV3ResourceMap = require('./uscdi_v3_resource_types.json');
+const { AUTH_USER_TYPES } = require('../../constants');
 
+const nonClinicalReachability = require('./generated.non_clinical_resources_reachablity.json');
 /**
  * @type {Record<string, string[]>}
  */
-const requiredRsourcesMap =
-    require('./generated.non_clinical_resources_reachablity.json')['level2'];
+const requiredResourcesMap = nonClinicalReachability['level2'];
+/**
+ * @type {Record<string, string[]>}
+ */
+const uscdiRequiredResourcesMap = nonClinicalReachability['uscdiV3Level2'];
 
 const nonClinicaResourcesSet = new Set(resourcesMap.nonClinicalResources);
 const clinicalResourcesSet = new Set(resourcesMap.clinicalResources);
+const uscdiClinicalResourcesSet = new Set(uscdiV3ResourceMap.clinicalResources);
+const uscdiNonClinicalResourcesSet = new Set(uscdiV3ResourceMap.nonClinicalResources);
 
 class EverythingRelatedResourceManager {
     /**
@@ -18,16 +26,37 @@ class EverythingRelatedResourceManager {
      * @typedef EverythingRelatedResourceManagerConstructor
      * @property {string[]} resourceFilterList Resources which all allowed to be sent in response
      * @property {EverythingRelatedResourcesMapper} everythingRelatedResourceMapper
+     * @property {string|null} userType - type of user making the request, used for determining resource restrictions
      *
      * @param {EverythingRelatedResourceManagerConstructor} options
      */
-    constructor({ resourceFilterList, everythingRelatedResourceMapper }) {
+    constructor({ resourceFilterList, everythingRelatedResourceMapper, userType }) {
         /**
          * @type {boolean}
          */
         this._sendAllResources = true;
 
-        if (resourceFilterList) {
+        this._isCmsPartnerUser = userType === AUTH_USER_TYPES.cmsPartnerUser;
+
+        if (this._isCmsPartnerUser) {
+            // CMS partner users are restricted to USCDI v3 resource types
+            this._sendAllResources = false;
+            this.clinicalResources = new Set();
+            this.nonClinicalResources = new Set();
+
+            if (resourceFilterList) {
+                for (const res of resourceFilterList) {
+                    if (uscdiClinicalResourcesSet.has(res)) {
+                        this.clinicalResources.add(res);
+                    } else if (uscdiNonClinicalResourcesSet.has(res)) {
+                        this.nonClinicalResources.add(res);
+                    }
+                }
+            } else {
+                addElementsToSet(this.clinicalResources, uscdiClinicalResourcesSet);
+                addElementsToSet(this.nonClinicalResources, uscdiNonClinicalResourcesSet);
+            }
+        } else if (resourceFilterList) {
             this._sendAllResources = false;
             /**
              * @type {Set<string> | undefined}
@@ -97,10 +126,11 @@ class EverythingRelatedResourceManager {
             return this._nonClinicalResourcePool;
         }
 
+        const reachabilityMap = this._isCmsPartnerUser ? uscdiRequiredResourcesMap : requiredResourcesMap;
         const resourcePool = new Set();
         if (this.nonClinicalResources.size > 0) {
             for (const nonClinicalResource of this.nonClinicalResources) {
-                addElementsToSet(resourcePool, requiredRsourcesMap[nonClinicalResource]);
+                addElementsToSet(resourcePool, reachabilityMap[nonClinicalResource]);
             }
         }
 

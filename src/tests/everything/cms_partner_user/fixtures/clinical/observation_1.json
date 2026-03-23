@@ -1,0 +1,15 @@
+{
+  "resourceType": "Observation",
+  "id": "7b76e87e-3d2a-40ff-b509-ebea3d465257",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" }
+    ]
+  },
+  "status": "final",
+  "code": { "coding": [{ "system": "http://loinc.org", "code": "85354-9", "display": "Blood pressure" }] },
+  "subject": { "reference": "Patient/a25d86d2-5d31-4e9c-8a01-a3899426fac0" },
+  "effectiveDateTime": "2026-01-15"
+}

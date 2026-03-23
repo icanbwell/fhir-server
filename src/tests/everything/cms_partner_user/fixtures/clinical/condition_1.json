@@ -1,0 +1,14 @@
+{
+  "resourceType": "Condition",
+  "id": "d2259949-1200-4539-8d66-cfed2af0c00f",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" }
+    ]
+  },
+  "subject": { "reference": "Patient/a25d86d2-5d31-4e9c-8a01-a3899426fac0" },
+  "code": { "coding": [{ "system": "http://snomed.info/sct", "code": "44054006", "display": "Type 2 Diabetes" }] },
+  "clinicalStatus": { "coding": [{ "system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active" }] }
+}

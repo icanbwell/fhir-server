@@ -19,6 +19,7 @@ const { FhirOperationUsageEventProducer } = require('../../utils/fhirOperationUs
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { REGEX } = require('../../constants');
 const { filterGraphResources } = require('../../utils/filterGraphResources');
+const { CMSManager } = require('../../utils/cmsManager');
 
 class EverythingOperation {
     /**
@@ -30,8 +31,9 @@ class EverythingOperation {
      * @param {EverythingHelper} constructor.everythingHelper
      * @param {FhirOperationUsageEventProducer} constructor.fhirOperationUsageEventProducer
      * @param {PostRequestProcessor} constructor.postRequestProcessor
+     * @param {CMSManager} constructor.cmsManager
      */
-    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper, fhirOperationUsageEventProducer, postRequestProcessor }) {
+    constructor({ graphOperation, fhirLoggingManager, scopesValidator, configManager, everythingHelper, fhirOperationUsageEventProducer, postRequestProcessor, cmsManager }) {
         /**
          * @type {GraphOperation}
          */
@@ -72,6 +74,12 @@ class EverythingOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {CMSManager}
+         */
+        this.cmsManager = cmsManager;
+        assertTypeEquals(cmsManager, CMSManager);
     }
 
     /**
@@ -220,6 +228,8 @@ class EverythingOperation {
                     parsedArgs.remove('_since');
                     parsedArgs._since = null;
                 }
+
+                this.cmsManager.sanitizeEverythingParams({ requestInfo, parsedArgs });
 
                 result = await this.everythingHelper.retriveEverythingAsync({
                     requestInfo,
