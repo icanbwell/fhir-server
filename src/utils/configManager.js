@@ -1,4 +1,4 @@
-const {isTrue} = require('./isTrue');
+const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 
@@ -600,6 +600,22 @@ class ConfigManager {
     }
 
     /**
+     * wether to enable fast serializer in merge operation
+     * @returns {boolean}
+     */
+    get enableMergeFastSerializer() {
+        return isTrue(env.ENABLE_MERGE_FAST_SERIALIZER);
+    }
+
+    /**
+     * whether to verify resource before write in merge operation
+     * @returns {boolean}
+     */
+    get verifyResourceBeforeWrite() {
+        return this.enableMergeFastSerializer && isTrueWithFallback(env.VERIFY_RESOURCE_BEFORE_WRITE, true);
+    }
+
+    /**
      * returns cron expression for postRequest processes
      * @returns {string}
      */
@@ -746,9 +762,7 @@ class ConfigManager {
      */
     get preSaveCodingIdUpdateResources() {
         return (
-            (env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES &&
-                env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES.split(',').map((col) => col.trim())) ||
-            []
+            ["Resource"]
         );
     }
 

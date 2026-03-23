@@ -41,6 +41,7 @@ const { MongoInvalidArgumentError } = require('mongodb');
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const { FastDatabaseUpdateManager } = require('./fastDatabaseUpdateManager.js');
+const { deepEqual } = require('assert');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -337,6 +338,20 @@ class FastDatabaseBulkInserter extends EventEmitter {
                         doc
                     }
                 });
+            }
+
+            if (this.configManager.verifyResourceBeforeWrite) {
+                // This check needs to be removed after fast serializer write operation is verified
+                const serializedDoc = FhirResourceWriteSerializer.serialize({ obj: deepcopy(doc) });
+                if (!deepEqual(serializedDoc, doc)) {
+                    logError('Serialized doc differ from original while writing resource', {
+                        args: {
+                            source: 'DatabaseBulkInserter.getOperationForResourceAsync',
+                            resourceUuid: doc._uuid
+                        }
+                    });
+                    doc = serializedDoc;
+                }
             }
 
             return new BulkInsertUpdateEntry({

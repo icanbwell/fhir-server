@@ -417,7 +417,6 @@ class MergeManager {
         if (!Array.isArray(resources)) {
             return resources;
         }
-        // mergetodo - can simplify
         /**
          * @type {{string: Object[]}}
          */

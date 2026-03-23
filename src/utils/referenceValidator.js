@@ -72,7 +72,6 @@ function validateReferences (resourceObj, path) {
  * @returns {*[]}
  */
 function fastValidateReferences (resourceObj, path) {
-    // mergeTodo - test
     const errors = [];
     if (!resourceObj || typeof resourceObj !== 'object') {
         return errors;
