@@ -230,12 +230,12 @@ class FhirOperationsManager {
      * @param {boolean} [allowMultipleIds=true]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({args, resourceType, headers, operation, allowMultipleIds = true}) {
-        const {base_version} = args;
+    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true }) {
+        const { base_version } = args;
         /**
          * @type {ParsedArgs}
          */
-        let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+        let parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
 
         if (!allowMultipleIds && parsedArgs.id?.includes(',')) {
             throw new BadRequestError(new Error('Multiple IDs are not allowed'));
@@ -260,22 +260,22 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Resource[] | Resource} array of resources
      */
-    async search(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'search' });
+    async search(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'search' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
         );
-        const requestInfo = this.getRequestInfo(req);
         return await this.searchBundleOperation.searchBundleAsync(
             {
                 requestInfo,
@@ -294,22 +294,22 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Resource[] | Resource} array of resources
      */
-    async searchStreaming(args, {req, res}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'search' });
+    async searchStreaming(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'search' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
-        const requestInfo = this.getRequestInfo(req);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
         );
 
         if (this.configManager.enableVulcanIgQuery) {
@@ -392,7 +392,7 @@ class FhirOperationsManager {
                     const parentResourceArgName =
                         vulcanIgSearchQuery.resultSearchParam +
                         (parsedArg.modifiers[0] === 'missing' &&
-                        parsedArg.queryParameterValue.value === 'true' ? ':not'
+                            parsedArg.queryParameterValue.value === 'true' ? ':not'
                             : '');
 
                     const parentResourceParsedArg = await this.getParsedArgsAsync({
@@ -420,7 +420,7 @@ class FhirOperationsManager {
             });
     }
 
-    parseParametersFromBody({req, combined_args}) {
+    parseParametersFromBody({ req, combined_args }) {
         let args = combined_args;
         if (req.body) {
             if (req.headers['content-type'] === fhirContentTypes.form_urlencoded) {
@@ -449,24 +449,25 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<Resource | null | undefined>}
      */
-    async searchById(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'searchById' });
+    async searchById(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'searchById' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
         );
         return await this.searchByIdOperation.searchByIdAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             }
@@ -480,14 +481,15 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async create(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'create' });
+    async create(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'create' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {string}
          */
@@ -501,7 +503,7 @@ class FhirOperationsManager {
 
         return await this.createOperation.createAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 path,
                 resourceType
@@ -516,24 +518,25 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
-    async update(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'update' });
+    async update(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'update' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: WRITE
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+        }
         );
         return await this.updateOperation.updateAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             }
@@ -549,11 +552,12 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Promise<Resource | Resource[] | void>}
      */
-    async merge(args, {req, res}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'merge' });
+    async merge(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'merge' });
         // Combine args
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         const parsedArgs = await this.getParsedArgsAsync({
             args: combined_args,
@@ -568,7 +572,7 @@ class FhirOperationsManager {
         if (contentTypeNdjson) {
             // Bidirectional streaming: pass request stream as-is
             return await this.mergeOperation.mergeAsyncStream({
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType,
                 req,
@@ -577,7 +581,7 @@ class FhirOperationsManager {
         } else {
             // Fallback to standard merge
             return await this.mergeOperation.mergeAsync({
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             });
@@ -593,7 +597,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<Bundle | undefined>}
      */
-    async everything(args, {req, res}, resourceType) {
+    async everything(args, { req, res }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
         this.cmsManager.verifyAccess({ requestInfo, resourceType, operation: 'everything' });
 
@@ -602,7 +606,7 @@ class FhirOperationsManager {
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         this.cmsManager.verifyNotProxyPatientId({
             requestInfo,
@@ -626,8 +630,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
         );
 
         if (shouldStreamResponse(req)) {
@@ -638,9 +642,9 @@ class FhirOperationsManager {
             let responseStreamer;
             if (hasNdJsonContentType(requestInfo.accept)) {
                 responseStreamer = new FhirResponseNdJsonStreamer({
-                        response: res,
-                        requestId: req.id
-                    }
+                    response: res,
+                    requestId: req.id
+                }
                 );
             } else {
                 responseStreamer = ResponseStreamerFactory.create({
@@ -672,15 +676,15 @@ class FhirOperationsManager {
                 /**
                  * @type {OperationOutcome}
                  */
-                const operationOutcome = convertErrorToOperationOutcome({error: err});
+                const operationOutcome = convertErrorToOperationOutcome({ error: err });
                 await responseStreamer.writeBundleEntryAsync({
-                        bundleEntry: new BundleEntry({
-                                resource: operationOutcome
-                            }
-                        )
+                    bundleEntry: new BundleEntry({
+                        resource: operationOutcome
                     }
+                    )
+                }
                 );
-                await responseStreamer.setStatusCodeAsync({statusCode: status});
+                await responseStreamer.setStatusCodeAsync({ statusCode: status });
                 await responseStreamer.endAsync();
             }
         } else {
@@ -707,14 +711,15 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<Bundle|undefined>}
      */
-    async summary(args, {req, res}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'summary' });
+    async summary(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'summary' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         // map Person $summary to Proxy Patient $summary
         if (resourceType === 'Person') {
@@ -732,11 +737,6 @@ class FhirOperationsManager {
             operation: READ,
             allowMultipleIds: false
         });
-
-        /**
-         * @type {FhirRequestInfo}
-         */
-        const requestInfo = this.getRequestInfo(req);
         /**
          * response streamer to use
          * @type {BaseResponseHandler}
@@ -759,8 +759,8 @@ class FhirOperationsManager {
                 });
             return undefined;
         } catch (err) {
-            const operationOutcome = convertErrorToOperationOutcome({error: err});
-            await responseHandler.setStatusCodeAsync({statusCode: err.statusCode || 500});
+            const operationOutcome = convertErrorToOperationOutcome({ error: err });
+            await responseHandler.setStatusCodeAsync({ statusCode: err.statusCode || 500 });
             await responseHandler.writeOperationOutcomeAsync(operationOutcome);
         }
     }
@@ -772,24 +772,25 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<{deleted: number}>}
      */
-    async remove(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'remove' });
+    async remove(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'remove' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: WRITE
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+        }
         );
         return await this.removeOperation.removeAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             }
@@ -803,24 +804,25 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<{deleted: number}>}
      */
-    async remove_by_query(args, {req}, resourceType) {
+    async remove_by_query(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'remove_by_query' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: WRITE
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+        }
         );
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'remove_by_query' });
         return await this.removeOperation.removeAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             }
@@ -834,25 +836,26 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<any | undefined>}
      */
-    async searchByVersionId(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'searchByVersionId' });
+    async searchByVersionId(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'searchByVersionId' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
         );
         return await this.searchByVersionIdOperation.searchByVersionIdAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             }
@@ -866,26 +869,27 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<any>}
      */
-    async history(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'history' });
+    async history(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'history' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
         );
 
         return await this.historyOperation.historyAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             }
@@ -899,25 +903,26 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns { Promise<any | undefined>}
      */
-    async historyById(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'historyById' });
+    async historyById(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'historyById' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
         );
         return await this.historyByIdOperation.historyByIdAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             });
@@ -930,25 +935,26 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async patch(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'patch' });
+    async patch(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'patch' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: WRITE
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: WRITE
+        }
         );
         return await this.patchOperation.patchAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             });
@@ -961,25 +967,26 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validate(args, {req}, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'validate' });
+    async validate(args, { req }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'validate' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
         );
         return await this.validateOperation.validateAsync(
             {
-                requestInfo: this.getRequestInfo(req),
+                requestInfo: requestInfo,
                 parsedArgs,
                 resourceType
             });
@@ -993,36 +1000,35 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Promise<Bundle|undefined>}
      */
-    async graph(args, {req, res}, resourceType) {
-        /**
-         * combined args
-         * @type {Object}
-         */
-        let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
-        /**
-         * @type {ParsedArgs}
-         */
-        const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers, operation: READ
-            }
-        );
-
+    async graph(args, { req, res }, resourceType) {
         /**
          * @type {FhirRequestInfo}
          */
         const requestInfo = this.getRequestInfo(req);
 
         this.cmsManager.verifyAccess({ requestInfo, resourceType, operation: 'graph' });
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, operation: READ
+        }
+        );
 
         /**
          * @type {BaseResponseStreamer}
          */
         const responseStreamer = hasNdJsonContentType(requestInfo.accept) ?
             new FhirResponseNdJsonStreamer({
-                    response: res,
-                    requestId: req.id
-                }
+                response: res,
+                requestId: req.id
+            }
             ) : new FhirResponseStreamer({
                 response: res,
                 requestId: req.id
@@ -1047,15 +1053,15 @@ class FhirOperationsManager {
             /**
              * @type {OperationOutcome}
              */
-            const operationOutcome = convertErrorToOperationOutcome({error: err});
+            const operationOutcome = convertErrorToOperationOutcome({ error: err });
             await responseStreamer.writeBundleEntryAsync({
-                    bundleEntry: new BundleEntry({
-                            resource: operationOutcome
-                        }
-                    )
+                bundleEntry: new BundleEntry({
+                    resource: operationOutcome
                 }
+                )
+            }
             );
-            await responseStreamer.setStatusCodeAsync({statusCode: status});
+            await responseStreamer.setStatusCodeAsync({ statusCode: status });
             await responseStreamer.endAsync();
         }
     }
@@ -1067,7 +1073,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async expand(args, {req}, resourceType) {
+    async expand(args, { req }, resourceType) {
         this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'expand' });
         // to be enabled after operation is updated
         return {};
@@ -1100,20 +1106,20 @@ class FhirOperationsManager {
      * @param {{ req: import('http').IncomingMessage }}
      * @return {Promise<Resource | Resource[]>}
      */
-    async export(args, {req}) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType: 'export', operation: 'export' });
+    async export(args, { req }) {
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType: 'export', operation: 'export' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
-        /**
-         * @type {FhirRequestInfo}
-         */
-        const requestInfo = this.getRequestInfo(req);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
-        return await this.exportOperation.exportAsync({requestInfo, args: combined_args});
+        return await this.exportOperation.exportAsync({ requestInfo, args: combined_args });
     }
 
     /**
@@ -1122,20 +1128,20 @@ class FhirOperationsManager {
      * @param {{ req: import('http').IncomingMessage }}
      * @return {Promise<Resource | Resource[]>}
      */
-    async exportById(args, {req}) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType: 'export', operation: 'exportById' });
+    async exportById(args, { req }) {
+        /**
+        * @type {FhirRequestInfo}
+        */
+        const requestInfo = this.getRequestInfo(req);
+        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType: 'export', operation: 'exportById' });
         /**
          * combined args
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({req, combined_args});
-        /**
-         * @type {FhirRequestInfo}
-         */
-        const requestInfo = this.getRequestInfo(req);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
 
-        return await this.exportByIdOperation.exportByIdAsync({requestInfo, args: combined_args});
+        return await this.exportByIdOperation.exportByIdAsync({ requestInfo, args: combined_args });
     }
 }
 

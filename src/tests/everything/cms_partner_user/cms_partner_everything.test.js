@@ -14,8 +14,8 @@ const encounter1 = require('./fixtures/clinical/encounter_1.json');
 const practitioner1 = require('./fixtures/clinical/practitioner_1.json');
 const organization1 = require('./fixtures/clinical/organization_1.json');
 
-const account1 = require('./fixtures/non_uscdi/account_1.json');
-const orgNonUscdiRef = require('./fixtures/non_uscdi/organization_non_uscdi_ref.json');
+const account1 = require('./fixtures/non_uscdi_v3/account_1.json');
+const orgNonUscdiV3Ref = require('./fixtures/non_uscdi_v3/organization_non_uscdi_ref.json');
 
 const {
     commonBeforeEach,
@@ -26,8 +26,8 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
-const uscdiResourceTypes = require('../../../operations/everything/uscdi_resource_types.json');
-const CMS_USCDI_RESOURCE_TYPES = [
+const uscdiResourceTypes = require('../../../operations/everything/uscdi_v3_resource_types.json');
+const CMS_USCDI_V3_RESOURCE_TYPES = [
     ...uscdiResourceTypes.clinicalResources,
     ...uscdiResourceTypes.nonClinicalResources
 ];
@@ -125,11 +125,11 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(returnedTypes.has('Observation')).toBe(true);
         expect(returnedTypes.has('Encounter')).toBe(true);
 
-        // Non-USCDI resource must NOT appear
+        // Non-USCDI v3 resource must NOT appear
         expect(returnedTypes.has('Account')).toBe(false);
 
         // Every returned type must be USCDI v3
-        const allowedTypes = new Set(CMS_USCDI_RESOURCE_TYPES);
+        const allowedTypes = new Set(CMS_USCDI_V3_RESOURCE_TYPES);
         for (const type of returnedTypes) {
             expect(allowedTypes.has(type)).toBe(true);
         }
@@ -186,7 +186,7 @@ describe('CMS Partner User - Patient $everything', () => {
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
-        // Request only Observation (valid USCDI type)
+        // Request only Observation (valid USCDI v3 type)
         resp = await request
             .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_type=Observation`)
             .set(getCmsHeaders(CMS_PERSON_ID));
@@ -201,7 +201,7 @@ describe('CMS Partner User - Patient $everything', () => {
         }
     });
 
-    test('_type param with non-USCDI type: filters out non-USCDI', async () => {
+    test('_type param with non-USCDI v3 type: filters out non-USCDI v3', async () => {
         const request = await createTestRequest();
 
         let resp = await request
@@ -210,7 +210,7 @@ describe('CMS Partner User - Patient $everything', () => {
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
-        // Request Account (non-USCDI) — should be excluded by intersection
+        // Request Account (non-USCDI v3) — should be excluded by intersection
         resp = await request
             .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_type=Account`)
             .set(getCmsHeaders(CMS_PERSON_ID));
@@ -271,7 +271,7 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(resp).toHaveMergeResponse({ created: true });
 
         const cmsHeaders = getCmsHeaders(CMS_PERSON_ID);
-        const allowedTypes = new Set(CMS_USCDI_RESOURCE_TYPES);
+        const allowedTypes = new Set(CMS_USCDI_V3_RESOURCE_TYPES);
 
         resp = await request
             .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_includeHidden=1&_includeUuidOnly=1&_rewritePatientReference=false`)
@@ -363,12 +363,12 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(resp.statusCode).toBe(403);
     });
 
-    test('Non-clinical resource only referenced by non-USCDI resource is excluded', async () => {
+    test('Non-clinical resource only referenced by non-USCDI v3 resource is excluded', async () => {
         const request = await createTestRequest();
 
         let resp = await request
             .post('/4_0_0/Person/1/$merge')
-            .send([...baseResources, consent1, orgNonUscdiRef])
+            .send([...baseResources, consent1, orgNonUscdiV3Ref])
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
@@ -380,20 +380,20 @@ describe('CMS Partner User - Patient $everything', () => {
 
         const entries = resp.body.entry || [];
 
-        // The USCDI-referenced Organization (from Encounter.serviceProvider) should be present
+        // The USCDI v3-referenced Organization (from Encounter.serviceProvider) should be present
         const orgIds = entries
             .filter((e) => e.resource.resourceType === 'Organization')
             .map((e) => e.resource.id);
         expect(orgIds).toContain(organization1.id);
 
-        // The non-USCDI-referenced Organization (only from Account.owner) should NOT be present
-        expect(orgIds).not.toContain(orgNonUscdiRef.id);
+        // The non-USCDI v3-referenced Organization (only from Account.owner) should NOT be present
+        expect(orgIds).not.toContain(orgNonUscdiV3Ref.id);
 
         // Account itself should also not appear
         expect(entries.some((e) => e.resource.resourceType === 'Account')).toBe(false);
     });
 
-    test('Non-CMS user: returns all resource types including non-USCDI', async () => {
+    test('Non-CMS user: returns all resource types including non-USCDI v3', async () => {
         const request = await createTestRequest();
 
         let resp = await request
@@ -411,7 +411,7 @@ describe('CMS Partner User - Patient $everything', () => {
         const entries = resp.body.entry || [];
         const returnedTypes = new Set(entries.map((e) => e.resource.resourceType));
 
-        // Non-CMS user should see Account (no USCDI filtering)
+        // Non-CMS user should see Account (no USCDI v3 filtering)
         expect(entries.length).toBeGreaterThan(0);
         expect(returnedTypes.has('Account')).toBe(true);
     });

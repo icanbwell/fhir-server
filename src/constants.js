@@ -296,6 +296,7 @@ module.exports = {
             'contained'
         ],
         ALLOWED_RESOURCE_TYPES: ['Patient'],
-        ALLOWED_OPERATIONS: ['search', 'everything']
+        ALLOWED_OPERATIONS: ['search', 'everything'],
+        ALLOWED_METHODS: ['get']
     }
 };

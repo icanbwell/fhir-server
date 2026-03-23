@@ -25,6 +25,13 @@ class CMSManager {
             return;
         }
 
+        const method = requestInfo.method?.toLowerCase();
+        if (method && !CMS_PARTNER_ACCESS.ALLOWED_METHODS.includes(method)) {
+            throw new ForbiddenError(
+                `CMS partner user does not have access to ${method.toUpperCase()} method`
+            );
+        }
+
         if (!CMS_PARTNER_ACCESS.ALLOWED_OPERATIONS.includes(operation) ||
             !CMS_PARTNER_ACCESS.ALLOWED_RESOURCE_TYPES.includes(resourceType)) {
             throw new ForbiddenError(
@@ -43,7 +50,10 @@ class CMSManager {
             return;
         }
 
-        if (patientId && patientId.startsWith(PERSON_PROXY_PREFIX)) {
+        const hasProxyPatientId = patientId &&
+            patientId.split(',').some((id) => id.startsWith(PERSON_PROXY_PREFIX));
+
+        if (hasProxyPatientId) {
             throw new ForbiddenError(
                 'CMS partner user cannot use proxy patient ID in $everything'
             );
@@ -61,7 +71,11 @@ class CMSManager {
             return;
         }
 
-        if (parsedArgs.id?.includes(',')) {
+        const hasMultipleIds = Array.isArray(parsedArgs.id)
+            ? parsedArgs.id.length > 1
+            : parsedArgs.id?.includes(',');
+
+        if (hasMultipleIds) {
             throw new BadRequestError(new Error('Multiple IDs are not allowed'));
         }
 

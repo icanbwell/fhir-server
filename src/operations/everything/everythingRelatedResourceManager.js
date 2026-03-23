@@ -2,7 +2,7 @@ const resourcesMap = require('./generated.resource_types.json');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { addElementsToSet } = require('../../utils/list.util');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
-const uscdiResourcesMap = require('./uscdi_resource_types.json');
+const uscdiV3ResourceMap = require('./uscdi_v3_resource_types.json');
 const { AUTH_USER_TYPES } = require('../../constants');
 
 const nonClinicalReachability = require('./generated.non_clinical_resources_reachablity.json');
@@ -13,12 +13,12 @@ const requiredResourcesMap = nonClinicalReachability['level2'];
 /**
  * @type {Record<string, string[]>}
  */
-const uscdiRequiredResourcesMap = nonClinicalReachability['uscdiLevel2'];
+const uscdiRequiredResourcesMap = nonClinicalReachability['uscdiV3Level2'];
 
 const nonClinicaResourcesSet = new Set(resourcesMap.nonClinicalResources);
 const clinicalResourcesSet = new Set(resourcesMap.clinicalResources);
-const uscdiClinicalResourcesSet = new Set(uscdiResourcesMap.clinicalResources);
-const uscdiNonClinicalResourcesSet = new Set(uscdiResourcesMap.nonClinicalResources);
+const uscdiClinicalResourcesSet = new Set(uscdiV3ResourceMap.clinicalResources);
+const uscdiNonClinicalResourcesSet = new Set(uscdiV3ResourceMap.nonClinicalResources);
 
 class EverythingRelatedResourceManager {
     /**
@@ -39,7 +39,7 @@ class EverythingRelatedResourceManager {
         this._isCmsPartnerUser = userType === AUTH_USER_TYPES.cmsPartnerUser;
 
         if (this._isCmsPartnerUser) {
-            // CMS partner users are restricted to USCDI v3 resources
+            // CMS partner users are restricted to USCDI v3 resource types
             this._sendAllResources = false;
             this.clinicalResources = new Set();
             this.nonClinicalResources = new Set();

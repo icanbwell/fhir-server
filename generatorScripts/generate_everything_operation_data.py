@@ -414,10 +414,10 @@ def get_non_clinical_rechability_map(
 
 def get_uscdi_resources():
     """
-    Reads USCDI resource types from uscdi_resource_types.json.
+    Reads USCDI v3 resource types from uscdi_v3_resource_types.json.
     Returns (uscdi_clinical, uscdi_non_clinical) as sets.
     """
-    uscdi_path = everything_operation.joinpath("uscdi_resource_types.json")
+    uscdi_path = everything_operation.joinpath("uscdi_v3_resource_types.json")
     with open(uscdi_path, "r") as f:
         uscdi = json.load(f)
     return set(uscdi["clinicalResources"]), set(uscdi["nonClinicalResources"])
@@ -430,8 +430,8 @@ def get_uscdi_non_clinical_reachability_map(
 ) -> Dict[str, List[str]]:
     """
     Filters the full reachability map to only include:
-    - Keys that are USCDI non-clinical resources
-    - Values intersected with USCDI clinical + USCDI non-clinical resources
+    - Keys that are USCDI v3 non-clinical resources
+    - Values intersected with USCDI v3 clinical + USCDI v3 non-clinical resources
 
     """
     uscdi_all = uscdi_clinical | uscdi_non_clinical
@@ -451,13 +451,13 @@ def main():
 
     print_non_clinical_stats(non_clininical_to_required_resources)
 
-    # Generate USCDI-filtered reachability map for CMS partner users
+    # Generate USCDI v3-filtered reachability map for CMS partner users
     uscdi_clinical, uscdi_non_clinical = get_uscdi_resources()
     uscdi_reachability = get_uscdi_non_clinical_reachability_map(
         non_clininical_to_required_resources, uscdi_clinical, uscdi_non_clinical
     )
 
-    print("\nUSCDI Non-Clinical Reachability Map:")
+    print("\nUSCDI v3 Non-Clinical Reachability Map:")
     for resource, refs in uscdi_reachability.items():
         print(f"  {resource}: {len(refs)} resources")
 
@@ -480,7 +480,7 @@ def main():
         json.dump(
             {
                 "level2": non_clininical_to_required_resources,
-                "uscdiLevel2": uscdi_reachability,
+                "uscdiV3Level2": uscdi_reachability,
             },
             json_file,
             indent=2,
