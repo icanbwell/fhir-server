@@ -50,9 +50,9 @@
         "username": "${SERVICE_ACCOUNT_NAME}",
         "clientFhirPersonId": "${MY_USER_CLIENT_PERSON_ID}",
         "clientFhirPatientId": "${MY_USER_CLIENT_PATIENT_ID}",
-        "bwellFhirPersonId": "${MY_USER_BWELL_PERSON_ID}",
-        "bwellFhirPatientId": "${MY_USER_BWELL_PATIENT_ID}",
-        "managingOrganization": "${MY_USER_BWELL_ORGANIZATION_ID}"
+        "bwellFhirPersonId": "${MY_USER_MASTER_PERSON_ID}",
+        "bwellFhirPatientId": "${MY_USER_MASTER_PATIENT_ID}",
+        "managingOrganization": "${MY_USER_MANAGING_ORGANIZATION}"
       }
     },
     {
@@ -83,9 +83,9 @@
         "custom:scope": "${MY_USER_SCOPE}",
         "clientFhirPersonId": "${MY_USER_CLIENT_PERSON_ID}",
         "clientFhirPatientId": "${MY_USER_CLIENT_PATIENT_ID}",
-        "bwellFhirPersonId": "${MY_USER_BWELL_PERSON_ID}",
-        "bwellFhirPatientId": "${MY_USER_BWELL_PATIENT_ID}",
-        "managingOrganization": "${MY_USER_BWELL_ORGANIZATION_ID}",
+        "bwellFhirPersonId": "${MY_USER_MASTER_PERSON_ID}",
+        "bwellFhirPatientId": "${MY_USER_MASTER_PATIENT_ID}",
+        "managingOrganization": "${MY_USER_MANAGING_ORGANIZATION}",
         "token_use": "access",
         "username": "${MY_USER_TOKEN_USERNAME}"
       }
@@ -118,9 +118,9 @@
         "custom:scope": "${CMS_USER_SCOPE}",
         "clientFhirPersonId": "${CMS_USER_CLIENT_PERSON_ID}",
         "clientFhirPatientId": "${CMS_USER_CLIENT_PATIENT_ID}",
-        "bwellFhirPersonId": "${CMS_USER_BWELL_PERSON_ID}",
-        "bwellFhirPatientId": "${CMS_USER_BWELL_PATIENT_ID}",
-        "managingOrganization": "${CMS_USER_MANAGING_ORGANIZATION_ID}",
+        "bwellFhirPersonId": "${CMS_USER_MASTER_PERSON_ID}",
+        "bwellFhirPatientId": "${CMS_USER_MASTER_PATIENT_ID}",
+        "managingOrganization": "${CMS_USER_MANAGING_ORGANIZATION}",
         "token_use": "access",
         "username": "${CMS_USER_TOKEN_USERNAME}"
       }
@@ -264,6 +264,20 @@
           "config": {
             "user.attribute": "clientFhirPersonId",
             "claim.name": "clientFhirPersonId",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "managing-organization-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "managingOrganization",
+            "claim.name": "managingOrganization",
             "jsonType.label": "String",
             "id.token.claim": "true",
             "access.token.claim": "true",
@@ -427,6 +441,20 @@
           "config": {
             "user.attribute": "clientFhirPersonId",
             "claim.name": "clientFhirPersonId",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "managing-organization-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "managingOrganization",
+            "claim.name": "managingOrganization",
             "jsonType.label": "String",
             "id.token.claim": "true",
             "access.token.claim": "true",
