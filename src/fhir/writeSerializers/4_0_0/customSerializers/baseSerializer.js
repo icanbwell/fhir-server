@@ -1,7 +1,7 @@
 const { BaseFhirResourceSerializer } = require('../../../baseFhirResourceSerializer');
 const { FhirResourceWriteSerializer } = require('../../../fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../../fhirResourceWriteNormalizeSerializer');
-const {FhirResourceReadSerializer} = require('../../../fhirResourceReadSerializer');
+const { FhirResourceReadSerializer } = require('../../../fhirResourceReadSerializer');
 
 /**
  * BaseSerializer class to be used as a base for all serializers
@@ -118,7 +118,13 @@ class BaseSerializer {
             return false;
         };
 
-        return this.baseSerialize(FhirResourceReadSerializer, this.fhirPropertyToSerializerMap, obj, context, isEmptyFunction);
+        return this.baseSerialize(
+            FhirResourceReadSerializer,
+            this.fhirPropertyToSerializerMap,
+            obj,
+            context,
+            isEmptyFunction
+        );
     }
 }
 

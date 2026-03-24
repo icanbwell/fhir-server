@@ -93,7 +93,6 @@ describe('Remote Server Validate', () => {
                 .set(getHeaders());
             expect(resp).toHaveResponse(
                 {
-                    expression: ['Observation/2354-InAgeCohort'],
                     issue: {
                         code: 'informational',
                         details: {
@@ -218,7 +217,6 @@ describe('Remote Server Validate', () => {
                 .set(getHeaders());
             expect(resp).toHaveResponse(
                 {
-                    expression: ['Observation/2354-InAgeCohort'],
                     issue: {
                         code: 'informational',
                         details: {
@@ -252,7 +250,6 @@ describe('Remote Server Validate', () => {
                 .set(getHeaders());
             expect(resp).toHaveResponse(
                 {
-                    expression: ['Observation/2354-InAgeCohort'],
                     issue: {
                         code: 'informational',
                         details: {

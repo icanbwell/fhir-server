@@ -30,7 +30,7 @@ class MergeResourceValidator extends BaseValidator {
     }) {
         super();
 
-        if (configManager.enableMergeFastValidator) {
+        if (configManager.enableMergeFastSerializer) {
             this.mergeManager = fastMergeManager;
             assertTypeEquals(this.mergeManager, FastMergeManager);
         } else {
