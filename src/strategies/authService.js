@@ -1,5 +1,6 @@
 const async = require('async');
 const superagent = require('superagent');
+const Sentry = require('@sentry/node');
 const {LRUCache} = require('lru-cache');
 const {
     EXTERNAL_REQUEST_RETRY_COUNT,
@@ -251,6 +252,7 @@ class AuthService {
                     done(null, {id: client_id, isUser, name: effectiveUsername, username: effectiveUsername}, {scope, context});
                 }).catch((error) => {
                     logError(`Error resolving user type: ${error.message}`, {error: error});
+                    Sentry.captureException(error);
                     done(error);
                 });
                 return;

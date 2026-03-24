@@ -34,9 +34,6 @@ class UserTypeManager {
      * @returns {Promise<string|undefined>}
      */
     async resolveUserTypeAsync({ managingOrganizationId, scope, user }) {
-        if (!managingOrganizationId) {
-            throw new ForbiddenError('managingOrganization is required for user type resolution');
-        }
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Organization',
             base_version: '4_0_0'
