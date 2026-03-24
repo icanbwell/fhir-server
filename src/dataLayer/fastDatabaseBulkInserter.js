@@ -41,7 +41,7 @@ const { MongoInvalidArgumentError } = require('mongodb');
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const { FastDatabaseUpdateManager } = require('./fastDatabaseUpdateManager.js');
-const { deepEqual } = require('assert');
+const deepEqual = require('fast-deep-equal');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
