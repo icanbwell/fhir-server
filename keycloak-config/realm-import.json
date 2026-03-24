@@ -327,20 +327,6 @@
           }
         },
         {
-          "name": "managing-organization-mapper",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.attribute": "managingOrganization",
-            "claim.name": "managingOrganization",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true"
-          }
-        },
-        {
           "name": "bwell-token-use-mapper",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-attribute-mapper",
@@ -497,20 +483,6 @@
           "config": {
             "user.attribute": "bwellFhirPatientId",
             "claim.name": "bwellFhirPatientId",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true"
-          }
-        },
-        {
-          "name": "managing-organization-mapper",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.attribute": "managingOrganization",
-            "claim.name": "managingOrganization",
             "jsonType.label": "String",
             "id.token.claim": "true",
             "access.token.claim": "true",
