@@ -1171,7 +1171,7 @@ describe('JWT Bearer Strategy', () => {
                     expect(info.context.userType).toBe('cmsPartnerUser');
                     expect(mockUserTypeManager.resolveUserTypeAsync).toHaveBeenCalledWith({
                         managingOrganizationId: 'cms-org-uuid',
-                        scope: 'patient/*.read access/*.read',
+                        scope: 'cmsPartnerUser patient/*.read access/*.read',
                         user: 'clientFhirPerson'
                     });
                     resolve();
