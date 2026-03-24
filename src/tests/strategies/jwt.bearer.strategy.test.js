@@ -16,6 +16,8 @@ const {Socket} = require('net');
 const {publicKey, privateKey} = require('../mocks/keys');
 const {createJwksKeyAsync} = require("../mocks/jwks");
 
+const testUserTypeManager = createTestContainer().userTypeManager;
+
 describe('JWT Bearer Strategy', () => {
     let jwtAccessToken;
 
@@ -62,7 +64,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager
                     }
                 ),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }
         );
         const strategy = new MyJwtStrategy({
@@ -106,7 +108,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager
                     }
                 ),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }
         );
 
@@ -207,7 +209,7 @@ describe('JWT Bearer Strategy', () => {
                             configManager: configManager
                         }
                     ),
-                    userTypeManager: createTestContainer().userTypeManager
+                    userTypeManager: testUserTypeManager
                 }
             ),
             configManager: configManager
@@ -304,7 +306,7 @@ describe('JWT Bearer Strategy', () => {
                             configManager: configManager
                         }
                     ),
-                    userTypeManager: createTestContainer().userTypeManager
+                    userTypeManager: testUserTypeManager
                 }
             ),
             configManager: configManager
@@ -429,7 +431,7 @@ describe('JWT Bearer Strategy', () => {
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
                 }),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }),
             configManager: configManager
         });
@@ -529,7 +531,7 @@ describe('JWT Bearer Strategy', () => {
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
                 }),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }),
             configManager: configManager
         });
@@ -635,7 +637,7 @@ describe('JWT Bearer Strategy', () => {
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
                 }),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }),
             configManager: configManager
         });
@@ -722,7 +724,7 @@ describe('JWT Bearer Strategy', () => {
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
                 }),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }),
             configManager: configManager
         });
@@ -810,7 +812,7 @@ describe('JWT Bearer Strategy', () => {
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
                 }),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }),
             configManager: configManager
         });
@@ -898,7 +900,7 @@ describe('JWT Bearer Strategy', () => {
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
                 }),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }),
             configManager: configManager
         });
@@ -986,7 +988,7 @@ describe('JWT Bearer Strategy', () => {
                 wellKnownConfigurationManager: new WellKnownConfigurationManager({
                     configManager: configManager
                 }),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }),
             configManager: configManager
         });
@@ -1069,7 +1071,7 @@ describe('JWT Bearer Strategy', () => {
                             configManager: configManager
                         }
                     ),
-                    userTypeManager: createTestContainer().userTypeManager
+                    userTypeManager: testUserTypeManager
                 }
             ),
             configManager: configManager

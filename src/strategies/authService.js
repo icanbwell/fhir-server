@@ -393,9 +393,7 @@ class AuthService {
 
         const isUser = scopes.some((s) => s.toLowerCase().startsWith('patient/'));
 
-        const userType = scopes.find((s) => Object.values(AUTH_USER_TYPES).includes(s));
-
-        return {scope, isUser, username, subject, clientId, userType};
+        return {scope, isUser, username, subject, clientId};
     }
 
     /**

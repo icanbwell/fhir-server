@@ -5,6 +5,8 @@ const {AuthService} = require("../../strategies/authService");
 const {ConfigManager} = require("../../utils/configManager");
 const {createTestContainer} = require("../createTestContainer");
 
+const testUserTypeManager = createTestContainer().userTypeManager;
+
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -37,7 +39,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager
                     }
                 ),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }
         );
 
@@ -73,7 +75,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager
                     }
                 ),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }
         );
         authService.clearAuthCache();
@@ -108,7 +110,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager
                     }
                 ),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -143,7 +145,7 @@ describe('JWT Bearer Strategy', () => {
                         configManager: configManager
                     }
                 ),
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -195,7 +197,7 @@ describe('JWT Bearer Strategy', () => {
             {
                 configManager: configManager,
                 wellKnownConfigurationManager: wellKnownManager,
-                userTypeManager: createTestContainer().userTypeManager
+                userTypeManager: testUserTypeManager
             }
         );
         const userInfoResponse = await authService.getExternalJwksAsync();

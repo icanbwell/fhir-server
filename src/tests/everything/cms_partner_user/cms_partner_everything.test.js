@@ -265,7 +265,7 @@ describe('CMS Partner User - Patient $everything', () => {
 
         // Without patient scope, isUser is false so Organization-based detection
         // is skipped. The request is treated as a non-patient-scoped request.
-        expect(resp.statusCode).not.toBe(403);
+        expect(resp).toHaveStatusCode(200);
     });
 
     test('Unsupported query params are stripped and have no effect', async () => {
