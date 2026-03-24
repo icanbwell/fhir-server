@@ -127,10 +127,10 @@ class DatabaseBulkLoader {
             let foundResources = [];
 
             if (this.configManager.enableMergeFastSerializer) {
-                foundResources = await this.cursorToResourcesAsync({ cursor });
-            } else {
                 foundResources = await cursor.toArrayAsync();
                 foundResources = FhirResourceWriteSerializer.serializeArray({obj: foundResources});
+            } else {
+                foundResources = await this.cursorToResourcesAsync({ cursor });
             }
 
             return { resourceType, resources: foundResources };
