@@ -1091,4 +1091,94 @@ describe('JWT Bearer Strategy', () => {
             })(req);
         });
     });
+
+    test('should resolve userType as cmsPartnerUser when flag is enabled and org is CMS type', async () => {
+        process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION = '1';
+
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const patientScopedPayload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId',
+            scope: 'cmsPartnerUser patient/*.read access/*.read',
+            username: 'testUser',
+            sub: 'jwt-subject',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            managingOrganization: 'cms-org-uuid'
+        };
+
+        const patientScopedToken = jwt.sign(patientScopedPayload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: '1h',
+            keyid: '123'
+        });
+
+        const req = {
+            headers: {authorization: `Bearer ${patientScopedToken}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+        }
+
+        // Mock the userTypeManager to simulate finding a CMS org
+        const mockUserTypeManager = Object.create(testUserTypeManager);
+        mockUserTypeManager.resolveUserTypeAsync = jest.fn().mockResolvedValue('cmsPartnerUser');
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                }),
+                userTypeManager: mockUserTypeManager
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toBeTruthy();
+                    expect(info.context.userType).toBe('cmsPartnerUser');
+                    expect(mockUserTypeManager.resolveUserTypeAsync).toHaveBeenCalledWith({
+                        managingOrganizationId: 'cms-org-uuid',
+                        scope: 'patient/*.read access/*.read',
+                        user: 'clientFhirPerson'
+                    });
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
 });

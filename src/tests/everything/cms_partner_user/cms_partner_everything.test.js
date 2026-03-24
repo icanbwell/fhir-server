@@ -38,7 +38,7 @@ const PATIENT_ID = 'a25d86d2-5d31-4e9c-8a01-a3899426fac0';
 
 const getCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'patient/*.read user/*.read access/*.read',
+        scope: 'cmsPartnerUser patient/*.read user/*.read access/*.read',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
@@ -56,7 +56,7 @@ const getCmsHeaders = (personId) => {
 
 const getInvalidCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'user/*.read',
+        scope: 'user/*.read cmsPartnerUser',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId
