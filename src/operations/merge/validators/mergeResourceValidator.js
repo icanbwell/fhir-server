@@ -9,10 +9,12 @@ const { ResourceValidator } = require('../../common/resourceValidator');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
+const { FastMergeManager } = require('../fastMergeManager');
 
 class MergeResourceValidator extends BaseValidator {
     /**
      * @param {MergeManager} mergeManager
+     * @param {FastMergeManager} fastMergeManager
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
@@ -20,6 +22,7 @@ class MergeResourceValidator extends BaseValidator {
      */
     constructor ({
         mergeManager,
+        fastMergeManager,
         databaseBulkLoader,
         preSaveManager,
         configManager,
@@ -27,11 +30,13 @@ class MergeResourceValidator extends BaseValidator {
     }) {
         super();
 
-        /**
-         * @type {MergeManager}
-         */
-        this.mergeManager = mergeManager;
-        assertTypeEquals(mergeManager, MergeManager);
+        if (configManager.enableMergeFastValidator) {
+            this.mergeManager = fastMergeManager;
+            assertTypeEquals(this.mergeManager, FastMergeManager);
+        } else {
+            this.mergeManager = mergeManager;
+            assertTypeEquals(this.mergeManager, MergeManager);
+        }
 
         /**
          * @type {PreSaveManager}
@@ -74,7 +79,13 @@ class MergeResourceValidator extends BaseValidator {
         /**
          * @type {Resource[]}
          */
-        let resourcesIncomingArray = FhirResourceCreator.createArray(incomingResources);
+        let resourcesIncomingArray;
+
+        if (this.configManager.enableMergeFastSerializer) {
+            resourcesIncomingArray = wasIncomingAList ? incomingResources : [incomingResources];
+        } else {
+            resourcesIncomingArray = FhirResourceCreator.createArray(incomingResources);
+        }
 
         resourcesIncomingArray = resourcesIncomingArray.map(resource => {
             if (resource.id) {

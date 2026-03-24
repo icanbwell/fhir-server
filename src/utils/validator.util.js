@@ -5,9 +5,10 @@ const JSONValidator = require('@asymmetrik/fhir-json-schema-validator');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
-const { validateReferences } = require('./referenceValidator');
+const { validateReferences, fastValidateReferences } = require('./referenceValidator');
 
 const generatedSchema = require('../fhir/fhir-generated.schema.json');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 /**
  * By default, ajv uses fhir.json.schema but only returns first error it finds.
@@ -53,7 +54,15 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     }
 
     const errors = fhirGeneratedValidator.validate(resourceBody);
-    const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
+    let referenceErrors = null;
+
+    if (resourceObj) {
+        if (resourceObj instanceof Resource) {
+            referenceErrors = validateReferences(resourceObj);
+        } else {
+            referenceErrors = fastValidateReferences(resourceObj);
+        }
+    }
     let issue;
     if (errors && errors.length) {
         issue = errors.map((elm) => {

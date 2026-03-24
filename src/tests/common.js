@@ -8,12 +8,12 @@ const nock = require('nock');
 const { createTestContainer } = require('./createTestContainer');
 const supertest = require('supertest');
 const { createApp } = require('../app');
-const { createServer } = require('../server');
 const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { TestConfigManager } = require('./testConfigManager');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { BaseSerializer } = require('../fhir/writeSerializers/4_0_0/customSerializers');
 
 /**
  * @type {import('supertest').Test}
@@ -47,14 +47,8 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      * @type {SimpleContainer}
      */
     testContainer = createTestContainer(fnUpdateContainer);
+    BaseSerializer.setConfigManager(testContainer.configManager);
     return createApp({ fnGetContainer: () => testContainer, trackMetrics: false });
-};
-
-/**
- * @return {Promise<import('http').Server>}
- */
-module.exports.createTestServer = async () => {
-    return createServer(() => createTestContainer());
 };
 
 /**

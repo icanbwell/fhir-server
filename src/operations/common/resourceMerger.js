@@ -6,11 +6,12 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { getFirstElementOrNull } = require('../../utils/list.util');
-const { isUuid } = require('../../utils/uid.util');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumnHandler");
+const deepcopy = require('deepcopy');
+const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 
 /**
@@ -18,18 +19,6 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
  * @property {string} op
  * @property {string} path
  * @property {*|*[]} value
- */
-
-/**
- * @typedef {Object} MergeResourceAsyncProp
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
- * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
- * @property {boolean|undefined} smartMerge
- * @property {boolean|undefined} incrementVersion
- * @property {string[]|undefined} limitToPaths
- * @property {import('../../dataLayer/databaseAttachmentManager').DatabaseAttachmentManager|null} databaseAttachmentManager
- * @property {string} base_version
- * @property {import('../../fhir/classes/4_0_0/requestInfo').FhirRequestInfo} requestInfo
  */
 
 /**
@@ -83,7 +72,7 @@ class ResourceMerger {
      *
      * @param {Params}
      */
-    constructor ({ preSaveManager, scopesManager }) {
+    constructor ({ preSaveManager }) {
         /**
          * @type {PreSaveManager}
          */
@@ -238,25 +227,19 @@ class ResourceMerger {
          * @type {import('fast-json-patch').Operation[]}
          */
         let patchContent = compare(currentObject, mergedObject);
-        // ignore any changes to _id since that's an internal field
-        patchContent = patchContent.filter(item => item.path !== '/_id');
-        // or any changes to id
-        patchContent = patchContent.filter(item => item.path !== '/id');
-        // or any changes to uuid
+        // ignore any changes to _id, id, identifier (uuid or sourceId)
         patchContent = patchContent.filter(
-            item => !(
-                item.path.startsWith('/identifier') &&
-                item.value &&
-                    (typeof item.value === 'object' && item.value.system === IdentifierSystem.uuid)
-            )
+            (item) =>
+                item.path !== '/_id' &&
+                item.path !== '/id' &&
+                !(
+                    item.path.startsWith('/identifier') &&
+                    item.value &&
+                    ((typeof item.value === 'object' && item.value.system === IdentifierSystem.uuid) ||
+                        item.value.system === IdentifierSystem.sourceId)
+                )
         );
-        // or any changes to sourceId
-        patchContent = patchContent.filter(
-            item => !(
-                item.path.startsWith('/identifier') && item.value &&
-                item.value.system === IdentifierSystem.sourceId
-            )
-        );
+
         if (limitToPaths && limitToPaths.length > 0) {
             patchContent = patchContent.filter(
                 item => limitToPaths.some(path => item.path.startsWith(path))
@@ -299,6 +282,35 @@ class ResourceMerger {
     }
 
     /**
+     * Updated meta of the resource with meta of current resource
+     * @param {UpdateMetaProp}
+     * @returns {Object}
+     */
+    fastUpdateMeta ({ patched_resource_incoming, currentResource, original_source, incrementVersion }) {
+        // update the metadata to increment versionId
+        const meta = deepcopy(currentResource.meta);
+        if (incrementVersion) {
+            meta.versionId = `${parseInt(meta.versionId) + 1}`;
+        }
+        meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+        // set the source from the incoming resource
+        meta.source = original_source;
+        // These properties are set automatically
+        patched_resource_incoming.meta.versionId = meta.versionId;
+        patched_resource_incoming.meta.lastUpdated = meta.lastUpdated;
+        // If not source is provided then use the source of the previous entity
+        if (!(patched_resource_incoming.meta.source)) {
+            patched_resource_incoming.meta.source = meta.source;
+        }
+        // If no security tags are provided then use the source of the previous entity
+        if (!(patched_resource_incoming.meta.security)) {
+            patched_resource_incoming.meta.security = meta.security;
+        }
+
+        return patched_resource_incoming;
+    }
+
+    /**
      * Applies patch to the resource provided
      * @param {ApplyPatchProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
@@ -315,6 +327,19 @@ class ResourceMerger {
 
         // Create a new resource to store the merged data
         return currentResource.create(patched_incoming_data);
+    }
+
+    /**
+     * Applies patch to the resource provided
+     * @param {ApplyPatchProp}
+     * @returns {Object}
+     */
+    fastApplyPatch ({ currentResource, patchContent }) {
+        /**
+         * @type {import('fast-json-patch').PatchResult<Object>}
+         */
+        const patchResult = applyPatch(currentResource, patchContent);
+        return patchResult.newDocument;
     }
 
     /**
@@ -444,6 +469,128 @@ class ResourceMerger {
         let patched_resource_incoming = this.applyPatch({ currentResource, patchContent });
 
         patched_resource_incoming = this.updateMeta({
+            patched_resource_incoming,
+            currentResource,
+            original_source,
+            incrementVersion
+        });
+
+        return {
+            updatedResource: patched_resource_incoming,
+            patches: patchContent.map(p => {
+                return {
+                    op: p.op, path: p.path, value: p.value
+                };
+            })
+        };
+    }
+
+    /**
+     * Merges two resources and returns either a merged resource or null (if there were no changes)
+     * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} currentResource
+     * @param {Resource} resourceToMerge
+     * @param {boolean|undefined} [smartMerge]
+     * @param {boolean|undefined} [incrementVersion]
+     * @param {string[]|undefined} [limitToPaths]
+     * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
+     * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
+     */
+    async fastMergeResourceAsync (
+        {
+            base_version,
+            requestInfo,
+            currentResource,
+            resourceToMerge,
+            smartMerge = true,
+            incrementVersion = true,
+            limitToPaths,
+            databaseAttachmentManager = null
+        }
+    ) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        // confirm the resource has been run through preSave
+        if (!resourceToMerge._uuid) {
+            resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
+        }
+        assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
+        /**
+         * @type {string}
+         */
+        const original_source = resourceToMerge?.meta?.source;
+
+        // overwrite fields that should not be changed once resource is created
+        resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
+
+        resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
+
+        // for speed, first check if the incoming resource is exactly the same
+        if (deepEqual(currentResource, resourceToMerge) === true) {
+            return { updatedResource: null, patches: null };
+        }
+
+        let currentResourceWithAttachmentData = deepcopy(currentResource);
+        if (databaseAttachmentManager) {
+            await databaseAttachmentManager.transformAttachments(
+                currentResourceWithAttachmentData, RETRIEVE
+            );
+        }
+
+        /**
+         * @type {Object}
+         */
+        let mergedObject;
+        if (smartMerge) {
+            const currentResourceWithAttachmentDataObject = this.removeOwnerTagIfDisplayFieldMissing({
+                currentResource: deepcopy(currentResourceWithAttachmentData),
+                resourceToMerge
+            });
+            mergedObject = mergeObject(currentResourceWithAttachmentDataObject, resourceToMerge);
+        }
+        else {
+            mergedObject = resourceToMerge;
+        }
+
+        // now create a patch between the document in db and the incoming document
+        // this returns an array of patchecurrentResources
+        /**
+         * @type {DateColumnHandler}
+         */
+        const dateColumnHandler = new DateColumnHandler();
+        dateColumnHandler.setFlag(true);
+        currentResourceWithAttachmentData = await dateColumnHandler.preSaveAsync({ resource: currentResourceWithAttachmentData });
+        mergedObject = await dateColumnHandler.preSaveAsync({ resource: mergedObject });
+
+        // serialize to remove internal fields
+        FhirResourceWriteNormalizeSerializer.serialize({obj: currentResourceWithAttachmentData});
+        FhirResourceWriteNormalizeSerializer.serialize({obj: mergedObject});
+
+        const patchContent = this.compareObjects({
+            currentObject: currentResourceWithAttachmentData,
+            mergedObject,
+            limitToPaths
+        });
+
+        // see if there are any changes
+        if (patchContent.length === 0) {
+            return { updatedResource: null, patches: null };
+        }
+
+        // now apply the patches to the found resource
+        if (databaseAttachmentManager) {
+            await databaseAttachmentManager.transformAttachments(
+                currentResource, DELETE, patchContent.filter(patch => patch.op !== 'add')
+            );
+            await databaseAttachmentManager.transformAttachments(
+                currentResource, RETRIEVE, patchContent
+            );
+        }
+
+        let patched_resource_incoming = this.fastApplyPatch({ currentResource: deepcopy(currentResource), patchContent });
+
+        patched_resource_incoming = this.fastUpdateMeta({
             patched_resource_incoming,
             currentResource,
             original_source,

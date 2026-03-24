@@ -1,4 +1,5 @@
 const { DatabaseUpdateManager } = require('./databaseUpdateManager');
+const { FastDatabaseUpdateManager } = require('./fastDatabaseUpdateManager');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { assertTypeEquals } = require('../utils/assertType');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
@@ -63,6 +64,26 @@ class DatabaseUpdateFactory {
      */
     createDatabaseUpdateManager ({ resourceType, base_version }) {
         return new DatabaseUpdateManager(
+            {
+                resourceLocatorFactory: this.resourceLocatorFactory,
+                resourceMerger: this.resourceMerger,
+                preSaveManager: this.preSaveManager,
+                databaseQueryFactory: this.databaseQueryFactory,
+                configManager: this.configManager,
+                resourceType,
+                base_version
+            }
+        );
+    }
+
+    /**
+     * create a fast database update manager for this resource type
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @return {FastDatabaseUpdateManager}
+     */
+    createFastDatabaseUpdateManager ({ resourceType, base_version }) {
+        return new FastDatabaseUpdateManager(
             {
                 resourceLocatorFactory: this.resourceLocatorFactory,
                 resourceMerger: this.resourceMerger,

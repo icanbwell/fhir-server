@@ -169,7 +169,6 @@ class PatientScopeManager {
      * @return {string[] | undefined}
      */
     getValueOfPropertyFromResource ({ resource, property }) {
-        assertTypeEquals(resource, Resource);
         // If this resource has a patient property then get the value of that property
         if (property) {
             if (property === 'id') {
@@ -214,7 +213,6 @@ class PatientScopeManager {
      * @return {Promise<boolean>}
      */
     async canWriteResourceWithAllowedPatientIdsAsync ({ patientIds, resource }) {
-        assertTypeEquals(resource, Resource);
         // confirm the resource has been run through preSave
         assertIsValid(resource._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
 

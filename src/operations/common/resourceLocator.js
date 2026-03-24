@@ -40,6 +40,7 @@ class ResourceLocator {
      */
     getCollectionNameForResource(resource) {
         assertIsValid(resource, 'resource is null');
+        assertIsValid(resource.resourceType, 'resourceType is null on resource');
         return `${resource.resourceType}_${this._base_version}`;
     }
 
@@ -108,7 +109,6 @@ class ResourceLocator {
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
     async getCollectionForResourceAsync(resource) {
-        assertTypeEquals(resource, Resource);
         /**
          * @type {string}
          */
