@@ -102,10 +102,6 @@ describe('Remote Server Validate', () => {
                         severity: 'information'
                     },
                     resourceType: 'OperationOutcome'
-                },
-                (resource) => {
-                    delete resource.details; // has lastUpdated
-                    return resource;
                 }
             );
             expect(getProfileScope.isDone()).toBeTruthy();
@@ -259,10 +255,6 @@ describe('Remote Server Validate', () => {
                         severity: 'information'
                     },
                     resourceType: 'OperationOutcome'
-                },
-                (resource) => {
-                    delete resource.details; // has lastUpdated
-                    return resource;
                 }
             );
 

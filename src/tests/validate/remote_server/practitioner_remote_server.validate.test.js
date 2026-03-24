@@ -80,11 +80,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponse,
-                resource => {
-                    delete resource.details; // has lastUpdated
-                    return resource;
-                });
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
 
             expect(validationScope.isDone()).toBeTruthy();
         });
@@ -146,11 +142,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponseWithProfile,
-                resource => {
-                    delete resource.details; // has lastUpdated
-                    return resource;
-                });
+            expect(resp).toHaveResponse(expectedValidPractitionerResponseWithProfile);
             expect(getProfileScope.isDone()).toBeTruthy();
             expect(uploadProfileScope.isDone()).toBeTruthy();
             expect(validationScope.isDone()).toBeTruthy();
@@ -373,11 +365,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedInvalidPractitionerResponse,
-                resource => {
-                    delete resource.details; // has lastUpdated
-                    return resource;
-                });
+            expect(resp).toHaveResponse(expectedInvalidPractitionerResponse);
             expect(getProfileScope.isDone()).toBeTruthy();
             expect(uploadProfileScope.isDone()).toBeTruthy();
             expect(validationScope.isDone()).toBeTruthy();
