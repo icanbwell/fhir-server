@@ -158,8 +158,9 @@ services:
       MY_USER_TOKEN_USERNAME: patient
       MY_USER_CLIENT_PERSON_ID: 0b2ad38a-20bc-5cf5-9739-13f242b05892
       MY_USER_CLIENT_PATIENT_ID: 22aa18af-af51-5799-bc55-367c22c85407
-      MY_USER_BWELL_PERSON_ID: 0eb80391-0f61-5ce6-b221-a5428f2f38a7
-      MY_USER_BWELL_PATIENT_ID: 668d0748-1484-4bba-9cbe-0faf0de8965c
+      MY_USER_MASTER_PERSON_ID: 0eb80391-0f61-5ce6-b221-a5428f2f38a7
+      MY_USER_MASTER_PATIENT_ID: 668d0748-1484-4bba-9cbe-0faf0de8965c
+      MY_USER_MANAGING_ORGANIZATION: 8a7cbd9c-5b1e-5c3d-9c4f-0b2e5f1a7c6d
       # This is the user and password that will be created in the realm for CMS scope token
       CMS_USER_NAME: cmsUser
       CMS_USER_PASSWORD: password
@@ -167,8 +168,9 @@ services:
       CMS_USER_TOKEN_USERNAME: cmsUser
       CMS_USER_CLIENT_PERSON_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed023
       CMS_USER_CLIENT_PATIENT_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed024
-      CMS_USER_BWELL_PERSON_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed021
-      CMS_USER_BWELL_PATIENT_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed022
+      CMS_USER_MASTER_PERSON_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed021
+      CMS_USER_MASTER_PATIENT_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed022
+      CMS_USER_MANAGING_ORGANIZATION: 49a49d6c-4987-4177-b0ff-24aa2a16ed025
       # Delegated access user (real user with act claim for actor)
       MY_DELEGATED_ACCESS_USER_NAME: delegated-patient
       MY_DELEGATED_ACCESS_USER_PASSWORD: password
