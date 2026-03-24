@@ -53,15 +53,15 @@ class BaseSerializer {
                 return;
             }
 
-            const serializeDataFunc = propertyToSerializerMap[propertyName];
-            if (!serializeDataFunc) {
+            const propertyConfigFunc = propertyToSerializerMap[propertyName];
+            if (!propertyConfigFunc) {
                 return;
             }
 
-            const serializeData = serializeDataFunc();
-            const serializedValue = serializerClass[serializeData.serializeFunction]({
+            const propertyConfig = propertyConfigFunc();
+            const serializedValue = serializerClass[propertyConfig.serializeFunction]({
                 obj: value,
-                SerializerClass: serializeData.serializerClass,
+                SerializerClass: propertyConfig.serializerClass,
                 context
             });
 

@@ -2,7 +2,62 @@
 {% macro lower_case_first_letter(text) %}
     {{- text[0]|lower }}{{ text[1:] -}}
 {% endmacro %}
+{% macro render_property_map(fhir_entity, imported_types) %}
+    {% for property in fhir_entity.properties %}
+    {% if not property.is_v2_supported %}
+        {% if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+        '{{ property.name }}': () => {
+            if (!this.#configCache['{{ property.name }}']) {
+            {% if imported_types[property.cleaned_type] %}
+                if (!{{ property.cleaned_type }}Serializer) {
+                    {{ property.cleaned_type }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
+                }
+            {% endif %}
+                this.#configCache['{{ property.name }}'] = {
+            {% if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
+                {% if property.is_list %}
+                    serializeFunction: 'serializeArray',
+                {% else %}
+                    serializeFunction: 'serialize',
+                {% endif %}
+                {% if fhir_entity.cleaned_name == property.cleaned_type %}
+                    serializerClass: module.exports // Reference to the current serializer for recursive class
+                {% else %}
+                    serializerClass: {{ property.cleaned_type }}Serializer
+                {% endif %}
+            {% elif property.cleaned_type == "ResourceContainer" %}
+                {% if property.is_list %}
+                    serializeFunction: 'serializeArray'
+                {% else %}
+                    serializeFunction: 'serialize'
+                {% endif %}
+            {% else %}
+                    serializeFunction: 'serialize'
+            {% endif %}
+                };
+            }
+            return this.#configCache['{{ property.name }}'];
+        },
+        {% else %}
+        {% if property.is_list %}
+        '{{ property.name }}': () => {
+            // No serializer class needed for primitive lists
+            return {
+                serializeFunction: 'serializePrimitiveArray'
+            };
+        },
+        {% else %}
+        '{{ property.name }}': null,
+        {% endif %}
+        {% endif %}
+    {% endif %}
+    {% endfor %}
+    {% if fhir_entity.is_resource %}
+        'resourceType': null,
+    {% endif %}
+{% endmacro %}
 const BaseSerializer = require('../customSerializers/baseSerializer.js');
+{% block additional_imports %}{% endblock %}
 {# Collect unique types and their import info #}
 {% set imported_types = {} %}
 {% for property in fhir_entity.properties %}
@@ -32,124 +87,21 @@ class {{ fhir_entity.cleaned_name }}Serializer extends BaseSerializer {
 
     {% endif %}
     fhirPropertyToSerializerMap = {
-    {% for property in fhir_entity.properties %}
-    {% if not property.is_v2_supported %}
-        {% if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
-        '{{ property.name }}': () => {
-            // Lazy load serializer only when first accessed (with caching)
-            if (!this.#configCache['{{ property.name }}']) {
-            {% if imported_types[property.cleaned_type] %}
-                if (!{{ property.cleaned_type }}Serializer) {
-                    {{ property.cleaned_type }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
-                }
-            {% endif %}
-                this.#configCache['{{ property.name }}'] = {
-            {% if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
-                {% if property.is_list %}
-                    serializeFunction: 'serializeArray',
-                {% else %}
-                    serializeFunction: 'serialize',
-                {% endif %}
-                {% if fhir_entity.cleaned_name == property.cleaned_type %}
-                    serializerClass: module.exports // Reference to the current serializer for recursive class
-                {% else %}
-                    serializerClass: {{ property.cleaned_type }}Serializer
-                {% endif %}
-            {% elif property.cleaned_type == "ResourceContainer" %}
-                {% if property.is_list %}
-                    serializeFunction: 'serializeArray'
-                {% else %}
-                    serializeFunction: 'serialize'
-                {% endif %}
-            {% else %}
-                    serializeFunction: 'serialize'
-            {% endif %}
-                };
-            }
-            return this.#configCache['{{ property.name }}'];
-        },
-        {% else %}
-        {% if property.is_list %}
-        '{{ property.name }}': () => {
-            // No serializer class needed for primitive lists
-            return {
-                serializeFunction: 'serializePrimitiveArray'
-            };
-        },
-        {% else %}
-        '{{ property.name }}': null,
-        {% endif %}
-        {% endif %}
-    {% endif %}
-    {% endfor %}
-    {% if fhir_entity.is_resource %}
-        'resourceType': null,
-    {% endif %}
-    };
+{{ render_property_map(fhir_entity, imported_types) -}}
+    {{- "    };" }}
     {% if extra_properties %}
 
     allPropertyToSerializerMap = {
-    {% for property in fhir_entity.properties %}
-    {% if not property.is_v2_supported %}
-        {% if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
-        '{{ property.name }}': () => {
-            // Lazy load serializer only when first accessed (with caching)
-            if (!this.#configCache['{{ property.name }}']) {
-            {% if imported_types[property.cleaned_type] %}
-                if (!{{ property.cleaned_type }}Serializer) {
-                    {{ property.cleaned_type }}Serializer = require('{{ imported_types[property.cleaned_type] }}');
-                }
-            {% endif %}
-                this.#configCache['{{ property.name }}'] = {
-            {% if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
-                {% if property.is_list %}
-                    serializeFunction: 'serializeArray',
-                {% else %}
-                    serializeFunction: 'serialize',
-                {% endif %}
-                {% if fhir_entity.cleaned_name == property.cleaned_type %}
-                    serializerClass: module.exports // Reference to the current serializer for recursive class
-                {% else %}
-                    serializerClass: {{ property.cleaned_type }}Serializer
-                {% endif %}
-            {% elif property.cleaned_type == "ResourceContainer" %}
-                {% if property.is_list %}
-                    serializeFunction: 'serializeArray'
-                {% else %}
-                    serializeFunction: 'serialize'
-                {% endif %}
-            {% else %}
-                    serializeFunction: 'serialize'
-            {% endif %}
-                };
-            }
-            return this.#configCache['{{ property.name }}'];
-        },
-        {% else %}
-        {% if property.is_list %}
-        '{{ property.name }}': () => {
-            // No serializer class needed for primitive lists
-            return {
-                serializeFunction: 'serializePrimitiveArray'
-            };
-        },
-        {% else %}
-        '{{ property.name }}': null,
-        {% endif %}
-        {% endif %}
-    {% endif %}
-    {% endfor %}
-    {% if fhir_entity.is_resource %}
-        'resourceType': null,
-    {% endif %}
+{{ render_property_map(fhir_entity, imported_types) -}}
     {% for property in extra_properties %}
         '{{ property.name }}': {{ property.type }},
         {% endfor %}
-    };
+    {{- "    };" }}
     {% else %}
 
     allPropertyToSerializerMap = this.fhirPropertyToSerializerMap;
     {% endif %}
+{% block additional_methods %}{% endblock %}
 }
 
 module.exports = new {{ fhir_entity.cleaned_name }}Serializer();

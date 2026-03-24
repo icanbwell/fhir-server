@@ -7,7 +7,7 @@ import sys
 from os import path
 from pathlib import Path
 from typing import List
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader
 
 # Add the project root to the Python path to resolve imports
 project_root = Path(__file__).parent.parent.parent
@@ -43,6 +43,14 @@ def main() -> int:
     fhir_dir = Path("src/fhir/")
     serializers_dir: Path = fhir_dir.joinpath("writeSerializers/4_0_0/")
     serializer_template_file_name = "template.javascript.serializer.jinja2"
+
+    # Set up Jinja2 environment with FileSystemLoader for template inheritance
+    env = Environment(
+        loader=FileSystemLoader(str(data_dir)),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        autoescape=True
+    )
 
     # clean out old stuff for serializers
     serializers_resources_folder = serializers_dir.joinpath("resources")
@@ -105,15 +113,13 @@ def main() -> int:
             )
             continue
 
-        with open(data_dir.joinpath(template_file_path), "r") as file:
-            template_contents = file.read()
-            file_path = output_folder.joinpath(f"{entity_file_name}.js")
-            print(f"Writing: {entity_file_name} to {file_path}...")
-            template = Template(template_contents, trim_blocks=True, lstrip_blocks=True, autoescape=True)
-            result = template.render(
-                fhir_entity=fhir_entity,
-                extra_properties=extra_properties,
-            )
+        file_path = output_folder.joinpath(f"{entity_file_name}.js")
+        print(f"Writing: {entity_file_name} to {file_path}...")
+        template = env.get_template(template_file_path)
+        result = template.render(
+            fhir_entity=fhir_entity,
+            extra_properties=extra_properties,
+        )
 
         if not path.exists(file_path):
             with open(file_path, "w") as file2:
@@ -128,11 +134,10 @@ def main() -> int:
 
     fhir_index_entities: List[FhirEntity] = [f for f in fhir_entities if f.is_resource]
 
-    with open(data_dir.joinpath(index_template_name), "r") as file:
-        template = Template(file.read(), trim_blocks=True, lstrip_blocks=True, autoescape=True)
-        result = template.render(
-            fhir_entities=fhir_index_entities,
-        )
+    template = env.get_template(index_template_name)
+    result = template.render(
+        fhir_entities=fhir_index_entities,
+    )
     if not path.exists(indexFilePath):
         with open(indexFilePath, "w") as file2:
             file2.write(result)
@@ -143,11 +148,10 @@ def main() -> int:
         if f.type_ == "Element" and f.cleaned_name != "Resource"
     ]
 
-    with open(data_dir.joinpath(index_template_name), "r") as file:
-        template = Template(file.read(), trim_blocks=True, lstrip_blocks=True, autoescape=True)
-        result = template.render(
-            fhir_entities=fhir_entities,
-        )
+    template = env.get_template(index_template_name)
+    result = template.render(
+        fhir_entities=fhir_entities,
+    )
     if not path.exists(complexTypeIndexFilePath):
         with open(complexTypeIndexFilePath, "w") as file2:
             file2.write(result)
