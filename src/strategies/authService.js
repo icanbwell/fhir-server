@@ -252,8 +252,7 @@ class AuthService {
                 }).catch((error) => {
                     logError(`Error resolving user type: ${error.message}`, {error: error});
                     Sentry.captureException(error);
-                    const operationOutcomeError = convertErrorToOperationOutcome({error,internalError:true});
-                    done(operationOutcomeError);
+                    done(convertErrorToOperationOutcome({error,internalError:true}), false);
                 });
                 return;
             }
