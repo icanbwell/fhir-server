@@ -1,38 +1,27 @@
 const { AUTH_USER_TYPES } = require('../constants');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
-const { ScopesManager } = require('../operations/security/scopesManager');
 const { ForbiddenError } = require('./httpErrors');
 const { assertTypeEquals } = require('./assertType');
 
 class UserTypeManager {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {ScopesManager} scopesManager
      */
-    constructor({ databaseQueryFactory, scopesManager }) {
+    constructor({ databaseQueryFactory }) {
         /**
          * @type {DatabaseQueryFactory}
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
      * Resolves userType by fetching the Organization resource and checking its type.
-     * Verifies the user has access to the Organization before checking its type.
      * @param {Object} params
      * @param {string|undefined} params.managingOrganizationId
-     * @param {string} params.scope - JWT scope string
-     * @param {string} params.user - authenticated user identifier
      * @returns {Promise<string|undefined>}
      */
-    async resolveUserTypeAsync({ managingOrganizationId, scope, user }) {
+    async resolveUserTypeAsync({ managingOrganizationId }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Organization',
             base_version: '4_0_0'
@@ -42,10 +31,6 @@ class UserTypeManager {
         });
         if (!organization) {
             throw new ForbiddenError(`Organization with id ${managingOrganizationId} not found while resolving user type`);
-        }
-
-        if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags({ resource: organization, user, scope })) {
-            throw new ForbiddenError(`User ${user} is not authorized to reference Organization ${managingOrganizationId}`);
         }
 
         if (Array.isArray(organization.type)) {

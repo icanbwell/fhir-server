@@ -14,6 +14,7 @@ const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 const {UserTypeManager} = require("../utils/userTypeManager");
+const { ForbiddenError } = require('../utils/httpErrors');
 
 /**
  * @typedef {Object} UserInfo
@@ -240,9 +241,7 @@ class AuthService {
             }
             if (this.configManager.enableUserTypeResolutionFromOrganization) {
                 this.userTypeManager.resolveUserTypeAsync({
-                    managingOrganizationId: jwt_payload[this.requiredJWTFields.managingOrganization],
-                    scope,
-                    user: context.username
+                    managingOrganizationId: jwt_payload[this.requiredJWTFields.managingOrganization]
                 }).then((resolvedUserType) => {
                     if (resolvedUserType) {
                         context.userType = resolvedUserType;
@@ -253,7 +252,7 @@ class AuthService {
                 }).catch((error) => {
                     logError(`Error resolving user type: ${error.message}`, {error: error});
                     Sentry.captureException(error);
-                    done(error);
+                    done(new ForbiddenError('Unable to resolve user type from the managing organization'));
                 });
                 return;
             }
