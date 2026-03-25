@@ -14,8 +14,8 @@
       "coding": [
         {
           "system": "http://www.icanbwell.com/organization-type",
-          "code": "bwell-network-tenant",
-          "display": "bwell Network Tenant"
+          "code": "example-network-tenant",
+          "display": "Example Network Tenant"
         }
       ]
     }

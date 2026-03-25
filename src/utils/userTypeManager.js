@@ -1,9 +1,8 @@
-const { AUTH_USER_TYPES, CMS_NETWORK_TENANT_ORGANIZATION_TYPE } = require('../constants');
+const { AUTH_USER_TYPES } = require('../constants');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { ScopesManager } = require('../operations/security/scopesManager');
 const { ForbiddenError } = require('./httpErrors');
 const { assertTypeEquals } = require('./assertType');
-const { isUuid } = require('./uid.util');
 
 class UserTypeManager {
     /**
@@ -39,7 +38,7 @@ class UserTypeManager {
             base_version: '4_0_0'
         });
         const organization = await databaseQueryManager.findOneAsync({
-            query: { [isUuid(managingOrganizationId) ? '_uuid' : '_sourceId']: managingOrganizationId }
+            query: {_uuid: managingOrganizationId }
         });
         if (!organization) {
             throw new ForbiddenError(`Organization with id ${managingOrganizationId} not found while resolving user type`);
@@ -55,7 +54,7 @@ class UserTypeManager {
                     continue;
                 }
                 for (const coding of type.coding) {
-                    if (coding.code === CMS_NETWORK_TENANT_ORGANIZATION_TYPE) {
+                    if (coding.code === process.env.CMS_NETWORK_TENANT_ORGANIZATION_TYPE) {
                         return AUTH_USER_TYPES.cmsPartnerUser;
                     }
                 }
