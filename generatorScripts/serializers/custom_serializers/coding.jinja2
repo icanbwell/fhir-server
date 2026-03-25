@@ -1,0 +1,36 @@
+{% extends "template.javascript.serializer.jinja2" %}
+
+{% block additional_imports %}
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
+{% endblock %}
+
+{% block additional_methods %}
+
+    /**
+     * Serializes the Coding object to be written to database,
+     * @param {Object} obj
+     * @param {Object} context
+     * @returns {Object} Cleaned object
+     */
+    writeSerialize(obj, context = {}) {
+        if (!obj) return obj;
+
+        if (!context.resourceType) {
+            throw new Error('resourceType is required in context for CodingWriteSerializer');
+        }
+
+        // Generate id if system and code exist but id doesn't
+        const configManager = BaseSerializer.configManager;
+        if (
+            configManager.preSaveCodingIdUpdateResources.some((e) => e === context.resourceType || e === 'Resource') &&
+            obj.system &&
+            obj.code &&
+            !obj.id
+        ) {
+            obj.id = generateUUIDv5(`${obj.system}|${obj.code}`);
+        }
+
+        return super.writeSerialize(obj, context);
+    }
+{% endblock %}
+
