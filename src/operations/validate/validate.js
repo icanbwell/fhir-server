@@ -72,9 +72,10 @@ class ValidateOperation {
 
     /**
      * does a FHIR Validate
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
      * @returns {Promise<Resource>}
      */
     async validateAsync ({ requestInfo, parsedArgs, resourceType }) {
@@ -98,7 +99,9 @@ class ValidateOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            path
+            path,
+            actor,
+            userType
         } = requestInfo;
         // Note: no auth check needed to call validate
 
@@ -133,9 +136,11 @@ class ValidateOperation {
                         user,
                         scope,
                         isUser,
+                        userType,
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
+                        actor,
                         parsedArgs,
                         operation: READ
                     }

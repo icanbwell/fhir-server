@@ -106,11 +106,10 @@ class SearchBundleOperation {
      * @param {ParsedArgs} options.parsedArgs
      * @param {string} options.resourceType
      * @param {boolean} options.useAggregationPipeline
-     * @param {string|null} options.userType
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (
-        { requestInfo, parsedArgs, resourceType, useAggregationPipeline, userType }
+        { requestInfo, parsedArgs, resourceType, useAggregationPipeline }
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -141,7 +140,11 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            requestId
+            requestId,
+            /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
+            actor,
+            /** @type {string|null} */
+            userType
         } = requestInfo;
 
         assertIsValid(requestId, 'requestId is null');
@@ -187,7 +190,8 @@ class SearchBundleOperation {
                     useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs,
-                    operation: READ
+                    operation: READ,
+                    actor
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({

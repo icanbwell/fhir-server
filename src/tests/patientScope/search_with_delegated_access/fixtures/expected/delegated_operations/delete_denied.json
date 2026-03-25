@@ -1,0 +1,13 @@
+{
+    "resourceType": "OperationOutcome",
+    "issue": [
+        {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+                "text": "Delegated access user does not have access to Observation.remove"
+            },
+            "diagnostics": "Delegated access user does not have access to Observation.remove"
+        }
+    ]
+}

@@ -105,7 +105,7 @@ class SearchByIdOperation {
     /**
      * does a FHIR Search By Id
      * @typedef searchByIdAsyncParams
-     * @property {FhirRequestInfo} requestInfo
+     * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      * @param {searchByIdAsyncParams} searchByIdAsyncParams
@@ -133,7 +133,9 @@ class SearchByIdOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            requestId
+            requestId,
+            actor,
+            userType
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -176,12 +178,14 @@ class SearchByIdOperation {
                 user,
                 scope,
                 isUser,
+                userType,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
                 operation: READ,
-                requestId
+                requestId,
+                actor
             });
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(

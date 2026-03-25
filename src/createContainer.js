@@ -88,6 +88,8 @@ const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWrit
 const {ProaConsentManager} = require('./operations/search/proaConsentManager');
 const {CmsConsentManager} = require('./operations/search/cmsConsentManager');
 const {CMSManager} = require('./utils/cmsManager');
+const {DelegatedAccessManager} = require('./utils/delegatedAccessManager');
+const {OperationAccessManager} = require('./utils/operationAccessManager');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -296,6 +298,13 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory
     }));
     container.register('cmsManager', () => new CMSManager());
+    container.register('DelegatedAccessManager', () => new DelegatedAccessManager());
+    container.register('accessManager', (c) => new OperationAccessManager({
+        accessProviders: [
+            c.cmsManager,
+            c.DelegatedAccessManager
+        ]
+    }));
     container.register('dataSharingManager', (c) => new DataSharingManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
@@ -304,7 +313,8 @@ const createContainer = function () {
         bwellPersonFinder: c.bwellPersonFinder,
         proaConsentManager: c.proaConsentManager,
         cmsConsentManager: c.cmsConsentManager,
-        requestSpecificCache: c.requestSpecificCache
+        requestSpecificCache: c.requestSpecificCache,
+        delegatedAccessRulesManager: c.delegatedAccessRulesManager
     }));
     container.register('indexProvider', (c) => new IndexProvider({
         configManager: c.configManager
@@ -848,6 +858,7 @@ const createContainer = function () {
                 queryRewriterManager: c.queryRewriterManager,
                 configManager: c.configManager,
                 summaryOperation: c.summaryOperation,
+                accessManager: c.accessManager,
                 cmsManager: c.cmsManager
             }
         )

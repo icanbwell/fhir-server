@@ -138,9 +138,10 @@ class UpdateOperation {
 
     /**
      * does a FHIR Update (PUT)
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
     async updateAsync ({ requestInfo, parsedArgs, resourceType }) {
@@ -171,7 +172,9 @@ class UpdateOperation {
             /** @type {boolean | null} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            actor,
+            userType
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -227,9 +230,11 @@ class UpdateOperation {
                         user,
                         scope,
                         isUser,
+                        userType,
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
+                        actor,
                         parsedArgs,
                         operation: WRITE,
                         accessRequested: 'write'

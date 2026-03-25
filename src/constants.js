@@ -303,5 +303,20 @@ module.exports = {
         ALLOWED_RESOURCE_TYPES: ['Patient'],
         ALLOWED_OPERATIONS: ['search', 'everything'],
         ALLOWED_METHODS: ['get']
+    },
+    DELEGATED_ACCESS: {
+        ALLOWED_OPERATIONS: [
+            'search',
+            'searchById',
+            'searchByVersionId',
+            'create',
+            'update',
+            'merge',
+            'everything',
+            'patch',
+            'validate',
+            'graph',
+            'expand'
+        ]
     }
 };

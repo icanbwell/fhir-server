@@ -93,9 +93,10 @@ class RemoveOperation {
 
     /**
      * does a FHIR Remove (DELETE)
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
      * @returns {Promise<{deleted: number}>}
      */
     async removeAsync({requestInfo, parsedArgs, resourceType}) {
@@ -120,7 +121,9 @@ class RemoveOperation {
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {boolean} */
-            useAccessIndex
+            useAccessIndex,
+            userType,
+            actor
         } = requestInfo;
 
         if (parsedArgs.get('id') &&
@@ -159,9 +162,11 @@ class RemoveOperation {
                     user,
                     scope,
                     isUser,
+                    userType,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
+                    actor,
                     parsedArgs,
                     operation: DELETE,
                     accessRequested: 'write'
