@@ -14,7 +14,7 @@ const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 const {UserTypeManager} = require("../utils/userTypeManager");
-const { ForbiddenError } = require('../utils/httpErrors');
+const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 
 /**
  * @typedef {Object} UserInfo
@@ -252,7 +252,7 @@ class AuthService {
                 }).catch((error) => {
                     logError(`Error resolving user type: ${error.message}`, {error: error});
                     Sentry.captureException(error);
-                    done(new ForbiddenError('Unable to resolve user type from the managing organization'));
+                    done(convertErrorToOperationOutcome({error,internalError:true}));
                 });
                 return;
             }

@@ -1,13 +1,12 @@
 {
-    "resourceType": "OperationOutcome",
-    "issue": [
-        {
-            "severity": "error",
-            "code": "forbidden",
-            "details": {
-                "text": "Unable to resolve user type from the managing organization"
-            },
-            "diagnostics": "Unable to resolve user type from the managing organization"
-        }
-    ]
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "internal",
+      "details": {
+        "text": "Internal Server Error"
+      }
+    }
+  ]
 }

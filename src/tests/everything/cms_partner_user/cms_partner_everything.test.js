@@ -425,7 +425,7 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(returnedTypes.has('Account')).toBe(true);
     });
 
-    test('Organization not found returns 403', async () => {
+    test('Organization not found returns 500', async () => {
         const request = await createTestRequest();
 
         let resp = await request
@@ -453,7 +453,7 @@ describe('CMS Partner User - Patient $everything', () => {
                 Host: 'localhost:3000'
             });
 
-        expect(resp).toHaveStatusCode(403);
+        expect(resp).toHaveStatusCode(500);
         expect(resp.body).toEqual(expectedOrganizationNotFound);
     });
 

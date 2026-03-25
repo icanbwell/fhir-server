@@ -1,6 +1,5 @@
 const { AUTH_USER_TYPES } = require('../constants');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
-const { ForbiddenError } = require('./httpErrors');
 const { assertTypeEquals } = require('./assertType');
 
 class UserTypeManager {
@@ -30,7 +29,7 @@ class UserTypeManager {
             query: {_uuid: managingOrganizationId }
         });
         if (!organization) {
-            throw new ForbiddenError(`Organization with id ${managingOrganizationId} not found while resolving user type`);
+            throw new Error(`Organization with id ${managingOrganizationId} not found while resolving user type`);
         }
 
         if (Array.isArray(organization.type)) {
