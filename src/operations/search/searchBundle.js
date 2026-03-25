@@ -101,11 +101,12 @@ class SearchBundleOperation {
 
     /**
      * does a FHIR Search
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
-     * @param {boolean} useAggregationPipeline
-     * @param {string|null} userType
+     * @param {Object} options
+     * @param {FhirRequestInfo} options.requestInfo
+     * @param {ParsedArgs} options.parsedArgs
+     * @param {string} options.resourceType
+     * @param {boolean} options.useAggregationPipeline
+     * @param {string|null} options.userType
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (

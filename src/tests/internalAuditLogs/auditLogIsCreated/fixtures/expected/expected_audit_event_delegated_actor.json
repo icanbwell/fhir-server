@@ -49,6 +49,9 @@
                 "_sourceId": "RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013"
             },
             "altId": "related-person-sub-123",
+            "policy": [
+                "Consent/05eb6663-b84b-5ec2-9a4d-cf20d61400dd?version=1"
+            ],
             "requestor": true,
             "network": {
                 "address": "::ffff:127.0.0.1",

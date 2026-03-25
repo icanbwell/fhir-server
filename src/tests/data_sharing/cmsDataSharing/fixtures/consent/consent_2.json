@@ -2,7 +2,7 @@
   "resourceType": "Consent",
   "id": "consent-uuid-2",
   "meta": {
-    "source": "https://www.icanbwell.com/personal-access-relationship-service",
+    "source": "https://delegated-access-rules-manager-tests",
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",

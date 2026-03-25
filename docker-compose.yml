@@ -171,6 +171,18 @@ services:
       CMS_USER_MASTER_PERSON_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed021
       CMS_USER_MASTER_PATIENT_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed022
       CMS_USER_MANAGING_ORGANIZATION: 49a49d6c-4987-4177-b0ff-24aa2a16ed025
+      # Delegated access user (real user with act claim for actor)
+      MY_DELEGATED_ACCESS_USER_NAME: delegated-patient
+      MY_DELEGATED_ACCESS_USER_PASSWORD: password
+      MY_DELEGATED_ACCESS_USER_SCOPE: patient/Patient.read patient/Practitioner.write patient/MedicationStatement.read access/*.read patient/Consent.* patient/Condition.* patient/Observation.read
+      MY_DELEGATED_ACCESS_USER_TOKEN_USERNAME: delegated-patient@example.com
+      MY_DELEGATED_ACCESS_USER_CLIENT_PERSON_ID: 4100e07d-60a8-48b3-840f-8b64e1f7fa16
+      MY_DELEGATED_ACCESS_USER_CLIENT_PATIENT_ID: dc75150f-892c-4a34-b9b9-2b21223a21d3
+      MY_DELEGATED_ACCESS_USER_MASTER_PERSON_ID: 4100e07d-60a8-48b3-840f-8b64e1f7fa16
+      MY_DELEGATED_ACCESS_USER_MASTER_PATIENT_ID: dc75150f-892c-4a34-b9b9-2b21223a21d3
+      DELEGATED_ACT_REFERENCE: RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425
+      DELEGATED_ACT_SUB: 46265db4-0da2-4436-b4e8-85bf7e52a426
+      DELEGATED_MANAGING_ORGANIZATION: cc75150f-892c-4a34-b9b9-2b21223a21d3
       # This is the user and password that will be created in the realm for admin scope token
       MY_ADMIN_USER_NAME: admin
       MY_ADMIN_USER_PASSWORD: password@#$%^&873

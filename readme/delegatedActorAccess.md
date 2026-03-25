@@ -53,6 +53,8 @@ The delegated actor Consent lookup is a MongoDB query against `Consent_<base_ver
   - `patient.reference = Patient/person.<personIdFromJwtToken>`
 - `provision.actor.reference` must match the delegated actor reference (`act.reference`):
   - `provision.actor.reference._uuid = <delegatedActor>`
+- `category.coding` must contain the data sharing access consent category:
+  - `system = http://www.icanbwell.com/consent-category` and `code` in configured `DATA_SHARING_ACCESS_CONSENT_CODES`
 - the Consent must be currently effective (open-ended allowed):
   - `provision.period.start <= now` OR `provision.period.start` is missing
   - `provision.period.end >= now` OR `provision.period.end` is missing
@@ -128,6 +130,34 @@ When a delegated actor is present, the audit event contains **two agents**:
 - **Delegated actor agent** (`requestor: true`): the actor from `act.reference`
 
 The `source.observer` references the delegated actor.
+
+## Local Testing
+
+### Generate a delegated access token
+
+```
+curl --request POST \
+  --url http://localhost:8080/realms/master/protocol/openid-connect/token \
+  --header 'content-type: application/x-www-form-urlencoded' \
+  --data client_id=bwell-client-id \
+  --data client_secret=bwell-secret \
+  --data 'username=delegated-patient@example.com' \
+  --data password=password \
+  --data grant_type=password \
+  --data 'scope=patient/Patient.read patient/Practitioner.write patient/MedicationStatement.read access/*.read patient/Consent.* patient/Condition.* patient/Observation.read'
+```
+
+The generated token will contain:
+```json
+{
+  "clientFhirPersonId": "4100e07d-60a8-48b3-840f-8b64e1f7fa16",
+  "clientFhirPatientId": "dc75150f-892c-4a34-b9b9-2b21223a21d3",
+  "act": {
+    "reference": "RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425",
+    "sub": "46265db4-0da2-4436-b4e8-85bf7e52a426"
+  }
+}
+```
 
 ## Config
 

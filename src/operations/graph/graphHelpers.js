@@ -947,7 +947,7 @@ class GraphHelper {
                 if (this.isPropertyAReference({
                     entities: parentEntities, property, filterProperty, filterValue, supportLegacyId
                 })) {
-                    if (this.scopesValidator.hasValidScopes({
+                    if (await this.scopesValidator.hasValidScopesAsync({
                         requestInfo,
                         parsedArgs,
                         resourceType,
@@ -1018,7 +1018,7 @@ class GraphHelper {
 
                 if (target.type) { // if caller has requested this entity or just wants a nested entity
                     // reverse link
-                    if (this.scopesValidator.hasValidScopes({
+                    if (await this.scopesValidator.hasValidScopesAsync({
                         requestInfo,
                         parsedArgs,
                         resourceType,
