@@ -135,6 +135,8 @@ const { RedisStreamManager } = require('./utils/redisStreamManager');
 const { RedisManager } = require('./utils/redisManager');
 const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
+const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
+const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 
 /**
  * Creates a container and sets up all the services
@@ -212,12 +214,21 @@ const createContainer = function () {
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
     }));
+    container.register('delegatedAccessRulesManager', (c) => new DelegatedAccessRulesManager({
+        configManager: c.configManager,
+        databaseQueryFactory: c.databaseQueryFactory,
+        customTracer: c.customTracer
+    }));
+    container.register('delegatedAccessScopeManager', (c) => new DelegatedAccessScopeManager({
+        delegatedAccessRulesManager: c.delegatedAccessRulesManager
+    }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
         configManager: c.configManager,
         patientScopeManager: c.patientScopeManager,
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        delegatedAccessScopeManager: c.delegatedAccessScopeManager
     }));
     container.register('profileUrlMapper', (_c) => new ProfileUrlMapper());
 

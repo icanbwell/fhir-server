@@ -91,6 +91,43 @@
       }
     },
     {
+      "id": "a7b3c1d2-e4f5-6789-abcd-ef0123456789",
+      "username": "${MY_DELEGATED_ACCESS_USER_NAME}",
+      "firstName": "Tester",
+      "lastName": "WithActor",
+      "email": "tester-with-actor@tester.com",
+      "emailVerified": true,
+      "createdTimestamp": 1718982320512,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "type": "password",
+          "createdDate": 1718987296927,
+          "value": "${MY_DELEGATED_ACCESS_USER_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "realmRoles": [
+      ],
+      "attributes": {
+        "custom:scope": "${MY_DELEGATED_ACCESS_USER_SCOPE}",
+        "clientFhirPersonId": "${MY_DELEGATED_ACCESS_USER_CLIENT_PERSON_ID}",
+        "clientFhirPatientId": "${MY_DELEGATED_ACCESS_USER_CLIENT_PATIENT_ID}",
+        "bwellFhirPersonId": "${MY_DELEGATED_ACCESS_USER_MASTER_PERSON_ID}",
+        "bwellFhirPatientId": "${MY_DELEGATED_ACCESS_USER_MASTER_PATIENT_ID}",
+        "token_use": "access",
+        "username": "${MY_DELEGATED_ACCESS_USER_TOKEN_USERNAME}",
+        "act.reference": "${DELEGATED_ACT_REFERENCE}",
+        "act.sub": "${DELEGATED_ACT_SUB}",
+        "managingOrganization": "${DELEGATED_MANAGING_ORGANIZATION}"
+      }
+    },
+    {
       "id": "1ecaa0de-a3e9-532c-8a3b-7c0018cb3428",
       "username": "${CMS_USER_NAME}",
       "firstName": "CMS",
@@ -367,6 +404,34 @@
             "access.token.claim": "true",
             "userinfo.token.claim": "true"
           }
+        },
+        {
+          "name": "act-reference-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "act.reference",
+            "claim.name": "act.reference",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "act-sub-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "act.sub",
+            "claim.name": "act.sub",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
         }
       ]
     },
@@ -525,6 +590,34 @@
           "config": {
             "user.attribute": "custom:scope",
             "claim.name": "custom:scope",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "act-reference-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "act.reference",
+            "claim.name": "act.reference",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "act-sub-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "act.sub",
+            "claim.name": "act.sub",
             "jsonType.label": "String",
             "id.token.claim": "true",
             "access.token.claim": "true",

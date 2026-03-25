@@ -14,7 +14,6 @@ const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 const {UserTypeManager} = require("../utils/userTypeManager");
-const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 
 /**
  * @typedef {Object} UserInfo
@@ -252,7 +251,7 @@ class AuthService {
                 }).catch((error) => {
                     logError(`Error resolving user type: ${error.message}`, {error: error});
                     Sentry.captureException(error);
-                    done(convertErrorToOperationOutcome({error,internalError:true}), false);
+                    done(error);
                 });
                 return;
             }

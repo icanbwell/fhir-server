@@ -13,6 +13,8 @@ Currently we generate the following code:
 7. Validation schema: `src/fhir/fhir-generated.schema.json`
 8. Resource field types: `src/fhir/fhir-generated.field-types.json`
 9. Resource DB Schema in `generatorScripts/db-schema/fhir-generated.db-schema/`
+10. Resource serializers in `src/fhir/writeSerializers/4_0_0/`
+11. Resource's fields with Attachment Types: `src/dataLayer/generated.databaseAttachmentResources.json`
 
 ## Schema files
 
@@ -137,6 +139,26 @@ This is run by the command `make dbSchema`.
 This runs `generatorScripts/db-schema/generate_db_schema.py`.
 
 It reads generates `generatorScripts/json/fhir-generated.db-schema/*.json` containing the DB schema for all fields of all resources.
+
+### 10. Resource serializers in `src/fhir/writeSerializers/4_0_0/`
+
+This is run by the command `make serializers`.
+
+This runs `generatorScripts/serializers/generate_fast_serializers.py`.
+
+It generates resource serializer classes `src/fhir/writeSerializers/4_0_0/` for serializing the incoming resource payload. Will be updated to unify the read serializers too in future.
+
+Note: the subfolder `src/fhir/writeSerializers/4_0_0/customSerializers` is manually written and not generated using the script for custom and base resource serializer classes.
+
+### 11. Resource's fields with Attachment Types: `src/dataLayer/generated.databaseAttachmentResources.json`
+
+This is run by the command `make attachmentFields`.
+
+This runs `generatorScripts/generate_attachment_fields.py`.
+
+It generates `src/dataLayer/generated.databaseAttachmentResources.json` containing the Field of resources where field type is Attachment, to be used in databaseAttachmentManager.
+
+Note: Currently configured only for DocumentReference resource.
 
 ## FHIR Schema files used
 

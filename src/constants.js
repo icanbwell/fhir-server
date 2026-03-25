@@ -155,7 +155,8 @@ module.exports = {
     HTTP_CONTEXT_KEYS: {
         LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
         PERSON_OWNER_PREFIX: 'personOwnerFor-',
-        CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed'
+        CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed',
+        DELEGATED_ACTOR_FILTERING_RULES_PREFIX: 'delegatedActorFilteringRulesFor-'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
@@ -257,6 +258,10 @@ module.exports = {
         S3_CLIENT: "S3Client"
     },
     CONSENT_CATEGORY: {
+        DATA_SHARING_ACCESS: {
+            SYSTEM: 'http://www.icanbwell.com/consent-category',
+            CODE: 'dataSharingAccess'
+        },
         DATA_CONNECTION_VIEW_CONTROL: {
             SYSTEM: "http://www.icanbwell.com/consent-category",
             CODE: "dataConnectionViewControl"
