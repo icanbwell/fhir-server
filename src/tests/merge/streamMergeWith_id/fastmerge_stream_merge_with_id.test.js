@@ -1,5 +1,5 @@
 // test file
-const person1Resource = require('./fixtures/Person/person1.json');
+const person1Resource = require('./fixtures/Person/person1-fastMerge.json');
 const threePersonResource = require('./fixtures/Person/3_person_request_stream.json');
 
 // expected

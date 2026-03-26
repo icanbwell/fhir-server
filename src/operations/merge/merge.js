@@ -208,7 +208,8 @@ class MergeOperation {
                 base_version,
                 incomingObjects,
                 resourceType,
-                requestInfo
+                requestInfo,
+                effectiveSmartMerge
             });
 
             // merge the resources
@@ -422,10 +423,11 @@ class MergeOperation {
                         /** @type {Resource[]} */ resourcesIncomingArray,
                         /** @type {boolean} */ wasIncomingAList
                     } = await self.mergeValidator.validateAsync({
-                        base_version:base_version,
+                        base_version,
                         incomingObjects:resource,
-                        resourceType:resourceType,
-                        requestInfo:requestInfo
+                        resourceType,
+                        requestInfo,
+                        effectiveSmartMerge
                     });
 
                     mergePreCheckErrors?.forEach(e => {

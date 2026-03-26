@@ -84,9 +84,10 @@ class MergeResourceValidator extends BaseValidator {
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource|Resource[]} incomingResources
      * @param {string} base_version
+     * @param {boolean} effectiveSmartMerge
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ requestInfo, incomingResources, base_version }) {
+    async validate ({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
         // Merge duplicate resources from the incomingObjects array
         incomingResources = this.mergeManager.mergeDuplicateResourceEntries(incomingResources);
         /**
@@ -182,7 +183,9 @@ class MergeResourceValidator extends BaseValidator {
                     resourceBody: resource,
                     resourceName: resource.resourceType,
                     path: requestInfo.path,
-                    additionalPropertiesErrorOnly: true
+                    // we only want to exclude required field errors when effectiveSmartMerge is true.
+                    // when its false, we expect all fields to be present
+                    excludeRequiredFieldErrors: effectiveSmartMerge
                 });
 
                 // add uuid and sourceAssigningAuthority back to the resource after validation

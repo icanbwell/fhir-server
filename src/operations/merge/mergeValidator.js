@@ -28,13 +28,15 @@ class MergeValidator {
      * @param {Object|Object[]} incomingObjects
      * @param {string} resourceType
      * @param {FhirRequestInfo} requestInfo
+     * @param {boolean} effectiveSmartMerge
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Resource[], wasIncomingAList: boolean}>}
      */
     async validateAsync ({
         base_version,
         incomingObjects,
         resourceType,
-        requestInfo
+        requestInfo,
+        effectiveSmartMerge
     }) {
         /**
          * @type {MergeResultEntry[]}
@@ -72,7 +74,8 @@ class MergeValidator {
                 base_version,
                 incomingResources,
                 resourceType,
-                requestInfo
+                requestInfo,
+                effectiveSmartMerge
             });
 
             incomingResources = validatedObjectsByValidator;

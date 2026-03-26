@@ -22,7 +22,7 @@ process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'ERROR'; // Reduce log spam
+process.env.LOGLEVEL = 'SILENT'; // Reduce log spam
 process.env.STREAM_RESPONSE = '0';
 // MAX_GROUP_MEMBERS_PER_PUT defaults to 50000 - tests respect this limit
 // For larger scales, use PATCH (see test below)

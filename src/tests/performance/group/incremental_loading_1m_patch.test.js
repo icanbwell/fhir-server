@@ -14,7 +14,7 @@ process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'ERROR';
+process.env.LOGLEVEL = 'SILENT';
 process.env.STREAM_RESPONSE = '0';
 process.env.MAX_GROUP_MEMBERS_PER_PUT = '10000'; // PATCH operations add incrementally, so small batches only
 
