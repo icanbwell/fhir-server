@@ -46,4 +46,5 @@ process.env.CLICKHOUSE_DATABASE = 'fhir_test';
 process.env.CLICKHOUSE_USERNAME = 'default';
 process.env.CLICKHOUSE_PASSWORD = '';
 process.env.CLICKHOUSE_ENABLED_RESOURCES = '';
+process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
 process.env.CMS_NETWORK_TENANT_ORGANIZATION_TYPE = 'example-network-tenant';
