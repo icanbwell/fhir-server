@@ -286,6 +286,11 @@ module.exports = {
         cmsPartnerUser: 'cmsPartnerUser',
         delegatedUser: 'delegatedUser'
     },
+    QUERY_PARAM_FILTER_CONFIG: {
+        Patient: {
+            search: { allowedParams: ['base_version'] }
+        }
+    },
     CMS_PARTNER_ACCESS: {
         RESTRICTED_EVERYTHING_PARAMS: [
             '_includePatientLinkedOnly',

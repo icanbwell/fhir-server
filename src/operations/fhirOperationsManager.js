@@ -14,6 +14,7 @@ const {PatchOperation} = require('./patch/patch');
 const {ValidateOperation} = require('./validate/validate');
 const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
+const {QUERY_PARAM_FILTER_CONFIG} = require('../constants');
 const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {FhirRequestInfoBuilder} = require('../utils/fhirRequestInfoBuilder');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
@@ -222,20 +223,57 @@ class FhirOperationsManager {
     }
 
     /**
+     * Filters parsedArgs based on origin-service header and QUERY_PARAM_FILTER_CONFIG.
+     * Removes search params not in the allowedParams list when the request is from the specified origin service.
+     * @param {ParsedArgs} parsedArgs
+     * @param {Object|undefined} headers
+     * @param {string} resourceType
+     * @param {string|undefined} interaction
+     */
+    filterParsedArgsForOriginService ({ parsedArgs, headers, resourceType, interaction }) {
+        if (!interaction) {
+            return;
+        }
+        const originService = (headers?.['origin-service'] || '').trim().toLowerCase();
+        const filteredServices = (process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG || '')
+            .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+        if (!originService || !filteredServices.includes(originService)) {
+            return;
+        }
+        const filterConfig = QUERY_PARAM_FILTER_CONFIG[resourceType]?.[interaction];
+        if (!filterConfig) {
+            return;
+        }
+        const { allowedParams } = filterConfig;
+        const paramsToRemove = parsedArgs.parsedArgItems
+            .filter(item => !allowedParams.includes(item.queryParameter))
+            .map(item => item.queryParameter);
+        for (const param of paramsToRemove) {
+            parsedArgs.remove(param);
+            parsedArgs[param] = null;
+        }
+
+        return parsedArgs;
+    }
+
+    /**
      * Parse arguments
      * @param {Object} args
      * @param {string} resourceType
      * @param {Object|undefined} [headers]
      * @param {string} operation
+     * @param {string} [interaction]
      * @param {boolean} [allowMultipleIds=true]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true }) {
+    async getParsedArgsAsync({ args, resourceType, headers, operation, interaction, allowMultipleIds = true }) {
         const { base_version } = args;
         /**
          * @type {ParsedArgs}
          */
         let parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
+
+        this.filterParsedArgsForOriginService({ parsedArgs, headers, resourceType, interaction });
 
         if (!allowMultipleIds && parsedArgs.id?.includes(',')) {
             throw new BadRequestError(new Error('Multiple IDs are not allowed'));
@@ -273,7 +311,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, interaction: 'search'
         }
         );
         return await this.searchBundleOperation.searchBundleAsync(
@@ -308,7 +346,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, interaction: 'search'
         }
         );
 
