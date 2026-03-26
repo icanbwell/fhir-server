@@ -206,7 +206,6 @@ class MergeOperation {
                 /** @type {boolean} */ wasIncomingAList
             } = await this.mergeValidator.validateAsync({
                 base_version,
-                currentOperationName,
                 incomingObjects,
                 resourceType,
                 requestInfo
@@ -424,7 +423,6 @@ class MergeOperation {
                         /** @type {boolean} */ wasIncomingAList
                     } = await self.mergeValidator.validateAsync({
                         base_version:base_version,
-                        currentOperationName:currentOperationName,
                         incomingObjects:resource,
                         resourceType:resourceType,
                         requestInfo:requestInfo

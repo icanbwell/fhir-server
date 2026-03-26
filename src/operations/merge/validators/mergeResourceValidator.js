@@ -10,6 +10,9 @@ const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 const { FastMergeManager } = require('../fastMergeManager');
+const { validateResource } = require('../../../utils/validator.util');
+const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -19,6 +22,8 @@ class MergeResourceValidator extends BaseValidator {
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
      * @param {ResourceValidator} resourceValidator
+     * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
+     * @param {UuidColumnHandler} uuidColumnHandler
      */
     constructor ({
         mergeManager,
@@ -26,7 +31,9 @@ class MergeResourceValidator extends BaseValidator {
         databaseBulkLoader,
         preSaveManager,
         configManager,
-        resourceValidator
+        resourceValidator,
+        sourceAssigningAuthorityColumnHandler,
+        uuidColumnHandler
     }) {
         super();
 
@@ -61,6 +68,16 @@ class MergeResourceValidator extends BaseValidator {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+        /**
+         * @type {SourceAssigningAuthorityColumnHandler}
+         */
+        this.sourceAssigningAuthorityColumnHandler = sourceAssigningAuthorityColumnHandler;
+        assertTypeEquals(sourceAssigningAuthorityColumnHandler, SourceAssigningAuthorityColumnHandler);
+        /**
+         * @type {UuidColumnHandler}
+         */
+        this.uuidColumnHandler = uuidColumnHandler;
+        assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
     }
 
     /**
@@ -123,7 +140,13 @@ class MergeResourceValidator extends BaseValidator {
                     resource._uuid = resource.id;
                 } else {
                     try {
-                        resource = await this.preSaveManager.preSaveAsync({ resource });
+                        if (this.configManager.updateMergeValidations) {
+                            // we only need to generate uuid here and all preSave handlers should not be triggered
+                            resource = await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource });
+                            resource = await this.uuidColumnHandler.preSaveAsync({ resource });
+                        } else {
+                            resource = await this.preSaveManager.preSaveAsync({ resource });
+                        }
                     } catch (error) {
                         return { resource: null, mergePreCheckError: MergeResultEntry.createFromError({ error, resource }) };
                     }
@@ -132,14 +155,56 @@ class MergeResourceValidator extends BaseValidator {
             }
         );
 
-        resourcesIncomingArray = preSaveResults
-            .filter(result => result.resource)
-            .map(result => result.resource);
-
-        for (const mergePreCheckError of preSaveResults.map(result => result.mergePreCheckError)) {
-            if (mergePreCheckError) {
-                mergePreCheckErrors.push(mergePreCheckError);
+        resourcesIncomingArray = [];
+        for (const result of preSaveResults) {
+            if (result.mergePreCheckError) {
+                mergePreCheckErrors.push(result.mergePreCheckError);
             }
+            else if (result.resource) {
+                resourcesIncomingArray.push(result.resource);
+            }
+        }
+
+        if (this.configManager.updateMergeValidations) {
+            // validate resources for any additional fields before loading the resources from database
+            // to avoid unnecessary database calls for invalid resources
+            let writeIndex = 0;
+            resourcesIncomingArray.forEach(resource => {
+                // remove uuid & sourceAssigningAuthority before validation since these are internal fields
+                // and should not be validated against the schema
+
+                const resourceUuid = resource._uuid;
+                const resourceSourceAssigningAuthority = resource._sourceAssigningAuthority;
+                delete resource._uuid;
+                delete resource._sourceAssigningAuthority;
+
+                const validationError = validateResource({
+                    resourceBody: resource,
+                    resourceName: resource.resourceType,
+                    path: requestInfo.path,
+                    additionalPropertiesErrorOnly: true
+                });
+
+                // add uuid and sourceAssigningAuthority back to the resource after validation
+                resource._uuid = resourceUuid;
+                resource._sourceAssigningAuthority = resourceSourceAssigningAuthority;
+
+                if (validationError) {
+                    mergePreCheckErrors.push(new MergeResultEntry({
+                        id: resource.id,
+                        uuid: resource._uuid,
+                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType,
+                        created: false,
+                        updated: false,
+                        issue: (validationError.issue && validationError.issue.length > 0) ? validationError.issue[0] : null,
+                        operationOutcome: validationError
+                    }));
+                } else {
+                    resourcesIncomingArray[writeIndex++] = resource;
+                }
+            });
+            resourcesIncomingArray.length = writeIndex;
         }
 
         // Load the resources from the database
