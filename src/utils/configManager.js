@@ -641,6 +641,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to enable the new validations in merge operation
+     * @returns {boolean}
+     */
+    get updateMergeValidations() {
+        return this.enableMergeFastSerializer && isTrueWithFallback(env.UPDATE_MERGE_VALIDATIONS, true);
+    }
+
+    /**
      * returns cron expression for postRequest processes
      * @returns {string}
      */

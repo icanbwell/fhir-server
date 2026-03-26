@@ -35,9 +35,10 @@ const fhirGeneratedValidator = new JSONValidator(generatedSchema, validatorConfi
  * @param {string} resourceName - name of resource in url
  * @param {string} path - req.path from express
  * @param {Object} resourceObj - fhir resource object
+ * @param {boolean} additionalPropertiesErrorOnly - wether to give error only for additional properties
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource ({ resourceBody, resourceName, path, resourceObj = null }) {
+function validateResource ({ resourceBody, resourceName, path, resourceObj = null, additionalPropertiesErrorOnly = false }) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -53,7 +54,8 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
         });
     }
 
-    const errors = fhirGeneratedValidator.validate(resourceBody);
+    let errors = fhirGeneratedValidator.validate(resourceBody);
+
     let referenceErrors = null;
 
     if (resourceObj) {
@@ -65,6 +67,10 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     }
     let issue;
     if (errors && errors.length) {
+        if (additionalPropertiesErrorOnly) {
+            errors = errors.filter((e) => e.keyword === 'additionalProperties');
+        }
+
         issue = errors.map((elm) => {
             return new OperationOutcomeIssue({
                 severity: 'error',

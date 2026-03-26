@@ -205,17 +205,19 @@ const createContainer = function () {
             new SourceIdColumnHandler(),
             new AccessColumnHandler(),
             new OwnerColumnHandler(),
-            new SourceAssigningAuthorityColumnHandler(),
+            c.sourceAssigningAuthorityColumnHandler,
             new CodeableConceptIdHandler({
                 configManager: c.configManager
             }),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
-            new UuidColumnHandler(),
+            c.uuidColumnHandler,
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
             new ReferenceGlobalIdHandler()
         ]
     }));
+    container.register('sourceAssigningAuthorityColumnHandler', (_c) => new SourceAssigningAuthorityColumnHandler());
+    container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
     }));
@@ -481,9 +483,7 @@ const createContainer = function () {
     container.register('mergeValidator', (c) => new MergeValidator(
         {
             validators: [
-                new BundleResourceValidator({
-                    resourceValidator: c.resourceValidator
-                }),
+                new BundleResourceValidator(),
                 new ParametersResourceValidator({
                     configManager: c.configManager
                 }),
@@ -493,7 +493,9 @@ const createContainer = function () {
                     databaseBulkLoader: c.databaseBulkLoader,
                     preSaveManager: c.preSaveManager,
                     configManager: c.configManager,
-                    resourceValidator: c.resourceValidator
+                    resourceValidator: c.resourceValidator,
+                    sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                    uuidColumnHandler: c.uuidColumnHandler
                 }),
                 new WriteAllowedByScopesValidator({
                     scopesValidator: c.scopesValidator,
