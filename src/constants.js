@@ -305,18 +305,9 @@ module.exports = {
         ALLOWED_METHODS: ['get']
     },
     DELEGATED_ACCESS: {
-        ALLOWED_OPERATIONS: [
-            'search',
-            'searchById',
-            'searchByVersionId',
-            'create',
-            'update',
-            'merge',
-            'everything',
-            'patch',
-            'validate',
-            'graph',
-            'expand'
+        RESTRICTED_OPERATIONS: [
+            'remove',
+            'remove_by_query'
         ]
     }
 };
