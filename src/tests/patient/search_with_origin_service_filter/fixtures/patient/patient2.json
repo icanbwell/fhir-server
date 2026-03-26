@@ -1,6 +1,6 @@
 {
     "resourceType": "Patient",
-    "id": "00100000001",
+    "id": "b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7",
     "meta": {
         "source": "https://www.icanbwell.com/client",
         "security": [
@@ -19,11 +19,8 @@
     "name": [
         {
             "use": "usual",
-            "text": "t",
             "family": "PATIENT2",
-            "given": ["JOHN"],
-            "prefix": [],
-            "suffix": []
+            "given": ["JOHN"]
         }
     ]
 }

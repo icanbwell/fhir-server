@@ -1,0 +1,30 @@
+{
+    "resourceType": "Person",
+    "id": "c3e4f5a6-b7c8-49d0-a1e2-f3a4b5c6d7e8",
+    "meta": {
+        "source": "https://www.icanbwell.com",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            }
+        ]
+    },
+    "active": true,
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/a1c2d3e4-f5a6-47b8-89c0-d1e2f3a4b5c6|client"
+            }
+        },
+        {
+            "target": {
+                "reference": "Patient/b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7|client"
+            }
+        }
+    ]
+}
