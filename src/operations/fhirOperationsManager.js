@@ -252,8 +252,6 @@ class FhirOperationsManager {
             parsedArgs.remove(param);
             parsedArgs[param] = null;
         }
-
-        return parsedArgs;
     }
 
     /**
