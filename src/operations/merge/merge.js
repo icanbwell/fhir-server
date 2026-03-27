@@ -34,7 +34,7 @@ class MergeOperation {
      * @param {MergeManager} mergeManager
      * @param {FastMergeManager} fastMergeManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {FastDatabaseBulkInserter} databaseBulkInserter
+     * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager

@@ -601,7 +601,7 @@ class ConfigManager {
     }
 
     /**
-     * wether to enable fast serializer in merge operation
+     * whether to enable fast serializer in merge operation
      * @returns {boolean}
      */
     get enableMergeFastSerializer() {

@@ -30,7 +30,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
             `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`
         );
 
-        if (typeof resource === Resource) {
+        if (resource instanceof Resource) {
             await resource.updateReferencesAsync({
                 fnUpdateReferenceAsync: async (reference) =>
                     await this.updateReferenceAsync({
