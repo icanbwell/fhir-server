@@ -7,17 +7,20 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const { logInfo } = require('../operations/common/logging');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const { isUuid } = require('../utils/uid.util');
+const { OAuthClientCredentialsHelper } = require('../utils/oauthClientCredentialsHelper');
 
 class PersonMatchManager {
     /**
      *
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
+     * @param {OAuthClientCredentialsHelper} oauthClientCredentialsHelper
      */
     constructor (
         {
             databaseQueryFactory,
-            configManager
+            configManager,
+            oauthClientCredentialsHelper
         }
     ) {
         /**
@@ -31,6 +34,12 @@ class PersonMatchManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {OAuthClientCredentialsHelper}
+         */
+        this.oauthClientCredentialsHelper = oauthClientCredentialsHelper;
+        assertTypeEquals(oauthClientCredentialsHelper, OAuthClientCredentialsHelper);
     }
 
     /**
@@ -183,9 +192,11 @@ class PersonMatchManager {
         const url = this.configManager.personMatchingServiceUrl;
         assertIsValid(url, 'PERSON_MATCHING_SERVICE_URL environment variable is not set');
         // post to $match service
+        const accessToken = await this.oauthClientCredentialsHelper.getAccessTokenAsync();
         const header = {
             'Content-Type': 'application/json',
-            Accept: 'application/json'
+            Accept: 'application/json',
+            Authorization: `Bearer ${accessToken}`
         };
         logInfo(`Calling ${url} with body`, { body: parameters });
         try {

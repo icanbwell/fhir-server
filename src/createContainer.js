@@ -78,6 +78,7 @@ const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/pr
 const {KafkaClient} = require('./utils/kafkaClient');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
+const {OAuthClientCredentialsHelper} = require('./utils/oauthClientCredentialsHelper');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
 const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
@@ -928,10 +929,15 @@ const createContainer = function () {
             postSaveProcessor: c.postSaveProcessor
         }));
 
+    container.register('oauthClientCredentialsHelper', (c) => new OAuthClientCredentialsHelper({
+        configManager: c.configManager
+    }));
+
     container.register('personMatchManager', (c) => new PersonMatchManager(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            configManager: c.configManager
+            configManager: c.configManager,
+            oauthClientCredentialsHelper: c.oauthClientCredentialsHelper
         }
     ));
 
