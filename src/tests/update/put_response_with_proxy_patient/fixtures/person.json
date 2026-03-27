@@ -28,10 +28,10 @@
       "suffix": []
     }
   ],
-  "link": {
+  "link": [{
     "target": {
       "reference": "Patient/patient1|client"
     },
     "assurance": "level3"
-  }
+  }]
 }
