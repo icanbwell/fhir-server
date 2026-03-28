@@ -198,7 +198,6 @@ class PersonMatchManager {
             Accept: 'application/json',
             Authorization: `Bearer ${accessToken}`
         };
-        logInfo(`Calling ${url} with body`, { body: parameters });
         try {
             /**
              * @type {request.Response}
@@ -210,7 +209,6 @@ class PersonMatchManager {
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)
             .timeout(this.configManager.requestTimeoutMs);
             const json = res.body;
-            logInfo('', { json });
             return json;
         } catch (error) {
             if (error.timeout) {
