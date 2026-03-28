@@ -36,46 +36,36 @@ describe('OAuthClientCredentialsHelper', () => {
         nock.cleanAll();
     });
 
-    describe('getAccessTokenAsync', () => {
-        test('throws when client id is missing', async () => {
-            const helper = new OAuthClientCredentialsHelper({
+    describe('constructor validation', () => {
+        test('throws when client id is missing', () => {
+            expect(() => new OAuthClientCredentialsHelper({
                 configManager: new MockConfigManager({
                     clientSecret: 'secret',
                     tokenUrl: `${TOKEN_URL}${TOKEN_PATH}`
                 })
-            });
-
-            await expect(helper.getAccessTokenAsync()).rejects.toThrow(
-                'PERSON_MATCHING_SERVICE_CLIENT_ID environment variable is not set'
-            );
+            })).toThrow('PERSON_MATCHING_SERVICE_CLIENT_ID environment variable is not set');
         });
 
-        test('throws when client secret is missing', async () => {
-            const helper = new OAuthClientCredentialsHelper({
+        test('throws when client secret is missing', () => {
+            expect(() => new OAuthClientCredentialsHelper({
                 configManager: new MockConfigManager({
                     clientId: 'my-client',
                     tokenUrl: `${TOKEN_URL}${TOKEN_PATH}`
                 })
-            });
-
-            await expect(helper.getAccessTokenAsync()).rejects.toThrow(
-                'PERSON_MATCHING_SERVICE_CLIENT_SECRET environment variable is not set'
-            );
+            })).toThrow('PERSON_MATCHING_SERVICE_CLIENT_SECRET environment variable is not set');
         });
 
-        test('throws when token url is missing', async () => {
-            const helper = new OAuthClientCredentialsHelper({
+        test('throws when token url is missing', () => {
+            expect(() => new OAuthClientCredentialsHelper({
                 configManager: new MockConfigManager({
                     clientId: 'my-client',
                     clientSecret: 'secret'
                 })
-            });
-
-            await expect(helper.getAccessTokenAsync()).rejects.toThrow(
-                'PERSON_MATCHING_SERVICE_TOKEN_URL environment variable is not set'
-            );
+            })).toThrow('PERSON_MATCHING_SERVICE_TOKEN_URL environment variable is not set');
         });
+    });
 
+    describe('getAccessTokenAsync', () => {
         test('fetches token successfully', async () => {
             nock(TOKEN_URL)
                 .post(TOKEN_PATH, 'grant_type=client_credentials&client_id=my-client&client_secret=secret')

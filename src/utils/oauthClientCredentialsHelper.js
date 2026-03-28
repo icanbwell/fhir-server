@@ -17,6 +17,13 @@ class OAuthClientCredentialsHelper {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
+        assertIsValid(configManager.personMatchingServiceClientId,
+            'PERSON_MATCHING_SERVICE_CLIENT_ID environment variable is not set');
+        assertIsValid(configManager.personMatchingServiceClientSecret,
+            'PERSON_MATCHING_SERVICE_CLIENT_SECRET environment variable is not set');
+        assertIsValid(configManager.personMatchingServiceTokenUrl,
+            'PERSON_MATCHING_SERVICE_TOKEN_URL environment variable is not set');
+
         /** @type {string|null} */
         this._cachedToken = null;
         /** @type {number|null} */
@@ -25,17 +32,9 @@ class OAuthClientCredentialsHelper {
 
     /**
      * Gets a valid access token, fetching a new one if needed.
-     * Throws if OAuth config is not set.
      * @returns {Promise<string>}
      */
     async getAccessTokenAsync () {
-        assertIsValid(this.configManager.personMatchingServiceClientId,
-            'PERSON_MATCHING_SERVICE_CLIENT_ID environment variable is not set');
-        assertIsValid(this.configManager.personMatchingServiceClientSecret,
-            'PERSON_MATCHING_SERVICE_CLIENT_SECRET environment variable is not set');
-        assertIsValid(this.configManager.personMatchingServiceTokenUrl,
-            'PERSON_MATCHING_SERVICE_TOKEN_URL environment variable is not set');
-
         if (this._cachedToken && this._tokenExpiresAt && Date.now() < this._tokenExpiresAt) {
             return this._cachedToken;
         }
