@@ -286,9 +286,17 @@ module.exports = {
         cmsPartnerUser: 'cmsPartnerUser',
         delegatedUser: 'delegatedUser'
     },
-    QUERY_PARAM_FILTER_CONFIG: {
+    EXTERNAL_SERVICE_REQUEST_CONFIG: {
         Patient: {
-            search: { allowedParams: ['base_version'] }
+            search: {
+                allowedParams: ['base_version'],
+                defaultParams: {
+                    _count: 1000
+                },
+                defaultHeaders: {
+                    prefer: 'global_id=true'
+                }
+            }
         }
     },
     CMS_PARTNER_ACCESS: {

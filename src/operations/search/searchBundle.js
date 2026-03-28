@@ -141,7 +141,9 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            requestId
+            requestId,
+            /** @type {boolean} */
+            isExternalServiceReq
         } = requestInfo;
 
         assertIsValid(requestId, 'requestId is null');
@@ -371,7 +373,8 @@ class SearchBundleOperation {
                     user,
                     explanations,
                     allCollectionsToSearch,
-                    parsedArgs
+                    parsedArgs,
+                    isExternalServiceReq
                 }
             );
             await this.fhirLoggingManager.logOperationSuccessAsync({

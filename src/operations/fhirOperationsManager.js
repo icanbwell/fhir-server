@@ -14,7 +14,7 @@ const {PatchOperation} = require('./patch/patch');
 const {ValidateOperation} = require('./validate/validate');
 const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
-const {QUERY_PARAM_FILTER_CONFIG} = require('../constants');
+const {EXTERNAL_SERVICE_REQUEST_CONFIG} = require('../constants');
 const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {FhirRequestInfoBuilder} = require('../utils/fhirRequestInfoBuilder');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
@@ -223,34 +223,64 @@ class FhirOperationsManager {
     }
 
     /**
-     * Filters parsedArgs based on origin-service header and QUERY_PARAM_FILTER_CONFIG.
-     * Removes search params not in the allowedParams list when the request is from the specified origin service.
-     * @param {ParsedArgs} parsedArgs
+     * Updates request based for external services using EXTERNAL_SERVICE_REQUEST_CONFIG.
+     * Removes params not in allowedParams, applies defaultParams and defaultHeaders without
+     * overriding existing values. Also sets isExternalServiceReq on requestInfo.
+     * @param {Object} args
      * @param {Object|undefined} headers
      * @param {string} resourceType
      * @param {string|undefined} interaction
+     * @param {FhirRequestInfo|undefined} requestInfo
      */
-    filterParsedArgsForOriginService ({ parsedArgs, headers, resourceType, interaction }) {
-        if (!interaction) {
+    limitReqForExternalServices ({ args, headers, resourceType, interaction, requestInfo }) {
+        if (!interaction || !headers) {
             return;
         }
-        const originService = (headers?.['origin-service'] || '').trim().toLowerCase();
-        const filteredServices = (process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG || '')
-            .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-        if (!originService || !filteredServices.includes(originService)) {
+
+        const originService = (headers['origin-service'] || '').trim().toLowerCase();
+        if (
+            !originService ||
+            !this.configManager.externalServicesWithReqLimit.includes(originService)
+        ) {
             return;
         }
-        const filterConfig = QUERY_PARAM_FILTER_CONFIG[resourceType]?.[interaction];
-        if (!filterConfig) {
+
+        if (requestInfo) {
+            requestInfo.isExternalServiceReq = true;
+        }
+
+        const requestConfig = EXTERNAL_SERVICE_REQUEST_CONFIG[resourceType]?.[interaction];
+        if (!requestConfig) {
             return;
         }
-        const { allowedParams } = filterConfig;
-        const paramsToRemove = parsedArgs.parsedArgItems
-            .filter(item => !allowedParams.includes(item.queryParameter))
-            .map(item => item.queryParameter);
-        for (const param of paramsToRemove) {
-            parsedArgs.remove(param);
-            parsedArgs[param] = null;
+
+        const { allowedParams, defaultParams, defaultHeaders } = requestConfig;
+
+        // Filter: remove params not in allowedParams
+        if (allowedParams) {
+            for (const param in args) {
+                if (param !== 'base_version' && !allowedParams.includes(param)) {
+                    delete args[param];
+                }
+            }
+        }
+
+        // Apply default params (without overriding existing)
+        if (defaultParams) {
+            for (const [param, value] of Object.entries(defaultParams)) {
+                if (!(param in args)) {
+                    args[param] = value;
+                }
+            }
+        }
+
+        // Apply default headers (without overriding existing)
+        if (defaultHeaders) {
+            for (const [header, value] of Object.entries(defaultHeaders)) {
+                if (!(header in headers)) {
+                    headers[header] = value;
+                }
+            }
         }
     }
 
@@ -262,16 +292,19 @@ class FhirOperationsManager {
      * @param {string} operation
      * @param {string} [interaction]
      * @param {boolean} [allowMultipleIds=true]
+     * @param {FhirRequestInfo} [requestInfo]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({ args, resourceType, headers, operation, interaction, allowMultipleIds = true }) {
+    async getParsedArgsAsync({ args, resourceType, headers, operation, interaction, allowMultipleIds = true, requestInfo }) {
         const { base_version } = args;
+
+        this.limitReqForExternalServices({ args, headers, resourceType, interaction, requestInfo });
+
         /**
          * @type {ParsedArgs}
          */
         let parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
 
-        this.filterParsedArgsForOriginService({ parsedArgs, headers, resourceType, interaction });
 
         if (!allowMultipleIds && parsedArgs.id?.includes(',')) {
             throw new BadRequestError(new Error('Multiple IDs are not allowed'));
@@ -309,7 +342,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, interaction: 'search'
+            args: combined_args, resourceType, headers: req.headers, operation: READ, interaction: 'search', requestInfo
         }
         );
         return await this.searchBundleOperation.searchBundleAsync(
@@ -344,7 +377,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, interaction: 'search'
+            args: combined_args, resourceType, headers: req.headers, operation: READ, interaction: 'search', requestInfo
         }
         );
 
@@ -378,7 +411,8 @@ class FhirOperationsManager {
                             parsedArgs: await this.getParsedArgsAsync({
                                 args: vulcanIgFilterArgs,
                                 resourceType: vulcanIgFilter.resourceType,
-                                operation: READ
+                                operation: READ,
+                                requestInfo
                             }),
                             useAggregationPipeline: false
                         });
@@ -439,7 +473,8 @@ class FhirOperationsManager {
                                     : '__invalid__' // for handling case when no result is found
                         },
                         resourceType,
-                        operation: READ
+                        operation: READ,
+                        requestInfo
                     });
 
                     parsedArgs.add(parentResourceParsedArg.parsedArgItems[1]);
@@ -666,7 +701,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
 

@@ -47,17 +47,17 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
     let originalEnv;
 
     beforeEach(async () => {
-        originalEnv = process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG;
+        originalEnv = process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT;
         await commonBeforeEach();
     });
 
     afterEach(async () => {
-        process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG = originalEnv;
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = originalEnv;
         await commonAfterEach();
     });
 
     test('strips query params when request is from a configured origin service', async () => {
-        process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG = 'example-service';
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = 'example-service';
 
         const request = await createTestRequest();
         await setupTestData(request);
@@ -80,7 +80,7 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
     });
 
     test('preserves query params when request is NOT from a configured origin service', async () => {
-        process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG = 'example-service';
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = 'example-service';
 
         const request = await createTestRequest();
         await setupTestData(request);
@@ -95,7 +95,7 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
     });
 
     test('preserves query params when env is not set', async () => {
-        process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG = '';
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = '';
 
         const request = await createTestRequest();
         await setupTestData(request);
@@ -113,7 +113,7 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
     });
 
     test('preserves query params when origin-service header does not match env', async () => {
-        process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG = 'example-service';
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = 'example-service';
 
         const request = await createTestRequest();
         await setupTestData(request);
@@ -131,7 +131,7 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
     });
 
     test('does not strip query params for non-Patient resources from configured service', async () => {
-        process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG = 'example-service';
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = 'example-service';
 
         const request = await createTestRequest();
         await setupTestData(request);
@@ -161,7 +161,7 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
     });
 
     test('skips filter when both env and origin-service header are empty strings', async () => {
-        process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG = '';
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = '';
 
         const request = await createTestRequest();
         await setupTestData(request);
@@ -179,7 +179,7 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
     });
 
     test('does not affect Patient/:id endpoint from configured service', async () => {
-        process.env.SERVICES_WITH_QUERY_PARAM_FILTER_CONFIG = 'example-service';
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = 'example-service';
 
         const request = await createTestRequest();
         await setupTestData(request);

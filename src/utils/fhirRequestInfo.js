@@ -155,6 +155,12 @@ class FhirRequestInfo {
          * @type {boolean}
          */
         this.preferGlobalId = headers.Prefer && isTrue(headers.Prefer.replace('global_id=', ''));
+
+        /**
+         * whether the request is from an external service (origin-service matched in filter config)
+         * @type {boolean}
+         */
+        this.isExternalServiceReq = false;
     }
 
     /**

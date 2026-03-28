@@ -149,6 +149,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {boolean|undefined} [isExternalServiceReq]
      * @return {Bundle}
      */
     createRawBundle({
@@ -173,7 +174,8 @@ class BundleManager {
         cursorBatchSize,
         user,
         explanations,
-        allCollectionsToSearch
+        allCollectionsToSearch,
+        isExternalServiceReq
     }) {
         /**
          * @type {BundleEntry[]}
@@ -182,7 +184,7 @@ class BundleManager {
             return {
                 id: resource.id,
                 resource,
-                fullUrl: this.resourceManager.getFullUrlForResource({ protocol, host, base_version, resource })
+                fullUrl: this.resourceManager.getFullUrlForResource({ protocol, host, base_version, resource, isExternalServiceReq })
             };
         });
 
@@ -209,7 +211,8 @@ class BundleManager {
                 cursorBatchSize,
                 user,
                 explanations,
-                allCollectionsToSearch
+                allCollectionsToSearch,
+                isExternalServiceReq
             });
 
     }
@@ -238,6 +241,7 @@ class BundleManager {
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @param {string | null} [lastResourceLastUpdated]
+     * @param {boolean|undefined} [isExternalServiceReq]
      * @return {Bundle}
      */
     createRawBundleFromEntries (
@@ -263,7 +267,8 @@ class BundleManager {
             user,
             explanations,
             allCollectionsToSearch,
-            lastResourceLastUpdated
+            lastResourceLastUpdated,
+            isExternalServiceReq
     }) {
 
         if (Array.isArray(originalQuery)) {
@@ -283,6 +288,19 @@ class BundleManager {
 
         // find id of last resource
         if (originalUrl && !isEverythingOperation) {
+            /**
+             * Builds a bundle link URL, stripping protocol/host and base_version when isExternalServiceReq is set
+             * @param {string} path
+             * @return {string}
+             */
+            const buildLinkUrl = (path) => {
+                if (isExternalServiceReq) {
+                    // strip the base_version prefix (e.g., /4_0_0) from the path
+                    return path.replace(/^\/\d+_\d+_\d+/, '');
+                }
+                return `${protocol}`.concat('://', `${host}`, `${path}`);
+            };
+
             if (last_id || lastResourceLastUpdated) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';
@@ -303,18 +321,18 @@ class BundleManager {
                 link = [
                     {
                         relation: 'self',
-                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
+                        url: buildLinkUrl(originalUrl)
                     },
                     {
                         relation: 'next',
-                        url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`)
+                        url: buildLinkUrl(nextUrl.toString().replace(baseUrl, ''))
                     }
                 ];
             } else {
                 link = [
                     {
                         relation: 'self',
-                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
+                        url: buildLinkUrl(originalUrl)
                     }
                 ];
             }
@@ -447,6 +465,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
+     * @param {boolean|undefined} [isExternalServiceReq]
      * @return {Bundle}
      */
     createBundleFromEntries (
@@ -471,7 +490,8 @@ class BundleManager {
             cursorBatchSize,
             user,
             explanations,
-            allCollectionsToSearch
+            allCollectionsToSearch,
+            isExternalServiceReq
         }) {
         if (Array.isArray(originalQuery)) {
             for (const q of originalQuery) {
@@ -487,6 +507,18 @@ class BundleManager {
         let link = [];
         // find id of last resource
         if (originalUrl) {
+            /**
+             * Builds a bundle link URL, stripping protocol/host and base_version when isExternalServiceReq is set
+             * @param {string} path
+             * @return {string}
+             */
+            const buildLinkUrl = (path) => {
+                if (isExternalServiceReq) {
+                    return path.replace(/^\/\d+_\d+_\d+/, '');
+                }
+                return `${protocol}`.concat('://', `${host}`, `${path}`);
+            };
+
             if (last_id) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';
@@ -502,18 +534,18 @@ class BundleManager {
                 link = [
                     new BundleLink({
                         relation: 'self',
-                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
+                        url: buildLinkUrl(originalUrl)
                     }),
                     new BundleLink({
                         relation: 'next',
-                        url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`)
+                        url: buildLinkUrl(nextUrl.toString().replace(baseUrl, ''))
                     })
                 ];
             } else {
                 link = [
                     new BundleLink({
                         relation: 'self',
-                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
+                        url: buildLinkUrl(originalUrl)
                     })
                 ];
             }

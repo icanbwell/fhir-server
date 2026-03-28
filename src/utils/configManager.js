@@ -1141,6 +1141,15 @@ class ConfigManager {
         return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER || 'https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category';
     }
 
+    /**
+     * returns list of external services where req limit needs to be applied
+     * @return {string[]}
+     */
+    get externalServicesWithReqLimit() {
+        return this._parseCommaSeparatedList(env.EXTERNAL_SERVICES_WITH_REQ_LIMIT)
+            .map(s => s.toLowerCase());
+    }
+
 }
 
 module.exports = {
