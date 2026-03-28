@@ -1165,6 +1165,14 @@ class ConfigManager {
         return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER || 'https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category';
     }
 
+
+    /**
+     * Whether to enable user type resolution using organization type.
+     */
+    get enableUserTypeResolutionFromOrganization() {
+        return isTrue(env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION);
+    }
+
 }
 
 module.exports = {

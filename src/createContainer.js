@@ -121,6 +121,7 @@ const {CustomTracer} = require('./utils/customTracer');
 const {MyJwtStrategy} = require("./strategies/jwt.bearer.strategy");
 const {READ} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
+const {UserTypeManager} = require("./utils/userTypeManager");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
@@ -1072,12 +1073,16 @@ const createContainer = function () {
         );
     });
 
+    container.register('userTypeManager', (c) => new UserTypeManager({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
+
     container.register('authService', (c) => {
         return new AuthService
         ({
             configManager: c.configManager,
             wellKnownConfigurationManager: c.wellKnownConfigurationManager,
-            requestSpecificCache: c.requestSpecificCache
+            userTypeManager: c.userTypeManager
         });
     });
 

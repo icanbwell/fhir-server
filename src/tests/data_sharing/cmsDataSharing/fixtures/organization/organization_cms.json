@@ -1,6 +1,6 @@
 {
   "resourceType": "Organization",
-  "id": "85974688-f37c-4eac-aee7-7d5e2580809b",
+  "id": "c3d4e5f6-a7b8-9012-cdef-123456789abc",
   "meta": {
     "source": "test",
     "security": [
@@ -8,7 +8,7 @@
       { "system": "https://www.icanbwell.com/access", "code": "client-1" }
     ]
   },
-  "name": "Test Hospital",
+  "name": "CMS Network Tenant Org",
   "type": [
     {
       "coding": [

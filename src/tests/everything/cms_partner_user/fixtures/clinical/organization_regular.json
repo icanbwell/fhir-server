@@ -1,6 +1,6 @@
 {
   "resourceType": "Organization",
-  "id": "85974688-f37c-4eac-aee7-7d5e2580809b",
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "meta": {
     "source": "test",
     "security": [
@@ -8,14 +8,14 @@
       { "system": "https://www.icanbwell.com/access", "code": "client-1" }
     ]
   },
-  "name": "Test Hospital",
+  "name": "Regular Hospital",
   "type": [
     {
       "coding": [
         {
-          "system": "http://www.icanbwell.com/organization-type",
-          "code": "example-network-tenant",
-          "display": "Example Network Tenant"
+          "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+          "code": "prov",
+          "display": "Healthcare Provider"
         }
       ]
     }
