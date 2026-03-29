@@ -245,13 +245,13 @@ class FhirOperationsManager {
             return;
         }
 
-        if (requestInfo) {
-            requestInfo.isExternalServiceReq = true;
-        }
-
         const requestConfig = EXTERNAL_SERVICE_REQUEST_CONFIG[resourceType]?.[interaction];
         if (!requestConfig) {
             return;
+        }
+
+        if (requestInfo) {
+            requestInfo.isExternalServiceReq = true;
         }
 
         const { allowedParams, defaultParams, defaultHeaders } = requestConfig;

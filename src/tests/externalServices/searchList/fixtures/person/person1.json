@@ -25,6 +25,11 @@
             "target": {
                 "reference": "Patient/b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7|client"
             }
+        },
+        {
+            "target": {
+                "reference": "Patient/patient3|client"
+            }
         }
     ]
 }
