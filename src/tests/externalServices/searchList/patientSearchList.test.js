@@ -6,6 +6,7 @@ const observation1Resource = require('./fixtures/observation/observation1.json')
 const observation2Resource = require('./fixtures/observation/observation2.json');
 
 const expectedPatientSearchResponse = require('./fixtures/expected/expectedPatientSearchResponse.json');
+const expectedPatientSearchResponseExplain = require('./fixtures/expected/expectedPatientSearchResponseExplain.json');
 const expectedPatientSearchResponseExternalService = require('./fixtures/expected/expectedPatientSearchResponseExternalService.json');
 const expectedPatientSearchResponseExternalServiceSourceId = require('./fixtures/expected/expectedPatientSearchResponseExternalServiceSourceId.json.json');
 
@@ -46,14 +47,14 @@ const setupTestData = async (request) => {
     expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }, { created: true }]);
 };
 
-describe('Patient Search with Origin Service Query Param Filter', () => {
+describe('Patient Search with Origin Service External Request Restrictions', () => {
     let originalEnv;
     let originalReturnBundle;
 
     beforeEach(async () => {
         originalEnv = process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT;
         originalReturnBundle = process.env.RETURN_BUNDLE;
-        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = 'external-service';
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = 'external-service|http://example.com/';
         process.env.RETURN_BUNDLE = '1';
         await commonBeforeEach();
     });
@@ -64,84 +65,56 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
         await commonAfterEach();
     });
 
-    test('strips query params when request is from a configured origin service and default params and headers are applied', async () => {
+    test('only strips ignored params (_debug, _explain), applies URL prefix and default headers for configured service', async () => {
         const request = await createTestRequest();
         await setupTestData(request);
 
-        // Verify both patients are accessible with patient scope and no limit is applied without origin-service header
-        let resp = await request.get('/4_0_0/Patient').set(getPatientHeaders());
+        // Verify all patients are accessible with patient scope without origin-service header
+        let resp = await request.get('/4_0_0/Patient?_debug=1').set(getPatientHeaders());
         expect(resp).toHaveResponse(expectedPatientSearchResponse);
+        resp = await request.get('/4_0_0/Patient?_explain=1').set(getPatientHeaders());
+        expect(resp).toHaveResponse(expectedPatientSearchResponseExplain);
 
-        // Search with family=NONEXISTENT and origin-service header matching env
-        // family filter should be stripped, so all patients should be returned
-        resp = await request.get('/4_0_0/Patient?family=NONEXISTENT').set({
+        // Search from external service — default prefer: global_id=true header applied, URL prefix added
+        resp = await request.get('/4_0_0/Patient?_debug=1&_explain=1').set({
             ...getPatientHeaders(),
             'origin-service': 'external-service'
         });
-        // Query params are stripped, so family filter is ignored and both patients are returned
         // Default params and headers are applied, returns global uuid and next url with relative URLs
         expect(resp.body.link).toMatchObject([
             {
                 relation: 'self',
-                url: '/Patient?family=NONEXISTENT'
+                url: 'http://example.com/Patient?_debug=1&_explain=1'
             },
             {
                 relation: 'next',
-                url: '/Patient?family=NONEXISTENT&id%3Aabove=b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7'
+                url: 'http://example.com/Patient?_debug=1&_explain=1&id%3Aabove=b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7'
             }
         ]);
         expect(resp).toHaveResponse(expectedPatientSearchResponseExternalService);
 
-        // returns sourceid when header is present
-        resp = await request.get('/4_0_0/Patient?family=NONEXISTENT').set({
+        // prefer: global_id=false overrides the default header, returns source IDs
+        resp = await request.get('/4_0_0/Patient?_debug=1&_explain=1').set({
             ...getPatientHeaders(),
             prefer: 'global_id=false',
             'origin-service': 'external-service'
         });
         expect(resp).toHaveResponse(expectedPatientSearchResponseExternalServiceSourceId);
-
-        // Search with family=NONEXISTENT but WITHOUT origin-service header
-        resp = await request.get('/4_0_0/Patient?family=NONEXISTENT').set(getPatientHeaders());
-        // Query params preserved, so family=NONEXISTENT returns no results
-        expect(resp).toHaveResourceCount(0);
     });
 
-    test('preserves query params when env is not set', async () => {
-        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = '';
-
+    test('preserves non-ignored query params for all resources from configured service', async () => {
         const request = await createTestRequest();
         await setupTestData(request);
 
-        // Even with origin-service header, env is empty so filter shouldn't apply
-        const resp = await request.get('/4_0_0/Patient?family=NONEXISTENT').set({
+        // Non-ignored params like family are preserved — family=NONEXISTENT returns 0 results
+        let resp = await request.get('/4_0_0/Patient?family=NONEXISTENT').set({
             ...getPatientHeaders(),
             'origin-service': 'external-service'
         });
-
-        // Query params preserved since env is not set
         expect(resp).toHaveResourceCount(0);
-    });
-
-    test('preserves query params when origin-service header does not match env', async () => {
-        const request = await createTestRequest();
-        await setupTestData(request);
-
-        // origin-service header does not match the env var
-        const resp = await request.get('/4_0_0/Patient?family=NONEXISTENT').set({
-            ...getPatientHeaders(),
-            'origin-service': 'different-service'
-        });
-
-        // Query params preserved, filter not applied
-        expect(resp).toHaveResourceCount(0);
-    });
-
-    test('does not strip query params for non-Patient resources from configured service', async () => {
-        const request = await createTestRequest();
-        await setupTestData(request);
 
         // Create two observations
-        let resp = await request
+        resp = await request
             .post(`/4_0_0/Observation/${observation1Id}/$merge?validate=true`)
             .send([observation1Resource, observation2Resource])
             .set(getHeaders());
@@ -152,7 +125,7 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
         expect(resp).toHaveResourceCount(2);
 
         // Search Observation with _count=1 from configured service
-        // Observation is NOT in the filter config, so _count=1 should be preserved
+        // _count is not in ignoredParams, so it should be preserved
         resp = await request.get('/4_0_0/Observation?_count=1').set({
             ...getHeaders(),
             'origin-service': 'external-service'
@@ -160,22 +133,6 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
 
         // _count=1 is preserved, so only 1 observation returned
         expect(resp).toHaveResourceCount(1);
-    });
-
-    test('does not affect Patient/:id endpoint from configured service', async () => {
-        const request = await createTestRequest();
-        await setupTestData(request);
-
-        // searchById is not in the filter config, so request should work normally
-        const resp = await request.get(`/4_0_0/Patient/${patient1Id}`).set({
-            ...getPatientHeaders(),
-            'origin-service': 'external-service'
-        });
-
-        // Should return the patient successfully
-        expect(resp).toHaveStatusCode(200);
-        expect(resp.body.resourceType).toBe('Patient');
-        expect(resp.body.id).toBe(patient1Id);
     });
 
     test('test fullUrl on entries for external service and non-external service requests', async () => {
@@ -191,6 +148,7 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
             .set(getHeaders());
         expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
+        // Patient search from external service — fullUrl should use URL prefix
         resp = await request.get('/4_0_0/Patient').set({
             ...getPatientHeaders(),
             'origin-service': 'external-service'
@@ -199,15 +157,12 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.entry).toBeDefined();
         expect(resp.body.entry.length).toBeGreaterThan(0);
-
-        // Every entry fullUrl should be relative (no protocol/host, no base_version)
+        // Every entry fullUrl should have URL prefix, no protocol/host, no base_version
         for (const entry of resp.body.entry) {
-            expect(entry.fullUrl).not.toContain('://');
-            expect(entry.fullUrl).not.toContain('4_0_0');
-            expect(entry.fullUrl).toMatch(/^\/Patient\//);
+            expect(entry.fullUrl).toStartWith('http://example.com/Patient/');
         }
 
-        // No origin-service header — should produce absolute URLs
+        // No origin-service header — should produce absolute URLs with default base URL
         resp = await request.get('/4_0_0/Patient').set(getPatientHeaders());
 
         expect(resp).toHaveStatusCode(200);
@@ -226,18 +181,16 @@ describe('Patient Search with Origin Service Query Param Filter', () => {
         }
 
         // Search observations from configured external service
-        // Observation is NOT in EXTERNAL_SERVICE_REQUEST_CONFIG but origin-service matches,
-        // so isExternalServiceReq is true and URLs should be relative
+        // externalReqUrlPrefix applies to all resources, so Observation also gets prefixed URLs
         resp = await request.get('/4_0_0/Observation').set({
             ...getHeaders(),
             'origin-service': 'external-service'
         });
         expect(resp).toHaveStatusCode(200);
         expect(resp.body.entry).toBeDefined();
-        // fullUrls should be absolute since isExternalServiceReq applied only to configured resourceType/interaction, and Observation is not in the config
+        // fullUrls should have URL prefix since externalReqUrlPrefix applies to all resources
         for (const entry of resp.body.entry) {
-            expect(entry.fullUrl).toContain('://');
-            expect(entry.fullUrl).toContain('4_0_0/Observation/');
+            expect(entry.fullUrl).toStartWith('http://example.com/Observation/');
         }
 
         process.env.STREAM_RESPONSE = originalStreamResults; // Restore original value

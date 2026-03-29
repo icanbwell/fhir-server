@@ -158,9 +158,9 @@ class FhirRequestInfo {
 
         /**
          * whether the request is from an external service (origin-service matched in filter config)
-         * @type {boolean}
+         * @type {string|undefined}
          */
-        this.isExternalServiceReq = false;
+        this.externalReqUrlPrefix = undefined;
     }
 
     /**

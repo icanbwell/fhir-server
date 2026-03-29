@@ -225,51 +225,34 @@ class FhirOperationsManager {
     /**
      * Updates request based for external services using EXTERNAL_SERVICE_REQUEST_CONFIG.
      * Removes params not in allowedParams, applies defaultParams and defaultHeaders without
-     * overriding existing values. Also sets isExternalServiceReq on requestInfo.
+     * overriding existing values. Also sets externalReqUrlPrefix on requestInfo.
      * @param {Object} args
      * @param {Object|undefined} headers
-     * @param {string} resourceType
-     * @param {string|undefined} interaction
      * @param {FhirRequestInfo|undefined} requestInfo
      */
-    limitReqForExternalServices ({ args, headers, resourceType, interaction, requestInfo }) {
-        if (!interaction || !headers) {
+    limitReqForExternalServices ({ args, headers, requestInfo }) {
+        if (!headers) {
             return;
         }
 
         const originService = (headers['origin-service'] || '').trim().toLowerCase();
-        if (
-            !originService ||
-            !this.configManager.externalServicesWithReqLimit.includes(originService)
-        ) {
+
+        if (!originService || !(originService in this.configManager.externalServicesWithRestrictions)) {
             return;
         }
 
-        const requestConfig = EXTERNAL_SERVICE_REQUEST_CONFIG[resourceType]?.[interaction];
-        if (!requestConfig) {
-            return;
+        const serviceUrlPrefix = this.configManager.externalServicesWithRestrictions[originService];
+        if (requestInfo && serviceUrlPrefix) {
+            requestInfo.externalReqUrlPrefix = serviceUrlPrefix;
         }
 
-        if (requestInfo) {
-            requestInfo.isExternalServiceReq = true;
-        }
+        const { ignoredParams, defaultHeaders } = EXTERNAL_SERVICE_REQUEST_CONFIG;
 
-        const { allowedParams, defaultParams, defaultHeaders } = requestConfig;
-
-        // Filter: remove params not in allowedParams
-        if (allowedParams) {
+        // Filter: remove params in ignoredParams
+        if (ignoredParams) {
             for (const param in args) {
-                if (param !== 'base_version' && !allowedParams.includes(param)) {
+                if (param !== 'base_version' && ignoredParams.includes(param)) {
                     delete args[param];
-                }
-            }
-        }
-
-        // Apply default params (without overriding existing)
-        if (defaultParams) {
-            for (const [param, value] of Object.entries(defaultParams)) {
-                if (!(param in args)) {
-                    args[param] = value;
                 }
             }
         }
@@ -290,15 +273,14 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @param {Object|undefined} [headers]
      * @param {string} operation
-     * @param {string} [interaction]
      * @param {boolean} [allowMultipleIds=true]
      * @param {FhirRequestInfo} [requestInfo]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({ args, resourceType, headers, operation, interaction, allowMultipleIds = true, requestInfo }) {
+    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true, requestInfo }) {
         const { base_version } = args;
 
-        this.limitReqForExternalServices({ args, headers, resourceType, interaction, requestInfo });
+        this.limitReqForExternalServices({ args, headers, requestInfo });
 
         /**
          * @type {ParsedArgs}
@@ -342,7 +324,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, interaction: 'search', requestInfo
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.searchBundleOperation.searchBundleAsync(
@@ -377,9 +359,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ, interaction: 'search', requestInfo
-        }
-        );
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+        });
 
         if (this.configManager.enableVulcanIgQuery) {
             for (const parsedArg of parsedArgs.parsedArgItems) {

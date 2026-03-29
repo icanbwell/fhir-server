@@ -1174,12 +1174,20 @@ class ConfigManager {
     }
 
     /**
-     * returns list of external services where req limit needs to be applied
-     * @return {string[]}
+     * returns list of external services where restriction needs to be applied to request
+     * @return {Object.<string, string | null>}
      */
-    get externalServicesWithReqLimit() {
-        return this._parseCommaSeparatedList(env.EXTERNAL_SERVICES_WITH_REQ_LIMIT)
-            .map(s => s.toLowerCase());
+    get externalServicesWithRestrictions() {
+        const servicesList = this._parseCommaSeparatedList(env.EXTERNAL_SERVICES_WITH_REQ_LIMIT);
+        const servicesConfig = {};
+        servicesList.forEach((service) => {
+            let [serviceName, serviceUrlPrefix] = service.split('|').map((part) => part.trim());
+            if (serviceUrlPrefix && serviceUrlPrefix.endsWith('/')) {
+                serviceUrlPrefix = serviceUrlPrefix.slice(0, -1);
+            }
+            servicesConfig[serviceName.toLowerCase()] = serviceUrlPrefix || null;
+        });
+        return servicesConfig;
     }
 
 }

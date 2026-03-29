@@ -128,8 +128,8 @@ class SearchStreamingOperation {
             requestId,
             /** @type {string} */
             userRequestId,
-            /** @type {boolean} */
-            isExternalServiceReq
+            /** @type {string} */
+            externalReqUrlPrefix
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -349,7 +349,7 @@ class SearchStreamingOperation {
                         explanations,
                         allCollectionsToSearch,
                         parsedArgs,
-                        isExternalServiceReq
+                        externalReqUrlPrefix
                     }
                 );
                 resourceIds = await this.searchManager.streamResourcesFromCursorAsync(

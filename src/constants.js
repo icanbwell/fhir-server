@@ -287,16 +287,9 @@ module.exports = {
         delegatedUser: 'delegatedUser'
     },
     EXTERNAL_SERVICE_REQUEST_CONFIG: {
-        Patient: {
-            search: {
-                allowedParams: ['base_version'],
-                defaultParams: {
-                    _count: 1000
-                },
-                defaultHeaders: {
-                    prefer: 'global_id=true'
-                }
-            }
+        ignoredParams: ['_debug', '_explain'],
+        defaultHeaders: {
+            prefer: 'global_id=true'
         }
     },
     CMS_PARTNER_ACCESS: {

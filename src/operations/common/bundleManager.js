@@ -149,7 +149,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
-     * @param {boolean|undefined} [isExternalServiceReq]
+     * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
      */
     createRawBundle({
@@ -175,7 +175,7 @@ class BundleManager {
         user,
         explanations,
         allCollectionsToSearch,
-        isExternalServiceReq
+        externalReqUrlPrefix
     }) {
         /**
          * @type {BundleEntry[]}
@@ -184,7 +184,7 @@ class BundleManager {
             return {
                 id: resource.id,
                 resource,
-                fullUrl: this.resourceManager.getFullUrlForResource({ protocol, host, base_version, resource, isExternalServiceReq })
+                fullUrl: this.resourceManager.getFullUrlForResource({ protocol, host, base_version, resource, externalReqUrlPrefix })
             };
         });
 
@@ -212,7 +212,7 @@ class BundleManager {
                 user,
                 explanations,
                 allCollectionsToSearch,
-                isExternalServiceReq
+                externalReqUrlPrefix
             });
 
     }
@@ -241,7 +241,7 @@ class BundleManager {
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @param {string | null} [lastResourceLastUpdated]
-     * @param {boolean|undefined} [isExternalServiceReq]
+     * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
      */
     createRawBundleFromEntries (
@@ -268,7 +268,7 @@ class BundleManager {
             explanations,
             allCollectionsToSearch,
             lastResourceLastUpdated,
-            isExternalServiceReq
+            externalReqUrlPrefix
     }) {
 
         if (Array.isArray(originalQuery)) {
@@ -289,14 +289,14 @@ class BundleManager {
         // find id of last resource
         if (originalUrl && !isEverythingOperation) {
             /**
-             * Builds a bundle link URL, stripping protocol/host and base_version when isExternalServiceReq is set
+             * Builds a bundle link URL, stripping protocol/host and base_version when externalReqUrlPrefix is set
              * @param {string} path
              * @return {string}
              */
             const buildLinkUrl = (path) => {
-                if (isExternalServiceReq) {
+                if (externalReqUrlPrefix) {
                     // strip the base_version prefix (e.g., /4_0_0) from the path
-                    return path.replace(/^\/\d+_\d+_\d+/, '');
+                    return externalReqUrlPrefix + path.replace(/^\/\d+_\d+_\d+/, '');
                 }
                 return `${protocol}`.concat('://', `${host}`, `${path}`);
             };
@@ -465,7 +465,7 @@ class BundleManager {
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
      * @param {string[]|undefined} [allCollectionsToSearch]
-     * @param {boolean|undefined} [isExternalServiceReq]
+     * @param {string|undefined} [externalReqUrlPrefix]
      * @return {Bundle}
      */
     createBundleFromEntries (
@@ -491,7 +491,7 @@ class BundleManager {
             user,
             explanations,
             allCollectionsToSearch,
-            isExternalServiceReq
+            externalReqUrlPrefix
         }) {
         if (Array.isArray(originalQuery)) {
             for (const q of originalQuery) {
@@ -508,13 +508,13 @@ class BundleManager {
         // find id of last resource
         if (originalUrl) {
             /**
-             * Builds a bundle link URL, stripping protocol/host and base_version when isExternalServiceReq is set
+             * Builds a bundle link URL, stripping protocol/host and base_version when externalReqUrlPrefix is set
              * @param {string} path
              * @return {string}
              */
             const buildLinkUrl = (path) => {
-                if (isExternalServiceReq) {
-                    return path.replace(/^\/\d+_\d+_\d+/, '');
+                if (externalReqUrlPrefix) {
+                    return externalReqUrlPrefix + path.replace(/^\/\d+_\d+_\d+/, '');
                 }
                 return `${protocol}`.concat('://', `${host}`, `${path}`);
             };

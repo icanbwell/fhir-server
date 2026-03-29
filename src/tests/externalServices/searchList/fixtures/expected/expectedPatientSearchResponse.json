@@ -147,5 +147,42 @@
     ],
     "type": "searchset",
     "resourceType": "Bundle",
-    "total": 0
+    "total": 0,
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Patient_4_0_0.find({'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'_uuid':{'$in':['person.c3e4f5a6-b7c8-49d0-a1e2-f3a4b5c6d7e8','a1c2d3e4-f5a6-47b8-89c0-d1e2f3a4b5c6','b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7','4562d6e0-12d9-5704-aaa3-98feb2d01307']}},{'meta.security':{'$not':{'$elemMatch':{'system':'http://terminology.hl7.org/CodeSystem/v3-Confidentiality','code':'R'}}}}]}, {}).sort({'_uuid':1}).limit(100)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Patient_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "{'limit':100,'sort':{'_uuid':1}}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['meta.tag.system','meta.tag.code','_uuid','meta.security.system','meta.security.code']"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':undefined}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryDatabase",
+                "code": "fhir"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple"
+            }
+        ]
+    }
 }
