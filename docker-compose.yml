@@ -73,6 +73,7 @@ services:
       ENABLE_GRAPHQLV2: '1'
       ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
       ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'
+      EXTERNAL_SERVICES_WITH_REQ_LIMIT: 'external-service'
       # FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       ENABLE_STATS_ENDPOINT: '1'
       FHIR_SERVER_UI_URL: 'http://localhost:5051'

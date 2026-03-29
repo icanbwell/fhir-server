@@ -286,6 +286,12 @@ module.exports = {
         cmsPartnerUser: 'cmsPartnerUser',
         delegatedUser: 'delegatedUser'
     },
+    EXTERNAL_SERVICE_REQUEST_CONFIG: {
+        ignoredParams: ['_debug', '_explain'],
+        defaultHeaders: {
+            prefer: 'global_id=true'
+        }
+    },
     CMS_PARTNER_ACCESS: {
         RESTRICTED_EVERYTHING_PARAMS: [
             '_includePatientLinkedOnly',
