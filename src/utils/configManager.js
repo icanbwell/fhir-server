@@ -270,6 +270,30 @@ class ConfigManager {
     }
 
     /**
+     * gets client id for person matching service OAuth
+     * @return {string|undefined}
+     */
+    get personMatchingServiceClientId() {
+        return env.PERSON_MATCHING_SERVICE_CLIENT_ID;
+    }
+
+    /**
+     * gets client secret for person matching service OAuth
+     * @return {string|undefined}
+     */
+    get personMatchingServiceClientSecret() {
+        return env.PERSON_MATCHING_SERVICE_CLIENT_SECRET;
+    }
+
+    /**
+     * gets token URL for person matching service OAuth
+     * @return {string|undefined}
+     */
+    get personMatchingServiceTokenUrl() {
+        return env.PERSON_MATCHING_SERVICE_TOKEN_URL;
+    }
+
+    /**
      * whether to create index when we create a collection
      * @returns {boolean}
      */
@@ -1139,6 +1163,14 @@ class ConfigManager {
 
     get sensitiveCategorySystemIdentifier() {
         return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER || 'https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category';
+    }
+
+
+    /**
+     * Whether to enable user type resolution using organization type.
+     */
+    get enableUserTypeResolutionFromOrganization() {
+        return isTrue(env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION);
     }
 
     /**

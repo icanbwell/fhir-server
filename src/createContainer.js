@@ -78,6 +78,7 @@ const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/pr
 const {KafkaClient} = require('./utils/kafkaClient');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
+const {OAuthClientCredentialsHelper} = require('./utils/oauthClientCredentialsHelper');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
 const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
@@ -120,6 +121,7 @@ const {CustomTracer} = require('./utils/customTracer');
 const {MyJwtStrategy} = require("./strategies/jwt.bearer.strategy");
 const {READ} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
+const {UserTypeManager} = require("./utils/userTypeManager");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
@@ -928,10 +930,15 @@ const createContainer = function () {
             postSaveProcessor: c.postSaveProcessor
         }));
 
+    container.register('oauthClientCredentialsHelper', (c) => new OAuthClientCredentialsHelper({
+        configManager: c.configManager
+    }));
+
     container.register('personMatchManager', (c) => new PersonMatchManager(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            configManager: c.configManager
+            configManager: c.configManager,
+            oauthClientCredentialsHelper: c.oauthClientCredentialsHelper
         }
     ));
 
@@ -1066,12 +1073,16 @@ const createContainer = function () {
         );
     });
 
+    container.register('userTypeManager', (c) => new UserTypeManager({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
+
     container.register('authService', (c) => {
         return new AuthService
         ({
             configManager: c.configManager,
             wellKnownConfigurationManager: c.wellKnownConfigurationManager,
-            requestSpecificCache: c.requestSpecificCache
+            userTypeManager: c.userTypeManager
         });
     });
 

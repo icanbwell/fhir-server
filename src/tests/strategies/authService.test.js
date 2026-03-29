@@ -1,13 +1,11 @@
 const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
-const {
-    MyJwtStrategy
-} = require("../../strategies/jwt.bearer.strategy");
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
-const jwt = require("jsonwebtoken");
-const crypto = require('crypto');
 const {AuthService} = require("../../strategies/authService");
 const {ConfigManager} = require("../../utils/configManager");
+const {createTestContainer} = require("../createTestContainer");
+
+const testUserTypeManager = createTestContainer().userTypeManager;
 
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
@@ -40,7 +38,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                )
+                ),
+                userTypeManager: testUserTypeManager
             }
         );
 
@@ -75,7 +74,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                )
+                ),
+                userTypeManager: testUserTypeManager
             }
         );
         authService.clearAuthCache();
@@ -109,7 +109,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                )
+                ),
+                userTypeManager: testUserTypeManager
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -143,7 +144,8 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager: configManager
                     }
-                )
+                ),
+                userTypeManager: testUserTypeManager
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -194,7 +196,8 @@ describe('JWT Bearer Strategy', () => {
         const authService = new AuthService(
             {
                 configManager: configManager,
-                wellKnownConfigurationManager: wellKnownManager
+                wellKnownConfigurationManager: wellKnownManager,
+                userTypeManager: testUserTypeManager
             }
         );
         const userInfoResponse = await authService.getExternalJwksAsync();
