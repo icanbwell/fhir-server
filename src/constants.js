@@ -293,19 +293,6 @@ module.exports = {
         }
     },
     CMS_PARTNER_ACCESS: {
-        RESTRICTED_EVERYTHING_PARAMS: [
-            '_includePatientLinkedOnly',
-            '_rewritePatientReference',
-            '_includeNonClinicalResources',
-            '_debug',
-            '_explain',
-            '_includeHidden',
-            '_includeProxyPatientLinkedOnly',
-            '_excludeProxyPatientLinked',
-            '_includePatientLinkedUuidOnly',
-            '_includeUuidOnly',
-            'contained'
-        ],
         ALLOWED_RESOURCE_TYPES: ['Patient'],
         ALLOWED_OPERATIONS: ['search', 'everything'],
         ALLOWED_METHODS: ['get']

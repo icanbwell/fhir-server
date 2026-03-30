@@ -61,8 +61,7 @@ class CMSManager {
     }
 
     /**
-     * Strips restricted query args from parsedArgs for CMS partner users.
-     * Args in CMS_PARTNER_ACCESS.RESTRICTED_EVERYTHING_PARAMS are removed.
+     * Sanitizes $everything parameters for CMS partner users. Currently only allows a single patient ID
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      */
@@ -78,14 +77,6 @@ class CMSManager {
         if (hasMultipleIds) {
             throw new BadRequestError(new Error('Multiple IDs are not allowed'));
         }
-
-        for (const item of [...parsedArgs.parsedArgItems]) {
-            if (CMS_PARTNER_ACCESS.RESTRICTED_EVERYTHING_PARAMS.includes(item.queryParameter)) {
-                parsedArgs.remove(item.queryParameter);
-                parsedArgs[item.queryParameter] = null;
-            }
-        }
-
     }
 }
 
