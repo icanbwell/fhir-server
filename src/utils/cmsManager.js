@@ -61,8 +61,7 @@ class CMSManager {
     }
 
     /**
-     * Sanitizes $everything parameters for CMS partner users. Currently only allows a single
-     * patient ID and disallows proxy patient IDs.
+     * Sanitizes $everything parameters for CMS partner users. Currently only allows a single patient ID
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      */
