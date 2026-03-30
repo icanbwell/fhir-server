@@ -1,0 +1,23 @@
+{
+  "resourceType": "Organization",
+  "id": "c3d4e5f6-a7b8-9012-cdef-123456789abc",
+  "meta": {
+    "source": "test",
+    "security": [
+      { "system": "https://www.icanbwell.com/owner", "code": "client-1" },
+      { "system": "https://www.icanbwell.com/access", "code": "client-1" }
+    ]
+  },
+  "name": "CMS Network Tenant Org",
+  "type": [
+    {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/organization-type",
+          "code": "example-network-tenant",
+          "display": "Example Network Tenant"
+        }
+      ]
+    }
+  ]
+}

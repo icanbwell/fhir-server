@@ -1,0 +1,151 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "birthDate": "1990-05-15",
+                "gender": "male",
+                "id": "patient3",
+                "meta": {
+                    "versionId": "1",
+                    "source": "https://www.icanbwell.com/client",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "family": "PATIENT3",
+                        "given": ["JOHN"]
+                    }
+                ],
+                "resourceType": "Patient",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "patient3"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "4562d6e0-12d9-5704-aaa3-98feb2d01307"
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
+                "birthDate": "2017-01-01",
+                "gender": "female",
+                "id": "a1c2d3e4-f5a6-47b8-89c0-d1e2f3a4b5c6",
+                "meta": {
+                    "versionId": "1",
+                    "source": "https://www.icanbwell.com/client",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "family": "PATIENT1",
+                        "given": ["SHYLA"]
+                    }
+                ],
+                "resourceType": "Patient",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "a1c2d3e4-f5a6-47b8-89c0-d1e2f3a4b5c6"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "a1c2d3e4-f5a6-47b8-89c0-d1e2f3a4b5c6"
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
+                "birthDate": "1990-05-15",
+                "gender": "male",
+                "id": "b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7",
+                "meta": {
+                    "versionId": "1",
+                    "source": "https://www.icanbwell.com/client",
+                    "security": [
+                        {
+                            "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "client"
+                        },
+                        {
+                            "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "client"
+                        },
+                        {
+                            "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "family": "PATIENT2",
+                        "given": ["JOHN"]
+                    }
+                ],
+                "resourceType": "Patient",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7"
+                    }
+                ]
+            }
+        }
+    ],
+    "type": "searchset",
+    "resourceType": "Bundle",
+    "total": 0
+}

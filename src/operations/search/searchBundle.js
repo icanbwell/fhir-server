@@ -144,7 +144,9 @@ class SearchBundleOperation {
             /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
             actor,
             /** @type {string|null} */
-            userType
+            userType,
+            /** @type {string | undefined} */
+            externalReqUrlPrefix
         } = requestInfo;
 
         assertIsValid(requestId, 'requestId is null');
@@ -375,7 +377,8 @@ class SearchBundleOperation {
                     user,
                     explanations,
                     allCollectionsToSearch,
-                    parsedArgs
+                    parsedArgs,
+                    externalReqUrlPrefix
                 }
             );
             await this.fhirLoggingManager.logOperationSuccessAsync({

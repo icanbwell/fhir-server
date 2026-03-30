@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "internal",
+      "details": {
+        "text": "Internal Server Error"
+      }
+    }
+  ]
+}

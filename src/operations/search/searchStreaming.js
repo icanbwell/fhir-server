@@ -129,7 +129,9 @@ class SearchStreamingOperation {
             /** @type {string} */
             userRequestId,
             /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
-            actor
+            actor,
+            /** @type {string} */
+            externalReqUrlPrefix
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -349,7 +351,8 @@ class SearchStreamingOperation {
                         user,
                         explanations,
                         allCollectionsToSearch,
-                        parsedArgs
+                        parsedArgs,
+                        externalReqUrlPrefix
                     }
                 );
                 resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
