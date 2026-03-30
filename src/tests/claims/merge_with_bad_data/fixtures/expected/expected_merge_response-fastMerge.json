@@ -61,13 +61,6 @@
             "text": "/4_0_0/ExplanationOfBenefit/1/$merge should be object :{\"type\":\"object\"}: at position .patient"
           },
           "severity": "error"
-        },
-        {
-          "code": "invalid",
-          "details": {
-            "text": "/4_0_0/ExplanationOfBenefit/1/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
-          },
-          "severity": "error"
         }
       ],
       "resourceType": "OperationOutcome"
