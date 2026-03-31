@@ -121,9 +121,7 @@ class RemoveOperation {
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {boolean} */
-            useAccessIndex,
-            userType,
-            actor
+            useAccessIndex
         } = requestInfo;
 
         if (parsedArgs.get('id') &&
@@ -162,11 +160,9 @@ class RemoveOperation {
                     user,
                     scope,
                     isUser,
-                    userType,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
-                    actor,
                     parsedArgs,
                     operation: DELETE,
                     accessRequested: 'write'

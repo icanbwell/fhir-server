@@ -80,6 +80,8 @@ class DelegatedAccessRulesManager {
         base_version = '4_0_0',
         _debug = false
     }) {
+        assertIsValid(actor, 'Actor must be provided to get filtering rules');
+        assertIsValid(personIdFromJwtToken, 'personIdFromJwtToken must be provided to get filtering rules');
         const actorReference = actor.reference;
         const cacheKey = `${HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_FILTERING_RULES_PREFIX}${base_version}-${personIdFromJwtToken}-${actorReference}`;
 

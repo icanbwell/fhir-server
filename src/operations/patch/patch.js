@@ -190,11 +190,8 @@ class PatchOperation {
             /** @type {string} */
             personIdFromJwtToken,
             /** @type {string} */
-            path,
+            path
             /** @type {string|null} */
-            userType,
-            /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
-            actor
         } = requestInfo;
 
         // currently we only support JSONPatch
@@ -276,14 +273,12 @@ class PatchOperation {
                 user,
                 scope,
                 isUser,
-                userType,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
                 operation: WRITE,
-                accessRequested: 'write',
-                actor
+                accessRequested: 'write'
             });
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version }

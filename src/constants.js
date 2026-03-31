@@ -271,6 +271,9 @@ module.exports = {
             CODE: "cms:share:records"
         }
     },
+    SENSITIVE_CATEGORY: {
+        SYSTEM: "https://www.icanbwell.com/sensitive-data-category"
+    },
     MONGO_ERROR: {
         RESOURCE_SIZE_EXCEEDS: 'Document is larger than the maximum size 16777216'
     },

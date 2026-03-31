@@ -1,7 +1,7 @@
 const { logWarn } = require('../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const { REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ }, COLLECTION } = require('../constants');
+const { REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ, WRITE }, COLLECTION } = require('../constants');
 const { groupByLambda } = require('../utils/list.util');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
@@ -446,6 +446,7 @@ class FhirDataSource {
             await this.searchBundleOperation.searchBundleAsync(
                 {
                     requestInfo: context.fhirRequestInfo,
+                    parentOperationType: WRITE,
                     resourceType,
                     parsedArgs: await this.getParsedArgsForMutationAsync(
                         {

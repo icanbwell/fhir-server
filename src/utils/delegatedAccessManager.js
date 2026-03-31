@@ -28,7 +28,7 @@ class DelegatedAccessManager {
 
         if (RESTRICTED_OPERATIONS.has(operation)) {
             throw new ForbiddenError(
-                `Delegated access user does not have access to ${resourceType}.${operation}`
+                `User does not have access to ${operation.toUpperCase()} method`
             );
         }
     }

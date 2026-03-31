@@ -64,8 +64,8 @@
                             "code": "B"
                         },
                         {
-                            "id": "49cbcabc-1809-509e-a04c-405e87d32f0d",
-                            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category",
+                            "id": "0fa2771e-63bc-53d8-8309-f29acb8e9d8b",
+                            "system": "https://www.icanbwell.com/sensitive-data-category",
                             "code": "HIV_AIDS"
                         },
                         {
@@ -259,8 +259,8 @@
                             "code": "B"
                         },
                         {
-                            "id": "3320bcc5-1270-5dfa-954e-92119882bf15",
-                            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category",
+                            "id": "61b80f42-5ac1-566a-934e-e4a3f9d9f428",
+                            "system": "https://www.icanbwell.com/sensitive-data-category",
                             "code": "SUBSTANCE_ABUSE"
                         },
                         {

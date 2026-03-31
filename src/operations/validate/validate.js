@@ -99,9 +99,7 @@ class ValidateOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            path,
-            actor,
-            userType
+            path
         } = requestInfo;
         // Note: no auth check needed to call validate
 
@@ -136,11 +134,9 @@ class ValidateOperation {
                         user,
                         scope,
                         isUser,
-                        userType,
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
-                        actor,
                         parsedArgs,
                         operation: READ
                     }

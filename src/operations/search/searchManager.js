@@ -304,7 +304,7 @@ class SearchManager {
             }
 
             // Apply delegated access sensitive data filtering
-            if (userType === AUTH_USER_TYPES.delegatedUser) {
+            if (userType === AUTH_USER_TYPES.delegatedUser && actor) {
                 query = await this.dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                     base_version, query, actor, personIdFromJwtToken
                 });
