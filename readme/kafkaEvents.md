@@ -192,8 +192,9 @@ Note: For any clinical resource linked via Proxy Patient, only Person data chang
 
 ### Using change events
 
-This functionality can be enabled by setting the environment variable: 
-- ```ENABLE_PATIENT_DATA_CHANGE_EVENTS: "1"```
+Patient data change events are enabled by default when Kafka is enabled (`ENABLE_EVENTS_KAFKA: "1"`). To explicitly disable, set `ENABLE_PATIENT_DATA_CHANGE_EVENTS: "0"`.
+
+Person data change events can be enabled by setting the environment variable:
 - ```ENABLE_PERSON_DATA_CHANGE_EVENTS: "1"```
 
 Topic name can be changed using the below environment variable: 

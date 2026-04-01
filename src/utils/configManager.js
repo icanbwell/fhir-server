@@ -246,7 +246,9 @@ class ConfigManager {
     }
 
     get enablePatientDataChangeEvents() {
-        return isTrue(env.ENABLE_PATIENT_DATA_CHANGE_EVENTS);
+        return env.ENABLE_PATIENT_DATA_CHANGE_EVENTS !== undefined
+            ? isTrue(env.ENABLE_PATIENT_DATA_CHANGE_EVENTS)
+            : true;
     }
 
     get enablePersonDataChangeEvents() {
