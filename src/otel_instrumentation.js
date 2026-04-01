@@ -9,19 +9,19 @@ if (process.env.OPENTELEMETRY_IGNORE_URLS) {
 
 let instrumentationConfigs = {
     '@opentelemetry/instrumentation-http': {
-        ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url)
-        // applyCustomAttributesOnSpan: (span) => {
-        //     // For graphql urls we are using middlewares to process the graphql request, there is no route
-        //     // attached with any http method so we have to add the route in the 'span' to aggregate
-        //     // data on datadog and grafana
-        //     if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$')) {
-        //         span.attributes['http.route'] = span.attributes['http.target'].replace(/\$/g, '([$])');
-        //         // graphqlv2 path starts with base_version
-        //         if (span.attributes['http.route'].includes('graphqlv2')) {
-        //             span.attributes['http.route'] = span.attributes['http.route'].replace('4_0_0', ':base_version')
-        //         }
-        //     }
-        // }
+        ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
+        applyCustomAttributesOnSpan: (span) => {
+            // update the http.target attribute to replace the base_version with the actual version of the service, this
+            // is needed to aggregate the data in the same span as we are using the same route for all versions of the service
+            if (span.attributes['http.target']) {
+                span.attributes['http.target'] = span.attributes['http.target'].replace(':base_version', '4_0_0');
+            }
+            // For graphql urls we are using middlewares to process the graphql request, there is no route
+            // attached with any http method so we have to add the route in the 'span' to aggregate data
+            if (span.attributes['http.target'].includes('/$graphql')) {
+                span.attributes['http.route'] = span.attributes['http.target']
+            }
+        }
     },
     '@opentelemetry/instrumentation-mongodb': {
         enhancedDatabaseReporting: true,
