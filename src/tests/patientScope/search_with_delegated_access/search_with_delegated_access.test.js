@@ -313,7 +313,7 @@ describe('Delegated Access Streaming Search Tests', () => {
             expect(resp.status).toBe(204);
 
 
-            // consent with partial senstive categories
+            // consent with partial sensitive categories
             resp = await request
                 .post('/4_0_0/Consent/$merge?validate=true')
                 .send(activeConsent)

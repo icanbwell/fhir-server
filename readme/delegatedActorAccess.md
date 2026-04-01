@@ -130,7 +130,7 @@ Currently Consent-based sensitive data filtering is **not supported for write op
 
 When a delegated actor performs a write operation:
 - The `actor` is **not passed** to the query construction pipeline, so consent-based filtering rules are not applied.
-- Scope validation still applies same as of normal user
+- Scope validation still applies the same as for a normal user.
 - Delete operations (`remove`, `remove_by_query`) are fully **restricted** for delegated users and will be rejected at the operation level.
 
 ## Audit Logging

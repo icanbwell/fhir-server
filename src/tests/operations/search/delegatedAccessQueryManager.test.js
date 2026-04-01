@@ -20,19 +20,6 @@ const { SENSITIVE_CATEGORY } = require('../../../constants');
 describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests', () => {
     let originalEnableDelegatedAccessFiltering;
 
-    beforeAll(() => {
-        originalEnableDelegatedAccessFiltering = process.env.ENABLE_DELEGATED_ACCESS_FILTERING;
-        process.env.ENABLE_DELEGATED_ACCESS_FILTERING = 'true';
-    });
-
-    afterAll(() => {
-        if (originalEnableDelegatedAccessFiltering !== undefined) {
-            process.env.ENABLE_DELEGATED_ACCESS_FILTERING = originalEnableDelegatedAccessFiltering;
-        } else {
-            delete process.env.ENABLE_DELEGATED_ACCESS_FILTERING;
-        }
-    });
-
     beforeEach(async () => {
         await commonBeforeEach();
         mockHttpContext();
