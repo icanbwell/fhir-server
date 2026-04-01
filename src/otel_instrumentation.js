@@ -11,18 +11,10 @@ let instrumentationConfigs = {
     '@opentelemetry/instrumentation-http': {
         ignoreIncomingRequestHook: (req) => ignoreUrls.includes(req.url),
         applyCustomAttributesOnSpan: (span) => {
-            // update the http.target attribute to replace the base_version with the actual version of the service, this
-            // is needed to aggregate the data in the same span as we are using the same route for all versions of the service
-            if (span.attributes['span.name'] && span.attributes['span.name'].includes(':base_version')) {
-                span.attributes['span.name'] = span.attributes['span.name'].replace(':base_version', '4_0_0');
-            }
             // For graphql urls we are using middlewares to process the graphql request, there is no route
             // attached with any http method so we have to add the route in the 'span' to aggregate data
             if (span.attributes['http.target'].includes('/$graphql')) {
-                if (span.attributes['span.name'] && span.attributes['span.name'].includes('/\\$graphqlv2')) {
-                    span.attributes['span.name'] = span.attributes['span.name'].replace('/\\$graphqlv2', '/$graphqlv2');
-                }
-                span.attributes['http.route'] = span.attributes['http.target']
+                span.attributes['http.route'] = span.attributes['http.target'].replace('4_0_0', ':base_version')
             }
         }
     },
