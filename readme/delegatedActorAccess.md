@@ -110,7 +110,7 @@ This correctly handles resources that may have **multiple** sensitive-category c
   'meta.security': {
     $not: {
       $elemMatch: {
-        system: sensitiveCategorySystemIdentifier,
+        system: SENSITIVE_CATEGORY.SYSTEM,  // "https://www.icanbwell.com/sensitivity-category"
         code: { $in: deniedSensitiveCategories }
       }
     }
@@ -123,6 +123,15 @@ This correctly handles resources that may have **multiple** sensitive-category c
 - If **no delegated actor** is present (normal user request): the original query is returned unchanged.
 - If **no denied categories** exist: the original query is returned unchanged.
 - If **denied categories** exist: the filter is applied to exclude those resources.
+
+## Write Operation Limitations
+
+Currently Consent-based sensitive data filtering is **not supported for write operations**. Write operations (create, update, merge, patch) rely solely on scopes for access control.
+
+When a delegated actor performs a write operation:
+- The `actor` is **not passed** to the query construction pipeline, so consent-based filtering rules are not applied.
+- Scope validation still applies same as of normal user
+- Delete operations (`remove`, `remove_by_query`) are fully **restricted** for delegated users and will be rejected at the operation level.
 
 ## Audit Logging
 When a delegated actor is present, the audit event contains **two agents**:

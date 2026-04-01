@@ -271,6 +271,9 @@ module.exports = {
             CODE: "cms:share:records"
         }
     },
+    SENSITIVE_CATEGORY: {
+        SYSTEM: "https://www.icanbwell.com/sensitivity-category"
+    },
     MONGO_ERROR: {
         RESOURCE_SIZE_EXCEEDS: 'Document is larger than the maximum size 16777216'
     },
@@ -296,5 +299,11 @@ module.exports = {
         ALLOWED_RESOURCE_TYPES: ['Patient'],
         ALLOWED_OPERATIONS: ['search', 'everything'],
         ALLOWED_METHODS: ['get']
+    },
+    DELEGATED_ACCESS: {
+        RESTRICTED_OPERATIONS: [
+            'remove',
+            'remove_by_query'
+        ]
     }
 };

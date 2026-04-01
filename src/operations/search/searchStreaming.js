@@ -128,6 +128,8 @@ class SearchStreamingOperation {
             requestId,
             /** @type {string} */
             userRequestId,
+            /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
+            actor,
             /** @type {string} */
             externalReqUrlPrefix
         } = requestInfo;
@@ -176,7 +178,8 @@ class SearchStreamingOperation {
                     useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs,
-                    operation: READ
+                    operation: READ,
+                    actor
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
