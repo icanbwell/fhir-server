@@ -14,7 +14,7 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ, WRITE } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 const { ResourceLocator } = require('../common/resourceLocator');
 const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const { enrichReferenceExtension } = require('../../fhir/serializers/4_0_0/custom_utils/referenceEnricher');
@@ -178,7 +178,7 @@ class SearchBundleOperation {
             this.searchManager.validateAuditEventQueryParameters(parsedArgs);
         }
 
-        const applyUserTypeBasedFiltering = parentOperationType !== WRITE;
+        const applyUserTypeBasedFiltering = !parentOperationType || parentOperationType === READ;
 
         try {
             ({

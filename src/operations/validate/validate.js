@@ -72,10 +72,9 @@ class ValidateOperation {
 
     /**
      * does a FHIR Validate
-     * @param {Object} params
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
-     * @param {ParsedArgs} params.parsedArgs
-     * @param {string} params.resourceType
+     * @param {FhirRequestInfo} requestInfo
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
     async validateAsync ({ requestInfo, parsedArgs, resourceType }) {

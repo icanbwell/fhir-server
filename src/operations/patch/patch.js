@@ -191,7 +191,6 @@ class PatchOperation {
             personIdFromJwtToken,
             /** @type {string} */
             path
-            /** @type {string|null} */
         } = requestInfo;
 
         // currently we only support JSONPatch

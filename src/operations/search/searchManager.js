@@ -172,7 +172,7 @@ class SearchManager {
      * @param {string | null} scope
      * @param {boolean | null} isUser
      * @param {string | null} userType
-     * @param {import('../../utils/fhirRequestInfo').JwtActor} actor
+     * @param {import('../../utils/fhirRequestInfo').JwtActor | null} actor
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
@@ -304,7 +304,7 @@ class SearchManager {
             }
 
             // Apply delegated access sensitive data filtering
-            if (userType === AUTH_USER_TYPES.delegatedUser && actor) {
+            if (userType === AUTH_USER_TYPES.delegatedUser) {
                 query = await this.dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
                     base_version, query, actor, personIdFromJwtToken
                 });
