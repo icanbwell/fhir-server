@@ -1,5 +1,5 @@
 const {isTrue} = require('./isTrue');
-const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY, SENSITIVE_CATEGORY} = require('../constants');
+const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 
 const env = process.env;
@@ -1161,9 +1161,6 @@ class ConfigManager {
         );
     }
 
-    get sensitiveCategorySystemIdentifier() {
-        return env.SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER || SENSITIVE_CATEGORY.SYSTEM;
-    }
 
 
     /**

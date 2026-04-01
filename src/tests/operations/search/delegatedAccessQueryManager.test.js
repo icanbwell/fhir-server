@@ -15,6 +15,7 @@ const {
     createTestRequest,
     mockHttpContext
 } = require('../../common');
+const { SENSITIVE_CATEGORY } = require('../../../constants');
 
 describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests', () => {
     let originalEnableDelegatedAccessFiltering;
@@ -137,7 +138,7 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             'meta.security': {
                 $not: {
                     $elemMatch: {
-                        system: dataSharingManager.configManager.sensitiveCategorySystemIdentifier,
+                        system: SENSITIVE_CATEGORY.SYSTEM,
                         code: { $in: deniedCategories }
                     }
                 }

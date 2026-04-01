@@ -4,7 +4,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS, SENSITIVE_CATEGORY } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('../common/logging');
@@ -700,7 +700,7 @@ class DataSharingManager {
             'meta.security': {
                 $not: {
                     $elemMatch: {
-                        system: this.configManager.sensitiveCategorySystemIdentifier,
+                        system: SENSITIVE_CATEGORY.SYSTEM,
                         code: { $in: deniedSensitiveCategories }
                     }
                 }

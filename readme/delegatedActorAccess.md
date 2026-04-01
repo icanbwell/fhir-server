@@ -110,7 +110,7 @@ This correctly handles resources that may have **multiple** sensitive-category c
   'meta.security': {
     $not: {
       $elemMatch: {
-        system: sensitiveCategorySystemIdentifier,
+        system: SENSITIVE_CATEGORY.SYSTEM,  // "https://www.icanbwell.com/sensitivity-category"
         code: { $in: deniedSensitiveCategories }
       }
     }

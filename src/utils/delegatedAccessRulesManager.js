@@ -13,6 +13,7 @@ const { ForbiddenError } = require('./httpErrors');
 const {
     CONSENT_OF_LINKED_PERSON_INDEX,
     PERSON_PROXY_PREFIX,
+    SENSITIVE_CATEGORY,
     HTTP_CONTEXT_KEYS,
     CONSENT_CATEGORY
 } = require('../constants');
@@ -163,7 +164,7 @@ class DelegatedAccessRulesManager {
 
         // Extract denied sensitive categories from nested provisions
         if (consent.provision?.provision && Array.isArray(consent.provision.provision)) {
-            const lowerSensitiveCategoryId = this.configManager.sensitiveCategorySystemIdentifier.toLowerCase();
+            const lowerSensitiveCategoryId = SENSITIVE_CATEGORY.SYSTEM.toLowerCase();
             for (const nestedProvision of consent.provision.provision) {
                 if (nestedProvision.type === 'deny' && nestedProvision.securityLabel) {
                     for (const securityLabel of nestedProvision.securityLabel) {
