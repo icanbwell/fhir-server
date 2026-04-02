@@ -2,7 +2,7 @@ const { ForbiddenError } = require('./httpErrors');
 const { AUTH_USER_TYPES, DELEGATED_ACCESS } = require('../constants');
 const { FhirRequestInfo } = require('./fhirRequestInfo');
 
-const RESTRICTED_OPERATIONS = new Set(DELEGATED_ACCESS.RESTRICTED_OPERATIONS);
+const ALLOWED_OPERATIONS = new Set(DELEGATED_ACCESS.ALLOWED_OPERATIONS);
 
 class DelegatedAccessManager {
     /**
@@ -15,7 +15,7 @@ class DelegatedAccessManager {
     }
 
     /**
-     * Verifies that a delegated access user is not performing a restricted operation.
+     * Verifies that a delegated access user is only performing read operations.
      * Throws ForbiddenError if access is denied.
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
@@ -26,7 +26,7 @@ class DelegatedAccessManager {
             return;
         }
 
-        if (RESTRICTED_OPERATIONS.has(operation)) {
+        if (!ALLOWED_OPERATIONS.has(operation)) {
             throw new ForbiddenError(
                 `User does not have access to ${operation.toUpperCase()} method`
             );

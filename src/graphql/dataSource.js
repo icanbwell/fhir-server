@@ -2,6 +2,7 @@ const { logWarn } = require('../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
 const { REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ, WRITE }, COLLECTION } = require('../constants');
+const { OperationAccessManager } = require('../utils/operationAccessManager');
 const { groupByLambda } = require('../utils/list.util');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
@@ -25,6 +26,7 @@ class FhirDataSource {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ConfigManager} configManager
+     * @param {OperationAccessManager} accessManager
      */
     constructor (
         {
@@ -32,7 +34,8 @@ class FhirDataSource {
             searchBundleOperation,
             r4ArgsParser,
             queryRewriterManager,
-            configManager
+            configManager,
+            accessManager
         }
     ) {
         assertIsValid(requestInfo !== undefined);
@@ -45,6 +48,11 @@ class FhirDataSource {
          * @type {FhirRequestInfo}
          */
         this.requestInfo = requestInfo;
+        /**
+         * @type {OperationAccessManager}
+         */
+        this.accessManager = accessManager;
+        assertTypeEquals(this.accessManager, OperationAccessManager);
         /**
          * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
          */
@@ -432,6 +440,11 @@ class FhirDataSource {
      * @return {Promise<Resource[]>}
      */
     async getResourcesForMutation (parent, args, context, info, resourceType) {
+        this.accessManager.verifyAccess({
+            requestInfo: this.requestInfo,
+            resourceType,
+            operation: 'mutation'
+        });
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
             base_version: '4_0_0',

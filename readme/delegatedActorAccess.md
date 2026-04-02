@@ -1,4 +1,4 @@
-# Delegated Actor Consent Based Filtering (WIP)
+# Delegated Actor Consent Based Filtering
 
 A delegated access token is a patient-scoped token which has an `act` and `sub` field indicating an actor acting on behalf of `clientFhirPersonId`.
 
@@ -123,15 +123,25 @@ This correctly handles resources that may have **multiple** sensitive-category c
 - If **no delegated actor** is present (normal user request): the original query is returned unchanged.
 - If **no denied categories** exist: the original query is returned unchanged.
 - If **denied categories** exist: the filter is applied to exclude those resources.
+- Filtering is **only applied to patient-scoped resources** (e.g., Observation, Condition). Non-patient-scoped resources (e.g., Practitioner) are not filtered.
 
-## Write Operation Limitations
+## Operation Access Control
 
-Currently Consent-based sensitive data filtering is **not supported for write operations**. Write operations (create, update, merge, patch) rely solely on scopes for access control.
+Delegated users are restricted to **read-only** operations:
 
-When a delegated actor performs a write operation:
-- The `actor` is **not passed** to the query construction pipeline, so consent-based filtering rules are not applied.
-- Scope validation still applies the same as for a normal user.
-- Delete operations (`remove`, `remove_by_query`) are fully **restricted** for delegated users and will be rejected at the operation level.
+| Allowed | Denied |
+|---------|--------|
+| `search` | `create` |
+| `searchById` | `update` |
+| `everything` | `merge` |
+| `graph` | `patch` |
+| GraphQL queries | `remove` |
+| | `history` |
+| | `historyById` |
+| | `searchByVersionId` |
+| | GraphQL mutations |
+
+Any denied operation returns **403 Forbidden**. GraphQL mutations return an error in the GraphQL response body.
 
 ## Audit Logging
 When a delegated actor is present, the audit event contains **two agents**:

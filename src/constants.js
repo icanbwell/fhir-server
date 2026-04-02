@@ -155,8 +155,7 @@ module.exports = {
     HTTP_CONTEXT_KEYS: {
         LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
         PERSON_OWNER_PREFIX: 'personOwnerFor-',
-        CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed',
-        DELEGATED_ACTOR_FILTERING_RULES_PREFIX: 'delegatedActorFilteringRulesFor-'
+        CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
@@ -301,9 +300,11 @@ module.exports = {
         ALLOWED_METHODS: ['get']
     },
     DELEGATED_ACCESS: {
-        RESTRICTED_OPERATIONS: [
-            'remove',
-            'remove_by_query'
+        ALLOWED_OPERATIONS: [
+            'search',
+            'searchById',
+            'everything',
+            'graph'
         ]
     }
 };
