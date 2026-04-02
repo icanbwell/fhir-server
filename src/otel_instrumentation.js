@@ -13,7 +13,7 @@ let instrumentationConfigs = {
         applyCustomAttributesOnSpan: (span) => {
             // For graphql urls we are using middlewares to process the graphql request, there is no route
             // attached with any http method so we have to add the route in the 'span' to aggregate data
-            if (span.attributes['http.target'].includes('/$graphql')) {
+            if (span.attributes['http.target'] && span.attributes['http.target'].includes('/$graphql')) {
                 span.attributes['http.route'] = span.attributes['http.target'].replace('4_0_0', ':base_version')
             }
         }
