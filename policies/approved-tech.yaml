@@ -1,0 +1,364 @@
+# Approved Technology Stack - icanbwell
+# Owner: Enterprise Architecture
+# Last Updated: 2026-03-03
+# Version: 1.0.0
+#
+# Purpose: Centralized registry of approved technologies, frameworks, and tools.
+# Any addition requires Tech Design Review with EA approval.
+#
+# Enforcement:
+#   - severity: "warn" = Flag for review, does not block
+#   - severity: "error" = Blocks PR merge, requires exception approval
+#   - Phase 2 enforcement starts at "warn" for all categories
+
+---
+version: "1.0.0"
+updated: "2026-03-03"
+enforcement:
+  defaultSeverity: "warn"
+  exceptionProcess: "Tech Design Review with EA (JIRA ticket in EA project)"
+
+categories:
+  # ============================================================================
+  # Languages
+  # ============================================================================
+  languages:
+    severity: "warn"
+    approved:
+      - name: "TypeScript"
+        versions: ["5.x"]
+        notes: "Preferred for new Node.js services"
+
+      - name: "JavaScript"
+        versions: ["ES2022+"]
+        notes: "Approved for Node.js services alongside TypeScript"
+
+      - name: "Python"
+        versions: ["3.11", "3.12"]
+        notes: "Preferred for data pipelines, AI/ML services"
+
+      - name: "Java"
+        versions: ["17", "21"]
+        notes: "Spring Boot services, FHIR processing"
+
+      - name: "Kotlin"
+        versions: ["1.9+"]
+        notes: "Mobile SDKs, Android native"
+
+      - name: "Swift"
+        versions: ["5.9+"]
+        notes: "iOS SDK only"
+
+      - name: "HCL"
+        versions: ["Terraform 1.5+"]
+        notes: "Infrastructure as Code only"
+
+  # ============================================================================
+  # Frameworks & Libraries
+  # ============================================================================
+  frameworks:
+    severity: "warn"
+    approved:
+      # Backend Frameworks
+      - name: "NestJS"
+        category: "backend"
+        versions: ["10.x"]
+        notes: "Preferred Node.js backend framework"
+
+      - name: "FastAPI"
+        category: "backend"
+        versions: ["0.109+"]
+        notes: "Preferred Python backend framework"
+
+      - name: "Flask"
+        category: "backend"
+        versions: ["3.x"]
+        notes: "LEGACY ONLY - Do not use for new services. Migrate to FastAPI."
+        legacy: true
+
+      - name: "Django"
+        category: "backend"
+        versions: ["4.x", "5.x"]
+        notes: "Legacy bwell-platform only. Do not use for new services."
+        legacy: true
+
+      - name: "Spring Boot"
+        category: "backend"
+        versions: ["3.x"]
+        notes: "Java microservices standard"
+
+      # Frontend Frameworks
+      - name: "React"
+        category: "frontend"
+        versions: ["18.x"]
+        notes: "Web UI standard"
+
+      - name: "React Native"
+        category: "mobile"
+        versions: ["0.73+"]
+        notes: "Mobile app standard"
+
+      # AI/ML Frameworks
+      - name: "LangChain"
+        category: "ai-ml"
+        versions: ["0.1.x"]
+        notes: "LLM orchestration, agent frameworks"
+
+      - name: "LangGraph"
+        category: "ai-ml"
+        versions: ["0.0.x"]
+        notes: "Stateful agent workflows"
+
+  # ============================================================================
+  # Data Storage
+  # ============================================================================
+  datastores:
+    severity: "warn"
+    approved:
+      - name: "FHIR Server"
+        type: "document"
+        implementation: "MongoDB"
+        notes: "Platform system-of-record; access via FHIR APIs only"
+
+      - name: "MongoDB"
+        type: "document"
+        versions: ["7.x"]
+        notes: "Service-private datastores; tenant isolation mandatory"
+
+      - name: "PostgreSQL"
+        type: "relational"
+        versions: ["15.x", "16.x"]
+        notes: "Requires Tech Design Review for new services. Tenant isolation mandatory. Prefer MongoDB for document stores."
+
+      - name: "Elasticsearch"
+        type: "search"
+        versions: ["8.x"]
+        notes: "Search and analytics; requires Tech Design Review for new use cases"
+
+      - name: "Neo4j"
+        type: "graph"
+        versions: ["5.x"]
+        notes: "Graph database for data operations; requires Tech Design Review for new use cases"
+
+      - name: "ClickHouse"
+        type: "analytics"
+        versions: ["23.x", "24.x"]
+        notes: "OLAP database for analytics and time-series data"
+
+      - name: "Databricks"
+        type: "analytics-platform"
+        versions: ["Runtime 13.x+"]
+        notes: "Data lakehouse platform for big data analytics and ML pipelines"
+
+  # ============================================================================
+  # Messaging & Events
+  # ============================================================================
+  messaging:
+    severity: "warn"
+    approved:
+      - name: "Kafka"
+        versions: ["3.x"]
+        notes: "Primary async communication; CloudEvents envelope required"
+        patterns:
+          - "CloudEvents format mandatory"
+          - "Idempotent consumers required"
+          - "Partition keys must ensure entity ordering"
+
+  # ============================================================================
+  # Caching
+  # ============================================================================
+  caching:
+    severity: "warn"
+    approved:
+      - name: "Redis"
+        versions: ["7.x"]
+        notes: "Distributed cache standard; tenant keys required; cache introduction requires ADR"
+
+      - name: "In-Process Caching"
+        examples: ["Caffeine (Java)", "node-cache (Node.js)", "cachetools (Python)"]
+        notes: "Service-local caching; requires ADR documenting strategy, size limits, TTL, eviction policy"
+
+  # ============================================================================
+  # Observability
+  # ============================================================================
+  observability:
+    severity: "warn"
+    approved:
+      - name: "OpenTelemetry"
+        versions: ["1.x"]
+        notes: "Tracing, metrics, logs; trace context propagation mandatory"
+        required: true
+
+      - name: "Groundcover"
+        versions: ["Current"]
+        notes: "K8s observability platform"
+
+  # ============================================================================
+  # Infrastructure & DevOps
+  # ============================================================================
+  infrastructure:
+    severity: "warn"
+    approved:
+      - name: "Terraform"
+        versions: ["1.5+"]
+        notes: "IaC standard; all infra changes via Terraform PRs"
+        required: true
+
+      - name: "Docker"
+        versions: ["24+"]
+        notes: "Containerization standard"
+        required: true
+
+      - name: "Kubernetes"
+        versions: ["1.28+"]
+        provider: "AWS EKS"
+        notes: "Orchestration standard"
+
+      - name: "Helm"
+        versions: ["3.x"]
+        notes: "K8s package management; .helm/ structure standard"
+
+      - name: "GitHub Actions"
+        versions: ["Current"]
+        notes: "CI/CD standard"
+
+  # ============================================================================
+  # Testing Frameworks
+  # ============================================================================
+  testing:
+    severity: "warn"
+    approved:
+      - name: "Jest"
+        language: "TypeScript/JavaScript"
+        versions: ["29.x"]
+        notes: "TypeScript/Node.js testing standard"
+
+      - name: "pytest"
+        language: "Python"
+        versions: ["8.x"]
+        notes: "Python testing standard; pytest-cov for coverage"
+
+      - name: "JUnit 5"
+        language: "Java"
+        versions: ["5.10+"]
+        notes: "Java testing standard; Jacoco for coverage"
+
+      - name: "Playwright"
+        category: "e2e"
+        versions: ["1.x"]
+        notes: "Browser testing for web UIs"
+
+      - name: "Detox"
+        category: "mobile-e2e"
+        versions: ["20.x"]
+        notes: "React Native E2E testing"
+
+      - name: "Karate"
+        category: "api"
+        versions: ["1.4+"]
+        notes: "API contract testing"
+
+  # ============================================================================
+  # Linting & Formatting
+  # ============================================================================
+  linting:
+    severity: "warn"
+    approved:
+      - name: "ESLint"
+        language: "TypeScript/JavaScript"
+        versions: ["9.x"]
+        notes: "Flat config (eslint.config.js) preferred; migrate from .eslintrc"
+
+      - name: "Ruff"
+        language: "Python"
+        versions: ["0.3+"]
+        notes: "Python linter; replaces Flake8; combines linting + formatting"
+
+      - name: "Prettier"
+        language: "TypeScript/JavaScript"
+        versions: ["3.x"]
+        notes: "Code formatting; consistent config org-wide"
+
+  # ============================================================================
+  # Security Scanning
+  # ============================================================================
+  security:
+    severity: "warn"
+    approved:
+      - name: "Aikido"
+        category: "SAST/SCA"
+        versions: ["Current"]
+        notes: "SAST and dependency scanning; managed by Security team"
+
+      - name: "CodeQL"
+        category: "SAST"
+        versions: ["Current"]
+        notes: "GitHub native SAST; language-specific queries"
+
+# ============================================================================
+# Migration Notes
+# ============================================================================
+migrations:
+  - from: "Flake8"
+    to: "Ruff"
+    status: "Mandatory"
+    notes: "All repos must migrate to Ruff. Flake8 is deprecated."
+
+  - from: "Black"
+    to: "Ruff Formatter"
+    status: "Mandatory"
+    notes: "Ruff combines linting + formatting; simplifies toolchain. Black is deprecated."
+
+  - from: "Flask"
+    to: "FastAPI"
+    status: "Recommended"
+    notes: "Migrate Flask services to FastAPI for new features; full migration not required immediately"
+
+  - from: ".eslintrc.json"
+    to: "eslint.config.js"
+    status: "Recommended"
+    notes: "ESLint 9+ flat config; improved composability"
+
+# ============================================================================
+# Restricted Technologies
+# ============================================================================
+restricted:
+  - name: "Go"
+    reason: "On hold pending language strategy review. Existing Go services (provider-directory, document-processing-handlers) are grandfathered."
+    exception: "Requires Tech Design Review with EA approval for new services."
+    severity: "error"
+
+  - name: "SQS"
+    reason: "Prefer Kafka for cross-service async communication. SQS creates AWS lock-in and lacks CloudEvents support."
+    exception: "Requires Tech Design Review with EA approval. Must document why Kafka is insufficient."
+    severity: "warn"
+
+  - name: "New Cache Introduction"
+    reason: "All cache introductions (Redis, Caffeine, in-memory) require ADR or Tech Design Review"
+    requiresADR: true
+    exception: "Document cache strategy, size limits, TTL, eviction policy, tenant isolation approach"
+
+  - name: "New NoSQL Databases"
+    reason: "Datastores require Tech Design Review; prefer MongoDB/PostgreSQL"
+    exception: "EA-approved use cases only"
+
+  - name: "Service Meshes"
+    reason: "Complexity vs. benefit trade-off under evaluation"
+    exception: "EA-approved pilots only"
+
+  - name: "Client-Side State Management (Redux, MobX, etc.)"
+    reason: "React Context + hooks preferred for new code"
+    exception: "Legacy codebases maintain existing patterns"
+
+# ============================================================================
+# Review Process
+# ============================================================================
+reviewProcess:
+  trigger: "Introduction of technology not listed in this file"
+  steps:
+    - "Create JIRA ticket in EA project (type: Tech Design Review)"
+    - "Submit Technical Design Document with rationale"
+    - "EA review and approval/rejection"
+    - "If approved, update this file via PR to icanbwell/.github"
+  sla: "5 business days for EA review"
+  appeals: "Escalate to VP Engineering if rejected"
