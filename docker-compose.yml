@@ -126,9 +126,12 @@ services:
 
   history-sync-consumer:
     depends_on:
-      - mongo
-      - kafka
-      - clickhouse
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
@@ -255,6 +258,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     healthcheck:
       test: ['CMD-SHELL', '/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1']
       interval: 30s
@@ -319,4 +325,5 @@ services:
 
 volumes:
   mongo_data:
+  kafka_data:
   clickhouse_data:
