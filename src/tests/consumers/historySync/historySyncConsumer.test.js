@@ -61,10 +61,7 @@ describe('HistorySyncConsumer', () => {
         }
 
         test('should execute job for valid command', async () => {
-            // Start consumer to initialize this.consumer
             await consumer.startAsync();
-            const kafkaConsumer = await mockKafkaClient.createConsumerAsync();
-            consumer.consumer = kafkaConsumer;
 
             const command = { jobId: 'job-1', resourceType: 'Patient' };
             await consumer._handleMessageAsync({
@@ -74,13 +71,11 @@ describe('HistorySyncConsumer', () => {
             });
 
             expect(mockHistorySyncJob.executeAsync).toHaveBeenCalledWith(command);
-            expect(kafkaConsumer.commitOffsets).toHaveBeenCalled();
+            expect(consumer.consumer.commitOffsets).toHaveBeenCalled();
         });
 
         test('should skip invalid JSON messages', async () => {
             await consumer.startAsync();
-            const kafkaConsumer = await mockKafkaClient.createConsumerAsync();
-            consumer.consumer = kafkaConsumer;
 
             await consumer._handleMessageAsync({
                 message: { value: Buffer.from('not-json'), offset: '0' },
@@ -89,13 +84,11 @@ describe('HistorySyncConsumer', () => {
             });
 
             expect(mockHistorySyncJob.executeAsync).not.toHaveBeenCalled();
-            expect(kafkaConsumer.commitOffsets).toHaveBeenCalled();
+            expect(consumer.consumer.commitOffsets).toHaveBeenCalled();
         });
 
         test('should skip messages without jobId', async () => {
             await consumer.startAsync();
-            const kafkaConsumer = await mockKafkaClient.createConsumerAsync();
-            consumer.consumer = kafkaConsumer;
 
             await consumer._handleMessageAsync({
                 message: createMessage({ resourceType: 'Patient' }),
@@ -104,13 +97,11 @@ describe('HistorySyncConsumer', () => {
             });
 
             expect(mockHistorySyncJob.executeAsync).not.toHaveBeenCalled();
-            expect(kafkaConsumer.commitOffsets).toHaveBeenCalled();
+            expect(consumer.consumer.commitOffsets).toHaveBeenCalled();
         });
 
         test('should retry on failure and send to DLQ after exhaustion', async () => {
             await consumer.startAsync();
-            const kafkaConsumer = await mockKafkaClient.createConsumerAsync();
-            consumer.consumer = kafkaConsumer;
 
             mockHistorySyncJob.executeAsync = jest.fn(async () => {
                 throw new Error('Job failed');
@@ -135,21 +126,19 @@ describe('HistorySyncConsumer', () => {
             expect(dlqValue.error).toBe('Job failed');
 
             // Should still commit offset
-            expect(kafkaConsumer.commitOffsets).toHaveBeenCalled();
+            expect(consumer.consumer.commitOffsets).toHaveBeenCalled();
         });
     });
 
     describe('shutdownAsync', () => {
         test('should set shuttingDown flags and disconnect', async () => {
             await consumer.startAsync();
-            const kafkaConsumer = await mockKafkaClient.createConsumerAsync();
-            consumer.consumer = kafkaConsumer;
 
             await consumer.shutdownAsync();
 
             expect(consumer.shuttingDown).toBe(true);
             expect(mockHistorySyncJob.shuttingDown).toBe(true);
-            expect(kafkaConsumer.disconnect).toHaveBeenCalled();
+            expect(consumer.consumer.disconnect).toHaveBeenCalled();
         });
     });
 
