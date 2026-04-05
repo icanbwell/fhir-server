@@ -76,9 +76,8 @@ describe('CheckpointManager', () => {
                             resourceType: 'Task',
                             id: taskId,
                             input: [
-                                { type: { text: 'resourceType' }, valueString: 'Patient' },
-                                { type: { text: 'lastMongoId' }, valueString: '682d833de0f8c1253ef59c48' },
-                                { type: { text: 'lastUpdated' }, valueDateTime: '2025-05-21T07:39:41.822Z' }
+                                { id: 'lastMongoId', type: { text: 'lastMongoId' }, valueString: '682d833de0f8c1253ef59c48' },
+                                { id: 'lastUpdated', type: { text: 'lastUpdated' }, valueString: '2025-05-21T07:39:41.822Z' }
                             ]
                         }
                     };
@@ -138,12 +137,13 @@ describe('CheckpointManager', () => {
             expect(task.intent).toBe('order');
             expect(task.meta.source).toBe('https://www.icanbwell.com/fhir-history-sync-consumer');
             expect(task.code.coding[0].code).toBe('fhirHistorySync');
+            expect(task.code.coding[1]).toEqual({ system: 'https://www.icanbwell.com/resource-type', code: 'Patient' });
 
-            const lastMongoIdInput = task.input.find(i => i.type.text === 'lastMongoId');
+            const lastMongoIdInput = task.input.find(i => i.id === 'lastMongoId');
             expect(lastMongoIdInput.valueString).toBe('682d833de0f8c1253ef59c48');
 
-            const lastUpdatedInput = task.input.find(i => i.type.text === 'lastUpdated');
-            expect(lastUpdatedInput.valueDateTime).toBe('2025-05-21T07:39:41.822Z');
+            const lastUpdatedInput = task.input.find(i => i.id === 'lastUpdated');
+            expect(lastUpdatedInput.valueString).toBe('2025-05-21T07:39:41.822Z');
         });
 
         test('should throw when merge returns operationOutcome', async () => {

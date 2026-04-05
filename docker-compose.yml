@@ -147,7 +147,7 @@ services:
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       HISTORY_SYNC_KAFKA_TOPIC: 'fhir.history_sync.commands'
       HISTORY_SYNC_DLQ_TOPIC: 'fhir.history_sync.dlq'
-      HISTORY_SYNC_BATCH_SIZE: '100000'
+      HISTORY_SYNC_BATCH_SIZE: '1000'
       HISTORY_SYNC_CONSUMER_GROUP: 'fhir-history-sync'
       HISTORY_SYNC_MAX_RETRIES: '3'
       CLICKHOUSE_HOST: 'clickhouse'

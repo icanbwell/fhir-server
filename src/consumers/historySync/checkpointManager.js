@@ -4,6 +4,7 @@ const { logInfo, logError } = require('../../operations/common/logging');
 
 const CHECKPOINT_SOURCE = 'https://www.icanbwell.com/fhir-history-sync-consumer';
 const CHECKPOINT_CODE_SYSTEM = 'https://www.icanbwell.com/task-type';
+const CHECKPOINT_RESOURCE_TYPE_SYSTEM = 'https://www.icanbwell.com/resource-type';
 const CHECKPOINT_CODE = 'fhirHistorySync';
 const SOURCE_ASSIGNING_AUTHORITY = 'bwell';
 
@@ -45,8 +46,8 @@ class CheckpointManager {
         }
 
         const input = taskDoc.resource.input || [];
-        const lastMongoId = input.find(i => i.type?.text === 'lastMongoId')?.valueString;
-        const lastUpdated = input.find(i => i.type?.text === 'lastUpdated')?.valueDateTime;
+        const lastMongoId = input.find(i => i.id === 'lastMongoId')?.valueString;
+        const lastUpdated = input.find(i => i.id === 'lastUpdated')?.valueString;
 
         if (!lastMongoId) {
             return null;
@@ -88,21 +89,23 @@ class CheckpointManager {
                     {
                         system: CHECKPOINT_CODE_SYSTEM,
                         code: CHECKPOINT_CODE
+                    },
+                    {
+                        system: CHECKPOINT_RESOURCE_TYPE_SYSTEM,
+                        code: resourceType
                     }
                 ]
             },
             input: [
                 {
-                    type: { text: 'resourceType' },
-                    valueString: resourceType
-                },
-                {
+                    id: 'lastMongoId',
                     type: { text: 'lastMongoId' },
                     valueString: lastMongoId
                 },
                 {
+                    id: 'lastUpdated',
                     type: { text: 'lastUpdated' },
-                    valueDateTime: lastUpdated
+                    valueString: lastUpdated
                 }
             ]
         };
