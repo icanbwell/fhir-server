@@ -1190,6 +1190,46 @@ class ConfigManager {
         return servicesConfig;
     }
 
+    /**
+     * Kafka topic for history sync job commands
+     * @returns {string}
+     */
+    get historySyncKafkaTopic() {
+        return env.HISTORY_SYNC_KAFKA_TOPIC || 'fhir.history_sync.commands';
+    }
+
+    /**
+     * Kafka topic for history sync dead letter queue
+     * @returns {string}
+     */
+    get historySyncDlqTopic() {
+        return env.HISTORY_SYNC_DLQ_TOPIC || 'fhir.history_sync.dlq';
+    }
+
+    /**
+     * Batch size for ClickHouse inserts during history sync
+     * @returns {number}
+     */
+    get historySyncBatchSize() {
+        return parseInt(env.HISTORY_SYNC_BATCH_SIZE || '100000', 10);
+    }
+
+    /**
+     * Kafka consumer group ID for history sync consumer
+     * @returns {string}
+     */
+    get historySyncConsumerGroup() {
+        return env.HISTORY_SYNC_CONSUMER_GROUP || 'fhir-history-sync';
+    }
+
+    /**
+     * Max retries before sending to DLQ
+     * @returns {number}
+     */
+    get historySyncMaxRetries() {
+        return parseInt(env.HISTORY_SYNC_MAX_RETRIES || '3', 10);
+    }
+
 }
 
 module.exports = {

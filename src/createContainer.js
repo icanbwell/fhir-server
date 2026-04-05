@@ -1103,6 +1103,31 @@ const createContainer = function () {
         redisClient: c.redisClient
     }));
 
+    // --- History Sync Consumer ---
+    const { CheckpointManager } = require('./consumers/historySync/checkpointManager');
+    const { HistorySyncTransformer } = require('./consumers/historySync/historySyncTransformer');
+    const { HistorySyncJob } = require('./consumers/historySync/historySyncJob');
+    const { HistorySyncConsumer } = require('./consumers/historySync/historySyncConsumer');
+
+    container.register('checkpointManager', (c) => new CheckpointManager({
+        mergeOperation: c.mergeOperation,
+        r4ArgsParser: c.r4ArgsParser,
+        mongoDatabaseManager: c.mongoDatabaseManager
+    }));
+    container.register('historySyncTransformer', () => new HistorySyncTransformer());
+    container.register('historySyncJob', (c) => new HistorySyncJob({
+        mongoDatabaseManager: c.mongoDatabaseManager,
+        clickHouseClientManager: c.clickHouseClientManager,
+        checkpointManager: c.checkpointManager,
+        historySyncTransformer: c.historySyncTransformer,
+        configManager: c.configManager
+    }));
+    container.register('historySyncConsumer', (c) => new HistorySyncConsumer({
+        kafkaClient: c.kafkaClient,
+        historySyncJob: c.historySyncJob,
+        configManager: c.configManager
+    }));
+
     return container;
 };
 module.exports = {

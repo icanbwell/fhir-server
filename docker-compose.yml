@@ -124,6 +124,47 @@ services:
     healthcheck:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
+  history-sync-consumer:
+    depends_on:
+      - mongo
+      - kafka
+      - clickhouse
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: development
+    environment:
+      MONGO_URL: 'mongodb://mongo:27017?appName=fhir-history-sync'
+      MONGO_DB_NAME: fhir
+      RESOURCE_HISTORY_MONGO_URL: mongodb://mongo:27017
+      RESOURCE_HISTORY_MONGO_DB_NAME: resource-history
+      KAFKA_CLIENT_ID: 'fhir-history-sync'
+      KAFKA_URLS: 'kafka:9092'
+      KAFKAJS_NO_PARTITIONER_WARNING: '1'
+      HISTORY_SYNC_KAFKA_TOPIC: 'fhir.history_sync.commands'
+      HISTORY_SYNC_DLQ_TOPIC: 'fhir.history_sync.dlq'
+      HISTORY_SYNC_BATCH_SIZE: '100000'
+      HISTORY_SYNC_CONSUMER_GROUP: 'fhir-history-sync'
+      HISTORY_SYNC_MAX_RETRIES: '3'
+      CLICKHOUSE_HOST: 'clickhouse'
+      CLICKHOUSE_PORT: '8123'
+      CLICKHOUSE_DATABASE: 'fhir'
+      CLICKHOUSE_USERNAME: 'default'
+      CLICKHOUSE_PASSWORD: ''
+      ENABLE_CLICKHOUSE: '1'
+      ENABLE_EVENTS_KAFKA: '1'
+      ENABLE_KAFKA_HEALTHCHECK: '1'
+      ENV: local
+      ENVIRONMENT: local
+      LOGLEVEL: 'INFO'
+      NODE_ENV: 'development'
+    volumes:
+      - ./src:/srv/src/src
+      - ./package.json:/srv/src/package.json
+      - ./yarn.lock:/srv/src/yarn.lock
+    command: node --watch src/consumers/historySync/index.js
+
   mongo:
     image: mongo:8.0.15
     ports:
