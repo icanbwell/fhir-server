@@ -1111,8 +1111,8 @@ const createContainer = function () {
 
     container.register('checkpointManager', (c) => new CheckpointManager({
         mergeOperation: c.mergeOperation,
-        r4ArgsParser: c.r4ArgsParser,
-        mongoDatabaseManager: c.mongoDatabaseManager
+        searchByIdOperation: c.searchByIdOperation,
+        r4ArgsParser: c.r4ArgsParser
     }));
     container.register('historySyncTransformer', () => new HistorySyncTransformer());
     container.register('historySyncJob', (c) => new HistorySyncJob({

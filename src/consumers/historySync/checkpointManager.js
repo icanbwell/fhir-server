@@ -12,13 +12,13 @@ class CheckpointManager {
     /**
      * @param {Object} params
      * @param {import('../../operations/merge/merge').MergeOperation} params.mergeOperation
+     * @param {import('../../operations/searchById/searchById').SearchByIdOperation} params.searchByIdOperation
      * @param {import('../../operations/query/r4ArgsParser').R4ArgsParser} params.r4ArgsParser
-     * @param {import('../../utils/mongoDatabaseManager').MongoDatabaseManager} params.mongoDatabaseManager
      */
-    constructor({ mergeOperation, r4ArgsParser, mongoDatabaseManager }) {
+    constructor({ mergeOperation, searchByIdOperation, r4ArgsParser }) {
         this.mergeOperation = mergeOperation;
+        this.searchByIdOperation = searchByIdOperation;
         this.r4ArgsParser = r4ArgsParser;
-        this.mongoDatabaseManager = mongoDatabaseManager;
     }
 
     /**
@@ -37,15 +37,44 @@ class CheckpointManager {
      */
     async getCheckpointAsync(resourceType) {
         const taskId = this.getTaskId(resourceType);
-        const db = await this.mongoDatabaseManager.getClientDbAsync();
-        const collection = db.collection('Task_4_0_0');
-        const taskDoc = await collection.findOne({ id: taskId });
 
-        if (!taskDoc || !taskDoc.resource) {
+        const requestInfo = new FhirRequestInfo({
+            user: CHECKPOINT_CODE,
+            scope: 'user/*.* access/*.*',
+            protocol: 'http',
+            originalUrl: `/4_0_0/Task/${taskId}`,
+            requestId: generateUUID(),
+            userRequestId: generateUUID(),
+            host: 'localhost',
+            headers: {},
+            method: 'GET',
+            contentTypeFromHeader: null
+        });
+
+        const parsedArgs = this.r4ArgsParser.parseArgs({
+            resourceType: 'Task',
+            args: { base_version: '4_0_0', id: taskId }
+        });
+
+        let resource;
+        try {
+            resource = await this.searchByIdOperation.searchByIdAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'Task'
+            });
+        } catch (e) {
+            if (e.statusCode === 404) {
+                return null;
+            }
+            throw e;
+        }
+
+        if (!resource || !resource.input) {
             return null;
         }
 
-        const input = taskDoc.resource.input || [];
+        const input = resource.input;
         const lastMongoId = input.find(i => i.id === 'lastMongoId')?.valueString;
         const lastUpdated = input.find(i => i.id === 'lastUpdated')?.valueString;
 
@@ -146,6 +175,59 @@ class CheckpointManager {
 
         logInfo('CheckpointManager: checkpoint updated', {
             args: { resourceType, taskId, lastMongoId }
+        });
+    }
+
+    /**
+     * Marks the checkpoint Task as completed
+     * @param {string} resourceType
+     * @returns {Promise<void>}
+     */
+    async completeCheckpointAsync(resourceType) {
+        const taskId = this.getTaskId(resourceType);
+
+        const taskResource = {
+            resourceType: 'Task',
+            id: taskId,
+            status: 'completed'
+        };
+
+        const requestInfo = new FhirRequestInfo({
+            user: CHECKPOINT_CODE,
+            scope: 'user/*.* access/*.*',
+            protocol: 'http',
+            originalUrl: '/4_0_0/Task/$merge',
+            requestId: generateUUID(),
+            userRequestId: generateUUID(),
+            host: 'localhost',
+            headers: {},
+            method: 'POST',
+            contentTypeFromHeader: null
+        });
+        requestInfo.body = [taskResource];
+
+        const parsedArgs = this.r4ArgsParser.parseArgs({
+            resourceType: 'Task',
+            args: { base_version: '4_0_0' }
+        });
+
+        const results = await this.mergeOperation.mergeAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType: 'Task'
+        });
+
+        const result = Array.isArray(results) ? results[0] : results;
+        if (result?.operationOutcome) {
+            const diagnostics = result.operationOutcome.issue?.[0]?.diagnostics;
+            logError('CheckpointManager: complete failed', {
+                args: { resourceType, taskId, diagnostics }
+            });
+            throw new Error(`Checkpoint complete failed for ${resourceType}: ${diagnostics}`);
+        }
+
+        logInfo('CheckpointManager: checkpoint completed', {
+            args: { resourceType, taskId }
         });
     }
 }

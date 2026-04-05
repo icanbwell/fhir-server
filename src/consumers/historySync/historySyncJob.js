@@ -119,6 +119,7 @@ class HistorySyncJob {
             let refreshTimestamp = moment();
             let batch = [];
             let batchMongoIds = [];
+            let lastIsoDate = null;
             let totalProcessed = 0;
             let batchCount = 0;
 
@@ -141,6 +142,9 @@ class HistorySyncJob {
                 if (row) {
                     batch.push(row);
                     batchMongoIds.push(doc._id);
+                    // Track original ISO date for checkpoint (not the ClickHouse-formatted one)
+                    const lu = doc.resource?.meta?.lastUpdated;
+                    lastIsoDate = lu instanceof Date ? lu.toISOString() : lu;
                 }
 
                 // Process batch when full
@@ -151,12 +155,14 @@ class HistorySyncJob {
                         resourceType,
                         batch,
                         batchMongoIds,
+                        lastIsoDate,
                         collection,
                         batchNumber: batchCount
                     });
                     totalProcessed += batch.length;
                     batch = [];
                     batchMongoIds = [];
+                    lastIsoDate = null;
 
                     logInfo('HistorySyncJob: batch processed', {
                         args: { jobId, resourceType, batchNumber: batchCount, totalProcessed }
@@ -179,11 +185,15 @@ class HistorySyncJob {
                     resourceType,
                     batch,
                     batchMongoIds,
+                    lastIsoDate,
                     collection,
                     batchNumber: batchCount
                 });
                 totalProcessed += batch.length;
             }
+
+            // Mark checkpoint as completed after all batches processed
+            await this.checkpointManager.completeCheckpointAsync(resourceType);
 
             logInfo('HistorySyncJob: resource type sync complete', {
                 args: { jobId, resourceType, totalProcessed, batchCount }
@@ -202,17 +212,19 @@ class HistorySyncJob {
      * @param {string} params.resourceType
      * @param {Object[]} params.batch
      * @param {import('mongodb').ObjectId[]} params.batchMongoIds
+     * @param {string} params.lastIsoDate
      * @param {import('mongodb').Collection} params.collection
      * @param {number} params.batchNumber
      * @returns {Promise<void>}
      */
-    async _processBatchAsync({ jobId, resourceType, batch, batchMongoIds, collection, batchNumber }) {
+    async _processBatchAsync({ jobId, resourceType, batch, batchMongoIds, lastIsoDate, collection, batchNumber }) {
         // 1. Insert into ClickHouse with retry
         await this._insertWithRetryAsync(batch);
 
-        // 2. Verify insert
-        const mongoIdStrings = batchMongoIds.map(id => id.toString());
-        const verified = await this._verifyInsertAsync(mongoIdStrings);
+        // 2. Verify insert using range query (avoids ClickHouse field size limit with large batches)
+        const firstMongoId = batch[0].mongo_id;
+        const lastMongoId = batch[batch.length - 1].mongo_id;
+        const verified = await this._verifyInsertAsync(resourceType, batch.length, firstMongoId, lastMongoId);
         if (!verified) {
             throw new Error(
                 `HistorySyncJob: ClickHouse verification failed for batch ${batchNumber} ` +
@@ -234,12 +246,12 @@ class HistorySyncJob {
             }
         }
 
-        // 4. Update checkpoint
+        // 4. Update checkpoint with last mongo_id and original ISO date
         const lastDoc = batch[batch.length - 1];
         await this.checkpointManager.updateCheckpointAsync(
             resourceType,
             lastDoc.mongo_id,
-            lastDoc.last_updated
+            lastIsoDate
         );
     }
 
@@ -279,18 +291,24 @@ class HistorySyncJob {
     }
 
     /**
-     * Verifies that the batch was written to ClickHouse
-     * @param {string[]} mongoIds
+     * Verifies that the batch was written to ClickHouse using a range query
+     * @param {string} resourceType
+     * @param {number} expectedCount
+     * @param {string} firstMongoId
+     * @param {string} lastMongoId
      * @returns {Promise<boolean>}
      */
-    async _verifyInsertAsync(mongoIds) {
+    async _verifyInsertAsync(resourceType, expectedCount, firstMongoId, lastMongoId) {
         try {
             const result = await this.clickHouseClientManager.queryAsync({
-                query: 'SELECT count() as cnt FROM fhir.fhir_resource_history WHERE mongo_id IN ({ids:Array(String)})',
-                query_params: { ids: mongoIds }
+                query: `SELECT count() as cnt FROM fhir.fhir_resource_history
+                    WHERE resource_type = {resourceType:String}
+                    AND mongo_id >= {firstId:String}
+                    AND mongo_id <= {lastId:String}`,
+                query_params: { resourceType, firstId: firstMongoId, lastId: lastMongoId }
             });
             const count = result?.[0]?.cnt || 0;
-            return Number(count) >= mongoIds.length;
+            return Number(count) >= expectedCount;
         } catch (error) {
             logError('HistorySyncJob: ClickHouse verification query failed', {
                 args: { error: error.message }

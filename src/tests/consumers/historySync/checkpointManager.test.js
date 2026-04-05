@@ -1,26 +1,19 @@
 const { commonBeforeEach, commonAfterEach } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const { CheckpointManager } = require('../../../consumers/historySync/checkpointManager');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 describe('CheckpointManager', () => {
     let checkpointManager;
     let mockMergeOperation;
+    let mockSearchByIdOperation;
     let mockR4ArgsParser;
-    let mockMongoDatabaseManager;
-    let mockCollection;
 
     beforeEach(async () => {
         await commonBeforeEach();
 
-        mockCollection = {
-            findOne: async () => null
-        };
-
-        mockMongoDatabaseManager = {
-            getClientDbAsync: async () => ({
-                collection: () => mockCollection
-            })
+        mockSearchByIdOperation = {
+            searchByIdAsync: jest.fn(async () => null)
         };
 
         mockMergeOperation = {
@@ -30,14 +23,15 @@ describe('CheckpointManager', () => {
         mockR4ArgsParser = {
             parseArgs: ({ resourceType, args }) => ({
                 resourceType,
-                base_version: args.base_version
+                base_version: args.base_version,
+                id: args.id
             })
         };
 
         checkpointManager = new CheckpointManager({
             mergeOperation: mockMergeOperation,
-            r4ArgsParser: mockR4ArgsParser,
-            mongoDatabaseManager: mockMongoDatabaseManager
+            searchByIdOperation: mockSearchByIdOperation,
+            r4ArgsParser: mockR4ArgsParser
         });
     });
 
@@ -64,26 +58,32 @@ describe('CheckpointManager', () => {
         test('should return null when no checkpoint exists', async () => {
             const result = await checkpointManager.getCheckpointAsync('Patient');
             expect(result).toBeNull();
+            expect(mockSearchByIdOperation.searchByIdAsync).toHaveBeenCalledTimes(1);
+            expect(mockSearchByIdOperation.searchByIdAsync).toHaveBeenCalledWith(
+                expect.objectContaining({ resourceType: 'Task' })
+            );
+        });
+
+        test('should return null when searchById throws 404', async () => {
+            mockSearchByIdOperation.searchByIdAsync = jest.fn(async () => {
+                const error = new Error('Resource not found');
+                error.statusCode = 404;
+                throw error;
+            });
+
+            const result = await checkpointManager.getCheckpointAsync('Patient');
+            expect(result).toBeNull();
         });
 
         test('should return checkpoint data when Task exists', async () => {
-            const taskId = checkpointManager.getTaskId('Patient');
-            mockCollection.findOne = async (query) => {
-                if (query.id === taskId) {
-                    return {
-                        id: taskId,
-                        resource: {
-                            resourceType: 'Task',
-                            id: taskId,
-                            input: [
-                                { id: 'lastMongoId', type: { text: 'lastMongoId' }, valueString: '682d833de0f8c1253ef59c48' },
-                                { id: 'lastUpdated', type: { text: 'lastUpdated' }, valueString: '2025-05-21T07:39:41.822Z' }
-                            ]
-                        }
-                    };
-                }
-                return null;
-            };
+            mockSearchByIdOperation.searchByIdAsync = jest.fn(async () => ({
+                resourceType: 'Task',
+                id: checkpointManager.getTaskId('Patient'),
+                input: [
+                    { id: 'lastMongoId', type: { text: 'lastMongoId' }, valueString: '682d833de0f8c1253ef59c48' },
+                    { id: 'lastUpdated', type: { text: 'lastUpdated' }, valueString: '2025-05-21T07:39:41.822Z' }
+                ]
+            }));
 
             const result = await checkpointManager.getCheckpointAsync('Patient');
 
@@ -93,17 +93,11 @@ describe('CheckpointManager', () => {
         });
 
         test('should return null when Task exists but has no lastMongoId', async () => {
-            const taskId = checkpointManager.getTaskId('Patient');
-            mockCollection.findOne = async () => ({
-                id: taskId,
-                resource: {
-                    resourceType: 'Task',
-                    id: taskId,
-                    input: [
-                        { type: { text: 'resourceType' }, valueString: 'Patient' }
-                    ]
-                }
-            });
+            mockSearchByIdOperation.searchByIdAsync = jest.fn(async () => ({
+                resourceType: 'Task',
+                id: checkpointManager.getTaskId('Patient'),
+                input: []
+            }));
 
             const result = await checkpointManager.getCheckpointAsync('Patient');
             expect(result).toBeNull();
@@ -156,6 +150,35 @@ describe('CheckpointManager', () => {
             await expect(
                 checkpointManager.updateCheckpointAsync('Patient', 'some-id', '2025-01-01T00:00:00Z')
             ).rejects.toThrow('Checkpoint merge failed for Patient');
+        });
+    });
+
+    describe('completeCheckpointAsync', () => {
+        test('should merge Task with status completed', async () => {
+            let capturedArgs;
+            mockMergeOperation.mergeAsync = async (args) => {
+                capturedArgs = args;
+                return [{ updated: true, id: 'test-id' }];
+            };
+
+            await checkpointManager.completeCheckpointAsync('Patient');
+
+            expect(capturedArgs).toBeDefined();
+            const task = capturedArgs.requestInfo.body[0];
+            expect(task.status).toBe('completed');
+            expect(task.id).toBe(generateUUIDv5('Patient|fhirHistorySync'));
+        });
+
+        test('should throw when merge returns operationOutcome', async () => {
+            mockMergeOperation.mergeAsync = async () => [{
+                operationOutcome: {
+                    issue: [{ diagnostics: 'Complete failed' }]
+                }
+            }];
+
+            await expect(
+                checkpointManager.completeCheckpointAsync('Patient')
+            ).rejects.toThrow('Checkpoint complete failed for Patient');
         });
     });
 });

@@ -1203,7 +1203,7 @@ class ConfigManager {
      * @returns {string}
      */
     get historySyncDlqTopic() {
-        return env.HISTORY_SYNC_DLQ_TOPIC || 'fhir.history_sync.dlq';
+        return env.HISTORY_SYNC_DLQ_TOPIC || 'fhir.history_sync.dlt';
     }
 
     /**
@@ -1235,7 +1235,7 @@ class ConfigManager {
      * @returns {boolean}
      */
     get historySyncDeleteFromMongo() {
-        return (env.HISTORY_SYNC_DELETE_FROM_MONGO || 'false').toLowerCase() === 'true';
+        return isTrue(env.HISTORY_SYNC_DELETE_FROM_MONGO);
     }
 
 }

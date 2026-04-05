@@ -70,8 +70,13 @@ describe('HistorySyncJob', () => {
                 insertedRows.push(...values);
             }),
             queryAsync: jest.fn(async ({ query_params }) => {
-                const ids = query_params?.ids || [];
-                return [{ cnt: ids.length }];
+                // Range-based verification: return count of inserted rows matching the resource type
+                const matching = insertedRows.filter(
+                    r => r.resource_type === query_params?.resourceType &&
+                        r.mongo_id >= query_params?.firstId &&
+                        r.mongo_id <= query_params?.lastId
+                );
+                return [{ cnt: matching.length }];
             })
         };
 
@@ -79,7 +84,8 @@ describe('HistorySyncJob', () => {
             getCheckpointAsync: async () => null,
             updateCheckpointAsync: jest.fn(async (resourceType, lastMongoId, lastUpdated) => {
                 checkpoints.push({ resourceType, lastMongoId, lastUpdated });
-            })
+            }),
+            completeCheckpointAsync: jest.fn(async () => {})
         };
 
         mockConfigManager = {
@@ -129,6 +135,7 @@ describe('HistorySyncJob', () => {
         expect(insertedRows[1].resource_type).toBe('Patient');
         expect(deletedIds).toHaveLength(0); // delete disabled by default
         expect(checkpoints).toHaveLength(1);
+        expect(mockCheckpointManager.completeCheckpointAsync).toHaveBeenCalledWith('Patient');
     });
 
     test('should process multiple batches', async () => {
@@ -228,23 +235,52 @@ describe('HistorySyncJob', () => {
 
         // Should have processed only the first batch (3 docs with batchSize=3)
         expect(insertedRows).toHaveLength(3);
+        // Should still mark as completed after processed batches
+        expect(mockCheckpointManager.completeCheckpointAsync).toHaveBeenCalledWith('Patient');
     });
 
     test('should use checkpoint when resuming', async () => {
         const checkpointMongoId = new ObjectId().toString();
-        mockCheckpointManager.getCheckpointAsync = async () => ({
-            lastMongoId: checkpointMongoId
+        mockCheckpointManager.getCheckpointAsync = jest.fn(async (resourceType) => {
+            expect(resourceType).toBe('Patient');
+            return {
+                lastMongoId: checkpointMongoId,
+                lastUpdated: '2025-01-01T00:00:00.000Z'
+            };
         });
 
         const docs = [createHistoryDoc(0)];
         mockCollection.find = jest.fn((query) => {
-            // Verify query uses checkpoint
+            // Verify query uses checkpoint's lastMongoId as the starting point
             expect(query._id.$gt.toString()).toBe(checkpointMongoId);
             return createMockCursor(docs);
         });
 
         await job.executeAsync({ jobId: 'test-job', resourceType: 'Patient' });
 
+        // Verify checkpoint was fetched before processing
+        expect(mockCheckpointManager.getCheckpointAsync).toHaveBeenCalledTimes(1);
+        expect(mockCheckpointManager.getCheckpointAsync).toHaveBeenCalledWith('Patient');
+        // Verify processing happened after checkpoint fetch
         expect(insertedRows).toHaveLength(1);
+    });
+
+    test('should fetch checkpoint before opening cursor', async () => {
+        const callOrder = [];
+        mockCheckpointManager.getCheckpointAsync = jest.fn(async () => {
+            callOrder.push('checkpoint');
+            return null;
+        });
+
+        const docs = [createHistoryDoc(0)];
+        mockCollection.find = jest.fn((query) => {
+            callOrder.push('cursor');
+            return createMockCursor(docs);
+        });
+
+        await job.executeAsync({ jobId: 'test-job', resourceType: 'Patient' });
+
+        // Checkpoint must be fetched before cursor is opened
+        expect(callOrder).toEqual(['checkpoint', 'cursor']);
     });
 });
