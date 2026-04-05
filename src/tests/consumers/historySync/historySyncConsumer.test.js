@@ -100,6 +100,45 @@ describe('HistorySyncConsumer', () => {
             expect(consumer.consumer.commitOffsets).toHaveBeenCalled();
         });
 
+        test('should skip messages without resourceType', async () => {
+            await consumer.startAsync();
+
+            await consumer._handleMessageAsync({
+                message: createMessage({ jobId: 'job-1' }),
+                partition: 0,
+                heartbeat: mockHeartbeat
+            });
+
+            expect(mockHistorySyncJob.executeAsync).not.toHaveBeenCalled();
+            expect(consumer.consumer.commitOffsets).toHaveBeenCalled();
+        });
+
+        test('should skip messages with invalid resourceType', async () => {
+            await consumer.startAsync();
+
+            await consumer._handleMessageAsync({
+                message: createMessage({ jobId: 'job-1', resourceType: 'NotARealResource' }),
+                partition: 0,
+                heartbeat: mockHeartbeat
+            });
+
+            expect(mockHistorySyncJob.executeAsync).not.toHaveBeenCalled();
+            expect(consumer.consumer.commitOffsets).toHaveBeenCalled();
+        });
+
+        test('should skip messages with AuditEvent resourceType', async () => {
+            await consumer.startAsync();
+
+            await consumer._handleMessageAsync({
+                message: createMessage({ jobId: 'job-1', resourceType: 'AuditEvent' }),
+                partition: 0,
+                heartbeat: mockHeartbeat
+            });
+
+            expect(mockHistorySyncJob.executeAsync).not.toHaveBeenCalled();
+            expect(consumer.consumer.commitOffsets).toHaveBeenCalled();
+        });
+
         test('should retry on failure and send to DLQ after exhaustion', async () => {
             await consumer.startAsync();
 

@@ -35,7 +35,7 @@ class HistorySyncJob {
      * Executes a history sync job
      * @param {Object} command
      * @param {string} command.jobId
-     * @param {string} [command.resourceType]
+     * @param {string} command.resourceType
      * @param {string} [command.from]
      * @param {string} [command.to]
      * @returns {Promise<void>}
@@ -43,46 +43,16 @@ class HistorySyncJob {
     async executeAsync({ jobId, resourceType, from, to }) {
         logInfo('HistorySyncJob: starting', { args: { jobId, resourceType, from, to } });
 
-        const resourceTypes = await this._resolveResourceTypesAsync(resourceType);
-        logInfo('HistorySyncJob: resolved resource types', {
-            args: { jobId, count: resourceTypes.length, resourceTypes }
-        });
-
-        for (const rt of resourceTypes) {
-            if (this.shuttingDown) {
-                logInfo('HistorySyncJob: shutting down, stopping before next resource type', {
-                    args: { jobId, resourceType: rt }
-                });
-                break;
-            }
-            await this._syncResourceTypeAsync({ jobId, resourceType: rt, from, to });
+        if (this.shuttingDown) {
+            logInfo('HistorySyncJob: shutting down, skipping execution', {
+                args: { jobId, resourceType }
+            });
+            return;
         }
+
+        await this._syncResourceTypeAsync({ jobId, resourceType, from, to });
 
         logInfo('HistorySyncJob: completed', { args: { jobId } });
-    }
-
-    /**
-     * Resolves list of resource types to sync
-     * @param {string} [resourceType]
-     * @returns {Promise<string[]>}
-     */
-    async _resolveResourceTypesAsync(resourceType) {
-        if (resourceType) {
-            return [resourceType];
-        }
-
-        const historyDb = await this.mongoDatabaseManager.getResourceHistoryDbAsync();
-        const resourceTypes = [];
-        for await (const collection of historyDb.listCollections({}, { nameOnly: true })) {
-            if (collection.name.indexOf('system.') === -1 && collection.name.endsWith('_History')) {
-                // Strip _4_0_0_History suffix to get resource type
-                const rt = collection.name.replace(/_4_0_0_History$/, '');
-                if (rt) {
-                    resourceTypes.push(rt);
-                }
-            }
-        }
-        return resourceTypes.sort();
     }
 
     /**
@@ -250,16 +220,18 @@ class HistorySyncJob {
             );
         }
 
-        // 3. Delete from MongoDB (non-fatal on failure)
-        try {
-            const deleteResult = await collection.deleteMany({ _id: { $in: batchMongoIds } });
-            logDebug('HistorySyncJob: deleted from MongoDB', {
-                args: { jobId, resourceType, batchNumber, deletedCount: deleteResult.deletedCount }
-            });
-        } catch (deleteError) {
-            logError('HistorySyncJob: MongoDB delete failed (non-fatal, data safe in ClickHouse)', {
-                args: { jobId, resourceType, batchNumber, error: deleteError.message }
-            });
+        // 3. Delete from MongoDB (non-fatal on failure, disabled by default)
+        if (this.configManager.historySyncDeleteFromMongo) {
+            try {
+                const deleteResult = await collection.deleteMany({ _id: { $in: batchMongoIds } });
+                logDebug('HistorySyncJob: deleted from MongoDB', {
+                    args: { jobId, resourceType, batchNumber, deletedCount: deleteResult.deletedCount }
+                });
+            } catch (deleteError) {
+                logError('HistorySyncJob: MongoDB delete failed (non-fatal, data safe in ClickHouse)', {
+                    args: { jobId, resourceType, batchNumber, error: deleteError.message }
+                });
+            }
         }
 
         // 4. Update checkpoint

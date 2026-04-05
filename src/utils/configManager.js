@@ -1230,6 +1230,14 @@ class ConfigManager {
         return parseInt(env.HISTORY_SYNC_MAX_RETRIES || '3', 10);
     }
 
+    /**
+     * Whether to delete documents from MongoDB after syncing to ClickHouse
+     * @returns {boolean}
+     */
+    get historySyncDeleteFromMongo() {
+        return (env.HISTORY_SYNC_DELETE_FROM_MONGO || 'false').toLowerCase() === 'true';
+    }
+
 }
 
 module.exports = {

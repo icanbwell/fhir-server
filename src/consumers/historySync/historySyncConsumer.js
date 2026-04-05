@@ -1,5 +1,6 @@
 const { logInfo, logError } = require('../../operations/common/logging');
 const { generateUUID } = require('../../utils/uid.util');
+const { isValidResource } = require('../../utils/validResourceCheck');
 
 class HistorySyncConsumer {
     /**
@@ -68,6 +69,30 @@ class HistorySyncConsumer {
         if (!command.jobId) {
             logError('HistorySyncConsumer: missing jobId in command', {
                 args: { command, offset: message.offset }
+            });
+            await this._commitOffsetAsync(partition, message.offset);
+            return;
+        }
+
+        if (!command.resourceType) {
+            logError('HistorySyncConsumer: missing resourceType in command', {
+                args: { command, offset: message.offset }
+            });
+            await this._commitOffsetAsync(partition, message.offset);
+            return;
+        }
+
+        if (!isValidResource(command.resourceType)) {
+            logError('HistorySyncConsumer: invalid resourceType', {
+                args: { resourceType: command.resourceType, jobId: command.jobId, offset: message.offset }
+            });
+            await this._commitOffsetAsync(partition, message.offset);
+            return;
+        }
+
+        if (command.resourceType === 'AuditEvent') {
+            logError('HistorySyncConsumer: AuditEvent does not have a history collection', {
+                args: { jobId: command.jobId, offset: message.offset }
             });
             await this._commitOffsetAsync(partition, message.offset);
             return;

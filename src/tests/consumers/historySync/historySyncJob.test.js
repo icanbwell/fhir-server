@@ -50,12 +50,6 @@ describe('HistorySyncJob', () => {
             collection: () => mockCollection,
             admin: () => ({
                 command: async () => ({ ok: 1 })
-            }),
-            listCollections: () => ({
-                [Symbol.asyncIterator]: async function* () {
-                    yield { name: 'Patient_4_0_0_History' };
-                    yield { name: 'Person_4_0_0_History' };
-                }
             })
         };
 
@@ -90,7 +84,8 @@ describe('HistorySyncJob', () => {
 
         mockConfigManager = {
             historySyncBatchSize: 3, // small batch for testing
-            historySyncMaxRetries: 3
+            historySyncMaxRetries: 3,
+            historySyncDeleteFromMongo: false
         };
 
         job = new HistorySyncJob({
@@ -132,7 +127,7 @@ describe('HistorySyncJob', () => {
         expect(insertedRows).toHaveLength(2);
         expect(insertedRows[0].resource_type).toBe('Patient');
         expect(insertedRows[1].resource_type).toBe('Patient');
-        expect(deletedIds).toHaveLength(2);
+        expect(deletedIds).toHaveLength(0); // delete disabled by default
         expect(checkpoints).toHaveLength(1);
     });
 
@@ -144,7 +139,7 @@ describe('HistorySyncJob', () => {
         await job.executeAsync({ jobId: 'test-job', resourceType: 'Patient' });
 
         expect(insertedRows).toHaveLength(5);
-        expect(deletedIds).toHaveLength(5);
+        expect(deletedIds).toHaveLength(0); // delete disabled by default
         expect(checkpoints).toHaveLength(2); // one per batch
     });
 
@@ -159,16 +154,6 @@ describe('HistorySyncJob', () => {
         // 2 valid + 1 malformed skipped, but all 3 mongo _ids tracked for deletion
         expect(insertedRows).toHaveLength(2);
         expect(checkpoints).toHaveLength(1);
-    });
-
-    test('should resolve all resource types when not specified', async () => {
-        const docs = [createHistoryDoc(0)];
-        mockCollection.find = jest.fn(() => createMockCursor(docs));
-
-        await job.executeAsync({ jobId: 'test-job' });
-
-        // Should process Patient and Person (from listCollections mock)
-        expect(mockCollection.find).toHaveBeenCalledTimes(2);
     });
 
     test('should throw when ClickHouse insert fails after retries', async () => {
@@ -186,7 +171,31 @@ describe('HistorySyncJob', () => {
         expect(checkpoints).toHaveLength(0); // no checkpoint on failure
     });
 
+    test('should not delete from MongoDB when historySyncDeleteFromMongo is false', async () => {
+        const docs = [createHistoryDoc(0)];
+        mockCollection.find = jest.fn(() => createMockCursor(docs));
+
+        await job.executeAsync({ jobId: 'test-job', resourceType: 'Patient' });
+
+        expect(insertedRows).toHaveLength(1);
+        expect(mockCollection.deleteMany).not.toHaveBeenCalled();
+        expect(checkpoints).toHaveLength(1);
+    });
+
+    test('should delete from MongoDB when historySyncDeleteFromMongo is true', async () => {
+        mockConfigManager.historySyncDeleteFromMongo = true;
+        const docs = [createHistoryDoc(0)];
+        mockCollection.find = jest.fn(() => createMockCursor(docs));
+
+        await job.executeAsync({ jobId: 'test-job', resourceType: 'Patient' });
+
+        expect(insertedRows).toHaveLength(1);
+        expect(deletedIds).toHaveLength(1);
+        expect(checkpoints).toHaveLength(1);
+    });
+
     test('should continue when MongoDB delete fails', async () => {
+        mockConfigManager.historySyncDeleteFromMongo = true;
         const docs = [createHistoryDoc(0)];
         mockCollection.find = jest.fn(() => createMockCursor(docs));
         mockCollection.deleteMany = jest.fn(async () => {
