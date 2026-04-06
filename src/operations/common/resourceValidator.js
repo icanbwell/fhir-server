@@ -230,18 +230,6 @@ class ResourceValidator {
             });
         }
         if (validationOperationOutcome) {
-            validationOperationOutcome.expression = [
-                resourceType + '/' + id
-            ];
-            if (!(validationOperationOutcome.details) || !(validationOperationOutcome.details.text)) {
-                validationOperationOutcome.details = {
-                    text: JSON.stringify(resourceToValidateJson, getCircularReplacer())
-                };
-            } else {
-                validationOperationOutcome.details.text = validationOperationOutcome.details.text +
-                    ',' + JSON.stringify(resourceToValidateJson, getCircularReplacer());
-            }
-
             return validationOperationOutcome;
         }
         return null;

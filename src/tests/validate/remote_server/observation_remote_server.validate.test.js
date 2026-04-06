@@ -93,7 +93,6 @@ describe('Remote Server Validate', () => {
                 .set(getHeaders());
             expect(resp).toHaveResponse(
                 {
-                    expression: ['Observation/2354-InAgeCohort'],
                     issue: {
                         code: 'informational',
                         details: {
@@ -103,10 +102,6 @@ describe('Remote Server Validate', () => {
                         severity: 'information'
                     },
                     resourceType: 'OperationOutcome'
-                },
-                (resource) => {
-                    delete resource.details; // has lastUpdated
-                    return resource;
                 }
             );
             expect(getProfileScope.isDone()).toBeTruthy();
@@ -218,7 +213,6 @@ describe('Remote Server Validate', () => {
                 .set(getHeaders());
             expect(resp).toHaveResponse(
                 {
-                    expression: ['Observation/2354-InAgeCohort'],
                     issue: {
                         code: 'informational',
                         details: {
@@ -252,7 +246,6 @@ describe('Remote Server Validate', () => {
                 .set(getHeaders());
             expect(resp).toHaveResponse(
                 {
-                    expression: ['Observation/2354-InAgeCohort'],
                     issue: {
                         code: 'informational',
                         details: {
@@ -262,10 +255,6 @@ describe('Remote Server Validate', () => {
                         severity: 'information'
                     },
                     resourceType: 'OperationOutcome'
-                },
-                (resource) => {
-                    delete resource.details; // has lastUpdated
-                    return resource;
                 }
             );
 

@@ -1,14 +1,26 @@
+const deepcopy = require("deepcopy");
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { FhirResourceWriteSerializer } = require("../../fhir/fhirResourceWriteSerializer");
+const { ConfigManager } = require("../../utils/configManager");
+const { assertTypeEquals } = require("../../utils/assertType");
+
 
 class MergeValidator {
     /**
      * @param {BaseValidator[]} validators
+     * @param {ConfigManager} configManager
      */
-    constructor ({ validators }) {
+    constructor ({ validators, configManager }) {
         /**
          * @type {BaseValidator[]}
          */
         this.validators = validators;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -36,11 +48,22 @@ class MergeValidator {
         let wasIncomingAList = false;
 
         /**
-         * @type {Resource[]|Resource}
-         */
-        let incomingResources = Array.isArray(incomingObjects)
+         * @type {Object[]|Object|Resource[]|Resource}
+        */
+        let incomingResources;
+
+        if (this.configManager.enableMergeFastSerializer) {
+            // copy incoming objects to avoid mutation of data for access logs
+            incomingResources = deepcopy(incomingObjects);
+
+            incomingResources = Array.isArray(incomingResources)
+                ? incomingResources.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
+                : FhirResourceWriteSerializer.serialize({obj: incomingResources});
+        } else {
+            incomingResources = Array.isArray(incomingObjects)
             ? incomingObjects.map(o => FhirResourceCreator.create(o))
             : FhirResourceCreator.create(incomingObjects);
+        }
 
         for (const validator of this.validators) {
             const {

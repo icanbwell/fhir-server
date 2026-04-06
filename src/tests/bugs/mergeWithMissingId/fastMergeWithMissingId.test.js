@@ -1,0 +1,48 @@
+// test file
+const auditevent1Resource = require('./fixtures/AuditEvent/auditevent1.json');
+
+// expected
+const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
+const expectedMergeResponse = require('./fixtures/expected/expectedMergeResponse-fastMerge.json');
+
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
+
+describe('AuditEvent Tests', () => {
+    beforeAll(() => {
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+    });
+
+    afterAll(() => {
+        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+    });
+
+    beforeEach(async () => {
+        await commonBeforeEach();
+    });
+
+    afterEach(async () => {
+        await commonAfterEach();
+    });
+
+    describe('AuditEvent mergeWithMissingId Tests', () => {
+        test('mergeWithMissingId works', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/AuditEvent/1/$merge?validate=true')
+                .send(auditevent1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMergeResponse);
+
+            // ACT & ASSERT
+            resp = await request
+                .get('/4_0_0/AuditEvent/?date=gt2022-08-15&date=lt2022-10-09&_bundle=1&_debug=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedAuditEventResources);
+        });
+    });
+});

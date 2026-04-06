@@ -1,5 +1,6 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 /**
  * @classdesc Adds the _sourceId internal column if not present
@@ -20,6 +21,9 @@ class SourceIdColumnHandler extends PreSaveHandler {
 
         if (resource.identifier && Array.isArray(resource.identifier)) {
             resource.identifier = resource.identifier.filter((s) => s.system !== IdentifierSystem.sourceId);
+            if (!(resource instanceof Resource) && resource.identifier.length === 0) {
+                delete resource.identifier;
+            }
         }
 
         return resource;

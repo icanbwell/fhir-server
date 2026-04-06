@@ -4,8 +4,25 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
+const { FhirResourceWriteSerializer } = require('../../../fhir/fhirResourceWriteSerializer');
+const { parametersSerializer } = require('../../../fhir/writeSerializers/4_0_0/resources');
+const { ConfigManager } = require('../../../utils/configManager');
+const { assertTypeEquals } = require('../../../utils/assertType');
 
 class ParametersResourceValidator extends BaseValidator {
+    /**
+     * @param {ConfigManager} configManager
+     */
+    constructor({ configManager }) {
+        super();
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
+
     /**
      * @param {FhirRequestInfo} requestInfo
      * @param {string} currentOperationName
@@ -30,7 +47,16 @@ class ParametersResourceValidator extends BaseValidator {
             /**
              * @type {Parameters}
              */
-            const parametersResource = new Parameters(incomingObject);
+            let parametersResource;
+
+            if (this.configManager.enableMergeFastSerializer) {
+                parametersResource = FhirResourceWriteSerializer.serialize({
+                    obj: incomingObject,
+                    SerializerClass: parametersSerializer
+                });
+            } else {
+                parametersResource = new Parameters(incomingObject);
+            }
             if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                 /**
                  * @type {OperationOutcome}
