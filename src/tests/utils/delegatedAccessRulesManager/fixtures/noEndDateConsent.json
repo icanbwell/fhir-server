@@ -119,7 +119,7 @@
                 "type": "deny",
                 "securityLabel": [
                     {
-                        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/sensitive-data-category",
+                        "system": "https://www.icanbwell.com/sensitivity-category",
                         "code": "SUBSTANCE_ABUSE",
                         "display": "Substance Abuse"
                     }

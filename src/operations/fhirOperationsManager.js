@@ -14,6 +14,7 @@ const {PatchOperation} = require('./patch/patch');
 const {ValidateOperation} = require('./validate/validate');
 const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
+const {EXTERNAL_SERVICE_REQUEST_CONFIG} = require('../constants');
 const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {FhirRequestInfoBuilder} = require('../utils/fhirRequestInfoBuilder');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
@@ -43,6 +44,7 @@ const { BadRequestError } = require('../utils/httpErrors');
 const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHandlerFactory');
 const { BaseResponseHandler } = require('../utils/responseHandler/baseResponseHandler');
 const { CMSManager } = require('../utils/cmsManager');
+const { OperationAccessManager } = require('../utils/operationAccessManager');
 
 class FhirOperationsManager {
     /**
@@ -68,6 +70,7 @@ class FhirOperationsManager {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ConfigManager} configManager
+     * @param {OperationAccessManager} accessManager
      * @param {CMSManager} cmsManager
      */
     constructor(
@@ -93,6 +96,7 @@ class FhirOperationsManager {
             r4ArgsParser,
             queryRewriterManager,
             configManager,
+            accessManager,
             cmsManager
         }
     ) {
@@ -206,6 +210,12 @@ class FhirOperationsManager {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
+         * @type {OperationAccessManager}
+         */
+        this.accessManager = accessManager;
+        assertTypeEquals(accessManager, OperationAccessManager);
+
+        /**
          * @type {CMSManager}
          */
         this.cmsManager = cmsManager;
@@ -222,20 +232,70 @@ class FhirOperationsManager {
     }
 
     /**
+     * Updates request based for external services using EXTERNAL_SERVICE_REQUEST_CONFIG.
+     * Removes params not in allowedParams, applies defaultParams and defaultHeaders without
+     * overriding existing values. Also sets externalReqUrlPrefix on requestInfo.
+     * @param {Object} args
+     * @param {Object|undefined} headers
+     * @param {FhirRequestInfo|undefined} requestInfo
+     */
+    limitReqForExternalServices ({ args, headers, requestInfo }) {
+        if (!headers) {
+            return;
+        }
+
+        const originService = (headers['origin-service'] || '').trim().toLowerCase();
+
+        if (!originService || !(originService in this.configManager.externalServicesWithRestrictions)) {
+            return;
+        }
+
+        const serviceUrlPrefix = this.configManager.externalServicesWithRestrictions[originService];
+        if (requestInfo && serviceUrlPrefix) {
+            requestInfo.externalReqUrlPrefix = serviceUrlPrefix;
+        }
+
+        const { ignoredParams, defaultHeaders } = EXTERNAL_SERVICE_REQUEST_CONFIG;
+
+        // Filter: remove params in ignoredParams
+        if (ignoredParams) {
+            for (const param in args) {
+                if (param !== 'base_version' && ignoredParams.includes(param)) {
+                    delete args[param];
+                }
+            }
+        }
+
+        // Apply default headers (without overriding existing)
+        if (defaultHeaders) {
+            for (const [header, value] of Object.entries(defaultHeaders)) {
+                if (!(header in headers)) {
+                    headers[header] = value;
+                }
+            }
+        }
+    }
+
+    /**
      * Parse arguments
      * @param {Object} args
      * @param {string} resourceType
      * @param {Object|undefined} [headers]
      * @param {string} operation
      * @param {boolean} [allowMultipleIds=true]
+     * @param {FhirRequestInfo} [requestInfo]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true }) {
+    async getParsedArgsAsync({ args, resourceType, headers, operation, allowMultipleIds = true, requestInfo }) {
         const { base_version } = args;
+
+        this.limitReqForExternalServices({ args, headers, requestInfo });
+
         /**
          * @type {ParsedArgs}
          */
         let parsedArgs = this.r4ArgsParser.parseArgs({ resourceType, args });
+
 
         if (!allowMultipleIds && parsedArgs.id?.includes(',')) {
             throw new BadRequestError(new Error('Multiple IDs are not allowed'));
@@ -262,7 +322,7 @@ class FhirOperationsManager {
      */
     async search(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'search' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'search' });
         /**
          * combined args
          * @type {Object}
@@ -273,7 +333,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
         return await this.searchBundleOperation.searchBundleAsync(
@@ -281,8 +341,7 @@ class FhirOperationsManager {
                 requestInfo,
                 parsedArgs,
                 resourceType,
-                useAggregationPipeline: false,
-                userType: requestInfo.userType
+                useAggregationPipeline: false
             });
     }
 
@@ -296,7 +355,7 @@ class FhirOperationsManager {
      */
     async searchStreaming(args, { req, res }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'search' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'search' });
         /**
          * combined args
          * @type {Object}
@@ -308,9 +367,8 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
-        }
-        );
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
+        });
 
         if (this.configManager.enableVulcanIgQuery) {
             for (const parsedArg of parsedArgs.parsedArgItems) {
@@ -342,7 +400,8 @@ class FhirOperationsManager {
                             parsedArgs: await this.getParsedArgsAsync({
                                 args: vulcanIgFilterArgs,
                                 resourceType: vulcanIgFilter.resourceType,
-                                operation: READ
+                                operation: READ,
+                                requestInfo
                             }),
                             useAggregationPipeline: false
                         });
@@ -403,7 +462,8 @@ class FhirOperationsManager {
                                     : '__invalid__' // for handling case when no result is found
                         },
                         resourceType,
-                        operation: READ
+                        operation: READ,
+                        requestInfo
                     });
 
                     parsedArgs.add(parentResourceParsedArg.parsedArgItems[1]);
@@ -451,7 +511,7 @@ class FhirOperationsManager {
      */
     async searchById(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'searchById' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'searchById' });
         /**
          * combined args
          * @type {Object}
@@ -483,7 +543,7 @@ class FhirOperationsManager {
      */
     async create(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'create' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'create' });
         /**
          * combined args
          * @type {Object}
@@ -520,7 +580,7 @@ class FhirOperationsManager {
      */
     async update(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'update' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'update' });
         /**
          * combined args
          * @type {Object}
@@ -554,7 +614,7 @@ class FhirOperationsManager {
      */
     async merge(args, { req, res }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'merge' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'merge' });
         // Combine args
         let combined_args = get_all_args(req, args);
         combined_args = this.parseParametersFromBody({ req, combined_args });
@@ -599,7 +659,7 @@ class FhirOperationsManager {
      */
     async everything(args, { req, res }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo, resourceType, operation: 'everything' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'everything' });
 
         /**
          * combined args
@@ -630,7 +690,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args, resourceType, headers: req.headers, operation: READ
+            args: combined_args, resourceType, headers: req.headers, operation: READ, requestInfo
         }
         );
 
@@ -713,7 +773,7 @@ class FhirOperationsManager {
      */
     async summary(args, { req, res }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'summary' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'summary' });
         /**
          * combined args
          * @type {Object}
@@ -774,7 +834,7 @@ class FhirOperationsManager {
      */
     async remove(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'remove' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'remove' });
         /**
          * combined args
          * @type {Object}
@@ -806,7 +866,7 @@ class FhirOperationsManager {
      */
     async remove_by_query(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'remove_by_query' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'remove_by_query' });
         /**
          * combined args
          * @type {Object}
@@ -838,7 +898,7 @@ class FhirOperationsManager {
      */
     async searchByVersionId(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'searchByVersionId' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'searchByVersionId' });
         /**
          * combined args
          * @type {Object}
@@ -871,7 +931,7 @@ class FhirOperationsManager {
      */
     async history(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'history' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'history' });
         /**
          * combined args
          * @type {Object}
@@ -905,7 +965,7 @@ class FhirOperationsManager {
      */
     async historyById(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'historyById' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'historyById' });
         /**
          * combined args
          * @type {Object}
@@ -937,7 +997,7 @@ class FhirOperationsManager {
      */
     async patch(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'patch' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'patch' });
         /**
          * combined args
          * @type {Object}
@@ -969,7 +1029,7 @@ class FhirOperationsManager {
      */
     async validate(args, { req }, resourceType) {
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType, operation: 'validate' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'validate' });
         /**
          * combined args
          * @type {Object}
@@ -1006,7 +1066,7 @@ class FhirOperationsManager {
          */
         const requestInfo = this.getRequestInfo(req);
 
-        this.cmsManager.verifyAccess({ requestInfo, resourceType, operation: 'graph' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'graph' });
         /**
          * combined args
          * @type {Object}
@@ -1074,7 +1134,7 @@ class FhirOperationsManager {
      * @returns {Promise<Resource>}
      */
     async expand(args, { req }, resourceType) {
-        this.cmsManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'expand' });
+        this.accessManager.verifyAccess({ requestInfo: this.getRequestInfo(req), resourceType, operation: 'expand' });
         // to be enabled after operation is updated
         return {};
         // /**
@@ -1111,7 +1171,7 @@ class FhirOperationsManager {
          * @type {FhirRequestInfo}
          */
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType: 'export', operation: 'export' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType: 'export', operation: 'export' });
         /**
          * combined args
          * @type {Object}
@@ -1133,7 +1193,7 @@ class FhirOperationsManager {
         * @type {FhirRequestInfo}
         */
         const requestInfo = this.getRequestInfo(req);
-        this.cmsManager.verifyAccess({ requestInfo: requestInfo, resourceType: 'export', operation: 'exportById' });
+        this.accessManager.verifyAccess({ requestInfo, resourceType: 'export', operation: 'exportById' });
         /**
          * combined args
          * @type {Object}

@@ -6,6 +6,7 @@ const { isTrue } = require('./isTrue');
  * @property {string} sub - The subject of the actor
  * @property {string} reference - A reference string that identifies the actor
  * @property {string|null} [consentPolicy] - Consent policy URI, set after consent validation
+ * @property {import('./delegatedAccessRulesManager').DelegatedAccessFilteringRules|null} [_filteringRules] - Cached filtering rules (request-scoped)
  */
 
 /**
@@ -155,6 +156,12 @@ class FhirRequestInfo {
          * @type {boolean}
          */
         this.preferGlobalId = headers.Prefer && isTrue(headers.Prefer.replace('global_id=', ''));
+
+        /**
+         * whether the request is from an external service (origin-service matched in filter config)
+         * @type {string|undefined}
+         */
+        this.externalReqUrlPrefix = undefined;
     }
 
     /**

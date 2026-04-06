@@ -1,0 +1,26 @@
+{
+    "resourceType": "Patient",
+    "id": "b2d3e4f5-a6b7-48c9-90d1-e2f3a4b5c6d7",
+    "meta": {
+        "source": "https://www.icanbwell.com/client",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
+    },
+    "birthDate": "1990-05-15",
+    "gender": "male",
+    "name": [
+        {
+            "use": "usual",
+            "family": "PATIENT2",
+            "given": ["JOHN"]
+        }
+    ]
+}

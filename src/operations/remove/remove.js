@@ -93,9 +93,10 @@ class RemoveOperation {
 
     /**
      * does a FHIR Remove (DELETE)
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
      * @returns {Promise<{deleted: number}>}
      */
     async removeAsync({requestInfo, parsedArgs, resourceType}) {

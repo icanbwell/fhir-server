@@ -138,9 +138,10 @@ class UpdateOperation {
 
     /**
      * does a FHIR Update (PUT)
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
     async updateAsync ({ requestInfo, parsedArgs, resourceType }) {

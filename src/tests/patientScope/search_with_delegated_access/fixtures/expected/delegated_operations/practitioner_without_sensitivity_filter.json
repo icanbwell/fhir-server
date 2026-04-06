@@ -1,0 +1,92 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "id": "practitioner1",
+                "meta": {
+                    "versionId": "1",
+                    "source": "http://healthsystem1health.org/provider",
+                    "security": [
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "official",
+                        "family": "Smith",
+                        "given": [
+                            "John"
+                        ]
+                    }
+                ],
+                "resourceType": "Practitioner",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "practitioner1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "defde1c5-57e2-5614-a6b0-517336148c9f"
+                    }
+                ]
+            }
+        }
+    ],
+    "type": "searchset",
+    "resourceType": "Bundle",
+    "total": 0,
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Practitioner_4_0_0.find({'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}, {}).sort({'_uuid':1}).limit(100)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Practitioner_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "{'limit':100,'sort':{'_uuid':1}}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['meta.tag.system','meta.tag.code','_uuid']"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':undefined}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryDatabase",
+                "code": "fhir"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple"
+            }
+        ]
+    }
+}

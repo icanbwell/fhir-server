@@ -8,5 +8,16 @@
       { "system": "https://www.icanbwell.com/access", "code": "client-1" }
     ]
   },
-  "name": "Test Hospital"
+  "name": "Test Hospital",
+  "type": [
+    {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/organization-type",
+          "code": "example-network-tenant",
+          "display": "Example Network Tenant"
+        }
+      ]
+    }
+  ]
 }

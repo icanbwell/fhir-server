@@ -155,8 +155,7 @@ module.exports = {
     HTTP_CONTEXT_KEYS: {
         LINKED_PATIENTS_FOR_PERSON_PREFIX: 'linkedPatientIdsFor-',
         PERSON_OWNER_PREFIX: 'personOwnerFor-',
-        CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed',
-        DELEGATED_ACTOR_FILTERING_RULES_PREFIX: 'delegatedActorFilteringRulesFor-'
+        CONSENTED_PROA_DATA_ACCESSED: 'consentedProaDataAccessed'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
@@ -272,6 +271,9 @@ module.exports = {
             CODE: "cms:share:records"
         }
     },
+    SENSITIVE_CATEGORY: {
+        SYSTEM: "https://www.icanbwell.com/sensitivity-category"
+    },
     MONGO_ERROR: {
         RESOURCE_SIZE_EXCEEDS: 'Document is larger than the maximum size 16777216'
     },
@@ -287,22 +289,31 @@ module.exports = {
         cmsPartnerUser: 'cmsPartnerUser',
         delegatedUser: 'delegatedUser'
     },
+    EXTERNAL_SERVICE_REQUEST_CONFIG: {
+        ignoredParams: ['_debug', '_explain'],
+        defaultHeaders: {
+            prefer: 'global_id=true'
+        }
+    },
     CMS_PARTNER_ACCESS: {
-        RESTRICTED_EVERYTHING_PARAMS: [
-            '_includePatientLinkedOnly',
-            '_rewritePatientReference',
-            '_includeNonClinicalResources',
-            '_debug',
-            '_explain',
-            '_includeHidden',
-            '_includeProxyPatientLinkedOnly',
-            '_excludeProxyPatientLinked',
-            '_includePatientLinkedUuidOnly',
-            '_includeUuidOnly',
-            'contained'
-        ],
         ALLOWED_RESOURCE_TYPES: ['Patient'],
         ALLOWED_OPERATIONS: ['search', 'everything'],
         ALLOWED_METHODS: ['get']
+    },
+    DELEGATED_ACCESS: {
+        /**
+         * Operations allowed for delegated access users.
+         * GraphQL queries and mutations are NOT listed as separate operations here because:
+         * - GraphQL queries use the same searchManager as REST search, so 'search' being
+         *   allowed here covers GraphQL query access.
+         * - GraphQL mutations are blocked explicitly in the GraphQL v1 using accessManager.verifyAccess()
+         *   with operation 'mutation' (which is not in this list).
+         */
+        ALLOWED_OPERATIONS: [
+            'search',
+            'searchById',
+            'everything',
+            'graph'
+        ]
     }
 };

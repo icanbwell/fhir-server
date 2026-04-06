@@ -79,6 +79,7 @@ const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/pr
 const {KafkaClient} = require('./utils/kafkaClient');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
+const {OAuthClientCredentialsHelper} = require('./utils/oauthClientCredentialsHelper');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
 const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
@@ -89,6 +90,8 @@ const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWrit
 const {ProaConsentManager} = require('./operations/search/proaConsentManager');
 const {CmsConsentManager} = require('./operations/search/cmsConsentManager');
 const {CMSManager} = require('./utils/cmsManager');
+const {DelegatedAccessManager} = require('./utils/delegatedAccessManager');
+const {OperationAccessManager} = require('./utils/operationAccessManager');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -121,6 +124,7 @@ const {CustomTracer} = require('./utils/customTracer');
 const {MyJwtStrategy} = require("./strategies/jwt.bearer.strategy");
 const {READ} = require('./constants').OPERATIONS;
 const {AuthService} = require("./strategies/authService");
+const {UserTypeManager} = require("./utils/userTypeManager");
 const {WellKnownConfigurationManager} = require("./utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const { PatientDataViewControlManager } = require('./utils/patientDataViewController');
 const { RemoveHelper } = require('./operations/remove/removeHelper');
@@ -298,6 +302,13 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory
     }));
     container.register('cmsManager', () => new CMSManager());
+    container.register('delegatedAccessManager', () => new DelegatedAccessManager());
+    container.register('accessManager', (c) => new OperationAccessManager({
+        accessProviders: [
+            c.cmsManager,
+            c.delegatedAccessManager
+        ]
+    }));
     container.register('dataSharingManager', (c) => new DataSharingManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
@@ -306,7 +317,8 @@ const createContainer = function () {
         bwellPersonFinder: c.bwellPersonFinder,
         proaConsentManager: c.proaConsentManager,
         cmsConsentManager: c.cmsConsentManager,
-        requestSpecificCache: c.requestSpecificCache
+        requestSpecificCache: c.requestSpecificCache,
+        delegatedAccessRulesManager: c.delegatedAccessRulesManager
     }));
     container.register('indexProvider', (c) => new IndexProvider({
         configManager: c.configManager
@@ -888,6 +900,7 @@ const createContainer = function () {
                 queryRewriterManager: c.queryRewriterManager,
                 configManager: c.configManager,
                 summaryOperation: c.summaryOperation,
+                accessManager: c.accessManager,
                 cmsManager: c.cmsManager
             }
         )
@@ -968,10 +981,15 @@ const createContainer = function () {
             postSaveProcessor: c.postSaveProcessor
         }));
 
+    container.register('oauthClientCredentialsHelper', (c) => new OAuthClientCredentialsHelper({
+        configManager: c.configManager
+    }));
+
     container.register('personMatchManager', (c) => new PersonMatchManager(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            configManager: c.configManager
+            configManager: c.configManager,
+            oauthClientCredentialsHelper: c.oauthClientCredentialsHelper
         }
     ));
 
@@ -1106,12 +1124,16 @@ const createContainer = function () {
         );
     });
 
+    container.register('userTypeManager', (c) => new UserTypeManager({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
+
     container.register('authService', (c) => {
         return new AuthService
         ({
             configManager: c.configManager,
             wellKnownConfigurationManager: c.wellKnownConfigurationManager,
-            requestSpecificCache: c.requestSpecificCache
+            userTypeManager: c.userTypeManager
         });
     });
 

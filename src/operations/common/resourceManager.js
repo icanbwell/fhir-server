@@ -76,9 +76,13 @@ class ResourceManager {
      * @param {string} host
      * @param {string} base_version
      * @param {Resource} resource
+     * @param {string|undefined} [externalReqUrlPrefix]
      * @return {string}
      */
-    getFullUrlForResource ({ protocol, host, base_version, resource }) {
+    getFullUrlForResource ({ protocol, host, base_version, resource, externalReqUrlPrefix }) {
+        if (externalReqUrlPrefix) {
+            return `${externalReqUrlPrefix}/${resource.resourceType}/${resource.id}`;
+        }
         return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
     }
 }

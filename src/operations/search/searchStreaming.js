@@ -127,7 +127,11 @@ class SearchStreamingOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
-            userRequestId
+            userRequestId,
+            /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
+            actor,
+            /** @type {string} */
+            externalReqUrlPrefix
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -174,7 +178,8 @@ class SearchStreamingOperation {
                     useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs,
-                    operation: READ
+                    operation: READ,
+                    actor
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
@@ -346,7 +351,8 @@ class SearchStreamingOperation {
                         user,
                         explanations,
                         allCollectionsToSearch,
-                        parsedArgs
+                        parsedArgs,
+                        externalReqUrlPrefix
                     }
                 );
                 resourceIds = await this.searchManager.streamResourcesFromCursorAsync(

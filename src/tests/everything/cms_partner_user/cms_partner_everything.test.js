@@ -1,21 +1,36 @@
 const clientPerson1 = require('./fixtures/person/client_person_1.json');
 const cmsPerson1 = require('./fixtures/person/cms_person_1.json');
+const cmsSourceIdPerson1 = require('./fixtures/person/cms_sourceId_person_1.json');
+const clientSourceIdPerson1 = require('./fixtures/person/client_sourceId_person_1.json');
+const clientSourceIdPerson2 = require('./fixtures/person/client_sourceId_person_2.json');
+const clientSourceIdPerson3 = require('./fixtures/person/client_sourceId_person_3.json');
 
 const clientPatient1 = require('./fixtures/patient/client_patient_1.json');
 const cmsPatient1 = require('./fixtures/patient/cms_patient_1.json');
 const patient1 = require('./fixtures/patient/patient_1.json');
+const clientSourceIdPatient1 = require('./fixtures/patient/client_sourceId_patient_1.json');
+const clientSourceIdPatient2 = require('./fixtures/patient/client_sourceId_patient_2.json');
+const clientSourceIdPatient3 = require('./fixtures/patient/client_sourceId_patient_3.json');
 
 const consent1 = require('./fixtures/consent/consent_1.json');
 const consent1Denied = require('./fixtures/consent/consent_1_denied.json');
+const consentSourceId1 = require('./fixtures/consent/consent_sourceId_1.json');
+const consentSourceId2 = require('./fixtures/consent/consent_sourceId_2.json');
 
 const condition1 = require('./fixtures/clinical/condition_1.json');
 const observation1 = require('./fixtures/clinical/observation_1.json');
 const encounter1 = require('./fixtures/clinical/encounter_1.json');
 const practitioner1 = require('./fixtures/clinical/practitioner_1.json');
 const organization1 = require('./fixtures/clinical/organization_1.json');
+const organizationRegular = require('./fixtures/clinical/organization_regular.json');
 
 const account1 = require('./fixtures/non_uscdi_v3/account_1.json');
 const orgNonUscdiV3Ref = require('./fixtures/non_uscdi_v3/organization_non_uscdi_ref.json');
+
+const expectedOrganizationNotFound = require('./fixtures/errors/expected_organization_not_found.json');
+const expectedEverythingDebugResponse = require('./fixtures/expected/expectedEverythingDebugResponse.json');
+const expectedEverythingDebugIgnoredResponse = require('./fixtures/expected/expectedEverythingDebugIgnoredResponse.json');
+const expectedSourceIdPatientResponse = require('./fixtures/expected/expectedSourceIdPatientResponse.json');
 
 const {
     commonBeforeEach,
@@ -42,7 +57,8 @@ const getCmsHeaders = (personId) => {
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
         clientFhirPatientId: `person.${personId}`,
-        bwellFhirPatientId: `person.${personId}`
+        bwellFhirPatientId: `person.${personId}`,
+        managingOrganization: organization1.id
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -74,7 +90,8 @@ const getRegularPatientHeaders = (personId) => {
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
         clientFhirPatientId: `person.${personId}`,
-        bwellFhirPatientId: `person.${personId}`
+        bwellFhirPatientId: `person.${personId}`,
+        managingOrganization: organizationRegular.id
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -88,7 +105,7 @@ const baseResources = [
     clientPerson1, cmsPerson1,
     clientPatient1, cmsPatient1, patient1,
     condition1, observation1, encounter1,
-    practitioner1, organization1, account1
+    practitioner1, organization1, organizationRegular, account1
 ];
 
 describe('CMS Partner User - Patient $everything', () => {
@@ -96,10 +113,12 @@ describe('CMS Partner User - Patient $everything', () => {
 
     beforeEach(async () => {
         cursorSpy.mockReturnThis();
+        process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION = 'true';
         await commonBeforeEach();
     });
 
     afterEach(async () => {
+        delete process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION;
         await commonAfterEach();
     });
 
@@ -177,6 +196,45 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(entries.length).toBe(0);
     });
 
+    test('With sourceId search, returns only patients having allowed consent', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([
+                consentSourceId1,
+                consentSourceId2,
+                clientSourceIdPerson1,
+                clientSourceIdPerson2,
+                clientSourceIdPerson3,
+                cmsSourceIdPerson1,
+                clientSourceIdPatient1,
+                clientSourceIdPatient2,
+                clientSourceIdPatient3,
+                organization1
+            ])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse([
+            { created: true },
+            { created: true },
+            { created: true },
+            { created: true },
+            { created: true },
+            { created: true },
+            { created: true },
+            { created: true },
+            { created: true },
+            { created: true }
+        ]);
+
+        resp = await request
+            .get(`/4_0_0/Patient/${clientSourceIdPatient1.id}/$everything?_debug=1`)
+            .set({...getCmsHeaders(cmsSourceIdPerson1.id), prefer: 'global_id=false'});
+
+        expect(resp).toHaveStatusCode(200);
+        expect(resp).toHaveResponse(expectedSourceIdPatientResponse);
+    });
+
     test('_type param: intersects with USCDI v3 types', async () => {
         const request = await createTestRequest();
 
@@ -245,7 +303,36 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(entries.length).toBe(0);
     });
 
-    test('Invalid scope: cmsPartnerUser without patient scope returns 401', async () => {
+    test('_debug param: works for non external service requests', async () => {
+        const originalExternalServices = process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT;
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = 'external-service';
+
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([...baseResources, consent1])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // _debug should work and return debug info when origin-service is not an external service
+        resp = await request
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_debug=true`)
+            .set(getCmsHeaders(CMS_PERSON_ID));
+        expect(resp).toHaveStatusCode(200);
+        expect(resp).toHaveResponse(expectedEverythingDebugResponse);
+
+        // _debug should be ignored when origin-service is an external service
+        resp = await request
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_debug=true`)
+            .set({...getCmsHeaders(CMS_PERSON_ID), 'origin-service': 'external-service'});
+        expect(resp).toHaveStatusCode(200);
+        expect(resp).toHaveResponse(expectedEverythingDebugIgnoredResponse);
+
+        process.env.EXTERNAL_SERVICES_WITH_REQ_LIMIT = originalExternalServices;
+    });
+
+    test('Without patient scope: not treated as CMS user', async () => {
         const request = await createTestRequest();
 
         let resp = await request
@@ -258,10 +345,12 @@ describe('CMS Partner User - Patient $everything', () => {
             .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
             .set(getInvalidCmsHeaders(CMS_PERSON_ID));
 
-        expect(resp.statusCode).toBe(401);
+        // Without patient scope, isUser is false so Organization-based detection
+        // is skipped. The request is treated as a non-patient-scoped request.
+        expect(resp).toHaveStatusCode(200);
     });
 
-    test('Unsupported query params are stripped and have no effect', async () => {
+    test('Query params works as expected for cms request', async () => {
         const request = await createTestRequest();
 
         let resp = await request
@@ -283,7 +372,6 @@ describe('CMS Partner User - Patient $everything', () => {
         for (const type of returnedTypes) {
             expect(allowedTypes.has(type)).toBe(true);
         }
-        expect(entries.some((e) => e.resource.resourceType === 'Condition' && e.resource.code)).toBe(true);
 
         resp = await request
             .get(`/4_0_0/Patient/${PATIENT_ID}/$everything?_includePatientLinkedOnly=true&_excludeProxyPatientLinked=true`)
@@ -412,6 +500,86 @@ describe('CMS Partner User - Patient $everything', () => {
         const returnedTypes = new Set(entries.map((e) => e.resource.resourceType));
 
         // Non-CMS user should see Account (no USCDI v3 filtering)
+        expect(entries.length).toBeGreaterThan(0);
+        expect(returnedTypes.has('Account')).toBe(true);
+    });
+
+    test('Organization not found returns 500', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([...baseResources, consent1])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const tokenWithBadOrg = getTokenWithCustomPayload({
+            scope: 'patient/*.read user/*.read access/*.read',
+            username: CMS_PERSON_ID,
+            clientFhirPersonId: CMS_PERSON_ID,
+            bwellFhirPersonId: CMS_PERSON_ID,
+            clientFhirPatientId: `person.${CMS_PERSON_ID}`,
+            bwellFhirPatientId: `person.${CMS_PERSON_ID}`,
+            managingOrganization: 'non-existent-org-id'
+        });
+
+        resp = await request
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
+            .set({
+                'Content-Type': 'application/fhir+json',
+                Accept: 'application/fhir+json',
+                Authorization: `Bearer ${tokenWithBadOrg}`,
+                Host: 'localhost:3000'
+            });
+
+        expect(resp).toHaveStatusCode(500);
+        expect(resp.body).toEqual(expectedOrganizationNotFound);
+    });
+
+    test('Organization exists but has different type: not treated as CMS user', async () => {
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([...baseResources, consent1])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Use the regular (non-CMS) organization
+        resp = await request
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
+            .set(getRegularPatientHeaders(CMS_PERSON_ID));
+
+        expect(resp).toHaveStatusCode(200);
+        const entries = resp.body.entry || [];
+        const returnedTypes = new Set(entries.map((e) => e.resource.resourceType));
+
+        // Non-CMS org means no USCDI filtering - Account should be present
+        expect(entries.length).toBeGreaterThan(0);
+        expect(returnedTypes.has('Account')).toBe(true);
+    });
+
+    test('Feature flag disabled: CMS org not resolved, no USCDI filtering applied', async () => {
+        delete process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION;
+
+        const request = await createTestRequest();
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([...baseResources, consent1])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
+            .set(getCmsHeaders(CMS_PERSON_ID));
+
+        expect(resp).toHaveStatusCode(200);
+        const entries = resp.body.entry || [];
+        const returnedTypes = new Set(entries.map((e) => e.resource.resourceType));
+
+        // With flag disabled, Organization-based detection is skipped
+        // so user is not treated as CMS - Account should be present
         expect(entries.length).toBeGreaterThan(0);
         expect(returnedTypes.has('Account')).toBe(true);
     });
