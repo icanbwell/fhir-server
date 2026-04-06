@@ -4,6 +4,18 @@ const { FhirRequestInfo } = require('./fhirRequestInfo');
 
 const ALLOWED_OPERATIONS = new Set(DELEGATED_ACCESS.ALLOWED_OPERATIONS);
 
+/**
+ * Manages access control for delegated users.
+ *
+ * For REST endpoints, each operation in fhirOperationsManager calls verifyAccess() with its
+ * operation name (e.g. 'search', 'create'). Only operations in DELEGATED_ACCESS.ALLOWED_OPERATIONS pass.
+ *
+ * For GraphQL:
+ * - Queries go through the same searchManager as REST search, so they are implicitly
+ *   allowed (no separate operation name exists for GraphQL queries).
+ * - Mutations are blocked via verifyAccess() with operation 'mutation' in the GraphQL v1
+ *   dataSource (getResourcesForMutation). GraphQL v2 has no mutations.
+ */
 class DelegatedAccessManager {
     /**
      * Returns whether the given request is from a delegated access user

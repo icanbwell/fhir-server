@@ -127,7 +127,7 @@ This correctly handles resources that may have **multiple** sensitive-category c
 
 ## Operation Access Control
 
-Delegated users are restricted to **read-only** operations:
+Delegated users are restricted to **read-only** operations. Access is enforced by `OperationAccessManager` which delegates to `DelegatedAccessManager`.
 
 | Allowed | Denied |
 |---------|--------|
@@ -135,11 +135,11 @@ Delegated users are restricted to **read-only** operations:
 | `searchById` | `update` |
 | `everything` | `merge` |
 | `graph` | `patch` |
-| GraphQL queries | `remove` |
-| | `history` |
+| `graphql v1 queries` | `remove` |
+| `graphql v2 queries`| `history` |
 | | `historyById` |
 | | `searchByVersionId` |
-| | GraphQL mutations |
+| | `graphql mutation` |
 
 Any denied operation returns **403 Forbidden**. GraphQL mutations return an error in the GraphQL response body.
 

@@ -300,6 +300,14 @@ module.exports = {
         ALLOWED_METHODS: ['get']
     },
     DELEGATED_ACCESS: {
+        /**
+         * Operations allowed for delegated access users.
+         * GraphQL queries and mutations are NOT listed as separate operations here because:
+         * - GraphQL queries use the same searchManager as REST search, so 'search' being
+         *   allowed here covers GraphQL query access.
+         * - GraphQL mutations are blocked explicitly in the GraphQL v1 using accessManager.verifyAccess()
+         *   with operation 'mutation' (which is not in this list).
+         */
         ALLOWED_OPERATIONS: [
             'search',
             'searchById',
