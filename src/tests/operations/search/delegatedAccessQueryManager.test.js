@@ -61,6 +61,22 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
     const actor = { reference: 'RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425', sub: '46265db4-0da2-4436-b4e8-85bf7e52a426' };
     const personIdFromJwtToken = '7b99904f-2f85-51a3-9398-e2eed6854639';
 
+    const expectedQueryWithSensitivityFilter = (codeFilter) => ({
+        $and: [
+            {
+                'meta.security': {
+                    $not: {
+                        $elemMatch: {
+                            system: SENSITIVE_CATEGORY.SYSTEM,
+                            code: codeFilter
+                        }
+                    }
+                }
+            },
+            ...patientScopedObservationQuery.$and
+        ]
+    });
+
     test('Returns impossible query when delegated actor has no consent', async () => {
         await createTestRequest();
         const container = getTestContainer();
@@ -114,23 +130,11 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             personIdFromJwtToken
         });
 
-        // MongoQuerySimplifier flattens nested $and: original 3 + exclusion filter = 4
-        expect(result.$and).toBeDefined();
-        expect(result.$and.length).toBe(4);
-        // Simplifier puts the sensitivity filter first
-        expect(result.$and[0]).toEqual({
-            'meta.security': {
-                $not: {
-                    $elemMatch: {
-                        system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: { $in: ['MENTAL_HEALTH', 'SUBSTANCE_ABUSE', SENSITIVE_CATEGORY.UNCLASSIFIED_CODE] }
-                    }
-                }
-            }
-        });
-        expect(result.$and[1]).toEqual(patientScopedObservationQuery.$and[0]);
-        expect(result.$and[2]).toEqual(patientScopedObservationQuery.$and[1]);
-        expect(result.$and[3]).toEqual(patientScopedObservationQuery.$and[2]);
+        expect(result).toEqual(
+            expectedQueryWithSensitivityFilter(
+                { $in: ['MENTAL_HEALTH', 'SUBSTANCE_ABUSE', SENSITIVE_CATEGORY.UNCLASSIFIED_CODE] }
+            )
+        );
     });
 
     test('Adds only unclassified filter when consent has no denied categories', async () => {
@@ -160,17 +164,9 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             personIdFromJwtToken
         });
 
-        expect(result.$and).toBeDefined();
-        expect(result.$and[0]).toEqual({
-            'meta.security': {
-                $not: {
-                    $elemMatch: {
-                        system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
-                    }
-                }
-            }
-        });
+        expect(result).toEqual(
+            expectedQueryWithSensitivityFilter(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)
+        );
     });
 
     test('Adds unclassified filter when deniedSensitiveCategories is null', async () => {
@@ -200,16 +196,8 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             personIdFromJwtToken
         });
 
-        expect(result.$and).toBeDefined();
-        expect(result.$and[0]).toEqual({
-            'meta.security': {
-                $not: {
-                    $elemMatch: {
-                        system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
-                    }
-                }
-            }
-        });
+        expect(result).toEqual(
+            expectedQueryWithSensitivityFilter(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)
+        );
     });
 });
