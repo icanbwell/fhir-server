@@ -691,7 +691,7 @@ class DataSharingManager {
         const { deniedSensitiveCategories } = filteringRules;
 
         if (!deniedSensitiveCategories?.length) {
-            logInfo('Consent exists but no sensitive categories denied for actor %s', { args: { actor: actor.reference } });
+            logInfo(`Consent ${filteringRules.consentId} exists but no sensitive categories denied for actor ${actor.reference}`);
             return query;
         }
 
