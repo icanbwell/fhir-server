@@ -25,7 +25,6 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
         await commonAfterEach();
     });
 
-    // Realistic query that mirrors what searchManager builds for a patient-scoped Observation search
     const patientScopedObservationQuery = {
         $and: [
             {
@@ -59,7 +58,7 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
         ]
     };
 
-    const actor = { reference: 'RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425', sub: 'delegated-sub-123' };
+    const actor = { reference: 'RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425', sub: '46265db4-0da2-4436-b4e8-85bf7e52a426' };
     const personIdFromJwtToken = '7b99904f-2f85-51a3-9398-e2eed6854639';
 
     test('Returns impossible query when delegated actor has no consent', async () => {
@@ -124,7 +123,7 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
                 $not: {
                     $elemMatch: {
                         system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: { $in: ['MENTAL_HEALTH', 'SUBSTANCE_ABUSE', 'unclassified'] }
+                        code: { $in: ['MENTAL_HEALTH', 'SUBSTANCE_ABUSE', SENSITIVE_CATEGORY.UNCLASSIFIED_CODE] }
                     }
                 }
             }
@@ -167,7 +166,7 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
                 $not: {
                     $elemMatch: {
                         system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: 'unclassified'
+                        code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
                     }
                 }
             }
@@ -207,7 +206,7 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
                 $not: {
                     $elemMatch: {
                         system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: 'unclassified'
+                        code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
                     }
                 }
             }
