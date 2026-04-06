@@ -35,9 +35,10 @@ const fhirGeneratedValidator = new JSONValidator(generatedSchema, validatorConfi
  * @param {string} resourceName - name of resource in url
  * @param {string} path - req.path from express
  * @param {Object} resourceObj - fhir resource object
+ * @param {boolean} excludeRequiredFieldErrors - whether to exclude required field errors from validation results. This is used in merge operation where we want to allow missing required fields as long as they are present in the other resource being merged.
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource ({ resourceBody, resourceName, path, resourceObj = null }) {
+function validateResource ({ resourceBody, resourceName, path, resourceObj = null, excludeRequiredFieldErrors = false }) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -53,7 +54,8 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
         });
     }
 
-    const errors = fhirGeneratedValidator.validate(resourceBody);
+    let errors = fhirGeneratedValidator.validate(resourceBody);
+
     let referenceErrors = null;
 
     if (resourceObj) {
@@ -65,6 +67,13 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     }
     let issue;
     if (errors && errors.length) {
+        if (excludeRequiredFieldErrors) {
+            // when excluding required field errors, we want to exclude both 'required' keyword errors
+            // and 'oneOf' errors that are caused by missing required fields in one of the schemas
+            // in a oneOf. So we filter out 'required' errors and 'oneOf' errors.
+            errors = errors.filter((e) => e.keyword !== 'required' && e.keyword !== 'oneOf');
+        }
+
         issue = errors.map((elm) => {
             return new OperationOutcomeIssue({
                 severity: 'error',

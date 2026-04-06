@@ -25,18 +25,18 @@ class MergeValidator {
 
     /**
      * @param {string} base_version
-     * @param {string} currentOperationName
      * @param {Object|Object[]} incomingObjects
      * @param {string} resourceType
      * @param {FhirRequestInfo} requestInfo
+     * @param {boolean} effectiveSmartMerge
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Resource[], wasIncomingAList: boolean}>}
      */
     async validateAsync ({
         base_version,
-        currentOperationName,
         incomingObjects,
         resourceType,
-        requestInfo
+        requestInfo,
+        effectiveSmartMerge
     }) {
         /**
          * @type {MergeResultEntry[]}
@@ -56,9 +56,11 @@ class MergeValidator {
             // copy incoming objects to avoid mutation of data for access logs
             incomingResources = deepcopy(incomingObjects);
 
-            incomingResources = Array.isArray(incomingResources)
-                ? incomingResources.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
-                : FhirResourceWriteSerializer.serialize({obj: incomingResources});
+            if (!this.configManager.updateMergeValidations) {
+                incomingResources = Array.isArray(incomingResources)
+                    ? incomingResources.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
+                    : FhirResourceWriteSerializer.serialize({obj: incomingResources});
+            }
         } else {
             incomingResources = Array.isArray(incomingObjects)
             ? incomingObjects.map(o => FhirResourceCreator.create(o))
@@ -70,10 +72,10 @@ class MergeValidator {
                 validatedObjects: validatedObjectsByValidator, preCheckErrors, wasAList
             } = await validator.validate({
                 base_version,
-                currentOperationName,
                 incomingResources,
                 resourceType,
-                requestInfo
+                requestInfo,
+                effectiveSmartMerge
             });
 
             incomingResources = validatedObjectsByValidator;
@@ -82,6 +84,12 @@ class MergeValidator {
             }
 
             mergePreCheckErrors.push(...preCheckErrors);
+        }
+
+        if (this.configManager.updateMergeValidations) {
+            incomingResources = Array.isArray(incomingResources)
+                ? incomingResources.map(o => FhirResourceWriteSerializer.serialize({obj: o}))
+                : FhirResourceWriteSerializer.serialize({obj: incomingResources});
         }
 
         return { mergePreCheckErrors, resourcesIncomingArray: incomingResources, wasIncomingAList };

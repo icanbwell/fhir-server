@@ -36,6 +36,21 @@ const getSerializer = (version = '4_0_0', schema = '') => {
 class BaseFhirResourceSerializer {
     static serializerMethod = null;
 
+    // TODO remove configManager once check for new merge validation is removed
+    /**
+     * Static property to hold configManager for all serializer instances
+     * @type {import('../utils/configManager').ConfigManager}
+     */
+    static configManager = null;
+
+    /**
+     * Sets the configManager
+     * @param {import('../utils/configManager').ConfigManager} configManager
+     */
+    static setConfigManager(configManager) {
+        BaseFhirResourceSerializer.configManager = configManager;
+    }
+
     /**
      * serializes a resource
      * @typedef {Object} serializeParams
@@ -122,12 +137,37 @@ class BaseFhirResourceSerializer {
      * @return {Object[]}
      */
     static serializeArray({ obj, SerializerClass, context = {} }) {
-        if (!obj) return obj;
+        if (!BaseFhirResourceSerializer.configManager) {
+            throw new RethrownError({
+                message: 'ConfigManager is not set for BaseFhirResourceSerializer',
+                source: `${this.name}.serializeArray`
+            });
+        }
+
         try {
-            if (Array.isArray(obj)) {
-                return obj.filter((v) => v).map((v) => this.serialize({ obj: v, SerializerClass, context }));
+            if (BaseFhirResourceSerializer.configManager.updateMergeValidations) {
+                // TODO: move this to FhirResourceWriteSerializer when validation update check is removed
+                if (!obj) return null;
+                let serializedArray;
+                if (Array.isArray(obj)) {
+                    serializedArray = obj
+                        .map((v) => this.serialize({ obj: v, SerializerClass, context }))
+                        .filter((v) => v);
+                } else {
+                    serializedArray = [this.serialize({ obj, SerializerClass, context })].filter(
+                        (v) => v
+                    );
+                }
+                return serializedArray.length > 0 ? serializedArray : null;
             } else {
-                return [this.serialize({ obj, SerializerClass, context })];
+                if (!obj) return obj;
+                if (Array.isArray(obj)) {
+                    return obj
+                        .filter((v) => v)
+                        .map((v) => this.serialize({ obj: v, SerializerClass, context }));
+                } else {
+                    return [this.serialize({ obj, SerializerClass, context })];
+                }
             }
         } catch (e) {
             throw new RethrownError({

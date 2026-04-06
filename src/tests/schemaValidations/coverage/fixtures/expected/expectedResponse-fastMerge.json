@@ -1,0 +1,85 @@
+[
+  {
+    "created": false,
+    "id": "2",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Coverage/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"active\",\"cancelled\",\"draft\",\"entered-in-error\"]}: at position .status"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Coverage/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"active\",\"cancelled\",\"draft\",\"entered-in-error\"]}: at position .status"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Coverage/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "Coverage",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "941f082a-39a9-5f55-9630-5839a010e1bc"
+  },
+  {
+    "created": false,
+    "id": "3",
+    "issue": {
+      "code": "invalid",
+      "details": {
+        "text": "/4_0_0/Coverage/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+      },
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Coverage/$merge should have required property 'status' :{\"missingProperty\":\"status\"}: at position root"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Coverage/$merge should have required property 'value' :{\"missingProperty\":\"value\"}: at position .class[0]"
+          },
+          "severity": "error"
+        },
+        {
+          "code": "invalid",
+          "details": {
+            "text": "/4_0_0/Coverage/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+          },
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "Coverage",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "aef217d8-2f34-56f7-b748-b24a120b2654"
+  },
+  {
+    "created": true,
+    "id": "1",
+    "resourceType": "Coverage",
+    "sourceAssigningAuthority": "client",
+    "updated": false,
+    "uuid": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
+  }
+]

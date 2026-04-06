@@ -44,7 +44,8 @@ describe('Invalid Resource Tests (Fast Merge Serializer)', () => {
             ).toStrictEqual(
                 'Unable to create/update resource. Missing either metadata or metadata source.'
             );
-            expect(writeSerializerSpy).toHaveBeenCalled();
+            // validations are run before serialization
+            expect(writeSerializerSpy).not.toHaveBeenCalled();
         });
     });
 });

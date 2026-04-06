@@ -105,8 +105,7 @@
           ]
         },
         "reference": {
-          "reference": "Patient/person.97f5479a-1611-4964-911f-df1740f454e1",
-          "_sourceAssigningAuthority": "client2"
+          "reference": "Patient/person.97f5479a-1611-4964-911f-df1740f454e1"
         }
       }
     ]

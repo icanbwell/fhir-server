@@ -28,11 +28,37 @@ describe('Person Tests (Fast Merge Serializer)', () => {
         test('merge without data', async () => {
             const request = await createTestRequest();
 
-            await request
+            const resp = await request
                 .post('/4_0_0/Person/$merge')
                 .send({})
                 .set(getHeaders())
-                .expect(400);
+                .expect(200);
+
+            expect(resp.body).toEqual({
+                operationOutcome: {
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        {
+                            severity: 'error',
+                            code: 'exception',
+                            details: {
+                                text: 'Error merging: {}'
+                            },
+                            diagnostics: 'resource is missing id'
+                        }
+                    ]
+                },
+                issue: {
+                    severity: 'error',
+                    code: 'exception',
+                    details: {
+                        text: 'Error merging: {}'
+                    },
+                    diagnostics: 'resource is missing id'
+                },
+                created: false,
+                updated: false
+            });
         });
 
         test('should return empty array when bundle entry is empty array', async () => {

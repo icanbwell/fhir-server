@@ -83,11 +83,7 @@
         },
         "assurance": "level4"
       }
-    ],
-    "_access": {
-      "bwell": 1
-    },
-    "_id": "630be83db0fb3dc74a4f4651"
+    ]
   },
   {
     "resourceType": "Person",
@@ -168,11 +164,7 @@
         },
         "assurance": "level4"
       }
-    ],
-    "_access": {
-      "bwell": 1
-    },
-    "_id": "888be83db0fb3dc74a4f5001"
+    ]
   },
   {
     "resourceType": "Person",
@@ -253,10 +245,6 @@
         },
         "assurance": "level3"
       }
-    ],
-    "_access": {
-      "bwell": 1
-    },
-    "_id": "999be83db0fb3dc74a4f6002"
+    ]
   }
 ]

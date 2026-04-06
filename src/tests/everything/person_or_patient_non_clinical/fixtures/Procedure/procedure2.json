@@ -105,10 +105,6 @@
     },
     "note": [
       {
-        "actor": {
-          "reference": "PractitionerRole/8143ac7d-ad11-4349-9a3f-da93faae0eae",
-          "display": "Dr. James Smith"
-        },
         "time": "2023-06-15T10:30:00+00:00",
         "text": "Arthroscopic procedure completed successfully. Meniscus repair performed with no complications."
       }
