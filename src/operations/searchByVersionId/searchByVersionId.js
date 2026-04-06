@@ -94,9 +94,10 @@ class SearchByVersionIdOperation {
 
     /**
      * does a FHIR Search By Version
-     * @param {FhirRequestInfo} requestInfo
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @param {Object} params
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {ParsedArgs} params.parsedArgs
+     * @param {string} params.resourceType
      */
     async searchByVersionIdAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
@@ -115,7 +116,9 @@ class SearchByVersionIdOperation {
             /** @type {string | null} */
             user,
             /** @type {string | null} */
-            scope
+            scope,
+            actor,
+            userType
             // /** @type {string} */
             // requestId
         } = requestInfo;
@@ -167,12 +170,14 @@ class SearchByVersionIdOperation {
                 user,
                 scope,
                 isUser,
+                userType,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
                 useHistoryTable: true,
-                operation: READ
+                operation: READ,
+                actor
             });
 
             if (typeof version_id !== 'string') {

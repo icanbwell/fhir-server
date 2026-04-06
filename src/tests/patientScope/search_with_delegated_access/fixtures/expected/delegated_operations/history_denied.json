@@ -1,0 +1,13 @@
+{
+    "resourceType": "OperationOutcome",
+    "issue": [
+        {
+            "severity": "error",
+            "code": "forbidden",
+            "details": {
+                "text": "User does not have access to HISTORY method"
+            },
+            "diagnostics": "User does not have access to HISTORY method"
+        }
+    ]
+}

@@ -125,7 +125,7 @@ class BaseHistoryOperationProcessor {
     /**
      * fetch FHIR History
      * @typedef {Object} FetchHistoryParams
-     * @property {FhirRequestInfo} requestInfo
+     * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
      *
@@ -158,7 +158,9 @@ class BaseHistoryOperationProcessor {
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            actor,
+            userType
         } = requestInfo;
 
         if (this.scopesManager.hasPatientScope({ scope })) {
@@ -206,12 +208,14 @@ class BaseHistoryOperationProcessor {
             user,
             scope,
             isUser,
+            userType,
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
             parsedArgs,
             useHistoryTable: true,
-            operation: READ
+            operation: READ,
+            actor
         });
 
         // noinspection JSValidateTypes

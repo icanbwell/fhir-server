@@ -4,10 +4,10 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS, SENSITIVE_CATEGORY } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
-const { logError } = require('../common/logging');
+const { logError, logInfo } = require('../common/logging');
 const { SearchFilterFromReference } = require('../query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
@@ -16,6 +16,8 @@ const { ProaConsentManager } = require('./proaConsentManager');
 const { CmsConsentManager } = require('./cmsConsentManager');
 const { isUuid } = require('../../utils/uid.util');
 const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
+const { DelegatedAccessRulesManager } = require('../../utils/delegatedAccessRulesManager');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const httpContext = require('express-http-context');
 
 class DataSharingManager {
@@ -29,6 +31,7 @@ class DataSharingManager {
      * @param {ProaConsentManager} proaConsentManager
      * @param {CmsConsentManager} cmsConsentManager
      * @param {RequestSpecificCache} requestSpecificCache
+     * @param {DelegatedAccessRulesManager} delegatedAccessRulesManager
      */
     constructor({
         databaseQueryFactory,
@@ -38,7 +41,8 @@ class DataSharingManager {
         bwellPersonFinder,
         proaConsentManager,
         cmsConsentManager,
-        requestSpecificCache
+        requestSpecificCache,
+        delegatedAccessRulesManager
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -86,6 +90,12 @@ class DataSharingManager {
          */
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+
+        /**
+         * @type {DelegatedAccessRulesManager}
+         */
+        this.delegatedAccessRulesManager = delegatedAccessRulesManager;
+        assertTypeEquals(delegatedAccessRulesManager, DelegatedAccessRulesManager);
     }
 
     /**
@@ -652,6 +662,60 @@ class DataSharingManager {
 
         // if validation is success, return true
         return true;
+    }
+    /**
+     * Updates the search query to exclude resources tagged with denied sensitive categories
+     * for delegated actors.
+     *
+     * @param {Object} params
+     * @param {string} params.base_version
+     * @param {import('mongodb').Document} params.query
+     * @param {import('../../utils/fhirRequestInfo').JwtActor} params.actor
+     * @param {string} params.personIdFromJwtToken
+     * @returns {Promise<import('mongodb').Document>}
+     */
+    async updateQueryForDelegatedAccessSensitiveData ({ base_version, query, actor, personIdFromJwtToken }) {
+        const filteringRulesResult = await this.delegatedAccessRulesManager.getFilteringRulesAsync({
+            base_version,
+            actor,
+            personIdFromJwtToken
+        });
+
+        const { filteringRules } = filteringRulesResult;
+
+        // Delegated actor but no consent found — safety net: return impossible query
+        if (filteringRules === null) {
+            return { id: '__invalid__' };
+        }
+
+        const { deniedSensitiveCategories } = filteringRules;
+
+        if (!deniedSensitiveCategories?.length) {
+            logInfo(`Consent ${filteringRules.consentId} exists but no sensitive categories denied for actor ${actor.reference}`);
+            return query;
+        }
+
+        // Build exclusion filter for denied sensitive categories
+        const sensitiveDataExclusionFilter = {
+            'meta.security': {
+                $not: {
+                    $elemMatch: {
+                        system: SENSITIVE_CATEGORY.SYSTEM,
+                        code: { $in: deniedSensitiveCategories }
+                    }
+                }
+            }
+        };
+
+        // Wrap original query with the exclusion filter
+        const combinedQuery = {
+            $and: [
+                query,
+                sensitiveDataExclusionFilter
+            ]
+        };
+
+        return MongoQuerySimplifier.simplifyFilter({ filter: combinedQuery });
     }
 }
 

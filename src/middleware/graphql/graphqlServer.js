@@ -90,7 +90,8 @@ const graphql = async (fnGetContainer) => {
                     searchBundleOperation: container.searchBundleOperation,
                     r4ArgsParser: container.r4ArgsParser,
                     queryRewriterManager: container.queryRewriterManager,
-                    configManager: container.configManager
+                    configManager: container.configManager,
+                    accessManager: container.accessManager
                 }
             ),
             container

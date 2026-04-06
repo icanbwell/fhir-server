@@ -162,6 +162,7 @@ class SearchManager {
          */
         this.patientQueryCreator = patientQueryCreator;
         assertTypeEquals(patientQueryCreator, PatientQueryCreator);
+
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -171,6 +172,7 @@ class SearchManager {
      * @param {string | null} scope
      * @param {boolean | null} isUser
      * @param {string | null} userType
+     * @param {import('../../utils/fhirRequestInfo').JwtActor | null} actor
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
@@ -200,7 +202,8 @@ class SearchManager {
             accessRequested = 'read',
             applyPatientFilter = true,
             addPersonOwnerToContext = false,
-            allowConsentedProaDataAccess = false
+            allowConsentedProaDataAccess = false,
+            actor
         }
     ) {
         try {
@@ -299,6 +302,15 @@ class SearchManager {
                     });
                 }
             }
+
+            // Apply delegated access sensitive data filtering for patient-scoped clinical resources only
+            if (userType === AUTH_USER_TYPES.delegatedUser &&
+                this.dataSharingManager.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
+                query = await this.dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+                    base_version, query, actor, personIdFromJwtToken
+                });
+            }
+
 
             if (shouldUpdateColumns) {
                 // update the columns set
@@ -1283,6 +1295,7 @@ class SearchManager {
             user: requestInfo.user,
             scope: requestInfo.scope,
             isUser: requestInfo.isUser,
+            userType: requestInfo.userType,
             resourceType,
             useAccessIndex: this.configManager.useAccessIndex,
             personIdFromJwtToken: requestInfo.personIdFromJwtToken,
@@ -1291,7 +1304,8 @@ class SearchManager {
             operation: READ,
             accessRequested: 'read',
             addPersonOwnerToContext: requestInfo.isUser,
-            applyPatientFilter
+            applyPatientFilter,
+            actor: requestInfo.actor
         });
 
         const options = {};

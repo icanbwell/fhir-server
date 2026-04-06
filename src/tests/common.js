@@ -466,56 +466,6 @@ module.exports.getTestRequestInfo = ({
     return requestInfo;
 };
 
-/**
- * Creates a token with delegated actor claims (act.reference)
- * @param {string} scope
- * @param {string} actorReference - e.g. 'Person/delegated-actor-1'
- * @param {string|undefined} [personId] - bwellFhirPersonId
- * @returns {string}
- */
-const getTokenWithDelegatedActor = (module.exports.getTokenWithDelegatedActor = (
-    scope,
-    actorReference,
-    personId = 'root-person'
-) => {
-    const payload = {
-        sub: 'john',
-        username: 'imran',
-        client_id: 'my_client_id',
-        scope,
-        clientFhirPersonId: 'clientFhirPerson',
-        clientFhirPatientId: 'clientFhirPatient',
-        bwellFhirPersonId: personId,
-        bwellFhirPatientId: 'bwellFhirPatient',
-        managingOrganization: 'managingOrganization',
-        token_use: 'access',
-        act: {
-            reference: actorReference,
-            sub: `${actorReference}-sub`
-        }
-    };
-    return createToken(privateKey, '123', payload);
-});
-
-/**
- * Returns headers with a delegated actor token
- * @param {string|undefined} [scope]
- * @param {string} actorReference
- * @param {string|undefined} [personId]
- * @returns {Object}
- */
-module.exports.getJsonHeadersWithDelegatedActor = (
-    scope = 'patient/*.read user/*.* access/*.*',
-    actorReference,
-    personId
-) => {
-    return {
-        'Content-Type': 'application/fhir+json',
-        Accept: 'application/fhir+json',
-        Authorization: `Bearer ${getTokenWithDelegatedActor(scope, actorReference, personId)}`,
-        Host: 'localhost:3000'
-    };
-};
 
 /**
  *

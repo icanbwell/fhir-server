@@ -13,11 +13,10 @@ const { ForbiddenError } = require('./httpErrors');
 const {
     CONSENT_OF_LINKED_PERSON_INDEX,
     PERSON_PROXY_PREFIX,
-    HTTP_CONTEXT_KEYS,
+    SENSITIVE_CATEGORY,
     CONSENT_CATEGORY
 } = require('../constants');
 const { dateQueryBuilder } = require('./querybuilder.util');
-const httpContext = require('express-http-context');
 
 /**
  * @typedef DelegatedAccessFilteringRules
@@ -80,26 +79,20 @@ class DelegatedAccessRulesManager {
         base_version = '4_0_0',
         _debug = false
     }) {
-        const actorReference = actor.reference;
-        const cacheKey = `${HTTP_CONTEXT_KEYS.DELEGATED_ACTOR_FILTERING_RULES_PREFIX}${base_version}-${personIdFromJwtToken}-${actorReference}`;
+        assertIsValid(actor, 'Actor must be provided to get filtering rules');
+        assertIsValid(personIdFromJwtToken, 'personIdFromJwtToken must be provided to get filtering rules');
 
+        // Cache filtering rules on the actor object (request-scoped, same instance throughout).
         // If _debug is enabled, force a fresh DB fetch (no cache read).
-        // Still cache the computed filteringRules so subsequent non-debug code paths can reuse it.
-        if (!_debug) {
-            /**
-             * @type {DelegatedAccessFilteringRules | null | undefined}
-             */
-            const cachedFilteringRulesObj = httpContext.get(cacheKey);
-            if (cachedFilteringRulesObj !== undefined) {
-                return {
-                    filteringRules: cachedFilteringRulesObj,
-                    actorConsentQueries: [],
-                    actorConsentQueryOptions: []
-                };
-            }
-
+        if (!_debug && actor._filteringRules !== undefined) {
+            return {
+                filteringRules: actor._filteringRules,
+                actorConsentQueries: [],
+                actorConsentQueryOptions: []
+            };
         }
 
+        const actorReference = actor.reference;
         const filteringRulesObj = await this.customTracer.trace({
             name: 'DelegatedAccessRulesManager.getFilteringRulesAsync',
             func: async () => {
@@ -139,8 +132,7 @@ class DelegatedAccessRulesManager {
             }
         });
 
-        // Cache in httpContext for same-request reuse
-        httpContext.set(cacheKey, filteringRulesObj.filteringRules);
+        actor._filteringRules = filteringRulesObj.filteringRules;
 
         return filteringRulesObj;
     }
@@ -161,7 +153,7 @@ class DelegatedAccessRulesManager {
 
         // Extract denied sensitive categories from nested provisions
         if (consent.provision?.provision && Array.isArray(consent.provision.provision)) {
-            const lowerSensitiveCategoryId = this.configManager.sensitiveCategorySystemIdentifier.toLowerCase();
+            const lowerSensitiveCategoryId = SENSITIVE_CATEGORY.SYSTEM.toLowerCase();
             for (const nestedProvision of consent.provision.provision) {
                 if (nestedProvision.type === 'deny' && nestedProvision.securityLabel) {
                     for (const securityLabel of nestedProvision.securityLabel) {

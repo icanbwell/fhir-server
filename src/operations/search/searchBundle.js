@@ -106,11 +106,12 @@ class SearchBundleOperation {
      * @param {ParsedArgs} options.parsedArgs
      * @param {string} options.resourceType
      * @param {boolean} options.useAggregationPipeline
-     * @param {string|null} options.userType
+     * @param {'READ'|'WRITE'|'DELETE'|null} [options.parentOperationType] - If this search is being called from another operation (e.g. GraphQL)
+     * pass the parent operation type here
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (
-        { requestInfo, parsedArgs, resourceType, useAggregationPipeline, userType }
+        { requestInfo, parsedArgs, resourceType, useAggregationPipeline, parentOperationType }
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -142,6 +143,10 @@ class SearchBundleOperation {
              * @type {string}
              */
             requestId,
+            /** @type {import('../../utils/fhirRequestInfo').JwtActor|null} */
+            actor,
+            /** @type {string|null} */
+            userType,
             /** @type {string | undefined} */
             externalReqUrlPrefix
         } = requestInfo;
@@ -173,6 +178,8 @@ class SearchBundleOperation {
             this.searchManager.validateAuditEventQueryParameters(parsedArgs);
         }
 
+        const applyUserTypeBasedFiltering = !parentOperationType || parentOperationType === READ;
+
         try {
             ({
                 /** @type {import('mongodb').Document}**/
@@ -184,12 +191,12 @@ class SearchBundleOperation {
                     user,
                     scope,
                     isUser,
-                    userType,
                     resourceType,
                     useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs,
-                    operation: READ
+                    operation: READ,
+                    ...(applyUserTypeBasedFiltering ? { userType, actor } : {})
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
