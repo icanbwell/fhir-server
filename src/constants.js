@@ -271,7 +271,8 @@ module.exports = {
         }
     },
     SENSITIVE_CATEGORY: {
-        SYSTEM: "https://www.icanbwell.com/sensitivity-category"
+        SYSTEM: "https://www.icanbwell.com/sensitivity-category",
+        UNCLASSIFIED_CODE: "unclassified"
     },
     MONGO_ERROR: {
         RESOURCE_SIZE_EXCEEDS: 'Document is larger than the maximum size 16777216'

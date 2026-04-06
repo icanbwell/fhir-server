@@ -1,8 +1,6 @@
 const {
     describe,
     beforeEach,
-    beforeAll,
-    afterAll,
     afterEach,
     test,
     expect,
@@ -54,38 +52,6 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
         expect(result).toEqual({ id: '__invalid__' });
     });
 
-    test('No filter added when denied categories list is empty', async () => {
-        await createTestRequest();
-        const container = getTestContainer();
-        const dataSharingManager = container.dataSharingManager;
-
-        // Mock getFilteringRulesAsync to return empty denied categories
-        jest.spyOn(
-            dataSharingManager.delegatedAccessRulesManager,
-            'getFilteringRulesAsync'
-        ).mockResolvedValueOnce({
-            filteringRules: {
-                consentId: 'consent-1',
-                consentVersion: '1',
-                provisionPeriodStart: null,
-                provisionPeriodEnd: null,
-                deniedSensitiveCategories: []
-            },
-            actorConsentQueries: [],
-            actorConsentQueryOptions: []
-        });
-
-        const originalQuery = { 'meta.tag': 'test' };
-        const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
-            base_version: '4_0_0',
-            query: originalQuery,
-            actor: { reference: 'RelatedPerson/related-person-1', sub: 'related-person-1' },
-            personIdFromJwtToken: 'person-123'
-        });
-
-        expect(result).toEqual(originalQuery);
-    });
-
     test('Adds exclusion filter when denied categories exist', async () => {
         await createTestRequest();
         const container = getTestContainer();
@@ -126,7 +92,91 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
                 $not: {
                     $elemMatch: {
                         system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: { $in: deniedCategories }
+                        code: { $in: [...deniedCategories, 'unclassified'] }
+                    }
+                }
+            }
+        });
+    });
+
+    test('Adds unclassified filter when no denied categories', async () => {
+        await createTestRequest();
+        const container = getTestContainer();
+        const dataSharingManager = container.dataSharingManager;
+
+        jest.spyOn(
+            dataSharingManager.delegatedAccessRulesManager,
+            'getFilteringRulesAsync'
+        ).mockResolvedValueOnce({
+            filteringRules: {
+                consentId: 'consent-1',
+                consentVersion: '1',
+                provisionPeriodStart: null,
+                provisionPeriodEnd: null,
+                deniedSensitiveCategories: []
+            },
+            actorConsentQueries: [],
+            actorConsentQueryOptions: []
+        });
+
+        const originalQuery = { 'meta.tag': 'test' };
+        const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+            base_version: '4_0_0',
+            query: originalQuery,
+            actor: { reference: 'RelatedPerson/related-person-1', sub: 'related-person-1' },
+            personIdFromJwtToken: 'person-123'
+        });
+
+        expect(result.$and).toBeDefined();
+        expect(result.$and[1]).toEqual({
+            'meta.security': {
+                $not: {
+                    $elemMatch: {
+                        system: SENSITIVE_CATEGORY.SYSTEM,
+                        code: 'unclassified'
+                    }
+                }
+            }
+        });
+    });
+
+    test('Merges unclassified with denied categories', async () => {
+        await createTestRequest();
+        const container = getTestContainer();
+        const dataSharingManager = container.dataSharingManager;
+
+        const deniedCategories = ['MENTAL_HEALTH'];
+
+        jest.spyOn(
+            dataSharingManager.delegatedAccessRulesManager,
+            'getFilteringRulesAsync'
+        ).mockResolvedValueOnce({
+            filteringRules: {
+                consentId: 'consent-1',
+                consentVersion: '1',
+                provisionPeriodStart: null,
+                provisionPeriodEnd: null,
+                deniedSensitiveCategories: deniedCategories
+            },
+            actorConsentQueries: [],
+            actorConsentQueryOptions: []
+        });
+
+        const originalQuery = { 'meta.tag': 'test' };
+        const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+            base_version: '4_0_0',
+            query: originalQuery,
+            actor: { reference: 'RelatedPerson/related-person-1', sub: 'related-person-1' },
+            personIdFromJwtToken: 'person-123'
+        });
+
+        expect(result.$and).toBeDefined();
+        expect(result.$and[1]).toEqual({
+            'meta.security': {
+                $not: {
+                    $elemMatch: {
+                        system: SENSITIVE_CATEGORY.SYSTEM,
+                        code: { $in: ['MENTAL_HEALTH', 'unclassified'] }
                     }
                 }
             }
