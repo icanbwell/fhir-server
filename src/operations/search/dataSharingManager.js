@@ -7,7 +7,7 @@ const { QueryParameterValue } = require('../query/queryParameterValue');
 const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, HTTP_CONTEXT_KEYS, SENSITIVE_CATEGORY } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
-const { logError } = require('../common/logging');
+const { logError, logInfo } = require('../common/logging');
 const { SearchFilterFromReference } = require('../query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
@@ -690,8 +690,8 @@ class DataSharingManager {
 
         const { deniedSensitiveCategories } = filteringRules;
 
-        // Consent exists but no denied categories — return original query
         if (!deniedSensitiveCategories?.length) {
+            logInfo('Consent exists but no sensitive categories denied for actor %s', { args: { actor: actor.reference } });
             return query;
         }
 
