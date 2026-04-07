@@ -81,6 +81,12 @@ In particular, it walks **nested provisions** under `Consent.provision.provision
 - Each `securityLabel` whose `system` matches the configured `SENSITIVE_CATEGORY_SYSTEM_IDENTIFIER` contributes a sensitive category code to an **excluded list**.
 - That excluded list becomes the delegated-access filtering rules (used downstream to filter out data tagged with those sensitive categories).
 
+## Filtering of Unclassified Resources
+
+Resources tagged with `unclassified` in `meta.security` are **always filtered out** for delegated users, regardless of what the Consent's denied categories contain. If a resource has an `unclassified` tag under the sensitivity category system (`https://www.icanbwell.com/sensitivity-category`), it will not be returned to the delegated user.
+
+This is enforced by always appending `unclassified` to the list of codes to exclude in the sensitive data exclusion filter.
+
 ## Applying Filtering Rules to Search Queries
 
 When filtering rules contain denied sensitive categories, the server modifies the MongoDB search query to exclude resources tagged with those categories.
@@ -121,8 +127,8 @@ This correctly handles resources that may have **multiple** sensitive-category c
 ### Behavior
 
 - If **no delegated actor** is present (normal user request): the original query is returned unchanged.
-- If **no denied categories** exist: the original query is returned unchanged.
-- If **denied categories** exist: the filter is applied to exclude those resources.
+- If a delegated actor is present, resources tagged as `unclassified` are **always excluded**, regardless of whether the Consent has any denied categories.
+- If **denied categories** exist: those categories are excluded in addition to `unclassified`.
 - Filtering is **only applied to patient-scoped resources** (e.g., Observation, Condition). Non-patient-scoped resources (e.g., Practitioner) are not filtered.
 
 ## Operation Access Control

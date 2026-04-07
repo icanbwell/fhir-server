@@ -1,8 +1,6 @@
 const {
     describe,
     beforeEach,
-    beforeAll,
-    afterAll,
     afterEach,
     test,
     expect,
@@ -18,8 +16,6 @@ const {
 const { SENSITIVE_CATEGORY } = require('../../../constants');
 
 describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests', () => {
-    let originalEnableDelegatedAccessFiltering;
-
     beforeEach(async () => {
         await commonBeforeEach();
         mockHttpContext();
@@ -29,12 +25,63 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
         await commonAfterEach();
     });
 
-    test('Returns { id: "__invalid__" } when delegated actor has no consent', async () => {
+    const patientScopedObservationQuery = {
+        $and: [
+            {
+                'meta.tag': {
+                    $not: {
+                        $elemMatch: {
+                            system: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
+                            code: 'hidden'
+                        }
+                    }
+                }
+            },
+            {
+                'subject._uuid': {
+                    $in: [
+                        'Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639',
+                        'Patient/24a5930e-11b4-5525-b482-669174917044'
+                    ]
+                }
+            },
+            {
+                'meta.security': {
+                    $not: {
+                        $elemMatch: {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        }
+                    }
+                }
+            }
+        ]
+    };
+
+    const actor = { reference: 'RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425', sub: '46265db4-0da2-4436-b4e8-85bf7e52a426' };
+    const personIdFromJwtToken = '7b99904f-2f85-51a3-9398-e2eed6854639';
+
+    const expectedQueryWithSensitivityFilter = (codeFilter) => ({
+        $and: [
+            {
+                'meta.security': {
+                    $not: {
+                        $elemMatch: {
+                            system: SENSITIVE_CATEGORY.SYSTEM,
+                            code: codeFilter
+                        }
+                    }
+                }
+            },
+            ...patientScopedObservationQuery.$and
+        ]
+    });
+
+    test('Returns impossible query when delegated actor has no consent', async () => {
         await createTestRequest();
         const container = getTestContainer();
         const dataSharingManager = container.dataSharingManager;
 
-        // Mock getFilteringRulesAsync to return filteringRules: null (no consent)
         jest.spyOn(
             dataSharingManager.delegatedAccessRulesManager,
             'getFilteringRulesAsync'
@@ -46,54 +93,21 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
 
         const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
             base_version: '4_0_0',
-            query: { 'meta.tag': 'test' },
-            actor: { reference: 'RelatedPerson/related-person-1', sub: 'related-person-1' },
-            personIdFromJwtToken: 'person-123'
+            query: patientScopedObservationQuery,
+            actor,
+            personIdFromJwtToken
         });
 
         expect(result).toEqual({ id: '__invalid__' });
     });
 
-    test('No filter added when denied categories list is empty', async () => {
-        await createTestRequest();
-        const container = getTestContainer();
-        const dataSharingManager = container.dataSharingManager;
-
-        // Mock getFilteringRulesAsync to return empty denied categories
-        jest.spyOn(
-            dataSharingManager.delegatedAccessRulesManager,
-            'getFilteringRulesAsync'
-        ).mockResolvedValueOnce({
-            filteringRules: {
-                consentId: 'consent-1',
-                consentVersion: '1',
-                provisionPeriodStart: null,
-                provisionPeriodEnd: null,
-                deniedSensitiveCategories: []
-            },
-            actorConsentQueries: [],
-            actorConsentQueryOptions: []
-        });
-
-        const originalQuery = { 'meta.tag': 'test' };
-        const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
-            base_version: '4_0_0',
-            query: originalQuery,
-            actor: { reference: 'RelatedPerson/related-person-1', sub: 'related-person-1' },
-            personIdFromJwtToken: 'person-123'
-        });
-
-        expect(result).toEqual(originalQuery);
-    });
-
-    test('Adds exclusion filter when denied categories exist', async () => {
+    test('Adds exclusion filter with denied categories and unclassified', async () => {
         await createTestRequest();
         const container = getTestContainer();
         const dataSharingManager = container.dataSharingManager;
 
         const deniedCategories = ['MENTAL_HEALTH', 'SUBSTANCE_ABUSE'];
 
-        // Mock getFilteringRulesAsync to return denied categories
         jest.spyOn(
             dataSharingManager.delegatedAccessRulesManager,
             'getFilteringRulesAsync'
@@ -109,27 +123,81 @@ describe('DataSharingManager - updateQueryForDelegatedAccessSensitiveData Tests'
             actorConsentQueryOptions: []
         });
 
-        const originalQuery = { 'meta.tag': 'test' };
         const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
             base_version: '4_0_0',
-            query: originalQuery,
-            actor: { reference: 'RelatedPerson/related-person-1', sub: 'related-person-1' },
-            personIdFromJwtToken: 'person-123'
+            query: patientScopedObservationQuery,
+            actor,
+            personIdFromJwtToken
         });
 
-        // Verify the result has $and with original query and exclusion filter
-        expect(result.$and).toBeDefined();
-        expect(result.$and.length).toBe(2);
-        expect(result.$and[0]).toEqual(originalQuery);
-        expect(result.$and[1]).toEqual({
-            'meta.security': {
-                $not: {
-                    $elemMatch: {
-                        system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: { $in: deniedCategories }
-                    }
-                }
-            }
+        expect(result).toEqual(
+            expectedQueryWithSensitivityFilter(
+                { $in: ['MENTAL_HEALTH', 'SUBSTANCE_ABUSE', SENSITIVE_CATEGORY.UNCLASSIFIED_CODE] }
+            )
+        );
+    });
+
+    test('Adds only unclassified filter when consent has no denied categories', async () => {
+        await createTestRequest();
+        const container = getTestContainer();
+        const dataSharingManager = container.dataSharingManager;
+
+        jest.spyOn(
+            dataSharingManager.delegatedAccessRulesManager,
+            'getFilteringRulesAsync'
+        ).mockResolvedValueOnce({
+            filteringRules: {
+                consentId: 'consent-1',
+                consentVersion: '1',
+                provisionPeriodStart: null,
+                provisionPeriodEnd: null,
+                deniedSensitiveCategories: []
+            },
+            actorConsentQueries: [],
+            actorConsentQueryOptions: []
         });
+
+        const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+            base_version: '4_0_0',
+            query: patientScopedObservationQuery,
+            actor,
+            personIdFromJwtToken
+        });
+
+        expect(result).toEqual(
+            expectedQueryWithSensitivityFilter(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)
+        );
+    });
+
+    test('Adds unclassified filter when deniedSensitiveCategories is null', async () => {
+        await createTestRequest();
+        const container = getTestContainer();
+        const dataSharingManager = container.dataSharingManager;
+
+        jest.spyOn(
+            dataSharingManager.delegatedAccessRulesManager,
+            'getFilteringRulesAsync'
+        ).mockResolvedValueOnce({
+            filteringRules: {
+                consentId: 'consent-1',
+                consentVersion: '1',
+                provisionPeriodStart: null,
+                provisionPeriodEnd: null,
+                deniedSensitiveCategories: null
+            },
+            actorConsentQueries: [],
+            actorConsentQueryOptions: []
+        });
+
+        const result = await dataSharingManager.updateQueryForDelegatedAccessSensitiveData({
+            base_version: '4_0_0',
+            query: patientScopedObservationQuery,
+            actor,
+            personIdFromJwtToken
+        });
+
+        expect(result).toEqual(
+            expectedQueryWithSensitivityFilter(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE)
+        );
     });
 });

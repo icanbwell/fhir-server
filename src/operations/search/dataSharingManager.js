@@ -692,16 +692,18 @@ class DataSharingManager {
 
         if (!deniedSensitiveCategories?.length) {
             logInfo(`Consent ${filteringRules.consentId} exists but no sensitive categories denied for actor ${actor.reference}`);
-            return query;
         }
 
-        // Build exclusion filter for denied sensitive categories
+        const codesToExclude = deniedSensitiveCategories ? [...deniedSensitiveCategories] : [];
+        codesToExclude.push(SENSITIVE_CATEGORY.UNCLASSIFIED_CODE);
+
+        // Build exclusion filter for denied sensitive categories and unclassified resources
         const sensitiveDataExclusionFilter = {
             'meta.security': {
                 $not: {
                     $elemMatch: {
                         system: SENSITIVE_CATEGORY.SYSTEM,
-                        code: { $in: deniedSensitiveCategories }
+                        code: { $in: codesToExclude }
                     }
                 }
             }
