@@ -12,7 +12,7 @@ async function resourceReferenceUpdater(obj, updateReferenceFn) {
     const entries = Object.entries(obj);
     for (const [key, value] of entries) {
         if (typeof value === 'object' && value !== null) {
-            if (Object.prototype.hasOwnProperty.call(value, 'reference')) {
+            if (Object.prototype.hasOwnProperty.call(value, 'reference') && typeof value.reference === 'string') {
                 obj[key] = await updateReferenceFn(value);
             } else {
                 obj[key] = await resourceReferenceUpdater(value, updateReferenceFn);

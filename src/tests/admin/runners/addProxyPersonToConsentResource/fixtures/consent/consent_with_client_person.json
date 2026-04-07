@@ -101,8 +101,7 @@
           ]
         },
         "reference": {
-          "reference": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23",
-          "_sourceAssigningAuthority": "client"
+          "reference": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23"
         }
       }
     ]

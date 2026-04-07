@@ -173,7 +173,8 @@ module.exports = {
     REGEX: {
         INSTANT: /^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$/,
         // allows upper and lowercase ASCII letters, numerals, "-" and "." only.
-        ID_FIELD: /^[A-Za-z0-9\-.]+$/
+        ID_FIELD: /^[A-Za-z0-9\-.]+$/,
+        ABSOLUTE_URL: /^(?:[a-z+]+:)?\/\//i
     },
     KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds,
     REFERENCE_EXTENSION_DATA_MAP: {

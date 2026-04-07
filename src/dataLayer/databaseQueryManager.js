@@ -5,7 +5,7 @@ const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
-const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
+const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -25,14 +25,12 @@ class DatabaseQueryManager {
      * @param {import('./providers/storageProvider').StorageProvider|null} storageProvider
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor({
         resourceLocatorFactory,
         storageProvider,
         resourceType,
-        base_version,
-        databaseAttachmentManager
+        base_version
     }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
@@ -57,12 +55,38 @@ class DatabaseQueryManager {
             base_version: this._base_version
         });
         assertTypeEquals(this.resourceLocator, ResourceLocator);
+    }
 
-        /**
-         * @type {DatabaseAttachmentManager}
-         */
-        this.databaseAttachmentManager = databaseAttachmentManager;
-        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+    /**
+     * Finds one resource of a resource type
+     * @typedef FindOneOption
+     * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @property {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
+     *
+     * @param {FindOneOption} params
+     * @return {Promise<Resource|null>}
+     */
+    async fastFindOneAsync({ query, options = null }) {
+        try {
+            // Use storage provider if available
+            if (this.storageProvider) {
+                return await this.storageProvider.findOneAsync({ query, options });
+            }
+
+            // Fall back to direct MongoDB access
+            const collection = await this.resourceLocator.getCollectionAsync({});
+            const resource = await collection.findOne(query, options);
+            if (resource !== null) {
+                return FhirResourceWriteSerializer.serializeByResourceType({obj: resource, resourceType: this._resourceType});
+            }
+            return null;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`,
+                error: e,
+                args: { query, options }
+            });
+        }
     }
 
     /**

@@ -9,29 +9,41 @@ const { ResourceValidator } = require('../../common/resourceValidator');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
+const { FastMergeManager } = require('../fastMergeManager');
+const { validateResource } = require('../../../utils/validator.util');
+const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 
 class MergeResourceValidator extends BaseValidator {
     /**
      * @param {MergeManager} mergeManager
+     * @param {FastMergeManager} fastMergeManager
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
      * @param {ResourceValidator} resourceValidator
+     * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
+     * @param {UuidColumnHandler} uuidColumnHandler
      */
     constructor ({
         mergeManager,
+        fastMergeManager,
         databaseBulkLoader,
         preSaveManager,
         configManager,
-        resourceValidator
+        resourceValidator,
+        sourceAssigningAuthorityColumnHandler,
+        uuidColumnHandler
     }) {
         super();
 
-        /**
-         * @type {MergeManager}
-         */
-        this.mergeManager = mergeManager;
-        assertTypeEquals(mergeManager, MergeManager);
+        if (configManager.enableMergeFastSerializer) {
+            this.mergeManager = fastMergeManager;
+            assertTypeEquals(this.mergeManager, FastMergeManager);
+        } else {
+            this.mergeManager = mergeManager;
+            assertTypeEquals(this.mergeManager, MergeManager);
+        }
 
         /**
          * @type {PreSaveManager}
@@ -56,15 +68,26 @@ class MergeResourceValidator extends BaseValidator {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+        /**
+         * @type {SourceAssigningAuthorityColumnHandler}
+         */
+        this.sourceAssigningAuthorityColumnHandler = sourceAssigningAuthorityColumnHandler;
+        assertTypeEquals(sourceAssigningAuthorityColumnHandler, SourceAssigningAuthorityColumnHandler);
+        /**
+         * @type {UuidColumnHandler}
+         */
+        this.uuidColumnHandler = uuidColumnHandler;
+        assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
     }
 
     /**
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource|Resource[]} incomingResources
      * @param {string} base_version
+     * @param {boolean} effectiveSmartMerge
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ requestInfo, incomingResources, base_version }) {
+    async validate ({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
         // Merge duplicate resources from the incomingObjects array
         incomingResources = this.mergeManager.mergeDuplicateResourceEntries(incomingResources);
         /**
@@ -74,7 +97,13 @@ class MergeResourceValidator extends BaseValidator {
         /**
          * @type {Resource[]}
          */
-        let resourcesIncomingArray = FhirResourceCreator.createArray(incomingResources);
+        let resourcesIncomingArray;
+
+        if (this.configManager.enableMergeFastSerializer) {
+            resourcesIncomingArray = wasIncomingAList ? incomingResources : [incomingResources];
+        } else {
+            resourcesIncomingArray = FhirResourceCreator.createArray(incomingResources);
+        }
 
         resourcesIncomingArray = resourcesIncomingArray.map(resource => {
             if (resource.id) {
@@ -112,7 +141,13 @@ class MergeResourceValidator extends BaseValidator {
                     resource._uuid = resource.id;
                 } else {
                     try {
-                        resource = await this.preSaveManager.preSaveAsync({ resource });
+                        if (this.configManager.updateMergeValidations) {
+                            // we only need to generate uuid here and all preSave handlers should not be triggered
+                            resource = await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource });
+                            resource = await this.uuidColumnHandler.preSaveAsync({ resource });
+                        } else {
+                            resource = await this.preSaveManager.preSaveAsync({ resource });
+                        }
                     } catch (error) {
                         return { resource: null, mergePreCheckError: MergeResultEntry.createFromError({ error, resource }) };
                     }
@@ -121,14 +156,58 @@ class MergeResourceValidator extends BaseValidator {
             }
         );
 
-        resourcesIncomingArray = preSaveResults
-            .filter(result => result.resource)
-            .map(result => result.resource);
-
-        for (const mergePreCheckError of preSaveResults.map(result => result.mergePreCheckError)) {
-            if (mergePreCheckError) {
-                mergePreCheckErrors.push(mergePreCheckError);
+        resourcesIncomingArray = [];
+        for (const result of preSaveResults) {
+            if (result.mergePreCheckError) {
+                mergePreCheckErrors.push(result.mergePreCheckError);
             }
+            else if (result.resource) {
+                resourcesIncomingArray.push(result.resource);
+            }
+        }
+
+        if (this.configManager.updateMergeValidations) {
+            // validate resources for any additional fields before loading the resources from database
+            // to avoid unnecessary database calls for invalid resources
+            let writeIndex = 0;
+            resourcesIncomingArray.forEach(resource => {
+                // remove uuid & sourceAssigningAuthority before validation since these are internal fields
+                // and should not be validated against the schema
+
+                const resourceUuid = resource._uuid;
+                const resourceSourceAssigningAuthority = resource._sourceAssigningAuthority;
+                delete resource._uuid;
+                delete resource._sourceAssigningAuthority;
+
+                const validationError = validateResource({
+                    resourceBody: resource,
+                    resourceName: resource.resourceType,
+                    path: requestInfo.path,
+                    // we only want to exclude required field errors when effectiveSmartMerge is true.
+                    // when its false, we expect all fields to be present
+                    excludeRequiredFieldErrors: effectiveSmartMerge
+                });
+
+                // add uuid and sourceAssigningAuthority back to the resource after validation
+                resource._uuid = resourceUuid;
+                resource._sourceAssigningAuthority = resourceSourceAssigningAuthority;
+
+                if (validationError) {
+                    mergePreCheckErrors.push(new MergeResultEntry({
+                        id: resource.id,
+                        uuid: resource._uuid,
+                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType,
+                        created: false,
+                        updated: false,
+                        issue: (validationError.issue && validationError.issue.length > 0) ? validationError.issue[0] : null,
+                        operationOutcome: validationError
+                    }));
+                } else {
+                    resourcesIncomingArray[writeIndex++] = resource;
+                }
+            });
+            resourcesIncomingArray.length = writeIndex;
         }
 
         // Load the resources from the database

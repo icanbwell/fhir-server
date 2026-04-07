@@ -1,6 +1,8 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const { generateUUIDv5 } = require('../../utils/uid.util');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 /**
  * @classdesc If sourceAssigningAuthority meta tag is not present, this sets the first owner tag to be
@@ -31,10 +33,18 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
                 sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
                 // add security tags
                 if (sourceAssigningAuthorityCodes.length > 0) {
-                    resource.meta.security.push(new Coding({
-                        system: SecurityTagSystem.sourceAssigningAuthority,
-                        code: sourceAssigningAuthorityCodes[0]
-                    }));
+                    if (resource instanceof Resource) {
+                        resource.meta.security.push(new Coding({
+                            system: SecurityTagSystem.sourceAssigningAuthority,
+                            code: sourceAssigningAuthorityCodes[0]
+                        }));
+                    } else {
+                        resource.meta.security.push({
+                            id: generateUUIDv5(`${SecurityTagSystem.sourceAssigningAuthority}|${sourceAssigningAuthorityCodes[0]}`),
+                            system: SecurityTagSystem.sourceAssigningAuthority,
+                            code: sourceAssigningAuthorityCodes[0]
+                        });
+                    }
                 }
             } else {
                 sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));

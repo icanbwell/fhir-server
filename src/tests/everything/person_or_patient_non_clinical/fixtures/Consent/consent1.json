@@ -41,10 +41,12 @@
       {
         "id": "Patient/24a5930e-11b4-5525-b482-669174917044",
         "role": {
-          "coding": {
-            "system": "http://www.icanbwell.com/proa",
-            "code": "dependents"
-          }
+          "coding": [
+            {
+              "system": "http://www.icanbwell.com/proa",
+              "code": "dependents"
+            }
+          ]
         },
         "reference": {
           "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"

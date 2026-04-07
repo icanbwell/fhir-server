@@ -5,9 +5,10 @@ const JSONValidator = require('@asymmetrik/fhir-json-schema-validator');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
-const { validateReferences } = require('./referenceValidator');
+const { validateReferences, fastValidateReferences } = require('./referenceValidator');
 
 const generatedSchema = require('../fhir/fhir-generated.schema.json');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 /**
  * By default, ajv uses fhir.json.schema but only returns first error it finds.
@@ -34,9 +35,10 @@ const fhirGeneratedValidator = new JSONValidator(generatedSchema, validatorConfi
  * @param {string} resourceName - name of resource in url
  * @param {string} path - req.path from express
  * @param {Object} resourceObj - fhir resource object
+ * @param {boolean} excludeRequiredFieldErrors - whether to exclude required field errors from validation results. This is used in merge operation where we want to allow missing required fields as long as they are present in the other resource being merged.
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource ({ resourceBody, resourceName, path, resourceObj = null }) {
+function validateResource ({ resourceBody, resourceName, path, resourceObj = null, excludeRequiredFieldErrors = false }) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -52,10 +54,26 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
         });
     }
 
-    const errors = fhirGeneratedValidator.validate(resourceBody);
-    const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
+    let errors = fhirGeneratedValidator.validate(resourceBody);
+
+    let referenceErrors = null;
+
+    if (resourceObj) {
+        if (resourceObj instanceof Resource) {
+            referenceErrors = validateReferences(resourceObj);
+        } else {
+            referenceErrors = fastValidateReferences(resourceObj);
+        }
+    }
     let issue;
     if (errors && errors.length) {
+        if (excludeRequiredFieldErrors) {
+            // when excluding required field errors, we want to exclude both 'required' keyword errors
+            // and 'oneOf' errors that are caused by missing required fields in one of the schemas
+            // in a oneOf. So we filter out 'required' errors and 'oneOf' errors.
+            errors = errors.filter((e) => e.keyword !== 'required' && e.keyword !== 'oneOf');
+        }
+
         issue = errors.map((elm) => {
             return new OperationOutcomeIssue({
                 severity: 'error',

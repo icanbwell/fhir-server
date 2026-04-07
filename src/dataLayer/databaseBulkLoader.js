@@ -5,6 +5,7 @@ const { assertTypeEquals } = require('../utils/assertType');
 const { RethrownError } = require('../utils/rethrownError');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { ConfigManager } = require('../utils/configManager');
+const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -121,9 +122,17 @@ class DatabaseBulkLoader {
             const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources });
 
             /**
-             * @type {Resource[]}
+             * @type {Resource[]|Object[]}
              */
-            const foundResources = await this.cursorToResourcesAsync({ cursor });
+            let foundResources = [];
+
+            if (this.configManager.enableMergeFastSerializer) {
+                foundResources = await cursor.toArrayAsync();
+                foundResources = FhirResourceWriteSerializer.serializeArray({obj: foundResources});
+            } else {
+                foundResources = await this.cursorToResourcesAsync({ cursor });
+            }
+
             return { resourceType, resources: foundResources };
         } catch (e) {
             throw new RethrownError({

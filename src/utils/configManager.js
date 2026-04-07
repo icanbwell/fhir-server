@@ -1,4 +1,4 @@
-const {isTrue} = require('./isTrue');
+const {isTrue, isTrueWithFallback} = require('./isTrue');
 const {DEFAULT_CACHE_EXPIRY_TIME, CONSENT_CATEGORY} = require('../constants');
 const { DEFAULT_CLICKHOUSE } = require('../constants/groupConstants');
 
@@ -385,7 +385,16 @@ class ConfigManager {
      * @returns {string[]}
      */
     get enabledGridFsResources() {
-        return env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
+        const gridFsResources = env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
+        // restrict gridFs resources to DocumentReference when fast serializer in merge
+        if (
+            this.enableMergeFastSerializer &&
+            (gridFsResources.length > 1 ||
+            (gridFsResources.length === 1 && gridFsResources[0] !== 'DocumentReference'))
+        ) {
+            throw new Error('Only DocumentReference is supported as a GridFS resource');
+        }
+        return gridFsResources;
     }
 
     /**
@@ -613,6 +622,30 @@ class ConfigManager {
      */
     get mergeParallelChunkSize() {
         return parseInt(env.MERGE_PARALLEL_CHUNK_SIZE) || 50;
+    }
+
+    /**
+     * whether to enable fast serializer in merge operation
+     * @returns {boolean}
+     */
+    get enableMergeFastSerializer() {
+        return isTrue(env.ENABLE_MERGE_FAST_SERIALIZER);
+    }
+
+    /**
+     * whether to verify resource before write in merge operation
+     * @returns {boolean}
+     */
+    get verifyResourceBeforeWrite() {
+        return this.enableMergeFastSerializer && isTrueWithFallback(env.VERIFY_RESOURCE_BEFORE_WRITE, true);
+    }
+
+    /**
+     * whether to enable the new validations in merge operation
+     * @returns {boolean}
+     */
+    get updateMergeValidations() {
+        return this.enableMergeFastSerializer && isTrueWithFallback(env.UPDATE_MERGE_VALIDATIONS, true);
     }
 
     /**

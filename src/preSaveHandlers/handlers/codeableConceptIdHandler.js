@@ -1,9 +1,9 @@
 const { PreSaveHandler } = require('./preSaveHandler');
-const CodeableConcept = require("../../fhir/classes/4_0_0/complex_types/codeableConcept");
 const Coding = require("../../fhir/classes/4_0_0/complex_types/coding")
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { ConfigManager } = require('../../utils/configManager');
 const { assertTypeEquals } = require('../../utils/assertType');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 /**
  * @classdesc Converts date field from string to Date()
@@ -33,6 +33,8 @@ class CodeableConceptIdHandler extends PreSaveHandler {
      */
     async preSaveAsync ({ resource }) {
         if (
+            // to be skipped if not instance of Resource class for write serializer
+            !(resource instanceof Resource) ||
             !this.configManager.preSaveCodingIdUpdateResources.some(
                 (e) => e === resource.resourceType || e === 'Resource'
             )

@@ -5,6 +5,7 @@ const {AccessLogger} = require('./utils/accessLogger');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
 const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
+const {FastDatabaseBulkInserter} = require('./dataLayer/fastDatabaseBulkInserter');
 const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
 const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
@@ -140,6 +141,7 @@ const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
+const { FastMergeManager } = require('./operations/merge/fastMergeManager');
 
 /**
  * Creates a container and sets up all the services
@@ -203,17 +205,19 @@ const createContainer = function () {
             new SourceIdColumnHandler(),
             new AccessColumnHandler(),
             new OwnerColumnHandler(),
-            new SourceAssigningAuthorityColumnHandler(),
+            c.sourceAssigningAuthorityColumnHandler,
             new CodeableConceptIdHandler({
                 configManager: c.configManager
             }),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
-            new UuidColumnHandler(),
+            c.uuidColumnHandler,
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
             new ReferenceGlobalIdHandler()
         ]
     }));
+    container.register('sourceAssigningAuthorityColumnHandler', (_c) => new SourceAssigningAuthorityColumnHandler());
+    container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
     }));
@@ -362,7 +366,6 @@ const createContainer = function () {
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
         {
             resourceLocatorFactory: c.resourceLocatorFactory,
-            databaseAttachmentManager: c.databaseAttachmentManager,
             storageProviderFactory: c.storageProviderFactory
         }));
     container.register('databaseHistoryFactory', (c) => new DatabaseHistoryFactory(
@@ -459,29 +462,67 @@ const createContainer = function () {
         )
     );
 
+    container.register('fastMergeManager', (c) => new FastMergeManager(
+            {
+                databaseQueryFactory: c.databaseQueryFactory,
+                auditLogger: c.auditLogger,
+                databaseBulkInserter: c.fastDatabaseBulkInserter,
+                databaseBulkLoader: c.databaseBulkLoader,
+                scopesManager: c.scopesManager,
+                scopesValidator: c.scopesValidator,
+                resourceMerger: c.resourceMerger,
+                resourceValidator: c.resourceValidator,
+                preSaveManager: c.preSaveManager,
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                postRequestProcessor: c.postRequestProcessor
+            }
+        )
+    );
+
     container.register('mergeValidator', (c) => new MergeValidator(
         {
             validators: [
-                new BundleResourceValidator({
-                    resourceValidator: c.resourceValidator
+                new BundleResourceValidator(),
+                new ParametersResourceValidator({
+                    configManager: c.configManager
                 }),
-                new ParametersResourceValidator(),
                 new MergeResourceValidator({
                     mergeManager: c.mergeManager,
+                    fastMergeManager: c.fastMergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,
                     preSaveManager: c.preSaveManager,
                     configManager: c.configManager,
-                    resourceValidator: c.resourceValidator
+                    resourceValidator: c.resourceValidator,
+                    sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
+                    uuidColumnHandler: c.uuidColumnHandler
                 }),
                 new WriteAllowedByScopesValidator({
                     scopesValidator: c.scopesValidator,
                     databaseBulkLoader: c.databaseBulkLoader
                 })
-            ]
+            ],
+            configManager: c.configManager
         }
     ));
 
     container.register('databaseBulkInserter', (c) => new DatabaseBulkInserter(
+            {
+                resourceManager: c.resourceManager,
+                postRequestProcessor: c.postRequestProcessor,
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                postSaveProcessor: c.postSaveProcessor,
+                preSaveManager: c.preSaveManager,
+                requestSpecificCache: c.requestSpecificCache,
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
+            }
+        )
+    );
+
+    container.register('fastDatabaseBulkInserter', (c) => new FastDatabaseBulkInserter(
             {
                 resourceManager: c.resourceManager,
                 postRequestProcessor: c.postRequestProcessor,
@@ -670,9 +711,10 @@ const createContainer = function () {
     container.register('mergeOperation', (c) => new MergeOperation(
         {
             mergeManager: c.mergeManager,
+            fastMergeManager: c.fastMergeManager,
             postRequestProcessor: c.postRequestProcessor,
-            databaseBulkLoader: c.databaseBulkLoader,
             databaseBulkInserter: c.databaseBulkInserter,
+            fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,

@@ -4,16 +4,33 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
+const { FhirResourceWriteSerializer } = require('../../../fhir/fhirResourceWriteSerializer');
+const { parametersSerializer } = require('../../../fhir/writeSerializers/4_0_0/resources');
+const { ConfigManager } = require('../../../utils/configManager');
+const { assertTypeEquals } = require('../../../utils/assertType');
 
 class ParametersResourceValidator extends BaseValidator {
     /**
+     * @param {ConfigManager} configManager
+     */
+    constructor({ configManager }) {
+        super();
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
+
+    /**
      * @param {FhirRequestInfo} requestInfo
-     * @param {string} currentOperationName
      * @param {Resource|Resource[]} incomingResources
      * @param {string} base_version
+     * @param {boolean} effectiveSmartMerge
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ requestInfo, currentOperationName, incomingResources, base_version }) {
+    async validate ({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
         /**
          * @type {MergeResultEntry[]}
          */
@@ -30,7 +47,20 @@ class ParametersResourceValidator extends BaseValidator {
             /**
              * @type {Parameters}
              */
-            const parametersResource = new Parameters(incomingObject);
+            let parametersResource;
+
+            if (this.configManager.enableMergeFastSerializer) {
+                if (this.configManager.updateMergeValidations) {
+                    parametersResource = incomingObject;
+                } else {
+                    parametersResource = FhirResourceWriteSerializer.serialize({
+                        obj: incomingObject,
+                        SerializerClass: parametersSerializer
+                    });
+                }
+            } else {
+                parametersResource = new Parameters(incomingObject);
+            }
             if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                 /**
                  * @type {OperationOutcome}

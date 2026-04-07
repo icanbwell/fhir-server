@@ -1,7 +1,7 @@
 const { BaseFhirResourceSerializer } = require('../../../baseFhirResourceSerializer');
 const { FhirResourceWriteSerializer } = require('../../../fhirResourceWriteSerializer');
 const { FhirResourceWriteNormalizeSerializer } = require('../../../fhirResourceWriteNormalizeSerializer');
-const {FhirResourceReadSerializer} = require('../../../fhirResourceReadSerializer');
+const { FhirResourceReadSerializer } = require('../../../fhirResourceReadSerializer');
 
 /**
  * BaseSerializer class to be used as a base for all serializers
@@ -85,9 +85,15 @@ class BaseSerializer {
      */
     writeSerialize(obj, context = {}) {
         // mergeTodo - update to remove empty dict
-        if (!obj || typeof obj !== 'object') return {};
+        if (!obj || typeof obj !== 'object') return null;
 
-        return this.baseSerialize(FhirResourceWriteSerializer, this.allPropertyToSerializerMap, obj, context);
+        const serializedObj = this.baseSerialize(FhirResourceWriteSerializer, this.allPropertyToSerializerMap, obj, context);
+
+        if (Object.keys(serializedObj).length === 0) {
+            return null;
+        }
+
+        return serializedObj;
     }
 
     /**
@@ -97,9 +103,15 @@ class BaseSerializer {
      * @returns {Object} Normalized object
      */
     writeNormalize(obj, context = {}) {
-        if (!obj || typeof obj !== 'object') return {};
+        if (!obj || typeof obj !== 'object') return null;
 
-        return this.baseSerialize(FhirResourceWriteNormalizeSerializer, this.fhirPropertyToSerializerMap, obj, context);
+        const normalizedObj = this.baseSerialize(FhirResourceWriteNormalizeSerializer, this.fhirPropertyToSerializerMap, obj, context);
+
+        if (Object.keys(normalizedObj).length === 0) {
+            return null;
+        }
+
+        return normalizedObj;
     }
 
     /**
@@ -118,7 +130,13 @@ class BaseSerializer {
             return false;
         };
 
-        return this.baseSerialize(FhirResourceReadSerializer, this.fhirPropertyToSerializerMap, obj, context, isEmptyFunction);
+        return this.baseSerialize(
+            FhirResourceReadSerializer,
+            this.fhirPropertyToSerializerMap,
+            obj,
+            context,
+            isEmptyFunction
+        );
     }
 }
 

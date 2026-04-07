@@ -9,6 +9,8 @@ const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { getImageVersion } = require('./utils/getImageVersion');
+const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
+const { BaseFhirResourceSerializer } = require('./fhir/baseFhirResourceSerializer');
 
 Sentry.init({
     release: getImageVersion(),
@@ -27,6 +29,10 @@ const main = async function () {
     try {
         initialize();
         const container = createContainer();
+        // Initialize configManager for all serializers
+        BaseSerializer.setConfigManager(container.configManager);
+        BaseFhirResourceSerializer.setConfigManager(container.configManager);
+
         await createServer(() => container);
         // Initialize cron tasks processor for processing scheduled tasks
         await container.cronTasksProcessor.initiateTasks();
