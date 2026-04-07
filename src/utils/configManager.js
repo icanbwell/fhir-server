@@ -1238,6 +1238,38 @@ class ConfigManager {
         return isTrue(env.HISTORY_SYNC_DELETE_FROM_MONGO);
     }
 
+    /**
+     * Batch size for ClickHouse inserts during AuditEvent sync
+     * @returns {number}
+     */
+    get auditEventSyncBatchSize() {
+        return parseInt(env.AUDIT_EVENT_SYNC_BATCH_SIZE || '50000', 10);
+    }
+
+    /**
+     * Whether to delete AuditEvent documents from MongoDB after syncing to ClickHouse
+     * @returns {boolean}
+     */
+    get auditEventSyncDeleteFromMongo() {
+        return isTrue(env.AUDIT_EVENT_SYNC_DELETE_FROM_MONGO);
+    }
+
+    /**
+     * Batch size for ClickHouse inserts during access logs sync
+     * @returns {number}
+     */
+    get accessLogsSyncBatchSize() {
+        return parseInt(env.ACCESS_LOGS_SYNC_BATCH_SIZE || '100000', 10);
+    }
+
+    /**
+     * Whether to delete access log documents from MongoDB after syncing to ClickHouse
+     * @returns {boolean}
+     */
+    get accessLogsSyncDeleteFromMongo() {
+        return isTrue(env.ACCESS_LOGS_SYNC_DELETE_FROM_MONGO);
+    }
+
 }
 
 module.exports = {

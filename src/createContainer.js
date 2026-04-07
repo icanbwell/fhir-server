@@ -1103,28 +1103,45 @@ const createContainer = function () {
         redisClient: c.redisClient
     }));
 
-    // --- History Sync Consumer ---
-    const { CheckpointManager } = require('./consumers/historySync/checkpointManager');
-    const { HistorySyncTransformer } = require('./consumers/historySync/historySyncTransformer');
-    const { HistorySyncJob } = require('./consumers/historySync/historySyncJob');
-    const { HistorySyncConsumer } = require('./consumers/historySync/historySyncConsumer');
+    // --- MongoDB-to-ClickHouse Sync Consumer ---
+    const { CheckpointManager } = require('./consumers/mongoToClickHouseSync/checkpointManager');
+    const { ResourceHistoryTransformer } = require('./consumers/mongoToClickHouseSync/transformers/resourceHistoryTransformer');
+    const { AuditEventTransformer } = require('./consumers/mongoToClickHouseSync/transformers/auditEventTransformer');
+    const { AccessLogsTransformer } = require('./consumers/mongoToClickHouseSync/transformers/accessLogsTransformer');
+    const { createResourceHistorySyncProfile } = require('./consumers/mongoToClickHouseSync/syncProfiles/resourceHistorySyncProfile');
+    const { createAuditEventSyncProfile } = require('./consumers/mongoToClickHouseSync/syncProfiles/auditEventSyncProfile');
+    const { createAccessLogsSyncProfile } = require('./consumers/mongoToClickHouseSync/syncProfiles/accessLogsSyncProfile');
+    const { SyncJob } = require('./consumers/mongoToClickHouseSync/syncJob');
+    const { SyncConsumer } = require('./consumers/mongoToClickHouseSync/syncConsumer');
 
     container.register('checkpointManager', (c) => new CheckpointManager({
         mergeOperation: c.mergeOperation,
         searchByIdOperation: c.searchByIdOperation,
         r4ArgsParser: c.r4ArgsParser
     }));
-    container.register('historySyncTransformer', () => new HistorySyncTransformer());
-    container.register('historySyncJob', (c) => new HistorySyncJob({
+    container.register('syncProfileRegistry', () => {
+        const registry = new Map();
+        registry.set('resourceHistory', createResourceHistorySyncProfile({
+            transformer: new ResourceHistoryTransformer()
+        }));
+        registry.set('auditEvent', createAuditEventSyncProfile({
+            transformer: new AuditEventTransformer()
+        }));
+        registry.set('accessLogs', createAccessLogsSyncProfile({
+            transformer: new AccessLogsTransformer()
+        }));
+        return registry;
+    });
+    container.register('syncJob', (c) => new SyncJob({
         mongoDatabaseManager: c.mongoDatabaseManager,
         clickHouseClientManager: c.clickHouseClientManager,
         checkpointManager: c.checkpointManager,
-        historySyncTransformer: c.historySyncTransformer,
         configManager: c.configManager
     }));
-    container.register('historySyncConsumer', (c) => new HistorySyncConsumer({
+    container.register('syncConsumer', (c) => new SyncConsumer({
         kafkaClient: c.kafkaClient,
-        historySyncJob: c.historySyncJob,
+        syncJob: c.syncJob,
+        syncProfileRegistry: c.syncProfileRegistry,
         configManager: c.configManager
     }));
 
