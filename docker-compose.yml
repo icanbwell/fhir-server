@@ -124,7 +124,7 @@ services:
     healthcheck:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
-  history-sync-consumer:
+  mongo-to-clickhouse-sync:
     depends_on:
       mongo:
         condition: service_healthy
@@ -138,11 +138,15 @@ services:
       args:
         NODE_ENV: development
     environment:
-      MONGO_URL: 'mongodb://mongo:27017?appName=fhir-history-sync'
+      MONGO_URL: 'mongodb://mongo:27017?appName=fhir-mongo-to-clickhouse-sync'
       MONGO_DB_NAME: fhir
       RESOURCE_HISTORY_MONGO_URL: mongodb://mongo:27017
       RESOURCE_HISTORY_MONGO_DB_NAME: resource-history
-      KAFKA_CLIENT_ID: 'fhir-history-sync'
+      AUDIT_EVENT_MONGO_URL: 'mongodb://mongo:27017'
+      AUDIT_EVENT_MONGO_DB_NAME: fhir
+      ACCESS_LOGS_CLUSTER_MONGO_URL: 'mongodb://mongo:27017'
+      ACCESS_LOGS_MONGO_DB_NAME: fhir
+      KAFKA_CLIENT_ID: 'fhir-mongo-to-clickhouse-sync'
       KAFKA_URLS: 'kafka:9092'
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       HISTORY_SYNC_KAFKA_TOPIC: 'fhir.history_sync.commands'
@@ -151,6 +155,10 @@ services:
       HISTORY_SYNC_CONSUMER_GROUP: 'fhir-history-sync'
       HISTORY_SYNC_MAX_RETRIES: '3'
       HISTORY_SYNC_DELETE_FROM_MONGO: '1'
+      AUDIT_EVENT_SYNC_BATCH_SIZE: '50000'
+      AUDIT_EVENT_SYNC_DELETE_FROM_MONGO: '0'
+      ACCESS_LOGS_SYNC_BATCH_SIZE: '100000'
+      ACCESS_LOGS_SYNC_DELETE_FROM_MONGO: '0'
       CLICKHOUSE_HOST: 'clickhouse'
       CLICKHOUSE_PORT: '8123'
       CLICKHOUSE_DATABASE: 'fhir'
@@ -167,7 +175,7 @@ services:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
       - ./yarn.lock:/srv/src/yarn.lock
-    command: node --watch src/consumers/historySync/index.js
+    command: node --watch src/consumers/mongoToClickHouseSync/index.js
 
   mongo:
     image: mongo:8.0.15
