@@ -142,6 +142,8 @@ const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheK
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 const { FastMergeManager } = require('./operations/merge/fastMergeManager');
+const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
+const deepcopy = require('deepcopy');
 
 /**
  * Creates a container and sets up all the services
@@ -506,6 +508,26 @@ const createContainer = function () {
         }
     ));
 
+    container.register('mongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        configManager: c.configManager,
+        postSaveProcessor: c.postSaveProcessor,
+        postRequestProcessor: c.postRequestProcessor,
+        cloneResource: (resource) => resource.clone(),
+        createUpdateManager: ({resourceType, base_version}) =>
+            c.databaseUpdateFactory.createDatabaseUpdateManager({resourceType, base_version})
+    }));
+
+    container.register('fastMongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        configManager: c.configManager,
+        postSaveProcessor: c.postSaveProcessor,
+        postRequestProcessor: c.postRequestProcessor,
+        cloneResource: (resource) => deepcopy(resource),
+        createUpdateManager: ({resourceType, base_version}) =>
+            c.databaseUpdateFactory.createFastDatabaseUpdateManager({resourceType, base_version})
+    }));
+
     container.register('databaseBulkInserter', (c) => new DatabaseBulkInserter(
             {
                 resourceManager: c.resourceManager,
@@ -517,7 +539,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                bulkWriteExecutors: [c.mongoBulkWriteExecutor]
             }
         )
     );
@@ -533,7 +556,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                bulkWriteExecutors: [c.fastMongoBulkWriteExecutor]
             }
         )
     );
