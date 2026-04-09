@@ -649,6 +649,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to enable logging of validation errors in updated merge operation
+     * @returns {boolean}
+     */
+    get logUpdatedMergeValidations() {
+        return this.updateMergeValidations && isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
+    }
+
+    /**
      * returns cron expression for postRequest processes
      * @returns {string}
      */

@@ -13,6 +13,7 @@ const { FastMergeManager } = require('../fastMergeManager');
 const { validateResource } = require('../../../utils/validator.util');
 const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
+const { logError } = require('../../common/logging');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -193,6 +194,16 @@ class MergeResourceValidator extends BaseValidator {
                 resource._sourceAssigningAuthority = resourceSourceAssigningAuthority;
 
                 if (validationError) {
+                    if (this.configManager.logUpdatedMergeValidations) {
+                        logError('Updated merge validation error for resource', {
+                            originService: requestInfo.headers['origin-service'] || 'unknown',
+                            resourceType: resource.resourceType,
+                            id: resource.id,
+                            uuid: resource._uuid,
+                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                            operationOutcome: validationError
+                        });
+                    }
                     mergePreCheckErrors.push(new MergeResultEntry({
                         id: resource.id,
                         uuid: resource._uuid,
