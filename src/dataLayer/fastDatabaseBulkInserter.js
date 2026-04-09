@@ -133,6 +133,13 @@ class FastDatabaseBulkInserter extends EventEmitter {
          * @type {BulkWriteExecutor[]}
          */
         this.bulkWriteExecutors = bulkWriteExecutors || [];
+        assertIsValid(Array.isArray(this.bulkWriteExecutors), 'bulkWriteExecutors must be an array');
+        for (const executor of this.bulkWriteExecutors) {
+            assertIsValid(
+                executor && typeof executor.canHandle === 'function' && typeof executor.executeBulkAsync === 'function',
+                'Each bulkWriteExecutor must implement canHandle and executeBulkAsync'
+            );
+        }
     }
 
     /**
@@ -869,7 +876,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
     }) {
         const executor = this.bulkWriteExecutors.find(e => e.canHandle(resourceType));
         if (!executor) {
-            throw new Error(`No BulkWriteExecutor registered for resourceType=${resourceType}`);
+            const available = this.bulkWriteExecutors
+                .map(e => e.constructor.name)
+                .join(', ') || 'none';
+            throw new Error(
+                `No BulkWriteExecutor registered for resourceType=${resourceType}. Available: ${available}`
+            );
         }
         return executor.executeBulkAsync({
             resourceType, operations, requestInfo, base_version,
