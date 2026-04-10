@@ -1551,7 +1551,7 @@ class EverythingHelper {
                     startResource, RETRIEVE
                 );
                 if (startResource?.resourceType === 'Composition') {
-                    filterCompositionSensitiveSections(startResource, { configManager: this.configManager, userType: requestInfo?.userType });
+                    filterCompositionSensitiveSections(startResource, { configManager: this.configManager, userType: requestInfo.userType });
                 }
                 let current_entity = {
                     id: startResource._sourceId,

@@ -22,28 +22,31 @@ function filterCompositionSections(sections) {
         return sections;
     }
 
-    return sections
-        .filter((section) => !sectionHasSensitiveCoding(section))
-        .map((section) => {
-            if (section.section) {
-                section.section = filterCompositionSections(section.section);
-            }
-            return section;
-        });
+    const result = [];
+    for (const section of sections) {
+        if (sectionHasSensitiveCoding(section)) {
+            continue;
+        }
+        if (section.section) {
+            section.section = filterCompositionSections(section.section);
+        }
+        result.push(section);
+    }
+    return result;
 }
 
 /**
  * If composition-sensitive-section filtering is enabled and the user is a delegated user,
- * strips sensitive sections from rawJson in place.
- * @param {Object} rawJson
+ * strips sensitive sections from resource in place.
+ * @param {Object} resource
  * @param {{configManager: ConfigManager, userType: string}} context
  */
-function filterCompositionSensitiveSections(rawJson, context) {
-    if (!context.configManager?.enableCompositionSensitiveSectionFiltering || context.userType !== AUTH_USER_TYPES.delegatedUser || !rawJson?.section) {
+function filterCompositionSensitiveSections(resource, context) {
+    if (!context.configManager?.enableCompositionSensitiveSectionFiltering || context.userType !== AUTH_USER_TYPES.delegatedUser || !resource?.section) {
         return;
     }
 
-    rawJson.section = filterCompositionSections(rawJson.section);
+    resource.section = filterCompositionSections(resource.section);
 }
 
 /**
@@ -60,7 +63,6 @@ function filterCompositionSensitiveSectionsFromResources(resources, context) {
 }
 
 module.exports = {
-    filterCompositionSections,
     filterCompositionSensitiveSections,
     filterCompositionSensitiveSectionsFromResources
 };

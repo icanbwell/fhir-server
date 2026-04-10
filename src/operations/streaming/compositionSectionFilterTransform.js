@@ -7,10 +7,11 @@ const { filterCompositionSensitiveSections } = require('../../utils/compositionS
 class CompositionSectionFilterTransform extends Transform {
     /**
      * Filters sensitive sections from Composition resources flowing through the stream
-     * @param {ConfigManager} configManager
-     * @param {string} userType
-     * @param {AbortSignal} signal
-     * @param {number} highWaterMark
+     * @param {Object} params
+     * @param {ConfigManager} params.configManager
+     * @param {string} params.userType
+     * @param {AbortSignal} params.signal
+     * @param {number} params.highWaterMark
      */
     constructor ({ configManager, userType, signal, highWaterMark }) {
         super({ objectMode: true, highWaterMark });
