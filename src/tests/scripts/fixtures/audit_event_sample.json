@@ -7,7 +7,21 @@
     "meta": {
         "versionId": "1",
         "lastUpdated": "2024-06-15T10:30:00.000Z",
-        "source": "https://www.icanbwell.com/fhir-server"
+        "source": "https://www.icanbwell.com/fhir-server",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "bwell"
+            }
+        ]
     },
     "type": {
         "system": "http://dicom.nema.org/resources/ontology/DCM",
@@ -27,10 +41,14 @@
     "agent": [
         {
             "who": {
-                "reference": "Practitioner/prac-123"
+                "reference": "Practitioner/prac-123",
+                "_uuid": "Practitioner/prac-uuid-123",
+                "_sourceId": "Practitioner/prac-123",
+                "_sourceAssigningAuthority": "bwell"
             },
             "name": "Dr. Smith",
             "altId": "alt-prac-123",
+            "requestor": true,
             "role": [
                 {
                     "coding": [
@@ -49,9 +67,11 @@
         },
         {
             "who": {
-                "reference": "Device/device-456"
+                "reference": "Device/device-456",
+                "_uuid": "Device/device-uuid-456"
             },
             "name": "FHIR Server",
+            "requestor": false,
             "network": {
                 "address": "10.0.0.1"
             }
@@ -66,7 +86,8 @@
     "entity": [
         {
             "what": {
-                "reference": "Patient/patient-789"
+                "reference": "Patient/patient-789",
+                "_uuid": "Patient/patient-uuid-789"
             },
             "name": "Patient Search",
             "type": {
@@ -80,7 +101,8 @@
         },
         {
             "what": {
-                "reference": "Encounter/enc-012"
+                "reference": "Encounter/enc-012",
+                "_uuid": "Encounter/enc-uuid-012"
             },
             "type": {
                 "system": "http://hl7.org/fhir/resource-types",

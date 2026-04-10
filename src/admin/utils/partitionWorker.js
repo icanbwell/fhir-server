@@ -7,7 +7,7 @@
 
 const { ObjectId } = require('mongodb');
 const { AuditEventTransformer } = require('./auditEventTransformer');
-const { logWarn } = require('../../operations/common/logging');
+const { logInfo, logWarn } = require('../../operations/common/logging');
 
 class PartitionWorker {
     /**
@@ -19,7 +19,14 @@ class PartitionWorker {
      * @param {number} params.batchSize
      * @param {boolean} params.dryRun
      */
-    constructor({ sourceDb, collectionName, clickHouseClientManager, stateManager, batchSize, dryRun }) {
+    constructor({
+        sourceDb,
+        collectionName,
+        clickHouseClientManager,
+        stateManager,
+        batchSize,
+        dryRun
+    }) {
         this.sourceDb = sourceDb;
         this.collectionName = collectionName;
         this.clickHouseClientManager = clickHouseClientManager;
@@ -78,6 +85,15 @@ class PartitionWorker {
                 batch.push(doc);
 
                 if (batch.length >= this.batchSize) {
+                    logInfo('Batch insert starting', {
+                        partitionDay,
+                        batchSize: batch.length,
+                        firstId: batch[0]._id.toString(),
+                        firstRecorded: batch[0].recorded,
+                        lastId: batch[batch.length - 1]._id.toString(),
+                        lastRecorded: batch[batch.length - 1].recorded
+                    });
+
                     const result = await this._processBatchAsync(batch);
                     insertedCount += result.inserted;
                     skippedCount += result.skipped;
@@ -97,6 +113,15 @@ class PartitionWorker {
 
             // Process remaining docs
             if (batch.length > 0) {
+                logInfo('Batch insert starting', {
+                    partitionDay,
+                    batchSize: batch.length,
+                    firstId: batch[0]._id.toString(),
+                    firstRecorded: batch[0].recorded,
+                    lastId: batch[batch.length - 1]._id.toString(),
+                    lastRecorded: batch[batch.length - 1].recorded
+                });
+
                 const result = await this._processBatchAsync(batch);
                 insertedCount += result.inserted;
                 skippedCount += result.skipped;
@@ -159,10 +184,16 @@ class PartitionWorker {
                 return;
             } catch (error) {
                 if (attempt === maxRetries) {
-                    throw new Error(`ClickHouse insert failed after ${maxRetries} attempts: ${error.message}`);
+                    throw new Error(
+                        `ClickHouse insert failed after ${maxRetries} attempts: ${error.message}`
+                    );
                 }
-                logWarn('ClickHouse insert failed, retrying', { attempt, delay, error: error.message });
-                await new Promise(resolve => setTimeout(resolve, delay));
+                logWarn('ClickHouse insert failed, retrying', {
+                    attempt,
+                    delay,
+                    error: error.message
+                });
+                await new Promise((resolve) => setTimeout(resolve, delay));
                 delay *= 2;
             }
         }
@@ -175,8 +206,7 @@ class PartitionWorker {
      * @returns {Promise<number>}
      */
     async _getExistingInsertedCountAsync(partitionDay) {
-        const states = await this.stateManager.getAllStatesAsync();
-        const state = states.find(s => s.partition_day === partitionDay);
+        const state = await this.stateManager.getStateForDayAsync(partitionDay);
         return Number(state?.inserted_count) || 0;
     }
 }

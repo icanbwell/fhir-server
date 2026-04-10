@@ -1,6 +1,10 @@
 /**
  * Manages migration state in ClickHouse table fhir.audit_event_migration_state.
  * Tracks per-day partition progress for resume-safe bulk migration.
+ *
+ * Table uses ReplacingMergeTree(updated_at) — all state updates are INSERTs
+ * (not ALTER TABLE UPDATE mutations). Query with FINAL to get latest state.
+ * DDL: clickhouse-init/03-audit-event-migration-state.sql
  */
 
 class MigrationStateManager {
@@ -14,42 +18,21 @@ class MigrationStateManager {
     }
 
     /**
-     * Ensures the state table exists
-     * @returns {Promise<void>}
-     */
-    async initAsync() {
-        await this.clickHouseClientManager.queryAsync({
-            query: `CREATE TABLE IF NOT EXISTS ${this.table} (
-                partition_day     String,
-                status            LowCardinality(String),
-                source_count      UInt64 DEFAULT 0,
-                inserted_count    UInt64 DEFAULT 0,
-                last_mongo_id     String DEFAULT '',
-                started_at        Nullable(DateTime64(3, 'UTC')),
-                completed_at      Nullable(DateTime64(3, 'UTC')),
-                error_message     String DEFAULT '',
-                updated_at        DateTime64(3, 'UTC')
-            ) ENGINE = MergeTree()
-            ORDER BY (partition_day)`
-        });
-    }
-
-    /**
      * Seeds all partition days as 'pending', skipping any that already exist
      * @param {string[]} days - Array of 'YYYY-MM-DD' strings
      * @returns {Promise<number>} Number of new partitions seeded
      */
     async seedPartitionsAsync(days) {
         const existing = await this.getAllStatesAsync();
-        const existingDays = new Set(existing.map(s => s.partition_day));
+        const existingDays = new Set(existing.map((s) => s.partition_day));
 
-        const newDays = days.filter(d => !existingDays.has(d));
+        const newDays = days.filter((d) => !existingDays.has(d));
         if (newDays.length === 0) {
             return 0;
         }
 
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        const rows = newDays.map(day => ({
+        const rows = newDays.map((day) => ({
             partition_day: day,
             status: 'pending',
             source_count: 0,
@@ -72,7 +55,7 @@ class MigrationStateManager {
 
     /**
      * Gets all partition states
-     * @returns {Promise<Array<{partition_day: string, status: string, source_count: number, inserted_count: number, last_mongo_id: string, error_message: string}>>}
+     * @returns {Promise<Array>}
      */
     async getAllStatesAsync() {
         return this.clickHouseClientManager.queryAsync({
@@ -81,7 +64,21 @@ class MigrationStateManager {
     }
 
     /**
-     * Gets partitions that need processing (pending or in_progress for resume)
+     * Gets state for a single partition day
+     * @param {string} partitionDay
+     * @returns {Promise<Object|undefined>}
+     */
+    async getStateForDayAsync(partitionDay) {
+        const results = await this.clickHouseClientManager.queryAsync({
+            query: `SELECT * FROM ${this.table} FINAL
+                    WHERE partition_day = {day:String}`,
+            query_params: { day: partitionDay }
+        });
+        return results[0];
+    }
+
+    /**
+     * Gets partitions that need processing (pending, in_progress, or failed)
      * @returns {Promise<Array<{partition_day: string, status: string, last_mongo_id: string}>>}
      */
     async getPendingPartitionsAsync() {
@@ -100,14 +97,23 @@ class MigrationStateManager {
      */
     async markInProgressAsync(partitionDay) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        await this.clickHouseClientManager.queryAsync({
-            query: `ALTER TABLE ${this.table}
-                    UPDATE status = 'in_progress',
-                           started_at = {now:DateTime64(3, 'UTC')},
-                           error_message = '',
-                           updated_at = {now2:DateTime64(3, 'UTC')}
-                    WHERE partition_day = {day:String}`,
-            query_params: { day: partitionDay, now: now, now2: now }
+        const current = await this.getStateForDayAsync(partitionDay);
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_day: partitionDay,
+                    status: 'in_progress',
+                    source_count: Number(current?.source_count) || 0,
+                    inserted_count: Number(current?.inserted_count) || 0,
+                    last_mongo_id: current?.last_mongo_id || '',
+                    started_at: now,
+                    completed_at: null,
+                    error_message: '',
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
         });
     }
 
@@ -121,18 +127,23 @@ class MigrationStateManager {
      */
     async updateCheckpointAsync({ partitionDay, lastMongoId, insertedCount }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        await this.clickHouseClientManager.queryAsync({
-            query: `ALTER TABLE ${this.table}
-                    UPDATE last_mongo_id = {lastId:String},
-                           inserted_count = {count:UInt64},
-                           updated_at = {now:DateTime64(3, 'UTC')}
-                    WHERE partition_day = {day:String}`,
-            query_params: {
-                day: partitionDay,
-                lastId: lastMongoId,
-                count: insertedCount,
-                now: now
-            }
+        const current = await this.getStateForDayAsync(partitionDay);
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_day: partitionDay,
+                    status: 'in_progress',
+                    source_count: Number(current?.source_count) || 0,
+                    inserted_count: insertedCount,
+                    last_mongo_id: lastMongoId,
+                    started_at: current?.started_at || null,
+                    completed_at: null,
+                    error_message: '',
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
         });
     }
 
@@ -146,21 +157,23 @@ class MigrationStateManager {
      */
     async markCompletedAsync({ partitionDay, insertedCount, sourceCount }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        await this.clickHouseClientManager.queryAsync({
-            query: `ALTER TABLE ${this.table}
-                    UPDATE status = 'completed',
-                           inserted_count = {count:UInt64},
-                           source_count = {srcCount:UInt64},
-                           completed_at = {now:DateTime64(3, 'UTC')},
-                           updated_at = {now2:DateTime64(3, 'UTC')}
-                    WHERE partition_day = {day:String}`,
-            query_params: {
-                day: partitionDay,
-                count: insertedCount,
-                srcCount: sourceCount,
-                now: now,
-                now2: now
-            }
+        const current = await this.getStateForDayAsync(partitionDay);
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_day: partitionDay,
+                    status: 'completed',
+                    source_count: sourceCount,
+                    inserted_count: insertedCount,
+                    last_mongo_id: current?.last_mongo_id || '',
+                    started_at: current?.started_at || null,
+                    completed_at: now,
+                    error_message: '',
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
         });
     }
 
@@ -174,19 +187,23 @@ class MigrationStateManager {
      */
     async markFailedAsync({ partitionDay, errorMessage, insertedCount }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        await this.clickHouseClientManager.queryAsync({
-            query: `ALTER TABLE ${this.table}
-                    UPDATE status = 'failed',
-                           error_message = {err:String},
-                           inserted_count = {count:UInt64},
-                           updated_at = {now:DateTime64(3, 'UTC')}
-                    WHERE partition_day = {day:String}`,
-            query_params: {
-                day: partitionDay,
-                err: errorMessage.substring(0, 1000),
-                count: insertedCount,
-                now: now
-            }
+        const current = await this.getStateForDayAsync(partitionDay);
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_day: partitionDay,
+                    status: 'failed',
+                    source_count: Number(current?.source_count) || 0,
+                    inserted_count: insertedCount,
+                    last_mongo_id: current?.last_mongo_id || '',
+                    started_at: current?.started_at || null,
+                    completed_at: null,
+                    error_message: errorMessage.substring(0, 1000),
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
         });
     }
 
@@ -198,12 +215,23 @@ class MigrationStateManager {
      */
     async updateSourceCountAsync(partitionDay, sourceCount) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        await this.clickHouseClientManager.queryAsync({
-            query: `ALTER TABLE ${this.table}
-                    UPDATE source_count = {srcCount:UInt64},
-                           updated_at = {now:DateTime64(3, 'UTC')}
-                    WHERE partition_day = {day:String}`,
-            query_params: { day: partitionDay, srcCount: sourceCount, now: now }
+        const current = await this.getStateForDayAsync(partitionDay);
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_day: partitionDay,
+                    status: current?.status || 'completed',
+                    source_count: sourceCount,
+                    inserted_count: Number(current?.inserted_count) || 0,
+                    last_mongo_id: current?.last_mongo_id || '',
+                    started_at: current?.started_at || null,
+                    completed_at: current?.completed_at || null,
+                    error_message: current?.error_message || '',
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
         });
     }
 

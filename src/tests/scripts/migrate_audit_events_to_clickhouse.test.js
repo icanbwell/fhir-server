@@ -1,73 +1,67 @@
 const { describe, test, expect } = require('@jest/globals');
-const { AuditEventTransformer } = require('../../scripts/lib/auditEventTransformer');
-const { generateDailyPartitions } = require('../../scripts/lib/migrationStateManager');
+const { AuditEventTransformer } = require('../../admin/utils/auditEventTransformer');
+const { generateDailyPartitions } = require('../../admin/utils/migrationStateManager');
 const deepcopy = require('deepcopy');
 const auditEventSample = require('./fixtures/audit_event_sample.json');
 
 describe('AuditEvent Migration', () => {
     describe('AuditEventTransformer', () => {
         describe('transformDocument', () => {
-            test('flattens a full AuditEvent document to ClickHouse row', () => {
+            test('transforms a full AuditEvent document to ClickHouse row matching RFC schema', () => {
                 const transformer = new AuditEventTransformer();
                 const doc = deepcopy(auditEventSample);
                 doc._id = { toString: () => '667890abcdef1234567890ab' };
 
                 const row = transformer.transformDocument(doc);
 
-                // Primary identifiers
-                expect(row.mongo_id).toBe('667890abcdef1234567890ab');
-                expect(row.last_updated).toBe('2024-06-15 10:30:00.000');
+                // Resource identifiers
+                expect(row.id).toBe('audit-001');
+                expect(row._uuid).toBe('audit-uuid-001');
 
-                // Scalars
+                // Primary search param
                 expect(row.recorded).toBe('2024-06-15 10:30:00.000');
+
+                // Frequently filtered
                 expect(row.action).toBe('E');
-                expect(row.outcome).toBe('0');
 
-                // Type
-                expect(row.type_system).toBe('http://dicom.nema.org/resources/ontology/DCM');
-                expect(row.type_code).toBe('110112');
-
-                // Subtype
-                expect(row.subtype_system).toEqual(['http://hl7.org/fhir/restful-interaction']);
-                expect(row.subtype_code).toEqual(['search-type']);
-
-                // Source
-                expect(row.source_observer).toBe('Organization/bwell');
-                expect(row.source_site).toBe('fhir-server-prod');
-
-                // Agent (flattened from 2 agents)
-                expect(row.agent_who).toEqual(['Practitioner/prac-123', 'Device/device-456']);
-                expect(row.agent_name).toEqual(['Dr. Smith', 'FHIR Server']);
-                expect(row.agent_altid).toEqual(['alt-prac-123']);
-                expect(row.agent_role_code).toEqual(['110153']);
-                expect(row.agent_role_system).toEqual(['http://dicom.nema.org/resources/ontology/DCM']);
-                expect(row.agent_policy).toEqual(['urn:policy:consent-abc']);
-                expect(row.agent_network_address).toEqual(['192.168.1.100', '10.0.0.1']);
-
-                // Entity (flattened from 2 entities)
-                expect(row.entity_what).toEqual(['Patient/patient-789', 'Encounter/enc-012']);
-                expect(row.entity_name).toEqual(['Patient Search']);
-                expect(row.entity_type_system).toEqual([
-                    'http://hl7.org/fhir/resource-types',
-                    'http://hl7.org/fhir/resource-types'
+                // Agent references — prefers _uuid over reference
+                expect(row.agent_who).toEqual([
+                    'Practitioner/prac-uuid-123',
+                    'Device/device-uuid-456'
                 ]);
-                expect(row.entity_type_code).toEqual(['Patient', 'Encounter']);
-                expect(row.entity_role_system).toEqual(['http://terminology.hl7.org/CodeSystem/object-role']);
-                expect(row.entity_role_code).toEqual(['1']);
+                expect(row.agent_altid).toEqual(['alt-prac-123']);
 
-                // Raw JSON
-                const raw = JSON.parse(row.raw);
-                expect(raw.resourceType).toBe('AuditEvent');
-                expect(raw.id).toBe('audit-001');
+                // Entity references — prefers _uuid over reference
+                expect(row.entity_what).toEqual([
+                    'Patient/patient-uuid-789',
+                    'Encounter/enc-uuid-012'
+                ]);
+
+                // Agent requestor (agent where requestor === true)
+                expect(row.agent_requestor_who).toBe('Practitioner/prac-uuid-123');
+
+                // meta.security as Array(Tuple(system, code))
+                expect(row.meta_security).toEqual([
+                    ['https://www.icanbwell.com/owner', 'bwell'],
+                    ['https://www.icanbwell.com/access', 'bwell'],
+                    ['https://www.icanbwell.com/sourceAssigningAuthority', 'bwell']
+                ]);
+
+                // b.well internal columns
+                expect(row._sourceAssigningAuthority).toBe('bwell');
+                expect(row._sourceId).toBe('audit-001');
+
+                // resource is the full document object (Native JSON, not stringified)
+                expect(row.resource).toEqual(doc);
+                expect(row.resource.resourceType).toBe('AuditEvent');
+                expect(row.resource.id).toBe('audit-001');
             });
 
-            test('returns null for document missing id', () => {
+            test('returns null for document missing _uuid', () => {
                 const transformer = new AuditEventTransformer();
                 const doc = deepcopy(auditEventSample);
                 doc._id = { toString: () => 'abc123' };
-                delete doc.id;
                 delete doc._uuid;
-                delete doc._sourceId;
 
                 const row = transformer.transformDocument(doc);
                 expect(row).toBeNull();
@@ -97,14 +91,120 @@ describe('AuditEvent Migration', () => {
                 const row = transformer.transformDocument(doc);
 
                 expect(row).not.toBeNull();
+                expect(row.id).toBe('minimal-audit');
+                expect(row._uuid).toBe('minimal-uuid');
                 expect(row.action).toBe('');
-                expect(row.outcome).toBe('');
-                expect(row.type_system).toBe('');
-                expect(row.type_code).toBe('');
-                expect(row.subtype_system).toEqual([]);
-                expect(row.subtype_code).toEqual([]);
                 expect(row.agent_who).toEqual([]);
+                expect(row.agent_altid).toEqual([]);
                 expect(row.entity_what).toEqual([]);
+                expect(row.agent_requestor_who).toBe('');
+                expect(row.meta_security).toEqual([]);
+                expect(row._sourceAssigningAuthority).toBe('');
+                expect(row._sourceId).toBe('');
+            });
+
+            test('prefers _uuid over reference in agent.who', () => {
+                const transformer = new AuditEventTransformer();
+                const doc = {
+                    _id: { toString: () => 'abc123' },
+                    _uuid: 'test-uuid',
+                    recorded: '2024-01-01T00:00:00.000Z',
+                    agent: [
+                        {
+                            who: {
+                                reference: 'Practitioner/local-id',
+                                _uuid: 'Practitioner/global-uuid'
+                            }
+                        }
+                    ]
+                };
+
+                const row = transformer.transformDocument(doc);
+                expect(row.agent_who).toEqual(['Practitioner/global-uuid']);
+            });
+
+            test('falls back to reference when _uuid is absent', () => {
+                const transformer = new AuditEventTransformer();
+                const doc = {
+                    _id: { toString: () => 'abc123' },
+                    _uuid: 'test-uuid',
+                    recorded: '2024-01-01T00:00:00.000Z',
+                    agent: [{ who: { reference: 'Practitioner/local-id' } }],
+                    entity: [{ what: { reference: 'Patient/local-patient' } }]
+                };
+
+                const row = transformer.transformDocument(doc);
+                expect(row.agent_who).toEqual(['Practitioner/local-id']);
+                expect(row.entity_what).toEqual(['Patient/local-patient']);
+            });
+
+            test('extracts agent_requestor_who from agent with requestor=true', () => {
+                const transformer = new AuditEventTransformer();
+                const doc = {
+                    _id: { toString: () => 'abc123' },
+                    _uuid: 'test-uuid',
+                    recorded: '2024-01-01T00:00:00.000Z',
+                    agent: [
+                        { who: { _uuid: 'Device/dev-1' }, requestor: false },
+                        { who: { _uuid: 'Practitioner/prac-1' }, requestor: true }
+                    ]
+                };
+
+                const row = transformer.transformDocument(doc);
+                expect(row.agent_requestor_who).toBe('Practitioner/prac-1');
+            });
+
+            test('returns empty string for agent_requestor_who when no requestor', () => {
+                const transformer = new AuditEventTransformer();
+                const doc = {
+                    _id: { toString: () => 'abc123' },
+                    _uuid: 'test-uuid',
+                    recorded: '2024-01-01T00:00:00.000Z',
+                    agent: [{ who: { _uuid: 'Device/dev-1' }, requestor: false }]
+                };
+
+                const row = transformer.transformDocument(doc);
+                expect(row.agent_requestor_who).toBe('');
+            });
+
+            test('extracts meta_security as tuples', () => {
+                const transformer = new AuditEventTransformer();
+                const doc = {
+                    _id: { toString: () => 'abc123' },
+                    _uuid: 'test-uuid',
+                    recorded: '2024-01-01T00:00:00.000Z',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+                            { system: 'https://www.icanbwell.com/access', code: 'client' }
+                        ]
+                    }
+                };
+
+                const row = transformer.transformDocument(doc);
+                expect(row.meta_security).toEqual([
+                    ['https://www.icanbwell.com/owner', 'bwell'],
+                    ['https://www.icanbwell.com/access', 'client']
+                ]);
+            });
+
+            test('skips security tags missing system or code', () => {
+                const transformer = new AuditEventTransformer();
+                const doc = {
+                    _id: { toString: () => 'abc123' },
+                    _uuid: 'test-uuid',
+                    recorded: '2024-01-01T00:00:00.000Z',
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+                            { system: 'missing-code' },
+                            { code: 'missing-system' }
+                        ]
+                    }
+                };
+
+                const row = transformer.transformDocument(doc);
+                expect(row.meta_security).toEqual([['https://www.icanbwell.com/owner', 'bwell']]);
             });
         });
 
@@ -113,24 +213,28 @@ describe('AuditEvent Migration', () => {
                 const transformer = new AuditEventTransformer();
                 const valid = deepcopy(auditEventSample);
                 valid._id = { toString: () => 'aaa' };
-                const invalid = { _id: { toString: () => 'bbb' } }; // missing id and recorded
+                const invalid = { _id: { toString: () => 'bbb' } }; // missing _uuid and recorded
 
                 const { rows, skipped } = transformer.transformBatch([valid, invalid]);
                 expect(rows).toHaveLength(1);
                 expect(skipped).toBe(1);
-                expect(rows[0].mongo_id).toBe('aaa');
+                expect(rows[0]._uuid).toBe('audit-uuid-001');
             });
         });
 
         describe('toClickHouseDateTime', () => {
             test('converts ISO string', () => {
                 const transformer = new AuditEventTransformer();
-                expect(transformer.toClickHouseDateTime('2024-06-15T10:30:00.000Z')).toBe('2024-06-15 10:30:00.000');
+                expect(transformer.toClickHouseDateTime('2024-06-15T10:30:00.000Z')).toBe(
+                    '2024-06-15 10:30:00.000'
+                );
             });
 
             test('converts Date object', () => {
                 const transformer = new AuditEventTransformer();
-                const result = transformer.toClickHouseDateTime(new Date('2024-01-01T00:00:00.000Z'));
+                const result = transformer.toClickHouseDateTime(
+                    new Date('2024-01-01T00:00:00.000Z')
+                );
                 expect(result).toBe('2024-01-01 00:00:00.000');
             });
         });
@@ -139,30 +243,17 @@ describe('AuditEvent Migration', () => {
     describe('generateDailyPartitions', () => {
         test('generates correct daily range', () => {
             const days = generateDailyPartitions('2024-01-01', '2024-01-05');
-            expect(days).toEqual([
-                '2024-01-01',
-                '2024-01-02',
-                '2024-01-03',
-                '2024-01-04'
-            ]);
+            expect(days).toEqual(['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04']);
         });
 
         test('handles month boundary', () => {
             const days = generateDailyPartitions('2024-01-30', '2024-02-02');
-            expect(days).toEqual([
-                '2024-01-30',
-                '2024-01-31',
-                '2024-02-01'
-            ]);
+            expect(days).toEqual(['2024-01-30', '2024-01-31', '2024-02-01']);
         });
 
         test('handles year boundary', () => {
             const days = generateDailyPartitions('2023-12-30', '2024-01-02');
-            expect(days).toEqual([
-                '2023-12-30',
-                '2023-12-31',
-                '2024-01-01'
-            ]);
+            expect(days).toEqual(['2023-12-30', '2023-12-31', '2024-01-01']);
         });
 
         test('returns empty for same start and end', () => {
