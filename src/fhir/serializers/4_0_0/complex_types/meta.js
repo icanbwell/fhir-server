@@ -36,21 +36,21 @@ function initializeResourceSerializer() {
 class MetaSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         versionId: null,
         lastUpdated: null,
         source: null,
         profile: null,
-        security: (value) => {
+        security: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serializeArray(value, CodingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodingSerializer, context);
         },
-        tag: (value) => {
+        tag: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serializeArray(value, CodingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodingSerializer, context);
         }
     };
 
@@ -58,14 +58,15 @@ class MetaSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MetaSerializer.serialize(item));
+            return rawJson.map(item => MetaSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -81,7 +82,7 @@ class MetaSerializer {
 
             if (propertyName in MetaSerializer.propertyToSerializerMap) {
                 if (MetaSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MetaSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MetaSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -126,32 +126,32 @@ function initializeResourceSerializer() {
 class TestScriptSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         url: null,
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         },
         version: null,
         name: null,
@@ -160,56 +160,56 @@ class TestScriptSerializer {
         experimental: null,
         date: null,
         publisher: null,
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
         description: null,
-        useContext: (value) => {
+        useContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer);
+            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer, context);
         },
-        jurisdiction: (value) => {
+        jurisdiction: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         purpose: null,
         copyright: null,
-        origin: (value) => {
+        origin: (value, context) => {
             initializeSerializers('TestScriptOrigin');
-            return FhirResourceSerializer.serializeArray(value, TestScriptOriginSerializer);
+            return FhirResourceSerializer.serializeArray(value, TestScriptOriginSerializer, context);
         },
-        destination: (value) => {
+        destination: (value, context) => {
             initializeSerializers('TestScriptDestination');
-            return FhirResourceSerializer.serializeArray(value, TestScriptDestinationSerializer);
+            return FhirResourceSerializer.serializeArray(value, TestScriptDestinationSerializer, context);
         },
-        metadata: (value) => {
+        metadata: (value, context) => {
             initializeSerializers('TestScriptMetadata');
-            return FhirResourceSerializer.serialize(value, TestScriptMetadataSerializer);
+            return FhirResourceSerializer.serialize(value, TestScriptMetadataSerializer, context);
         },
-        fixture: (value) => {
+        fixture: (value, context) => {
             initializeSerializers('TestScriptFixture');
-            return FhirResourceSerializer.serializeArray(value, TestScriptFixtureSerializer);
+            return FhirResourceSerializer.serializeArray(value, TestScriptFixtureSerializer, context);
         },
-        profile: (value) => {
+        profile: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        variable: (value) => {
+        variable: (value, context) => {
             initializeSerializers('TestScriptVariable');
-            return FhirResourceSerializer.serializeArray(value, TestScriptVariableSerializer);
+            return FhirResourceSerializer.serializeArray(value, TestScriptVariableSerializer, context);
         },
-        setup: (value) => {
+        setup: (value, context) => {
             initializeSerializers('TestScriptSetup');
-            return FhirResourceSerializer.serialize(value, TestScriptSetupSerializer);
+            return FhirResourceSerializer.serialize(value, TestScriptSetupSerializer, context);
         },
-        test: (value) => {
+        test: (value, context) => {
             initializeSerializers('TestScriptTest');
-            return FhirResourceSerializer.serializeArray(value, TestScriptTestSerializer);
+            return FhirResourceSerializer.serializeArray(value, TestScriptTestSerializer, context);
         },
-        teardown: (value) => {
+        teardown: (value, context) => {
             initializeSerializers('TestScriptTeardown');
-            return FhirResourceSerializer.serialize(value, TestScriptTeardownSerializer);
+            return FhirResourceSerializer.serialize(value, TestScriptTeardownSerializer, context);
         },
         resourceType: null
     };
@@ -218,14 +218,15 @@ class TestScriptSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => TestScriptSerializer.serialize(item));
+            return rawJson.map(item => TestScriptSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -241,7 +242,7 @@ class TestScriptSerializer {
 
             if (propertyName in TestScriptSerializer.propertyToSerializerMap) {
                 if (TestScriptSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = TestScriptSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = TestScriptSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

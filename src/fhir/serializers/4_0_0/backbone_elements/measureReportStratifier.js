@@ -42,21 +42,21 @@ function initializeResourceSerializer() {
 class MeasureReportStratifierSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        stratum: (value) => {
+        stratum: (value, context) => {
             initializeSerializers('MeasureReportStratum');
-            return FhirResourceSerializer.serializeArray(value, MeasureReportStratumSerializer);
+            return FhirResourceSerializer.serializeArray(value, MeasureReportStratumSerializer, context);
         }
     };
 
@@ -64,14 +64,15 @@ class MeasureReportStratifierSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MeasureReportStratifierSerializer.serialize(item));
+            return rawJson.map(item => MeasureReportStratifierSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -87,7 +88,7 @@ class MeasureReportStratifierSerializer {
 
             if (propertyName in MeasureReportStratifierSerializer.propertyToSerializerMap) {
                 if (MeasureReportStratifierSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MeasureReportStratifierSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MeasureReportStratifierSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

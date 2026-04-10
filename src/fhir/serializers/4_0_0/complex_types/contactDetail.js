@@ -36,14 +36,14 @@ function initializeResourceSerializer() {
 class ContactDetailSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         name: null,
-        telecom: (value) => {
+        telecom: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer, context);
         }
     };
 
@@ -51,14 +51,15 @@ class ContactDetailSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ContactDetailSerializer.serialize(item));
+            return rawJson.map(item => ContactDetailSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -74,7 +75,7 @@ class ContactDetailSerializer {
 
             if (propertyName in ContactDetailSerializer.propertyToSerializerMap) {
                 if (ContactDetailSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ContactDetailSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ContactDetailSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

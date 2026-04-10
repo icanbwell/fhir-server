@@ -90,93 +90,93 @@ function initializeResourceSerializer() {
 class ClinicalImpressionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         status: null,
-        statusReason: (value) => {
+        statusReason: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         description: null,
-        subject: (value) => {
+        subject: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        encounter: (value) => {
+        encounter: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         effectiveDateTime: null,
-        effectivePeriod: (value) => {
+        effectivePeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
         date: null,
-        assessor: (value) => {
+        assessor: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        previous: (value) => {
+        previous: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        problem: (value) => {
+        problem: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        investigation: (value) => {
+        investigation: (value, context) => {
             initializeSerializers('ClinicalImpressionInvestigation');
-            return FhirResourceSerializer.serializeArray(value, ClinicalImpressionInvestigationSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClinicalImpressionInvestigationSerializer, context);
         },
         protocol: null,
         summary: null,
-        finding: (value) => {
+        finding: (value, context) => {
             initializeSerializers('ClinicalImpressionFinding');
-            return FhirResourceSerializer.serializeArray(value, ClinicalImpressionFindingSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClinicalImpressionFindingSerializer, context);
         },
-        prognosisCodeableConcept: (value) => {
+        prognosisCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        prognosisReference: (value) => {
+        prognosisReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        supportingInfo: (value) => {
+        supportingInfo: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        note: (value) => {
+        note: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer);
+            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer, context);
         },
         resourceType: null
     };
@@ -185,14 +185,15 @@ class ClinicalImpressionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ClinicalImpressionSerializer.serialize(item));
+            return rawJson.map(item => ClinicalImpressionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -208,7 +209,7 @@ class ClinicalImpressionSerializer {
 
             if (propertyName in ClinicalImpressionSerializer.propertyToSerializerMap) {
                 if (ClinicalImpressionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ClinicalImpressionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ClinicalImpressionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -78,88 +78,88 @@ function initializeResourceSerializer() {
 class AppointmentSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         status: null,
-        cancelationReason: (value) => {
+        cancelationReason: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        serviceCategory: (value) => {
+        serviceCategory: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        serviceType: (value) => {
+        serviceType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        specialty: (value) => {
+        specialty: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        appointmentType: (value) => {
+        appointmentType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        reasonCode: (value) => {
+        reasonCode: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        reasonReference: (value) => {
+        reasonReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
         priority: null,
         description: null,
-        supportingInformation: (value) => {
+        supportingInformation: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
         start: null,
         end: null,
         minutesDuration: null,
-        slot: (value) => {
+        slot: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
         created: null,
         comment: null,
         patientInstruction: null,
-        basedOn: (value) => {
+        basedOn: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        participant: (value) => {
+        participant: (value, context) => {
             initializeSerializers('AppointmentParticipant');
-            return FhirResourceSerializer.serializeArray(value, AppointmentParticipantSerializer);
+            return FhirResourceSerializer.serializeArray(value, AppointmentParticipantSerializer, context);
         },
-        requestedPeriod: (value) => {
+        requestedPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serializeArray(value, PeriodSerializer);
+            return FhirResourceSerializer.serializeArray(value, PeriodSerializer, context);
         },
         resourceType: null
     };
@@ -168,14 +168,15 @@ class AppointmentSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => AppointmentSerializer.serialize(item));
+            return rawJson.map(item => AppointmentSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -191,7 +192,7 @@ class AppointmentSerializer {
 
             if (propertyName in AppointmentSerializer.propertyToSerializerMap) {
                 if (AppointmentSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = AppointmentSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = AppointmentSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

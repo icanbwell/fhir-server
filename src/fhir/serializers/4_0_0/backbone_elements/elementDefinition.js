@@ -240,26 +240,26 @@ function initializeResourceSerializer() {
 class ElementDefinitionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         path: null,
         representation: null,
         sliceName: null,
         sliceIsConstraining: null,
         label: null,
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serializeArray(value, CodingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodingSerializer, context);
         },
-        slicing: (value) => {
+        slicing: (value, context) => {
             initializeSerializers('ElementDefinitionSlicing');
-            return FhirResourceSerializer.serialize(value, ElementDefinitionSlicingSerializer);
+            return FhirResourceSerializer.serialize(value, ElementDefinitionSlicingSerializer, context);
         },
         short: null,
         definition: null,
@@ -268,14 +268,14 @@ class ElementDefinitionSerializer {
         alias: null,
         min: null,
         max: null,
-        base: (value) => {
+        base: (value, context) => {
             initializeSerializers('ElementDefinitionBase');
-            return FhirResourceSerializer.serialize(value, ElementDefinitionBaseSerializer);
+            return FhirResourceSerializer.serialize(value, ElementDefinitionBaseSerializer, context);
         },
         contentReference: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('ElementDefinitionType');
-            return FhirResourceSerializer.serializeArray(value, ElementDefinitionTypeSerializer);
+            return FhirResourceSerializer.serializeArray(value, ElementDefinitionTypeSerializer, context);
         },
         defaultValueBase64Binary: null,
         defaultValueBoolean: null,
@@ -296,133 +296,133 @@ class ElementDefinitionSerializer {
         defaultValueUri: null,
         defaultValueUrl: null,
         defaultValueUuid: null,
-        defaultValueAddress: (value) => {
+        defaultValueAddress: (value, context) => {
             initializeSerializers('Address');
-            return FhirResourceSerializer.serialize(value, AddressSerializer);
+            return FhirResourceSerializer.serialize(value, AddressSerializer, context);
         },
-        defaultValueAge: (value) => {
+        defaultValueAge: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        defaultValueAnnotation: (value) => {
+        defaultValueAnnotation: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serialize(value, AnnotationSerializer);
+            return FhirResourceSerializer.serialize(value, AnnotationSerializer, context);
         },
-        defaultValueAttachment: (value) => {
+        defaultValueAttachment: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serialize(value, AttachmentSerializer);
+            return FhirResourceSerializer.serialize(value, AttachmentSerializer, context);
         },
-        defaultValueCodeableConcept: (value) => {
+        defaultValueCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        defaultValueCodeableReference: (value) => {
+        defaultValueCodeableReference: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer, context);
         },
-        defaultValueCoding: (value) => {
+        defaultValueCoding: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
-        defaultValueContactPoint: (value) => {
+        defaultValueContactPoint: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serialize(value, ContactPointSerializer);
+            return FhirResourceSerializer.serialize(value, ContactPointSerializer, context);
         },
-        defaultValueCount: (value) => {
+        defaultValueCount: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        defaultValueDistance: (value) => {
+        defaultValueDistance: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        defaultValueDuration: (value) => {
+        defaultValueDuration: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        defaultValueHumanName: (value) => {
+        defaultValueHumanName: (value, context) => {
             initializeSerializers('HumanName');
-            return FhirResourceSerializer.serialize(value, HumanNameSerializer);
+            return FhirResourceSerializer.serialize(value, HumanNameSerializer, context);
         },
-        defaultValueIdentifier: (value) => {
+        defaultValueIdentifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         },
-        defaultValueMoney: (value) => {
+        defaultValueMoney: (value, context) => {
             initializeSerializers('Money');
-            return FhirResourceSerializer.serialize(value, MoneySerializer);
+            return FhirResourceSerializer.serialize(value, MoneySerializer, context);
         },
-        defaultValuePeriod: (value) => {
+        defaultValuePeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        defaultValueQuantity: (value) => {
+        defaultValueQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        defaultValueRange: (value) => {
+        defaultValueRange: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
-        defaultValueRatio: (value) => {
+        defaultValueRatio: (value, context) => {
             initializeSerializers('Ratio');
-            return FhirResourceSerializer.serialize(value, RatioSerializer);
+            return FhirResourceSerializer.serialize(value, RatioSerializer, context);
         },
-        defaultValueRatioRange: (value) => {
+        defaultValueRatioRange: (value, context) => {
             initializeSerializers('RatioRange');
-            return FhirResourceSerializer.serialize(value, RatioRangeSerializer);
+            return FhirResourceSerializer.serialize(value, RatioRangeSerializer, context);
         },
-        defaultValueReference: (value) => {
+        defaultValueReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        defaultValueSampledData: (value) => {
+        defaultValueSampledData: (value, context) => {
             initializeSerializers('SampledData');
-            return FhirResourceSerializer.serialize(value, SampledDataSerializer);
+            return FhirResourceSerializer.serialize(value, SampledDataSerializer, context);
         },
-        defaultValueSignature: (value) => {
+        defaultValueSignature: (value, context) => {
             initializeSerializers('Signature');
-            return FhirResourceSerializer.serialize(value, SignatureSerializer);
+            return FhirResourceSerializer.serialize(value, SignatureSerializer, context);
         },
-        defaultValueTiming: (value) => {
+        defaultValueTiming: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
-        defaultValueContactDetail: (value) => {
+        defaultValueContactDetail: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serialize(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serialize(value, ContactDetailSerializer, context);
         },
-        defaultValueContributor: (value) => {
+        defaultValueContributor: (value, context) => {
             initializeSerializers('Contributor');
-            return FhirResourceSerializer.serialize(value, ContributorSerializer);
+            return FhirResourceSerializer.serialize(value, ContributorSerializer, context);
         },
-        defaultValueDataRequirement: (value) => {
+        defaultValueDataRequirement: (value, context) => {
             initializeSerializers('DataRequirement');
-            return FhirResourceSerializer.serialize(value, DataRequirementSerializer);
+            return FhirResourceSerializer.serialize(value, DataRequirementSerializer, context);
         },
-        defaultValueExpression: (value) => {
+        defaultValueExpression: (value, context) => {
             initializeSerializers('Expression');
-            return FhirResourceSerializer.serialize(value, ExpressionSerializer);
+            return FhirResourceSerializer.serialize(value, ExpressionSerializer, context);
         },
-        defaultValueParameterDefinition: (value) => {
+        defaultValueParameterDefinition: (value, context) => {
             initializeSerializers('ParameterDefinition');
-            return FhirResourceSerializer.serialize(value, ParameterDefinitionSerializer);
+            return FhirResourceSerializer.serialize(value, ParameterDefinitionSerializer, context);
         },
-        defaultValueRelatedArtifact: (value) => {
+        defaultValueRelatedArtifact: (value, context) => {
             initializeSerializers('RelatedArtifact');
-            return FhirResourceSerializer.serialize(value, RelatedArtifactSerializer);
+            return FhirResourceSerializer.serialize(value, RelatedArtifactSerializer, context);
         },
-        defaultValueTriggerDefinition: (value) => {
+        defaultValueTriggerDefinition: (value, context) => {
             initializeSerializers('TriggerDefinition');
-            return FhirResourceSerializer.serialize(value, TriggerDefinitionSerializer);
+            return FhirResourceSerializer.serialize(value, TriggerDefinitionSerializer, context);
         },
-        defaultValueUsageContext: (value) => {
+        defaultValueUsageContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serialize(value, UsageContextSerializer);
+            return FhirResourceSerializer.serialize(value, UsageContextSerializer, context);
         },
-        defaultValueDosage: (value) => {
+        defaultValueDosage: (value, context) => {
             initializeSerializers('Dosage');
-            return FhirResourceSerializer.serialize(value, DosageSerializer);
+            return FhirResourceSerializer.serialize(value, DosageSerializer, context);
         },
         meaningWhenMissing: null,
         orderMeaning: null,
@@ -445,133 +445,133 @@ class ElementDefinitionSerializer {
         fixedUri: null,
         fixedUrl: null,
         fixedUuid: null,
-        fixedAddress: (value) => {
+        fixedAddress: (value, context) => {
             initializeSerializers('Address');
-            return FhirResourceSerializer.serialize(value, AddressSerializer);
+            return FhirResourceSerializer.serialize(value, AddressSerializer, context);
         },
-        fixedAge: (value) => {
+        fixedAge: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        fixedAnnotation: (value) => {
+        fixedAnnotation: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serialize(value, AnnotationSerializer);
+            return FhirResourceSerializer.serialize(value, AnnotationSerializer, context);
         },
-        fixedAttachment: (value) => {
+        fixedAttachment: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serialize(value, AttachmentSerializer);
+            return FhirResourceSerializer.serialize(value, AttachmentSerializer, context);
         },
-        fixedCodeableConcept: (value) => {
+        fixedCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        fixedCodeableReference: (value) => {
+        fixedCodeableReference: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer, context);
         },
-        fixedCoding: (value) => {
+        fixedCoding: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
-        fixedContactPoint: (value) => {
+        fixedContactPoint: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serialize(value, ContactPointSerializer);
+            return FhirResourceSerializer.serialize(value, ContactPointSerializer, context);
         },
-        fixedCount: (value) => {
+        fixedCount: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        fixedDistance: (value) => {
+        fixedDistance: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        fixedDuration: (value) => {
+        fixedDuration: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        fixedHumanName: (value) => {
+        fixedHumanName: (value, context) => {
             initializeSerializers('HumanName');
-            return FhirResourceSerializer.serialize(value, HumanNameSerializer);
+            return FhirResourceSerializer.serialize(value, HumanNameSerializer, context);
         },
-        fixedIdentifier: (value) => {
+        fixedIdentifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         },
-        fixedMoney: (value) => {
+        fixedMoney: (value, context) => {
             initializeSerializers('Money');
-            return FhirResourceSerializer.serialize(value, MoneySerializer);
+            return FhirResourceSerializer.serialize(value, MoneySerializer, context);
         },
-        fixedPeriod: (value) => {
+        fixedPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        fixedQuantity: (value) => {
+        fixedQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        fixedRange: (value) => {
+        fixedRange: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
-        fixedRatio: (value) => {
+        fixedRatio: (value, context) => {
             initializeSerializers('Ratio');
-            return FhirResourceSerializer.serialize(value, RatioSerializer);
+            return FhirResourceSerializer.serialize(value, RatioSerializer, context);
         },
-        fixedRatioRange: (value) => {
+        fixedRatioRange: (value, context) => {
             initializeSerializers('RatioRange');
-            return FhirResourceSerializer.serialize(value, RatioRangeSerializer);
+            return FhirResourceSerializer.serialize(value, RatioRangeSerializer, context);
         },
-        fixedReference: (value) => {
+        fixedReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        fixedSampledData: (value) => {
+        fixedSampledData: (value, context) => {
             initializeSerializers('SampledData');
-            return FhirResourceSerializer.serialize(value, SampledDataSerializer);
+            return FhirResourceSerializer.serialize(value, SampledDataSerializer, context);
         },
-        fixedSignature: (value) => {
+        fixedSignature: (value, context) => {
             initializeSerializers('Signature');
-            return FhirResourceSerializer.serialize(value, SignatureSerializer);
+            return FhirResourceSerializer.serialize(value, SignatureSerializer, context);
         },
-        fixedTiming: (value) => {
+        fixedTiming: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
-        fixedContactDetail: (value) => {
+        fixedContactDetail: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serialize(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serialize(value, ContactDetailSerializer, context);
         },
-        fixedContributor: (value) => {
+        fixedContributor: (value, context) => {
             initializeSerializers('Contributor');
-            return FhirResourceSerializer.serialize(value, ContributorSerializer);
+            return FhirResourceSerializer.serialize(value, ContributorSerializer, context);
         },
-        fixedDataRequirement: (value) => {
+        fixedDataRequirement: (value, context) => {
             initializeSerializers('DataRequirement');
-            return FhirResourceSerializer.serialize(value, DataRequirementSerializer);
+            return FhirResourceSerializer.serialize(value, DataRequirementSerializer, context);
         },
-        fixedExpression: (value) => {
+        fixedExpression: (value, context) => {
             initializeSerializers('Expression');
-            return FhirResourceSerializer.serialize(value, ExpressionSerializer);
+            return FhirResourceSerializer.serialize(value, ExpressionSerializer, context);
         },
-        fixedParameterDefinition: (value) => {
+        fixedParameterDefinition: (value, context) => {
             initializeSerializers('ParameterDefinition');
-            return FhirResourceSerializer.serialize(value, ParameterDefinitionSerializer);
+            return FhirResourceSerializer.serialize(value, ParameterDefinitionSerializer, context);
         },
-        fixedRelatedArtifact: (value) => {
+        fixedRelatedArtifact: (value, context) => {
             initializeSerializers('RelatedArtifact');
-            return FhirResourceSerializer.serialize(value, RelatedArtifactSerializer);
+            return FhirResourceSerializer.serialize(value, RelatedArtifactSerializer, context);
         },
-        fixedTriggerDefinition: (value) => {
+        fixedTriggerDefinition: (value, context) => {
             initializeSerializers('TriggerDefinition');
-            return FhirResourceSerializer.serialize(value, TriggerDefinitionSerializer);
+            return FhirResourceSerializer.serialize(value, TriggerDefinitionSerializer, context);
         },
-        fixedUsageContext: (value) => {
+        fixedUsageContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serialize(value, UsageContextSerializer);
+            return FhirResourceSerializer.serialize(value, UsageContextSerializer, context);
         },
-        fixedDosage: (value) => {
+        fixedDosage: (value, context) => {
             initializeSerializers('Dosage');
-            return FhirResourceSerializer.serialize(value, DosageSerializer);
+            return FhirResourceSerializer.serialize(value, DosageSerializer, context);
         },
         patternBase64Binary: null,
         patternBoolean: null,
@@ -592,137 +592,137 @@ class ElementDefinitionSerializer {
         patternUri: null,
         patternUrl: null,
         patternUuid: null,
-        patternAddress: (value) => {
+        patternAddress: (value, context) => {
             initializeSerializers('Address');
-            return FhirResourceSerializer.serialize(value, AddressSerializer);
+            return FhirResourceSerializer.serialize(value, AddressSerializer, context);
         },
-        patternAge: (value) => {
+        patternAge: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        patternAnnotation: (value) => {
+        patternAnnotation: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serialize(value, AnnotationSerializer);
+            return FhirResourceSerializer.serialize(value, AnnotationSerializer, context);
         },
-        patternAttachment: (value) => {
+        patternAttachment: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serialize(value, AttachmentSerializer);
+            return FhirResourceSerializer.serialize(value, AttachmentSerializer, context);
         },
-        patternCodeableConcept: (value) => {
+        patternCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        patternCodeableReference: (value) => {
+        patternCodeableReference: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer, context);
         },
-        patternCoding: (value) => {
+        patternCoding: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
-        patternContactPoint: (value) => {
+        patternContactPoint: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serialize(value, ContactPointSerializer);
+            return FhirResourceSerializer.serialize(value, ContactPointSerializer, context);
         },
-        patternCount: (value) => {
+        patternCount: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        patternDistance: (value) => {
+        patternDistance: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        patternDuration: (value) => {
+        patternDuration: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        patternHumanName: (value) => {
+        patternHumanName: (value, context) => {
             initializeSerializers('HumanName');
-            return FhirResourceSerializer.serialize(value, HumanNameSerializer);
+            return FhirResourceSerializer.serialize(value, HumanNameSerializer, context);
         },
-        patternIdentifier: (value) => {
+        patternIdentifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         },
-        patternMoney: (value) => {
+        patternMoney: (value, context) => {
             initializeSerializers('Money');
-            return FhirResourceSerializer.serialize(value, MoneySerializer);
+            return FhirResourceSerializer.serialize(value, MoneySerializer, context);
         },
-        patternPeriod: (value) => {
+        patternPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        patternQuantity: (value) => {
+        patternQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        patternRange: (value) => {
+        patternRange: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
-        patternRatio: (value) => {
+        patternRatio: (value, context) => {
             initializeSerializers('Ratio');
-            return FhirResourceSerializer.serialize(value, RatioSerializer);
+            return FhirResourceSerializer.serialize(value, RatioSerializer, context);
         },
-        patternRatioRange: (value) => {
+        patternRatioRange: (value, context) => {
             initializeSerializers('RatioRange');
-            return FhirResourceSerializer.serialize(value, RatioRangeSerializer);
+            return FhirResourceSerializer.serialize(value, RatioRangeSerializer, context);
         },
-        patternReference: (value) => {
+        patternReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        patternSampledData: (value) => {
+        patternSampledData: (value, context) => {
             initializeSerializers('SampledData');
-            return FhirResourceSerializer.serialize(value, SampledDataSerializer);
+            return FhirResourceSerializer.serialize(value, SampledDataSerializer, context);
         },
-        patternSignature: (value) => {
+        patternSignature: (value, context) => {
             initializeSerializers('Signature');
-            return FhirResourceSerializer.serialize(value, SignatureSerializer);
+            return FhirResourceSerializer.serialize(value, SignatureSerializer, context);
         },
-        patternTiming: (value) => {
+        patternTiming: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
-        patternContactDetail: (value) => {
+        patternContactDetail: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serialize(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serialize(value, ContactDetailSerializer, context);
         },
-        patternContributor: (value) => {
+        patternContributor: (value, context) => {
             initializeSerializers('Contributor');
-            return FhirResourceSerializer.serialize(value, ContributorSerializer);
+            return FhirResourceSerializer.serialize(value, ContributorSerializer, context);
         },
-        patternDataRequirement: (value) => {
+        patternDataRequirement: (value, context) => {
             initializeSerializers('DataRequirement');
-            return FhirResourceSerializer.serialize(value, DataRequirementSerializer);
+            return FhirResourceSerializer.serialize(value, DataRequirementSerializer, context);
         },
-        patternExpression: (value) => {
+        patternExpression: (value, context) => {
             initializeSerializers('Expression');
-            return FhirResourceSerializer.serialize(value, ExpressionSerializer);
+            return FhirResourceSerializer.serialize(value, ExpressionSerializer, context);
         },
-        patternParameterDefinition: (value) => {
+        patternParameterDefinition: (value, context) => {
             initializeSerializers('ParameterDefinition');
-            return FhirResourceSerializer.serialize(value, ParameterDefinitionSerializer);
+            return FhirResourceSerializer.serialize(value, ParameterDefinitionSerializer, context);
         },
-        patternRelatedArtifact: (value) => {
+        patternRelatedArtifact: (value, context) => {
             initializeSerializers('RelatedArtifact');
-            return FhirResourceSerializer.serialize(value, RelatedArtifactSerializer);
+            return FhirResourceSerializer.serialize(value, RelatedArtifactSerializer, context);
         },
-        patternTriggerDefinition: (value) => {
+        patternTriggerDefinition: (value, context) => {
             initializeSerializers('TriggerDefinition');
-            return FhirResourceSerializer.serialize(value, TriggerDefinitionSerializer);
+            return FhirResourceSerializer.serialize(value, TriggerDefinitionSerializer, context);
         },
-        patternUsageContext: (value) => {
+        patternUsageContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serialize(value, UsageContextSerializer);
+            return FhirResourceSerializer.serialize(value, UsageContextSerializer, context);
         },
-        patternDosage: (value) => {
+        patternDosage: (value, context) => {
             initializeSerializers('Dosage');
-            return FhirResourceSerializer.serialize(value, DosageSerializer);
+            return FhirResourceSerializer.serialize(value, DosageSerializer, context);
         },
-        example: (value) => {
+        example: (value, context) => {
             initializeSerializers('ElementDefinitionExample');
-            return FhirResourceSerializer.serializeArray(value, ElementDefinitionExampleSerializer);
+            return FhirResourceSerializer.serializeArray(value, ElementDefinitionExampleSerializer, context);
         },
         minValueDate: null,
         minValueDateTime: null,
@@ -732,9 +732,9 @@ class ElementDefinitionSerializer {
         minValueInteger: null,
         minValuePositiveInt: null,
         minValueUnsignedInt: null,
-        minValueQuantity: (value) => {
+        minValueQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         maxValueDate: null,
         maxValueDateTime: null,
@@ -744,27 +744,27 @@ class ElementDefinitionSerializer {
         maxValueInteger: null,
         maxValuePositiveInt: null,
         maxValueUnsignedInt: null,
-        maxValueQuantity: (value) => {
+        maxValueQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         maxLength: null,
         condition: null,
-        constraint: (value) => {
+        constraint: (value, context) => {
             initializeSerializers('ElementDefinitionConstraint');
-            return FhirResourceSerializer.serializeArray(value, ElementDefinitionConstraintSerializer);
+            return FhirResourceSerializer.serializeArray(value, ElementDefinitionConstraintSerializer, context);
         },
         mustSupport: null,
         isModifier: null,
         isModifierReason: null,
         isSummary: null,
-        binding: (value) => {
+        binding: (value, context) => {
             initializeSerializers('ElementDefinitionBinding');
-            return FhirResourceSerializer.serialize(value, ElementDefinitionBindingSerializer);
+            return FhirResourceSerializer.serialize(value, ElementDefinitionBindingSerializer, context);
         },
-        mapping: (value) => {
+        mapping: (value, context) => {
             initializeSerializers('ElementDefinitionMapping');
-            return FhirResourceSerializer.serializeArray(value, ElementDefinitionMappingSerializer);
+            return FhirResourceSerializer.serializeArray(value, ElementDefinitionMappingSerializer, context);
         }
     };
 
@@ -772,14 +772,15 @@ class ElementDefinitionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ElementDefinitionSerializer.serialize(item));
+            return rawJson.map(item => ElementDefinitionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -795,7 +796,7 @@ class ElementDefinitionSerializer {
 
             if (propertyName in ElementDefinitionSerializer.propertyToSerializerMap) {
                 if (ElementDefinitionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ElementDefinitionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ElementDefinitionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

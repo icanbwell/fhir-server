@@ -54,29 +54,29 @@ function initializeResourceSerializer() {
 class OrganizationContactSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        purpose: (value) => {
+        purpose: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        name: (value) => {
+        name: (value, context) => {
             initializeSerializers('HumanName');
-            return FhirResourceSerializer.serialize(value, HumanNameSerializer);
+            return FhirResourceSerializer.serialize(value, HumanNameSerializer, context);
         },
-        telecom: (value) => {
+        telecom: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer, context);
         },
-        address: (value) => {
+        address: (value, context) => {
             initializeSerializers('Address');
-            return FhirResourceSerializer.serialize(value, AddressSerializer);
+            return FhirResourceSerializer.serialize(value, AddressSerializer, context);
         }
     };
 
@@ -84,14 +84,15 @@ class OrganizationContactSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => OrganizationContactSerializer.serialize(item));
+            return rawJson.map(item => OrganizationContactSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -107,7 +108,7 @@ class OrganizationContactSerializer {
 
             if (propertyName in OrganizationContactSerializer.propertyToSerializerMap) {
                 if (OrganizationContactSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = OrganizationContactSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = OrganizationContactSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

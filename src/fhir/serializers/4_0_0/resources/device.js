@@ -108,44 +108,44 @@ function initializeResourceSerializer() {
 class DeviceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
-        definition: (value) => {
+        definition: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        udiCarrier: (value) => {
+        udiCarrier: (value, context) => {
             initializeSerializers('DeviceUdiCarrier');
-            return FhirResourceSerializer.serializeArray(value, DeviceUdiCarrierSerializer);
+            return FhirResourceSerializer.serializeArray(value, DeviceUdiCarrierSerializer, context);
         },
         status: null,
-        statusReason: (value) => {
+        statusReason: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         distinctIdentifier: null,
         manufacturer: null,
@@ -153,56 +153,56 @@ class DeviceSerializer {
         expirationDate: null,
         lotNumber: null,
         serialNumber: null,
-        deviceName: (value) => {
+        deviceName: (value, context) => {
             initializeSerializers('DeviceDeviceName');
-            return FhirResourceSerializer.serializeArray(value, DeviceDeviceNameSerializer);
+            return FhirResourceSerializer.serializeArray(value, DeviceDeviceNameSerializer, context);
         },
         modelNumber: null,
         partNumber: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        specialization: (value) => {
+        specialization: (value, context) => {
             initializeSerializers('DeviceSpecialization');
-            return FhirResourceSerializer.serializeArray(value, DeviceSpecializationSerializer);
+            return FhirResourceSerializer.serializeArray(value, DeviceSpecializationSerializer, context);
         },
-        version: (value) => {
+        version: (value, context) => {
             initializeSerializers('DeviceVersion');
-            return FhirResourceSerializer.serializeArray(value, DeviceVersionSerializer);
+            return FhirResourceSerializer.serializeArray(value, DeviceVersionSerializer, context);
         },
-        property: (value) => {
+        property: (value, context) => {
             initializeSerializers('DeviceProperty');
-            return FhirResourceSerializer.serializeArray(value, DevicePropertySerializer);
+            return FhirResourceSerializer.serializeArray(value, DevicePropertySerializer, context);
         },
-        patient: (value) => {
+        patient: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        owner: (value) => {
+        owner: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer, context);
         },
-        location: (value) => {
+        location: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         url: null,
-        note: (value) => {
+        note: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer);
+            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer, context);
         },
-        safety: (value) => {
+        safety: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        parent: (value) => {
+        parent: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         resourceType: null
     };
@@ -211,14 +211,15 @@ class DeviceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => DeviceSerializer.serialize(item));
+            return rawJson.map(item => DeviceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -234,7 +235,7 @@ class DeviceSerializer {
 
             if (propertyName in DeviceSerializer.propertyToSerializerMap) {
                 if (DeviceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = DeviceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = DeviceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

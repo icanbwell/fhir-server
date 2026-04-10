@@ -37,15 +37,15 @@ function initializeResourceSerializer() {
 class ReferenceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         reference: null,
         type: null,
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         },
         display: null
     };
@@ -54,14 +54,15 @@ class ReferenceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ReferenceSerializer.serialize(item));
+            return rawJson.map(item => ReferenceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -80,7 +81,7 @@ class ReferenceSerializer {
 
             if (propertyName in ReferenceSerializer.propertyToSerializerMap) {
                 if (ReferenceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ReferenceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ReferenceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

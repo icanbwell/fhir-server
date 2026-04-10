@@ -1002,7 +1002,8 @@ class SearchManager {
             resourceType,
             accepts,
             defaultSortId,
-            params
+            params,
+            serializerContext
         }
     ) {
         assertIsValid(requestId);
@@ -1046,7 +1047,8 @@ class SearchManager {
                 defaultSortId,
                 highWaterMark,
                 configManager: this.configManager,
-                response: res
+                response: res,
+                serializerContext
             }
         );
 

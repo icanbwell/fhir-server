@@ -48,25 +48,25 @@ function initializeResourceSerializer() {
 class ClaimRelatedSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        claim: (value) => {
+        claim: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        relationship: (value) => {
+        relationship: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        reference: (value) => {
+        reference: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         }
     };
 
@@ -74,14 +74,15 @@ class ClaimRelatedSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ClaimRelatedSerializer.serialize(item));
+            return rawJson.map(item => ClaimRelatedSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -97,7 +98,7 @@ class ClaimRelatedSerializer {
 
             if (propertyName in ClaimRelatedSerializer.propertyToSerializerMap) {
                 if (ClaimRelatedSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ClaimRelatedSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ClaimRelatedSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

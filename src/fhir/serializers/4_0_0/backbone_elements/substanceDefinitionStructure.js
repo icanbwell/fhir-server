@@ -54,39 +54,39 @@ function initializeResourceSerializer() {
 class SubstanceDefinitionStructureSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        stereochemistry: (value) => {
+        stereochemistry: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        opticalActivity: (value) => {
+        opticalActivity: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         molecularFormula: null,
         molecularFormulaByMoiety: null,
-        molecularWeight: (value) => {
+        molecularWeight: (value, context) => {
             initializeSerializers('SubstanceDefinitionMolecularWeight');
-            return FhirResourceSerializer.serialize(value, SubstanceDefinitionMolecularWeightSerializer);
+            return FhirResourceSerializer.serialize(value, SubstanceDefinitionMolecularWeightSerializer, context);
         },
-        technique: (value) => {
+        technique: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        sourceDocument: (value) => {
+        sourceDocument: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        representation: (value) => {
+        representation: (value, context) => {
             initializeSerializers('SubstanceDefinitionRepresentation');
-            return FhirResourceSerializer.serializeArray(value, SubstanceDefinitionRepresentationSerializer);
+            return FhirResourceSerializer.serializeArray(value, SubstanceDefinitionRepresentationSerializer, context);
         }
     };
 
@@ -94,14 +94,15 @@ class SubstanceDefinitionStructureSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => SubstanceDefinitionStructureSerializer.serialize(item));
+            return rawJson.map(item => SubstanceDefinitionStructureSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -117,7 +118,7 @@ class SubstanceDefinitionStructureSerializer {
 
             if (propertyName in SubstanceDefinitionStructureSerializer.propertyToSerializerMap) {
                 if (SubstanceDefinitionStructureSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = SubstanceDefinitionStructureSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = SubstanceDefinitionStructureSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

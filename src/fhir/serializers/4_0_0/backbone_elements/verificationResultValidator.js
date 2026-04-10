@@ -42,22 +42,22 @@ function initializeResourceSerializer() {
 class VerificationResultValidatorSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        organization: (value) => {
+        organization: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         identityCertificate: null,
-        attestationSignature: (value) => {
+        attestationSignature: (value, context) => {
             initializeSerializers('Signature');
-            return FhirResourceSerializer.serialize(value, SignatureSerializer);
+            return FhirResourceSerializer.serialize(value, SignatureSerializer, context);
         }
     };
 
@@ -65,14 +65,15 @@ class VerificationResultValidatorSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => VerificationResultValidatorSerializer.serialize(item));
+            return rawJson.map(item => VerificationResultValidatorSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -88,7 +89,7 @@ class VerificationResultValidatorSerializer {
 
             if (propertyName in VerificationResultValidatorSerializer.propertyToSerializerMap) {
                 if (VerificationResultValidatorSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = VerificationResultValidatorSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = VerificationResultValidatorSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

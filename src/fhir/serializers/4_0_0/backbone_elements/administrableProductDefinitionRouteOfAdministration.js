@@ -54,41 +54,41 @@ function initializeResourceSerializer() {
 class AdministrableProductDefinitionRouteOfAdministrationSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        firstDose: (value) => {
+        firstDose: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        maxSingleDose: (value) => {
+        maxSingleDose: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        maxDosePerDay: (value) => {
+        maxDosePerDay: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        maxDosePerTreatmentPeriod: (value) => {
+        maxDosePerTreatmentPeriod: (value, context) => {
             initializeSerializers('Ratio');
-            return FhirResourceSerializer.serialize(value, RatioSerializer);
+            return FhirResourceSerializer.serialize(value, RatioSerializer, context);
         },
-        maxTreatmentPeriod: (value) => {
+        maxTreatmentPeriod: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        targetSpecies: (value) => {
+        targetSpecies: (value, context) => {
             initializeSerializers('AdministrableProductDefinitionTargetSpecies');
-            return FhirResourceSerializer.serializeArray(value, AdministrableProductDefinitionTargetSpeciesSerializer);
+            return FhirResourceSerializer.serializeArray(value, AdministrableProductDefinitionTargetSpeciesSerializer, context);
         }
     };
 
@@ -96,14 +96,15 @@ class AdministrableProductDefinitionRouteOfAdministrationSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => AdministrableProductDefinitionRouteOfAdministrationSerializer.serialize(item));
+            return rawJson.map(item => AdministrableProductDefinitionRouteOfAdministrationSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -119,7 +120,7 @@ class AdministrableProductDefinitionRouteOfAdministrationSerializer {
 
             if (propertyName in AdministrableProductDefinitionRouteOfAdministrationSerializer.propertyToSerializerMap) {
                 if (AdministrableProductDefinitionRouteOfAdministrationSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = AdministrableProductDefinitionRouteOfAdministrationSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = AdministrableProductDefinitionRouteOfAdministrationSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

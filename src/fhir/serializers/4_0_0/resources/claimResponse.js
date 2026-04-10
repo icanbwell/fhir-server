@@ -126,117 +126,117 @@ function initializeResourceSerializer() {
 class ClaimResponseSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         status: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        subType: (value) => {
+        subType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         use: null,
-        patient: (value) => {
+        patient: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         created: null,
-        insurer: (value) => {
+        insurer: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        requestor: (value) => {
+        requestor: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        request: (value) => {
+        request: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         outcome: null,
         disposition: null,
         preAuthRef: null,
-        preAuthPeriod: (value) => {
+        preAuthPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        payeeType: (value) => {
+        payeeType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        item: (value) => {
+        item: (value, context) => {
             initializeSerializers('ClaimResponseItem');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseItemSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseItemSerializer, context);
         },
-        addItem: (value) => {
+        addItem: (value, context) => {
             initializeSerializers('ClaimResponseAddItem');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseAddItemSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseAddItemSerializer, context);
         },
-        adjudication: (value) => {
+        adjudication: (value, context) => {
             initializeSerializers('ClaimResponseAdjudication');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseAdjudicationSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseAdjudicationSerializer, context);
         },
-        total: (value) => {
+        total: (value, context) => {
             initializeSerializers('ClaimResponseTotal');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseTotalSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseTotalSerializer, context);
         },
-        payment: (value) => {
+        payment: (value, context) => {
             initializeSerializers('ClaimResponsePayment');
-            return FhirResourceSerializer.serialize(value, ClaimResponsePaymentSerializer);
+            return FhirResourceSerializer.serialize(value, ClaimResponsePaymentSerializer, context);
         },
-        fundsReserve: (value) => {
+        fundsReserve: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        formCode: (value) => {
+        formCode: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        form: (value) => {
+        form: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serialize(value, AttachmentSerializer);
+            return FhirResourceSerializer.serialize(value, AttachmentSerializer, context);
         },
-        processNote: (value) => {
+        processNote: (value, context) => {
             initializeSerializers('ClaimResponseProcessNote');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseProcessNoteSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseProcessNoteSerializer, context);
         },
-        communicationRequest: (value) => {
+        communicationRequest: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        insurance: (value) => {
+        insurance: (value, context) => {
             initializeSerializers('ClaimResponseInsurance');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseInsuranceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseInsuranceSerializer, context);
         },
-        error: (value) => {
+        error: (value, context) => {
             initializeSerializers('ClaimResponseError');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseErrorSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseErrorSerializer, context);
         },
         resourceType: null
     };
@@ -245,14 +245,15 @@ class ClaimResponseSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ClaimResponseSerializer.serialize(item));
+            return rawJson.map(item => ClaimResponseSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -268,7 +269,7 @@ class ClaimResponseSerializer {
 
             if (propertyName in ClaimResponseSerializer.propertyToSerializerMap) {
                 if (ClaimResponseSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ClaimResponseSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ClaimResponseSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

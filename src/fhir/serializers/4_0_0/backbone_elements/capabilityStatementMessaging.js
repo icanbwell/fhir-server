@@ -42,23 +42,23 @@ function initializeResourceSerializer() {
 class CapabilityStatementMessagingSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        endpoint: (value) => {
+        endpoint: (value, context) => {
             initializeSerializers('CapabilityStatementEndpoint');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementEndpointSerializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementEndpointSerializer, context);
         },
         reliableCache: null,
         documentation: null,
-        supportedMessage: (value) => {
+        supportedMessage: (value, context) => {
             initializeSerializers('CapabilityStatementSupportedMessage');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementSupportedMessageSerializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementSupportedMessageSerializer, context);
         }
     };
 
@@ -66,14 +66,15 @@ class CapabilityStatementMessagingSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CapabilityStatementMessagingSerializer.serialize(item));
+            return rawJson.map(item => CapabilityStatementMessagingSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -89,7 +90,7 @@ class CapabilityStatementMessagingSerializer {
 
             if (propertyName in CapabilityStatementMessagingSerializer.propertyToSerializerMap) {
                 if (CapabilityStatementMessagingSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CapabilityStatementMessagingSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CapabilityStatementMessagingSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

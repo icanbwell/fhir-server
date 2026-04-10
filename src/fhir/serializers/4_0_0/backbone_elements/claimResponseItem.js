@@ -42,23 +42,23 @@ function initializeResourceSerializer() {
 class ClaimResponseItemSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         itemSequence: null,
         noteNumber: null,
-        adjudication: (value) => {
+        adjudication: (value, context) => {
             initializeSerializers('ClaimResponseAdjudication');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseAdjudicationSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseAdjudicationSerializer, context);
         },
-        detail: (value) => {
+        detail: (value, context) => {
             initializeSerializers('ClaimResponseDetail');
-            return FhirResourceSerializer.serializeArray(value, ClaimResponseDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ClaimResponseDetailSerializer, context);
         }
     };
 
@@ -66,14 +66,15 @@ class ClaimResponseItemSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ClaimResponseItemSerializer.serialize(item));
+            return rawJson.map(item => ClaimResponseItemSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -89,7 +90,7 @@ class ClaimResponseItemSerializer {
 
             if (propertyName in ClaimResponseItemSerializer.propertyToSerializerMap) {
                 if (ClaimResponseItemSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ClaimResponseItemSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ClaimResponseItemSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

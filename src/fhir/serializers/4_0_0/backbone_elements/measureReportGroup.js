@@ -54,29 +54,29 @@ function initializeResourceSerializer() {
 class MeasureReportGroupSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        population: (value) => {
+        population: (value, context) => {
             initializeSerializers('MeasureReportPopulation');
-            return FhirResourceSerializer.serializeArray(value, MeasureReportPopulationSerializer);
+            return FhirResourceSerializer.serializeArray(value, MeasureReportPopulationSerializer, context);
         },
-        measureScore: (value) => {
+        measureScore: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        stratifier: (value) => {
+        stratifier: (value, context) => {
             initializeSerializers('MeasureReportStratifier');
-            return FhirResourceSerializer.serializeArray(value, MeasureReportStratifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, MeasureReportStratifierSerializer, context);
         }
     };
 
@@ -84,14 +84,15 @@ class MeasureReportGroupSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MeasureReportGroupSerializer.serialize(item));
+            return rawJson.map(item => MeasureReportGroupSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -107,7 +108,7 @@ class MeasureReportGroupSerializer {
 
             if (propertyName in MeasureReportGroupSerializer.propertyToSerializerMap) {
                 if (MeasureReportGroupSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MeasureReportGroupSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MeasureReportGroupSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

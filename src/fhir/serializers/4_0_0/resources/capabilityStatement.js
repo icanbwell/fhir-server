@@ -96,27 +96,27 @@ function initializeResourceSerializer() {
 class CapabilityStatementSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         url: null,
         version: null,
@@ -126,47 +126,47 @@ class CapabilityStatementSerializer {
         experimental: null,
         date: null,
         publisher: null,
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
         description: null,
-        useContext: (value) => {
+        useContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer);
+            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer, context);
         },
-        jurisdiction: (value) => {
+        jurisdiction: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         purpose: null,
         copyright: null,
         kind: null,
         instantiates: null,
         imports: null,
-        software: (value) => {
+        software: (value, context) => {
             initializeSerializers('CapabilityStatementSoftware');
-            return FhirResourceSerializer.serialize(value, CapabilityStatementSoftwareSerializer);
+            return FhirResourceSerializer.serialize(value, CapabilityStatementSoftwareSerializer, context);
         },
-        implementation: (value) => {
+        implementation: (value, context) => {
             initializeSerializers('CapabilityStatementImplementation');
-            return FhirResourceSerializer.serialize(value, CapabilityStatementImplementationSerializer);
+            return FhirResourceSerializer.serialize(value, CapabilityStatementImplementationSerializer, context);
         },
         fhirVersion: null,
         format: null,
         patchFormat: null,
         implementationGuide: null,
-        rest: (value) => {
+        rest: (value, context) => {
             initializeSerializers('CapabilityStatementRest');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementRestSerializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementRestSerializer, context);
         },
-        messaging: (value) => {
+        messaging: (value, context) => {
             initializeSerializers('CapabilityStatementMessaging');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementMessagingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementMessagingSerializer, context);
         },
-        document: (value) => {
+        document: (value, context) => {
             initializeSerializers('CapabilityStatementDocument');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementDocumentSerializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementDocumentSerializer, context);
         },
         resourceType: null
     };
@@ -175,14 +175,15 @@ class CapabilityStatementSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CapabilityStatementSerializer.serialize(item));
+            return rawJson.map(item => CapabilityStatementSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -198,7 +199,7 @@ class CapabilityStatementSerializer {
 
             if (propertyName in CapabilityStatementSerializer.propertyToSerializerMap) {
                 if (CapabilityStatementSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CapabilityStatementSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CapabilityStatementSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

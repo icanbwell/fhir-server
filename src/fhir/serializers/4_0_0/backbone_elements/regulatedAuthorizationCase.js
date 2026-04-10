@@ -48,34 +48,34 @@ function initializeResourceSerializer() {
 class RegulatedAuthorizationCaseSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        status: (value) => {
+        status: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        datePeriod: (value) => {
+        datePeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
         dateDateTime: null,
-        application: (value) => {
+        application: (value, context) => {
             initializeSerializers('RegulatedAuthorizationCase');
-            return FhirResourceSerializer.serializeArray(value, RegulatedAuthorizationCaseSerializer);
+            return FhirResourceSerializer.serializeArray(value, RegulatedAuthorizationCaseSerializer, context);
         }
     };
 
@@ -83,14 +83,15 @@ class RegulatedAuthorizationCaseSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => RegulatedAuthorizationCaseSerializer.serialize(item));
+            return rawJson.map(item => RegulatedAuthorizationCaseSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -106,7 +107,7 @@ class RegulatedAuthorizationCaseSerializer {
 
             if (propertyName in RegulatedAuthorizationCaseSerializer.propertyToSerializerMap) {
                 if (RegulatedAuthorizationCaseSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = RegulatedAuthorizationCaseSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = RegulatedAuthorizationCaseSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

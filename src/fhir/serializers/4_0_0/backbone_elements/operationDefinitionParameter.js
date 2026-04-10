@@ -42,13 +42,13 @@ function initializeResourceSerializer() {
 class OperationDefinitionParameterSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         name: null,
         use: null,
@@ -58,17 +58,17 @@ class OperationDefinitionParameterSerializer {
         type: null,
         targetProfile: null,
         searchType: null,
-        binding: (value) => {
+        binding: (value, context) => {
             initializeSerializers('OperationDefinitionBinding');
-            return FhirResourceSerializer.serialize(value, OperationDefinitionBindingSerializer);
+            return FhirResourceSerializer.serialize(value, OperationDefinitionBindingSerializer, context);
         },
-        referencedFrom: (value) => {
+        referencedFrom: (value, context) => {
             initializeSerializers('OperationDefinitionReferencedFrom');
-            return FhirResourceSerializer.serializeArray(value, OperationDefinitionReferencedFromSerializer);
+            return FhirResourceSerializer.serializeArray(value, OperationDefinitionReferencedFromSerializer, context);
         },
-        part: (value) => {
+        part: (value, context) => {
             initializeSerializers('OperationDefinitionParameter');
-            return FhirResourceSerializer.serializeArray(value, OperationDefinitionParameterSerializer);
+            return FhirResourceSerializer.serializeArray(value, OperationDefinitionParameterSerializer, context);
         }
     };
 
@@ -76,14 +76,15 @@ class OperationDefinitionParameterSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => OperationDefinitionParameterSerializer.serialize(item));
+            return rawJson.map(item => OperationDefinitionParameterSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -99,7 +100,7 @@ class OperationDefinitionParameterSerializer {
 
             if (propertyName in OperationDefinitionParameterSerializer.propertyToSerializerMap) {
                 if (OperationDefinitionParameterSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = OperationDefinitionParameterSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = OperationDefinitionParameterSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

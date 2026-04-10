@@ -84,68 +84,68 @@ function initializeResourceSerializer() {
 class VerificationResultSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        target: (value) => {
+        target: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
         targetLocation: null,
-        need: (value) => {
+        need: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         status: null,
         statusDate: null,
-        validationType: (value) => {
+        validationType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        validationProcess: (value) => {
+        validationProcess: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        frequency: (value) => {
+        frequency: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
         lastPerformed: null,
         nextScheduled: null,
-        failureAction: (value) => {
+        failureAction: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        primarySource: (value) => {
+        primarySource: (value, context) => {
             initializeSerializers('VerificationResultPrimarySource');
-            return FhirResourceSerializer.serializeArray(value, VerificationResultPrimarySourceSerializer);
+            return FhirResourceSerializer.serializeArray(value, VerificationResultPrimarySourceSerializer, context);
         },
-        attestation: (value) => {
+        attestation: (value, context) => {
             initializeSerializers('VerificationResultAttestation');
-            return FhirResourceSerializer.serialize(value, VerificationResultAttestationSerializer);
+            return FhirResourceSerializer.serialize(value, VerificationResultAttestationSerializer, context);
         },
-        validator: (value) => {
+        validator: (value, context) => {
             initializeSerializers('VerificationResultValidator');
-            return FhirResourceSerializer.serializeArray(value, VerificationResultValidatorSerializer);
+            return FhirResourceSerializer.serializeArray(value, VerificationResultValidatorSerializer, context);
         },
         resourceType: null
     };
@@ -154,14 +154,15 @@ class VerificationResultSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => VerificationResultSerializer.serialize(item));
+            return rawJson.map(item => VerificationResultSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -177,7 +178,7 @@ class VerificationResultSerializer {
 
             if (propertyName in VerificationResultSerializer.propertyToSerializerMap) {
                 if (VerificationResultSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = VerificationResultSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = VerificationResultSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

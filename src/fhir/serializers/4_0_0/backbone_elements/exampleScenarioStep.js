@@ -48,26 +48,26 @@ function initializeResourceSerializer() {
 class ExampleScenarioStepSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        process: (value) => {
+        process: (value, context) => {
             initializeSerializers('ExampleScenarioProcess');
-            return FhirResourceSerializer.serializeArray(value, ExampleScenarioProcessSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExampleScenarioProcessSerializer, context);
         },
         pause: null,
-        operation: (value) => {
+        operation: (value, context) => {
             initializeSerializers('ExampleScenarioOperation');
-            return FhirResourceSerializer.serialize(value, ExampleScenarioOperationSerializer);
+            return FhirResourceSerializer.serialize(value, ExampleScenarioOperationSerializer, context);
         },
-        alternative: (value) => {
+        alternative: (value, context) => {
             initializeSerializers('ExampleScenarioAlternative');
-            return FhirResourceSerializer.serializeArray(value, ExampleScenarioAlternativeSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExampleScenarioAlternativeSerializer, context);
         }
     };
 
@@ -75,14 +75,15 @@ class ExampleScenarioStepSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ExampleScenarioStepSerializer.serialize(item));
+            return rawJson.map(item => ExampleScenarioStepSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -98,7 +99,7 @@ class ExampleScenarioStepSerializer {
 
             if (propertyName in ExampleScenarioStepSerializer.propertyToSerializerMap) {
                 if (ExampleScenarioStepSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ExampleScenarioStepSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ExampleScenarioStepSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

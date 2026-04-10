@@ -48,33 +48,33 @@ function initializeResourceSerializer() {
 class ObservationReferenceRangeSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        low: (value) => {
+        low: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        high: (value) => {
+        high: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        appliesTo: (value) => {
+        appliesTo: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        age: (value) => {
+        age: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
         text: null
     };
@@ -83,14 +83,15 @@ class ObservationReferenceRangeSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ObservationReferenceRangeSerializer.serialize(item));
+            return rawJson.map(item => ObservationReferenceRangeSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -106,7 +107,7 @@ class ObservationReferenceRangeSerializer {
 
             if (propertyName in ObservationReferenceRangeSerializer.propertyToSerializerMap) {
                 if (ObservationReferenceRangeSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ObservationReferenceRangeSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ObservationReferenceRangeSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

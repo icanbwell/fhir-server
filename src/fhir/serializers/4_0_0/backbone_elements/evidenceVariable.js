@@ -54,30 +54,30 @@ function initializeResourceSerializer() {
 class EvidenceVariableSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        variableDefinition: (value) => {
+        variableDefinition: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         handling: null,
-        valueCategory: (value) => {
+        valueCategory: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        valueQuantity: (value) => {
+        valueQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serializeArray(value, QuantitySerializer);
+            return FhirResourceSerializer.serializeArray(value, QuantitySerializer, context);
         },
-        valueRange: (value) => {
+        valueRange: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serializeArray(value, RangeSerializer);
+            return FhirResourceSerializer.serializeArray(value, RangeSerializer, context);
         }
     };
 
@@ -85,14 +85,15 @@ class EvidenceVariableSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => EvidenceVariableSerializer.serialize(item));
+            return rawJson.map(item => EvidenceVariableSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -108,7 +109,7 @@ class EvidenceVariableSerializer {
 
             if (propertyName in EvidenceVariableSerializer.propertyToSerializerMap) {
                 if (EvidenceVariableSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = EvidenceVariableSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = EvidenceVariableSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

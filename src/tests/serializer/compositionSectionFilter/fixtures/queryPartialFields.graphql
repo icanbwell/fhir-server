@@ -1,0 +1,22 @@
+{
+    composition {
+        entry {
+            resource {
+                id
+                title
+                section {
+                    id
+                    title
+                    section {
+                        id
+                        title
+                        section {
+                            id
+                            title
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

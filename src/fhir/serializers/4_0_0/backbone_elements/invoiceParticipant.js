@@ -42,21 +42,21 @@ function initializeResourceSerializer() {
 class InvoiceParticipantSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        role: (value) => {
+        role: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        actor: (value) => {
+        actor: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         }
     };
 
@@ -64,14 +64,15 @@ class InvoiceParticipantSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => InvoiceParticipantSerializer.serialize(item));
+            return rawJson.map(item => InvoiceParticipantSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -87,7 +88,7 @@ class InvoiceParticipantSerializer {
 
             if (propertyName in InvoiceParticipantSerializer.propertyToSerializerMap) {
                 if (InvoiceParticipantSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = InvoiceParticipantSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = InvoiceParticipantSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

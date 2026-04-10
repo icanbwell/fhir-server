@@ -42,21 +42,21 @@ function initializeResourceSerializer() {
 class InsurancePlanSpecificCostSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        category: (value) => {
+        category: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        benefit: (value) => {
+        benefit: (value, context) => {
             initializeSerializers('InsurancePlanBenefit1');
-            return FhirResourceSerializer.serializeArray(value, InsurancePlanBenefit1Serializer);
+            return FhirResourceSerializer.serializeArray(value, InsurancePlanBenefit1Serializer, context);
         }
     };
 
@@ -64,14 +64,15 @@ class InsurancePlanSpecificCostSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => InsurancePlanSpecificCostSerializer.serialize(item));
+            return rawJson.map(item => InsurancePlanSpecificCostSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -87,7 +88,7 @@ class InsurancePlanSpecificCostSerializer {
 
             if (propertyName in InsurancePlanSpecificCostSerializer.propertyToSerializerMap) {
                 if (InsurancePlanSpecificCostSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = InsurancePlanSpecificCostSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = InsurancePlanSpecificCostSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

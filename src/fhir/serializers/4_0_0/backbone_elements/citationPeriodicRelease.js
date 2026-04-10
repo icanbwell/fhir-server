@@ -42,23 +42,23 @@ function initializeResourceSerializer() {
 class CitationPeriodicReleaseSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        citedMedium: (value) => {
+        citedMedium: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         volume: null,
         issue: null,
-        dateOfPublication: (value) => {
+        dateOfPublication: (value, context) => {
             initializeSerializers('CitationDateOfPublication');
-            return FhirResourceSerializer.serialize(value, CitationDateOfPublicationSerializer);
+            return FhirResourceSerializer.serialize(value, CitationDateOfPublicationSerializer, context);
         }
     };
 
@@ -66,14 +66,15 @@ class CitationPeriodicReleaseSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CitationPeriodicReleaseSerializer.serialize(item));
+            return rawJson.map(item => CitationPeriodicReleaseSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -89,7 +90,7 @@ class CitationPeriodicReleaseSerializer {
 
             if (propertyName in CitationPeriodicReleaseSerializer.propertyToSerializerMap) {
                 if (CitationPeriodicReleaseSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CitationPeriodicReleaseSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CitationPeriodicReleaseSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

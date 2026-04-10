@@ -60,57 +60,57 @@ function initializeResourceSerializer() {
 class DosageSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         sequence: null,
         text: null,
-        additionalInstruction: (value) => {
+        additionalInstruction: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         patientInstruction: null,
-        timing: (value) => {
+        timing: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
         asNeededBoolean: null,
-        asNeededCodeableConcept: (value) => {
+        asNeededCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        site: (value) => {
+        site: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        route: (value) => {
+        route: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        method: (value) => {
+        method: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        doseAndRate: (value) => {
+        doseAndRate: (value, context) => {
             initializeSerializers('DosageDoseAndRate');
-            return FhirResourceSerializer.serializeArray(value, DosageDoseAndRateSerializer);
+            return FhirResourceSerializer.serializeArray(value, DosageDoseAndRateSerializer, context);
         },
-        maxDosePerPeriod: (value) => {
+        maxDosePerPeriod: (value, context) => {
             initializeSerializers('Ratio');
-            return FhirResourceSerializer.serialize(value, RatioSerializer);
+            return FhirResourceSerializer.serialize(value, RatioSerializer, context);
         },
-        maxDosePerAdministration: (value) => {
+        maxDosePerAdministration: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        maxDosePerLifetime: (value) => {
+        maxDosePerLifetime: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         }
     };
 
@@ -118,14 +118,15 @@ class DosageSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => DosageSerializer.serialize(item));
+            return rawJson.map(item => DosageSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -141,7 +142,7 @@ class DosageSerializer {
 
             if (propertyName in DosageSerializer.propertyToSerializerMap) {
                 if (DosageSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = DosageSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = DosageSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

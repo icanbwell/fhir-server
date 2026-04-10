@@ -42,25 +42,25 @@ function initializeResourceSerializer() {
 class ExampleScenarioInstanceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         resourceId: null,
         resourceType: null,
         name: null,
         description: null,
-        version: (value) => {
+        version: (value, context) => {
             initializeSerializers('ExampleScenarioVersion');
-            return FhirResourceSerializer.serializeArray(value, ExampleScenarioVersionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExampleScenarioVersionSerializer, context);
         },
-        containedInstance: (value) => {
+        containedInstance: (value, context) => {
             initializeSerializers('ExampleScenarioContainedInstance');
-            return FhirResourceSerializer.serializeArray(value, ExampleScenarioContainedInstanceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExampleScenarioContainedInstanceSerializer, context);
         }
     };
 
@@ -68,14 +68,15 @@ class ExampleScenarioInstanceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ExampleScenarioInstanceSerializer.serialize(item));
+            return rawJson.map(item => ExampleScenarioInstanceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -91,7 +92,7 @@ class ExampleScenarioInstanceSerializer {
 
             if (propertyName in ExampleScenarioInstanceSerializer.propertyToSerializerMap) {
                 if (ExampleScenarioInstanceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ExampleScenarioInstanceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ExampleScenarioInstanceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

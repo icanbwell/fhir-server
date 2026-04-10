@@ -60,33 +60,33 @@ function initializeResourceSerializer() {
 class ImplementationGuideDefinitionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        grouping: (value) => {
+        grouping: (value, context) => {
             initializeSerializers('ImplementationGuideGrouping');
-            return FhirResourceSerializer.serializeArray(value, ImplementationGuideGroupingSerializer);
+            return FhirResourceSerializer.serializeArray(value, ImplementationGuideGroupingSerializer, context);
         },
-        resource: (value) => {
+        resource: (value, context) => {
             initializeSerializers('ImplementationGuideResource');
-            return FhirResourceSerializer.serializeArray(value, ImplementationGuideResourceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ImplementationGuideResourceSerializer, context);
         },
-        page: (value) => {
+        page: (value, context) => {
             initializeSerializers('ImplementationGuidePage');
-            return FhirResourceSerializer.serialize(value, ImplementationGuidePageSerializer);
+            return FhirResourceSerializer.serialize(value, ImplementationGuidePageSerializer, context);
         },
-        parameter: (value) => {
+        parameter: (value, context) => {
             initializeSerializers('ImplementationGuideParameter');
-            return FhirResourceSerializer.serializeArray(value, ImplementationGuideParameterSerializer);
+            return FhirResourceSerializer.serializeArray(value, ImplementationGuideParameterSerializer, context);
         },
-        template: (value) => {
+        template: (value, context) => {
             initializeSerializers('ImplementationGuideTemplate');
-            return FhirResourceSerializer.serializeArray(value, ImplementationGuideTemplateSerializer);
+            return FhirResourceSerializer.serializeArray(value, ImplementationGuideTemplateSerializer, context);
         }
     };
 
@@ -94,14 +94,15 @@ class ImplementationGuideDefinitionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ImplementationGuideDefinitionSerializer.serialize(item));
+            return rawJson.map(item => ImplementationGuideDefinitionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -117,7 +118,7 @@ class ImplementationGuideDefinitionSerializer {
 
             if (propertyName in ImplementationGuideDefinitionSerializer.propertyToSerializerMap) {
                 if (ImplementationGuideDefinitionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ImplementationGuideDefinitionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ImplementationGuideDefinitionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -54,29 +54,29 @@ function initializeResourceSerializer() {
 class MedicinalProductDefinitionOperationSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer, context);
         },
-        effectiveDate: (value) => {
+        effectiveDate: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        organization: (value) => {
+        organization: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        confidentialityIndicator: (value) => {
+        confidentialityIndicator: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         }
     };
 
@@ -84,14 +84,15 @@ class MedicinalProductDefinitionOperationSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MedicinalProductDefinitionOperationSerializer.serialize(item));
+            return rawJson.map(item => MedicinalProductDefinitionOperationSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -107,7 +108,7 @@ class MedicinalProductDefinitionOperationSerializer {
 
             if (propertyName in MedicinalProductDefinitionOperationSerializer.propertyToSerializerMap) {
                 if (MedicinalProductDefinitionOperationSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MedicinalProductDefinitionOperationSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MedicinalProductDefinitionOperationSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

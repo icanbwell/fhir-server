@@ -36,21 +36,21 @@ function initializeResourceSerializer() {
 class ExampleScenarioProcessSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         title: null,
         description: null,
         preConditions: null,
         postConditions: null,
-        step: (value) => {
+        step: (value, context) => {
             initializeSerializers('ExampleScenarioStep');
-            return FhirResourceSerializer.serializeArray(value, ExampleScenarioStepSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExampleScenarioStepSerializer, context);
         }
     };
 
@@ -58,14 +58,15 @@ class ExampleScenarioProcessSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ExampleScenarioProcessSerializer.serialize(item));
+            return rawJson.map(item => ExampleScenarioProcessSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -81,7 +82,7 @@ class ExampleScenarioProcessSerializer {
 
             if (propertyName in ExampleScenarioProcessSerializer.propertyToSerializerMap) {
                 if (ExampleScenarioProcessSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ExampleScenarioProcessSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ExampleScenarioProcessSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

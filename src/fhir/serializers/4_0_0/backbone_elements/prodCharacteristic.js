@@ -48,48 +48,48 @@ function initializeResourceSerializer() {
 class ProdCharacteristicSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        height: (value) => {
+        height: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        width: (value) => {
+        width: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        depth: (value) => {
+        depth: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        weight: (value) => {
+        weight: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        nominalVolume: (value) => {
+        nominalVolume: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        externalDiameter: (value) => {
+        externalDiameter: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         shape: null,
         color: null,
         imprint: null,
-        image: (value) => {
+        image: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serializeArray(value, AttachmentSerializer);
+            return FhirResourceSerializer.serializeArray(value, AttachmentSerializer, context);
         },
-        scoring: (value) => {
+        scoring: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         }
     };
 
@@ -97,14 +97,15 @@ class ProdCharacteristicSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ProdCharacteristicSerializer.serialize(item));
+            return rawJson.map(item => ProdCharacteristicSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -120,7 +121,7 @@ class ProdCharacteristicSerializer {
 
             if (propertyName in ProdCharacteristicSerializer.propertyToSerializerMap) {
                 if (ProdCharacteristicSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ProdCharacteristicSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ProdCharacteristicSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

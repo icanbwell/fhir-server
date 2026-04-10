@@ -48,27 +48,27 @@ function initializeResourceSerializer() {
 class MolecularSequenceStructureVariantSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        variantType: (value) => {
+        variantType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         exact: null,
         length: null,
-        outer: (value) => {
+        outer: (value, context) => {
             initializeSerializers('MolecularSequenceOuter');
-            return FhirResourceSerializer.serialize(value, MolecularSequenceOuterSerializer);
+            return FhirResourceSerializer.serialize(value, MolecularSequenceOuterSerializer, context);
         },
-        inner: (value) => {
+        inner: (value, context) => {
             initializeSerializers('MolecularSequenceInner');
-            return FhirResourceSerializer.serialize(value, MolecularSequenceInnerSerializer);
+            return FhirResourceSerializer.serialize(value, MolecularSequenceInnerSerializer, context);
         }
     };
 
@@ -76,14 +76,15 @@ class MolecularSequenceStructureVariantSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MolecularSequenceStructureVariantSerializer.serialize(item));
+            return rawJson.map(item => MolecularSequenceStructureVariantSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -99,7 +100,7 @@ class MolecularSequenceStructureVariantSerializer {
 
             if (propertyName in MolecularSequenceStructureVariantSerializer.propertyToSerializerMap) {
                 if (MolecularSequenceStructureVariantSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MolecularSequenceStructureVariantSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MolecularSequenceStructureVariantSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

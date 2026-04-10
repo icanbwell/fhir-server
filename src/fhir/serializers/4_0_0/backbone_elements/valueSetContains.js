@@ -36,13 +36,13 @@ function initializeResourceSerializer() {
 class ValueSetContainsSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         system: null,
         abstract: null,
@@ -50,13 +50,13 @@ class ValueSetContainsSerializer {
         version: null,
         code: null,
         display: null,
-        designation: (value) => {
+        designation: (value, context) => {
             initializeSerializers('ValueSetDesignation');
-            return FhirResourceSerializer.serializeArray(value, ValueSetDesignationSerializer);
+            return FhirResourceSerializer.serializeArray(value, ValueSetDesignationSerializer, context);
         },
-        contains: (value) => {
+        contains: (value, context) => {
             initializeSerializers('ValueSetContains');
-            return FhirResourceSerializer.serializeArray(value, ValueSetContainsSerializer);
+            return FhirResourceSerializer.serializeArray(value, ValueSetContainsSerializer, context);
         }
     };
 
@@ -64,14 +64,15 @@ class ValueSetContainsSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ValueSetContainsSerializer.serialize(item));
+            return rawJson.map(item => ValueSetContainsSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -87,7 +88,7 @@ class ValueSetContainsSerializer {
 
             if (propertyName in ValueSetContainsSerializer.propertyToSerializerMap) {
                 if (ValueSetContainsSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ValueSetContainsSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ValueSetContainsSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

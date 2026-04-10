@@ -96,79 +96,79 @@ function initializeResourceSerializer() {
 class InvoiceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         status: null,
         cancelledReason: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        subject: (value) => {
+        subject: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        recipient: (value) => {
+        recipient: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         date: null,
-        participant: (value) => {
+        participant: (value, context) => {
             initializeSerializers('InvoiceParticipant');
-            return FhirResourceSerializer.serializeArray(value, InvoiceParticipantSerializer);
+            return FhirResourceSerializer.serializeArray(value, InvoiceParticipantSerializer, context);
         },
-        issuer: (value) => {
+        issuer: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        account: (value) => {
+        account: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        lineItem: (value) => {
+        lineItem: (value, context) => {
             initializeSerializers('InvoiceLineItem');
-            return FhirResourceSerializer.serializeArray(value, InvoiceLineItemSerializer);
+            return FhirResourceSerializer.serializeArray(value, InvoiceLineItemSerializer, context);
         },
-        totalPriceComponent: (value) => {
+        totalPriceComponent: (value, context) => {
             initializeSerializers('InvoicePriceComponent');
-            return FhirResourceSerializer.serializeArray(value, InvoicePriceComponentSerializer);
+            return FhirResourceSerializer.serializeArray(value, InvoicePriceComponentSerializer, context);
         },
-        totalNet: (value) => {
+        totalNet: (value, context) => {
             initializeSerializers('Money');
-            return FhirResourceSerializer.serialize(value, MoneySerializer);
+            return FhirResourceSerializer.serialize(value, MoneySerializer, context);
         },
-        totalGross: (value) => {
+        totalGross: (value, context) => {
             initializeSerializers('Money');
-            return FhirResourceSerializer.serialize(value, MoneySerializer);
+            return FhirResourceSerializer.serialize(value, MoneySerializer, context);
         },
         paymentTerms: null,
-        note: (value) => {
+        note: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer);
+            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer, context);
         },
         resourceType: null
     };
@@ -177,14 +177,15 @@ class InvoiceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => InvoiceSerializer.serialize(item));
+            return rawJson.map(item => InvoiceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -200,7 +201,7 @@ class InvoiceSerializer {
 
             if (propertyName in InvoiceSerializer.propertyToSerializerMap) {
                 if (InvoiceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = InvoiceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = InvoiceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

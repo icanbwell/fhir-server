@@ -72,47 +72,47 @@ function initializeResourceSerializer() {
 class CitationEntrySerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        name: (value) => {
+        name: (value, context) => {
             initializeSerializers('HumanName');
-            return FhirResourceSerializer.serialize(value, HumanNameSerializer);
+            return FhirResourceSerializer.serialize(value, HumanNameSerializer, context);
         },
         initials: null,
         collectiveName: null,
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
-        affiliationInfo: (value) => {
+        affiliationInfo: (value, context) => {
             initializeSerializers('CitationAffiliationInfo');
-            return FhirResourceSerializer.serializeArray(value, CitationAffiliationInfoSerializer);
+            return FhirResourceSerializer.serializeArray(value, CitationAffiliationInfoSerializer, context);
         },
-        address: (value) => {
+        address: (value, context) => {
             initializeSerializers('Address');
-            return FhirResourceSerializer.serializeArray(value, AddressSerializer);
+            return FhirResourceSerializer.serializeArray(value, AddressSerializer, context);
         },
-        telecom: (value) => {
+        telecom: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer, context);
         },
-        contributionType: (value) => {
+        contributionType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        role: (value) => {
+        role: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        contributionInstance: (value) => {
+        contributionInstance: (value, context) => {
             initializeSerializers('CitationContributionInstance');
-            return FhirResourceSerializer.serializeArray(value, CitationContributionInstanceSerializer);
+            return FhirResourceSerializer.serializeArray(value, CitationContributionInstanceSerializer, context);
         },
         correspondingContact: null,
         listOrder: null
@@ -122,14 +122,15 @@ class CitationEntrySerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CitationEntrySerializer.serialize(item));
+            return rawJson.map(item => CitationEntrySerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -145,7 +146,7 @@ class CitationEntrySerializer {
 
             if (propertyName in CitationEntrySerializer.propertyToSerializerMap) {
                 if (CitationEntrySerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CitationEntrySerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CitationEntrySerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

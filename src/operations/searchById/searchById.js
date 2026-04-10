@@ -268,7 +268,7 @@ class SearchByIdOperation {
                 });
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-                FhirResourceSerializer.serializeByResourceType(resource, resourceType);
+                FhirResourceSerializer.serializeByResourceType(resource, resourceType, { userType });
                 return resource;
             } else {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);

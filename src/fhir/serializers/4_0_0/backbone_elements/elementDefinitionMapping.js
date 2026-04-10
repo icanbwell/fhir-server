@@ -30,13 +30,13 @@ function initializeResourceSerializer() {
 class ElementDefinitionMappingSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         identity: null,
         language: null,
@@ -48,14 +48,15 @@ class ElementDefinitionMappingSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ElementDefinitionMappingSerializer.serialize(item));
+            return rawJson.map(item => ElementDefinitionMappingSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -71,7 +72,7 @@ class ElementDefinitionMappingSerializer {
 
             if (propertyName in ElementDefinitionMappingSerializer.propertyToSerializerMap) {
                 if (ElementDefinitionMappingSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ElementDefinitionMappingSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ElementDefinitionMappingSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -60,33 +60,33 @@ function initializeResourceSerializer() {
 class DataRequirementSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         type: null,
         profile: null,
-        subjectCodeableConcept: (value) => {
+        subjectCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        subjectReference: (value) => {
+        subjectReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         mustSupport: null,
-        codeFilter: (value) => {
+        codeFilter: (value, context) => {
             initializeSerializers('DataRequirementCodeFilter');
-            return FhirResourceSerializer.serializeArray(value, DataRequirementCodeFilterSerializer);
+            return FhirResourceSerializer.serializeArray(value, DataRequirementCodeFilterSerializer, context);
         },
-        dateFilter: (value) => {
+        dateFilter: (value, context) => {
             initializeSerializers('DataRequirementDateFilter');
-            return FhirResourceSerializer.serializeArray(value, DataRequirementDateFilterSerializer);
+            return FhirResourceSerializer.serializeArray(value, DataRequirementDateFilterSerializer, context);
         },
         limit: null,
-        sort: (value) => {
+        sort: (value, context) => {
             initializeSerializers('DataRequirementSort');
-            return FhirResourceSerializer.serializeArray(value, DataRequirementSortSerializer);
+            return FhirResourceSerializer.serializeArray(value, DataRequirementSortSerializer, context);
         }
     };
 
@@ -94,14 +94,15 @@ class DataRequirementSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => DataRequirementSerializer.serialize(item));
+            return rawJson.map(item => DataRequirementSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -117,7 +118,7 @@ class DataRequirementSerializer {
 
             if (propertyName in DataRequirementSerializer.propertyToSerializerMap) {
                 if (DataRequirementSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = DataRequirementSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = DataRequirementSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

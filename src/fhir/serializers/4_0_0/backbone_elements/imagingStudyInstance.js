@@ -36,18 +36,18 @@ function initializeResourceSerializer() {
 class ImagingStudyInstanceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         uid: null,
-        sopClass: (value) => {
+        sopClass: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
         number: null,
         title: null
@@ -57,14 +57,15 @@ class ImagingStudyInstanceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ImagingStudyInstanceSerializer.serialize(item));
+            return rawJson.map(item => ImagingStudyInstanceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -80,7 +81,7 @@ class ImagingStudyInstanceSerializer {
 
             if (propertyName in ImagingStudyInstanceSerializer.propertyToSerializerMap) {
                 if (ImagingStudyInstanceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ImagingStudyInstanceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ImagingStudyInstanceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

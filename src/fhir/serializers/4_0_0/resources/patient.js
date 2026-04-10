@@ -108,78 +108,78 @@ function initializeResourceSerializer() {
 class PatientSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         active: null,
-        name: (value) => {
+        name: (value, context) => {
             initializeSerializers('HumanName');
-            return FhirResourceSerializer.serializeArray(value, HumanNameSerializer);
+            return FhirResourceSerializer.serializeArray(value, HumanNameSerializer, context);
         },
-        telecom: (value) => {
+        telecom: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactPointSerializer, context);
         },
         gender: null,
         birthDate: null,
         deceasedBoolean: null,
         deceasedDateTime: null,
-        address: (value) => {
+        address: (value, context) => {
             initializeSerializers('Address');
-            return FhirResourceSerializer.serializeArray(value, AddressSerializer);
+            return FhirResourceSerializer.serializeArray(value, AddressSerializer, context);
         },
-        maritalStatus: (value) => {
+        maritalStatus: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         multipleBirthBoolean: null,
         multipleBirthInteger: null,
-        photo: (value) => {
+        photo: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serializeArray(value, AttachmentSerializer);
+            return FhirResourceSerializer.serializeArray(value, AttachmentSerializer, context);
         },
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('PatientContact');
-            return FhirResourceSerializer.serializeArray(value, PatientContactSerializer);
+            return FhirResourceSerializer.serializeArray(value, PatientContactSerializer, context);
         },
-        communication: (value) => {
+        communication: (value, context) => {
             initializeSerializers('PatientCommunication');
-            return FhirResourceSerializer.serializeArray(value, PatientCommunicationSerializer);
+            return FhirResourceSerializer.serializeArray(value, PatientCommunicationSerializer, context);
         },
-        generalPractitioner: (value) => {
+        generalPractitioner: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        managingOrganization: (value) => {
+        managingOrganization: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        link: (value) => {
+        link: (value, context) => {
             initializeSerializers('PatientLink');
-            return FhirResourceSerializer.serializeArray(value, PatientLinkSerializer);
+            return FhirResourceSerializer.serializeArray(value, PatientLinkSerializer, context);
         },
         resourceType: null
     };
@@ -188,14 +188,15 @@ class PatientSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => PatientSerializer.serialize(item));
+            return rawJson.map(item => PatientSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -211,7 +212,7 @@ class PatientSerializer {
 
             if (propertyName in PatientSerializer.propertyToSerializerMap) {
                 if (PatientSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = PatientSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = PatientSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

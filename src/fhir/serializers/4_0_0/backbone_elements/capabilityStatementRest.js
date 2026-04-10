@@ -60,35 +60,35 @@ function initializeResourceSerializer() {
 class CapabilityStatementRestSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         mode: null,
         documentation: null,
-        security: (value) => {
+        security: (value, context) => {
             initializeSerializers('CapabilityStatementSecurity');
-            return FhirResourceSerializer.serialize(value, CapabilityStatementSecuritySerializer);
+            return FhirResourceSerializer.serialize(value, CapabilityStatementSecuritySerializer, context);
         },
-        resource: (value) => {
+        resource: (value, context) => {
             initializeSerializers('CapabilityStatementResource');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementResourceSerializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementResourceSerializer, context);
         },
-        interaction: (value) => {
+        interaction: (value, context) => {
             initializeSerializers('CapabilityStatementInteraction1');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementInteraction1Serializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementInteraction1Serializer, context);
         },
-        searchParam: (value) => {
+        searchParam: (value, context) => {
             initializeSerializers('CapabilityStatementSearchParam');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementSearchParamSerializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementSearchParamSerializer, context);
         },
-        operation: (value) => {
+        operation: (value, context) => {
             initializeSerializers('CapabilityStatementOperation');
-            return FhirResourceSerializer.serializeArray(value, CapabilityStatementOperationSerializer);
+            return FhirResourceSerializer.serializeArray(value, CapabilityStatementOperationSerializer, context);
         },
         compartment: null
     };
@@ -97,14 +97,15 @@ class CapabilityStatementRestSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CapabilityStatementRestSerializer.serialize(item));
+            return rawJson.map(item => CapabilityStatementRestSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -120,7 +121,7 @@ class CapabilityStatementRestSerializer {
 
             if (propertyName in CapabilityStatementRestSerializer.propertyToSerializerMap) {
                 if (CapabilityStatementRestSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CapabilityStatementRestSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CapabilityStatementRestSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -256,7 +256,7 @@ class SearchByVersionIdOperation {
                 });
 
                 // serialize the resource
-                FhirResourceSerializer.serialize(historyResource);
+                FhirResourceSerializer.serialize(historyResource, null, { userType });
 
                 return historyResource;
             } else {

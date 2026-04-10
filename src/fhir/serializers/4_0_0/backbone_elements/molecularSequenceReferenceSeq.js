@@ -42,27 +42,27 @@ function initializeResourceSerializer() {
 class MolecularSequenceReferenceSeqSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        chromosome: (value) => {
+        chromosome: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         genomeBuild: null,
         orientation: null,
-        referenceSeqId: (value) => {
+        referenceSeqId: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        referenceSeqPointer: (value) => {
+        referenceSeqPointer: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         referenceSeqString: null,
         strand: null,
@@ -74,14 +74,15 @@ class MolecularSequenceReferenceSeqSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MolecularSequenceReferenceSeqSerializer.serialize(item));
+            return rawJson.map(item => MolecularSequenceReferenceSeqSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -97,7 +98,7 @@ class MolecularSequenceReferenceSeqSerializer {
 
             if (propertyName in MolecularSequenceReferenceSeqSerializer.propertyToSerializerMap) {
                 if (MolecularSequenceReferenceSeqSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MolecularSequenceReferenceSeqSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MolecularSequenceReferenceSeqSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

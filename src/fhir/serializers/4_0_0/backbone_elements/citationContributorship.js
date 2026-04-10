@@ -42,22 +42,22 @@ function initializeResourceSerializer() {
 class CitationContributorshipSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         complete: null,
-        entry: (value) => {
+        entry: (value, context) => {
             initializeSerializers('CitationEntry');
-            return FhirResourceSerializer.serializeArray(value, CitationEntrySerializer);
+            return FhirResourceSerializer.serializeArray(value, CitationEntrySerializer, context);
         },
-        summary: (value) => {
+        summary: (value, context) => {
             initializeSerializers('CitationSummary1');
-            return FhirResourceSerializer.serializeArray(value, CitationSummary1Serializer);
+            return FhirResourceSerializer.serializeArray(value, CitationSummary1Serializer, context);
         }
     };
 
@@ -65,14 +65,15 @@ class CitationContributorshipSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CitationContributorshipSerializer.serialize(item));
+            return rawJson.map(item => CitationContributorshipSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -88,7 +89,7 @@ class CitationContributorshipSerializer {
 
             if (propertyName in CitationContributorshipSerializer.propertyToSerializerMap) {
                 if (CitationContributorshipSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CitationContributorshipSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CitationContributorshipSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

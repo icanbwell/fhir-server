@@ -168,178 +168,178 @@ function initializeResourceSerializer() {
 class ExplanationOfBenefitSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         status: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        subType: (value) => {
+        subType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         use: null,
-        patient: (value) => {
+        patient: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        billablePeriod: (value) => {
+        billablePeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
         created: null,
-        enterer: (value) => {
+        enterer: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        insurer: (value) => {
+        insurer: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        provider: (value) => {
+        provider: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        priority: (value) => {
+        priority: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        fundsReserveRequested: (value) => {
+        fundsReserveRequested: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        fundsReserve: (value) => {
+        fundsReserve: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        related: (value) => {
+        related: (value, context) => {
             initializeSerializers('ExplanationOfBenefitRelated');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitRelatedSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitRelatedSerializer, context);
         },
-        prescription: (value) => {
+        prescription: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        originalPrescription: (value) => {
+        originalPrescription: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        payee: (value) => {
+        payee: (value, context) => {
             initializeSerializers('ExplanationOfBenefitPayee');
-            return FhirResourceSerializer.serialize(value, ExplanationOfBenefitPayeeSerializer);
+            return FhirResourceSerializer.serialize(value, ExplanationOfBenefitPayeeSerializer, context);
         },
-        referral: (value) => {
+        referral: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        facility: (value) => {
+        facility: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        claim: (value) => {
+        claim: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        claimResponse: (value) => {
+        claimResponse: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         outcome: null,
         disposition: null,
         preAuthRef: null,
-        preAuthRefPeriod: (value) => {
+        preAuthRefPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serializeArray(value, PeriodSerializer);
+            return FhirResourceSerializer.serializeArray(value, PeriodSerializer, context);
         },
-        careTeam: (value) => {
+        careTeam: (value, context) => {
             initializeSerializers('ExplanationOfBenefitCareTeam');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitCareTeamSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitCareTeamSerializer, context);
         },
-        supportingInfo: (value) => {
+        supportingInfo: (value, context) => {
             initializeSerializers('ExplanationOfBenefitSupportingInfo');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitSupportingInfoSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitSupportingInfoSerializer, context);
         },
-        diagnosis: (value) => {
+        diagnosis: (value, context) => {
             initializeSerializers('ExplanationOfBenefitDiagnosis');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitDiagnosisSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitDiagnosisSerializer, context);
         },
-        procedure: (value) => {
+        procedure: (value, context) => {
             initializeSerializers('ExplanationOfBenefitProcedure');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitProcedureSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitProcedureSerializer, context);
         },
         precedence: null,
-        insurance: (value) => {
+        insurance: (value, context) => {
             initializeSerializers('ExplanationOfBenefitInsurance');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitInsuranceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitInsuranceSerializer, context);
         },
-        accident: (value) => {
+        accident: (value, context) => {
             initializeSerializers('ExplanationOfBenefitAccident');
-            return FhirResourceSerializer.serialize(value, ExplanationOfBenefitAccidentSerializer);
+            return FhirResourceSerializer.serialize(value, ExplanationOfBenefitAccidentSerializer, context);
         },
-        item: (value) => {
+        item: (value, context) => {
             initializeSerializers('ExplanationOfBenefitItem');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitItemSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitItemSerializer, context);
         },
-        addItem: (value) => {
+        addItem: (value, context) => {
             initializeSerializers('ExplanationOfBenefitAddItem');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitAddItemSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitAddItemSerializer, context);
         },
-        adjudication: (value) => {
+        adjudication: (value, context) => {
             initializeSerializers('ExplanationOfBenefitAdjudication');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitAdjudicationSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitAdjudicationSerializer, context);
         },
-        total: (value) => {
+        total: (value, context) => {
             initializeSerializers('ExplanationOfBenefitTotal');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitTotalSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitTotalSerializer, context);
         },
-        payment: (value) => {
+        payment: (value, context) => {
             initializeSerializers('ExplanationOfBenefitPayment');
-            return FhirResourceSerializer.serialize(value, ExplanationOfBenefitPaymentSerializer);
+            return FhirResourceSerializer.serialize(value, ExplanationOfBenefitPaymentSerializer, context);
         },
-        formCode: (value) => {
+        formCode: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        form: (value) => {
+        form: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serialize(value, AttachmentSerializer);
+            return FhirResourceSerializer.serialize(value, AttachmentSerializer, context);
         },
-        processNote: (value) => {
+        processNote: (value, context) => {
             initializeSerializers('ExplanationOfBenefitProcessNote');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitProcessNoteSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitProcessNoteSerializer, context);
         },
-        benefitPeriod: (value) => {
+        benefitPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        benefitBalance: (value) => {
+        benefitBalance: (value, context) => {
             initializeSerializers('ExplanationOfBenefitBenefitBalance');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitBenefitBalanceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitBenefitBalanceSerializer, context);
         },
         resourceType: null
     };
@@ -348,14 +348,15 @@ class ExplanationOfBenefitSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ExplanationOfBenefitSerializer.serialize(item));
+            return rawJson.map(item => ExplanationOfBenefitSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -371,7 +372,7 @@ class ExplanationOfBenefitSerializer {
 
             if (propertyName in ExplanationOfBenefitSerializer.propertyToSerializerMap) {
                 if (ExplanationOfBenefitSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ExplanationOfBenefitSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ExplanationOfBenefitSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

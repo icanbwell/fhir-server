@@ -36,21 +36,21 @@ function initializeResourceSerializer() {
 class MedicationKnowledgeMaxDispenseSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        quantity: (value) => {
+        quantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        period: (value) => {
+        period: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         }
     };
 
@@ -58,14 +58,15 @@ class MedicationKnowledgeMaxDispenseSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MedicationKnowledgeMaxDispenseSerializer.serialize(item));
+            return rawJson.map(item => MedicationKnowledgeMaxDispenseSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -81,7 +82,7 @@ class MedicationKnowledgeMaxDispenseSerializer {
 
             if (propertyName in MedicationKnowledgeMaxDispenseSerializer.propertyToSerializerMap) {
                 if (MedicationKnowledgeMaxDispenseSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MedicationKnowledgeMaxDispenseSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MedicationKnowledgeMaxDispenseSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

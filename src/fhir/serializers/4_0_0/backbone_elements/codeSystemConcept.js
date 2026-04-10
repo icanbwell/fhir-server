@@ -42,28 +42,28 @@ function initializeResourceSerializer() {
 class CodeSystemConceptSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         code: null,
         display: null,
         definition: null,
-        designation: (value) => {
+        designation: (value, context) => {
             initializeSerializers('CodeSystemDesignation');
-            return FhirResourceSerializer.serializeArray(value, CodeSystemDesignationSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeSystemDesignationSerializer, context);
         },
-        property: (value) => {
+        property: (value, context) => {
             initializeSerializers('CodeSystemProperty1');
-            return FhirResourceSerializer.serializeArray(value, CodeSystemProperty1Serializer);
+            return FhirResourceSerializer.serializeArray(value, CodeSystemProperty1Serializer, context);
         },
-        concept: (value) => {
+        concept: (value, context) => {
             initializeSerializers('CodeSystemConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeSystemConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeSystemConceptSerializer, context);
         }
     };
 
@@ -71,14 +71,15 @@ class CodeSystemConceptSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CodeSystemConceptSerializer.serialize(item));
+            return rawJson.map(item => CodeSystemConceptSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -94,7 +95,7 @@ class CodeSystemConceptSerializer {
 
             if (propertyName in CodeSystemConceptSerializer.propertyToSerializerMap) {
                 if (CodeSystemConceptSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CodeSystemConceptSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CodeSystemConceptSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

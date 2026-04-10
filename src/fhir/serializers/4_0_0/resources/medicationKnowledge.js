@@ -132,106 +132,106 @@ function initializeResourceSerializer() {
 class MedicationKnowledgeSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         status: null,
-        manufacturer: (value) => {
+        manufacturer: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        doseForm: (value) => {
+        doseForm: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        amount: (value) => {
+        amount: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         synonym: null,
-        relatedMedicationKnowledge: (value) => {
+        relatedMedicationKnowledge: (value, context) => {
             initializeSerializers('MedicationKnowledgeRelatedMedicationKnowledge');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeRelatedMedicationKnowledgeSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeRelatedMedicationKnowledgeSerializer, context);
         },
-        associatedMedication: (value) => {
+        associatedMedication: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        productType: (value) => {
+        productType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        monograph: (value) => {
+        monograph: (value, context) => {
             initializeSerializers('MedicationKnowledgeMonograph');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeMonographSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeMonographSerializer, context);
         },
-        ingredient: (value) => {
+        ingredient: (value, context) => {
             initializeSerializers('MedicationKnowledgeIngredient');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeIngredientSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeIngredientSerializer, context);
         },
         preparationInstruction: null,
-        intendedRoute: (value) => {
+        intendedRoute: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        cost: (value) => {
+        cost: (value, context) => {
             initializeSerializers('MedicationKnowledgeCost');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeCostSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeCostSerializer, context);
         },
-        monitoringProgram: (value) => {
+        monitoringProgram: (value, context) => {
             initializeSerializers('MedicationKnowledgeMonitoringProgram');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeMonitoringProgramSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeMonitoringProgramSerializer, context);
         },
-        administrationGuidelines: (value) => {
+        administrationGuidelines: (value, context) => {
             initializeSerializers('MedicationKnowledgeAdministrationGuidelines');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeAdministrationGuidelinesSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeAdministrationGuidelinesSerializer, context);
         },
-        medicineClassification: (value) => {
+        medicineClassification: (value, context) => {
             initializeSerializers('MedicationKnowledgeMedicineClassification');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeMedicineClassificationSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeMedicineClassificationSerializer, context);
         },
-        packaging: (value) => {
+        packaging: (value, context) => {
             initializeSerializers('MedicationKnowledgePackaging');
-            return FhirResourceSerializer.serialize(value, MedicationKnowledgePackagingSerializer);
+            return FhirResourceSerializer.serialize(value, MedicationKnowledgePackagingSerializer, context);
         },
-        drugCharacteristic: (value) => {
+        drugCharacteristic: (value, context) => {
             initializeSerializers('MedicationKnowledgeDrugCharacteristic');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeDrugCharacteristicSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeDrugCharacteristicSerializer, context);
         },
-        contraindication: (value) => {
+        contraindication: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        regulatory: (value) => {
+        regulatory: (value, context) => {
             initializeSerializers('MedicationKnowledgeRegulatory');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeRegulatorySerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeRegulatorySerializer, context);
         },
-        kinetics: (value) => {
+        kinetics: (value, context) => {
             initializeSerializers('MedicationKnowledgeKinetics');
-            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeKineticsSerializer);
+            return FhirResourceSerializer.serializeArray(value, MedicationKnowledgeKineticsSerializer, context);
         },
         resourceType: null
     };
@@ -240,14 +240,15 @@ class MedicationKnowledgeSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MedicationKnowledgeSerializer.serialize(item));
+            return rawJson.map(item => MedicationKnowledgeSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -263,7 +264,7 @@ class MedicationKnowledgeSerializer {
 
             if (propertyName in MedicationKnowledgeSerializer.propertyToSerializerMap) {
                 if (MedicationKnowledgeSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MedicationKnowledgeSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MedicationKnowledgeSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

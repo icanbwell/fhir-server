@@ -34,14 +34,15 @@ class AgeSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => AgeSerializer.serialize(item));
+            return rawJson.map(item => AgeSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -57,7 +58,7 @@ class AgeSerializer {
 
             if (propertyName in AgeSerializer.propertyToSerializerMap) {
                 if (AgeSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = AgeSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = AgeSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

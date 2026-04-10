@@ -36,23 +36,23 @@ function initializeResourceSerializer() {
 class SubscriptionStatusNotificationEventSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         eventNumber: null,
         timestamp: null,
-        focus: (value) => {
+        focus: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        additionalContext: (value) => {
+        additionalContext: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         }
     };
 
@@ -60,14 +60,15 @@ class SubscriptionStatusNotificationEventSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => SubscriptionStatusNotificationEventSerializer.serialize(item));
+            return rawJson.map(item => SubscriptionStatusNotificationEventSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -83,7 +84,7 @@ class SubscriptionStatusNotificationEventSerializer {
 
             if (propertyName in SubscriptionStatusNotificationEventSerializer.propertyToSerializerMap) {
                 if (SubscriptionStatusNotificationEventSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = SubscriptionStatusNotificationEventSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = SubscriptionStatusNotificationEventSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

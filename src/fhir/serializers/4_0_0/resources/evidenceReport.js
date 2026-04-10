@@ -108,91 +108,91 @@ function initializeResourceSerializer() {
 class EvidenceReportSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         url: null,
         status: null,
-        useContext: (value) => {
+        useContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer);
+            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
-        relatedIdentifier: (value) => {
+        relatedIdentifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
-        citeAsReference: (value) => {
+        citeAsReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         citeAsMarkdown: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        note: (value) => {
+        note: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer);
+            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer, context);
         },
-        relatedArtifact: (value) => {
+        relatedArtifact: (value, context) => {
             initializeSerializers('RelatedArtifact');
-            return FhirResourceSerializer.serializeArray(value, RelatedArtifactSerializer);
+            return FhirResourceSerializer.serializeArray(value, RelatedArtifactSerializer, context);
         },
-        subject: (value) => {
+        subject: (value, context) => {
             initializeSerializers('EvidenceReportSubject');
-            return FhirResourceSerializer.serialize(value, EvidenceReportSubjectSerializer);
+            return FhirResourceSerializer.serialize(value, EvidenceReportSubjectSerializer, context);
         },
         publisher: null,
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
-        author: (value) => {
+        author: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
-        editor: (value) => {
+        editor: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
-        reviewer: (value) => {
+        reviewer: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
-        endorser: (value) => {
+        endorser: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
-        relatesTo: (value) => {
+        relatesTo: (value, context) => {
             initializeSerializers('EvidenceReportRelatesTo');
-            return FhirResourceSerializer.serializeArray(value, EvidenceReportRelatesToSerializer);
+            return FhirResourceSerializer.serializeArray(value, EvidenceReportRelatesToSerializer, context);
         },
-        section: (value) => {
+        section: (value, context) => {
             initializeSerializers('EvidenceReportSection');
-            return FhirResourceSerializer.serializeArray(value, EvidenceReportSectionSerializer);
+            return FhirResourceSerializer.serializeArray(value, EvidenceReportSectionSerializer, context);
         },
         resourceType: null
     };
@@ -201,14 +201,15 @@ class EvidenceReportSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => EvidenceReportSerializer.serialize(item));
+            return rawJson.map(item => EvidenceReportSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -224,7 +225,7 @@ class EvidenceReportSerializer {
 
             if (propertyName in EvidenceReportSerializer.propertyToSerializerMap) {
                 if (EvidenceReportSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = EvidenceReportSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = EvidenceReportSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -108,70 +108,70 @@ function initializeResourceSerializer() {
 class CitationCitedArtifactSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
-        relatedIdentifier: (value) => {
+        relatedIdentifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         dateAccessed: null,
-        version: (value) => {
+        version: (value, context) => {
             initializeSerializers('CitationVersion');
-            return FhirResourceSerializer.serialize(value, CitationVersionSerializer);
+            return FhirResourceSerializer.serialize(value, CitationVersionSerializer, context);
         },
-        currentState: (value) => {
+        currentState: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        statusDate: (value) => {
+        statusDate: (value, context) => {
             initializeSerializers('CitationStatusDate1');
-            return FhirResourceSerializer.serializeArray(value, CitationStatusDate1Serializer);
+            return FhirResourceSerializer.serializeArray(value, CitationStatusDate1Serializer, context);
         },
-        title: (value) => {
+        title: (value, context) => {
             initializeSerializers('CitationTitle');
-            return FhirResourceSerializer.serializeArray(value, CitationTitleSerializer);
+            return FhirResourceSerializer.serializeArray(value, CitationTitleSerializer, context);
         },
-        abstract: (value) => {
+        abstract: (value, context) => {
             initializeSerializers('CitationAbstract');
-            return FhirResourceSerializer.serializeArray(value, CitationAbstractSerializer);
+            return FhirResourceSerializer.serializeArray(value, CitationAbstractSerializer, context);
         },
-        part: (value) => {
+        part: (value, context) => {
             initializeSerializers('CitationPart');
-            return FhirResourceSerializer.serialize(value, CitationPartSerializer);
+            return FhirResourceSerializer.serialize(value, CitationPartSerializer, context);
         },
-        relatesTo: (value) => {
+        relatesTo: (value, context) => {
             initializeSerializers('CitationRelatesTo1');
-            return FhirResourceSerializer.serializeArray(value, CitationRelatesTo1Serializer);
+            return FhirResourceSerializer.serializeArray(value, CitationRelatesTo1Serializer, context);
         },
-        publicationForm: (value) => {
+        publicationForm: (value, context) => {
             initializeSerializers('CitationPublicationForm');
-            return FhirResourceSerializer.serializeArray(value, CitationPublicationFormSerializer);
+            return FhirResourceSerializer.serializeArray(value, CitationPublicationFormSerializer, context);
         },
-        webLocation: (value) => {
+        webLocation: (value, context) => {
             initializeSerializers('CitationWebLocation');
-            return FhirResourceSerializer.serializeArray(value, CitationWebLocationSerializer);
+            return FhirResourceSerializer.serializeArray(value, CitationWebLocationSerializer, context);
         },
-        classification: (value) => {
+        classification: (value, context) => {
             initializeSerializers('CitationClassification1');
-            return FhirResourceSerializer.serializeArray(value, CitationClassification1Serializer);
+            return FhirResourceSerializer.serializeArray(value, CitationClassification1Serializer, context);
         },
-        contributorship: (value) => {
+        contributorship: (value, context) => {
             initializeSerializers('CitationContributorship');
-            return FhirResourceSerializer.serialize(value, CitationContributorshipSerializer);
+            return FhirResourceSerializer.serialize(value, CitationContributorshipSerializer, context);
         },
-        note: (value) => {
+        note: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer);
+            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer, context);
         }
     };
 
@@ -179,14 +179,15 @@ class CitationCitedArtifactSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CitationCitedArtifactSerializer.serialize(item));
+            return rawJson.map(item => CitationCitedArtifactSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -202,7 +203,7 @@ class CitationCitedArtifactSerializer {
 
             if (propertyName in CitationCitedArtifactSerializer.propertyToSerializerMap) {
                 if (CitationCitedArtifactSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CitationCitedArtifactSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CitationCitedArtifactSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

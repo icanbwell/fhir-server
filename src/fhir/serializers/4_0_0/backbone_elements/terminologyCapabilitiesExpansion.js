@@ -36,20 +36,20 @@ function initializeResourceSerializer() {
 class TerminologyCapabilitiesExpansionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         hierarchical: null,
         paging: null,
         incomplete: null,
-        parameter: (value) => {
+        parameter: (value, context) => {
             initializeSerializers('TerminologyCapabilitiesParameter');
-            return FhirResourceSerializer.serializeArray(value, TerminologyCapabilitiesParameterSerializer);
+            return FhirResourceSerializer.serializeArray(value, TerminologyCapabilitiesParameterSerializer, context);
         },
         textFilter: null
     };
@@ -58,14 +58,15 @@ class TerminologyCapabilitiesExpansionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => TerminologyCapabilitiesExpansionSerializer.serialize(item));
+            return rawJson.map(item => TerminologyCapabilitiesExpansionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -81,7 +82,7 @@ class TerminologyCapabilitiesExpansionSerializer {
 
             if (propertyName in TerminologyCapabilitiesExpansionSerializer.propertyToSerializerMap) {
                 if (TerminologyCapabilitiesExpansionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = TerminologyCapabilitiesExpansionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = TerminologyCapabilitiesExpansionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

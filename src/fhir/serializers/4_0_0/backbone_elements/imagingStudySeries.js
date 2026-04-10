@@ -54,46 +54,46 @@ function initializeResourceSerializer() {
 class ImagingStudySeriesSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         uid: null,
         number: null,
-        modality: (value) => {
+        modality: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
         description: null,
         numberOfInstances: null,
-        endpoint: (value) => {
+        endpoint: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        bodySite: (value) => {
+        bodySite: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
-        laterality: (value) => {
+        laterality: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
-        specimen: (value) => {
+        specimen: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
         started: null,
-        performer: (value) => {
+        performer: (value, context) => {
             initializeSerializers('ImagingStudyPerformer');
-            return FhirResourceSerializer.serializeArray(value, ImagingStudyPerformerSerializer);
+            return FhirResourceSerializer.serializeArray(value, ImagingStudyPerformerSerializer, context);
         },
-        instance: (value) => {
+        instance: (value, context) => {
             initializeSerializers('ImagingStudyInstance');
-            return FhirResourceSerializer.serializeArray(value, ImagingStudyInstanceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ImagingStudyInstanceSerializer, context);
         }
     };
 
@@ -101,14 +101,15 @@ class ImagingStudySeriesSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ImagingStudySeriesSerializer.serialize(item));
+            return rawJson.map(item => ImagingStudySeriesSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -124,7 +125,7 @@ class ImagingStudySeriesSerializer {
 
             if (propertyName in ImagingStudySeriesSerializer.propertyToSerializerMap) {
                 if (ImagingStudySeriesSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ImagingStudySeriesSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ImagingStudySeriesSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

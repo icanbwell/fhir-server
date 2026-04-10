@@ -66,44 +66,44 @@ function initializeResourceSerializer() {
 class EvidenceStatisticSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         description: null,
-        note: (value) => {
+        note: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer);
+            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer, context);
         },
-        statisticType: (value) => {
+        statisticType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        category: (value) => {
+        category: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        quantity: (value) => {
+        quantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         numberOfEvents: null,
         numberAffected: null,
-        sampleSize: (value) => {
+        sampleSize: (value, context) => {
             initializeSerializers('EvidenceSampleSize');
-            return FhirResourceSerializer.serialize(value, EvidenceSampleSizeSerializer);
+            return FhirResourceSerializer.serialize(value, EvidenceSampleSizeSerializer, context);
         },
-        attributeEstimate: (value) => {
+        attributeEstimate: (value, context) => {
             initializeSerializers('EvidenceAttributeEstimate');
-            return FhirResourceSerializer.serializeArray(value, EvidenceAttributeEstimateSerializer);
+            return FhirResourceSerializer.serializeArray(value, EvidenceAttributeEstimateSerializer, context);
         },
-        modelCharacteristic: (value) => {
+        modelCharacteristic: (value, context) => {
             initializeSerializers('EvidenceModelCharacteristic');
-            return FhirResourceSerializer.serializeArray(value, EvidenceModelCharacteristicSerializer);
+            return FhirResourceSerializer.serializeArray(value, EvidenceModelCharacteristicSerializer, context);
         }
     };
 
@@ -111,14 +111,15 @@ class EvidenceStatisticSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => EvidenceStatisticSerializer.serialize(item));
+            return rawJson.map(item => EvidenceStatisticSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -134,7 +135,7 @@ class EvidenceStatisticSerializer {
 
             if (propertyName in EvidenceStatisticSerializer.propertyToSerializerMap) {
                 if (EvidenceStatisticSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = EvidenceStatisticSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = EvidenceStatisticSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -48,26 +48,26 @@ function initializeResourceSerializer() {
 class MeasureGroupSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         description: null,
-        population: (value) => {
+        population: (value, context) => {
             initializeSerializers('MeasurePopulation');
-            return FhirResourceSerializer.serializeArray(value, MeasurePopulationSerializer);
+            return FhirResourceSerializer.serializeArray(value, MeasurePopulationSerializer, context);
         },
-        stratifier: (value) => {
+        stratifier: (value, context) => {
             initializeSerializers('MeasureStratifier');
-            return FhirResourceSerializer.serializeArray(value, MeasureStratifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, MeasureStratifierSerializer, context);
         }
     };
 
@@ -75,14 +75,15 @@ class MeasureGroupSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MeasureGroupSerializer.serialize(item));
+            return rawJson.map(item => MeasureGroupSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -98,7 +99,7 @@ class MeasureGroupSerializer {
 
             if (propertyName in MeasureGroupSerializer.propertyToSerializerMap) {
                 if (MeasureGroupSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MeasureGroupSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MeasureGroupSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

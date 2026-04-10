@@ -48,26 +48,26 @@ function initializeResourceSerializer() {
 class NutritionOrderSupplementSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         productName: null,
-        schedule: (value) => {
+        schedule: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serializeArray(value, TimingSerializer);
+            return FhirResourceSerializer.serializeArray(value, TimingSerializer, context);
         },
-        quantity: (value) => {
+        quantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         instruction: null
     };
@@ -76,14 +76,15 @@ class NutritionOrderSupplementSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => NutritionOrderSupplementSerializer.serialize(item));
+            return rawJson.map(item => NutritionOrderSupplementSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -99,7 +100,7 @@ class NutritionOrderSupplementSerializer {
 
             if (propertyName in NutritionOrderSupplementSerializer.propertyToSerializerMap) {
                 if (NutritionOrderSupplementSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = NutritionOrderSupplementSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = NutritionOrderSupplementSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

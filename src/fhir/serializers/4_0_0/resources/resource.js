@@ -30,9 +30,9 @@ function initializeResourceSerializer() {
 class ResourceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
@@ -43,14 +43,15 @@ class ResourceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ResourceSerializer.serialize(item));
+            return rawJson.map(item => ResourceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -66,7 +67,7 @@ class ResourceSerializer {
 
             if (propertyName in ResourceSerializer.propertyToSerializerMap) {
                 if (ResourceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ResourceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ResourceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

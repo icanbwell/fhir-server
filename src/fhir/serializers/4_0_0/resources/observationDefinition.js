@@ -78,70 +78,70 @@ function initializeResourceSerializer() {
 class ObservationDefinitionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        category: (value) => {
+        category: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         permittedDataType: null,
         multipleResultsAllowed: null,
-        method: (value) => {
+        method: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         preferredReportName: null,
-        quantitativeDetails: (value) => {
+        quantitativeDetails: (value, context) => {
             initializeSerializers('ObservationDefinitionQuantitativeDetails');
-            return FhirResourceSerializer.serialize(value, ObservationDefinitionQuantitativeDetailsSerializer);
+            return FhirResourceSerializer.serialize(value, ObservationDefinitionQuantitativeDetailsSerializer, context);
         },
-        qualifiedInterval: (value) => {
+        qualifiedInterval: (value, context) => {
             initializeSerializers('ObservationDefinitionQualifiedInterval');
-            return FhirResourceSerializer.serializeArray(value, ObservationDefinitionQualifiedIntervalSerializer);
+            return FhirResourceSerializer.serializeArray(value, ObservationDefinitionQualifiedIntervalSerializer, context);
         },
-        validCodedValueSet: (value) => {
+        validCodedValueSet: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        normalCodedValueSet: (value) => {
+        normalCodedValueSet: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        abnormalCodedValueSet: (value) => {
+        abnormalCodedValueSet: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        criticalCodedValueSet: (value) => {
+        criticalCodedValueSet: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         resourceType: null
     };
@@ -150,14 +150,15 @@ class ObservationDefinitionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ObservationDefinitionSerializer.serialize(item));
+            return rawJson.map(item => ObservationDefinitionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -173,7 +174,7 @@ class ObservationDefinitionSerializer {
 
             if (propertyName in ObservationDefinitionSerializer.propertyToSerializerMap) {
                 if (ObservationDefinitionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ObservationDefinitionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ObservationDefinitionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

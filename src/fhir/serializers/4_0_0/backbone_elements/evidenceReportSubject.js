@@ -42,21 +42,21 @@ function initializeResourceSerializer() {
 class EvidenceReportSubjectSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        characteristic: (value) => {
+        characteristic: (value, context) => {
             initializeSerializers('EvidenceReportCharacteristic');
-            return FhirResourceSerializer.serializeArray(value, EvidenceReportCharacteristicSerializer);
+            return FhirResourceSerializer.serializeArray(value, EvidenceReportCharacteristicSerializer, context);
         },
-        note: (value) => {
+        note: (value, context) => {
             initializeSerializers('Annotation');
-            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer);
+            return FhirResourceSerializer.serializeArray(value, AnnotationSerializer, context);
         }
     };
 
@@ -64,14 +64,15 @@ class EvidenceReportSubjectSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => EvidenceReportSubjectSerializer.serialize(item));
+            return rawJson.map(item => EvidenceReportSubjectSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -87,7 +88,7 @@ class EvidenceReportSubjectSerializer {
 
             if (propertyName in EvidenceReportSubjectSerializer.propertyToSerializerMap) {
                 if (EvidenceReportSubjectSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = EvidenceReportSubjectSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = EvidenceReportSubjectSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

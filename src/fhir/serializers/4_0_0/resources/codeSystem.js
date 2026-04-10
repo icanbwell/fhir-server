@@ -90,32 +90,32 @@ function initializeResourceSerializer() {
 class CodeSystemSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         url: null,
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         version: null,
         name: null,
@@ -124,18 +124,18 @@ class CodeSystemSerializer {
         experimental: null,
         date: null,
         publisher: null,
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
         description: null,
-        useContext: (value) => {
+        useContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer);
+            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer, context);
         },
-        jurisdiction: (value) => {
+        jurisdiction: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         purpose: null,
         copyright: null,
@@ -147,17 +147,17 @@ class CodeSystemSerializer {
         content: null,
         supplements: null,
         count: null,
-        filter: (value) => {
+        filter: (value, context) => {
             initializeSerializers('CodeSystemFilter');
-            return FhirResourceSerializer.serializeArray(value, CodeSystemFilterSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeSystemFilterSerializer, context);
         },
-        property: (value) => {
+        property: (value, context) => {
             initializeSerializers('CodeSystemProperty');
-            return FhirResourceSerializer.serializeArray(value, CodeSystemPropertySerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeSystemPropertySerializer, context);
         },
-        concept: (value) => {
+        concept: (value, context) => {
             initializeSerializers('CodeSystemConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeSystemConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeSystemConceptSerializer, context);
         },
         resourceType: null
     };
@@ -166,14 +166,15 @@ class CodeSystemSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CodeSystemSerializer.serialize(item));
+            return rawJson.map(item => CodeSystemSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -189,7 +190,7 @@ class CodeSystemSerializer {
 
             if (propertyName in CodeSystemSerializer.propertyToSerializerMap) {
                 if (CodeSystemSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CodeSystemSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CodeSystemSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

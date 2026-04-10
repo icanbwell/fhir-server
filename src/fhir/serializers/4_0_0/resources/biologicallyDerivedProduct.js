@@ -90,62 +90,62 @@ function initializeResourceSerializer() {
 class BiologicallyDerivedProductSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         productCategory: null,
-        productCode: (value) => {
+        productCode: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         status: null,
-        request: (value) => {
+        request: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
         quantity: null,
-        parent: (value) => {
+        parent: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        collection: (value) => {
+        collection: (value, context) => {
             initializeSerializers('BiologicallyDerivedProductCollection');
-            return FhirResourceSerializer.serialize(value, BiologicallyDerivedProductCollectionSerializer);
+            return FhirResourceSerializer.serialize(value, BiologicallyDerivedProductCollectionSerializer, context);
         },
-        processing: (value) => {
+        processing: (value, context) => {
             initializeSerializers('BiologicallyDerivedProductProcessing');
-            return FhirResourceSerializer.serializeArray(value, BiologicallyDerivedProductProcessingSerializer);
+            return FhirResourceSerializer.serializeArray(value, BiologicallyDerivedProductProcessingSerializer, context);
         },
-        manipulation: (value) => {
+        manipulation: (value, context) => {
             initializeSerializers('BiologicallyDerivedProductManipulation');
-            return FhirResourceSerializer.serialize(value, BiologicallyDerivedProductManipulationSerializer);
+            return FhirResourceSerializer.serialize(value, BiologicallyDerivedProductManipulationSerializer, context);
         },
-        storage: (value) => {
+        storage: (value, context) => {
             initializeSerializers('BiologicallyDerivedProductStorage');
-            return FhirResourceSerializer.serializeArray(value, BiologicallyDerivedProductStorageSerializer);
+            return FhirResourceSerializer.serializeArray(value, BiologicallyDerivedProductStorageSerializer, context);
         },
         resourceType: null
     };
@@ -154,14 +154,15 @@ class BiologicallyDerivedProductSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => BiologicallyDerivedProductSerializer.serialize(item));
+            return rawJson.map(item => BiologicallyDerivedProductSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -177,7 +178,7 @@ class BiologicallyDerivedProductSerializer {
 
             if (propertyName in BiologicallyDerivedProductSerializer.propertyToSerializerMap) {
                 if (BiologicallyDerivedProductSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = BiologicallyDerivedProductSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = BiologicallyDerivedProductSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

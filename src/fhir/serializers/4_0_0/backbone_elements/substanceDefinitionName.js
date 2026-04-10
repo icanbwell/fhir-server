@@ -48,51 +48,51 @@ function initializeResourceSerializer() {
 class SubstanceDefinitionNameSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         name: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        status: (value) => {
+        status: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         preferred: null,
-        language: (value) => {
+        language: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        domain: (value) => {
+        domain: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        jurisdiction: (value) => {
+        jurisdiction: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        synonym: (value) => {
+        synonym: (value, context) => {
             initializeSerializers('SubstanceDefinitionName');
-            return FhirResourceSerializer.serializeArray(value, SubstanceDefinitionNameSerializer);
+            return FhirResourceSerializer.serializeArray(value, SubstanceDefinitionNameSerializer, context);
         },
-        translation: (value) => {
+        translation: (value, context) => {
             initializeSerializers('SubstanceDefinitionName');
-            return FhirResourceSerializer.serializeArray(value, SubstanceDefinitionNameSerializer);
+            return FhirResourceSerializer.serializeArray(value, SubstanceDefinitionNameSerializer, context);
         },
-        official: (value) => {
+        official: (value, context) => {
             initializeSerializers('SubstanceDefinitionOfficial');
-            return FhirResourceSerializer.serializeArray(value, SubstanceDefinitionOfficialSerializer);
+            return FhirResourceSerializer.serializeArray(value, SubstanceDefinitionOfficialSerializer, context);
         },
-        source: (value) => {
+        source: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         }
     };
 
@@ -100,14 +100,15 @@ class SubstanceDefinitionNameSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => SubstanceDefinitionNameSerializer.serialize(item));
+            return rawJson.map(item => SubstanceDefinitionNameSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -123,7 +124,7 @@ class SubstanceDefinitionNameSerializer {
 
             if (propertyName in SubstanceDefinitionNameSerializer.propertyToSerializerMap) {
                 if (SubstanceDefinitionNameSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = SubstanceDefinitionNameSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = SubstanceDefinitionNameSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

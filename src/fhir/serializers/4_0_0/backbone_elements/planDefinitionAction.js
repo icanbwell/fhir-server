@@ -108,89 +108,89 @@ function initializeResourceSerializer() {
 class PlanDefinitionActionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         prefix: null,
         title: null,
         description: null,
         textEquivalent: null,
         priority: null,
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        reason: (value) => {
+        reason: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        documentation: (value) => {
+        documentation: (value, context) => {
             initializeSerializers('RelatedArtifact');
-            return FhirResourceSerializer.serializeArray(value, RelatedArtifactSerializer);
+            return FhirResourceSerializer.serializeArray(value, RelatedArtifactSerializer, context);
         },
         goalId: null,
-        subjectCodeableConcept: (value) => {
+        subjectCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        subjectReference: (value) => {
+        subjectReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         subjectCanonical: null,
-        trigger: (value) => {
+        trigger: (value, context) => {
             initializeSerializers('TriggerDefinition');
-            return FhirResourceSerializer.serializeArray(value, TriggerDefinitionSerializer);
+            return FhirResourceSerializer.serializeArray(value, TriggerDefinitionSerializer, context);
         },
-        condition: (value) => {
+        condition: (value, context) => {
             initializeSerializers('PlanDefinitionCondition');
-            return FhirResourceSerializer.serializeArray(value, PlanDefinitionConditionSerializer);
+            return FhirResourceSerializer.serializeArray(value, PlanDefinitionConditionSerializer, context);
         },
-        input: (value) => {
+        input: (value, context) => {
             initializeSerializers('DataRequirement');
-            return FhirResourceSerializer.serializeArray(value, DataRequirementSerializer);
+            return FhirResourceSerializer.serializeArray(value, DataRequirementSerializer, context);
         },
-        output: (value) => {
+        output: (value, context) => {
             initializeSerializers('DataRequirement');
-            return FhirResourceSerializer.serializeArray(value, DataRequirementSerializer);
+            return FhirResourceSerializer.serializeArray(value, DataRequirementSerializer, context);
         },
-        relatedAction: (value) => {
+        relatedAction: (value, context) => {
             initializeSerializers('PlanDefinitionRelatedAction');
-            return FhirResourceSerializer.serializeArray(value, PlanDefinitionRelatedActionSerializer);
+            return FhirResourceSerializer.serializeArray(value, PlanDefinitionRelatedActionSerializer, context);
         },
         timingDateTime: null,
-        timingAge: (value) => {
+        timingAge: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        timingPeriod: (value) => {
+        timingPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        timingDuration: (value) => {
+        timingDuration: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        timingRange: (value) => {
+        timingRange: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
-        timingTiming: (value) => {
+        timingTiming: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
-        participant: (value) => {
+        participant: (value, context) => {
             initializeSerializers('PlanDefinitionParticipant');
-            return FhirResourceSerializer.serializeArray(value, PlanDefinitionParticipantSerializer);
+            return FhirResourceSerializer.serializeArray(value, PlanDefinitionParticipantSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         groupingBehavior: null,
         selectionBehavior: null,
@@ -200,13 +200,13 @@ class PlanDefinitionActionSerializer {
         definitionCanonical: null,
         definitionUri: null,
         transform: null,
-        dynamicValue: (value) => {
+        dynamicValue: (value, context) => {
             initializeSerializers('PlanDefinitionDynamicValue');
-            return FhirResourceSerializer.serializeArray(value, PlanDefinitionDynamicValueSerializer);
+            return FhirResourceSerializer.serializeArray(value, PlanDefinitionDynamicValueSerializer, context);
         },
-        action: (value) => {
+        action: (value, context) => {
             initializeSerializers('PlanDefinitionAction');
-            return FhirResourceSerializer.serializeArray(value, PlanDefinitionActionSerializer);
+            return FhirResourceSerializer.serializeArray(value, PlanDefinitionActionSerializer, context);
         }
     };
 
@@ -214,14 +214,15 @@ class PlanDefinitionActionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => PlanDefinitionActionSerializer.serialize(item));
+            return rawJson.map(item => PlanDefinitionActionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -237,7 +238,7 @@ class PlanDefinitionActionSerializer {
 
             if (propertyName in PlanDefinitionActionSerializer.propertyToSerializerMap) {
                 if (PlanDefinitionActionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = PlanDefinitionActionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = PlanDefinitionActionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

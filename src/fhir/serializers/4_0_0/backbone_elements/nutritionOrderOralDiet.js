@@ -54,33 +54,33 @@ function initializeResourceSerializer() {
 class NutritionOrderOralDietSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        schedule: (value) => {
+        schedule: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serializeArray(value, TimingSerializer);
+            return FhirResourceSerializer.serializeArray(value, TimingSerializer, context);
         },
-        nutrient: (value) => {
+        nutrient: (value, context) => {
             initializeSerializers('NutritionOrderNutrient');
-            return FhirResourceSerializer.serializeArray(value, NutritionOrderNutrientSerializer);
+            return FhirResourceSerializer.serializeArray(value, NutritionOrderNutrientSerializer, context);
         },
-        texture: (value) => {
+        texture: (value, context) => {
             initializeSerializers('NutritionOrderTexture');
-            return FhirResourceSerializer.serializeArray(value, NutritionOrderTextureSerializer);
+            return FhirResourceSerializer.serializeArray(value, NutritionOrderTextureSerializer, context);
         },
-        fluidConsistencyType: (value) => {
+        fluidConsistencyType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         instruction: null
     };
@@ -89,14 +89,15 @@ class NutritionOrderOralDietSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => NutritionOrderOralDietSerializer.serialize(item));
+            return rawJson.map(item => NutritionOrderOralDietSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -112,7 +113,7 @@ class NutritionOrderOralDietSerializer {
 
             if (propertyName in NutritionOrderOralDietSerializer.propertyToSerializerMap) {
                 if (NutritionOrderOralDietSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = NutritionOrderOralDietSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = NutritionOrderOralDietSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

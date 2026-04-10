@@ -36,17 +36,17 @@ function initializeResourceSerializer() {
 class CitationWebLocationSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         url: null
     };
@@ -55,14 +55,15 @@ class CitationWebLocationSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CitationWebLocationSerializer.serialize(item));
+            return rawJson.map(item => CitationWebLocationSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -78,7 +79,7 @@ class CitationWebLocationSerializer {
 
             if (propertyName in CitationWebLocationSerializer.propertyToSerializerMap) {
                 if (CitationWebLocationSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CitationWebLocationSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CitationWebLocationSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

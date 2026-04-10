@@ -1,0 +1,48 @@
+{
+    "resourceType": "Composition",
+    "id": "comp-top-level-sensitive",
+    "meta": {
+        "source": "https://www.icanbwell.com/test",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/vendor", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "healthsystem1" }
+        ]
+    },
+    "status": "final",
+    "type": {
+        "coding": [{ "system": "http://loinc.org", "code": "11503-0", "display": "Medical records" }]
+    },
+    "subject": { "reference": "Patient/patient1" },
+    "date": "2025-01-01",
+    "title": "Composition With Top Level Sensitive Sections",
+    "author": [{ "reference": "Organization/org1" }],
+    "section": [
+        {
+            "id": "normal-1",
+            "title": "Allergies",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "48765-2" }] }
+        },
+        {
+            "id": "sensitive-1",
+            "title": "Substance Abuse History",
+            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "substance-abuse" }] }
+        },
+        {
+            "id": "normal-2",
+            "title": "Medications",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "10160-0" }] }
+        },
+        {
+            "id": "sensitive-2",
+            "title": "Mental Health Notes",
+            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "mental-health" }] }
+        },
+        {
+            "id": "sensitive-3",
+            "title": "Reproductive Health",
+            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "reproductive-health" }] }
+        }
+    ]
+}

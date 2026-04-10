@@ -36,18 +36,18 @@ function initializeResourceSerializer() {
 class CapabilityStatementSecuritySerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         cors: null,
-        service: (value) => {
+        service: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         description: null
     };
@@ -56,14 +56,15 @@ class CapabilityStatementSecuritySerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CapabilityStatementSecuritySerializer.serialize(item));
+            return rawJson.map(item => CapabilityStatementSecuritySerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -79,7 +80,7 @@ class CapabilityStatementSecuritySerializer {
 
             if (propertyName in CapabilityStatementSecuritySerializer.propertyToSerializerMap) {
                 if (CapabilityStatementSecuritySerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CapabilityStatementSecuritySerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CapabilityStatementSecuritySerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

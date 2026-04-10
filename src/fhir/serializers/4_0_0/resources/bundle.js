@@ -54,30 +54,30 @@ function initializeResourceSerializer() {
 class BundleSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         },
         type: null,
         timestamp: null,
         total: null,
-        link: (value) => {
+        link: (value, context) => {
             initializeSerializers('BundleLink');
-            return FhirResourceSerializer.serializeArray(value, BundleLinkSerializer);
+            return FhirResourceSerializer.serializeArray(value, BundleLinkSerializer, context);
         },
-        entry: (value) => {
+        entry: (value, context) => {
             initializeSerializers('BundleEntry');
-            return FhirResourceSerializer.serializeArray(value, BundleEntrySerializer);
+            return FhirResourceSerializer.serializeArray(value, BundleEntrySerializer, context);
         },
-        signature: (value) => {
+        signature: (value, context) => {
             initializeSerializers('Signature');
-            return FhirResourceSerializer.serialize(value, SignatureSerializer);
+            return FhirResourceSerializer.serialize(value, SignatureSerializer, context);
         },
         resourceType: null
     };
@@ -86,14 +86,15 @@ class BundleSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => BundleSerializer.serialize(item));
+            return rawJson.map(item => BundleSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -109,7 +110,7 @@ class BundleSerializer {
 
             if (propertyName in BundleSerializer.propertyToSerializerMap) {
                 if (BundleSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = BundleSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = BundleSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

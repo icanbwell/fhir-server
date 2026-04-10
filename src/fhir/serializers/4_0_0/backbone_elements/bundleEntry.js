@@ -60,34 +60,34 @@ function initializeResourceSerializer() {
 class BundleEntrySerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        link: (value) => {
+        link: (value, context) => {
             initializeSerializers('BundleLink');
-            return FhirResourceSerializer.serializeArray(value, BundleLinkSerializer);
+            return FhirResourceSerializer.serializeArray(value, BundleLinkSerializer, context);
         },
         fullUrl: null,
-        resource: (value) => {
+        resource: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serialize(value);
+            return FhirResourceSerializer.serialize(value, undefined, context);
         },
-        search: (value) => {
+        search: (value, context) => {
             initializeSerializers('BundleSearch');
-            return FhirResourceSerializer.serialize(value, BundleSearchSerializer);
+            return FhirResourceSerializer.serialize(value, BundleSearchSerializer, context);
         },
-        request: (value) => {
+        request: (value, context) => {
             initializeSerializers('BundleRequest');
-            return FhirResourceSerializer.serialize(value, BundleRequestSerializer);
+            return FhirResourceSerializer.serialize(value, BundleRequestSerializer, context);
         },
-        response: (value) => {
+        response: (value, context) => {
             initializeSerializers('BundleResponse');
-            return FhirResourceSerializer.serialize(value, BundleResponseSerializer);
+            return FhirResourceSerializer.serialize(value, BundleResponseSerializer, context);
         }
     };
 
@@ -95,14 +95,15 @@ class BundleEntrySerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => BundleEntrySerializer.serialize(item));
+            return rawJson.map(item => BundleEntrySerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -118,7 +119,7 @@ class BundleEntrySerializer {
 
             if (propertyName in BundleEntrySerializer.propertyToSerializerMap) {
                 if (BundleEntrySerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = BundleEntrySerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = BundleEntrySerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

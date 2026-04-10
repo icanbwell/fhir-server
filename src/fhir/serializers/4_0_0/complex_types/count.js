@@ -34,14 +34,15 @@ class CountSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CountSerializer.serialize(item));
+            return rawJson.map(item => CountSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -57,7 +58,7 @@ class CountSerializer {
 
             if (propertyName in CountSerializer.propertyToSerializerMap) {
                 if (CountSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CountSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CountSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

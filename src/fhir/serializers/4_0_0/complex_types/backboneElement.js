@@ -30,13 +30,13 @@ function initializeResourceSerializer() {
 class BackboneElementSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         }
     };
 
@@ -44,14 +44,15 @@ class BackboneElementSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => BackboneElementSerializer.serialize(item));
+            return rawJson.map(item => BackboneElementSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -67,7 +68,7 @@ class BackboneElementSerializer {
 
             if (propertyName in BackboneElementSerializer.propertyToSerializerMap) {
                 if (BackboneElementSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = BackboneElementSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = BackboneElementSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

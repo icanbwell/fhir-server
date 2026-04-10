@@ -413,7 +413,7 @@ class BaseHistoryOperationProcessor {
             entries: resultBundle.entry,
             parsedArgs
         });
-        FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
+        FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle', { userType });
 
         return resultBundle;
     }

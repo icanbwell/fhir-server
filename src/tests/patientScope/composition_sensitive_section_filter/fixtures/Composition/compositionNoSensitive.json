@@ -1,0 +1,38 @@
+{
+    "resourceType": "Composition",
+    "id": "comp-no-sensitive",
+    "meta": {
+        "source": "https://www.icanbwell.com/test",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/vendor", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "healthsystem1" }
+        ]
+    },
+    "status": "final",
+    "type": {
+        "coding": [{ "system": "http://loinc.org", "code": "11503-0", "display": "Medical records" }]
+    },
+    "subject": { "reference": "Patient/patient1" },
+    "date": "2025-01-01",
+    "title": "Composition With No Sensitive Sections",
+    "author": [{ "reference": "Organization/org1" }],
+    "section": [
+        {
+            "id": "normal-1",
+            "title": "Allergies",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "48765-2" }] }
+        },
+        {
+            "id": "normal-2",
+            "title": "Medications",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "10160-0" }] }
+        },
+        {
+            "id": "normal-3",
+            "title": "Problems",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "11450-4" }] }
+        }
+    ]
+}

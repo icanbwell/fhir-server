@@ -54,55 +54,55 @@ function initializeResourceSerializer() {
 class EvidenceReportSectionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         title: null,
-        focus: (value) => {
+        focus: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        focusReference: (value) => {
+        focusReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        author: (value) => {
+        author: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
         mode: null,
-        orderedBy: (value) => {
+        orderedBy: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        entryClassifier: (value) => {
+        entryClassifier: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        entryReference: (value) => {
+        entryReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        entryQuantity: (value) => {
+        entryQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serializeArray(value, QuantitySerializer);
+            return FhirResourceSerializer.serializeArray(value, QuantitySerializer, context);
         },
-        emptyReason: (value) => {
+        emptyReason: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        section: (value) => {
+        section: (value, context) => {
             initializeSerializers('EvidenceReportSection');
-            return FhirResourceSerializer.serializeArray(value, EvidenceReportSectionSerializer);
+            return FhirResourceSerializer.serializeArray(value, EvidenceReportSectionSerializer, context);
         }
     };
 
@@ -110,14 +110,15 @@ class EvidenceReportSectionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => EvidenceReportSectionSerializer.serialize(item));
+            return rawJson.map(item => EvidenceReportSectionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -133,7 +134,7 @@ class EvidenceReportSectionSerializer {
 
             if (propertyName in EvidenceReportSectionSerializer.propertyToSerializerMap) {
                 if (EvidenceReportSectionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = EvidenceReportSectionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = EvidenceReportSectionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

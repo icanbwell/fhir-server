@@ -42,25 +42,25 @@ function initializeResourceSerializer() {
 class StructureMapGroupSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         name: null,
         extends: null,
         typeMode: null,
         documentation: null,
-        input: (value) => {
+        input: (value, context) => {
             initializeSerializers('StructureMapInput');
-            return FhirResourceSerializer.serializeArray(value, StructureMapInputSerializer);
+            return FhirResourceSerializer.serializeArray(value, StructureMapInputSerializer, context);
         },
-        rule: (value) => {
+        rule: (value, context) => {
             initializeSerializers('StructureMapRule');
-            return FhirResourceSerializer.serializeArray(value, StructureMapRuleSerializer);
+            return FhirResourceSerializer.serializeArray(value, StructureMapRuleSerializer, context);
         }
     };
 
@@ -68,14 +68,15 @@ class StructureMapGroupSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => StructureMapGroupSerializer.serialize(item));
+            return rawJson.map(item => StructureMapGroupSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -91,7 +92,7 @@ class StructureMapGroupSerializer {
 
             if (propertyName in StructureMapGroupSerializer.propertyToSerializerMap) {
                 if (StructureMapGroupSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = StructureMapGroupSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = StructureMapGroupSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

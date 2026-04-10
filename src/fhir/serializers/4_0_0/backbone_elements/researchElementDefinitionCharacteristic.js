@@ -72,72 +72,72 @@ function initializeResourceSerializer() {
 class ResearchElementDefinitionCharacteristicSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        definitionCodeableConcept: (value) => {
+        definitionCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         definitionCanonical: null,
-        definitionExpression: (value) => {
+        definitionExpression: (value, context) => {
             initializeSerializers('Expression');
-            return FhirResourceSerializer.serialize(value, ExpressionSerializer);
+            return FhirResourceSerializer.serialize(value, ExpressionSerializer, context);
         },
-        definitionDataRequirement: (value) => {
+        definitionDataRequirement: (value, context) => {
             initializeSerializers('DataRequirement');
-            return FhirResourceSerializer.serialize(value, DataRequirementSerializer);
+            return FhirResourceSerializer.serialize(value, DataRequirementSerializer, context);
         },
-        usageContext: (value) => {
+        usageContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer);
+            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer, context);
         },
         exclude: null,
-        unitOfMeasure: (value) => {
+        unitOfMeasure: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         studyEffectiveDescription: null,
         studyEffectiveDateTime: null,
-        studyEffectivePeriod: (value) => {
+        studyEffectivePeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        studyEffectiveDuration: (value) => {
+        studyEffectiveDuration: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        studyEffectiveTiming: (value) => {
+        studyEffectiveTiming: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
-        studyEffectiveTimeFromStart: (value) => {
+        studyEffectiveTimeFromStart: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         studyEffectiveGroupMeasure: null,
         participantEffectiveDescription: null,
         participantEffectiveDateTime: null,
-        participantEffectivePeriod: (value) => {
+        participantEffectivePeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        participantEffectiveDuration: (value) => {
+        participantEffectiveDuration: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        participantEffectiveTiming: (value) => {
+        participantEffectiveTiming: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
-        participantEffectiveTimeFromStart: (value) => {
+        participantEffectiveTimeFromStart: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         participantEffectiveGroupMeasure: null
     };
@@ -146,14 +146,15 @@ class ResearchElementDefinitionCharacteristicSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ResearchElementDefinitionCharacteristicSerializer.serialize(item));
+            return rawJson.map(item => ResearchElementDefinitionCharacteristicSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -169,7 +170,7 @@ class ResearchElementDefinitionCharacteristicSerializer {
 
             if (propertyName in ResearchElementDefinitionCharacteristicSerializer.propertyToSerializerMap) {
                 if (ResearchElementDefinitionCharacteristicSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ResearchElementDefinitionCharacteristicSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ResearchElementDefinitionCharacteristicSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

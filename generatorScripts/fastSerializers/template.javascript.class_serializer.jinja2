@@ -23,6 +23,9 @@
 {% if fhir_entity.cleaned_name == "Reference" %}
 const { enrichReferenceExtension } = require('../custom_utils/referenceEnricher.js');
 {% endif %}
+{% if fhir_entity.cleaned_name == "Composition" %}
+const { filterCompositionSensitiveSections } = require('../custom_utils/compositionSectionFilter.js');
+{% endif %}
 
 {# Generate lazy loaded imports #}
 {% for type, path in imported_types.items() %}
@@ -61,22 +64,22 @@ class {{ fhir_entity.cleaned_name }}Serializer {
     {% for property in fhir_entity.properties %}
     {% if not property.is_v2_supported %}
         {% if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
-        '{{ property.name }}': (value) => {
+        '{{ property.name }}': (value, context) => {
             initializeSerializers('{{ property.cleaned_type }}');
             {% if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
                 {% if property.is_list %}
-            return FhirResourceSerializer.serializeArray(value, {{ property.cleaned_type | replace(".","") }}Serializer);
+            return FhirResourceSerializer.serializeArray(value, {{ property.cleaned_type | replace(".","") }}Serializer, context);
                     {% else %}
-            return FhirResourceSerializer.serialize(value, {{ property.cleaned_type | replace(".","") }}Serializer);
+            return FhirResourceSerializer.serialize(value, {{ property.cleaned_type | replace(".","") }}Serializer, context);
                     {% endif %}
             {% elif property.cleaned_type == "ResourceContainer" %}
                 {% if property.is_list %}
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
                     {% else %}
-            return FhirResourceSerializer.serialize(value);
+            return FhirResourceSerializer.serialize(value, undefined, context);
                     {% endif %}
             {% else %}
-            return FhirResourceSerializer.serialize(value)
+            return FhirResourceSerializer.serialize(value, undefined, context)
             {% endif %}
         },
         {% else %}
@@ -90,19 +93,20 @@ class {{ fhir_entity.cleaned_name }}Serializer {
     };
 
     /**
-     * This methods cleans the raw json by removing additional fields which are not defined 
+     * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
-     * @param {any} rawJson 
+     * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
-        
+
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => {{ fhir_entity.cleaned_name }}Serializer.serialize(item));
+            return rawJson.map(item => {{ fhir_entity.cleaned_name }}Serializer.serialize(item, context));
         }
-        
+
         // Handle non-object case
         if (typeof rawJson !== 'object') return rawJson;
         {% if fhir_entity.cleaned_name == "Reference" %}
@@ -110,18 +114,23 @@ class {{ fhir_entity.cleaned_name }}Serializer {
         // enrich the reference extension before serialization
         enrichReferenceExtension(rawJson);
         {% endif %}
+        {% if fhir_entity.cleaned_name == "Composition" %}
+
+        // filter sensitive sections before serialization
+        filterCompositionSensitiveSections(rawJson, context);
+        {% endif %}
 
         Object.keys(rawJson).forEach(propertyName => {
             const value = rawJson[propertyName];
-            
+
             if (value === null || value === undefined) {
                 delete rawJson[propertyName];
                 return;
             }
-            
+
             if (propertyName in {{ fhir_entity.cleaned_name }}Serializer.propertyToSerializerMap) {
                 if ({{ fhir_entity.cleaned_name }}Serializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = {{ fhir_entity.cleaned_name }}Serializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = {{ fhir_entity.cleaned_name }}Serializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {
@@ -132,7 +141,7 @@ class {{ fhir_entity.cleaned_name }}Serializer {
                 delete rawJson[propertyName];
             }
         });
-        
+
         return rawJson;
     }
 }

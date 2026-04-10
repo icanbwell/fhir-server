@@ -48,53 +48,53 @@ function initializeResourceSerializer() {
 class CoverageEligibilityResponseItemSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        category: (value) => {
+        category: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        productOrService: (value) => {
+        productOrService: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        modifier: (value) => {
+        modifier: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        provider: (value) => {
+        provider: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         excluded: null,
         name: null,
         description: null,
-        network: (value) => {
+        network: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        unit: (value) => {
+        unit: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        term: (value) => {
+        term: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        benefit: (value) => {
+        benefit: (value, context) => {
             initializeSerializers('CoverageEligibilityResponseBenefit');
-            return FhirResourceSerializer.serializeArray(value, CoverageEligibilityResponseBenefitSerializer);
+            return FhirResourceSerializer.serializeArray(value, CoverageEligibilityResponseBenefitSerializer, context);
         },
         authorizationRequired: null,
-        authorizationSupporting: (value) => {
+        authorizationSupporting: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         authorizationUrl: null
     };
@@ -103,14 +103,15 @@ class CoverageEligibilityResponseItemSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CoverageEligibilityResponseItemSerializer.serialize(item));
+            return rawJson.map(item => CoverageEligibilityResponseItemSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -126,7 +127,7 @@ class CoverageEligibilityResponseItemSerializer {
 
             if (propertyName in CoverageEligibilityResponseItemSerializer.propertyToSerializerMap) {
                 if (CoverageEligibilityResponseItemSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CoverageEligibilityResponseItemSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CoverageEligibilityResponseItemSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

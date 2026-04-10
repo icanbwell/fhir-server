@@ -42,35 +42,35 @@ function initializeResourceSerializer() {
 class ObservationDefinitionQualifiedIntervalSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         category: null,
-        range: (value) => {
+        range: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
-        context: (value) => {
+        context: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        appliesTo: (value) => {
+        appliesTo: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         gender: null,
-        age: (value) => {
+        age: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
-        gestationalAge: (value) => {
+        gestationalAge: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
         condition: null
     };
@@ -79,14 +79,15 @@ class ObservationDefinitionQualifiedIntervalSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ObservationDefinitionQualifiedIntervalSerializer.serialize(item));
+            return rawJson.map(item => ObservationDefinitionQualifiedIntervalSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -102,7 +103,7 @@ class ObservationDefinitionQualifiedIntervalSerializer {
 
             if (propertyName in ObservationDefinitionQualifiedIntervalSerializer.propertyToSerializerMap) {
                 if (ObservationDefinitionQualifiedIntervalSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ObservationDefinitionQualifiedIntervalSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ObservationDefinitionQualifiedIntervalSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -54,42 +54,42 @@ function initializeResourceSerializer() {
 class ClinicalUseDefinitionIndicationSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        diseaseSymptomProcedure: (value) => {
+        diseaseSymptomProcedure: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer, context);
         },
-        diseaseStatus: (value) => {
+        diseaseStatus: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer, context);
         },
-        comorbidity: (value) => {
+        comorbidity: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serializeArray(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableReferenceSerializer, context);
         },
-        intendedEffect: (value) => {
+        intendedEffect: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer, context);
         },
-        durationRange: (value) => {
+        durationRange: (value, context) => {
             initializeSerializers('Range');
-            return FhirResourceSerializer.serialize(value, RangeSerializer);
+            return FhirResourceSerializer.serialize(value, RangeSerializer, context);
         },
         durationString: null,
-        undesirableEffect: (value) => {
+        undesirableEffect: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        otherTherapy: (value) => {
+        otherTherapy: (value, context) => {
             initializeSerializers('ClinicalUseDefinitionOtherTherapy');
-            return FhirResourceSerializer.serializeArray(value, ClinicalUseDefinitionOtherTherapySerializer);
+            return FhirResourceSerializer.serializeArray(value, ClinicalUseDefinitionOtherTherapySerializer, context);
         }
     };
 
@@ -97,14 +97,15 @@ class ClinicalUseDefinitionIndicationSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ClinicalUseDefinitionIndicationSerializer.serialize(item));
+            return rawJson.map(item => ClinicalUseDefinitionIndicationSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -120,7 +121,7 @@ class ClinicalUseDefinitionIndicationSerializer {
 
             if (propertyName in ClinicalUseDefinitionIndicationSerializer.propertyToSerializerMap) {
                 if (ClinicalUseDefinitionIndicationSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ClinicalUseDefinitionIndicationSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ClinicalUseDefinitionIndicationSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

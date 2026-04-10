@@ -48,30 +48,30 @@ function initializeResourceSerializer() {
 class StructureMapRuleSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         name: null,
-        source: (value) => {
+        source: (value, context) => {
             initializeSerializers('StructureMapSource');
-            return FhirResourceSerializer.serializeArray(value, StructureMapSourceSerializer);
+            return FhirResourceSerializer.serializeArray(value, StructureMapSourceSerializer, context);
         },
-        target: (value) => {
+        target: (value, context) => {
             initializeSerializers('StructureMapTarget');
-            return FhirResourceSerializer.serializeArray(value, StructureMapTargetSerializer);
+            return FhirResourceSerializer.serializeArray(value, StructureMapTargetSerializer, context);
         },
-        rule: (value) => {
+        rule: (value, context) => {
             initializeSerializers('StructureMapRule');
-            return FhirResourceSerializer.serializeArray(value, StructureMapRuleSerializer);
+            return FhirResourceSerializer.serializeArray(value, StructureMapRuleSerializer, context);
         },
-        dependent: (value) => {
+        dependent: (value, context) => {
             initializeSerializers('StructureMapDependent');
-            return FhirResourceSerializer.serializeArray(value, StructureMapDependentSerializer);
+            return FhirResourceSerializer.serializeArray(value, StructureMapDependentSerializer, context);
         },
         documentation: null
     };
@@ -80,14 +80,15 @@ class StructureMapRuleSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => StructureMapRuleSerializer.serialize(item));
+            return rawJson.map(item => StructureMapRuleSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -103,7 +104,7 @@ class StructureMapRuleSerializer {
 
             if (propertyName in StructureMapRuleSerializer.propertyToSerializerMap) {
                 if (StructureMapRuleSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = StructureMapRuleSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = StructureMapRuleSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -78,27 +78,27 @@ function initializeResourceSerializer() {
 class OperationDefinitionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         url: null,
         version: null,
@@ -109,18 +109,18 @@ class OperationDefinitionSerializer {
         experimental: null,
         date: null,
         publisher: null,
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
         description: null,
-        useContext: (value) => {
+        useContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer);
+            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer, context);
         },
-        jurisdiction: (value) => {
+        jurisdiction: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         purpose: null,
         affectsState: null,
@@ -133,13 +133,13 @@ class OperationDefinitionSerializer {
         instance: null,
         inputProfile: null,
         outputProfile: null,
-        parameter: (value) => {
+        parameter: (value, context) => {
             initializeSerializers('OperationDefinitionParameter');
-            return FhirResourceSerializer.serializeArray(value, OperationDefinitionParameterSerializer);
+            return FhirResourceSerializer.serializeArray(value, OperationDefinitionParameterSerializer, context);
         },
-        overload: (value) => {
+        overload: (value, context) => {
             initializeSerializers('OperationDefinitionOverload');
-            return FhirResourceSerializer.serializeArray(value, OperationDefinitionOverloadSerializer);
+            return FhirResourceSerializer.serializeArray(value, OperationDefinitionOverloadSerializer, context);
         },
         resourceType: null
     };
@@ -148,14 +148,15 @@ class OperationDefinitionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => OperationDefinitionSerializer.serialize(item));
+            return rawJson.map(item => OperationDefinitionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -171,7 +172,7 @@ class OperationDefinitionSerializer {
 
             if (propertyName in OperationDefinitionSerializer.propertyToSerializerMap) {
                 if (OperationDefinitionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = OperationDefinitionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = OperationDefinitionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

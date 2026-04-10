@@ -36,22 +36,22 @@ function initializeResourceSerializer() {
 class GraphDefinitionLinkSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         path: null,
         sliceName: null,
         min: null,
         max: null,
         description: null,
-        target: (value) => {
+        target: (value, context) => {
             initializeSerializers('GraphDefinitionTarget');
-            return FhirResourceSerializer.serializeArray(value, GraphDefinitionTargetSerializer);
+            return FhirResourceSerializer.serializeArray(value, GraphDefinitionTargetSerializer, context);
         }
     };
 
@@ -59,14 +59,15 @@ class GraphDefinitionLinkSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => GraphDefinitionLinkSerializer.serialize(item));
+            return rawJson.map(item => GraphDefinitionLinkSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -82,7 +83,7 @@ class GraphDefinitionLinkSerializer {
 
             if (propertyName in GraphDefinitionLinkSerializer.propertyToSerializerMap) {
                 if (GraphDefinitionLinkSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = GraphDefinitionLinkSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = GraphDefinitionLinkSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

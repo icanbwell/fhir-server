@@ -18,6 +18,7 @@ const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants'
 const { ResourceLocator } = require('../common/resourceLocator');
 const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const { enrichReferenceExtension } = require('../../fhir/serializers/4_0_0/custom_utils/referenceEnricher');
+const { filterCompositionSensitiveSections } = require('../../fhir/serializers/4_0_0/custom_utils/compositionSectionFilter');
 
 class SearchBundleOperation {
     /**
@@ -341,6 +342,13 @@ class SearchBundleOperation {
                 enrichReferenceExtension(reference);
                 return reference;
             })));
+
+            const filterContext = { configManager: this.configManager, userType };
+            for (const resource of resources) {
+                if (resource.resourceType === 'Composition') {
+                    filterCompositionSensitiveSections(resource, filterContext);
+                }
+            }
 
             resources = await this.databaseAttachmentManager.transformAttachments(resources, RETRIEVE);
 

@@ -36,24 +36,24 @@ function initializeResourceSerializer() {
 class QuestionnaireResponseItemSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         linkId: null,
         definition: null,
         text: null,
-        answer: (value) => {
+        answer: (value, context) => {
             initializeSerializers('QuestionnaireResponseAnswer');
-            return FhirResourceSerializer.serializeArray(value, QuestionnaireResponseAnswerSerializer);
+            return FhirResourceSerializer.serializeArray(value, QuestionnaireResponseAnswerSerializer, context);
         },
-        item: (value) => {
+        item: (value, context) => {
             initializeSerializers('QuestionnaireResponseItem');
-            return FhirResourceSerializer.serializeArray(value, QuestionnaireResponseItemSerializer);
+            return FhirResourceSerializer.serializeArray(value, QuestionnaireResponseItemSerializer, context);
         }
     };
 
@@ -61,14 +61,15 @@ class QuestionnaireResponseItemSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => QuestionnaireResponseItemSerializer.serialize(item));
+            return rawJson.map(item => QuestionnaireResponseItemSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -84,7 +85,7 @@ class QuestionnaireResponseItemSerializer {
 
             if (propertyName in QuestionnaireResponseItemSerializer.propertyToSerializerMap) {
                 if (QuestionnaireResponseItemSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = QuestionnaireResponseItemSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = QuestionnaireResponseItemSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

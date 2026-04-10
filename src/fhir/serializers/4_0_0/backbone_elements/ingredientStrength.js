@@ -54,40 +54,40 @@ function initializeResourceSerializer() {
 class IngredientStrengthSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        presentationRatio: (value) => {
+        presentationRatio: (value, context) => {
             initializeSerializers('Ratio');
-            return FhirResourceSerializer.serialize(value, RatioSerializer);
+            return FhirResourceSerializer.serialize(value, RatioSerializer, context);
         },
-        presentationRatioRange: (value) => {
+        presentationRatioRange: (value, context) => {
             initializeSerializers('RatioRange');
-            return FhirResourceSerializer.serialize(value, RatioRangeSerializer);
+            return FhirResourceSerializer.serialize(value, RatioRangeSerializer, context);
         },
         textPresentation: null,
-        concentrationRatio: (value) => {
+        concentrationRatio: (value, context) => {
             initializeSerializers('Ratio');
-            return FhirResourceSerializer.serialize(value, RatioSerializer);
+            return FhirResourceSerializer.serialize(value, RatioSerializer, context);
         },
-        concentrationRatioRange: (value) => {
+        concentrationRatioRange: (value, context) => {
             initializeSerializers('RatioRange');
-            return FhirResourceSerializer.serialize(value, RatioRangeSerializer);
+            return FhirResourceSerializer.serialize(value, RatioRangeSerializer, context);
         },
         textConcentration: null,
         measurementPoint: null,
-        country: (value) => {
+        country: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        referenceStrength: (value) => {
+        referenceStrength: (value, context) => {
             initializeSerializers('IngredientReferenceStrength');
-            return FhirResourceSerializer.serializeArray(value, IngredientReferenceStrengthSerializer);
+            return FhirResourceSerializer.serializeArray(value, IngredientReferenceStrengthSerializer, context);
         }
     };
 
@@ -95,14 +95,15 @@ class IngredientStrengthSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => IngredientStrengthSerializer.serialize(item));
+            return rawJson.map(item => IngredientStrengthSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -118,7 +119,7 @@ class IngredientStrengthSerializer {
 
             if (propertyName in IngredientStrengthSerializer.propertyToSerializerMap) {
                 if (IngredientStrengthSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = IngredientStrengthSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = IngredientStrengthSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

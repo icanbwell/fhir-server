@@ -90,74 +90,74 @@ function initializeResourceSerializer() {
 class InsurancePlanSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         status: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         name: null,
         alias: null,
-        period: (value) => {
+        period: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        ownedBy: (value) => {
+        ownedBy: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        administeredBy: (value) => {
+        administeredBy: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        coverageArea: (value) => {
+        coverageArea: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('InsurancePlanContact');
-            return FhirResourceSerializer.serializeArray(value, InsurancePlanContactSerializer);
+            return FhirResourceSerializer.serializeArray(value, InsurancePlanContactSerializer, context);
         },
-        endpoint: (value) => {
+        endpoint: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        network: (value) => {
+        network: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        coverage: (value) => {
+        coverage: (value, context) => {
             initializeSerializers('InsurancePlanCoverage');
-            return FhirResourceSerializer.serializeArray(value, InsurancePlanCoverageSerializer);
+            return FhirResourceSerializer.serializeArray(value, InsurancePlanCoverageSerializer, context);
         },
-        plan: (value) => {
+        plan: (value, context) => {
             initializeSerializers('InsurancePlanPlan');
-            return FhirResourceSerializer.serializeArray(value, InsurancePlanPlanSerializer);
+            return FhirResourceSerializer.serializeArray(value, InsurancePlanPlanSerializer, context);
         },
         resourceType: null
     };
@@ -166,14 +166,15 @@ class InsurancePlanSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => InsurancePlanSerializer.serialize(item));
+            return rawJson.map(item => InsurancePlanSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -189,7 +190,7 @@ class InsurancePlanSerializer {
 
             if (propertyName in InsurancePlanSerializer.propertyToSerializerMap) {
                 if (InsurancePlanSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = InsurancePlanSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = InsurancePlanSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

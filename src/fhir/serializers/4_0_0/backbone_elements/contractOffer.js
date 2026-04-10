@@ -60,41 +60,41 @@ function initializeResourceSerializer() {
 class ContractOfferSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
-        party: (value) => {
+        party: (value, context) => {
             initializeSerializers('ContractParty');
-            return FhirResourceSerializer.serializeArray(value, ContractPartySerializer);
+            return FhirResourceSerializer.serializeArray(value, ContractPartySerializer, context);
         },
-        topic: (value) => {
+        topic: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        decision: (value) => {
+        decision: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        decisionMode: (value) => {
+        decisionMode: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        answer: (value) => {
+        answer: (value, context) => {
             initializeSerializers('ContractAnswer');
-            return FhirResourceSerializer.serializeArray(value, ContractAnswerSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContractAnswerSerializer, context);
         },
         text: null,
         linkId: null,
@@ -105,14 +105,15 @@ class ContractOfferSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ContractOfferSerializer.serialize(item));
+            return rawJson.map(item => ContractOfferSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -128,7 +129,7 @@ class ContractOfferSerializer {
 
             if (propertyName in ContractOfferSerializer.propertyToSerializerMap) {
                 if (ContractOfferSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ContractOfferSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ContractOfferSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

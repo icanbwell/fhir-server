@@ -42,21 +42,21 @@ function initializeResourceSerializer() {
 class AdministrableProductDefinitionTargetSpeciesSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        withdrawalPeriod: (value) => {
+        withdrawalPeriod: (value, context) => {
             initializeSerializers('AdministrableProductDefinitionWithdrawalPeriod');
-            return FhirResourceSerializer.serializeArray(value, AdministrableProductDefinitionWithdrawalPeriodSerializer);
+            return FhirResourceSerializer.serializeArray(value, AdministrableProductDefinitionWithdrawalPeriodSerializer, context);
         }
     };
 
@@ -64,14 +64,15 @@ class AdministrableProductDefinitionTargetSpeciesSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => AdministrableProductDefinitionTargetSpeciesSerializer.serialize(item));
+            return rawJson.map(item => AdministrableProductDefinitionTargetSpeciesSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -87,7 +88,7 @@ class AdministrableProductDefinitionTargetSpeciesSerializer {
 
             if (propertyName in AdministrableProductDefinitionTargetSpeciesSerializer.propertyToSerializerMap) {
                 if (AdministrableProductDefinitionTargetSpeciesSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = AdministrableProductDefinitionTargetSpeciesSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = AdministrableProductDefinitionTargetSpeciesSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

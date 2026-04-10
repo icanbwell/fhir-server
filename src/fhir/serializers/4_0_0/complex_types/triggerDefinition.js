@@ -54,29 +54,29 @@ function initializeResourceSerializer() {
 class TriggerDefinitionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         type: null,
         name: null,
-        timingTiming: (value) => {
+        timingTiming: (value, context) => {
             initializeSerializers('Timing');
-            return FhirResourceSerializer.serialize(value, TimingSerializer);
+            return FhirResourceSerializer.serialize(value, TimingSerializer, context);
         },
-        timingReference: (value) => {
+        timingReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         timingDate: null,
         timingDateTime: null,
-        data: (value) => {
+        data: (value, context) => {
             initializeSerializers('DataRequirement');
-            return FhirResourceSerializer.serializeArray(value, DataRequirementSerializer);
+            return FhirResourceSerializer.serializeArray(value, DataRequirementSerializer, context);
         },
-        condition: (value) => {
+        condition: (value, context) => {
             initializeSerializers('Expression');
-            return FhirResourceSerializer.serialize(value, ExpressionSerializer);
+            return FhirResourceSerializer.serialize(value, ExpressionSerializer, context);
         }
     };
 
@@ -84,14 +84,15 @@ class TriggerDefinitionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => TriggerDefinitionSerializer.serialize(item));
+            return rawJson.map(item => TriggerDefinitionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -107,7 +108,7 @@ class TriggerDefinitionSerializer {
 
             if (propertyName in TriggerDefinitionSerializer.propertyToSerializerMap) {
                 if (TriggerDefinitionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = TriggerDefinitionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = TriggerDefinitionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

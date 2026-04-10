@@ -34,7 +34,9 @@ class FhirResponseWriter {
      */
     read ({ req, res, result }) {
         this.setBaseResponseHeaders({ req, res });
-        FhirResourceSerializer.serialize(result);
+        FhirResourceSerializer.serialize(result, null, {
+            userType: req.authInfo?.context?.userType
+        });
         res.status(200).json(result);
     }
 

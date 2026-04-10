@@ -54,26 +54,26 @@ function initializeResourceSerializer() {
 class QuestionnaireItemSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         linkId: null,
         definition: null,
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serializeArray(value, CodingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodingSerializer, context);
         },
         prefix: null,
         text: null,
         type: null,
-        enableWhen: (value) => {
+        enableWhen: (value, context) => {
             initializeSerializers('QuestionnaireEnableWhen');
-            return FhirResourceSerializer.serializeArray(value, QuestionnaireEnableWhenSerializer);
+            return FhirResourceSerializer.serializeArray(value, QuestionnaireEnableWhenSerializer, context);
         },
         enableBehavior: null,
         required: null,
@@ -81,17 +81,17 @@ class QuestionnaireItemSerializer {
         readOnly: null,
         maxLength: null,
         answerValueSet: null,
-        answerOption: (value) => {
+        answerOption: (value, context) => {
             initializeSerializers('QuestionnaireAnswerOption');
-            return FhirResourceSerializer.serializeArray(value, QuestionnaireAnswerOptionSerializer);
+            return FhirResourceSerializer.serializeArray(value, QuestionnaireAnswerOptionSerializer, context);
         },
-        initial: (value) => {
+        initial: (value, context) => {
             initializeSerializers('QuestionnaireInitial');
-            return FhirResourceSerializer.serializeArray(value, QuestionnaireInitialSerializer);
+            return FhirResourceSerializer.serializeArray(value, QuestionnaireInitialSerializer, context);
         },
-        item: (value) => {
+        item: (value, context) => {
             initializeSerializers('QuestionnaireItem');
-            return FhirResourceSerializer.serializeArray(value, QuestionnaireItemSerializer);
+            return FhirResourceSerializer.serializeArray(value, QuestionnaireItemSerializer, context);
         }
     };
 
@@ -99,14 +99,15 @@ class QuestionnaireItemSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => QuestionnaireItemSerializer.serialize(item));
+            return rawJson.map(item => QuestionnaireItemSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -122,7 +123,7 @@ class QuestionnaireItemSerializer {
 
             if (propertyName in QuestionnaireItemSerializer.propertyToSerializerMap) {
                 if (QuestionnaireItemSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = QuestionnaireItemSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = QuestionnaireItemSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

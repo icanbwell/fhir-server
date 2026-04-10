@@ -48,31 +48,31 @@ function initializeResourceSerializer() {
 class NutritionProductProductCharacteristicSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        valueCodeableConcept: (value) => {
+        valueCodeableConcept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         valueString: null,
-        valueQuantity: (value) => {
+        valueQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
         valueBase64Binary: null,
-        valueAttachment: (value) => {
+        valueAttachment: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serialize(value, AttachmentSerializer);
+            return FhirResourceSerializer.serialize(value, AttachmentSerializer, context);
         },
         valueBoolean: null
     };
@@ -81,14 +81,15 @@ class NutritionProductProductCharacteristicSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => NutritionProductProductCharacteristicSerializer.serialize(item));
+            return rawJson.map(item => NutritionProductProductCharacteristicSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -104,7 +105,7 @@ class NutritionProductProductCharacteristicSerializer {
 
             if (propertyName in NutritionProductProductCharacteristicSerializer.propertyToSerializerMap) {
                 if (NutritionProductProductCharacteristicSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = NutritionProductProductCharacteristicSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = NutritionProductProductCharacteristicSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -48,28 +48,28 @@ function initializeResourceSerializer() {
 class MolecularSequenceQualitySerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         type: null,
-        standardSequence: (value) => {
+        standardSequence: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         start: null,
         end: null,
-        score: (value) => {
+        score: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        method: (value) => {
+        method: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         truthTP: null,
         queryTP: null,
@@ -79,9 +79,9 @@ class MolecularSequenceQualitySerializer {
         precision: null,
         recall: null,
         fScore: null,
-        roc: (value) => {
+        roc: (value, context) => {
             initializeSerializers('MolecularSequenceRoc');
-            return FhirResourceSerializer.serialize(value, MolecularSequenceRocSerializer);
+            return FhirResourceSerializer.serialize(value, MolecularSequenceRocSerializer, context);
         }
     };
 
@@ -89,14 +89,15 @@ class MolecularSequenceQualitySerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MolecularSequenceQualitySerializer.serialize(item));
+            return rawJson.map(item => MolecularSequenceQualitySerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -112,7 +113,7 @@ class MolecularSequenceQualitySerializer {
 
             if (propertyName in MolecularSequenceQualitySerializer.propertyToSerializerMap) {
                 if (MolecularSequenceQualitySerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MolecularSequenceQualitySerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MolecularSequenceQualitySerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

@@ -90,32 +90,32 @@ function initializeResourceSerializer() {
 class MessageDefinitionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         url: null,
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         version: null,
         name: null,
@@ -125,37 +125,37 @@ class MessageDefinitionSerializer {
         experimental: null,
         date: null,
         publisher: null,
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('ContactDetail');
-            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer);
+            return FhirResourceSerializer.serializeArray(value, ContactDetailSerializer, context);
         },
         description: null,
-        useContext: (value) => {
+        useContext: (value, context) => {
             initializeSerializers('UsageContext');
-            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer);
+            return FhirResourceSerializer.serializeArray(value, UsageContextSerializer, context);
         },
-        jurisdiction: (value) => {
+        jurisdiction: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
         purpose: null,
         copyright: null,
         base: null,
         parent: null,
-        eventCoding: (value) => {
+        eventCoding: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
         eventUri: null,
         category: null,
-        focus: (value) => {
+        focus: (value, context) => {
             initializeSerializers('MessageDefinitionFocus');
-            return FhirResourceSerializer.serializeArray(value, MessageDefinitionFocusSerializer);
+            return FhirResourceSerializer.serializeArray(value, MessageDefinitionFocusSerializer, context);
         },
         responseRequired: null,
-        allowedResponse: (value) => {
+        allowedResponse: (value, context) => {
             initializeSerializers('MessageDefinitionAllowedResponse');
-            return FhirResourceSerializer.serializeArray(value, MessageDefinitionAllowedResponseSerializer);
+            return FhirResourceSerializer.serializeArray(value, MessageDefinitionAllowedResponseSerializer, context);
         },
         graph: null,
         resourceType: null
@@ -165,14 +165,15 @@ class MessageDefinitionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MessageDefinitionSerializer.serialize(item));
+            return rawJson.map(item => MessageDefinitionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -188,7 +189,7 @@ class MessageDefinitionSerializer {
 
             if (propertyName in MessageDefinitionSerializer.propertyToSerializerMap) {
                 if (MessageDefinitionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MessageDefinitionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MessageDefinitionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

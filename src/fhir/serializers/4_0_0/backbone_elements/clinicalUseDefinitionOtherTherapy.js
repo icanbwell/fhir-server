@@ -42,21 +42,21 @@ function initializeResourceSerializer() {
 class ClinicalUseDefinitionOtherTherapySerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        relationshipType: (value) => {
+        relationshipType: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        therapy: (value) => {
+        therapy: (value, context) => {
             initializeSerializers('CodeableReference');
-            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableReferenceSerializer, context);
         }
     };
 
@@ -64,14 +64,15 @@ class ClinicalUseDefinitionOtherTherapySerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ClinicalUseDefinitionOtherTherapySerializer.serialize(item));
+            return rawJson.map(item => ClinicalUseDefinitionOtherTherapySerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -87,7 +88,7 @@ class ClinicalUseDefinitionOtherTherapySerializer {
 
             if (propertyName in ClinicalUseDefinitionOtherTherapySerializer.propertyToSerializerMap) {
                 if (ClinicalUseDefinitionOtherTherapySerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ClinicalUseDefinitionOtherTherapySerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ClinicalUseDefinitionOtherTherapySerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

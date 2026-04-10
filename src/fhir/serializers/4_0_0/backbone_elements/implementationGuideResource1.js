@@ -36,17 +36,17 @@ function initializeResourceSerializer() {
 class ImplementationGuideResource1Serializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        reference: (value) => {
+        reference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         exampleBoolean: null,
         exampleCanonical: null,
@@ -57,14 +57,15 @@ class ImplementationGuideResource1Serializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ImplementationGuideResource1Serializer.serialize(item));
+            return rawJson.map(item => ImplementationGuideResource1Serializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -80,7 +81,7 @@ class ImplementationGuideResource1Serializer {
 
             if (propertyName in ImplementationGuideResource1Serializer.propertyToSerializerMap) {
                 if (ImplementationGuideResource1Serializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ImplementationGuideResource1Serializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ImplementationGuideResource1Serializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

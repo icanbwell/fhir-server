@@ -60,54 +60,54 @@ function initializeResourceSerializer() {
 class ConsentProvisionSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         type: null,
-        period: (value) => {
+        period: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        actor: (value) => {
+        actor: (value, context) => {
             initializeSerializers('ConsentActor');
-            return FhirResourceSerializer.serializeArray(value, ConsentActorSerializer);
+            return FhirResourceSerializer.serializeArray(value, ConsentActorSerializer, context);
         },
-        action: (value) => {
+        action: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        securityLabel: (value) => {
+        securityLabel: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serializeArray(value, CodingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodingSerializer, context);
         },
-        purpose: (value) => {
+        purpose: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serializeArray(value, CodingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodingSerializer, context);
         },
-        class: (value) => {
+        class: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serializeArray(value, CodingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodingSerializer, context);
         },
-        code: (value) => {
+        code: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        dataPeriod: (value) => {
+        dataPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
-        data: (value) => {
+        data: (value, context) => {
             initializeSerializers('ConsentData');
-            return FhirResourceSerializer.serializeArray(value, ConsentDataSerializer);
+            return FhirResourceSerializer.serializeArray(value, ConsentDataSerializer, context);
         },
-        provision: (value) => {
+        provision: (value, context) => {
             initializeSerializers('ConsentProvision');
-            return FhirResourceSerializer.serializeArray(value, ConsentProvisionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ConsentProvisionSerializer, context);
         }
     };
 
@@ -115,14 +115,15 @@ class ConsentProvisionSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ConsentProvisionSerializer.serialize(item));
+            return rawJson.map(item => ConsentProvisionSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -138,7 +139,7 @@ class ConsentProvisionSerializer {
 
             if (propertyName in ConsentProvisionSerializer.propertyToSerializerMap) {
                 if (ConsentProvisionSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ConsentProvisionSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ConsentProvisionSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

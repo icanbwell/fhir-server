@@ -36,20 +36,20 @@ function initializeResourceSerializer() {
 class MessageHeaderSourceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         name: null,
         software: null,
         version: null,
-        contact: (value) => {
+        contact: (value, context) => {
             initializeSerializers('ContactPoint');
-            return FhirResourceSerializer.serialize(value, ContactPointSerializer);
+            return FhirResourceSerializer.serialize(value, ContactPointSerializer, context);
         },
         endpoint: null
     };
@@ -58,14 +58,15 @@ class MessageHeaderSourceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MessageHeaderSourceSerializer.serialize(item));
+            return rawJson.map(item => MessageHeaderSourceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -81,7 +82,7 @@ class MessageHeaderSourceSerializer {
 
             if (propertyName in MessageHeaderSourceSerializer.propertyToSerializerMap) {
                 if (MessageHeaderSourceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MessageHeaderSourceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MessageHeaderSourceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

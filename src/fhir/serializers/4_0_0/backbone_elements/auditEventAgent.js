@@ -54,45 +54,45 @@ function initializeResourceSerializer() {
 class AuditEventAgentSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        role: (value) => {
+        role: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        who: (value) => {
+        who: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         altId: null,
         name: null,
         requestor: null,
-        location: (value) => {
+        location: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         policy: null,
-        media: (value) => {
+        media: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
-        network: (value) => {
+        network: (value, context) => {
             initializeSerializers('AuditEventNetwork');
-            return FhirResourceSerializer.serialize(value, AuditEventNetworkSerializer);
+            return FhirResourceSerializer.serialize(value, AuditEventNetworkSerializer, context);
         },
-        purposeOfUse: (value) => {
+        purposeOfUse: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         }
     };
 
@@ -100,14 +100,15 @@ class AuditEventAgentSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => AuditEventAgentSerializer.serialize(item));
+            return rawJson.map(item => AuditEventAgentSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -123,7 +124,7 @@ class AuditEventAgentSerializer {
 
             if (propertyName in AuditEventAgentSerializer.propertyToSerializerMap) {
                 if (AuditEventAgentSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = AuditEventAgentSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = AuditEventAgentSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

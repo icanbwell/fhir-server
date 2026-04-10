@@ -60,50 +60,50 @@ function initializeResourceSerializer() {
 class CoverageEligibilityRequestItemSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         supportingInfoSequence: null,
-        category: (value) => {
+        category: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        productOrService: (value) => {
+        productOrService: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        modifier: (value) => {
+        modifier: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        provider: (value) => {
+        provider: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        quantity: (value) => {
+        quantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        unitPrice: (value) => {
+        unitPrice: (value, context) => {
             initializeSerializers('Money');
-            return FhirResourceSerializer.serialize(value, MoneySerializer);
+            return FhirResourceSerializer.serialize(value, MoneySerializer, context);
         },
-        facility: (value) => {
+        facility: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        diagnosis: (value) => {
+        diagnosis: (value, context) => {
             initializeSerializers('CoverageEligibilityRequestDiagnosis');
-            return FhirResourceSerializer.serializeArray(value, CoverageEligibilityRequestDiagnosisSerializer);
+            return FhirResourceSerializer.serializeArray(value, CoverageEligibilityRequestDiagnosisSerializer, context);
         },
-        detail: (value) => {
+        detail: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         }
     };
 
@@ -111,14 +111,15 @@ class CoverageEligibilityRequestItemSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CoverageEligibilityRequestItemSerializer.serialize(item));
+            return rawJson.map(item => CoverageEligibilityRequestItemSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -134,7 +135,7 @@ class CoverageEligibilityRequestItemSerializer {
 
             if (propertyName in CoverageEligibilityRequestItemSerializer.propertyToSerializerMap) {
                 if (CoverageEligibilityRequestItemSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CoverageEligibilityRequestItemSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CoverageEligibilityRequestItemSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

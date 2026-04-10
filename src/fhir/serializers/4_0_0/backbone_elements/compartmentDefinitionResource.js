@@ -30,13 +30,13 @@ function initializeResourceSerializer() {
 class CompartmentDefinitionResourceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         code: null,
         param: null,
@@ -47,14 +47,15 @@ class CompartmentDefinitionResourceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CompartmentDefinitionResourceSerializer.serialize(item));
+            return rawJson.map(item => CompartmentDefinitionResourceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -70,7 +71,7 @@ class CompartmentDefinitionResourceSerializer {
 
             if (propertyName in CompartmentDefinitionResourceSerializer.propertyToSerializerMap) {
                 if (CompartmentDefinitionResourceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CompartmentDefinitionResourceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CompartmentDefinitionResourceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

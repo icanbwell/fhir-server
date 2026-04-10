@@ -36,25 +36,25 @@ function initializeResourceSerializer() {
 class ConceptMapTargetSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         code: null,
         display: null,
         equivalence: null,
         comment: null,
-        dependsOn: (value) => {
+        dependsOn: (value, context) => {
             initializeSerializers('ConceptMapDependsOn');
-            return FhirResourceSerializer.serializeArray(value, ConceptMapDependsOnSerializer);
+            return FhirResourceSerializer.serializeArray(value, ConceptMapDependsOnSerializer, context);
         },
-        product: (value) => {
+        product: (value, context) => {
             initializeSerializers('ConceptMapDependsOn');
-            return FhirResourceSerializer.serializeArray(value, ConceptMapDependsOnSerializer);
+            return FhirResourceSerializer.serializeArray(value, ConceptMapDependsOnSerializer, context);
         }
     };
 
@@ -62,14 +62,15 @@ class ConceptMapTargetSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ConceptMapTargetSerializer.serialize(item));
+            return rawJson.map(item => ConceptMapTargetSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -85,7 +86,7 @@ class ConceptMapTargetSerializer {
 
             if (propertyName in ConceptMapTargetSerializer.propertyToSerializerMap) {
                 if (ConceptMapTargetSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ConceptMapTargetSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ConceptMapTargetSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

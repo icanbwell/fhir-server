@@ -60,13 +60,13 @@ function initializeResourceSerializer() {
 class QuestionnaireResponseAnswerSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         valueBoolean: null,
         valueDecimal: null,
@@ -76,25 +76,25 @@ class QuestionnaireResponseAnswerSerializer {
         valueTime: null,
         valueString: null,
         valueUri: null,
-        valueAttachment: (value) => {
+        valueAttachment: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serialize(value, AttachmentSerializer);
+            return FhirResourceSerializer.serialize(value, AttachmentSerializer, context);
         },
-        valueCoding: (value) => {
+        valueCoding: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serialize(value, CodingSerializer);
+            return FhirResourceSerializer.serialize(value, CodingSerializer, context);
         },
-        valueQuantity: (value) => {
+        valueQuantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        valueReference: (value) => {
+        valueReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        item: (value) => {
+        item: (value, context) => {
             initializeSerializers('QuestionnaireResponseItem');
-            return FhirResourceSerializer.serializeArray(value, QuestionnaireResponseItemSerializer);
+            return FhirResourceSerializer.serializeArray(value, QuestionnaireResponseItemSerializer, context);
         }
     };
 
@@ -102,14 +102,15 @@ class QuestionnaireResponseAnswerSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => QuestionnaireResponseAnswerSerializer.serialize(item));
+            return rawJson.map(item => QuestionnaireResponseAnswerSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -125,7 +126,7 @@ class QuestionnaireResponseAnswerSerializer {
 
             if (propertyName in QuestionnaireResponseAnswerSerializer.propertyToSerializerMap) {
                 if (QuestionnaireResponseAnswerSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = QuestionnaireResponseAnswerSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = QuestionnaireResponseAnswerSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

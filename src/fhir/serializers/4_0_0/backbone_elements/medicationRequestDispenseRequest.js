@@ -54,38 +54,38 @@ function initializeResourceSerializer() {
 class MedicationRequestDispenseRequestSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        initialFill: (value) => {
+        initialFill: (value, context) => {
             initializeSerializers('MedicationRequestInitialFill');
-            return FhirResourceSerializer.serialize(value, MedicationRequestInitialFillSerializer);
+            return FhirResourceSerializer.serialize(value, MedicationRequestInitialFillSerializer, context);
         },
-        dispenseInterval: (value) => {
+        dispenseInterval: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        validityPeriod: (value) => {
+        validityPeriod: (value, context) => {
             initializeSerializers('Period');
-            return FhirResourceSerializer.serialize(value, PeriodSerializer);
+            return FhirResourceSerializer.serialize(value, PeriodSerializer, context);
         },
         numberOfRepeatsAllowed: null,
-        quantity: (value) => {
+        quantity: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        expectedSupplyDuration: (value) => {
+        expectedSupplyDuration: (value, context) => {
             initializeSerializers('Quantity');
-            return FhirResourceSerializer.serialize(value, QuantitySerializer);
+            return FhirResourceSerializer.serialize(value, QuantitySerializer, context);
         },
-        performer: (value) => {
+        performer: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         }
     };
 
@@ -93,14 +93,15 @@ class MedicationRequestDispenseRequestSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => MedicationRequestDispenseRequestSerializer.serialize(item));
+            return rawJson.map(item => MedicationRequestDispenseRequestSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -116,7 +117,7 @@ class MedicationRequestDispenseRequestSerializer {
 
             if (propertyName in MedicationRequestDispenseRequestSerializer.propertyToSerializerMap) {
                 if (MedicationRequestDispenseRequestSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = MedicationRequestDispenseRequestSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = MedicationRequestDispenseRequestSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

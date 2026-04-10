@@ -30,13 +30,13 @@ function initializeResourceSerializer() {
 class TerminologyCapabilitiesParameterSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         name: null,
         documentation: null
@@ -46,14 +46,15 @@ class TerminologyCapabilitiesParameterSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => TerminologyCapabilitiesParameterSerializer.serialize(item));
+            return rawJson.map(item => TerminologyCapabilitiesParameterSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -69,7 +70,7 @@ class TerminologyCapabilitiesParameterSerializer {
 
             if (propertyName in TerminologyCapabilitiesParameterSerializer.propertyToSerializerMap) {
                 if (TerminologyCapabilitiesParameterSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = TerminologyCapabilitiesParameterSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = TerminologyCapabilitiesParameterSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

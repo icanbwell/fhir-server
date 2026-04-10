@@ -42,22 +42,22 @@ function initializeResourceSerializer() {
 class AuditEventSourceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         site: null,
-        observer: (value) => {
+        observer: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('Coding');
-            return FhirResourceSerializer.serializeArray(value, CodingSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodingSerializer, context);
         }
     };
 
@@ -65,14 +65,15 @@ class AuditEventSourceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => AuditEventSourceSerializer.serialize(item));
+            return rawJson.map(item => AuditEventSourceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -88,7 +89,7 @@ class AuditEventSourceSerializer {
 
             if (propertyName in AuditEventSourceSerializer.propertyToSerializerMap) {
                 if (AuditEventSourceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = AuditEventSourceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = AuditEventSourceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

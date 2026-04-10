@@ -42,22 +42,22 @@ function initializeResourceSerializer() {
 class CommunicationPayloadSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
         contentString: null,
-        contentAttachment: (value) => {
+        contentAttachment: (value, context) => {
             initializeSerializers('Attachment');
-            return FhirResourceSerializer.serialize(value, AttachmentSerializer);
+            return FhirResourceSerializer.serialize(value, AttachmentSerializer, context);
         },
-        contentReference: (value) => {
+        contentReference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         }
     };
 
@@ -65,14 +65,15 @@ class CommunicationPayloadSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CommunicationPayloadSerializer.serialize(item));
+            return rawJson.map(item => CommunicationPayloadSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -88,7 +89,7 @@ class CommunicationPayloadSerializer {
 
             if (propertyName in CommunicationPayloadSerializer.propertyToSerializerMap) {
                 if (CommunicationPayloadSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CommunicationPayloadSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CommunicationPayloadSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

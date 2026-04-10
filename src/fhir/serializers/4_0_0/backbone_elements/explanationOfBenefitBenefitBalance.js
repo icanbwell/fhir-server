@@ -42,36 +42,36 @@ function initializeResourceSerializer() {
 class ExplanationOfBenefitBenefitBalanceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        category: (value) => {
+        category: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         excluded: null,
         name: null,
         description: null,
-        network: (value) => {
+        network: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        unit: (value) => {
+        unit: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        term: (value) => {
+        term: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        financial: (value) => {
+        financial: (value, context) => {
             initializeSerializers('ExplanationOfBenefitFinancial');
-            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitFinancialSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExplanationOfBenefitFinancialSerializer, context);
         }
     };
 
@@ -79,14 +79,15 @@ class ExplanationOfBenefitBenefitBalanceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => ExplanationOfBenefitBenefitBalanceSerializer.serialize(item));
+            return rawJson.map(item => ExplanationOfBenefitBenefitBalanceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -102,7 +103,7 @@ class ExplanationOfBenefitBenefitBalanceSerializer {
 
             if (propertyName in ExplanationOfBenefitBenefitBalanceSerializer.propertyToSerializerMap) {
                 if (ExplanationOfBenefitBenefitBalanceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = ExplanationOfBenefitBenefitBalanceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = ExplanationOfBenefitBenefitBalanceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

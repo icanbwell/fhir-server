@@ -42,17 +42,17 @@ function initializeResourceSerializer() {
 class CodeableReferenceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        concept: (value) => {
+        concept: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        reference: (value) => {
+        reference: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         }
     };
 
@@ -60,14 +60,15 @@ class CodeableReferenceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => CodeableReferenceSerializer.serialize(item));
+            return rawJson.map(item => CodeableReferenceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -83,7 +84,7 @@ class CodeableReferenceSerializer {
 
             if (propertyName in CodeableReferenceSerializer.propertyToSerializerMap) {
                 if (CodeableReferenceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = CodeableReferenceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = CodeableReferenceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

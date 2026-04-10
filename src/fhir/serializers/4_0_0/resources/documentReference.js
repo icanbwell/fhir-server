@@ -84,79 +84,79 @@ function initializeResourceSerializer() {
 class DocumentReferenceSerializer {
     static propertyToSerializerMap = {
         id: null,
-        meta: (value) => {
+        meta: (value, context) => {
             initializeSerializers('Meta');
-            return FhirResourceSerializer.serialize(value, MetaSerializer);
+            return FhirResourceSerializer.serialize(value, MetaSerializer, context);
         },
         implicitRules: null,
         language: null,
-        text: (value) => {
+        text: (value, context) => {
             initializeSerializers('Narrative');
-            return FhirResourceSerializer.serialize(value, NarrativeSerializer);
+            return FhirResourceSerializer.serialize(value, NarrativeSerializer, context);
         },
-        contained: (value) => {
+        contained: (value, context) => {
             initializeSerializers('ResourceContainer');
-            return FhirResourceSerializer.serializeArray(value);
+            return FhirResourceSerializer.serializeArray(value, undefined, context);
         },
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        masterIdentifier: (value) => {
+        masterIdentifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serialize(value, IdentifierSerializer);
+            return FhirResourceSerializer.serialize(value, IdentifierSerializer, context);
         },
-        identifier: (value) => {
+        identifier: (value, context) => {
             initializeSerializers('Identifier');
-            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer);
+            return FhirResourceSerializer.serializeArray(value, IdentifierSerializer, context);
         },
         status: null,
         docStatus: null,
-        type: (value) => {
+        type: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        category: (value) => {
+        category: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        subject: (value) => {
+        subject: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
         date: null,
-        author: (value) => {
+        author: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer);
+            return FhirResourceSerializer.serializeArray(value, ReferenceSerializer, context);
         },
-        authenticator: (value) => {
+        authenticator: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        custodian: (value) => {
+        custodian: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        relatesTo: (value) => {
+        relatesTo: (value, context) => {
             initializeSerializers('DocumentReferenceRelatesTo');
-            return FhirResourceSerializer.serializeArray(value, DocumentReferenceRelatesToSerializer);
+            return FhirResourceSerializer.serializeArray(value, DocumentReferenceRelatesToSerializer, context);
         },
         description: null,
-        securityLabel: (value) => {
+        securityLabel: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        content: (value) => {
+        content: (value, context) => {
             initializeSerializers('DocumentReferenceContent');
-            return FhirResourceSerializer.serializeArray(value, DocumentReferenceContentSerializer);
+            return FhirResourceSerializer.serializeArray(value, DocumentReferenceContentSerializer, context);
         },
-        context: (value) => {
+        context: (value, context) => {
             initializeSerializers('DocumentReferenceContext');
-            return FhirResourceSerializer.serialize(value, DocumentReferenceContextSerializer);
+            return FhirResourceSerializer.serialize(value, DocumentReferenceContextSerializer, context);
         },
         resourceType: null
     };
@@ -165,14 +165,15 @@ class DocumentReferenceSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => DocumentReferenceSerializer.serialize(item));
+            return rawJson.map(item => DocumentReferenceSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -188,7 +189,7 @@ class DocumentReferenceSerializer {
 
             if (propertyName in DocumentReferenceSerializer.propertyToSerializerMap) {
                 if (DocumentReferenceSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = DocumentReferenceSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = DocumentReferenceSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

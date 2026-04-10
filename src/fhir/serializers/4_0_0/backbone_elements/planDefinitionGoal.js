@@ -48,41 +48,41 @@ function initializeResourceSerializer() {
 class PlanDefinitionGoalSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        category: (value) => {
+        category: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        description: (value) => {
+        description: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        priority: (value) => {
+        priority: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        start: (value) => {
+        start: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
-        addresses: (value) => {
+        addresses: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serializeArray(value, CodeableConceptSerializer, context);
         },
-        documentation: (value) => {
+        documentation: (value, context) => {
             initializeSerializers('RelatedArtifact');
-            return FhirResourceSerializer.serializeArray(value, RelatedArtifactSerializer);
+            return FhirResourceSerializer.serializeArray(value, RelatedArtifactSerializer, context);
         },
-        target: (value) => {
+        target: (value, context) => {
             initializeSerializers('PlanDefinitionTarget');
-            return FhirResourceSerializer.serializeArray(value, PlanDefinitionTargetSerializer);
+            return FhirResourceSerializer.serializeArray(value, PlanDefinitionTargetSerializer, context);
         }
     };
 
@@ -90,14 +90,15 @@ class PlanDefinitionGoalSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => PlanDefinitionGoalSerializer.serialize(item));
+            return rawJson.map(item => PlanDefinitionGoalSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -113,7 +114,7 @@ class PlanDefinitionGoalSerializer {
 
             if (propertyName in PlanDefinitionGoalSerializer.propertyToSerializerMap) {
                 if (PlanDefinitionGoalSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = PlanDefinitionGoalSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = PlanDefinitionGoalSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

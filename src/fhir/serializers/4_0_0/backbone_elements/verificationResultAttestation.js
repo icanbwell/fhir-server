@@ -48,36 +48,36 @@ function initializeResourceSerializer() {
 class VerificationResultAttestationSerializer {
     static propertyToSerializerMap = {
         id: null,
-        extension: (value) => {
+        extension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        modifierExtension: (value) => {
+        modifierExtension: (value, context) => {
             initializeSerializers('Extension');
-            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer);
+            return FhirResourceSerializer.serializeArray(value, ExtensionSerializer, context);
         },
-        who: (value) => {
+        who: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        onBehalfOf: (value) => {
+        onBehalfOf: (value, context) => {
             initializeSerializers('Reference');
-            return FhirResourceSerializer.serialize(value, ReferenceSerializer);
+            return FhirResourceSerializer.serialize(value, ReferenceSerializer, context);
         },
-        communicationMethod: (value) => {
+        communicationMethod: (value, context) => {
             initializeSerializers('CodeableConcept');
-            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer);
+            return FhirResourceSerializer.serialize(value, CodeableConceptSerializer, context);
         },
         date: null,
         sourceIdentityCertificate: null,
         proxyIdentityCertificate: null,
-        proxySignature: (value) => {
+        proxySignature: (value, context) => {
             initializeSerializers('Signature');
-            return FhirResourceSerializer.serialize(value, SignatureSerializer);
+            return FhirResourceSerializer.serialize(value, SignatureSerializer, context);
         },
-        sourceSignature: (value) => {
+        sourceSignature: (value, context) => {
             initializeSerializers('Signature');
-            return FhirResourceSerializer.serialize(value, SignatureSerializer);
+            return FhirResourceSerializer.serialize(value, SignatureSerializer, context);
         }
     };
 
@@ -85,14 +85,15 @@ class VerificationResultAttestationSerializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
+     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson) {
+    static serialize(rawJson, context = {}) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => VerificationResultAttestationSerializer.serialize(item));
+            return rawJson.map(item => VerificationResultAttestationSerializer.serialize(item, context));
         }
 
         // Handle non-object case
@@ -108,7 +109,7 @@ class VerificationResultAttestationSerializer {
 
             if (propertyName in VerificationResultAttestationSerializer.propertyToSerializerMap) {
                 if (VerificationResultAttestationSerializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = VerificationResultAttestationSerializer.propertyToSerializerMap[propertyName](value);
+                    const serializedValue = VerificationResultAttestationSerializer.propertyToSerializerMap[propertyName](value, context);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

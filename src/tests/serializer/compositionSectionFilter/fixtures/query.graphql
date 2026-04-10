@@ -1,0 +1,40 @@
+{
+    composition {
+        entry {
+            resource {
+                id
+                title
+                section {
+                    id
+                    title
+                    code {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    section {
+                        id
+                        title
+                        code {
+                            coding {
+                                system
+                                code
+                            }
+                        }
+                        section {
+                            id
+                            title
+                            code {
+                                coding {
+                                    system
+                                    code
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
