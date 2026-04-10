@@ -8,11 +8,13 @@
  * Usage:
  *   node src/scripts/migrate_audit_events_to_clickhouse.js [options]
  *
- * Required:
- *   --federation-url <url>   Atlas Data Federation connection string
+ * Environment Variables (required):
+ *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Atlas Data Federation base URL
+ *   AUDIT_EVENT_MONGO_USERNAME                     MongoDB username (optional if URL has creds)
+ *   AUDIT_EVENT_MONGO_PASSWORD                     MongoDB password (optional if URL has creds)
+ *   AUDIT_EVENT_MONGO_DB_NAME                      Source database name (default: fhir)
  *
  * Options:
- *   --db-name <name>         Source database name (default: fhir)
  *   --collection <name>      Source collection name (default: AuditEvent_4_0_0)
  *   --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
  *   --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
@@ -25,20 +27,18 @@
  *
  * Examples:
  *   # Dry run to see partition counts
- *   node src/scripts/migrate_audit_events_to_clickhouse.js \
- *     --federation-url "mongodb+srv://..." --dry-run
+ *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb+srv://..." \
+ *     node src/scripts/migrate_audit_events_to_clickhouse.js --dry-run
  *
  *   # Full migration with 8 concurrent workers
- *   node src/scripts/migrate_audit_events_to_clickhouse.js \
- *     --federation-url "mongodb+srv://..." --concurrency 8
+ *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb+srv://..." \
+ *     node src/scripts/migrate_audit_events_to_clickhouse.js --concurrency 8
  *
  *   # Resume after interruption
- *   node src/scripts/migrate_audit_events_to_clickhouse.js \
- *     --federation-url "mongodb+srv://..." --resume
+ *   node src/scripts/migrate_audit_events_to_clickhouse.js --resume
  *
  *   # Verify counts after migration
- *   node src/scripts/migrate_audit_events_to_clickhouse.js \
- *     --federation-url "mongodb+srv://..." --verify-only
+ *   node src/scripts/migrate_audit_events_to_clickhouse.js --verify-only
  */
 
 const { MongoClient } = require('mongodb');
@@ -53,14 +53,43 @@ const { PartitionWorker } = require('../admin/utils/partitionWorker');
 const { MigrationVerifier } = require('../admin/utils/migrationVerifier');
 
 /**
+ * Builds the Atlas Data Federation connection URL from environment variables.
+ * Mirrors the pattern in src/config.js for AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL.
+ * @returns {{federationUrl: string, dbName: string}}
+ */
+function buildFederationUrl() {
+    const env = process.env;
+    let federationUrl = env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL || '';
+
+    if (!federationUrl) {
+        logError('AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL environment variable is required');
+        process.exit(1);
+    }
+
+    if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
+        federationUrl = federationUrl.replace(
+            'mongodb://',
+            `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
+        );
+        federationUrl = federationUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
+        );
+    }
+
+    federationUrl = encodeURI(federationUrl);
+    const dbName = env.AUDIT_EVENT_MONGO_DB_NAME || 'fhir';
+
+    return { federationUrl, dbName };
+}
+
+/**
  * Parse command line arguments
  * @returns {Object}
  */
 function parseArgs() {
     const args = process.argv.slice(2);
     const options = {
-        federationUrl: '',
-        dbName: 'fhir',
         collection: 'AuditEvent_4_0_0',
         startDate: '2022-01-01',
         endDate: '2026-04-01',
@@ -73,12 +102,6 @@ function parseArgs() {
 
     for (let i = 0; i < args.length; i++) {
         switch (args[i]) {
-            case '--federation-url':
-                options.federationUrl = args[++i];
-                break;
-            case '--db-name':
-                options.dbName = args[++i];
-                break;
             case '--collection':
                 options.collection = args[++i];
                 break;
@@ -108,11 +131,13 @@ function parseArgs() {
                 logInfo(`
 Usage: node src/scripts/migrate_audit_events_to_clickhouse.js [options]
 
-Required:
-  --federation-url <url>   Atlas Data Federation connection string
+Environment Variables (required):
+  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Atlas Data Federation base URL
+  AUDIT_EVENT_MONGO_USERNAME                     MongoDB username
+  AUDIT_EVENT_MONGO_PASSWORD                     MongoDB password
+  AUDIT_EVENT_MONGO_DB_NAME                      Source database name (default: fhir)
 
 Options:
-  --db-name <name>         Source database name (default: fhir)
   --collection <name>      Source collection (default: AuditEvent_4_0_0)
   --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
   --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
@@ -235,11 +260,7 @@ async function runWorkersAsync({
  */
 async function main() {
     const options = parseArgs();
-
-    if (!options.federationUrl) {
-        logError('--federation-url is required');
-        process.exit(1);
-    }
+    const { federationUrl, dbName } = buildFederationUrl();
 
     const mode = options.dryRun
         ? 'DRY RUN'
@@ -254,7 +275,7 @@ async function main() {
         endDate: options.endDate,
         batchSize: options.batchSize,
         concurrency: options.concurrency,
-        collection: `${options.dbName}.${options.collection}`
+        collection: `${dbName}.${options.collection}`
     });
 
     // Initialize connections
@@ -262,8 +283,8 @@ async function main() {
     const clickHouseManager = new ClickHouseClientManager({ configManager });
 
     logInfo('Connecting to Atlas Data Federation');
-    const mongoClient = await MongoClient.connect(options.federationUrl);
-    const sourceDb = mongoClient.db(options.dbName);
+    const mongoClient = await MongoClient.connect(federationUrl);
+    const sourceDb = mongoClient.db(dbName);
     logInfo('Connected to Atlas Data Federation');
 
     logInfo('Connecting to ClickHouse');
