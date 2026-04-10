@@ -35,6 +35,7 @@ const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const { CONTEXT_KEYS } = require('../constants/groupConstants');
+const { BadRequestError } = require('../utils/httpErrors');
 
 /**
  * Configuration for resources that need array field stripping for ClickHouse hybrid storage
@@ -68,6 +69,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {PostSaveProcessor} postSaveProcessor
+     * @param {import('../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository|null} [mongoGroupMemberRepository]
      */
     constructor ({
                     resourceManager,
@@ -78,7 +80,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     databaseUpdateFactory,
                     resourceMerger,
                     configManager,
-                    postSaveProcessor
+                    postSaveProcessor,
+                    mongoGroupMemberRepository = null
                 }) {
         super();
 
@@ -136,6 +139,11 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        /**
+         * @type {import('../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository|null}
+         */
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
     }
 
     /**
@@ -154,28 +162,48 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Resource} Resource with array field stripped (if applicable)
      * @private
      */
-    _handleArrayFieldStripping ({ resource, requestId, contextData = null }) {
+    async _handleArrayFieldStripping ({ resource, requestId, contextData = null }) {
         // Check if this resource type needs array stripping
         const config = ARRAY_STRIPPING_CONFIG[resource.resourceType];
         if (!config) {
             return resource; // Resource not configured for array stripping
         }
 
-        if (!this.configManager.enableClickHouse ||
-            !this.configManager.mongoWithClickHouseResources.includes(resource.resourceType)) {
+        const isClickHouseEnabled = this.configManager.enableClickHouse &&
+            this.configManager.mongoWithClickHouseResources.includes(resource.resourceType);
+        const isMongoMembersEnabled = this.configManager.enableMongoGroupMembers &&
+            resource.resourceType === 'Group' &&
+            contextData?.useMongoGroupMembers === true;
+        if (!isClickHouseEnabled && !isMongoMembersEnabled) {
             return resource;
         }
 
-        // Get array data from contextData (preferred) or resource field (fallback)
-        const fieldName = config.field;
-        const contextFieldName = `${resource.resourceType.toLowerCase()}${config.field.charAt(0).toUpperCase()}${config.field.slice(1)}s`;
-        const arrayData = contextData?.[contextFieldName] || resource[fieldName] || [];
+        // Validate member references exist before stripping (atomic rejection)
+        if (isMongoMembersEnabled && this.mongoGroupMemberRepository) {
+            const members = resource[config.field];
+            if (members && members.length > 0) {
+                const { valid, missingReferences } = await this.mongoGroupMemberRepository.validateMembersExistAsync(members);
+                if (!valid) {
+                    const message = `Group member validation failed: the following member references do not exist: ${missingReferences.join(', ')}`;
+                    throw new BadRequestError({
+                        message,
+                        toString: function () { return message; }
+                    }, {
+                        issue: [new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'not-found',
+                            diagnostics: message
+                        })]
+                    });
+                }
+            }
+        }
 
-        // Strip array from resource (hybrid storage: MongoDB stores metadata, ClickHouse stores array data)
+        // Strip array from resource (hybrid storage: MongoDB stores metadata, event store stores array data)
         // This prevents 16MB document size limit errors for large arrays
         // Array data is passed to post-save handler via contextData parameter (explicit threading)
         // IMPORTANT: Modify in place to preserve Resource type
-        resource[fieldName] = [];
+        resource[config.field] = [];
 
         return resource;
     }
@@ -380,10 +408,10 @@ class DatabaseBulkInserter extends EventEmitter {
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
-            // Run preSave handlers FIRST (includes invariant validation)
+            // Run preSave handlers FIRST (includes invariant validation, sets _uuid on references)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
-            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
+            // Handle array field stripping + member validation for hybrid storage (Group, List, etc.)
+            doc = await this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
@@ -555,10 +583,10 @@ class DatabaseBulkInserter extends EventEmitter {
 
         try {
             assertTypeEquals(doc, Resource);
-            // Run preSave handlers FIRST (includes invariant validation)
+            // Run preSave handlers FIRST (includes invariant validation, sets _uuid on references)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
-            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
+            // Handle array field stripping + member validation for hybrid storage (Group, List, etc.)
+            doc = await this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -652,10 +680,10 @@ class DatabaseBulkInserter extends EventEmitter {
         const lastVersionId = previousVersionId;
         try {
             assertTypeEquals(doc, Resource);
-            // Run preSave handlers FIRST (includes invariant validation)
+            // Run preSave handlers FIRST (includes invariant validation, sets _uuid on references)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
-            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
+            // Handle array field stripping + member validation for hybrid storage (Group, List, etc.)
+            doc = await this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 

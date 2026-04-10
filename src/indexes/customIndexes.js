@@ -499,6 +499,16 @@ module.exports = {
                 }
             }
         ],
+        Group_4_0_0_MemberEvent: [
+            {
+                keys: { group_id: 1, member_type: 1, member_object_id: 1, _id: -1 },
+                options: { name: 'groupId_memberType_memberObjectId_id' }
+            },
+            {
+                keys: { member_type: 1, member_object_id: 1, group_id: 1, _id: -1 },
+                options: { name: 'memberType_memberObjectId_groupId_id' }
+            }
+        ],
         HealthcareService_4_0_0: [
             {
                 keys: {

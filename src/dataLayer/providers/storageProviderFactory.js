@@ -1,5 +1,6 @@
 const { MongoStorageProvider } = require('./mongoStorageProvider');
 const { MongoWithClickHouseStorageProvider } = require('./mongoWithClickHouseStorageProvider');
+const { MongoWithMongoMembersStorageProvider } = require('./mongoWithMongoMembersStorageProvider');
 const { ClickHouseStorageProvider } = require('./clickHouseStorageProvider');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 const { logInfo, logDebug } = require('../../operations/common/logging');
@@ -25,17 +26,20 @@ class StorageProviderFactory {
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager|null} params.clickHouseClientManager
      * @param {import('../databaseAttachmentManager').DatabaseAttachmentManager} params.databaseAttachmentManager
      * @param {import('../../utils/configManager').ConfigManager} params.configManager
+     * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository|null} [params.mongoGroupMemberRepository]
      */
     constructor({
         resourceLocatorFactory,
         clickHouseClientManager,
         databaseAttachmentManager,
-        configManager
+        configManager,
+        mongoGroupMemberRepository = null
     }) {
         this.resourceLocatorFactory = resourceLocatorFactory;
         this.clickHouseClientManager = clickHouseClientManager;
         this.databaseAttachmentManager = databaseAttachmentManager;
         this.configManager = configManager;
+        this.mongoGroupMemberRepository = mongoGroupMemberRepository;
 
         // Log configuration on initialization
         if (this.configManager.enableClickHouse) {
@@ -85,6 +89,20 @@ class StorageProviderFactory {
                 });
             }
 
+            case STORAGE_PROVIDER_TYPES.MONGO_WITH_MONGO_MEMBERS: {
+                const mongoProvider = new MongoStorageProvider({
+                    resourceLocator,
+                    databaseAttachmentManager: this.databaseAttachmentManager
+                });
+
+                return new MongoWithMongoMembersStorageProvider({
+                    resourceLocator,
+                    mongoStorageProvider: mongoProvider,
+                    mongoGroupMemberRepository: this.mongoGroupMemberRepository,
+                    configManager: this.configManager
+                });
+            }
+
             case STORAGE_PROVIDER_TYPES.CLICKHOUSE: {
                 return new ClickHouseStorageProvider({
                     resourceLocator,
@@ -108,17 +126,30 @@ class StorageProviderFactory {
      * Determines storage provider type for a resource based on configuration
      *
      * Priority:
-     * 1. If ClickHouse disabled → MONGO
-     * 2. If in MONGO_WITH_CLICKHOUSE_RESOURCES → MONGO_WITH_CLICKHOUSE
-     * 3. If in CLICKHOUSE_ONLY_RESOURCES → CLICKHOUSE
-     * 4. Default → MONGO
+     * 1. If ENABLE_MONGO_GROUP_MEMBERS + Group → MONGO_WITH_MONGO_MEMBERS (unless ClickHouse also enabled for Group)
+     * 2. If ClickHouse disabled → MONGO
+     * 3. If in MONGO_WITH_CLICKHOUSE_RESOURCES → MONGO_WITH_CLICKHOUSE
+     * 4. If in CLICKHOUSE_ONLY_RESOURCES → CLICKHOUSE
+     * 5. Default → MONGO
      *
      * @param {string} resourceType
      * @returns {string} One of STORAGE_PROVIDER_TYPES
      * @private
      */
     _getStorageProviderType(resourceType) {
-        // If ClickHouse not enabled, everything goes to MongoDB
+        // Check MongoDB Group Members first (independent of ClickHouse)
+        // When both are enabled, ClickHouse takes priority (check order below)
+        if (this.configManager.enableMongoGroupMembers && resourceType === 'Group') {
+            // If ClickHouse is also enabled for Group, ClickHouse takes priority
+            if (this.configManager.enableClickHouse &&
+                this.clickHouseClientManager &&
+                this.configManager.mongoWithClickHouseResources.includes(resourceType)) {
+                return STORAGE_PROVIDER_TYPES.MONGO_WITH_CLICKHOUSE;
+            }
+            return STORAGE_PROVIDER_TYPES.MONGO_WITH_MONGO_MEMBERS;
+        }
+
+        // If ClickHouse not enabled, everything else goes to MongoDB
         if (!this.configManager.enableClickHouse || !this.clickHouseClientManager) {
             return STORAGE_PROVIDER_TYPES.MONGO;
         }

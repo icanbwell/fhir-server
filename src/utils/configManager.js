@@ -1140,6 +1140,16 @@ class ConfigManager {
         return this._parseCommaSeparatedList(env.MONGO_WITH_CLICKHOUSE_RESOURCES, []);
     }
 
+    // ========== MongoDB Group Members Configuration ==========
+
+    /**
+     * whether MongoDB Group Members storage is enabled (for Group resources only)
+     * @return {boolean}
+     */
+    get enableMongoGroupMembers() {
+        return isTrue(env.ENABLE_MONGO_GROUP_MEMBERS);
+    }
+
     /**
      * Resources using ClickHouse-only storage (no MongoDB)
      *

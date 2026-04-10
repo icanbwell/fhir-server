@@ -117,6 +117,7 @@ const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
+const {MongoGroupMemberEnrichmentProvider} = require('./enrich/providers/mongoGroupMemberEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -179,6 +180,10 @@ const createContainer = function () {
             new MetaUuidEnrichmentProvider(),
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
+                configManager: c.configManager
+            }),
+            new MongoGroupMemberEnrichmentProvider({
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository,
                 configManager: c.configManager
             })
         ]
@@ -381,7 +386,8 @@ const createContainer = function () {
             resourceLocatorFactory: c.resourceLocatorFactory,
             clickHouseClientManager: c.clickHouseClientManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            configManager: c.configManager
+            configManager: c.configManager,
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository
         });
     });
 
@@ -539,7 +545,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository
             }
         )
     );
@@ -555,7 +562,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                mongoGroupMemberRepository: c.mongoGroupMemberRepository
             }
         )
     );
@@ -1034,9 +1042,17 @@ const createContainer = function () {
         }
     ));
 
+    container.register('mongoGroupMemberRepository', (c) => {
+        const { MongoGroupMemberRepository } = require('./dataLayer/repositories/mongoGroupMemberRepository');
+        return new MongoGroupMemberRepository({
+            mongoDatabaseManager: c.mongoDatabaseManager
+        });
+    });
+
     container.register('postSaveHandlerFactory', (c) => new PostSaveHandlerFactory({
         clickHouseClientManager: c.clickHouseClientManager,
-        configManager: c.configManager
+        configManager: c.configManager,
+        mongoDatabaseManager: c.mongoDatabaseManager
     }));
 
     container.register('postSaveProcessor', (c) => {

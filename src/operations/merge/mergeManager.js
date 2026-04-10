@@ -589,7 +589,7 @@ class MergeManager {
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
             // Insert/update our resource record
-            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge);
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
 
             await this.databaseBulkInserter.mergeOneAsync(
                 {
@@ -634,7 +634,7 @@ class MergeManager {
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
             // Insert/update our resource record
-            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge);
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
 
             await this.databaseBulkInserter.insertOneAsync({
                     base_version,

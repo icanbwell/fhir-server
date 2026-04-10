@@ -1,5 +1,6 @@
 const { BadRequestError } = require('../../../utils/httpErrors');
 const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../../constants/groupConstants');
+const { HEADERS } = require('../../../constants/mongoGroupMemberConstants');
 const { createTooCostlyError } = require('../../../utils/fhirErrorFactory');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
@@ -104,7 +105,16 @@ class GroupMemberPatchStrategy {
         if (postSaveHandlers.length === 0) {
             throw new Error('No post-save handlers available for Group resource');
         }
-        const groupHandler = postSaveHandlers[0];
+        const useMongoMembers = requestInfo?.headers?.[HEADERS.SUB_GROUP_MEMBER_REQUEST] === 'true';
+        const groupHandler = useMongoMembers
+            ? postSaveHandlers.find(h => h.constructor.name === 'MongoGroupMemberHandler')
+            : postSaveHandlers.find(h => h.constructor.name === 'ClickHouseGroupHandler');
+        if (!groupHandler) {
+            throw new Error(
+                `No ${useMongoMembers ? 'MongoDB' : 'ClickHouse'} group member handler available. ` +
+                `Check ${useMongoMembers ? 'ENABLE_MONGO_GROUP_MEMBERS' : 'CLICKHOUSE_ENABLED + MONGO_WITH_CLICKHOUSE_RESOURCES'} configuration.`
+            );
+        }
 
         // 1. Enforce operations limit (empirically determined)
         const MAX_PATCH_OPERATIONS = this.configManager.groupPatchOperationsLimit;
@@ -164,6 +174,27 @@ class GroupMemberPatchStrategy {
             }
         }
 
+        // 2b. Validate added member references exist (atomic rejection for mongo members flow)
+        if (useMongoMembers && eventsToAdd.length > 0) {
+            const mongoGroupMemberRepository = this.databaseBulkInserter.mongoGroupMemberRepository;
+            if (mongoGroupMemberRepository) {
+                const { valid, missingReferences } = await mongoGroupMemberRepository.validateMembersExistAsync(eventsToAdd);
+                if (!valid) {
+                    const message = `Group member validation failed: the following member references do not exist: ${missingReferences.join(', ')}`;
+                    throw new BadRequestError({
+                        message,
+                        toString: function () { return message; }
+                    }, {
+                        issue: [new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'not-found',
+                            diagnostics: message
+                        })]
+                    });
+                }
+            }
+        }
+
         // 3. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
         // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
         // Different write orders = different failure modes = unpredictable behavior
@@ -177,7 +208,7 @@ class GroupMemberPatchStrategy {
 
         // Build contextData and set flag to skip post-save handler
         // buildContextDataForHybridStorage now always returns an object for Groups (never null)
-        const contextData = buildContextDataForHybridStorage(resourceType, foundResource);
+        const contextData = buildContextDataForHybridStorage(resourceType, foundResource, requestInfo);
         if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
             contextData.groupMemberEventsWritten = true;
         }

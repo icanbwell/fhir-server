@@ -13,9 +13,10 @@ class CreateCollectionsRunner extends BaseScriptRunner {
      * indexManager: IndexManager,
      * adminLogger: AdminLogger,
      * mongoDatabaseManager: MongoDatabaseManager,
+     * configManager: ConfigManager,
      * }} params
      */
-    constructor({ indexManager, adminLogger, mongoDatabaseManager }) {
+    constructor({ indexManager, adminLogger, mongoDatabaseManager, configManager }) {
         super({
             adminLogger,
             mongoDatabaseManager
@@ -25,6 +26,11 @@ class CreateCollectionsRunner extends BaseScriptRunner {
          */
         this.indexManager = indexManager;
         assertTypeEquals(indexManager, IndexManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
     }
 
     /**
@@ -72,6 +78,33 @@ class CreateCollectionsRunner extends BaseScriptRunner {
             }
             if (!existingAuditCollections.includes('AuditEvent_4_0_0')) {
                 await auditDb.createCollection('AuditEvent_4_0_0');
+            }
+
+            // Create MongoDB collection + view for Group member storage (if enabled)
+            if (this.configManager?.enableMongoGroupMembers) {
+                const { COLLECTIONS } = require('../../constants/mongoGroupMemberConstants');
+
+                if (!existingMainDbCollections.includes(COLLECTIONS.GROUP_MEMBER_EVENTS)) {
+                    await mainDb.createCollection(COLLECTIONS.GROUP_MEMBER_EVENTS);
+                }
+
+                if (!existingMainDbCollections.includes(COLLECTIONS.GROUP_MEMBER_CURRENT)) {
+                    await mainDb.createView(COLLECTIONS.GROUP_MEMBER_CURRENT, COLLECTIONS.GROUP_MEMBER_EVENTS, [
+                        { $sort: { group_id: 1, member_type: 1, member_object_id: 1, _id: -1 } },
+                        { $group: {
+                            _id: { group_id: '$group_id', member_type: '$member_type', member_object_id: '$member_object_id' },
+                            group_id: { $first: '$group_id' },
+                            group_uuid: { $first: '$group_uuid' },
+                            member_type: { $first: '$member_type' },
+                            member_object_id: { $first: '$member_object_id' },
+                            entity: { $first: '$entity' },
+                            period: { $first: '$period' },
+                            inactive: { $first: '$inactive' },
+                            event_type: { $first: '$event_type' },
+                            event_time: { $first: '$event_time' }
+                        }}
+                    ]);
+                }
             }
 
             // synchronize indexes

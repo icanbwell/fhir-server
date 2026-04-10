@@ -34,7 +34,16 @@ const STORAGE_PROVIDER_TYPES = {
      * Use case: Append-only logs, audit trails, time-series data
      * Example: AuditEvent (immutable audit logs)
      */
-    CLICKHOUSE: 'clickhouse'
+    CLICKHOUSE: 'clickhouse',
+
+    /**
+     * MongoDB + MongoDB Members storage
+     * - MongoDB: Resource metadata (Group_4_0_0)
+     * - MongoDB: Event-sourced members (Group_4_0_0_MemberEvent collection + Group_4_0_0_MemberCurrent view)
+     *
+     * Use case: Group resources with 1M+ members, alternative to ClickHouse
+     */
+    MONGO_WITH_MONGO_MEMBERS: 'mongo-with-mongo-members'
 };
 
 module.exports = { STORAGE_PROVIDER_TYPES };

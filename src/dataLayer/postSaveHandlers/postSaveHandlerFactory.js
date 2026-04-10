@@ -9,10 +9,12 @@ class PostSaveHandlerFactory {
      * @param {Object} params
      * @param {import('../../utils/configManager').ConfigManager} params.configManager
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} [params.clickHouseClientManager]
+     * @param {import('../../utils/mongoDatabaseManager').MongoDatabaseManager} [params.mongoDatabaseManager]
      */
-    constructor({ configManager, clickHouseClientManager }) {
+    constructor({ configManager, clickHouseClientManager, mongoDatabaseManager }) {
         this.configManager = configManager;
         this.clickHouseClientManager = clickHouseClientManager;
+        this.mongoDatabaseManager = mongoDatabaseManager;
     }
 
     /**
@@ -40,6 +42,22 @@ class PostSaveHandlerFactory {
             }));
         }
 
+        if (this._shouldUseMongoGroupMemberHandler(resourceType)) {
+            logDebug(`Creating MongoDB group member handler for ${resourceType}`);
+
+            const { MongoGroupMemberHandler } = require('./mongoGroupMemberHandler');
+            const { MongoGroupMemberRepository } = require('../repositories/mongoGroupMemberRepository');
+
+            const repository = new MongoGroupMemberRepository({
+                mongoDatabaseManager: this.mongoDatabaseManager
+            });
+
+            handlers.push(new MongoGroupMemberHandler({
+                configManager: this.configManager,
+                mongoGroupMemberRepository: repository
+            }));
+        }
+
         return handlers;
     }
 
@@ -53,6 +71,16 @@ class PostSaveHandlerFactory {
         return this.configManager.enableClickHouse &&
                this.configManager.mongoWithClickHouseResources &&
                this.configManager.mongoWithClickHouseResources.includes(resourceType);
+    }
+
+    /**
+     * Determines if MongoDB group member handler should be used
+     * @param {string} resourceType
+     * @returns {boolean}
+     * @private
+     */
+    _shouldUseMongoGroupMemberHandler(resourceType) {
+        return this.configManager.enableMongoGroupMembers && resourceType === 'Group';
     }
 }
 

@@ -65,6 +65,7 @@ class GroupMemberEventBuilder {
     static _createEventObject({
         groupId,
         entityReference,
+        entityUuidRef,
         eventType,
         eventTime,
         member,
@@ -83,6 +84,7 @@ class GroupMemberEventBuilder {
             event_id: uuidv4(),
             group_id: groupId,
             entity_reference: entityReference,
+            entity_uuid_ref: entityUuidRef,
             entity_type: FhirReferenceParser.extractEntityType(entityReference),
             event_type: eventType,
             event_time: eventTime,
@@ -179,10 +181,12 @@ class GroupMemberEventBuilder {
 
         return members.map(member => {
             const entityReference = member.entity.reference;
+            const entityUuidRef = member.entity._uuid;
 
             return this._createEventObject({
                 groupId,
                 entityReference,
+                entityUuidRef,
                 eventType,
                 eventTime: timestamp,
                 member,
