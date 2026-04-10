@@ -25,6 +25,8 @@ const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
+const { CompositionSectionFilterTransform } = require('../streaming/compositionSectionFilterTransform');
+const { filterCompositionSensitiveSectionsFromResources } = require('../../utils/compositionSectionFilter');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
@@ -833,7 +835,7 @@ class SearchManager {
      */
     async readResourcesFromCursorAsync (
         {
-            cursor, user, parsedArgs, resourceType
+            cursor, user, parsedArgs, resourceType, userType
         }
     ) {
         /**
@@ -902,6 +904,7 @@ class SearchManager {
                 error: e
             });
         }
+        filterCompositionSensitiveSectionsFromResources(resources, { configManager: this.configManager, userType });
         return resources;
     }
 
@@ -1003,7 +1006,7 @@ class SearchManager {
             accepts,
             defaultSortId,
             params,
-            serializerContext
+            userType
         }
     ) {
         assertIsValid(requestId);
@@ -1047,8 +1050,7 @@ class SearchManager {
                 defaultSortId,
                 highWaterMark,
                 configManager: this.configManager,
-                response: res,
-                serializerContext
+                response: res
             }
         );
 
@@ -1079,6 +1081,15 @@ class SearchManager {
                 response: res
             }
         );
+        /**
+         * @type {CompositionSectionFilterTransform}
+         */
+        const compositionSectionFilterTransform = new CompositionSectionFilterTransform({
+            configManager: this.configManager,
+            userType,
+            signal: ac.signal,
+            highWaterMark
+        });
         /**
          * @type {ResourceIdTracker}
          */
@@ -1116,6 +1127,7 @@ class SearchManager {
                 //     }
                 // }),
                 resourcePreparerTransform,
+                compositionSectionFilterTransform,
                 resourceIdTracker,
                 fhirWriter,
                 responseWriter

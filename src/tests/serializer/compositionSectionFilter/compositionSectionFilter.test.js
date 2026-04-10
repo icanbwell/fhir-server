@@ -1,8 +1,9 @@
 const { describe, test, expect } = require('@jest/globals');
 const {
     filterCompositionSections,
-    filterCompositionSensitiveSections
-} = require('../../../fhir/serializers/4_0_0/custom_utils/compositionSectionFilter');
+    filterCompositionSensitiveSections,
+    filterCompositionSensitiveSectionsFromResources
+} = require('../../../utils/compositionSectionFilter');
 const { SENSITIVE_CATEGORY, AUTH_USER_TYPES } = require('../../../constants');
 
 const SENSITIVE_SYSTEM = SENSITIVE_CATEGORY.SYSTEM;
@@ -288,5 +289,61 @@ describe('filterCompositionSensitiveSections', () => {
         });
 
         expect(rawJson.section).toHaveLength(1);
+    });
+});
+
+describe('filterCompositionSensitiveSectionsFromResources', () => {
+    const enabledContext = {
+        configManager: { enableCompositionSensitiveSectionFiltering: true },
+        userType: AUTH_USER_TYPES.delegatedUser
+    };
+
+    test('filters sensitive sections from Composition resources in array', () => {
+        const resources = [
+            {
+                resourceType: 'Composition',
+                section: [
+                    makeSection('Normal', 'http://loinc.org', '12345-6'),
+                    makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+                ]
+            },
+            {
+                resourceType: 'Patient',
+                id: 'patient-1'
+            },
+            {
+                resourceType: 'Composition',
+                section: [
+                    makeSection('Keep', 'http://loinc.org', '11111-1'),
+                    makeSection('Remove', SENSITIVE_SYSTEM, 'mental-health')
+                ]
+            }
+        ];
+
+        filterCompositionSensitiveSectionsFromResources(resources, enabledContext);
+
+        expect(resources[0].section).toHaveLength(1);
+        expect(resources[0].section[0].title).toBe('Normal');
+        expect(resources[1].resourceType).toBe('Patient');
+        expect(resources[2].section).toHaveLength(1);
+        expect(resources[2].section[0].title).toBe('Keep');
+    });
+
+    test('handles empty array', () => {
+        const resources = [];
+        filterCompositionSensitiveSectionsFromResources(resources, enabledContext);
+        expect(resources).toHaveLength(0);
+    });
+
+    test('no-ops when no Composition resources in array', () => {
+        const resources = [
+            { resourceType: 'Patient', id: 'p1' },
+            { resourceType: 'Observation', id: 'o1' }
+        ];
+
+        filterCompositionSensitiveSectionsFromResources(resources, enabledContext);
+
+        expect(resources).toHaveLength(2);
+        expect(resources[0].resourceType).toBe('Patient');
     });
 });

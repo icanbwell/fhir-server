@@ -5,45 +5,18 @@ const { BadRequestError } = require('../utils/httpErrors');
 
 class FhirResourceSerializer {
     /**
-     * @type {import('../utils/configManager').ConfigManager}
-     */
-    static configManager = null;
-
-    /**
-     * @param {import('../utils/configManager').ConfigManager} configManager
-     */
-    static setConfigManager(configManager) {
-        FhirResourceSerializer.configManager = configManager;
-    }
-
-    /**
-     * Builds a default context with configManager if not already present
-     * @param {Object} context
-     * @returns {Object}
-     */
-    static getContext(context) {
-        if (!context || !context.configManager) {
-            return { ...context, configManager: FhirResourceSerializer.configManager };
-        }
-        return context;
-    }
-
-    /**
      * serializes a resource
      * @param {Resource|Object} obj
-     * @param {{ serialize: (obj, context) => obj}} [SerializerClass]
-     * @param {Object} [context]
+     * @param {{ serialize: (obj) => obj}} [SerializerClass]
      * @return {obj}
      */
-    static serialize(obj, SerializerClass, context) {
+    static serialize(obj, SerializerClass) {
         if (!obj) return obj;
-
-        context = FhirResourceSerializer.getContext(context);
 
         try {
 
             if (SerializerClass) {
-                return SerializerClass.serialize(obj, context)
+                return SerializerClass.serialize(obj)
             }
             if (!obj.resourceType) {
                 // noinspection ExceptionCaughtLocallyJS
@@ -55,7 +28,7 @@ class FhirResourceSerializer {
             if (!serializer) {
                 throw new BadRequestError(new Error(`Serialization of ResourceType ${obj.resourceType} is not supported`));
             }
-            return serializer.serialize(obj, context);
+            return serializer.serialize(obj);
         } catch (e) {
             throw new RethrownError(
                 {
@@ -74,15 +47,13 @@ class FhirResourceSerializer {
      * serializes a resource by specified resourceType
      * @param {obj} obj
      * @param {string} resourceType
-     * @param {Object} [context]
      * @return {obj}
      */
-    static serializeByResourceType(obj, resourceType, context) {
+    static serializeByResourceType(obj, resourceType) {
         if (!obj) return obj;
-        context = FhirResourceSerializer.getContext(context);
         try {
             const serializer = getResourceSerializer(VERSIONS['4_0_0'], resourceType);
-            return serializer.serialize(obj, context);
+            return serializer.serialize(obj);
         } catch (e) {
             throw new RethrownError(
                 {
@@ -100,21 +71,19 @@ class FhirResourceSerializer {
     /**
      * serializes an array of resources
      * @param {obj | obj[]} obj
-     * @param {{ serialize: (obj, context) => obj}} [SerializerClass]
-     * @param {Object} [context]
+     * @param {{ serialize: (obj) => obj}} [SerializerClass]
      * @return {obj[]}
      */
-    static serializeArray(obj, SerializerClass, context) {
+    static serializeArray(obj, SerializerClass) {
         if (!obj) return obj;
-        context = FhirResourceSerializer.getContext(context);
         try {
             if (Array.isArray(obj)) {
                 return obj
                     .filter(v => v)
-                    .map(v => FhirResourceSerializer.serialize(v, SerializerClass, context));
+                    .map(v => FhirResourceSerializer.serialize(v, SerializerClass));
             } else {
                 return [
-                    FhirResourceSerializer.serialize(obj, SerializerClass, context)
+                    FhirResourceSerializer.serialize(obj, SerializerClass)
                 ];
             }
         } catch (e) {

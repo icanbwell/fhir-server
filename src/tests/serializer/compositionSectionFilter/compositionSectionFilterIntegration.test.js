@@ -1,11 +1,11 @@
 const deepcopy = require('deepcopy');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer.js');
+const { filterCompositionSensitiveSections } = require('../../../utils/compositionSectionFilter.js');
 const { commonBeforeEach, commonAfterEach, createTestRequest } = require('../../common.js');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { AUTH_USER_TYPES } = require('../../../constants');
 
 const SENSITIVE_SYSTEM = 'https://www.icanbwell.com/sensitivity-category';
-const delegatedContext = { userType: AUTH_USER_TYPES.delegatedUser };
 
 /**
  * Minimal Composition with a mix of normal and sensitive sections,
@@ -69,14 +69,17 @@ describe('Composition Section Filter Integration Tests', () => {
 
     afterEach(async () => {
         await commonAfterEach();
-        delete process.env.ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING;
     });
 
-    test('FhirResourceSerializer filters sensitive sections when flag is enabled', async () => {
-        process.env.ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING = 'true';
+    test('filter + serialize: sensitive sections are removed before serialization', async () => {
         await createTestRequest();
 
-        const result = FhirResourceSerializer.serialize(deepcopy(compositionWithSensitiveSections), null, delegatedContext);
+        const composition = deepcopy(compositionWithSensitiveSections);
+        filterCompositionSensitiveSections(composition, {
+            configManager: { enableCompositionSensitiveSectionFiltering: true },
+            userType: AUTH_USER_TYPES.delegatedUser
+        });
+        const result = FhirResourceSerializer.serialize(composition);
 
         // Top-level: 'sensitive-1' removed, 2 remain
         expect(result.section).toHaveLength(2);
@@ -88,8 +91,7 @@ describe('Composition Section Filter Integration Tests', () => {
         expect(result.section[0].section[0].title).toBe('Nested Normal');
     });
 
-    test('FhirResourceSerializer preserves all sections when flag is disabled', async () => {
-        process.env.ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING = 'false';
+    test('serialize without filter: all sections preserved', async () => {
         await createTestRequest();
 
         const result = FhirResourceSerializer.serialize(deepcopy(compositionWithSensitiveSections));
@@ -100,17 +102,7 @@ describe('Composition Section Filter Integration Tests', () => {
         expect(result.section[0].section).toHaveLength(2);
     });
 
-    test('FhirResourceSerializer preserves all sections when flag is not set', async () => {
-        await createTestRequest();
-
-        const result = FhirResourceSerializer.serialize(deepcopy(compositionWithSensitiveSections));
-
-        expect(result.section).toHaveLength(3);
-        expect(result.section[0].section).toHaveLength(2);
-    });
-
     test('non-Composition resources are unaffected by section filtering', async () => {
-        process.env.ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING = 'true';
         await createTestRequest();
 
         const patient = {
@@ -127,8 +119,7 @@ describe('Composition Section Filter Integration Tests', () => {
         expect(result.active).toBe(true);
     });
 
-    test('Composition with no sections serializes normally when flag is enabled', async () => {
-        process.env.ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING = 'true';
+    test('Composition with no sections serializes normally', async () => {
         await createTestRequest();
 
         const composition = {
@@ -143,6 +134,10 @@ describe('Composition Section Filter Integration Tests', () => {
             author: [{ reference: 'Practitioner/1' }]
         };
 
+        filterCompositionSensitiveSections(composition, {
+            configManager: { enableCompositionSensitiveSectionFiltering: true },
+            userType: AUTH_USER_TYPES.delegatedUser
+        });
         const result = FhirResourceSerializer.serialize(deepcopy(composition));
 
         expect(result.resourceType).toBe('Composition');
@@ -150,8 +145,7 @@ describe('Composition Section Filter Integration Tests', () => {
         expect(result.section).toBeUndefined();
     });
 
-    test('Composition with all sensitive sections has empty section array when flag is enabled', async () => {
-        process.env.ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING = 'true';
+    test('Composition with all sensitive sections has empty section array after filtering', async () => {
         await createTestRequest();
 
         const composition = {
@@ -178,9 +172,12 @@ describe('Composition Section Filter Integration Tests', () => {
             ]
         };
 
-        const result = FhirResourceSerializer.serialize(deepcopy(composition), null, delegatedContext);
+        filterCompositionSensitiveSections(composition, {
+            configManager: { enableCompositionSensitiveSectionFiltering: true },
+            userType: AUTH_USER_TYPES.delegatedUser
+        });
+        const result = FhirResourceSerializer.serialize(composition);
 
-        // All sections removed — empty array remains (serializer keeps empty arrays)
         expect(result.section).toEqual([]);
     });
 

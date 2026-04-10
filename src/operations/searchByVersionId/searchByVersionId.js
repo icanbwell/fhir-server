@@ -14,6 +14,7 @@ const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { filterCompositionSensitiveSections } = require('../../utils/compositionSectionFilter');
 
 class SearchByVersionIdOperation {
     /**
@@ -239,6 +240,10 @@ class SearchByVersionIdOperation {
 
                 historyResource = FhirResourceCreator.create(historyResource.resource || historyResource);
 
+                if (historyResource?.resourceType === 'Composition') {
+                    filterCompositionSensitiveSections(historyResource, { configManager: this.configManager, userType });
+                }
+
                 // run any enrichment
                 historyResource = (await this.enrichmentManager.enrichAsync({
                             resources: [historyResource], parsedArgs
@@ -256,7 +261,7 @@ class SearchByVersionIdOperation {
                 });
 
                 // serialize the resource
-                FhirResourceSerializer.serialize(historyResource, null, { userType });
+                FhirResourceSerializer.serialize(historyResource);
 
                 return historyResource;
             } else {

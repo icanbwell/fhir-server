@@ -16,6 +16,7 @@ const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { filterCompositionSensitiveSections } = require('../../utils/compositionSectionFilter');
 const { getLastUpdatedISO } = require('../../utils/date.util');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 
@@ -355,6 +356,9 @@ class BaseHistoryOperationProcessor {
                     historyResource.resource,
                     RETRIEVE
                 );
+                if (historyResource.resource?.resourceType === 'Composition') {
+                    filterCompositionSensitiveSections(historyResource.resource, { configManager: this.configManager, userType });
+                }
                 entries.push(historyResource);
             })
         );
@@ -413,7 +417,7 @@ class BaseHistoryOperationProcessor {
             entries: resultBundle.entry,
             parsedArgs
         });
-        FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle', { userType });
+        FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
 
         return resultBundle;
     }

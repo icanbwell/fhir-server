@@ -15,15 +15,13 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
-     * @param {Object} [serializerContext]
      */
     constructor({
         signal,
         contentType,
         highWaterMark,
         configManager,
-        response,
-        serializerContext
+        response
     }) {
         super({ objectMode: true, contentType, highWaterMark, response });
         /**
@@ -42,11 +40,6 @@ class FhirResourceWriter extends FhirResourceWriterBase {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {Object|undefined}
-         */
-        this.serializerContext = serializerContext;
     }
 
     /**
@@ -63,7 +56,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         }
         try {
             if (chunk !== null && chunk !== undefined) {
-                FhirResourceSerializer.serialize(chunk, null, this.serializerContext);
+                FhirResourceSerializer.serialize(chunk);
                 const resourceJson = JSON.stringify(chunk, getCircularReplacer());
                 if (this.configManager.logStreamSteps) {
                     logInfo(`FhirResourceWriter _transform ${chunk.id}`, {});

@@ -21,7 +21,6 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
-     * @param {Object} [serializerContext]
      */
     constructor({
         fnBundle,
@@ -30,8 +29,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
         defaultSortId,
         highWaterMark,
         configManager,
-        response,
-        serializerContext
+        response
     }) {
         super({
             objectMode: true,
@@ -78,11 +76,6 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {Object|undefined}
-         */
-        this.serializerContext = serializerContext;
     }
 
     /**
@@ -103,7 +96,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
                 this._lastid = chunk[this.defaultSortId];
 
-                FhirResourceSerializer.serialize(chunk, null, this.serializerContext);
+                FhirResourceSerializer.serialize(chunk);
                 const resourceJson = JSON.stringify(
                     {
                         resource: chunk

@@ -1,4 +1,4 @@
-const { SENSITIVE_CATEGORY, AUTH_USER_TYPES } = require('../../../../constants');
+const { SENSITIVE_CATEGORY, AUTH_USER_TYPES } = require('../constants');
 
 /**
  * @param {Object} section
@@ -36,7 +36,7 @@ function filterCompositionSections(sections) {
  * If composition-sensitive-section filtering is enabled and the user is a delegated user,
  * strips sensitive sections from rawJson in place.
  * @param {Object} rawJson
- * @param {Object} context
+ * @param {{configManager: ConfigManager, userType: string}} context
  */
 function filterCompositionSensitiveSections(rawJson, context) {
     if (!context.configManager?.enableCompositionSensitiveSectionFiltering || context.userType !== AUTH_USER_TYPES.delegatedUser || !rawJson?.section) {
@@ -46,4 +46,21 @@ function filterCompositionSensitiveSections(rawJson, context) {
     rawJson.section = filterCompositionSections(rawJson.section);
 }
 
-module.exports = { filterCompositionSections, filterCompositionSensitiveSections };
+/**
+ * Filters sensitive sections from all Composition resources in an array.
+ * @param {Object[]} resources
+ * @param {{configManager: ConfigManager, userType: string}} context
+ */
+function filterCompositionSensitiveSectionsFromResources(resources, context) {
+    for (const resource of resources) {
+        if (resource.resourceType === 'Composition') {
+            filterCompositionSensitiveSections(resource, context);
+        }
+    }
+}
+
+module.exports = {
+    filterCompositionSections,
+    filterCompositionSensitiveSections,
+    filterCompositionSensitiveSectionsFromResources
+};

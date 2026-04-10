@@ -23,10 +23,6 @@
 {% if fhir_entity.cleaned_name == "Reference" %}
 const { enrichReferenceExtension } = require('../custom_utils/referenceEnricher.js');
 {% endif %}
-{% if fhir_entity.cleaned_name == "Composition" %}
-const { filterCompositionSensitiveSections } = require('../custom_utils/compositionSectionFilter.js');
-{% endif %}
-
 {# Generate lazy loaded imports #}
 {% for type, path in imported_types.items() %}
 /** @type {import('{{ path }}')} */
@@ -64,22 +60,22 @@ class {{ fhir_entity.cleaned_name }}Serializer {
     {% for property in fhir_entity.properties %}
     {% if not property.is_v2_supported %}
         {% if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
-        '{{ property.name }}': (value, context) => {
+        '{{ property.name }}': (value) => {
             initializeSerializers('{{ property.cleaned_type }}');
             {% if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
                 {% if property.is_list %}
-            return FhirResourceSerializer.serializeArray(value, {{ property.cleaned_type | replace(".","") }}Serializer, context);
+            return FhirResourceSerializer.serializeArray(value, {{ property.cleaned_type | replace(".","") }}Serializer);
                     {% else %}
-            return FhirResourceSerializer.serialize(value, {{ property.cleaned_type | replace(".","") }}Serializer, context);
+            return FhirResourceSerializer.serialize(value, {{ property.cleaned_type | replace(".","") }}Serializer);
                     {% endif %}
             {% elif property.cleaned_type == "ResourceContainer" %}
                 {% if property.is_list %}
-            return FhirResourceSerializer.serializeArray(value, undefined, context);
+            return FhirResourceSerializer.serializeArray(value);
                     {% else %}
-            return FhirResourceSerializer.serialize(value, undefined, context);
+            return FhirResourceSerializer.serialize(value);
                     {% endif %}
             {% else %}
-            return FhirResourceSerializer.serialize(value, undefined, context)
+            return FhirResourceSerializer.serialize(value)
             {% endif %}
         },
         {% else %}
@@ -96,15 +92,14 @@ class {{ fhir_entity.cleaned_name }}Serializer {
      * This methods cleans the raw json by removing additional fields which are not defined
      * according to FHIR Specs
      * @param {any} rawJson
-     * @param {Object} context
      * @returns {any} Cleaned object
      */
-    static serialize(rawJson, context = {}) {
+    static serialize(rawJson) {
         if (!rawJson) return rawJson;
 
         // Handle array case
         if (Array.isArray(rawJson)) {
-            return rawJson.map(item => {{ fhir_entity.cleaned_name }}Serializer.serialize(item, context));
+            return rawJson.map(item => {{ fhir_entity.cleaned_name }}Serializer.serialize(item));
         }
 
         // Handle non-object case
@@ -113,11 +108,6 @@ class {{ fhir_entity.cleaned_name }}Serializer {
 
         // enrich the reference extension before serialization
         enrichReferenceExtension(rawJson);
-        {% endif %}
-        {% if fhir_entity.cleaned_name == "Composition" %}
-
-        // filter sensitive sections before serialization
-        filterCompositionSensitiveSections(rawJson, context);
         {% endif %}
 
         Object.keys(rawJson).forEach(propertyName => {
@@ -130,7 +120,7 @@ class {{ fhir_entity.cleaned_name }}Serializer {
 
             if (propertyName in {{ fhir_entity.cleaned_name }}Serializer.propertyToSerializerMap) {
                 if ({{ fhir_entity.cleaned_name }}Serializer.propertyToSerializerMap[propertyName]) {
-                    const serializedValue = {{ fhir_entity.cleaned_name }}Serializer.propertyToSerializerMap[propertyName](value, context);
+                    const serializedValue = {{ fhir_entity.cleaned_name }}Serializer.propertyToSerializerMap[propertyName](value);
                     if (serializedValue === null || serializedValue === undefined) {
                         delete rawJson[propertyName];
                     } else {

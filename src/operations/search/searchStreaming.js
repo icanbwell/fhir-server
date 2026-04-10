@@ -368,7 +368,7 @@ class SearchStreamingOperation {
                         defaultSortId,
                         accepts: requestInfo.accept,
                         params,
-                        serializerContext: { userType: requestInfo.userType }
+                        userType: requestInfo.userType
                     });
 
                 if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {
