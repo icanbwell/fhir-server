@@ -104,7 +104,7 @@ class MigrationVerifier {
 
         const collection = this.sourceDb.collection(this.collectionName);
         return collection.countDocuments({
-            recorded: { $gte: dayStart.toISOString(), $lt: dayEnd.toISOString() }
+            recorded: { $gte: dayStart, $lt: dayEnd }
         });
     }
 
