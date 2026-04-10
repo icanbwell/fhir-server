@@ -40,11 +40,11 @@ describe('AuditEvent Migration', () => {
                 // Agent requestor (agent where requestor === true)
                 expect(row.agent_requestor_who).toBe('Practitioner/prac-uuid-123');
 
-                // meta.security as Array(Tuple(system, code))
+                // meta.security as Array(Tuple(system, code)) — named objects for JSONEachRow
                 expect(row.meta_security).toEqual([
-                    ['https://www.icanbwell.com/owner', 'bwell'],
-                    ['https://www.icanbwell.com/access', 'bwell'],
-                    ['https://www.icanbwell.com/sourceAssigningAuthority', 'bwell']
+                    { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+                    { system: 'https://www.icanbwell.com/access', code: 'bwell' },
+                    { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'bwell' }
                 ]);
 
                 // b.well internal columns
@@ -183,8 +183,8 @@ describe('AuditEvent Migration', () => {
 
                 const row = transformer.transformDocument(doc);
                 expect(row.meta_security).toEqual([
-                    ['https://www.icanbwell.com/owner', 'bwell'],
-                    ['https://www.icanbwell.com/access', 'client']
+                    { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+                    { system: 'https://www.icanbwell.com/access', code: 'client' }
                 ]);
             });
 
@@ -204,7 +204,7 @@ describe('AuditEvent Migration', () => {
                 };
 
                 const row = transformer.transformDocument(doc);
-                expect(row.meta_security).toEqual([['https://www.icanbwell.com/owner', 'bwell']]);
+                expect(row.meta_security).toEqual([{ system: 'https://www.icanbwell.com/owner', code: 'bwell' }]);
             });
         });
 

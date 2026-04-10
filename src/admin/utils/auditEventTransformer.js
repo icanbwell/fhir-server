@@ -63,17 +63,18 @@ class AuditEventTransformer {
     }
 
     /**
-     * Extracts meta.security as array of [system, code] tuples for ClickHouse
+     * Extracts meta.security as array of named tuples for ClickHouse
      * Array(Tuple(system, code)) column.
+     * ClickHouse JSONEachRow format requires named objects, not positional arrays.
      * @param {Array|undefined} securityArray - doc.meta.security
-     * @returns {Array<[string, string]>}
+     * @returns {Array<{system: string, code: string}>}
      */
     extractMetaSecurity(securityArray) {
         if (!Array.isArray(securityArray)) return [];
         const tuples = [];
         for (const tag of securityArray) {
             if (tag.system && tag.code) {
-                tuples.push([tag.system, tag.code]);
+                tuples.push({ system: tag.system, code: tag.code });
             }
         }
         return tuples;

@@ -117,7 +117,7 @@ class MigrationVerifier {
     async _getClickHouseCountAsync(partitionDay) {
         const result = await this.clickHouseClientManager.queryAsync({
             query: `SELECT count() as count
-                    FROM fhir.audit_event FINAL
+                    FROM fhir.audit_event
                     WHERE toDate(recorded) = {day:String}`,
             query_params: { day: partitionDay }
         });
