@@ -51,8 +51,9 @@ class PartitionWorker {
         const collection = this.sourceDb.collection(this.collectionName);
 
         // Build query: filter by recorded date range + resume from last_mongo_id
+        // Use Date objects (not ISO strings) so the query matches both ISODate and string storage
         const query = {
-            recorded: { $gte: dayStart.toISOString(), $lt: dayEnd.toISOString() }
+            recorded: { $gte: dayStart, $lt: dayEnd }
         };
         if (lastMongoId) {
             query._id = { $gt: new ObjectId(lastMongoId) };
@@ -60,7 +61,7 @@ class PartitionWorker {
 
         // Get source count for this day (for verification)
         const sourceCountQuery = {
-            recorded: { $gte: dayStart.toISOString(), $lt: dayEnd.toISOString() }
+            recorded: { $gte: dayStart, $lt: dayEnd }
         };
         const sourceCount = await collection.countDocuments(sourceCountQuery);
 
