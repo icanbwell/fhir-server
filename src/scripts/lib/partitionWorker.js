@@ -1,0 +1,184 @@
+/**
+ * Processes a single daily partition: reads AuditEvent docs from Atlas Data Federation,
+ * transforms them, and inserts into ClickHouse in batches.
+ *
+ * Resume-safe: if interrupted, resumes from last_mongo_id checkpoint.
+ */
+
+const { ObjectId } = require('mongodb');
+const { AuditEventTransformer } = require('./auditEventTransformer');
+const { logWarn } = require('../../operations/common/logging');
+
+class PartitionWorker {
+    /**
+     * @param {Object} params
+     * @param {import('mongodb').Db} params.sourceDb - Atlas Data Federation database
+     * @param {string} params.collectionName - Source collection name
+     * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
+     * @param {import('./migrationStateManager').MigrationStateManager} params.stateManager
+     * @param {number} params.batchSize
+     * @param {boolean} params.dryRun
+     */
+    constructor({ sourceDb, collectionName, clickHouseClientManager, stateManager, batchSize, dryRun }) {
+        this.sourceDb = sourceDb;
+        this.collectionName = collectionName;
+        this.clickHouseClientManager = clickHouseClientManager;
+        this.stateManager = stateManager;
+        this.batchSize = batchSize;
+        this.dryRun = dryRun;
+        this.transformer = new AuditEventTransformer();
+    }
+
+    /**
+     * Process a single day partition
+     * @param {Object} params
+     * @param {string} params.partitionDay - 'YYYY-MM-DD'
+     * @param {string} params.lastMongoId - Resume point (empty string if fresh start)
+     * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number}>}
+     */
+    async processAsync({ partitionDay, lastMongoId }) {
+        const dayStart = new Date(partitionDay + 'T00:00:00.000Z');
+        const dayEnd = new Date(dayStart);
+        dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+
+        const collection = this.sourceDb.collection(this.collectionName);
+
+        // Build query: filter by recorded date range + resume from last_mongo_id
+        const query = {
+            recorded: { $gte: dayStart.toISOString(), $lt: dayEnd.toISOString() }
+        };
+        if (lastMongoId) {
+            query._id = { $gt: new ObjectId(lastMongoId) };
+        }
+
+        // Get source count for this day (for verification)
+        const sourceCountQuery = {
+            recorded: { $gte: dayStart.toISOString(), $lt: dayEnd.toISOString() }
+        };
+        const sourceCount = await collection.countDocuments(sourceCountQuery);
+
+        if (sourceCount === 0) {
+            return { insertedCount: 0, sourceCount: 0, skippedCount: 0 };
+        }
+
+        await this.stateManager.markInProgressAsync(partitionDay);
+
+        const cursor = collection.find(query).sort({ _id: 1 }).batchSize(this.batchSize);
+
+        let batch = [];
+        let insertedCount = lastMongoId
+            ? await this._getExistingInsertedCountAsync(partitionDay)
+            : 0;
+        let skippedCount = 0;
+        let lastId = lastMongoId;
+
+        try {
+            while (await cursor.hasNext()) {
+                const doc = await cursor.next();
+                batch.push(doc);
+
+                if (batch.length >= this.batchSize) {
+                    const result = await this._processBatchAsync(batch);
+                    insertedCount += result.inserted;
+                    skippedCount += result.skipped;
+
+                    lastId = batch[batch.length - 1]._id.toString();
+
+                    // Checkpoint after each batch
+                    await this.stateManager.updateCheckpointAsync({
+                        partitionDay,
+                        lastMongoId: lastId,
+                        insertedCount
+                    });
+
+                    batch = [];
+                }
+            }
+
+            // Process remaining docs
+            if (batch.length > 0) {
+                const result = await this._processBatchAsync(batch);
+                insertedCount += result.inserted;
+                skippedCount += result.skipped;
+                lastId = batch[batch.length - 1]._id.toString();
+            }
+
+            // Mark completed
+            await this.stateManager.markCompletedAsync({
+                partitionDay,
+                insertedCount,
+                sourceCount
+            });
+
+            return { insertedCount, sourceCount, skippedCount };
+        } catch (error) {
+            await this.stateManager.markFailedAsync({
+                partitionDay,
+                errorMessage: error.message,
+                insertedCount
+            });
+            throw error;
+        } finally {
+            await cursor.close();
+        }
+    }
+
+    /**
+     * Transform and insert a batch into ClickHouse
+     * @private
+     * @param {Object[]} docs
+     * @returns {Promise<{inserted: number, skipped: number}>}
+     */
+    async _processBatchAsync(docs) {
+        const { rows, skipped } = this.transformer.transformBatch(docs);
+
+        if (rows.length > 0 && !this.dryRun) {
+            await this._insertWithRetryAsync(rows);
+        }
+
+        return { inserted: rows.length, skipped };
+    }
+
+    /**
+     * Insert rows with exponential backoff retry
+     * @private
+     * @param {Object[]} rows
+     * @returns {Promise<void>}
+     */
+    async _insertWithRetryAsync(rows) {
+        const maxRetries = 3;
+        let delay = 2000;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                await this.clickHouseClientManager.insertAsync({
+                    table: 'fhir.audit_event',
+                    values: rows,
+                    format: 'JSONEachRow'
+                });
+                return;
+            } catch (error) {
+                if (attempt === maxRetries) {
+                    throw new Error(`ClickHouse insert failed after ${maxRetries} attempts: ${error.message}`);
+                }
+                logWarn('ClickHouse insert failed, retrying', { attempt, delay, error: error.message });
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2;
+            }
+        }
+    }
+
+    /**
+     * Gets the current inserted count for a partition being resumed
+     * @private
+     * @param {string} partitionDay
+     * @returns {Promise<number>}
+     */
+    async _getExistingInsertedCountAsync(partitionDay) {
+        const states = await this.stateManager.getAllStatesAsync();
+        const state = states.find(s => s.partition_day === partitionDay);
+        return Number(state?.inserted_count) || 0;
+    }
+}
+
+module.exports = { PartitionWorker };
