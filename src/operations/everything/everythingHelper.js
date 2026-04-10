@@ -55,6 +55,7 @@ const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
+const { filterCompositionSensitiveSections } = require('../../utils/compositionSectionFilter');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -1114,6 +1115,7 @@ class EverythingHelper {
 
             const { bundleEntries, streamedResources: streamedResources1 } = await this.processCursorAsync({
                 cursor,
+                requestInfo,
                 parentParsedArgs: parsedArgs,
                 responseStreamer: responseStreamer,
                 bundleEntryIdsProcessedTracker,
@@ -1446,6 +1448,7 @@ class EverythingHelper {
 
             const promiseResult = this.processCursorAsync({
                 cursor,
+                requestInfo,
                 responseStreamer,
                 parentParsedArgs: parsedArgs,
                 bundleEntryIdsProcessedTracker,
@@ -1510,6 +1513,7 @@ class EverythingHelper {
      */
     async processCursorAsync({
         cursor,
+        requestInfo,
         responseStreamer,
         parentParsedArgs,
         bundleEntryIdsProcessedTracker,
@@ -1546,6 +1550,9 @@ class EverythingHelper {
                 startResource = await this.databaseAttachmentManager.transformAttachments(
                     startResource, RETRIEVE
                 );
+                if (startResource?.resourceType === 'Composition') {
+                    filterCompositionSensitiveSections(startResource, { configManager: this.configManager, userType: requestInfo?.userType });
+                }
                 let current_entity = {
                     id: startResource._sourceId,
                     resource: startResource
