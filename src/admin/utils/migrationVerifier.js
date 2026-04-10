@@ -28,7 +28,7 @@ class MigrationVerifier {
      */
     async verifyAllAsync({ concurrency = 10 } = {}) {
         const states = await this.stateManager.getAllStatesAsync();
-        const completedStates = states.filter(s => s.status === 'completed');
+        const completedStates = states.filter((s) => s.status === 'completed');
 
         logInfo('Starting verification', { partitions: completedStates.length });
 
@@ -40,7 +40,7 @@ class MigrationVerifier {
         for (let i = 0; i < completedStates.length; i += concurrency) {
             const batch = completedStates.slice(i, i + concurrency);
             const results = await Promise.all(
-                batch.map(state => this._verifyDayAsync(state.partition_day))
+                batch.map((state) => this._verifyDayAsync(state.partition_day))
             );
 
             for (const result of results) {
@@ -58,7 +58,12 @@ class MigrationVerifier {
 
             // Progress update every batch
             const processed = Math.min(i + concurrency, completedStates.length);
-            logInfo('Verification progress', { processed, total: completedStates.length, matched, mismatched });
+            logInfo('Verification progress', {
+                processed,
+                total: completedStates.length,
+                matched,
+                mismatched
+            });
         }
 
         return { matched, mismatched, mismatches };

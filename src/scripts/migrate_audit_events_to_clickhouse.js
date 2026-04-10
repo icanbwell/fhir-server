@@ -45,9 +45,12 @@ const { MongoClient } = require('mongodb');
 const { ClickHouseClientManager } = require('../utils/clickHouseClientManager');
 const { ConfigManager } = require('../utils/configManager');
 const { logInfo, logError, logWarn } = require('../operations/common/logging');
-const { MigrationStateManager, generateDailyPartitions } = require('./lib/migrationStateManager');
-const { PartitionWorker } = require('./lib/partitionWorker');
-const { MigrationVerifier } = require('./lib/migrationVerifier');
+const {
+    MigrationStateManager,
+    generateDailyPartitions
+} = require('../admin/utils/migrationStateManager');
+const { PartitionWorker } = require('../admin/utils/partitionWorker');
+const { MigrationVerifier } = require('../admin/utils/migrationVerifier');
 
 /**
  * Parse command line arguments
@@ -238,7 +241,13 @@ async function main() {
         process.exit(1);
     }
 
-    const mode = options.dryRun ? 'DRY RUN' : options.verifyOnly ? 'VERIFY ONLY' : options.resume ? 'RESUME' : 'FULL MIGRATION';
+    const mode = options.dryRun
+        ? 'DRY RUN'
+        : options.verifyOnly
+          ? 'VERIFY ONLY'
+          : options.resume
+            ? 'RESUME'
+            : 'FULL MIGRATION';
     logInfo('AuditEvent Migration: Atlas Archive -> ClickHouse', {
         mode,
         startDate: options.startDate,
@@ -262,7 +271,6 @@ async function main() {
     logInfo('Connected to ClickHouse');
 
     const stateManager = new MigrationStateManager({ clickHouseClientManager: clickHouseManager });
-    await stateManager.initAsync();
 
     // Generate daily partitions
     const days = generateDailyPartitions(options.startDate, options.endDate);
@@ -331,7 +339,7 @@ async function main() {
         partitions = await stateManager.getPendingPartitionsAsync();
         logInfo('Continuing migration', { partitionsRemaining: partitions.length });
     } else {
-        partitions = days.map(day => ({ partition_day: day, last_mongo_id: '' }));
+        partitions = days.map((day) => ({ partition_day: day, last_mongo_id: '' }));
         logInfo('Processing all partitions', { total: partitions.length });
     }
 
@@ -386,7 +394,7 @@ main()
     .then(() => {
         process.exit(0);
     })
-    .catch(error => {
+    .catch((error) => {
         logError('Fatal error', { error: error.message, stack: error.stack });
         process.exit(1);
     });
