@@ -9,7 +9,7 @@
  *   node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
  *
  * Environment Variables (required):
- *   AUDIT_EVENT_MONGO_URL       AuditEvent MongoDB connection string
+ *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string
  *   AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional if URL has creds)
  *   AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (optional if URL has creds)
  *   AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
@@ -27,11 +27,11 @@
  *
  * Examples:
  *   # Dry run to see partition counts
- *   AUDIT_EVENT_MONGO_URL="mongodb+srv://..." \
+ *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb://..." \
  *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --dry-run
  *
  *   # Full migration with 8 concurrent workers
- *   AUDIT_EVENT_MONGO_URL="mongodb+srv://..." \
+ *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb://..." \
  *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --concurrency 8
  *
  *   # Resume after interruption
@@ -53,16 +53,16 @@ const { PartitionWorker } = require('../utils/partitionWorker');
 const { MigrationVerifier } = require('../utils/migrationVerifier');
 
 /**
- * Builds the AuditEvent MongoDB connection URL from environment variables.
- * Mirrors the pattern in src/config.js for AUDIT_EVENT_MONGO_URL.
+ * Builds the Online Archive MongoDB connection URL from environment variables.
+ * Mirrors the pattern in src/config.js for AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL.
  * @returns {{mongoUrl: string, dbName: string}}
  */
 function buildMongoUrl() {
     const env = process.env;
-    let mongoUrl = env.AUDIT_EVENT_MONGO_URL || '';
+    let mongoUrl = env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL || '';
 
     if (!mongoUrl) {
-        logError('AUDIT_EVENT_MONGO_URL environment variable is required');
+        logError('AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL environment variable is required');
         process.exit(1);
     }
 
@@ -70,10 +70,6 @@ function buildMongoUrl() {
         mongoUrl = mongoUrl.replace(
             'mongodb://',
             `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
-        );
-        mongoUrl = mongoUrl.replace(
-            'mongodb+srv://',
-            `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
         );
     }
 
@@ -132,7 +128,7 @@ function parseArgs() {
 Usage: node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
 
 Environment Variables (required):
-  AUDIT_EVENT_MONGO_URL       AuditEvent MongoDB connection string
+  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string
   AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional)
   AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (optional)
   AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
@@ -282,10 +278,10 @@ async function main() {
     const configManager = new ConfigManager();
     const clickHouseManager = new ClickHouseClientManager({ configManager });
 
-    logInfo('Connecting to AuditEvent MongoDB');
+    logInfo('Connecting to Online Archive MongoDB');
     const mongoClient = await MongoClient.connect(mongoUrl);
     const sourceDb = mongoClient.db(dbName);
-    logInfo('Connected to AuditEvent MongoDB');
+    logInfo('Connected to Online Archive MongoDB');
 
     logInfo('Connecting to ClickHouse');
     await clickHouseManager.getClientAsync();
