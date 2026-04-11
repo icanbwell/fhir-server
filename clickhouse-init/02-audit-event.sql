@@ -1,7 +1,6 @@
 -- AuditEvent table for FHIR AuditEvent resources
 -- Lean schema: dedicated columns for frequently-queried fields,
 -- full FHIR JSON in Native JSON `resource` column for all other queries.
--- See RFC: https://icanbwell.atlassian.net/wiki/x/IQBgbwE
 
 CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
     -- Resource identifiers
