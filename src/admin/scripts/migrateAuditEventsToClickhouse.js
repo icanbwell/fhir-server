@@ -67,13 +67,13 @@ function buildMongoUrl() {
     }
 
     if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
+        const username = encodeURIComponent(env.AUDIT_EVENT_MONGO_USERNAME);
+        const password = encodeURIComponent(env.AUDIT_EVENT_MONGO_PASSWORD);
         mongoUrl = mongoUrl.replace(
             'mongodb://',
-            `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
+            `mongodb://${username}:${password}@`
         );
     }
-
-    mongoUrl = encodeURI(mongoUrl);
     const dbName = env.AUDIT_EVENT_MONGO_DB_NAME || 'fhir';
 
     return { mongoUrl, dbName };
