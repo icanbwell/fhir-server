@@ -66,6 +66,11 @@ class PartitionWorker {
         const sourceCount = await collection.countDocuments(sourceCountQuery);
 
         if (sourceCount === 0) {
+            await this.stateManager.markCompletedAsync({
+                partitionDay,
+                insertedCount: 0,
+                sourceCount: 0
+            });
             return { insertedCount: 0, sourceCount: 0, skippedCount: 0 };
         }
 
