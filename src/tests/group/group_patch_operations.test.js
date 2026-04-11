@@ -44,7 +44,7 @@ describe('Group PATCH operations', () => {
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
         await clickHouseManager.getClientAsync();
-    }, 120000);
+    });
 
     beforeEach(async () => {
         try {

@@ -17,7 +17,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
 
     beforeAll(async () => {
         await setupGroupTests();
-    }, 120000);
+    });
 
     afterAll(async () => {
         await teardownGroupTests();

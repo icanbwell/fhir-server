@@ -29,7 +29,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     beforeAll(async () => {
         await setupGroupTests();
         clickHouseManager = getClickHouseManager();
-    }, 120000);
+    });
 
     beforeEach(async () => {
         await cleanupAllData();
