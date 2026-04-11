@@ -23,6 +23,11 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ensureClickHouse } = require('../../ensureClickHouse');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
     let clickHouseManager;
@@ -93,7 +98,7 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(createResponse.status).toBe(201);
 
@@ -122,7 +127,7 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
             const patchResponse = await request
                 .patch(`/4_0_0/Group/${actualGroupId}`)
                 .send(operations)
-                .set(getHeaders())
+                .set(getHeadersWithExternalStorage())
                 .set('Content-Type', 'application/json-patch+json'); // Must be AFTER getHeaders() to avoid overwrite
 
             const patchTime = Date.now() - startTime;

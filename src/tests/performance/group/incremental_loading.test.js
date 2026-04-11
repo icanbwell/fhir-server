@@ -32,6 +32,11 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ensureClickHouse } = require('../../ensureClickHouse');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
     let clickHouseManager;
@@ -113,7 +118,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         let batchTime = Date.now() - startTime;
         batchTimes.push(batchTime);
@@ -172,7 +177,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
                         lastUpdated: createResponse.body.meta.lastUpdated
                     }
                 })
-                .set(getHeaders());
+                .set(getHeadersWithExternalStorage());
 
             batchTime = Date.now() - startTime;
             batchTimes.push(batchTime);
@@ -314,7 +319,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         let batchTime = Date.now() - startTime;
         batchTimes.push(batchTime);
@@ -348,7 +353,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
             const patchResponse = await request
                 .patch(`/4_0_0/Group/${actualGroupId}`)
                 .send(patchOps)
-                .set(getHeaders())
+                .set(getHeadersWithExternalStorage())
                 .set('Content-Type', 'application/json-patch+json');
 
             batchTime = Date.now() - startTime;

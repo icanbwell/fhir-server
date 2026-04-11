@@ -21,6 +21,11 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ensureClickHouse } = require('../../ensureClickHouse');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 describe('PATCH Performance Testing', () => {
     let clickHouseManager;
@@ -75,7 +80,7 @@ describe('PATCH Performance Testing', () => {
                             ]
                         }
                     })
-                    .set(getHeaders());
+                    .set(getHeadersWithExternalStorage());
 
                 // Build PATCH operations
                 const operations = Array.from({ length: numOps }, (_, i) => ({
@@ -92,7 +97,7 @@ describe('PATCH Performance Testing', () => {
                     .patch(`/4_0_0/Group/${groupId}`)
                     .set('Content-Type', 'application/json-patch+json')
                     .send(operations)
-                    .set(getHeaders());
+                    .set(getHeadersWithExternalStorage());
 
                 const responseTime = Date.now() - startTime;
                 const memAfter = process.memoryUsage().heapUsed / 1024 / 1024; // MB

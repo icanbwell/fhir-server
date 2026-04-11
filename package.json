@@ -84,7 +84,8 @@
       "<rootDir>/src/graphqlv2/resolvers"
     ],
     "testPathIgnorePatterns": [
-      "<rootDir>/node_modules/"
+      "<rootDir>/node_modules/",
+      "<rootDir>/src/tests/performance/"
     ],
     "setupFiles": [
       "<rootDir>/jest/setEnvVars.js"
