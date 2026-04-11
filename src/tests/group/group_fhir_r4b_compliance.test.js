@@ -1,21 +1,15 @@
-// Set env vars FIRST, before any requires
-process.env.ENABLE_CLICKHOUSE = '1';
-process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_HOST = 'localhost';
-process.env.CLICKHOUSE_PORT = '8123';
-process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'SILENT';
-process.env.STREAM_RESPONSE = '0';
-
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
-const { ConfigManager } = require('../../utils/configManager');
-const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const {
+    setupGroupTests,
+    teardownGroupTests,
+    cleanupAllData,
+    getSharedRequest,
+    getClickHouseManager,
+    getTestHeaders
+} = require('./groupTestSetup');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
-const fs = require('fs');
-const path = require('path');
 
 function getHeadersWithExternalStorage() {
     return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
@@ -34,101 +28,21 @@ function getHeadersWithExternalStorage() {
 describe('FHIR R4B Group Compliance with ClickHouse', () => {
     let clickHouseManager;
 
-    async function waitForClickHouse(manager, maxWaitMs = 30000) {
-        const startTime = Date.now();
-        while (Date.now() - startTime < maxWaitMs) {
-            try {
-                await manager.getClientAsync();
-                const isHealthy = await manager.isHealthyAsync();
-                if (isHealthy) {
-                    return true;
-                }
-            } catch (e) {
-                // Continue polling
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-    }
-
-    async function initializeClickHouseSchema(manager) {
-        try {
-            const exists = await manager.tableExistsAsync('fhir.fhir_group_member_events');
-            if (!exists) {
-                const schemaPath = path.join(__dirname, '../../../clickhouse-init/01-init-schema.sql');
-                if (!fs.existsSync(schemaPath)) {
-                    console.warn('Schema file not found at:', schemaPath);
-                    return;
-                }
-                const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-                const statements = schemaSql
-                    .split(';')
-                    .map(s => s.trim())
-                    .filter(s => {
-                        if (!s) return false;
-                        if (s.startsWith('--')) return false;
-                        // Skip SET commands (require --multiquery mode)
-                        if (s.toUpperCase().startsWith('SET ')) return false;
-                        // Skip if it's just comment fragments (doesn't contain SQL keywords)
-                        const upper = s.toUpperCase();
-                        const hasSqlKeyword = /\b(CREATE|ALTER|DROP|SELECT|INSERT|UPDATE|DELETE)\b/.test(upper);
-                        if (!hasSqlKeyword) return false;
-                        return true;
-                    });
-
-                for (const statement of statements) {
-                    if (statement) {
-                        try {
-                            await manager.queryAsync({ query: statement });
-                        } catch (e) {
-                            // Ignore "already exists" errors - schema is created by Docker on startup
-                            if (!e.message.includes('already exists')) {
-                                console.error('Failed to execute schema statement:', e.message);
-                                console.error('Statement (first 200 chars):', statement.substring(0, 200));
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Failed to initialize ClickHouse schema:', error.message);
-            throw error;
-        }
-    }
-
     beforeAll(async () => {
-        await commonBeforeEach();
-        const configManager = new ConfigManager();
-        clickHouseManager = new ClickHouseClientManager({ configManager });
-
-        await waitForClickHouse(clickHouseManager);
-        await initializeClickHouseSchema(clickHouseManager);
-
-        try {
-            await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
-        } catch (e) {
-            // Ignore if table doesn't exist
-        }
+        await setupGroupTests();
+        clickHouseManager = getClickHouseManager();
     });
 
     beforeEach(async () => {
-        // Clean slate for each test to ensure proper isolation
-        try {
-            await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
-        } catch (e) {
-            // Ignore if table doesn't exist
-        }
+        await cleanupAllData();
     });
 
     afterAll(async () => {
-        if (clickHouseManager) {
-            await clickHouseManager.closeAsync();
-        }
-        await commonAfterEach();
+        await teardownGroupTests();
     });
 
     async function createGroup(group) {
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
@@ -139,10 +53,10 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
     }
 
     async function getGroup(groupId) {
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getHeadersWithExternalStorage());
+            .set(getHeaders());
 
         if (response.status === 404) {
             return null; // Group not found
@@ -354,11 +268,11 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
             ]
         };
 
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const response = await request
             .post('/4_0_0/Group')
             .send(invalidGroup)
-            .set(getHeadersWithExternalStorage());
+            .set(getHeaders());
 
         // VERIFY HTTP 400 (Enhanced for Phase 3.1)
         expect(response.status).toBe(400);
@@ -726,11 +640,11 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
             member: [] // Remove all members
         };
 
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const updateResponse = await request
             .put(`/4_0_0/Group/${actualGroupId}`)
             .send(updated)
-            .set(getHeadersWithExternalStorage());
+            .set(getHeaders());
 
         // PUT can return 200 (updated) or 201 (created if not found)
         expect([200, 201]).toContain(updateResponse.status);

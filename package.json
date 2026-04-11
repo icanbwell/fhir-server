@@ -234,7 +234,9 @@
     "npm-check-updates": "^18.0.1",
     "pre-commit": "^1.2.2",
     "prettier": "^3.5.3",
-    "supertest": "^7.1.1"
+    "supertest": "^7.1.1",
+    "@testcontainers/clickhouse": "^11.14.0",
+    "testcontainers": "^11.14.0"
   },
   "private": false,
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"

@@ -31,8 +31,8 @@ const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
-const { ensureClickHouse } = require('../../ensureClickHouse');
 const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
+const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
 function getHeadersWithExternalStorage() {
     return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
@@ -41,8 +41,11 @@ function getHeadersWithExternalStorage() {
 describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
     let clickHouseManager;
 
+    let clickHouseTestContainer;
     beforeAll(async () => {
-        await ensureClickHouse();
+        clickHouseTestContainer = new ClickHouseTestContainer();
+        await clickHouseTestContainer.start();
+        clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
 
         const configManager = new ConfigManager();
@@ -68,6 +71,9 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
             }
 
             await clickHouseManager.closeAsync();
+        }
+        if (clickHouseTestContainer) {
+            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     }, 30000);

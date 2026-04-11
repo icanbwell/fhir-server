@@ -1,146 +1,33 @@
-// test file
 const { describe, beforeAll, afterAll, beforeEach, test, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const {
+    setupGroupTests,
+    teardownGroupTests,
+    cleanupAllData,
+    getSharedRequest,
+    getClickHouseManager,
+    getTestHeaders
+} = require('./groupTestSetup');
 
 function getHeadersWithExternalStorage() {
-    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+    return { ...getTestHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
 }
-
-// Enable ClickHouse for this test
-process.env.ENABLE_CLICKHOUSE = '1';
-process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_HOST = 'localhost';
-process.env.CLICKHOUSE_PORT = '8123';
-process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'SILENT';
-process.env.STREAM_RESPONSE = '0';
 
 describe('Group Member Lifecycle in ClickHouse', () => {
     let requestId;
-    let sharedClickHouseManager;
-
-    /**
-     * Waits for ClickHouse to be ready
-     */
-    async function waitForClickHouse(manager, maxWaitMs = 30000) {
-        const startTime = Date.now();
-        let attempt = 0;
-
-        while (Date.now() - startTime < maxWaitMs) {
-            try {
-                attempt++;
-                // Ensure client is connected first
-                await manager.getClientAsync();
-                const isHealthy = await manager.isHealthyAsync();
-                if (isHealthy) {
-                    return true;
-                }
-            } catch (e) {
-                // Ignore errors during health check - will retry
-            }
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        const connInfo = manager.getConnectionInfo();
-        throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-    }
-
-    /**
-     * Initializes ClickHouse schema if needed
-     */
-    async function initializeClickHouseSchema(clickHouseManager) {
-        try {
-            // Check if table exists
-            const exists = await clickHouseManager.tableExistsAsync('fhir.fhir_group_member_events');
-
-            if (!exists) {
-
-                // Read and execute schema SQL
-                const fs = require('fs');
-                const path = require('path');
-                const schemaPath = path.join(__dirname, '../../../clickhouse-init/01-init-schema.sql');
-
-                if (!fs.existsSync(schemaPath)) {
-                    console.warn('Schema file not found at:', schemaPath);
-                    return;
-                }
-
-                const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-
-                // Split by semicolon and execute each statement
-                const statements = schemaSql
-                    .split(';')
-                    .map(s => s.trim())
-                    .filter(s => {
-                        if (!s) return false;
-                        if (s.startsWith('--')) return false;
-                        // Skip SET commands (require --multiquery mode)
-                        if (s.toUpperCase().startsWith('SET ')) return false;
-                        // Skip if it's just comment fragments (doesn't contain SQL keywords)
-                        const upper = s.toUpperCase();
-                        const hasSqlKeyword = /\b(CREATE|ALTER|DROP|SELECT|INSERT|UPDATE|DELETE)\b/.test(upper);
-                        if (!hasSqlKeyword) return false;
-                        return true;
-                    });
-
-                for (const statement of statements) {
-                    if (statement) {
-                        try {
-                            await clickHouseManager.queryAsync({ query: statement });
-                        } catch (e) {
-                            // Ignore "already exists" errors - schema is created by Docker on startup
-                            if (!e.message.includes('already exists')) {
-                                console.error('Failed to execute schema statement:', e.message);
-                                console.error('Statement (first 200 chars):', statement.substring(0, 200));
-                            }
-                        }
-                    }
-                }
-
-            } else {
-                // Schema already exists
-            }
-        } catch (error) {
-            console.error('Failed to initialize ClickHouse schema:', error.message);
-            throw error;
-        }
-    }
 
     beforeAll(async () => {
-        await commonBeforeEach();
-
-        // Initialize shared ClickHouse manager
-        const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
-        sharedClickHouseManager = new ClickHouseClientManager({ configManager: new ConfigManager() });
-
-        // Wait for ClickHouse to be ready
-        await waitForClickHouse(sharedClickHouseManager);
-
-        // Ensure schema is initialized
-        await initializeClickHouseSchema(sharedClickHouseManager);
+        await setupGroupTests();
     });
 
     afterAll(async () => {
-        // Close shared manager
-        if (sharedClickHouseManager) {
-            await sharedClickHouseManager.closeAsync();
-        }
-        await commonAfterEach();
+        await teardownGroupTests();
     });
 
     beforeEach(async () => {
         requestId = undefined;
-
-        // Clean ClickHouse between tests for isolation
-        try {
-            await sharedClickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
-        } catch (e) {
-            console.error('Failed to cleanup ClickHouse:', e.message);
-            // Don't fail the test - table might not exist yet
-        }
+        await cleanupAllData();
     });
 
     /**
@@ -197,7 +84,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
             member: members
         };
 
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
@@ -211,7 +98,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
      * Helper to update a Group
      */
     async function updateGroup(groupId, updatedGroup) {
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const response = await request
             .put(`/4_0_0/Group/${groupId}`)
             .send(updatedGroup)
@@ -225,7 +112,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
      * Helper to get a Group
      */
     async function getGroup(groupId) {
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group/${groupId}`)
             .set(getHeadersWithExternalStorage());
@@ -238,7 +125,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
      * Helper to search Groups by member reference
      */
     async function searchGroupsByMember(memberReference) {
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group?member=${encodeURIComponent(memberReference)}`)
             .set(getHeadersWithExternalStorage());
@@ -508,7 +395,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         await updateGroup(actualGroupId, groupToUpdate);
 
         // Query events - should show no events for this member
-        const events = await sharedClickHouseManager.queryAsync({
+        const events = await getClickHouseManager().queryAsync({
             query: `SELECT count() as count FROM fhir.fhir_group_member_events
                     WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}`,
             query_params: { groupId: actualGroupId, memberRef }
@@ -554,7 +441,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         await waitForClickHouseSync(memberRef, []);
 
         // Query events - should have 1 add + multiple removes
-        const events = await sharedClickHouseManager.queryAsync({
+        const events = await getClickHouseManager().queryAsync({
             query: `SELECT event_type, count() as count
                     FROM fhir.fhir_group_member_events
                     WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}
@@ -564,7 +451,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         });
 
         // argMax should still return 'removed' regardless of duplicates
-        const activeMembers = await sharedClickHouseManager.queryAsync({
+        const activeMembers = await getClickHouseManager().queryAsync({
             query: `SELECT entity_reference
                     FROM fhir.fhir_group_member_events
                     WHERE group_id = {groupId:String}

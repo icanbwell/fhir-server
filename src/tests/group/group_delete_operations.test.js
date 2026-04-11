@@ -1,17 +1,9 @@
-// Set env vars FIRST, before any requires
-process.env.ENABLE_CLICKHOUSE = '1';
-process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_HOST = 'localhost';
-process.env.CLICKHOUSE_PORT = '8123';
-process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'SILENT';
-process.env.STREAM_RESPONSE = '0';
 
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 const {
     setupGroupTests,
     teardownGroupTests,
-    cleanupBetweenTests,
+    cleanupAllData,
     getSharedRequest,
     getClickHouseManager,
     getTestHeadersWithExternalStorage
@@ -36,7 +28,7 @@ describe('Group DELETE operations', () => {
     });
 
     beforeEach(async () => {
-        await cleanupBetweenTests();
+        await cleanupAllData();
     });
 
     afterAll(async () => {
