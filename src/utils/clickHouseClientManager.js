@@ -62,7 +62,7 @@ class ClickHouseClientManager {
         }
 
         try {
-            const url = `http://${this.configManager.clickHouseHost}:${this.configManager.clickHousePort}`;
+            const url = `${this.configManager.clickHouseHost}:${this.configManager.clickHousePort}`;
 
             logInfo('Connecting to ClickHouse', {
                 host: this.configManager.clickHouseHost,
@@ -135,7 +135,7 @@ class ClickHouseClientManager {
             // JSONEachRow returns array directly, not {data: [...]}
             return Array.isArray(result) ? result.length > 0 : (result && result.data && result.data.length > 0);
         } catch (error) {
-            logError('ClickHouse ping failed', { error: error.message });
+            logError('ClickHouse ping failed', { error: error.message, stack: error.stack });
             return false;
         }
     }
