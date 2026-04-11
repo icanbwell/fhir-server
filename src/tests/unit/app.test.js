@@ -1,10 +1,10 @@
 /**
  * simple test for the app
  */
-const { createTestRequest } = require('./tests/common');
+const { createTestRequest } = require('../common');
 
 const { describe, beforeAll, afterAll, test, jest, expect } = require('@jest/globals');
-const { KafkaClient } = require('./utils/kafkaClient');
+const { KafkaClient } = require('../../utils/kafkaClient');
 
 // Mocking connect and disconnect methods of producer class
 const mockProducerMethods = {

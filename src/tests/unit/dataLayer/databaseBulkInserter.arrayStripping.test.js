@@ -1,6 +1,6 @@
 const { describe, test, expect } = require('@jest/globals');
-const { DatabaseBulkInserter } = require('./databaseBulkInserter');
-const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
+const { DatabaseBulkInserter } = require('../../../dataLayer/databaseBulkInserter');
+const { BulkInsertUpdateEntry } = require('../../../dataLayer/bulkInsertUpdateEntry');
 
 describe('DatabaseBulkInserter - Array Field Stripping', () => {
     test('strips member array from Group resources when ClickHouse enabled', () => {
@@ -27,7 +27,7 @@ describe('DatabaseBulkInserter - Array Field Stripping', () => {
         const result = bulkInserter._handleArrayFieldStripping({
             resource,
             requestId: 'test-123',
-            contextData: null
+            contextData: { useExternalMemberStorage: true }
         });
 
         expect(result.member).toEqual([]);
@@ -111,6 +111,7 @@ describe('DatabaseBulkInserter - Array Field Stripping', () => {
         };
 
         const contextData = {
+            useExternalMemberStorage: true,
             groupMembers: [
                 { entity: { reference: 'Patient/new' } }
             ]

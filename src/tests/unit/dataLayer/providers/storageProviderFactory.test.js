@@ -1,9 +1,9 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
-const { StorageProviderFactory } = require('./storageProviderFactory');
-const { MongoStorageProvider } = require('./mongoStorageProvider');
-const { MongoWithClickHouseStorageProvider } = require('./mongoWithClickHouseStorageProvider');
-const { ClickHouseStorageProvider } = require('./clickHouseStorageProvider');
-const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
+const { StorageProviderFactory } = require('../../../../dataLayer/providers/storageProviderFactory');
+const { MongoStorageProvider } = require('../../../../dataLayer/providers/mongoStorageProvider');
+const { MongoWithClickHouseStorageProvider } = require('../../../../dataLayer/providers/mongoWithClickHouseStorageProvider');
+const { ClickHouseStorageProvider } = require('../../../../dataLayer/providers/clickHouseStorageProvider');
+const { STORAGE_PROVIDER_TYPES } = require('../../../../dataLayer/providers/storageProviderTypes');
 
 describe('StorageProviderFactory', () => {
     let mockResourceLocatorFactory;

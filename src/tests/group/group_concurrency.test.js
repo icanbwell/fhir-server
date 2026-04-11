@@ -6,7 +6,7 @@ const {
     cleanupGroupData,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders
+    getTestHeadersWithExternalStorage
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -39,7 +39,7 @@ describe('Group Concurrency Tests', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         return response;
     }
@@ -62,7 +62,7 @@ describe('Group Concurrency Tests', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         return response;
     }
@@ -181,7 +181,7 @@ describe('Group Concurrency Tests', () => {
         const request = getSharedRequest();
         const readPromise = request
             .get(`/4_0_0/Group/${actualId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         const [writeResult, readResult] = await Promise.all([writePromise, readPromise]);
 
@@ -206,7 +206,7 @@ describe('Group Concurrency Tests', () => {
         const request = getSharedRequest();
         const deletePromise = request
             .delete(`/4_0_0/Group/${actualId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         const updatePromise = updateGroup(actualId, [
             { entity: { reference: 'Patient/delete-test' } },
@@ -236,7 +236,7 @@ describe('Group Concurrency Tests', () => {
                 request
                     .get('/4_0_0/Group')
                     .query({ 'member.entity.reference': memberRef, _total: 'accurate' })
-                    .set(getTestHeaders())
+                    .set(getTestHeadersWithExternalStorage())
             );
         }
 
@@ -261,14 +261,14 @@ describe('Group Concurrency Tests', () => {
         const request = getSharedRequest();
         const deletePromise = request
             .delete(`/4_0_0/Group/${actualId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         // Small delay to let DELETE start but not finish
         await new Promise(r => setTimeout(r, 10));
 
         const readPromise = request
             .get(`/4_0_0/Group/${actualId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         const [deleteResult, readResult] = await Promise.all([deletePromise, readPromise]);
 
@@ -309,7 +309,7 @@ describe('Group Concurrency Tests', () => {
                         value: { entity: { reference: `Patient/flood-${i}` } }
                     }
                 ])
-                .set(getTestHeaders())
+                .set(getTestHeadersWithExternalStorage())
                 .set('Content-Type', 'application/json-patch+json');
 
             patchPromises.push(patchPromise);

@@ -4,7 +4,7 @@ const {
     teardownGroupTests,
     cleanupBetweenTests,
     getSharedRequest,
-    getTestHeaders,
+    getTestHeadersWithExternalStorage,
     waitForData
 } = require('./groupTestSetup');
 
@@ -64,7 +64,7 @@ describe('Group Pagination with ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -87,7 +87,7 @@ describe('Group Pagination with ClickHouse', () => {
             async () => {
                 const testResponse = await request
                     .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=1`)
-                    .set(getTestHeaders());
+                    .set(getTestHeadersWithExternalStorage());
                 return testResponse.status === 200 && testResponse.body.entry && testResponse.body.entry.length >= 1;
             },
             { timeout: TIMEOUTS.LARGE_SET, description: 'Groups to be indexed' }
@@ -102,7 +102,7 @@ describe('Group Pagination with ClickHouse', () => {
         while (nextPath && pageCount < maxPages) {
             const response = await request
                 .get(nextPath)
-                .set(getTestHeaders());
+                .set(getTestHeadersWithExternalStorage());
 
             expect(response.status).toBe(200);
             expect(response.body.resourceType).toBe('Bundle');
@@ -161,7 +161,7 @@ describe('Group Pagination with ClickHouse', () => {
             async () => {
                 const testResponse = await request
                     .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=1`)
-                    .set(getTestHeaders());
+                    .set(getTestHeadersWithExternalStorage());
                 return testResponse.status === 200 && testResponse.body.entry && testResponse.body.entry.length >= 1;
             },
             { timeout: TIMEOUTS.MEDIUM_SET, description: 'Groups to be indexed' }
@@ -170,7 +170,7 @@ describe('Group Pagination with ClickHouse', () => {
         // Get all results to establish order
         const allResponse = await request
             .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=${TEST_DATA_SIZES.MEDIUM}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(allResponse.status).toBe(200);
         expect(allResponse.body.entry).toBeDefined();
@@ -182,7 +182,7 @@ describe('Group Pagination with ClickHouse', () => {
         const offsetValue = PAGE_SIZES.LARGE;
         const offsetResponse = await request
             .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=${offsetValue}&_getpagesoffset=${offsetValue}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(offsetResponse.status).toBe(200);
 
@@ -218,7 +218,7 @@ describe('Group Pagination with ClickHouse', () => {
             async () => {
                 const testResponse = await request
                     .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=1`)
-                    .set(getTestHeaders());
+                    .set(getTestHeadersWithExternalStorage());
                 return testResponse.status === 200 && testResponse.body.entry && testResponse.body.entry.length >= 1;
             },
             { timeout: TIMEOUTS.SMALL_SET, description: 'Group to be indexed' }
@@ -227,7 +227,7 @@ describe('Group Pagination with ClickHouse', () => {
         // Query with offset beyond available results
         const response = await request
             .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=10&_getpagesoffset=100`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.resourceType).toBe('Bundle');
@@ -253,7 +253,7 @@ describe('Group Pagination with ClickHouse', () => {
             async () => {
                 const testResponse = await request
                     .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=1`)
-                    .set(getTestHeaders());
+                    .set(getTestHeadersWithExternalStorage());
                 return testResponse.status === 200 && testResponse.body.entry && testResponse.body.entry.length >= 1;
             },
             { timeout: TIMEOUTS.SMALL_SET, description: 'Group to be indexed' }
@@ -262,7 +262,7 @@ describe('Group Pagination with ClickHouse', () => {
         // Query with _count=1
         const response = await request
             .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=1`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();

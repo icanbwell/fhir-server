@@ -4,7 +4,7 @@ const {
     teardownGroupTests,
     cleanupBetweenTests,
     getSharedRequest,
-    getTestHeaders
+    getTestHeadersWithExternalStorage
 } = require('./groupTestSetup');
 
 describe('Individual Group Reads with ClickHouse', () => {
@@ -41,7 +41,7 @@ describe('Individual Group Reads with ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -63,7 +63,7 @@ describe('Individual Group Reads with ClickHouse', () => {
         // GET the Group by ID
         const response = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.resourceType).toBe('Group');
@@ -84,7 +84,7 @@ describe('Individual Group Reads with ClickHouse', () => {
 
         const response = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.resourceType).toBe('Group');
@@ -109,7 +109,7 @@ describe('Individual Group Reads with ClickHouse', () => {
         const start = Date.now();
         const response = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
         const queryTime = Date.now() - start;
 
         expect(response.status).toBe(200);
@@ -136,7 +136,7 @@ describe('Individual Group Reads with ClickHouse', () => {
 
         const response = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.quantity).toBe(1000);
@@ -148,7 +148,7 @@ describe('Individual Group Reads with ClickHouse', () => {
 
         const response = await request
             .get(`/4_0_0/Group/non-existent-group-${Date.now()}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(404);
     }, 30000);
@@ -166,7 +166,7 @@ describe('Individual Group Reads with ClickHouse', () => {
 
         const response = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
 

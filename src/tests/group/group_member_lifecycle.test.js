@@ -2,6 +2,11 @@
 const { describe, beforeAll, afterAll, beforeEach, test, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 // Enable ClickHouse for this test
 process.env.ENABLE_CLICKHOUSE = '1';
@@ -196,7 +201,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -210,7 +215,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const response = await request
             .put(`/4_0_0/Group/${groupId}`)
             .send(updatedGroup)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         return response.body;
@@ -223,7 +228,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const request = await createTestRequest();
         const response = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         return response.body;
@@ -236,7 +241,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const request = await createTestRequest();
         const response = await request
             .get(`/4_0_0/Group?member=${encodeURIComponent(memberReference)}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         if (response.status !== 200) {
             console.error('Search failed with status:', response.status);

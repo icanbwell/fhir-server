@@ -1,6 +1,6 @@
 const { describe, test, expect } = require('@jest/globals');
-const { createTooCostlyError, GUIDANCE } = require('./fhirErrorFactory');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { createTooCostlyError, GUIDANCE } = require('../../../utils/fhirErrorFactory');
+const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 describe('fhirErrorFactory', () => {
     describe('createTooCostlyError', () => {

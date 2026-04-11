@@ -13,8 +13,13 @@ const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const fs = require('fs');
 const path = require('path');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 /**
  * FHIR R4B Group Resource Compliance Tests
@@ -127,7 +132,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -137,7 +142,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const request = await createTestRequest();
         const response = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         if (response.status === 404) {
             return null; // Group not found
@@ -353,7 +358,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(invalidGroup)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         // VERIFY HTTP 400 (Enhanced for Phase 3.1)
         expect(response.status).toBe(400);
@@ -725,7 +730,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const updateResponse = await request
             .put(`/4_0_0/Group/${actualGroupId}`)
             .send(updated)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         // PUT can return 200 (updated) or 201 (created if not found)
         expect([200, 201]).toContain(updateResponse.status);

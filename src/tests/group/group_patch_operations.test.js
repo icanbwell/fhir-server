@@ -16,6 +16,11 @@ const {
     assertTooCostlyOperationOutcome,
     getMaxPatchOperations
 } = require('./groupTestHelpers');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 /**
  * Group PATCH Operations Test Suite
@@ -85,7 +90,7 @@ describe('Group PATCH operations', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
         return response.body;
     }
 
@@ -94,7 +99,7 @@ describe('Group PATCH operations', () => {
         return await request
             .patch(`/4_0_0/Group/${groupId}`)
             .send(patches)
-            .set(getHeaders())
+            .set(getHeadersWithExternalStorage())
             .set('Content-Type', 'application/json-patch+json'); // Must be AFTER getHeaders() to avoid overwrite
     }
 
@@ -367,7 +372,7 @@ describe('Group PATCH operations', () => {
         const request = await createTestRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${group.id}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();
@@ -416,7 +421,7 @@ describe('Group PATCH operations', () => {
         const request = await createTestRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${group.id}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();

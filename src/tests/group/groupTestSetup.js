@@ -17,6 +17,7 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ensureClickHouse } = require('../ensureClickHouse');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 
 // Set env vars FIRST, before any requires
 process.env.ENABLE_CLICKHOUSE = '1';
@@ -90,6 +91,26 @@ async function initializeClickHouseSchema(clickHouseManager) {
                 } catch (err) {
                     if (!err.message.includes('already exists')) {
                         // Ignore other errors during schema init
+                    }
+                }
+            }
+        }
+
+        // Apply migration for entity_reference_uuid/source_id columns
+        const migrationPath = path.join(__dirname, '../../..', 'clickhouse-init', '02-add-entity-reference-columns.sql');
+        if (fs.existsSync(migrationPath)) {
+            const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+            const migrationStatements = migrationSQL
+                .split(';')
+                .map(s => s.trim())
+                .filter(s => s.length > 0 && !s.match(/^--/));
+
+            for (const statement of migrationStatements) {
+                try {
+                    await clickHouseManager.queryAsync({ query: statement });
+                } catch (err) {
+                    if (!err.message.includes('already exists') && !err.message.includes('duplicate column')) {
+                        // Ignore migration errors for idempotency
                     }
                 }
             }
@@ -354,6 +375,17 @@ function getTestHeaders() {
     return getHeaders();
 }
 
+/**
+ * Helper to get headers with the useExternalMemberStorage flag enabled
+ * Used by tests that exercise ClickHouse member storage paths
+ */
+function getTestHeadersWithExternalStorage() {
+    return {
+        ...getHeaders(),
+        [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true'
+    };
+}
+
 module.exports = {
     setupGroupTests,
     teardownGroupTests,
@@ -364,5 +396,6 @@ module.exports = {
     getSharedRequest,
     getClickHouseManager,
     getTestHeaders,
+    getTestHeadersWithExternalStorage,
     waitForData
 };

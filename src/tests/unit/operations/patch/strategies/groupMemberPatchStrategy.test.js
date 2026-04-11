@@ -1,5 +1,8 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
-const { GroupMemberPatchStrategy } = require('./groupMemberPatchStrategy');
+const { GroupMemberPatchStrategy } = require('../../../../../operations/patch/strategies/groupMemberPatchStrategy');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../../../utils/contextDataBuilder');
+
+const requestInfoWithHeader = { headers: { [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' } };
 
 describe('GroupMemberPatchStrategy', () => {
     let strategy;
@@ -100,7 +103,8 @@ describe('GroupMemberPatchStrategy', () => {
 
             const result = strategy.detectMemberOperations({
                 patchContent,
-                resourceType
+                resourceType,
+                requestInfo: requestInfoWithHeader
             });
 
             expect(result).toEqual(expected);

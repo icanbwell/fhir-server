@@ -14,7 +14,7 @@ const {
     cleanupBetweenTests,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders
+    getTestHeadersWithExternalStorage
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -58,7 +58,7 @@ describe('Group DELETE operations', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
         return response.body;
     }
 
@@ -66,14 +66,14 @@ describe('Group DELETE operations', () => {
         const request = getSharedRequest();
         return await request
             .delete(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
     }
 
     async function getGroup(groupId) {
         const request = getSharedRequest();
         return await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
     }
 
     test('DELETE Group → MongoDB deleted, ClickHouse events remain', async () => {

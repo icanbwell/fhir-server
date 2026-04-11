@@ -12,6 +12,11 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 /**
  * Group UPDATE Operations Test Suite
@@ -76,7 +81,7 @@ describe('Group UPDATE operations', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         return response.body;
     }
@@ -86,7 +91,7 @@ describe('Group UPDATE operations', () => {
         return await request
             .put(`/4_0_0/Group/${groupId}`)
             .send(updates)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
     }
 
     test('PUT metadata only → MongoDB only, no ClickHouse', async () => {
@@ -268,7 +273,7 @@ describe('Group UPDATE operations', () => {
         const request = await createTestRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();
@@ -306,7 +311,7 @@ describe('Group UPDATE operations', () => {
         const request = await createTestRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();

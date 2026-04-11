@@ -20,6 +20,11 @@ const { describe, beforeAll, afterAll, test, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 // Save original env vars
 const ORIGINAL_ENABLE_CLICKHOUSE = process.env.ENABLE_CLICKHOUSE;
@@ -152,7 +157,7 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         const duration = Date.now() - startTime;
 

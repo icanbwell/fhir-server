@@ -5,7 +5,7 @@ const {
     cleanupBetweenTests,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders
+    getTestHeadersWithExternalStorage
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -48,7 +48,7 @@ describe('Group CREATE operations', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
     }
 
     test('POST Group without members → MongoDB only', async () => {
@@ -66,7 +66,7 @@ describe('Group CREATE operations', () => {
         const request = getSharedRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.name).toBe('Group Without Members');
         expect(getResponse.body.member).toBeUndefined(); // Should not include member array
@@ -145,7 +145,7 @@ describe('Group CREATE operations', () => {
         const request = getSharedRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();
@@ -175,7 +175,7 @@ describe('Group CREATE operations', () => {
         const request = getSharedRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();
