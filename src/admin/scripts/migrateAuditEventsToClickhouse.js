@@ -19,7 +19,7 @@
  *   --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
  *   --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
  *   --batch-size <n>         Documents per ClickHouse insert batch (default: 50000)
- *   --concurrency <n>        Number of concurrent day-workers (default: 6)
+ *   --concurrency <n>        Number of concurrent day-workers (default: 3)
  *   --dry-run                Count source docs and seed state without inserting
  *   --verify-only            Skip migration, run count verification only
  *   --resume                 Resume from incomplete partitions
@@ -30,9 +30,10 @@
  *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb://..." \
  *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --dry-run
  *
- *   # Full migration with 8 concurrent workers
+ *   # Full migration with higher concurrency (increase heap for more workers)
+ *   NODE_OPTIONS=--max-old-space-size=8192 \
  *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb://..." \
- *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --concurrency 8
+ *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --concurrency 6
  *
  *   # Resume after interruption
  *   node src/admin/scripts/migrateAuditEventsToClickhouse.js --resume
@@ -90,7 +91,7 @@ function parseArgs() {
         startDate: '2022-01-01',
         endDate: '2026-04-01',
         batchSize: 50000,
-        concurrency: 6,
+        concurrency: 3,
         dryRun: false,
         verifyOnly: false,
         resume: false
@@ -138,7 +139,7 @@ Options:
   --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
   --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
   --batch-size <n>         Docs per batch (default: 50000)
-  --concurrency <n>        Concurrent workers (default: 6)
+  --concurrency <n>        Concurrent workers (default: 3)
   --dry-run                Seed state, count docs, don't insert
   --verify-only            Run count verification only
   --resume                 Resume incomplete partitions
