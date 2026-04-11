@@ -36,13 +36,27 @@ CLICKHOUSE_USERNAME=default
 CLICKHOUSE_PASSWORD=
 ```
 
+### Header-Based Activation
+
+ClickHouse member tracking is activated per-request using the `useExternalMemberStorage` header:
+
+```bash
+# With header: ClickHouse events are written alongside MongoDB
+curl -H "useExternalMemberStorage: true" -X POST /4_0_0/Group ...
+
+# Without header: Standard FHIR behavior (MongoDB only)
+curl -X POST /4_0_0/Group ...
+```
+
+This allows gradual rollout: existing clients continue using standard FHIR behavior, while ClickHouse-aware clients opt in via the header.
+
 ### Docker Setup
 
 ClickHouse is included in `docker-compose.yml`:
 
 ```yaml
 clickhouse:
-  image: clickhouse/clickhouse-server:24.1
+  image: clickhouse/clickhouse-server:24.8
   ports:
     - '8123:8123'   # HTTP
     - '9000:9000'   # Native TCP
@@ -51,11 +65,13 @@ clickhouse:
     - ./clickhouse-init:/docker-entrypoint-initdb.d
 ```
 
-Start with: `docker-compose up -d`
+Start with: `make up`
+
+Schema initialization runs all SQL files in `clickhouse-init/` in alphabetical order.
 
 ## Group API Usage
 
-All standard FHIR operations work transparently - the ClickHouse integration is invisible to API consumers.
+All standard FHIR operations work with the `useExternalMemberStorage: true` header to enable ClickHouse member tracking. Without the header, standard FHIR behavior applies.
 
 ### Creating Groups
 
@@ -78,7 +94,7 @@ Content-Type: application/fhir+json
 }
 ```
 
-Response: `201 Created` with Group metadata (note: `member` array is empty in responses - member data lives in ClickHouse)
+Response: `201 Created` with Group metadata. When the `useExternalMemberStorage` header is set, the `member` field is removed from the stored document (member data tracked in ClickHouse).
 
 ### Incremental Loading with PATCH (Recommended)
 
@@ -154,10 +170,14 @@ PUT /4_0_0/Group/{id}
 Find all Groups containing a specific patient:
 
 ```bash
+# Search by sourceId (reference without owner)
 GET /4_0_0/Group?member=Patient/123
-GET /4_0_0/Group?member.entity._reference=Patient/123
-GET /4_0_0/Group?member.entity._uuid=patient-uuid-123
+
+# Search by UUID (reference with owner, resolved to UUIDv5)
+GET /4_0_0/Group?member=Patient/123|client1
 ```
+
+Searches use enriched ClickHouse columns (`entity_reference_uuid`, `entity_reference_source_id`) set by the `referenceGlobalIdHandler` pre-save handler.
 
 **Performance:** Sub-100ms for member lookup across all Groups (uses indexed materialized view)
 
@@ -167,7 +187,7 @@ GET /4_0_0/Group?member.entity._uuid=patient-uuid-123
 GET /4_0_0/Group/{id}
 ```
 
-Returns Group metadata. The `member` array will be empty (members are stored in ClickHouse and excluded from GET responses for performance).
+Returns the Group resource. When created with the `useExternalMemberStorage` header, the `member` field will not be present (members tracked in ClickHouse). Groups created without the header retain their `member` array in MongoDB.
 
 ### Removing Members
 
@@ -205,27 +225,33 @@ event_type='added': Patient/1 @ 10:15  → Patient/1: active
 
 Every membership change creates an event. Current state is derived using ClickHouse's `argMax` aggregation over the event log.
 
-### Dual Storage Model
+### Dual Storage Model (when `useExternalMemberStorage` header is present)
 
 **MongoDB stores:**
-- Group metadata (id, name, type, actual, meta)
-- `member` array is always `[]` (stripped before save)
+- Group resource metadata (id, name, type, actual, meta)
+- `member` field removed for CREATE, PUT, and `$merge` (smartMerge=false)
+- `member` field preserved for PATCH and `$merge` (smartMerge=true, the default)
 
 **ClickHouse stores:**
 - Member events (`fhir_group_member_events` table)
 - Materialized current state (`fhir_group_member_current` table)
 - Reverse lookup index (`fhir_group_member_current_by_entity` table)
 
-**Write flow:**
-1. Member array stripped from resource before MongoDB save
-2. MongoDB saves Group metadata only
-3. Member events written to ClickHouse
-4. Materialized views auto-update (milliseconds)
+**Write behavior by operation:**
+
+| Operation | MongoDB members | ClickHouse events |
+|-----------|----------------|-------------------|
+| CREATE | `member` field removed | MEMBER_ADDED for all |
+| PATCH | Preserved (unchanged) | Events from PATCH ops only |
+| PUT | `member` field removed | Diff: adds + removes |
+| $merge (smartMerge=true) | Preserved (unchanged) | Adds only, no removals |
+| $merge (smartMerge=false) | `member` field removed | Diff: adds + removes |
+| DELETE | Removed from MongoDB | Events retained for audit |
 
 **Query routing:**
-- Member queries (`?member=Patient/X`) → ClickHouse
+- Member queries (`?member=Patient/X`) → ClickHouse → MongoDB (for full Group resources)
 - Metadata queries (`?name=MyGroup`) → MongoDB
-- GET by ID → MongoDB (members excluded)
+- GET by ID → MongoDB
 
 ### ClickHouse Schema
 
@@ -234,6 +260,8 @@ Every membership change creates an event. Current state is derived using ClickHo
 CREATE TABLE fhir.fhir_group_member_events (
     group_id String,
     entity_reference String,
+    entity_reference_uuid String DEFAULT '',
+    entity_reference_source_id String DEFAULT '',
     entity_type LowCardinality(String),
     event_type Enum8('added' = 1, 'removed' = 2),
     event_time DateTime64(3, 'UTC'),
@@ -245,7 +273,8 @@ CREATE TABLE fhir.fhir_group_member_events (
     reason LowCardinality(String),
     correlation_id String,
     access_tags Array(String),
-    owner_tags Array(String)
+    owner_tags Array(String),
+    source_assigning_authority LowCardinality(String)
 ) ENGINE = MergeTree()
 ORDER BY (group_id, entity_reference, event_time, event_id);
 ```
@@ -532,12 +561,22 @@ Only Groups with matching `access` or `owner` tags are returned in search result
 3. Test connection: `docker exec -it fhir-clickhouse clickhouse-client`
 4. Verify `CLICKHOUSE_HOST` in configuration (use `127.0.0.1` or container name)
 
+### Schema Initialization Errors
+
+**Symptom:** `Unknown expression or function identifier 'entity_reference_uuid'` during `make up`
+
+**Solutions:**
+1. Wipe ClickHouse volume: `docker compose -p fhir-dev down -v && make up`
+2. Or run migration manually: `docker exec -i fhir-clickhouse clickhouse-client --multiquery < clickhouse-init/02-add-entity-reference-columns.sql`
+
+The Makefile runs all `clickhouse-init/*.sql` files in alphabetical order. If the volume persists from an older schema, `02-add-entity-reference-columns.sql` applies the migration.
+
 ### Groups Not Appearing in Member Search
 
 **Symptom:** `GET /Group?member=Patient/X` returns empty results
 
 **Solutions:**
-1. Wait for ClickHouse sync (materialized views update within milliseconds)
+1. Ensure `useExternalMemberStorage: true` header is present on both write and read requests
 2. Check ClickHouse has events:
    ```sql
    SELECT count(*) FROM fhir.fhir_group_member_events WHERE group_id = 'my-group-id';
@@ -547,11 +586,12 @@ Only Groups with matching `access` or `owner` tags are returned in search result
 
 ### PATCH Operations Failing
 
-**Symptom:** `400 Bad Request` on PATCH with member operations
+**Symptom:** `400 Bad Request` or `500` on PATCH with member operations
 
 **Solutions:**
 1. Verify `Content-Type: application/json-patch+json` header
-2. Check operation count (default limit: 10K operations)
+2. Verify `useExternalMemberStorage: true` header is present
+3. Check operation count (default limit: 10K operations)
 3. Validate PATCH operation format:
    - Add: `{"op": "add", "path": "/member/-", "value": {"entity": {"reference": "Patient/123"}}}`
    - Remove: `{"op": "remove", "path": "/member", "value": {"entity": {"reference": "Patient/123"}}}`

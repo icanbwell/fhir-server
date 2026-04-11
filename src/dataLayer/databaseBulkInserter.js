@@ -125,6 +125,21 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * Strips member array from Group when ClickHouse manages members.
+     * Skipped for PATCH (groupMemberEventsWritten) and $merge smartMerge=true
+     * because those preserve existing MongoDB members.
+     * @private
+     */
+    _stripMembersIfNeeded (doc, contextData) {
+        if (contextData?.useExternalMemberStorage &&
+            !contextData?.groupMemberEventsWritten &&
+            !contextData?.smartMerge &&
+            doc.resourceType === 'Group') {
+            delete doc.member;
+        }
+    }
+
+    /**
      * This map stores an entry per resourceType where the value is a list of operations to perform
      * on that resourceType
      * <resourceType, list of operations>
@@ -326,6 +341,7 @@ class DatabaseBulkInserter extends EventEmitter {
             }
             // Run preSave handlers (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            this._stripMembersIfNeeded(doc, contextData);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             /** @type {string|null} */
@@ -498,7 +514,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-
+            this._stripMembersIfNeeded(doc, contextData);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -594,7 +610,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-
+            this._stripMembersIfNeeded(doc, contextData);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 

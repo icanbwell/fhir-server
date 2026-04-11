@@ -595,10 +595,16 @@ class MergeManager {
             // Build contextData with merged members (for ClickHouse event processing)
             const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo, { smartMerge });
 
-            // For smartMerge=true with external storage: preserve MongoDB members.
-            // contextData already captured merged members for ClickHouse diff computation.
-            // Restore current MongoDB members on the resource so MongoDB keeps them intact.
+            // For smartMerge=true with external storage:
+            // 1. Only track truly NEW members in ClickHouse (not existing MongoDB members)
+            // 2. Restore current MongoDB members on the resource so MongoDB keeps them intact
             if (smartMerge && contextData?.useExternalMemberStorage && currentMembers) {
+                const currentRefs = new Set(
+                    (currentMembers || []).map(m => m.entity?.reference).filter(Boolean)
+                );
+                contextData.groupMembers = (resourceToMerge.member || []).filter(
+                    m => m.entity?.reference && !currentRefs.has(m.entity.reference)
+                );
                 resourceToMerge.member = currentMembers;
             }
 

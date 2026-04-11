@@ -19,13 +19,19 @@ function getHeadersWithExternalStorage() {
 }
 
 /**
- * MongoDB Member Preservation Tests
+ * MongoDB Member Behavior Tests
  *
- * Verifies that MongoDB member arrays are preserved (not stripped) when
- * using ClickHouse external storage. ClickHouse tracks changes via events
- * while MongoDB keeps the natural result of each operation.
+ * Expected behavior with useExternalMemberStorage header:
+ *
+ * | Operation              | MongoDB members            | ClickHouse events              |
+ * |------------------------|----------------------------|--------------------------------|
+ * | CREATE (header)        | member: [] (not stored)    | MEMBER_ADDED for all           |
+ * | PUT (header)           | member: [] (not stored)    | Diff: adds + removes           |
+ * | PATCH (header)         | Preserved (unchanged)      | Events from PATCH ops only     |
+ * | $merge smartMerge=true | Preserved (unchanged)      | Adds only, no removals         |
+ * | $merge smartMerge=false| member: [] (not stored)    | Diff: adds + removes           |
  */
-describe('MongoDB Member Preservation with ClickHouse', () => {
+describe('MongoDB Member Behavior with ClickHouse', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
@@ -72,7 +78,7 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
         ]
     };
 
-    async function createGroup(group) {
+    async function createGroupWithHeader(group) {
         const request = await createTestRequest();
         const response = await request
             .post('/4_0_0/Group')
@@ -102,23 +108,19 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
 
     // ==================== CREATE ====================
 
-    test('CREATE: MongoDB stores members, ClickHouse gets MEMBER_ADDED events', async () => {
-        const created = await createGroup({
+    test('CREATE with header: MongoDB has no members, ClickHouse has events', async () => {
+        const created = await createGroupWithHeader({
             type: 'person',
             actual: true,
             member: [
-                { entity: { reference: 'Patient/mongo-preserve-1' } },
-                { entity: { reference: 'Patient/mongo-preserve-2' } }
+                { entity: { reference: 'Patient/create-1' } },
+                { entity: { reference: 'Patient/create-2' } }
             ]
         });
 
-        // MongoDB should have members intact (not stripped)
+        // MongoDB should NOT have members (ClickHouse is the source of truth)
         const mongoGroup = await getGroupFromMongo(created.id);
-        expect(mongoGroup.member).toBeDefined();
-        expect(mongoGroup.member.length).toBe(2);
-        expect(mongoGroup.member.map(m => m.entity.reference)).toEqual(
-            expect.arrayContaining(['Patient/mongo-preserve-1', 'Patient/mongo-preserve-2'])
-        );
+        expect(mongoGroup.member).toBeUndefined();
 
         // ClickHouse should have MEMBER_ADDED events
         const addedCount = await getClickHouseEventCount(created.id, EVENT_TYPES.MEMBER_ADDED);
@@ -127,42 +129,56 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
 
     // ==================== PATCH ====================
 
-    test('PATCH: MongoDB members preserved, ClickHouse gets add event only', async () => {
-        const created = await createGroup({
-            type: 'person',
-            actual: true,
-            member: [
-                { entity: { reference: 'Patient/patch-keep-1' } },
-                { entity: { reference: 'Patient/patch-keep-2' } }
-            ]
-        });
+    test('PATCH with header: MongoDB members preserved, ClickHouse gets add event', async () => {
+        // Create group WITHOUT header (members stored in MongoDB)
+        const request0 = await createTestRequest();
+        const createRes = await request0
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                type: 'person',
+                actual: true,
+                member: [
+                    { entity: { reference: 'Patient/patch-keep-1' } },
+                    { entity: { reference: 'Patient/patch-keep-2' } }
+                ],
+                meta: defaultMeta
+            })
+            .set(getHeaders());
+        expect(createRes.status).toBe(201);
+        const groupId = createRes.body.id;
 
-        // PATCH to add a new member
+        // Verify MongoDB has 2 members before PATCH
+        const mongoBefore = await getGroupFromMongo(groupId);
+        expect(mongoBefore.member).toBeDefined();
+        expect(mongoBefore.member.length).toBe(2);
+
+        // PATCH with header to add a new member
         const request = await createTestRequest();
         const patchResponse = await request
-            .patch(`/4_0_0/Group/${created.id}`)
+            .patch(`/4_0_0/Group/${groupId}`)
             .send([{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/patch-new-3' } } }])
             .set(getHeadersWithExternalStorage())
             .set('Content-Type', 'application/json-patch+json');
         expect(patchResponse.status).toBe(200);
 
-        // MongoDB should still have original 2 members (PATCH only updates metadata)
-        const mongoGroup = await getGroupFromMongo(created.id);
-        expect(mongoGroup.member).toBeDefined();
-        expect(mongoGroup.member.length).toBe(2);
-        expect(mongoGroup.member.map(m => m.entity.reference)).toEqual(
+        // MongoDB should still have original 2 members (PATCH preserves them)
+        const mongoAfter = await getGroupFromMongo(groupId);
+        expect(mongoAfter.member).toBeDefined();
+        expect(mongoAfter.member.length).toBe(2);
+        expect(mongoAfter.member.map(m => m.entity.reference)).toEqual(
             expect.arrayContaining(['Patient/patch-keep-1', 'Patient/patch-keep-2'])
         );
 
-        // ClickHouse should have 3 MEMBER_ADDED events (2 from create + 1 from patch)
-        const addedCount = await getClickHouseEventCount(created.id, EVENT_TYPES.MEMBER_ADDED);
-        expect(addedCount).toBe(3);
+        // ClickHouse should have 1 MEMBER_ADDED event (from patch only, not from create)
+        const addedCount = await getClickHouseEventCount(groupId, EVENT_TYPES.MEMBER_ADDED);
+        expect(addedCount).toBe(1);
     });
 
     // ==================== PUT ====================
 
-    test('PUT: MongoDB gets incoming members, ClickHouse gets add+remove events', async () => {
-        const created = await createGroup({
+    test('PUT with header: MongoDB has no members, ClickHouse has diff events', async () => {
+        const created = await createGroupWithHeader({
             type: 'person',
             actual: true,
             member: [
@@ -172,7 +188,7 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
             ]
         });
 
-        // PUT with only 2 of the original members + 1 new one
+        // PUT with only 2 members (removes put-2, put-3, adds put-new-4)
         const request = await createTestRequest();
         const putResponse = await request
             .put(`/4_0_0/Group/${created.id}`)
@@ -190,14 +206,9 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
             .set(getHeadersWithExternalStorage());
         expect([200, 201]).toContain(putResponse.status);
 
-        // MongoDB should have the incoming members (full replacement)
+        // MongoDB should NOT have members after PUT with header
         const mongoGroup = await getGroupFromMongo(created.id);
-        expect(mongoGroup.member).toBeDefined();
-        expect(mongoGroup.member.length).toBe(2);
-        const mongoRefs = mongoGroup.member.map(m => m.entity.reference);
-        expect(mongoRefs).toEqual(expect.arrayContaining(['Patient/put-1', 'Patient/put-new-4']));
-        expect(mongoRefs).not.toContain('Patient/put-2');
-        expect(mongoRefs).not.toContain('Patient/put-3');
+        expect(mongoGroup.member).toBeUndefined();
 
         // ClickHouse: 3 original adds + 1 new add + 2 removals
         const addedCount = await getClickHouseEventCount(created.id, EVENT_TYPES.MEMBER_ADDED);
@@ -210,24 +221,31 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
     // ==================== $merge (smartMerge=true) ====================
 
     test('$merge smartMerge=true: MongoDB members preserved, ClickHouse adds only', async () => {
-        const created = await createGroup({
-            type: 'person',
-            actual: true,
-            member: [
-                { entity: { reference: 'Patient/merge-smart-1' } },
-                { entity: { reference: 'Patient/merge-smart-2' } }
-            ]
-        });
+        // Create group WITHOUT header (members stored in MongoDB)
+        const request0 = await createTestRequest();
+        const createRes = await request0
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                type: 'person',
+                actual: true,
+                member: [
+                    { entity: { reference: 'Patient/merge-smart-1' } },
+                    { entity: { reference: 'Patient/merge-smart-2' } }
+                ],
+                meta: defaultMeta
+            })
+            .set(getHeaders());
+        expect(createRes.status).toBe(201);
+        const groupId = createRes.body.id;
 
-        // $merge with smartMerge=true, sending only 1 of original + 1 new
-        // MongoDB should keep all original members (not replace with incoming)
-        // ClickHouse should only add new members (no removals)
+        // $merge with smartMerge=true (default), sending 1 original + 1 new
         const request = await createTestRequest();
         const mergeResponse = await request
             .post('/4_0_0/Group/$merge')
             .send({
                 resourceType: 'Group',
-                id: created.id,
+                id: groupId,
                 type: 'person',
                 actual: true,
                 member: [
@@ -239,26 +257,26 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
             .set(getHeadersWithExternalStorage());
         expect([200, 201]).toContain(mergeResponse.status);
 
-        // MongoDB should preserve original members (not replaced by incoming)
-        const mongoGroup = await getGroupFromMongo(created.id);
+        // MongoDB should preserve original members (smartMerge keeps them)
+        const mongoGroup = await getGroupFromMongo(groupId);
         expect(mongoGroup.member).toBeDefined();
         const mongoRefs = mongoGroup.member.map(m => m.entity.reference);
         expect(mongoRefs).toEqual(
             expect.arrayContaining(['Patient/merge-smart-1', 'Patient/merge-smart-2'])
         );
 
-        // ClickHouse should have 3 adds (2 original + 1 new) and NO removals
-        const addedCount = await getClickHouseEventCount(created.id, EVENT_TYPES.MEMBER_ADDED);
-        expect(addedCount).toBe(3); // 2 from create + 1 new (merge-smart-new-3)
+        // ClickHouse should have 1 add (merge-smart-new-3) and NO removals
+        const addedCount = await getClickHouseEventCount(groupId, EVENT_TYPES.MEMBER_ADDED);
+        expect(addedCount).toBe(1); // only new member
 
-        const removedCount = await getClickHouseEventCount(created.id, EVENT_TYPES.MEMBER_REMOVED);
+        const removedCount = await getClickHouseEventCount(groupId, EVENT_TYPES.MEMBER_REMOVED);
         expect(removedCount).toBe(0); // smartMerge=true: no removals
     });
 
     // ==================== $merge (smartMerge=false) ====================
 
-    test('$merge smartMerge=false: full replacement like PUT', async () => {
-        const created = await createGroup({
+    test('$merge smartMerge=false: MongoDB has no members, ClickHouse has diff events', async () => {
+        const created = await createGroupWithHeader({
             type: 'person',
             actual: true,
             member: [
@@ -267,7 +285,7 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
             ]
         });
 
-        // $merge with smartMerge=false, keep only 1 member + add 1 new
+        // $merge with smartMerge=false, keep 1 + add 1 new
         const request = await createTestRequest();
         const mergeResponse = await request
             .post('/4_0_0/Group/$merge?smartMerge=false')
@@ -285,11 +303,15 @@ describe('MongoDB Member Preservation with ClickHouse', () => {
             .set(getHeadersWithExternalStorage());
         expect([200, 201]).toContain(mergeResponse.status);
 
+        // MongoDB should NOT have members (smartMerge=false = full replacement)
+        const mongoGroup = await getGroupFromMongo(created.id);
+        expect(mongoGroup.member).toBeUndefined();
+
         // ClickHouse: 2 original adds + 1 new add + 1 removal
         const addedCount = await getClickHouseEventCount(created.id, EVENT_TYPES.MEMBER_ADDED);
         expect(addedCount).toBe(3); // 2 from create + 1 new (merge-full-new-3)
 
         const removedCount = await getClickHouseEventCount(created.id, EVENT_TYPES.MEMBER_REMOVED);
-        expect(removedCount).toBe(1); // merge-full-2 removed (not in incoming, smartMerge=false)
+        expect(removedCount).toBe(1); // merge-full-2 removed
     });
 });
