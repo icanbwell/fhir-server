@@ -114,7 +114,7 @@ class ClickHouseTestContainer {
      */
     applyEnvVars() {
         return setEnvVars({
-            CLICKHOUSE_HOST: this._container.getHost(),
+            CLICKHOUSE_HOST: `http://${this._container.getHost()}`,
             CLICKHOUSE_PORT: String(this._container.getHttpPort()),
             CLICKHOUSE_DATABASE: this._container.getDatabase()
         });
