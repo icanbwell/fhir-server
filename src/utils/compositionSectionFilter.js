@@ -49,20 +49,6 @@ function filterCompositionSensitiveSections(resource, context) {
     resource.section = filterCompositionSections(resource.section);
 }
 
-/**
- * Filters sensitive sections from all Composition resources in an array.
- * @param {Object[]} resources
- * @param {{configManager: ConfigManager, userType: string}} context
- */
-function filterCompositionSensitiveSectionsFromResources(resources, context) {
-    for (const resource of resources) {
-        if (resource.resourceType === 'Composition') {
-            filterCompositionSensitiveSections(resource, context);
-        }
-    }
-}
-
 module.exports = {
-    filterCompositionSensitiveSections,
-    filterCompositionSensitiveSectionsFromResources
+    filterCompositionSensitiveSections
 };

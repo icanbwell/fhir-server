@@ -26,7 +26,6 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
 const { CompositionSectionFilterTransform } = require('../streaming/compositionSectionFilterTransform');
-const { filterCompositionSensitiveSectionsFromResources } = require('../../utils/compositionSectionFilter');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
@@ -876,6 +875,12 @@ class SearchManager {
                         configManager: this.configManager
                     }
                 ),
+                new CompositionSectionFilterTransform({
+                    configManager: this.configManager,
+                    userType,
+                    signal: ac.signal,
+                    highWaterMark
+                }),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
                 new Transform({
                     writableObjectMode: true,
@@ -904,7 +909,6 @@ class SearchManager {
                 error: e
             });
         }
-        filterCompositionSensitiveSectionsFromResources(resources, { configManager: this.configManager, userType });
         return resources;
     }
 

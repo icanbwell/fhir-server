@@ -191,36 +191,14 @@ The generated token will contain:
 
 ## Composition Sensitive Section Filtering
 
-While the DB-level filtering (described above) excludes entire resources based on `meta.security` tags, Composition resources require an additional layer of filtering at the **section level**.
+Composition resources need an additional layer: **section-level filtering** — stripping sensitive sections from the response even when the Composition itself passes the DB-level filter.
 
-Composition resources contain nested `section` arrays, where individual sections may be tagged with sensitive category codings. These sections need to be stripped from the response for delegated users, even when the Composition resource itself passes the DB-level filter.
-
-### How It Works
-
-When `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` is enabled and the user is a **delegated user** (`userType === delegatedUser`):
-
-1. After fetching resources from the database, the server inspects each Composition resource
-2. It recursively walks the `section` array and removes any section whose `code.coding[]` contains the sensitive category system (`https://www.icanbwell.com/sensitivity-category`)
-3. Non-sensitive sections are preserved, and their nested children are also filtered recursively
-
-### Where Filtering Happens
-
-Filtering is applied at the **operation level**, right after database fetch — the same architectural layer as DB-level resource filtering:
-
-- **Search (list)**: Inside `SearchManager.readResourcesFromCursorAsync()` — filters the resource array before returning
-- **Streaming search**: Via `CompositionSectionFilterTransform` in the streaming pipeline — filters each resource as it flows through the stream
-- **Search by ID**: In `searchById.js` after `removeNull()` and before enrichment
-- **Search by Version ID**: In `searchByVersionId.js` after `FhirResourceCreator.create()` and before enrichment
-- **History**: In `history.js` inside the entries loop after attachment transformation
+When `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` is enabled and the user is a delegated user, the server recursively removes any section whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`. Filtering is applied at the operation level, right after database fetch, across all read paths (search, streaming, searchById, searchByVersionId, history, $graph, $everything).
 
 ### Current Behavior
 
-All sections matching the sensitive category system are filtered out, regardless of the specific category code. This means any section with `code.coding[].system === 'https://www.icanbwell.com/sensitivity-category'` is removed.
+**All** sections matching the sensitive category system are removed, regardless of the specific category code. If a section has `code.coding[].system === 'https://www.icanbwell.com/sensitivity-category'`, it is stripped — no matter what the `code` value is.
 
 ### Future Enhancement
 
-In a future iteration, section-level filtering will be aligned with the consent-based approach used for DB-level resource filtering. Instead of filtering all sensitive sections, the server will:
-
-1. Read the denied sensitive categories from the Consent (via `DelegatedAccessRulesManager`)
-2. Only filter sections whose sensitive category code matches one of the denied categories
-3. This will allow granular control — a delegated user may have consent to view some sensitive categories but not others
+Section-level filtering will be aligned with the consent-based approach used for DB-level resource filtering. Instead of removing all sensitive sections, the server will read denied categories from the Consent (via `DelegatedAccessRulesManager`) and only remove sections whose category code is denied — allowing granular control per sensitive category.
