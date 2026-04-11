@@ -178,7 +178,7 @@ class PartitionWorker {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 await this.clickHouseClientManager.insertAsync({
-                    table: 'fhir.audit_event',
+                    table: 'fhir.AuditEvent_4_0_0',
                     values: rows,
                     format: 'JSONEachRow'
                 });
