@@ -238,7 +238,7 @@ class CreateOperation {
             logDebug('Inserting', { user, args: { doc } });
 
             // Insert our resource record
-            const contextData = buildContextDataForHybridStorage(resourceType, doc);
+            const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
             await this.databaseBulkInserter.insertOneAsync({
                 base_version,

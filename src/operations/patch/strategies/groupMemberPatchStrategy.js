@@ -2,7 +2,8 @@ const { BadRequestError } = require('../../../utils/httpErrors');
 const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../../constants/groupConstants');
 const { createTooCostlyError } = require('../../../utils/fhirErrorFactory');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
+const { buildContextDataForHybridStorage, USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
+const { isTrue } = require('../../../utils/isTrue');
 
 /**
  * Strategy for handling Group.member PATCH operations
@@ -46,9 +47,13 @@ class GroupMemberPatchStrategy {
      * @param {string} params.resourceType - FHIR resource type
      * @returns {{memberOps: Array<Object>, nonMemberOps: Array<Object>, hasOnlyMemberOperations: boolean} | null}
      */
-    detectMemberOperations({ patchContent, resourceType }) {
+    detectMemberOperations({ patchContent, resourceType, requestInfo }) {
         if (resourceType !== 'Group') {
             return null;
+        }
+
+        if (!isTrue(requestInfo?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER])) {
+            return null; // Use standard FHIR PATCH flow
         }
 
         const handlers = this.postSaveHandlerFactory.getHandlers(resourceType);
@@ -177,7 +182,7 @@ class GroupMemberPatchStrategy {
 
         // Build contextData and set flag to skip post-save handler
         // buildContextDataForHybridStorage now always returns an object for Groups (never null)
-        const contextData = buildContextDataForHybridStorage(resourceType, foundResource);
+        const contextData = buildContextDataForHybridStorage(resourceType, foundResource, requestInfo);
         if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
             contextData.groupMemberEventsWritten = true;
         }

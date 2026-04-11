@@ -7,6 +7,8 @@ const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 const { QueryParser } = require('./mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('./mongoWithClickHouse/queryBuilder');
 const { QueryExecutor } = require('./mongoWithClickHouse/queryExecutor');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { isTrue } = require('../../utils/isTrue');
 
 /**
  * MongoDB + ClickHouse Storage Provider for resources with dual-write storage
@@ -214,8 +216,9 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
         try {
             // Detect if this is a member query
             const isMemberQuery = this._isMemberQuery(query);
+            const useExternal = isTrue(extraInfo?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER]);
 
-            if (isMemberQuery) {
+            if (isMemberQuery && useExternal) {
                 logInfo('Routing Group member query to ClickHouse', {
                     query,
                     limit: options?.limit
@@ -298,10 +301,11 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * @param {Object} params.query
      * @returns {Promise<number>}
      */
-    async countAsync({ query }) {
+    async countAsync({ query, options, extraInfo }) {
         // For member queries, get count from ClickHouse
         const isMemberQuery = this._isMemberQuery(query);
-        if (isMemberQuery) {
+        const useExternal = isTrue(extraInfo?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER]);
+        if (isMemberQuery && useExternal) {
             // Parse and validate member criteria
             const memberCriteria = QueryParser.extractMemberCriteria(query);
             const securityTags = QueryParser.extractSecurityTags(query);
@@ -315,7 +319,8 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
 
             // Build ClickHouse count query
             const queryDef = QueryBuilder.buildCountGroupsByMemberQuery({
-                memberReference: validation.entityReference,
+                memberReferenceUuid: validation.entityReferenceUuid,
+                memberReferenceSourceId: validation.entityReferenceSourceId,
                 accessTags: securityTags.accessTags,
                 ownerTags: securityTags.ownerTags
             });
@@ -424,7 +429,8 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
 
             // Build ClickHouse query
             const queryDef = QueryBuilder.buildFindGroupsByMemberQuery({
-                memberReference: validation.entityReference,
+                memberReferenceUuid: validation.entityReferenceUuid,
+                memberReferenceSourceId: validation.entityReferenceSourceId,
                 accessTags: securityTags.accessTags,
                 ownerTags: securityTags.ownerTags,
                 limit,

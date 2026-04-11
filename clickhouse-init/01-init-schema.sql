@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_events
 
     -- member.entity (R! 1..1 per R4B spec)
     entity_reference String,
+    entity_reference_uuid String DEFAULT '',
+    entity_reference_source_id String DEFAULT '',
     entity_type LowCardinality(String),
 
     -- Event semantics (storage-layer, not FHIR)
@@ -74,6 +76,8 @@ CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_current
 (
     group_id String,
     entity_reference String,
+    entity_reference_uuid AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
+    entity_reference_source_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
 
     -- Latest entity_type (kept consistent with other columns)
     entity_type AggregateFunction(argMax, LowCardinality(String), Tuple(DateTime64(3, 'UTC'), UUID)),
@@ -109,6 +113,8 @@ AS
 SELECT
     group_id,
     entity_reference,
+    argMaxState(entity_reference_uuid, tie) AS entity_reference_uuid,
+    argMaxState(entity_reference_source_id, tie) AS entity_reference_source_id,
     argMaxState(entity_type, tie) AS entity_type,
     argMaxState(event_type, tie) AS event_type,
     argMaxState(event_time, tie) AS event_time,
@@ -128,6 +134,8 @@ FROM (
     SELECT
         group_id,
         entity_reference,
+        entity_reference_uuid,
+        entity_reference_source_id,
         entity_type,
         event_type,
         event_time,
@@ -161,6 +169,8 @@ CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_current_by_entity
 (
     entity_reference String,
     group_id String,
+    entity_reference_uuid AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
+    entity_reference_source_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
 
     event_type AggregateFunction(argMax, Enum8('added' = 1, 'removed' = 2), Tuple(DateTime64(3, 'UTC'), UUID)),
     inactive   AggregateFunction(argMax, UInt8, Tuple(DateTime64(3, 'UTC'), UUID)),
@@ -179,6 +189,8 @@ AS
 SELECT
     entity_reference,
     group_id,
+    argMaxState(entity_reference_uuid, tie) AS entity_reference_uuid,
+    argMaxState(entity_reference_source_id, tie) AS entity_reference_source_id,
     argMaxState(event_type, tie) AS event_type,
     argMaxState(inactive, tie) AS inactive,
     argMaxState(access_tags, tie) AS access_tags,
@@ -187,6 +199,8 @@ FROM (
     SELECT
         entity_reference,
         group_id,
+        entity_reference_uuid,
+        entity_reference_source_id,
         event_type,
         event_time,
         event_id,
@@ -222,6 +236,8 @@ GROUP BY entity_reference, group_id;
 -- SELECT
 --     group_id,
 --     entity_reference,
+--     argMaxState(entity_reference_uuid, tie) AS entity_reference_uuid,
+--     argMaxState(entity_reference_source_id, tie) AS entity_reference_source_id,
 --     argMaxState(entity_type, tie) AS entity_type,
 --     argMaxState(event_type, tie) AS event_type,
 --     argMaxState(event_time, tie) AS event_time,
@@ -241,6 +257,8 @@ GROUP BY entity_reference, group_id;
 --     SELECT
 --         group_id,
 --         entity_reference,
+--         entity_reference_uuid,
+--         entity_reference_source_id,
 --         entity_type,
 --         event_type,
 --         event_time,
@@ -266,6 +284,8 @@ GROUP BY entity_reference, group_id;
 -- SELECT
 --     entity_reference,
 --     group_id,
+--     argMaxState(entity_reference_uuid, tie) AS entity_reference_uuid,
+--     argMaxState(entity_reference_source_id, tie) AS entity_reference_source_id,
 --     argMaxState(event_type, tie) AS event_type,
 --     argMaxState(inactive, tie) AS inactive,
 --     argMaxState(access_tags, tie) AS access_tags,
@@ -274,6 +294,8 @@ GROUP BY entity_reference, group_id;
 --     SELECT
 --         entity_reference,
 --         group_id,
+--         entity_reference_uuid,
+--         entity_reference_source_id,
 --         event_type,
 --         event_time,
 --         event_id,

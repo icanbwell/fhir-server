@@ -155,6 +155,11 @@ class DatabaseBulkInserter extends EventEmitter {
      * @private
      */
     _handleArrayFieldStripping ({ resource, requestId, contextData = null }) {
+        // Only strip arrays when external member storage is opted in via header
+        if (!contextData?.useExternalMemberStorage) {
+            return resource;
+        }
+
         // Check if this resource type needs array stripping
         const config = ARRAY_STRIPPING_CONFIG[resource.resourceType];
         if (!config) {

@@ -97,6 +97,10 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             return;
         }
 
+        if (!contextData?.useExternalMemberStorage) {
+            return;
+        }
+
         try {
             // Check if member events were already written (e.g., by PATCH operations)
             // PATCH writes events directly and sets this flag in contextData

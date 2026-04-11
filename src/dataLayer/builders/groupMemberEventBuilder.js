@@ -79,10 +79,30 @@ class GroupMemberEventBuilder {
             entityReference
         );
 
+        // Read enriched reference fields set by referenceGlobalIdHandler pre-save.
+        // _uuid and _sourceId already include the resource type prefix (e.g., "Patient/<uuid>")
+        const entityReferenceUuid = member?.entity?._uuid || '';
+        const entityReferenceSourceId = member?.entity?._sourceId || '';
+
+        if (!entityReferenceUuid) {
+            throw new Error(
+                `Member reference missing _uuid for Group ${groupId}: ${entityReference}. ` +
+                    'Pre-save handler (referenceGlobalIdHandler) must run before event building.'
+            );
+        }
+        if (!entityReferenceSourceId) {
+            throw new Error(
+                `Member reference missing _sourceId for Group ${groupId}: ${entityReference}. ` +
+                    'Pre-save handler (referenceGlobalIdHandler) must run before event building.'
+            );
+        }
+
         return {
             event_id: uuidv4(),
             group_id: groupId,
             entity_reference: entityReference,
+            entity_reference_uuid: entityReferenceUuid,
+            entity_reference_source_id: entityReferenceSourceId,
             entity_type: FhirReferenceParser.extractEntityType(entityReference),
             event_type: eventType,
             event_time: eventTime,

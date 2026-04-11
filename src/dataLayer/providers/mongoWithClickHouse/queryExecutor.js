@@ -36,7 +36,8 @@ class QueryExecutor {
         const groupIds = (pageResult || []).map(row => row.group_id);
 
         logInfo('ClickHouse member search results', {
-            memberReference: queryDef.query_params.memberReference,
+            memberReferenceUuid: queryDef.query_params.memberReferenceUuid,
+            memberReferenceSourceId: queryDef.query_params.memberReferenceSourceId,
             pageSize: groupIds.length
         });
 
