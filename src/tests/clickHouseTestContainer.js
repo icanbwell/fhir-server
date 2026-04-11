@@ -26,7 +26,7 @@ class ClickHouseTestContainer {
             return; // Already running
         }
 
-        const database = process.env.CLICKHOUSE_DATABASE || 'fhir';
+        const database = 'fhir';
         const username = process.env.CLICKHOUSE_USERNAME || 'default';
         const password = process.env.CLICKHOUSE_PASSWORD || '';
 
