@@ -38,8 +38,7 @@ CREATE TABLE IF NOT EXISTS fhir.audit_event (
 
     -- Skip indexes for array search columns
     INDEX idx_entity_what   entity_what   TYPE bloom_filter(0.01) GRANULARITY 4,
-    INDEX idx_agent_who     agent_who     TYPE bloom_filter(0.01) GRANULARITY 4,
-    INDEX idx_meta_security meta_security TYPE bloom_filter(0.01) GRANULARITY 4
+    INDEX idx_agent_who     agent_who     TYPE bloom_filter(0.01) GRANULARITY 4
 )
 ENGINE = MergeTree()
 ORDER BY (recorded, _uuid)
