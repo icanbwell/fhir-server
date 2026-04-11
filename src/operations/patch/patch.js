@@ -437,6 +437,11 @@ class PatchOperation {
                 // Insert/update our resource record
                 const contextData = buildContextDataForHybridStorage(resourceType, resource, requestInfo);
 
+                // If member operations were already written (mixed PATCH), skip post-save member processing
+                if (groupMemberOperations && groupMemberOperations.length > 0 && contextData) {
+                    contextData.groupMemberEventsWritten = true;
+                }
+
                 await this.databaseBulkInserter.replaceOneAsync(
                     {
                         base_version,

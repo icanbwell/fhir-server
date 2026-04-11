@@ -1,8 +1,31 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 const { GroupMemberPatchStrategy } = require('../../../../../operations/patch/strategies/groupMemberPatchStrategy');
 const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../../../utils/contextDataBuilder');
+const { generateUUIDv5 } = require('../../../../../utils/uid.util');
 
 const requestInfoWithHeader = { headers: { [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' } };
+const SOURCE_AUTHORITY = 'test-owner';
+
+/**
+ * Builds expected enriched entity object (mirrors _enrichMemberReferences logic)
+ */
+function enrichedEntity(reference) {
+    const parts = reference.split('/');
+    const resourceType = parts[0];
+    let referenceId = parts[1];
+    let authority = SOURCE_AUTHORITY;
+    if (referenceId.includes('|')) {
+        const idParts = referenceId.split('|');
+        referenceId = idParts[0];
+        authority = idParts[1];
+    }
+    const uuid = generateUUIDv5(`${referenceId}|${authority}`);
+    return {
+        reference,
+        _uuid: `${resourceType}/${uuid}`,
+        _sourceId: `${resourceType}/${referenceId}`
+    };
+}
 
 describe('GroupMemberPatchStrategy', () => {
     let strategy;
@@ -134,17 +157,17 @@ describe('GroupMemberPatchStrategy', () => {
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group' }
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
                 groupId: 'group-1',
                 added: [
-                    { entity: { reference: 'Patient/1' }, period: undefined, inactive: false },
-                    { entity: { reference: 'Patient/2' }, period: undefined, inactive: false }
+                    { entity: enrichedEntity('Patient/1'), period: undefined, inactive: false },
+                    { entity: enrichedEntity('Patient/2'), period: undefined, inactive: false }
                 ],
                 removed: [],
-                groupResource: { id: 'group-1', resourceType: 'Group' }
+                groupResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
         });
 
@@ -160,16 +183,16 @@ describe('GroupMemberPatchStrategy', () => {
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group' }
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
                 groupId: 'group-1',
                 added: [],
                 removed: [
-                    { entity: { reference: 'Patient/1' }, period: undefined, inactive: false }
+                    { entity: enrichedEntity('Patient/1'), period: undefined, inactive: false }
                 ],
-                groupResource: { id: 'group-1', resourceType: 'Group' }
+                groupResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
         });
 
@@ -186,7 +209,7 @@ describe('GroupMemberPatchStrategy', () => {
                     id: 'group-1',
                     base_version: '4_0_0',
                     memberOperations,
-                    foundResource: { id: 'group-1', resourceType: 'Group' }
+                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
                 })
             ).rejects.toThrow();
         });
@@ -204,7 +227,7 @@ describe('GroupMemberPatchStrategy', () => {
                     id: 'group-1',
                     base_version: '4_0_0',
                     memberOperations,
-                    foundResource: { id: 'group-1', resourceType: 'Group' }
+                    foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
                 })
             ).rejects.toThrow();
         });
@@ -223,19 +246,19 @@ describe('GroupMemberPatchStrategy', () => {
                 id: 'group-1',
                 base_version: '4_0_0',
                 memberOperations,
-                foundResource: { id: 'group-1', resourceType: 'Group' }
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
 
             expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
                 groupId: 'group-1',
                 added: [
-                    { entity: { reference: 'Patient/1' }, period: { start: '2024-01-01' }, inactive: false },
-                    { entity: { reference: 'Patient/3' }, period: undefined, inactive: true }
+                    { entity: enrichedEntity('Patient/1'), period: { start: '2024-01-01' }, inactive: false },
+                    { entity: enrichedEntity('Patient/3'), period: undefined, inactive: true }
                 ],
                 removed: [
-                    { entity: { reference: 'Patient/2' }, period: undefined, inactive: false }
+                    { entity: enrichedEntity('Patient/2'), period: undefined, inactive: false }
                 ],
-                groupResource: { id: 'group-1', resourceType: 'Group' }
+                groupResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
         });
     });

@@ -4,6 +4,7 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { OPERATION_TYPES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { GroupMemberEventBuilder } = require('../builders/groupMemberEventBuilder');
 const { GroupMemberDiffComputer } = require('../../domain/group/groupMemberDiffComputer');
+const { enrichMemberReferences } = require('../../utils/referenceEnricher');
 const { trace } = require('@opentelemetry/api');
 
 // Create OpenTelemetry tracer for Group operations
@@ -373,6 +374,12 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 currentReferences,
                 groupResource.member
             );
+
+            // Enrich removal references with _uuid and _sourceId
+            // GroupMemberDiffComputer creates bare { entity: { reference } } objects
+            // that lack the enriched fields required by GroupMemberEventBuilder
+            const sourceAssigningAuthority = groupResource._sourceAssigningAuthority;
+            enrichMemberReferences(removals, sourceAssigningAuthority);
 
             const currentCount = currentReferences.size;
             const finalCount = currentCount + additions.length - removals.length;
