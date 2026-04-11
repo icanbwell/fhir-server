@@ -8,7 +8,7 @@ describe('ClickHouseTestContainer', () => {
         const { ClickHouseTestContainer } = require('./clickHouseTestContainer');
         container = new ClickHouseTestContainer();
         await container.start();
-    }, 120_000);
+    });
 
     afterAll(async () => {
         if (container) {
