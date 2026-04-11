@@ -172,36 +172,64 @@ class PartitionWorker {
     }
 
     /**
-     * Insert rows with exponential backoff retry
+     * Insert rows into ClickHouse. On failure, splits the batch in half and
+     * retries each half recursively. Once the batch is small enough
+     * (≤ MIN_CHUNK_SIZE), falls back to exponential backoff retries.
      * @private
      * @param {Object[]} rows
      * @returns {Promise<void>}
      */
     async _insertWithRetryAsync(rows) {
-        const maxRetries = 3;
-        let delay = 2000;
+        const MIN_CHUNK_SIZE = 1000;
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                await this.clickHouseClientManager.insertAsync({
-                    table: 'fhir.AuditEvent_4_0_0',
-                    values: rows,
-                    format: 'JSONEachRow'
-                });
-                return;
-            } catch (error) {
-                if (attempt === maxRetries) {
-                    throw new Error(
-                        `ClickHouse insert failed after ${maxRetries} attempts: ${error.message}`
-                    );
-                }
-                logWarn('ClickHouse insert failed, retrying', {
-                    attempt,
-                    delay,
+        try {
+            await this.clickHouseClientManager.insertAsync({
+                table: 'fhir.AuditEvent_4_0_0',
+                values: rows,
+                format: 'JSONEachRow'
+            });
+        } catch (error) {
+            const isSizeError = error.message === 'Invalid string length' ||
+                error.message.includes('string length') ||
+                error.message.includes('allocation failed');
+
+            if (isSizeError && rows.length > MIN_CHUNK_SIZE) {
+                const mid = Math.ceil(rows.length / 2);
+                logWarn('ClickHouse insert failed due to payload size, splitting batch', {
+                    originalSize: rows.length,
+                    newSize: mid,
                     error: error.message
                 });
-                await new Promise((resolve) => setTimeout(resolve, delay));
-                delay *= 2;
+                await this._insertWithRetryAsync(rows.slice(0, mid));
+                await this._insertWithRetryAsync(rows.slice(mid));
+            } else {
+                // Non-size error or already small batch — retry with exponential backoff
+                const maxRetries = 3;
+                let delay = 2000;
+                for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                    try {
+                        await this.clickHouseClientManager.insertAsync({
+                            table: 'fhir.AuditEvent_4_0_0',
+                            values: rows,
+                            format: 'JSONEachRow'
+                        });
+                        return;
+                    } catch (retryError) {
+                        if (attempt === maxRetries) {
+                            throw new Error(
+                                `ClickHouse insert failed after ${maxRetries} attempts (batch size ${rows.length}): ${retryError.message}`
+                            );
+                        }
+                        logWarn('ClickHouse insert failed, retrying', {
+                            attempt,
+                            batchSize: rows.length,
+                            delay,
+                            error: retryError.message
+                        });
+                        await new Promise((resolve) => setTimeout(resolve, delay));
+                        delay *= 2;
+                    }
+                }
             }
         }
     }
