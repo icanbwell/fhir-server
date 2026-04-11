@@ -203,7 +203,9 @@ class MergeManager {
                     requestInfo,
                     resourceToMerge: patched_resource_incoming,
                     previousVersionId: currentResource.meta.versionId,
-                    patches
+                    patches,
+                    smartMerge,
+                    currentMembers: currentResource.member
                 }
             );
             return null;
@@ -576,7 +578,9 @@ class MergeManager {
             requestInfo,
             resourceToMerge,
             previousVersionId,
-            patches
+            patches,
+            smartMerge,
+            currentMembers
         }
     ) {
         try {
@@ -588,8 +592,15 @@ class MergeManager {
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
-            // Insert/update our resource record
-            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
+            // Build contextData with merged members (for ClickHouse event processing)
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo, { smartMerge });
+
+            // For smartMerge=true with external storage: preserve MongoDB members.
+            // contextData already captured merged members for ClickHouse diff computation.
+            // Restore current MongoDB members on the resource so MongoDB keeps them intact.
+            if (smartMerge && contextData?.useExternalMemberStorage && currentMembers) {
+                resourceToMerge.member = currentMembers;
+            }
 
             await this.databaseBulkInserter.mergeOneAsync(
                 {

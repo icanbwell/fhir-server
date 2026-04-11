@@ -18,9 +18,11 @@ const USE_EXTERNAL_MEMBER_STORAGE_HEADER = 'useexternalmemberstorage';
  * @param {string} resourceType - FHIR resource type
  * @param {Resource} resource - FHIR resource document
  * @param {FhirRequestInfo|null} [requestInfo] - Request info with headers
+ * @param {Object} [options] - Additional options
+ * @param {boolean} [options.smartMerge] - Whether this is a smartMerge operation (additions only, no removals)
  * @returns {Object|null} contextData object or null if not a hybrid storage resource
  */
-function buildContextDataForHybridStorage(resourceType, resource, requestInfo = null) {
+function buildContextDataForHybridStorage(resourceType, resource, requestInfo = null, { smartMerge } = {}) {
     if (resourceType === 'Group') {
         const useExternalMemberStorage = isTrue(requestInfo?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER]);
 
@@ -28,7 +30,8 @@ function buildContextDataForHybridStorage(resourceType, resource, requestInfo = 
             groupMembers: resource.member || [],
             resourceType,
             resourceId: resource.id,
-            useExternalMemberStorage
+            useExternalMemberStorage,
+            smartMerge: smartMerge ?? undefined
         };
     }
 

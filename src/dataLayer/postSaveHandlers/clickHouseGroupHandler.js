@@ -182,7 +182,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 const docWithMembers = { ...doc, member: originalMembers };
 
                 // Always await - Groups require synchronous writes
-                await this._handleUpdateAsync(docWithMembers);
+                await this._handleUpdateAsync(docWithMembers, { smartMerge: contextData?.smartMerge });
 
                 logInfo('ClickHouse UPDATE events written', {
                     groupId: doc.id
@@ -364,16 +364,20 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @returns {Promise<{added: number, removed: number, finalCount: number}>} Member change statistics
      * @private
      */
-    async _handleUpdateAsync(groupResource) {
+    async _handleUpdateAsync(groupResource, { smartMerge } = {}) {
         try {
             // Get current members from repository
             const currentReferences = await this._getCurrentMembers(groupResource.id);
 
             // Compute diff
-            const { additions, removals } = GroupMemberDiffComputer.compute(
+            const { additions, removals: computedRemovals } = GroupMemberDiffComputer.compute(
                 currentReferences,
                 groupResource.member
             );
+
+            // smartMerge=true: additions only (no removals from ClickHouse)
+            // smartMerge=false / PUT: full diff (additions + removals)
+            const removals = smartMerge ? [] : computedRemovals;
 
             // Enrich removal references with _uuid and _sourceId
             // GroupMemberDiffComputer creates bare { entity: { reference } } objects
@@ -390,7 +394,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 removals: removals.length,
                 current: currentCount,
                 incoming: (groupResource.member || []).length,
-                finalCount
+                finalCount,
+                smartMerge
             });
 
             // Write combined events in single INSERT

@@ -36,20 +36,6 @@ const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const { CONTEXT_KEYS } = require('../constants/groupConstants');
 
-/**
- * Configuration for resources that need array field stripping for ClickHouse hybrid storage
- * Resources with large arrays (>16MB MongoDB limit) store metadata in MongoDB, array data in ClickHouse
- *
- * Currently configured: Group.member
- * Future: List.entry would follow the same pattern if needed
- *
- * NOTE: Other ClickHouse resources (AuditEvent, MeasureReport, Observation) write directly
- * to ClickHouse event logs without MongoDB storage, so don't need this stripping pattern.
- */
-const ARRAY_STRIPPING_CONFIG = {
-    Group: { field: 'member', contextKey: 'GROUP_MEMBERS' }
-    // List: { field: 'entry', contextKey: 'LIST_ENTRIES' } // Add when needed
-};
 const { MongoInvalidArgumentError } = require('mongodb');
 const httpContext = require('express-http-context');
 
@@ -136,53 +122,6 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
-    }
-
-    /**
-     * Handles array field stripping for ClickHouse-backed resources with large arrays
-     * This prevents 16MB MongoDB document size limit errors
-     *
-     * Generic implementation that works for any resource type configured in ARRAY_STRIPPING_CONFIG.
-     * Currently handles Group.member, easily extensible to List.entry or similar patterns.
-     *
-     * @param {Resource} resource - FHIR resource being saved
-     * @param {string} requestId - Request ID for httpContext storage
-     * @param {Object|null} contextData - Optional context data (preferred over httpContext)
-     * @param {Array} contextData.groupMembers - Array data (e.g., Group members, List entries)
-     * @param {string} contextData.resourceType - Resource type
-     * @param {string} contextData.resourceId - Resource ID
-     * @returns {Resource} Resource with array field stripped (if applicable)
-     * @private
-     */
-    _handleArrayFieldStripping ({ resource, requestId, contextData = null }) {
-        // Only strip arrays when external member storage is opted in via header
-        if (!contextData?.useExternalMemberStorage) {
-            return resource;
-        }
-
-        // Check if this resource type needs array stripping
-        const config = ARRAY_STRIPPING_CONFIG[resource.resourceType];
-        if (!config) {
-            return resource; // Resource not configured for array stripping
-        }
-
-        if (!this.configManager.enableClickHouse ||
-            !this.configManager.mongoWithClickHouseResources.includes(resource.resourceType)) {
-            return resource;
-        }
-
-        // Get array data from contextData (preferred) or resource field (fallback)
-        const fieldName = config.field;
-        const contextFieldName = `${resource.resourceType.toLowerCase()}${config.field.charAt(0).toUpperCase()}${config.field.slice(1)}s`;
-        const arrayData = contextData?.[contextFieldName] || resource[fieldName] || [];
-
-        // Strip array from resource (hybrid storage: MongoDB stores metadata, ClickHouse stores array data)
-        // This prevents 16MB document size limit errors for large arrays
-        // Array data is passed to post-save handler via contextData parameter (explicit threading)
-        // IMPORTANT: Modify in place to preserve Resource type
-        resource[fieldName] = [];
-
-        return resource;
     }
 
     /**
@@ -385,13 +324,10 @@ class DatabaseBulkInserter extends EventEmitter {
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
-            // Run preSave handlers FIRST (includes invariant validation)
+            // Run preSave handlers (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
-            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
-            // check to see if we already have this insert and if so use replace
             /** @type {string|null} */
             const requestId = requestInfo.requestId;
             /**
@@ -562,8 +498,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
-            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
+
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -659,8 +594,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            // THEN handle array field stripping for ClickHouse hybrid storage (Group, List, etc.)
-            doc = this._handleArrayFieldStripping({ resource: doc, requestId: requestInfo.requestId, contextData });
+
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
