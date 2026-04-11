@@ -18,7 +18,7 @@
  *   --collection <name>      Source collection name (default: AuditEvent_4_0_0)
  *   --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
  *   --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
- *   --batch-size <n>         Documents per ClickHouse insert batch (default: 100000)
+ *   --batch-size <n>         Documents per ClickHouse insert batch (default: 50000)
  *   --concurrency <n>        Number of concurrent day-workers (default: 6)
  *   --dry-run                Count source docs and seed state without inserting
  *   --verify-only            Skip migration, run count verification only
@@ -93,7 +93,7 @@ function parseArgs() {
         collection: 'AuditEvent_4_0_0',
         startDate: '2022-01-01',
         endDate: '2026-04-01',
-        batchSize: 100000,
+        batchSize: 50000,
         concurrency: 6,
         dryRun: false,
         verifyOnly: false,
@@ -141,7 +141,7 @@ Options:
   --collection <name>      Source collection (default: AuditEvent_4_0_0)
   --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
   --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
-  --batch-size <n>         Docs per batch (default: 100000)
+  --batch-size <n>         Docs per batch (default: 50000)
   --concurrency <n>        Concurrent workers (default: 6)
   --dry-run                Seed state, count docs, don't insert
   --verify-only            Run count verification only
