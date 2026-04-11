@@ -6,13 +6,13 @@
  * configurable concurrency. Resume-safe via ClickHouse state table.
  *
  * Usage:
- *   node src/scripts/migrate_audit_events_to_clickhouse.js [options]
+ *   node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
  *
  * Environment Variables (required):
- *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Atlas Data Federation base URL
- *   AUDIT_EVENT_MONGO_USERNAME                     MongoDB username (optional if URL has creds)
- *   AUDIT_EVENT_MONGO_PASSWORD                     MongoDB password (optional if URL has creds)
- *   AUDIT_EVENT_MONGO_DB_NAME                      Source database name (default: fhir)
+ *   AUDIT_EVENT_MONGO_URL       AuditEvent MongoDB connection string
+ *   AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional if URL has creds)
+ *   AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (optional if URL has creds)
+ *   AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
  *
  * Options:
  *   --collection <name>      Source collection name (default: AuditEvent_4_0_0)
@@ -27,60 +27,60 @@
  *
  * Examples:
  *   # Dry run to see partition counts
- *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb+srv://..." \
- *     node src/scripts/migrate_audit_events_to_clickhouse.js --dry-run
+ *   AUDIT_EVENT_MONGO_URL="mongodb+srv://..." \
+ *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --dry-run
  *
  *   # Full migration with 8 concurrent workers
- *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb+srv://..." \
- *     node src/scripts/migrate_audit_events_to_clickhouse.js --concurrency 8
+ *   AUDIT_EVENT_MONGO_URL="mongodb+srv://..." \
+ *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --concurrency 8
  *
  *   # Resume after interruption
- *   node src/scripts/migrate_audit_events_to_clickhouse.js --resume
+ *   node src/admin/scripts/migrateAuditEventsToClickhouse.js --resume
  *
  *   # Verify counts after migration
- *   node src/scripts/migrate_audit_events_to_clickhouse.js --verify-only
+ *   node src/admin/scripts/migrateAuditEventsToClickhouse.js --verify-only
  */
 
 const { MongoClient } = require('mongodb');
-const { ClickHouseClientManager } = require('../utils/clickHouseClientManager');
-const { ConfigManager } = require('../utils/configManager');
-const { logInfo, logError, logWarn } = require('../operations/common/logging');
+const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { ConfigManager } = require('../../utils/configManager');
+const { logInfo, logError, logWarn } = require('../../operations/common/logging');
 const {
     MigrationStateManager,
     generateDailyPartitions
-} = require('../admin/utils/migrationStateManager');
-const { PartitionWorker } = require('../admin/utils/partitionWorker');
-const { MigrationVerifier } = require('../admin/utils/migrationVerifier');
+} = require('../utils/migrationStateManager');
+const { PartitionWorker } = require('../utils/partitionWorker');
+const { MigrationVerifier } = require('../utils/migrationVerifier');
 
 /**
- * Builds the Atlas Data Federation connection URL from environment variables.
- * Mirrors the pattern in src/config.js for AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL.
- * @returns {{federationUrl: string, dbName: string}}
+ * Builds the AuditEvent MongoDB connection URL from environment variables.
+ * Mirrors the pattern in src/config.js for AUDIT_EVENT_MONGO_URL.
+ * @returns {{mongoUrl: string, dbName: string}}
  */
-function buildFederationUrl() {
+function buildMongoUrl() {
     const env = process.env;
-    let federationUrl = env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL || '';
+    let mongoUrl = env.AUDIT_EVENT_MONGO_URL || '';
 
-    if (!federationUrl) {
-        logError('AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL environment variable is required');
+    if (!mongoUrl) {
+        logError('AUDIT_EVENT_MONGO_URL environment variable is required');
         process.exit(1);
     }
 
     if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
-        federationUrl = federationUrl.replace(
+        mongoUrl = mongoUrl.replace(
             'mongodb://',
             `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
         );
-        federationUrl = federationUrl.replace(
+        mongoUrl = mongoUrl.replace(
             'mongodb+srv://',
             `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
         );
     }
 
-    federationUrl = encodeURI(federationUrl);
+    mongoUrl = encodeURI(mongoUrl);
     const dbName = env.AUDIT_EVENT_MONGO_DB_NAME || 'fhir';
 
-    return { federationUrl, dbName };
+    return { mongoUrl, dbName };
 }
 
 /**
@@ -129,13 +129,13 @@ function parseArgs() {
             case '--help':
             case '-h':
                 logInfo(`
-Usage: node src/scripts/migrate_audit_events_to_clickhouse.js [options]
+Usage: node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
 
 Environment Variables (required):
-  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Atlas Data Federation base URL
-  AUDIT_EVENT_MONGO_USERNAME                     MongoDB username
-  AUDIT_EVENT_MONGO_PASSWORD                     MongoDB password
-  AUDIT_EVENT_MONGO_DB_NAME                      Source database name (default: fhir)
+  AUDIT_EVENT_MONGO_URL       AuditEvent MongoDB connection string
+  AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional)
+  AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (optional)
+  AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
 
 Options:
   --collection <name>      Source collection (default: AuditEvent_4_0_0)
@@ -260,7 +260,7 @@ async function runWorkersAsync({
  */
 async function main() {
     const options = parseArgs();
-    const { federationUrl, dbName } = buildFederationUrl();
+    const { mongoUrl, dbName } = buildMongoUrl();
 
     const mode = options.dryRun
         ? 'DRY RUN'
@@ -282,10 +282,10 @@ async function main() {
     const configManager = new ConfigManager();
     const clickHouseManager = new ClickHouseClientManager({ configManager });
 
-    logInfo('Connecting to Atlas Data Federation');
-    const mongoClient = await MongoClient.connect(federationUrl);
+    logInfo('Connecting to AuditEvent MongoDB');
+    const mongoClient = await MongoClient.connect(mongoUrl);
     const sourceDb = mongoClient.db(dbName);
-    logInfo('Connected to Atlas Data Federation');
+    logInfo('Connected to AuditEvent MongoDB');
 
     logInfo('Connecting to ClickHouse');
     await clickHouseManager.getClientAsync();
