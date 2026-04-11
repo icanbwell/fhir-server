@@ -348,13 +348,14 @@ async function main() {
     logInfo('Starting migration', { dryRun: options.dryRun });
 
     // Get partitions to process
+    const dateRange = { startDate: options.startDate, endDate: options.endDate };
     let partitions;
     if (options.resume) {
-        partitions = await stateManager.getPendingPartitionsAsync();
-        logInfo('Resuming migration', { partitionsToProcess: partitions.length });
+        partitions = await stateManager.getPendingPartitionsAsync(dateRange);
+        logInfo('Resuming migration', { partitionsToProcess: partitions.length, ...dateRange });
     } else if (summary.completed > 0 && !options.dryRun) {
-        partitions = await stateManager.getPendingPartitionsAsync();
-        logInfo('Continuing migration', { partitionsRemaining: partitions.length });
+        partitions = await stateManager.getPendingPartitionsAsync(dateRange);
+        logInfo('Continuing migration', { partitionsRemaining: partitions.length, ...dateRange });
     } else {
         partitions = days.map((day) => ({ partition_day: day, last_mongo_id: '' }));
         logInfo('Processing all partitions', { total: partitions.length });
