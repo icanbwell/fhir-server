@@ -31,13 +31,16 @@ const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
-const { ensureClickHouse } = require('../../ensureClickHouse');
+const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
+
+const clickHouseTestContainer = new ClickHouseTestContainer();
 
 describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
-        await ensureClickHouse();
+        await clickHouseTestContainer.start();
+        clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
 
         const configManager = new ConfigManager();

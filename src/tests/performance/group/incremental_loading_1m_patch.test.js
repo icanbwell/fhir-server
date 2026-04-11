@@ -22,13 +22,16 @@ const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
-const { ensureClickHouse } = require('../../ensureClickHouse');
+const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
+
+const clickHouseTestContainer = new ClickHouseTestContainer();
 
 describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
-        await ensureClickHouse();
+        await clickHouseTestContainer.start();
+        clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
 
         const configManager = new ConfigManager();

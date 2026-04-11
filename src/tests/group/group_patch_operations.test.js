@@ -1,8 +1,7 @@
 // Set env vars FIRST, before any requires
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_HOST = 'localhost';
-process.env.CLICKHOUSE_PORT = '8123';
+process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.LOGLEVEL = 'SILENT';
 process.env.STREAM_RESPONSE = '0';
@@ -16,6 +15,9 @@ const {
     assertTooCostlyOperationOutcome,
     getMaxPatchOperations
 } = require('./groupTestHelpers');
+const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
+
+const clickHouseTestContainer = new ClickHouseTestContainer();
 
 /**
  * Group PATCH Operations Test Suite
@@ -35,25 +37,14 @@ describe('Group PATCH operations', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
+        await clickHouseTestContainer.start();
+        clickHouseTestContainer.applyEnvVars();
+
         await commonBeforeEach();
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
-
-        let ready = false;
-        for (let i = 0; i < HEALTH_CHECK_MAX_ATTEMPTS; i++) {
-            try {
-                await clickHouseManager.getClientAsync();
-                if (await clickHouseManager.isHealthyAsync()) {
-                    ready = true;
-                    break;
-                }
-            } catch (e) {
-                // Continue
-            }
-            await new Promise(r => setTimeout(r, HEALTH_CHECK_DELAY_MS));
-        }
-        if (!ready) throw new Error('ClickHouse not ready');
-    });
+        await clickHouseManager.getClientAsync();
+    }, 120000);
 
     beforeEach(async () => {
         try {

@@ -20,6 +20,9 @@ const { describe, beforeAll, afterAll, test, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
+
+const clickHouseTestContainer = new ClickHouseTestContainer();
 
 // Save original env vars
 const ORIGINAL_ENABLE_CLICKHOUSE = process.env.ENABLE_CLICKHOUSE;
@@ -39,25 +42,13 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         process.env.CLICKHOUSE_WRITE_MODE = 'sync';
         process.env.CLICKHOUSE_DATABASE = 'fhir';
 
+        await clickHouseTestContainer.start();
+        clickHouseTestContainer.applyEnvVars();
+
         // Initialize ClickHouse connection (for cleanup and verification)
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
-
-        // Wait for ClickHouse to be ready
-        let ready = false;
-        for (let i = 0; i < 30; i++) {
-            try {
-                await clickHouseManager.getClientAsync();
-                if (await clickHouseManager.isHealthyAsync()) {
-                    ready = true;
-                    break;
-                }
-            } catch (e) {
-                // Continue
-            }
-            await new Promise(r => setTimeout(r, 1000));
-        }
-        if (!ready) throw new Error('ClickHouse not ready');
+        await clickHouseManager.getClientAsync();
 
         await commonBeforeEach();
     }, 60000);

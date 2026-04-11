@@ -16,23 +16,21 @@
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
-const { ensureClickHouse } = require('../ensureClickHouse');
+const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 // Set env vars FIRST, before any requires
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.CLICKHOUSE_HOST = 'localhost'; // GitHub Actions services are accessible via localhost
-process.env.CLICKHOUSE_PORT = '8123';
 process.env.LOGLEVEL = 'SILENT';
-process.env.STREAM_RESPONSE = '0';
 
 // Shared singleton instances
 let sharedRequest = null;
 let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
+let clickHouseTestContainer = null;
 
 /**
  * Waits for ClickHouse to be ready with exponential backoff
@@ -63,50 +61,15 @@ async function waitForClickHouse(manager, maxWaitMs = 30000) {
 }
 
 /**
- * Initializes ClickHouse schema if needed
- * Uses the full schema from clickhouse-init/01-init-schema.sql
- */
-async function initializeClickHouseSchema(clickHouseManager) {
-    try {
-        const fs = require('fs');
-        const path = require('path');
-
-        // Check if schema is already initialized
-        const exists = await clickHouseManager.tableExistsAsync('fhir.fhir_group_member_events');
-
-        if (!exists) {
-            const schemaPath = path.join(__dirname, '../../..', 'clickhouse-init', '01-init-schema.sql');
-            const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
-
-            const statements = schemaSQL
-                .split(';')
-                .map(s => s.trim())
-                .filter(s => s.length > 0 && !s.match(/^--/) && !s.match(/^SET\s+/i))
-                .filter(s => !s.includes('ClickHouse FHIR schema initialized'));
-
-            for (const statement of statements) {
-                try {
-                    await clickHouseManager.queryAsync({ query: statement });
-                } catch (err) {
-                    if (!err.message.includes('already exists')) {
-                        // Ignore other errors during schema init
-                    }
-                }
-            }
-        }
-    } catch (e) {
-        console.error('Error initializing ClickHouse schema:', e.message);
-        throw e;
-    }
-}
-
-/**
  * Sets up shared test infrastructure (call once in beforeAll)
  * Uses singleton pattern to ensure setup only happens once
  *
  * @returns {Promise<void>}
  */
 async function setupGroupTests() {
+    // Reset STREAM_RESPONSE for each test file (streaming tests may override it)
+    process.env.STREAM_RESPONSE = '0';
+
     // If setup is in progress, wait for it
     if (setupPromise) {
         return setupPromise;
@@ -120,6 +83,12 @@ async function setupGroupTests() {
     // Start setup and store promise
     setupPromise = (async () => {
         try {
+            if (!clickHouseTestContainer) {
+                clickHouseTestContainer = new ClickHouseTestContainer();
+                await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
+                clickHouseTestContainer.applyEnvVars();
+            }
+
             // Initialize common test infrastructure
             await commonBeforeEach();
 
@@ -130,13 +99,7 @@ async function setupGroupTests() {
             const configManager = new ConfigManager();
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
 
-            // Wait for ClickHouse to be ready
-            // In CI, ClickHouse service should be running (GitHub Actions service)
-            // Locally, ensureClickHouse() would have started it
             await waitForClickHouse(sharedClickHouseManager, 30000);
-
-            // Initialize schema
-            await initializeClickHouseSchema(sharedClickHouseManager);
 
             isSetupComplete = true;
         } catch (error) {
@@ -236,16 +199,6 @@ async function cleanupAllData() {
             // Ignore cleanup errors
         }
     }
-}
-
-/**
- * Cleans up test data between tests
- * @deprecated Use cleanupAllData() or cleanupGroupData(groupId)
- *
- * @returns {Promise<void>}
- */
-async function cleanupBetweenTests() {
-    return cleanupAllData();
 }
 
 /**
@@ -357,7 +310,6 @@ function getTestHeaders() {
 module.exports = {
     setupGroupTests,
     teardownGroupTests,
-    cleanupBetweenTests,
     cleanupAllData,
     cleanupGroupData,
     syncClickHouseMaterializedViews,

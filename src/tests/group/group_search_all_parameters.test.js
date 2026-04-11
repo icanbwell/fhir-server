@@ -1,8 +1,6 @@
 // Verify all 10 FHIR R4B Group search parameters
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_HOST = 'localhost';
-process.env.CLICKHOUSE_PORT = '8123';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.LOGLEVEL = 'SILENT';
@@ -12,7 +10,7 @@ const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@je
 const {
     setupGroupTests,
     teardownGroupTests,
-    cleanupBetweenTests,
+    cleanupAllData,
     syncClickHouseMaterializedViews,
     getSharedRequest,
     getClickHouseManager,
@@ -40,11 +38,11 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
 
     beforeAll(async () => {
         await setupGroupTests();
-        await cleanupBetweenTests(); // Clean data from previous Jest runs
+        await cleanupAllData(); // Clean data from previous Jest runs
     });
 
     beforeEach(async () => {
-        await cleanupBetweenTests();
+        await cleanupAllData();
     });
 
     afterAll(async () => {
