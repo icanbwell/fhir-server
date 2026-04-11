@@ -37,18 +37,6 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
-      - name: Start ClickHouse container
-        run: |
-          docker compose up -d clickhouse
-          echo "Waiting for ClickHouse to be ready..."
-          for i in {1..30}; do
-            if curl -s http://localhost:8123/ping > /dev/null; then
-              echo "✓ ClickHouse is ready"
-              break
-            fi
-            echo "Waiting... ($i/30)"
-            sleep 2
-          done
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:

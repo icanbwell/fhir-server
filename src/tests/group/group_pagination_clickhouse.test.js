@@ -2,7 +2,7 @@ const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@je
 const {
     setupGroupTests,
     teardownGroupTests,
-    cleanupBetweenTests,
+    cleanupAllData,
     getSharedRequest,
     getTestHeaders,
     waitForData
@@ -36,7 +36,7 @@ describe('Group Pagination with ClickHouse', () => {
     });
 
     beforeEach(async () => {
-        await cleanupBetweenTests();
+        await cleanupAllData();
     });
 
     afterAll(async () => {

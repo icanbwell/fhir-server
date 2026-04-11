@@ -2,7 +2,7 @@ const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@je
 const {
     setupGroupTests,
     teardownGroupTests,
-    cleanupBetweenTests,
+    cleanupAllData,
     getSharedRequest,
     getClickHouseManager,
     getTestHeaders
@@ -33,7 +33,7 @@ describe('Group Error Handling', () => {
     });
 
     beforeEach(async () => {
-        await cleanupBetweenTests();
+        await cleanupAllData();
     });
 
     afterAll(async () => {
