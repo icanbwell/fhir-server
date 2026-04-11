@@ -22,6 +22,13 @@ CREATE TABLE IF NOT EXISTS fhir.audit_event (
     -- Agent requestor extraction (for Access History)
     agent_requestor_who          String,
 
+    -- purposeOfEvent (for Access History — promoted from resource JSON)
+    -- AuditEvent.purposeOfEvent[].coding[] → Array(Tuple(system, code))
+    purpose_of_event             Array(Tuple(
+                                     system LowCardinality(String),
+                                     code LowCardinality(String)
+                                 )),
+
     -- meta.security (access control + standard FHIR _security)
     meta_security                Array(Tuple(
                                      system LowCardinality(String),

@@ -36,6 +36,17 @@
         }
     ],
     "action": "E",
+    "purposeOfEvent": [
+        {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                    "code": "TREAT",
+                    "display": "treatment"
+                }
+            ]
+        }
+    ],
     "recorded": "2024-06-15T10:30:00.000Z",
     "outcome": "0",
     "agent": [

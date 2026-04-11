@@ -81,6 +81,27 @@ class AuditEventTransformer {
     }
 
     /**
+     * Extracts purposeOfEvent codings as array of named tuples.
+     * AuditEvent.purposeOfEvent is Array(CodeableConcept), each with .coding[].
+     * Flattens all codings into a single Array(Tuple(system, code)).
+     * @param {Array|undefined} purposeOfEventArray - doc.purposeOfEvent
+     * @returns {Array<{system: string, code: string}>}
+     */
+    extractPurposeOfEvent(purposeOfEventArray) {
+        if (!Array.isArray(purposeOfEventArray)) return [];
+        const tuples = [];
+        for (const concept of purposeOfEventArray) {
+            if (!Array.isArray(concept.coding)) continue;
+            for (const coding of concept.coding) {
+                if (coding.system && coding.code) {
+                    tuples.push({ system: coding.system, code: coding.code });
+                }
+            }
+        }
+        return tuples;
+    }
+
+    /**
      * Transforms a single MongoDB AuditEvent document to a ClickHouse row
      * @param {Object} doc - MongoDB AuditEvent document
      * @returns {Object|null} ClickHouse row or null if malformed
@@ -106,6 +127,7 @@ class AuditEventTransformer {
             agent_altid: this.collectFromArray(agents, (a) => a.altId),
             entity_what: this.collectFromArray(entities, (e) => this.extractReference(e.what)),
             agent_requestor_who: this.extractRequestorWho(agents),
+            purpose_of_event: this.extractPurposeOfEvent(doc.purposeOfEvent),
             meta_security: this.extractMetaSecurity(doc.meta?.security),
             _sourceAssigningAuthority: doc._sourceAssigningAuthority || '',
             _sourceId: doc._sourceId || '',
