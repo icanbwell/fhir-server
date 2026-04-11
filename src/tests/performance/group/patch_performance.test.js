@@ -66,7 +66,7 @@ describe('PATCH Performance Testing', () => {
                 const request = await createTestRequest();
 
                 // Create empty Group
-                await request
+                const createResp = await request
                     .post('/4_0_0/Group')
                     .send({
                         resourceType: 'Group',
@@ -84,6 +84,8 @@ describe('PATCH Performance Testing', () => {
                     })
                     .set(getHeaders());
 
+                const actualGroupId = createResp.body.id;
+
                 // Build PATCH operations
                 const operations = Array.from({ length: numOps }, (_, i) => ({
                     op: 'add',
@@ -96,10 +98,10 @@ describe('PATCH Performance Testing', () => {
                 const memBefore = process.memoryUsage().heapUsed / 1024 / 1024; // MB
 
                 const patchResponse = await request
-                    .patch(`/4_0_0/Group/${groupId}`)
+                    .patch(`/4_0_0/Group/${actualGroupId}`)
+                    .set(getHeaders())
                     .set('Content-Type', 'application/json-patch+json')
-                    .send(operations)
-                    .set(getHeaders());
+                    .send(operations);
 
                 const responseTime = Date.now() - startTime;
                 const memAfter = process.memoryUsage().heapUsed / 1024 / 1024; // MB
@@ -117,7 +119,7 @@ describe('PATCH Performance Testing', () => {
                                 GROUP BY entity_reference
                                 HAVING argMax(event_type, (event_time, event_id)) = 'added'
                             )`,
-                    query_params: { groupId }
+                    query_params: { groupId: actualGroupId }
                 });
 
                 const verified = parseInt(countResult[0].count) === numOps;

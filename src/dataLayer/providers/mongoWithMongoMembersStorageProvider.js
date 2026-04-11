@@ -243,20 +243,19 @@ class MongoWithMongoMembersStorageProvider extends StorageProvider {
     async _findGroupsByMemberFromMongo({ query, options, extraInfo }) {
         try {
             const memberCriteria = QueryParser.extractMemberCriteria(query);
-            const validation = QueryParser.validateMemberCriteria(memberCriteria);
 
-            if (!validation.valid) {
-                logWarn(`Cannot search by member: ${validation.reason}`, { memberCriteria });
+            // Unlike ClickHouse, MongoDB can resolve any identifier (reference, _uuid, _sourceId)
+            // to an ObjectId. No need to reject uuid/sourceId searches.
+            if (!memberCriteria.memberReference && !memberCriteria.memberSourceId && !memberCriteria.memberUuid) {
+                logWarn('No member criteria found in query', { memberCriteria });
                 return await this.mongoStorageProvider.findAsync({ query, options, extraInfo });
             }
 
-            // Get Group IDs from MongoDB view
-            const groupUuids = await this.repository.findGroupsByMember(validation.entityReference);
+            // Get Group IDs from MongoDB view — handles all criteria types
+            const groupUuids = await this.repository.findGroupsByMemberCriteria(memberCriteria);
 
             if (!groupUuids || groupUuids.length === 0) {
-                logDebug('No groups found for member in MongoDB view', {
-                    entityReference: validation.entityReference
-                });
+                logDebug('No groups found for member in MongoDB view', { memberCriteria });
                 return await this.mongoStorageProvider.findAsync({
                     query: { _uuid: { $in: [] } },
                     options,
@@ -271,7 +270,7 @@ class MongoWithMongoMembersStorageProvider extends StorageProvider {
             logInfo('Fetching Group documents from MongoDB', {
                 groupCount: groupUuids.length,
                 limit,
-                entityReference: validation.entityReference
+                memberCriteria
             });
 
             return await this.mongoStorageProvider.findAsync({

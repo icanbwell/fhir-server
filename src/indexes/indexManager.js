@@ -175,8 +175,8 @@ args: {
                 if (indexCollectionName === '*_History') {
                     for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
                         if (
-                            (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) &&
-                            (!indexConfig.include || indexConfig.include.includes(baseCollectionName))
+                            (!indexConfig.exclude || (!indexConfig.exclude.includes(baseCollectionName) && !indexConfig.exclude.includes(collectionName))) &&
+                            (!indexConfig.include || indexConfig.include.includes(baseCollectionName) || indexConfig.include.includes(collectionName))
                         ) {
                             indexesToCreate.push(indexConfig);
                         }
@@ -186,16 +186,17 @@ args: {
                 if (indexCollectionName === '*') {
                     for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
                         if (
-                            (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) &&
-                            (!indexConfig.include || indexConfig.include.includes(baseCollectionName))
+                            (!indexConfig.exclude || (!indexConfig.exclude.includes(baseCollectionName) && !indexConfig.exclude.includes(collectionName))) &&
+                            (!indexConfig.include || indexConfig.include.includes(baseCollectionName) || indexConfig.include.includes(collectionName))
                         ) {
                             indexesToCreate.push(indexConfig);
                         }
                     }
                 }
-                if (baseCollectionName === indexCollectionName) {
+                // Apply collection-specific indexes only to exact matches
+                if (collectionName === indexCollectionName) {
                     for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
-                        if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                        if (!indexConfig.exclude || (!indexConfig.exclude.includes(baseCollectionName) && !indexConfig.exclude.includes(collectionName))) {
                             indexesToCreate.push(indexConfig);
                         }
                     }

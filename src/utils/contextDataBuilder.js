@@ -6,18 +6,23 @@ const { HEADERS } = require('../constants/mongoGroupMemberConstants');
  *
  * @param {string} resourceType - FHIR resource type
  * @param {Resource} resource - FHIR resource document
- * @param {import('./fhirRequestInfo').FhirRequestInfo|null} [requestInfo=null] - Request info for header-based activation
+ * @param {import('./fhirRequestInfo').FhirRequestInfo|null} [requestInfo=null] - Request info for header checks
+ * @param {import('./configManager').ConfigManager|null} [configManager=null] - Config manager for feature flags
  * @returns {Object|null} contextData object or null if not a hybrid storage resource
  */
-function buildContextDataForHybridStorage(resourceType, resource, requestInfo = null) {
+function buildContextDataForHybridStorage(resourceType, resource, requestInfo = null, configManager = null) {
     if (resourceType === 'Group') {
         const contextData = {
             groupMembers: resource.member || [],
             resourceType,
             resourceId: resource.id
         };
-        // Set flag for MongoDB group member flow if header is present
-        if (requestInfo?.headers?.[HEADERS.SUB_GROUP_MEMBER_REQUEST] === 'true') {
+        // Set flag for MongoDB group member flow when BOTH conditions are true:
+        // 1. Global: ENABLE_MONGO_GROUP_MEMBERS=1 (env var via configManager)
+        // 2. Per-request: header subGroupMemberRequest: true
+        // Without the header, the Group is written/read as a normal FHIR resource.
+        if (configManager && configManager.enableMongoGroupMembers &&
+            requestInfo?.headers?.[HEADERS.SUB_GROUP_MEMBER_REQUEST] === 'true') {
             contextData.useMongoGroupMembers = true;
         }
         return contextData;

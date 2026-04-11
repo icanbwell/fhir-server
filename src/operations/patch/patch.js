@@ -434,7 +434,7 @@ class PatchOperation {
 
                 // Same as update from this point on
                 // Insert/update our resource record
-                const contextData = buildContextDataForHybridStorage(resourceType, resource, requestInfo);
+                const contextData = buildContextDataForHybridStorage(resourceType, resource, requestInfo, this.configManager);
 
                 await this.databaseBulkInserter.replaceOneAsync(
                     {

@@ -581,7 +581,7 @@ class FastMergeManager {
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
             // Insert/update our resource record
-            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo, this.configManager);
 
             await this.databaseBulkInserter.mergeOneAsync(
                 {
@@ -624,7 +624,7 @@ class FastMergeManager {
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
             // Insert/update our resource record
-            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo, this.configManager);
 
             await this.databaseBulkInserter.insertOneAsync({
                     base_version,

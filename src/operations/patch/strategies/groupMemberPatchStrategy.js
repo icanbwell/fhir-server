@@ -4,6 +4,7 @@ const { HEADERS } = require('../../../constants/mongoGroupMemberConstants');
 const { createTooCostlyError } = require('../../../utils/fhirErrorFactory');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { buildContextDataForHybridStorage } = require('../../../utils/contextDataBuilder');
+const { isUuid, generateUUIDv5 } = require('../../../utils/uid.util');
 
 /**
  * Strategy for handling Group.member PATCH operations
@@ -174,7 +175,27 @@ class GroupMemberPatchStrategy {
             }
         }
 
-        // 2b. Validate added member references exist (atomic rejection for mongo members flow)
+        // 2b. Enrich member entity references with _uuid (PATCH ops skip referenceGlobalIdHandler)
+        // Uses the Group's _sourceAssigningAuthority to generate deterministic UUIDs
+        if (useMongoMembers && eventsToAdd.length > 0) {
+            const sourceAssigningAuthority = foundResource._sourceAssigningAuthority;
+            for (const member of eventsToAdd) {
+                if (member.entity?.reference && !member.entity._uuid) {
+                    const parts = member.entity.reference.split('/');
+                    const referenceResourceType = parts.length > 1 ? parts[0] : null;
+                    const referenceId = parts.slice(-1)[0];
+                    const uuid = isUuid(referenceId)
+                        ? referenceId
+                        : generateUUIDv5(`${referenceId}|${sourceAssigningAuthority}`);
+                    const prefix = referenceResourceType ? `${referenceResourceType}/` : '';
+                    member.entity._uuid = prefix + uuid;
+                    member.entity._sourceId = prefix + referenceId;
+                    member.entity._sourceAssigningAuthority = sourceAssigningAuthority;
+                }
+            }
+        }
+
+        // 2c. Validate added member references exist (atomic rejection for mongo members flow)
         if (useMongoMembers && eventsToAdd.length > 0) {
             const mongoGroupMemberRepository = this.databaseBulkInserter.mongoGroupMemberRepository;
             if (mongoGroupMemberRepository) {
@@ -208,7 +229,7 @@ class GroupMemberPatchStrategy {
 
         // Build contextData and set flag to skip post-save handler
         // buildContextDataForHybridStorage now always returns an object for Groups (never null)
-        const contextData = buildContextDataForHybridStorage(resourceType, foundResource, requestInfo);
+        const contextData = buildContextDataForHybridStorage(resourceType, foundResource, requestInfo, this.configManager);
         if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
             contextData.groupMemberEventsWritten = true;
         }

@@ -152,11 +152,25 @@ class MongoGroupMemberRepository {
         const proxyPersonUuids = new Map(); // personUuid → entity_uuid_ref
         // entityType → Map<uuid (id only), { uuidRef, entityReference }>
         const byType = new Map();
+        // Events without entity_uuid_ref (e.g., removals from diff computer) — resolve by id
+        // entityType → Map<entityId, entityReference>
+        const byTypeById = new Map();
 
         for (const event of events) {
             const uuidRef = event.entity_uuid_ref;
+
             if (!uuidRef) {
-                throw new Error(`Missing entity_uuid_ref for reference: ${event.entity_reference}`);
+                // Fallback: resolve by entity_reference (e.g., "Patient/123" → lookup by id)
+                // This happens for removal events from GroupMemberDiffComputer
+                const entityType = event.entity_type;
+                const entityId = FhirReferenceParser.extractId(event.entity_reference);
+                if (entityType && entityId) {
+                    if (!byTypeById.has(entityType)) {
+                        byTypeById.set(entityType, new Map());
+                    }
+                    byTypeById.get(entityType).set(entityId, event.entity_reference);
+                }
+                continue;
             }
 
             if (this._isProxyPatientReference(event.entity_reference)) {
@@ -224,6 +238,32 @@ class MongoGroupMemberRepository {
             }
         }
 
+        // Resolve events that only have entity_reference (no _uuid) — e.g., removal events
+        for (const [entityType, idMap] of byTypeById) {
+            const collectionName = `${entityType}_4_0_0`;
+            const idsArray = [...idMap.keys()];
+            const docs = await db.collection(collectionName)
+                .find({ id: { $in: idsArray } })
+                .project({ _id: 1, id: 1 })
+                .toArray();
+
+            const foundIds = new Set();
+            for (const doc of docs) {
+                const entityReference = idMap.get(doc.id);
+                if (entityReference) {
+                    // Key by entity_reference for events without _uuid
+                    objectIdMap.set(entityReference, doc._id);
+                    foundIds.add(doc.id);
+                }
+            }
+
+            for (const [entityId, entityReference] of idMap) {
+                if (!foundIds.has(entityId)) {
+                    missingReferences.push(entityReference);
+                }
+            }
+        }
+
         if (missingReferences.length > 0) {
             const message = `Group member references not found in database: ${missingReferences.join(', ')}`;
             throw new BadRequestError({
@@ -252,7 +292,9 @@ class MongoGroupMemberRepository {
      * @private
      */
     _transformEventToDocument(event, groupObjectId, groupUuid, entityObjectIdMap) {
-        const memberObjectId = entityObjectIdMap.get(event.entity_uuid_ref) || null;
+        // Try entity_uuid_ref first (CREATE path), fall back to entity_reference (removal events)
+        const memberObjectId = entityObjectIdMap.get(event.entity_uuid_ref) ||
+            entityObjectIdMap.get(event.entity_reference) || null;
 
         return {
             group_id: groupObjectId,
@@ -389,17 +431,176 @@ class MongoGroupMemberRepository {
     }
 
     /**
+     * Resolves a FHIR entity reference to its MongoDB ObjectId and member type.
+     * Used by search queries to leverage indexed ObjectId fields instead of string-based lookups.
+     *
+     * - Normal refs (e.g., "Patient/123"): looks up by id in {EntityType}_4_0_0
+     * - Proxy patient refs (e.g., "Patient/person.abc-123"): looks up by _uuid in Person_4_0_0
+     *
+     * @param {string} entityReference - FHIR reference (e.g., "Patient/123")
+     * @returns {Promise<{objectId: import('mongodb').ObjectId, memberType: string}|null>}
+     * @private
+     */
+    async _resolveMemberObjectId(entityReference) {
+        const db = await this.mongoDatabaseManager.getClientDbAsync();
+
+        if (this._isProxyPatientReference(entityReference)) {
+            const personUuid = this._extractPersonUuid(entityReference);
+            const doc = await db.collection('Person_4_0_0').findOne(
+                { _uuid: personUuid },
+                { projection: { _id: 1 } }
+            );
+            return doc ? { objectId: doc._id, memberType: PROXY_PATIENT_MEMBER_TYPE } : null;
+        }
+
+        const entityType = FhirReferenceParser.extractEntityType(entityReference);
+        const entityId = FhirReferenceParser.extractId(entityReference);
+        if (!entityType || entityType === 'unknown' || !entityId) {
+            return null;
+        }
+
+        const collectionName = `${entityType}_4_0_0`;
+        const doc = await db.collection(collectionName).findOne(
+            { id: entityId },
+            { projection: { _id: 1 } }
+        );
+        return doc ? { objectId: doc._id, memberType: entityType } : null;
+    }
+
+    /**
+     * Resolves a member _uuid (e.g., "Patient/some-uuid" or bare "some-uuid") to its ObjectId.
+     * Searches across known FHIR resource collections by _uuid field.
+     *
+     * @param {string} memberUuid - _uuid value from query
+     * @returns {Promise<{objectId: import('mongodb').ObjectId, memberType: string}|null>}
+     * @private
+     */
+    async _resolveMemberByUuid(memberUuid) {
+        const db = await this.mongoDatabaseManager.getClientDbAsync();
+
+        // If it looks like "ResourceType/uuid", parse it
+        const entityType = FhirReferenceParser.extractEntityType(memberUuid);
+        if (entityType && entityType !== 'unknown') {
+            const uuid = FhirReferenceParser.extractId(memberUuid);
+            const collectionName = `${entityType}_4_0_0`;
+            const doc = await db.collection(collectionName).findOne(
+                { _uuid: uuid },
+                { projection: { _id: 1 } }
+            );
+            return doc ? { objectId: doc._id, memberType: entityType } : null;
+        }
+
+        // Bare UUID — search common member resource types
+        const candidateTypes = ['Patient', 'Practitioner', 'Device', 'Medication', 'Substance'];
+        for (const type of candidateTypes) {
+            const doc = await db.collection(`${type}_4_0_0`).findOne(
+                { _uuid: memberUuid },
+                { projection: { _id: 1 } }
+            );
+            if (doc) {
+                return { objectId: doc._id, memberType: type };
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Resolves a member _sourceId to its ObjectId.
+     *
+     * @param {string} memberSourceId - _sourceId value from query
+     * @returns {Promise<{objectId: import('mongodb').ObjectId, memberType: string}|null>}
+     * @private
+     */
+    async _resolveMemberBySourceId(memberSourceId) {
+        const db = await this.mongoDatabaseManager.getClientDbAsync();
+
+        // If it looks like "ResourceType/id", parse it
+        const entityType = FhirReferenceParser.extractEntityType(memberSourceId);
+        if (entityType && entityType !== 'unknown') {
+            const sourceId = FhirReferenceParser.extractId(memberSourceId);
+            const collectionName = `${entityType}_4_0_0`;
+            const doc = await db.collection(collectionName).findOne(
+                { _sourceId: sourceId },
+                { projection: { _id: 1 } }
+            );
+            return doc ? { objectId: doc._id, memberType: entityType } : null;
+        }
+
+        // Bare sourceId — search common member resource types
+        const candidateTypes = ['Patient', 'Practitioner', 'Device', 'Medication', 'Substance'];
+        for (const type of candidateTypes) {
+            const doc = await db.collection(`${type}_4_0_0`).findOne(
+                { _sourceId: memberSourceId },
+                { projection: { _id: 1 } }
+            );
+            if (doc) {
+                return { objectId: doc._id, memberType: type };
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds Group IDs by member using any available criteria (reference, uuid, or sourceId).
+     * Unlike ClickHouse, MongoDB can resolve any identifier to an ObjectId.
+     *
+     * @param {Object} criteria - Extracted member criteria from QueryParser
+     * @param {string|null} criteria.memberReference - Direct entity reference
+     * @param {string|null} criteria.memberSourceId - _sourceId value
+     * @param {string|null} criteria.memberUuid - _uuid value
+     * @returns {Promise<string[]>} Array of Group _uuid strings
+     */
+    async findGroupsByMemberCriteria({ memberReference, memberSourceId, memberUuid }) {
+        try {
+            let resolved = null;
+
+            // Priority: reference > sourceId > uuid
+            if (memberReference) {
+                resolved = await this._resolveMemberObjectId(memberReference);
+            } else if (memberSourceId) {
+                resolved = await this._resolveMemberBySourceId(memberSourceId);
+            } else if (memberUuid) {
+                resolved = await this._resolveMemberByUuid(memberUuid);
+            }
+
+            if (!resolved) {
+                return [];
+            }
+
+            const view = await this._getCurrentView();
+            const filter = this._buildMemberFilter(resolved.memberType, resolved.objectId);
+            const docs = await view.find(filter).project({
+                group_uuid: 1
+            }).toArray();
+
+            return docs.map(d => d.group_uuid);
+        } catch (error) {
+            throw new RethrownError({
+                message: 'Error finding groups by member criteria from MongoDB repository',
+                error,
+                args: { memberReference, memberSourceId, memberUuid }
+            });
+        }
+    }
+
+    /**
      * Finds Group IDs that contain a given member entity
      *
-     * Uses the MongoDB view to find groups where the entity is currently active.
+     * Resolves the entity reference to its ObjectId, then queries the MongoDB view
+     * using indexed fields (member_type + member_object_id) for efficient lookup.
      *
      * @param {string} entityReference - FHIR entity reference (e.g. "Patient/123")
      * @returns {Promise<string[]>} Array of Group _uuid strings
      */
     async findGroupsByMember(entityReference) {
         try {
+            const resolved = await this._resolveMemberObjectId(entityReference);
+            if (!resolved) {
+                return [];
+            }
+
             const view = await this._getCurrentView();
-            const filter = this._buildMemberFilter(entityReference);
+            const filter = this._buildMemberFilter(resolved.memberType, resolved.objectId);
             const docs = await view.find(filter).project({
                 group_uuid: 1
             }).toArray();
@@ -422,8 +623,13 @@ class MongoGroupMemberRepository {
      */
     async countGroupsByMember(entityReference) {
         try {
+            const resolved = await this._resolveMemberObjectId(entityReference);
+            if (!resolved) {
+                return 0;
+            }
+
             const view = await this._getCurrentView();
-            const filter = this._buildMemberFilter(entityReference);
+            const filter = this._buildMemberFilter(resolved.memberType, resolved.objectId);
             return await view.countDocuments(filter);
         } catch (error) {
             throw new RethrownError({
@@ -435,23 +641,21 @@ class MongoGroupMemberRepository {
     }
 
     /**
-     * Builds a MongoDB filter for querying by member reference.
-     * Uses member_type to distinguish proxy patient refs from normal ones.
+     * Builds a MongoDB filter for querying by member using indexed ObjectId fields.
+     * Matches index: { member_type: 1, member_object_id: 1, group_id: 1, _id: -1 }
      *
-     * @param {string} entityReference
+     * @param {string} memberType - Member type (e.g., "Patient", "ProxyPatient")
+     * @param {import('mongodb').ObjectId} memberObjectId - Resolved member ObjectId
      * @returns {Object} MongoDB filter
      * @private
      */
-    _buildMemberFilter(entityReference) {
-        const filter = {
-            'entity.reference': entityReference,
+    _buildMemberFilter(memberType, memberObjectId) {
+        return {
+            member_type: memberType,
+            member_object_id: memberObjectId,
             event_type: EVENT_TYPES.MEMBER_ADDED,
             $or: [{ inactive: false }, { inactive: { $exists: false } }]
         };
-        if (this._isProxyPatientReference(entityReference)) {
-            filter.member_type = PROXY_PATIENT_MEMBER_TYPE;
-        }
-        return filter;
     }
 
     /**
@@ -474,11 +678,11 @@ class MongoGroupMemberRepository {
 
         for (const member of members) {
             const ref = member?.entity?.reference;
-            if (!ref) {
-                continue;
+            const uuidRef = member?.entity?._uuid;
+            if (!ref || !uuidRef) {
+                throw new Error(`Member is missing entity reference or UUID: ${JSON.stringify(member)}`);
             }
-            // Use _uuid (set by pre-save) when available, fall back to reference
-            const uuid = member?.entity?._uuid || ref;
+            const { id: uuid } = ReferenceParser.parseReference(uuidRef);
             if (this._isProxyPatientReference(ref)) {
                 const personUuid = this._extractPersonUuid(ref);
                 proxyPersonUuids.set(personUuid, ref);
@@ -497,13 +701,12 @@ class MongoGroupMemberRepository {
         // Check proxy patient references against Person_4_0_0
         if (proxyPersonUuids.size > 0) {
             const personUuidArray = [...proxyPersonUuids.keys()];
-            const personUuidLookups = personUuidArray.map(uuid => `Person/${uuid}`);
             const foundDocs = await db.collection('Person_4_0_0')
-                .find({ _uuid: { $in: personUuidLookups } })
+                .find({ _uuid: { $in: personUuidArray } })
                 .project({ _uuid: 1 })
                 .toArray();
 
-            const foundUuids = new Set(foundDocs.map(d => d._uuid.replace('Person/', '')));
+            const foundUuids = new Set(foundDocs.map(d => d._uuid));
             for (const [personUuid, originalRef] of proxyPersonUuids) {
                 if (!foundUuids.has(personUuid)) {
                     missingReferences.push(originalRef);

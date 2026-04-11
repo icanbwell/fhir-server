@@ -159,6 +159,7 @@ module.exports = {
                 exclude: [
                     'AuditEvent_4_0_0',
                     'InternalAuditEvent_4_0_0',
+                    'Group_4_0_0_MemberEvent',
                     ACCESS_LOGS_COLLECTION_NAME
                 ]
             },

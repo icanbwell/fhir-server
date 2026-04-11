@@ -4,9 +4,13 @@ const { getMongoUrlAsync } = require('./mongoTestRunner');
 class TestMongoDatabaseManager extends MongoDatabaseManager {
     async getClientConfigAsync () {
         const mongoUrl = await getMongoUrlAsync();
+        // When using Docker MongoDB, allow a custom db name to isolate perf tests from dev data
+        const dbName = process.env.USE_DOCKER_MONGO === '1'
+            ? (process.env.MONGO_DB_NAME || 'fhir')
+            : 'fhir';
         return {
             connection: mongoUrl, // set by https://github.com/shelfio/jest-mongodb
-            db_name: 'fhir',
+            db_name: dbName,
             options: {}
         };
     }

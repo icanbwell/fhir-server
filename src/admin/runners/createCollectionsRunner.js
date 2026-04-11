@@ -82,29 +82,58 @@ class CreateCollectionsRunner extends BaseScriptRunner {
 
             // Create MongoDB collection + view for Group member storage (if enabled)
             if (this.configManager?.enableMongoGroupMembers) {
+                this.adminLogger.logInfo('MongoDB Group Members feature is enabled', { enableMongoGroupMembers: true });
                 const { COLLECTIONS } = require('../../constants/mongoGroupMemberConstants');
 
                 if (!existingMainDbCollections.includes(COLLECTIONS.GROUP_MEMBER_EVENTS)) {
+                    this.adminLogger.logInfo('Creating MongoDB Group Member collection', { collection: COLLECTIONS.GROUP_MEMBER_EVENTS });
                     await mainDb.createCollection(COLLECTIONS.GROUP_MEMBER_EVENTS);
+                } else {
+                    this.adminLogger.logInfo('MongoDB Group Member collection already exists', { collection: COLLECTIONS.GROUP_MEMBER_EVENTS });
                 }
 
                 if (!existingMainDbCollections.includes(COLLECTIONS.GROUP_MEMBER_CURRENT)) {
-                    await mainDb.createView(COLLECTIONS.GROUP_MEMBER_CURRENT, COLLECTIONS.GROUP_MEMBER_EVENTS, [
-                        { $sort: { group_id: 1, member_type: 1, member_object_id: 1, _id: -1 } },
-                        { $group: {
-                            _id: { group_id: '$group_id', member_type: '$member_type', member_object_id: '$member_object_id' },
-                            group_id: { $first: '$group_id' },
-                            group_uuid: { $first: '$group_uuid' },
-                            member_type: { $first: '$member_type' },
-                            member_object_id: { $first: '$member_object_id' },
-                            entity: { $first: '$entity' },
-                            period: { $first: '$period' },
-                            inactive: { $first: '$inactive' },
-                            event_type: { $first: '$event_type' },
-                            event_time: { $first: '$event_time' }
-                        }}
-                    ]);
+                    this.adminLogger.logInfo('Creating MongoDB Group Member view', { view: COLLECTIONS.GROUP_MEMBER_CURRENT });
+                    try {
+                        // Create view using createCollection with viewOn option
+                        await mainDb.createCollection(COLLECTIONS.GROUP_MEMBER_CURRENT, {
+                            viewOn: COLLECTIONS.GROUP_MEMBER_EVENTS,
+                            pipeline: [
+                                { $sort: { group_id: 1, member_type: 1, member_object_id: 1, _id: -1 } },
+                                { $group: {
+                                    _id: { group_id: '$group_id', member_type: '$member_type', member_object_id: '$member_object_id' },
+                                    group_id: { $first: '$group_id' },
+                                    group_uuid: { $first: '$group_uuid' },
+                                    member_type: { $first: '$member_type' },
+                                    member_object_id: { $first: '$member_object_id' },
+                                    entity: { $first: '$entity' },
+                                    period: { $first: '$period' },
+                                    inactive: { $first: '$inactive' },
+                                    event_type: { $first: '$event_type' },
+                                    event_time: { $first: '$event_time' }
+                                }}
+                            ]
+                        });
+                        this.adminLogger.logInfo('MongoDB Group Member view created successfully', { view: COLLECTIONS.GROUP_MEMBER_CURRENT });
+                    } catch (viewError) {
+                        this.adminLogger.logError('Failed to create MongoDB Group Member view', {
+                            view: COLLECTIONS.GROUP_MEMBER_CURRENT,
+                            error: viewError.message,
+                            code: viewError.code,
+                            codeName: viewError.codeName,
+                            stack: viewError.stack
+                        });
+                        // If view already exists (error 48), that's okay
+                        if (viewError.code !== 48) {
+                            throw viewError;
+                        }
+                        this.adminLogger.logInfo('View already exists (continuing)', { view: COLLECTIONS.GROUP_MEMBER_CURRENT });
+                    }
+                } else {
+                    this.adminLogger.logInfo('MongoDB Group Member view already exists', { view: COLLECTIONS.GROUP_MEMBER_CURRENT });
                 }
+            } else {
+                this.adminLogger.logInfo('MongoDB Group Members feature is disabled', { enableMongoGroupMembers: false });
             }
 
             // synchronize indexes
@@ -120,7 +149,14 @@ class CreateCollectionsRunner extends BaseScriptRunner {
 
             this.adminLogger.logInfo('CreateCollectionsRunner', 'Collections created successfully');
         } catch (e) {
-            this.adminLogger.logError('ERROR', { error: e });
+            this.adminLogger.logError('Error in CreateCollectionsRunner', {
+                error: e.message,
+                stack: e.stack,
+                code: e.code,
+                name: e.name,
+                errorDetails: JSON.stringify(e, Object.getOwnPropertyNames(e))
+            });
+            throw e;
         } finally {
             await this.shutdown();
         }

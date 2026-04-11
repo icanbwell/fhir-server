@@ -9,9 +9,13 @@ const { HEADERS } = require('../../constants/mongoGroupMemberConstants');
  * - Strip `member` array from Group resources (members stored in event collection)
  * - Populate `quantity` field with member count from MongoDB view
  *
- * Activation: Only active when BOTH conditions are true:
- * 1. configManager.enableMongoGroupMembers === true (global env var)
- * 2. Request header subGroupMemberRequest: true (per-request activation via parsedArgs)
+ * Activation requires BOTH:
+ * 1. Global: configManager.enableMongoGroupMembers === true (env var)
+ * 2. Per-request: header subGroupMemberRequest: true
+ *
+ * Without the header, Groups are returned as-is from MongoDB.
+ * Only requests that explicitly opt in get enrichment, because only those
+ * Groups had their members written to the separate event collection.
  */
 class MongoGroupMemberEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -34,14 +38,13 @@ class MongoGroupMemberEnrichmentProvider extends EnrichmentProvider {
     }
 
     /**
-     * Checks if the current request activated MongoDB group members via header
+     * Checks if the current request opted into MongoDB group member storage
      * @param {ParsedArgs} parsedArgs
      * @returns {boolean}
      * @private
      */
     _isRequestActivated(parsedArgs) {
-        const headers = parsedArgs?.headers || {};
-        return headers[HEADERS.SUB_GROUP_MEMBER_REQUEST] === 'true';
+        return parsedArgs?.headers?.[HEADERS.SUB_GROUP_MEMBER_REQUEST] === 'true';
     }
 
     /**

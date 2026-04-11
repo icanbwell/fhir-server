@@ -17,7 +17,8 @@ async function main() {
             new CreateCollectionsRunner({
                 indexManager: c.indexManager,
                 adminLogger: new AdminLogger(),
-                mongoDatabaseManager: c.mongoDatabaseManager
+                mongoDatabaseManager: c.mongoDatabaseManager,
+                configManager: c.configManager
             })
     );
 
