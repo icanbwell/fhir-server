@@ -26,8 +26,9 @@ const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 describe('PATCH Performance Testing', () => {
     let clickHouseManager;
 
+    let clickHouseTestContainer;
     beforeAll(async () => {
-        const clickHouseTestContainer = new ClickHouseTestContainer();
+        clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
@@ -40,6 +41,9 @@ describe('PATCH Performance Testing', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
+        }
+        if (clickHouseTestContainer) {
+            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     }, 30000);

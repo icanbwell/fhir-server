@@ -33,6 +33,8 @@ const ORIGINAL_MAX_GROUP_MEMBERS = process.env.MAX_GROUP_MEMBERS_PER_PUT;
 describe('Hybrid Storage Architecture - Correctness Test', () => {
     let clickHouseManager;
 
+    let clickHouseTestContainer;
+    let savedContainerEnvVars;
     beforeAll(async () => {
         // Set up for tests
         process.env.LOGLEVEL = 'ERROR'; // Suppress noise
@@ -40,9 +42,9 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         process.env.MAX_GROUP_MEMBERS_PER_PUT = '50000'; // Use default limit (30K is within this)
         process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 
-        const clickHouseTestContainer = new ClickHouseTestContainer();
+        clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
-        clickHouseTestContainer.applyEnvVars();
+        savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
 
         // Initialize ClickHouse connection (for cleanup and verification)
         const configManager = new ConfigManager();
@@ -55,6 +57,12 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
+        }
+        if (clickHouseTestContainer) {
+            if (savedContainerEnvVars) {
+                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
+            }
+            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
 

@@ -18,7 +18,8 @@ const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
-// Set env vars FIRST, before any requires
+// Set env vars
+// These are read lazily by ConfigManager getters, not at import time.
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
@@ -32,6 +33,7 @@ let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
 let clickHouseTestContainer = null;
+let savedContainerEnvVars = null;
 
 /**
  * Waits for ClickHouse to be ready with exponential backoff
@@ -84,7 +86,7 @@ async function setupGroupTests() {
             if (!clickHouseTestContainer) {
                 clickHouseTestContainer = new ClickHouseTestContainer();
                 await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-                clickHouseTestContainer.applyEnvVars();
+                savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
             }
 
             // Initialize common test infrastructure
@@ -123,6 +125,15 @@ async function teardownGroupTests() {
         if (sharedClickHouseManager) {
             await sharedClickHouseManager.closeAsync();
             sharedClickHouseManager = null;
+        }
+
+        if (clickHouseTestContainer) {
+            if (savedContainerEnvVars) {
+                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
+                savedContainerEnvVars = null;
+            }
+            await clickHouseTestContainer.stop();
+            clickHouseTestContainer = null;
         }
 
         await commonAfterEach();

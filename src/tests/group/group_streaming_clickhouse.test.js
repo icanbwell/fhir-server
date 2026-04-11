@@ -32,8 +32,9 @@ class MockConfigManagerStreaming extends ConfigManager {
 describe('Group Streaming with ClickHouse', () => {
     let clickHouseManager;
 
+    let clickHouseTestContainer;
     beforeAll(async () => {
-        const clickHouseTestContainer = new ClickHouseTestContainer();
+        clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
 
@@ -52,6 +53,9 @@ describe('Group Streaming with ClickHouse', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
+        }
+        if (clickHouseTestContainer) {
+            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     });

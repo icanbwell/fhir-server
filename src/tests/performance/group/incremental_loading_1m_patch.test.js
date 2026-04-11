@@ -28,8 +28,9 @@ const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
     let clickHouseManager;
 
+    let clickHouseTestContainer;
     beforeAll(async () => {
-        const clickHouseTestContainer = new ClickHouseTestContainer();
+        clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
@@ -57,6 +58,9 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
             }
 
             await clickHouseManager.closeAsync();
+        }
+        if (clickHouseTestContainer) {
+            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     }, 30000);

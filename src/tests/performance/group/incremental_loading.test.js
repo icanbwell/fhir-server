@@ -37,8 +37,9 @@ const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
     let clickHouseManager;
 
+    let clickHouseTestContainer;
     beforeAll(async () => {
-        const clickHouseTestContainer = new ClickHouseTestContainer();
+        clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
@@ -66,6 +67,9 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
             }
 
             await clickHouseManager.closeAsync();
+        }
+        if (clickHouseTestContainer) {
+            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     }, 30000);

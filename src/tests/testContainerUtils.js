@@ -24,8 +24,6 @@ async function withNockSuspended(fn) {
             nockWasActive = true;
             nockModule.restore();
         }
-        nockModule.cleanAll();
-        nockModule.enableNetConnect();
     } catch (_) {
         // nock not installed — nothing to suspend
     }
