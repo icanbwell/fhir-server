@@ -47,11 +47,12 @@ class BaseCacheKeyGenerator {
      * @property {boolean} isPersonId
      * @property {ParsedArgs} parsedArgs
      * @property {string} scope
+     * @property {string|undefined} userType
      *
      * @param {options} options
      * @returns {Promise<string|undefined>}
      */
-    async generateCacheKey({ id, isPersonId, parsedArgs, scope }) {
+    async generateCacheKey({ id, isPersonId, parsedArgs, scope, userType }) {
         const rawArgs = parsedArgs.getRawArgs();
 
         // Don't cache if any cache-invalidating params are present and their value is not false
@@ -82,6 +83,10 @@ class BaseCacheKeyGenerator {
         }
 
         cacheKey += `:Scopes:${this.normalizeScopesForCaching(scope)}`;
+
+        if (userType) {
+            cacheKey += `:UserType:${userType}`;
+        }
 
         if (this.keyParamsforCache && this.keyParamsforCache.length > 0) {
             const params = {};

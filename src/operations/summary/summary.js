@@ -146,7 +146,8 @@ class SummaryOperation {
                     id,
                     isPersonId: true,
                     parsedArgs: parsedArgs,
-                    scope: requestInfo.scope
+                    scope: requestInfo.scope,
+                    userType: requestInfo.userType
                 });
             }
         }

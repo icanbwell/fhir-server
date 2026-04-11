@@ -316,7 +316,8 @@ class EverythingHelper {
                 id: idForCache,
                 isPersonId: isProxyPatient,
                 parsedArgs: parsedArgs,
-                scope: requestInfo.scope
+                scope: requestInfo.scope,
+                userType: requestInfo.userType
             })
             : undefined;
     }
