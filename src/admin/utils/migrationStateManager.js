@@ -79,15 +79,29 @@ class MigrationStateManager {
 
     /**
      * Gets partitions that need processing (pending, in_progress, or failed)
+     * @param {Object} [options]
+     * @param {string} [options.startDate] - Inclusive start date 'YYYY-MM-DD'
+     * @param {string} [options.endDate] - Exclusive end date 'YYYY-MM-DD'
      * @returns {Promise<Array<{partition_day: string, status: string, last_mongo_id: string}>>}
      */
-    async getPendingPartitionsAsync() {
-        return this.clickHouseClientManager.queryAsync({
-            query: `SELECT partition_day, status, last_mongo_id
+    async getPendingPartitionsAsync({ startDate, endDate } = {}) {
+        let query = `SELECT partition_day, status, last_mongo_id
                     FROM ${this.table} FINAL
-                    WHERE status IN ('pending', 'in_progress', 'failed')
-                    ORDER BY partition_day`
-        });
+                    WHERE status IN ('pending', 'in_progress', 'failed')`;
+        const query_params = {};
+
+        if (startDate) {
+            query += ` AND partition_day >= {startDate:String}`;
+            query_params.startDate = startDate;
+        }
+        if (endDate) {
+            query += ` AND partition_day < {endDate:String}`;
+            query_params.endDate = endDate;
+        }
+
+        query += ` ORDER BY partition_day`;
+
+        return this.clickHouseClientManager.queryAsync({ query, query_params });
     }
 
     /**
