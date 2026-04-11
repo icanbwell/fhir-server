@@ -24,11 +24,20 @@ class MigrationVerifier {
      * Verify counts for all completed partitions
      * @param {Object} [options]
      * @param {number} [options.concurrency] - How many days to verify in parallel
+     * @param {string} [options.startDate] - Inclusive start date 'YYYY-MM-DD'
+     * @param {string} [options.endDate] - Exclusive end date 'YYYY-MM-DD'
      * @returns {Promise<{matched: number, mismatched: number, mismatches: Array<{day: string, sourceCount: number, chCount: number}>}>}
      */
-    async verifyAllAsync({ concurrency = 10 } = {}) {
+    async verifyAllAsync({ concurrency = 10, startDate, endDate } = {}) {
         const states = await this.stateManager.getAllStatesAsync();
-        const completedStates = states.filter((s) => s.status === 'completed');
+        let completedStates = states.filter((s) => s.status === 'completed');
+
+        if (startDate) {
+            completedStates = completedStates.filter((s) => s.partition_day >= startDate);
+        }
+        if (endDate) {
+            completedStates = completedStates.filter((s) => s.partition_day < endDate);
+        }
 
         logInfo('Starting verification', { partitions: completedStates.length });
 
@@ -44,6 +53,13 @@ class MigrationVerifier {
             );
 
             for (const result of results) {
+                logInfo('Partition verified', {
+                    day: result.day,
+                    sourceCount: result.sourceCount,
+                    clickHouseCount: result.chCount,
+                    match: result.match
+                });
+
                 if (result.match) {
                     matched++;
                 } else {
