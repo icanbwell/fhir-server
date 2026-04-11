@@ -189,9 +189,10 @@ class PartitionWorker {
                 format: 'JSONEachRow'
             });
         } catch (error) {
-            const isSizeError = error.message === 'Invalid string length' ||
-                error.message.includes('string length') ||
-                error.message.includes('allocation failed');
+            const errorMsg = error.original_error?.message || error.nested?.message || error.message;
+            const isSizeError = errorMsg === 'Invalid string length' ||
+                errorMsg.includes('string length') ||
+                errorMsg.includes('allocation failed');
 
             if (isSizeError && rows.length > MIN_CHUNK_SIZE) {
                 const mid = Math.ceil(rows.length / 2);
