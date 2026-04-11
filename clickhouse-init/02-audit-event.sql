@@ -3,7 +3,7 @@
 -- full FHIR JSON in Native JSON `resource` column for all other queries.
 -- See RFC: https://icanbwell.atlassian.net/wiki/x/IQBgbwE
 
-CREATE TABLE IF NOT EXISTS fhir.audit_event (
+CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
     -- Resource identifiers
     id                           String,
     _uuid                        String,
