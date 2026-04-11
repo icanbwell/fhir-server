@@ -40,6 +40,11 @@ describe('AuditEvent Migration', () => {
                 // Agent requestor (agent where requestor === true)
                 expect(row.agent_requestor_who).toBe('Practitioner/prac-uuid-123');
 
+                // purposeOfEvent as Array(Tuple(system, code)) — promoted from resource JSON
+                expect(row.purpose_of_event).toEqual([
+                    { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' }
+                ]);
+
                 // meta.security as Array(Tuple(system, code)) — named objects for JSONEachRow
                 expect(row.meta_security).toEqual([
                     { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
@@ -98,6 +103,7 @@ describe('AuditEvent Migration', () => {
                 expect(row.agent_altid).toEqual([]);
                 expect(row.entity_what).toEqual([]);
                 expect(row.agent_requestor_who).toBe('');
+                expect(row.purpose_of_event).toEqual([]);
                 expect(row.meta_security).toEqual([]);
                 expect(row._sourceAssigningAuthority).toBe('');
                 expect(row._sourceId).toBe('');
@@ -185,6 +191,59 @@ describe('AuditEvent Migration', () => {
                 expect(row.meta_security).toEqual([
                     { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
                     { system: 'https://www.icanbwell.com/access', code: 'client' }
+                ]);
+            });
+
+            test('extracts purpose_of_event from purposeOfEvent codings', () => {
+                const transformer = new AuditEventTransformer();
+                const doc = {
+                    _id: { toString: () => 'abc123' },
+                    _uuid: 'test-uuid',
+                    recorded: '2024-01-01T00:00:00.000Z',
+                    purposeOfEvent: [
+                        {
+                            coding: [
+                                { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT', display: 'treatment' },
+                                { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'HOPERAT', display: 'healthcare operations' }
+                            ]
+                        },
+                        {
+                            coding: [
+                                { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'PATRQT', display: 'patient requested' }
+                            ]
+                        }
+                    ]
+                };
+
+                const row = transformer.transformDocument(doc);
+                expect(row.purpose_of_event).toEqual([
+                    { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' },
+                    { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'HOPERAT' },
+                    { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'PATRQT' }
+                ]);
+            });
+
+            test('skips purposeOfEvent codings missing system or code', () => {
+                const transformer = new AuditEventTransformer();
+                const doc = {
+                    _id: { toString: () => 'abc123' },
+                    _uuid: 'test-uuid',
+                    recorded: '2024-01-01T00:00:00.000Z',
+                    purposeOfEvent: [
+                        {
+                            coding: [
+                                { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' },
+                                { system: 'missing-code' },
+                                { code: 'missing-system' }
+                            ]
+                        },
+                        { text: 'no coding array' }
+                    ]
+                };
+
+                const row = transformer.transformDocument(doc);
+                expect(row.purpose_of_event).toEqual([
+                    { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' }
                 ]);
             });
 
