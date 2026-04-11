@@ -323,7 +323,11 @@ async function main() {
             stateManager
         });
 
-        const result = await verifier.verifyAllAsync({ concurrency: options.concurrency });
+        const result = await verifier.verifyAllAsync({
+            concurrency: options.concurrency,
+            startDate: options.startDate,
+            endDate: options.endDate
+        });
 
         logInfo('Verification results', { matched: result.matched, mismatched: result.mismatched });
 

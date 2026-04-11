@@ -65,6 +65,13 @@ class PartitionWorker {
         };
         const sourceCount = await collection.countDocuments(sourceCountQuery);
 
+        if (this.dryRun) {
+            logInfo('Dry run partition count', {
+                partitionDay,
+                sourceCount
+            });
+        }
+
         if (sourceCount === 0) {
             await this.stateManager.markCompletedAsync({
                 partitionDay,
