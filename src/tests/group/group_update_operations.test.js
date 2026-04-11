@@ -1,9 +1,5 @@
-// Set env vars FIRST, before any requires
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'SILENT';
-process.env.STREAM_RESPONSE = '0';
 
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
@@ -12,7 +8,6 @@ const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
-const clickHouseTestContainer = new ClickHouseTestContainer();
 
 /**
  * Group UPDATE Operations Test Suite
@@ -27,6 +22,7 @@ describe('Group UPDATE operations', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
+        const clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
 

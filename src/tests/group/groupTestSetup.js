@@ -24,6 +24,7 @@ process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.LOGLEVEL = 'SILENT';
+process.env.STREAM_RESPONSE = '0';
 
 // Shared singleton instances
 let sharedRequest = null;
@@ -67,9 +68,6 @@ async function waitForClickHouse(manager, maxWaitMs = 30000) {
  * @returns {Promise<void>}
  */
 async function setupGroupTests() {
-    // Reset STREAM_RESPONSE for each test file (streaming tests may override it)
-    process.env.STREAM_RESPONSE = '0';
-
     // If setup is in progress, wait for it
     if (setupPromise) {
         return setupPromise;

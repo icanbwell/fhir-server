@@ -1,6 +1,3 @@
-// Env vars are managed by groupTestSetup.js and ClickHouseTestContainer.
-// Do NOT hardcode CLICKHOUSE_HOST/PORT here — they are set dynamically.
-
 const { describe, beforeAll, afterAll, beforeEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../utils/configManager');
 const {

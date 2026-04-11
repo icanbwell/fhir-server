@@ -33,12 +33,12 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
-const clickHouseTestContainer = new ClickHouseTestContainer();
 
 describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
+        const clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();

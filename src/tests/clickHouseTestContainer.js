@@ -9,11 +9,12 @@ class ClickHouseTestContainer {
     constructor() {
         /** @type {import('@testcontainers/clickhouse').StartedClickHouseContainer|null} */
         this._container = null;
-        this._database = 'fhir';
     }
 
     /**
      * Starts a ClickHouse container and initializes the schema.
+     * Reads database, username, and password from environment variables
+     * (set by jest/setEnvVars.js or the calling test file).
      * @param {object} [options]
      * @param {number} [options.startupTimeoutMs=60000] - Max time to wait for container readiness
      * @returns {Promise<void>}
@@ -25,11 +26,15 @@ class ClickHouseTestContainer {
             return; // Already running
         }
 
+        const database = process.env.CLICKHOUSE_DATABASE || 'fhir';
+        const username = process.env.CLICKHOUSE_USERNAME || 'default';
+        const password = process.env.CLICKHOUSE_PASSWORD || '';
+
         this._container = await withNockSuspended(() =>
             new ClickHouseContainer(CLICKHOUSE_IMAGE)
-                .withDatabase(this._database)
-                .withUsername('default')
-                .withPassword('')
+                .withDatabase(database)
+                .withUsername(username)
+                .withPassword(password)
                 .withEnvironment({
                     CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: '1'
                 })
@@ -52,10 +57,6 @@ class ClickHouseTestContainer {
      * The /docker-entrypoint-initdb.d scripts run asynchronously after the HTTP
      * health check passes, so there is a brief window where the server is up
      * but the tables don't exist yet.
-     *
-     * Uses the production ConfigManager + ClickHouseClientManager to verify
-     * connectivity — this validates that env var wiring and the real client
-     * code can actually talk to the container.
      * @returns {Promise<void>}
      */
     async _waitForSchema() {

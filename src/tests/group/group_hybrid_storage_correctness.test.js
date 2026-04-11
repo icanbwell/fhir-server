@@ -22,7 +22,6 @@ const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
-const clickHouseTestContainer = new ClickHouseTestContainer();
 
 // Save original env vars
 const ORIGINAL_ENABLE_CLICKHOUSE = process.env.ENABLE_CLICKHOUSE;
@@ -40,8 +39,8 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         process.env.PAYLOAD_LIMIT = '200mb'; // Allow large payloads for test
         process.env.MAX_GROUP_MEMBERS_PER_PUT = '50000'; // Use default limit (30K is within this)
         process.env.CLICKHOUSE_WRITE_MODE = 'sync';
-        process.env.CLICKHOUSE_DATABASE = 'fhir';
 
+        const clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
 

@@ -1,8 +1,5 @@
-// Set env vars FIRST, before any requires
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'SILENT';
 
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
@@ -31,12 +28,12 @@ class MockConfigManagerStreaming extends ConfigManager {
     }
 }
 
-const clickHouseTestContainer = new ClickHouseTestContainer();
 
 describe('Group Streaming with ClickHouse', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
+        const clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
 

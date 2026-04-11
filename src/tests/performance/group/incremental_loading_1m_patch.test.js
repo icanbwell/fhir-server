@@ -24,12 +24,12 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
-const clickHouseTestContainer = new ClickHouseTestContainer();
 
 describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
+        const clickHouseTestContainer = new ClickHouseTestContainer();
         await clickHouseTestContainer.start();
         clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
