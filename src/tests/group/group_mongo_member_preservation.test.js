@@ -1,21 +1,17 @@
-// Set env vars FIRST, before any requires
-process.env.ENABLE_CLICKHOUSE = '1';
-process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_HOST = 'localhost';
-process.env.CLICKHOUSE_PORT = '8123';
-process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'SILENT';
-process.env.STREAM_RESPONSE = '0';
-
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
-const { ConfigManager } = require('../../utils/configManager');
-const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const {
+    setupGroupTests,
+    teardownGroupTests,
+    cleanupAllData,
+    getSharedRequest,
+    getClickHouseManager,
+    getTestHeaders
+} = require('./groupTestSetup');
 
 function getHeadersWithExternalStorage() {
-    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+    return { ...getTestHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
 }
 
 /**
@@ -35,39 +31,16 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
     let clickHouseManager;
 
     beforeAll(async () => {
-        await commonBeforeEach();
-        const configManager = new ConfigManager();
-        clickHouseManager = new ClickHouseClientManager({ configManager });
-
-        let ready = false;
-        for (let i = 0; i < 30; i++) {
-            try {
-                await clickHouseManager.getClientAsync();
-                if (await clickHouseManager.isHealthyAsync()) {
-                    ready = true;
-                    break;
-                }
-            } catch (e) {
-                // Continue
-            }
-            await new Promise(r => setTimeout(r, 1000));
-        }
-        if (!ready) throw new Error('ClickHouse not ready');
+        await setupGroupTests();
+        clickHouseManager = getClickHouseManager();
     });
 
     beforeEach(async () => {
-        try {
-            await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
-        } catch (e) {
-            // Ignore
-        }
+        await cleanupAllData();
     });
 
     afterAll(async () => {
-        if (clickHouseManager) {
-            await clickHouseManager.closeAsync();
-        }
-        await commonAfterEach();
+        await teardownGroupTests();
     });
 
     const defaultMeta = {
@@ -79,7 +52,7 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
     };
 
     async function createGroupWithHeader(group) {
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const response = await request
             .post('/4_0_0/Group')
             .send({ resourceType: 'Group', ...group, meta: group.meta || defaultMeta })
@@ -89,11 +62,11 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
     }
 
     async function getGroupFromMongo(groupId) {
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         // GET without external storage header reads from MongoDB directly
         const response = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getHeaders());
+            .set(getTestHeaders());
         expect(response.status).toBe(200);
         return response.body;
     }
@@ -131,7 +104,7 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
 
     test('PATCH with header: MongoDB members preserved, ClickHouse gets add event', async () => {
         // Create group WITHOUT header (members stored in MongoDB)
-        const request0 = await createTestRequest();
+        const request0 = getSharedRequest();
         const createRes = await request0
             .post('/4_0_0/Group')
             .send({
@@ -144,7 +117,7 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
                 ],
                 meta: defaultMeta
             })
-            .set(getHeaders());
+            .set(getTestHeaders());
         expect(createRes.status).toBe(201);
         const groupId = createRes.body.id;
 
@@ -154,7 +127,7 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
         expect(mongoBefore.member.length).toBe(2);
 
         // PATCH with header to add a new member
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const patchResponse = await request
             .patch(`/4_0_0/Group/${groupId}`)
             .send([{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/patch-new-3' } } }])
@@ -189,7 +162,7 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
         });
 
         // PUT with only 2 members (removes put-2, put-3, adds put-new-4)
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const putResponse = await request
             .put(`/4_0_0/Group/${created.id}`)
             .send({
@@ -222,7 +195,7 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
 
     test('$merge smartMerge=true: MongoDB members preserved, ClickHouse adds only', async () => {
         // Create group WITHOUT header (members stored in MongoDB)
-        const request0 = await createTestRequest();
+        const request0 = getSharedRequest();
         const createRes = await request0
             .post('/4_0_0/Group')
             .send({
@@ -235,12 +208,12 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
                 ],
                 meta: defaultMeta
             })
-            .set(getHeaders());
+            .set(getTestHeaders());
         expect(createRes.status).toBe(201);
         const groupId = createRes.body.id;
 
         // $merge with smartMerge=true (default), sending 1 original + 1 new
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const mergeResponse = await request
             .post('/4_0_0/Group/$merge')
             .send({
@@ -286,7 +259,7 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
         });
 
         // $merge with smartMerge=false, keep 1 + add 1 new
-        const request = await createTestRequest();
+        const request = getSharedRequest();
         const mergeResponse = await request
             .post('/4_0_0/Group/$merge?smartMerge=false')
             .send({

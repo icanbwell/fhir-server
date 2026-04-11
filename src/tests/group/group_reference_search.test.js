@@ -2,7 +2,7 @@ const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@je
 const {
     setupGroupTests,
     teardownGroupTests,
-    cleanupBetweenTests,
+    cleanupAllData,
     getSharedRequest,
     getClickHouseManager,
     getTestHeadersWithExternalStorage,
@@ -29,7 +29,7 @@ describe('Group member reference search via ClickHouse', () => {
     });
 
     beforeEach(async () => {
-        await cleanupBetweenTests();
+        await cleanupAllData();
     });
 
     afterAll(async () => {
