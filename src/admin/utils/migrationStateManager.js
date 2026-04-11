@@ -153,9 +153,10 @@ class MigrationStateManager {
      * @param {string} params.partitionDay
      * @param {number} params.insertedCount
      * @param {number} params.sourceCount
+     * @param {string} [params.lastMongoId] - Final mongo _id processed
      * @returns {Promise<void>}
      */
-    async markCompletedAsync({ partitionDay, insertedCount, sourceCount }) {
+    async markCompletedAsync({ partitionDay, insertedCount, sourceCount, lastMongoId }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
         const current = await this.getStateForDayAsync(partitionDay);
         await this.clickHouseClientManager.insertAsync({
@@ -166,7 +167,7 @@ class MigrationStateManager {
                     status: 'completed',
                     source_count: sourceCount,
                     inserted_count: insertedCount,
-                    last_mongo_id: current?.last_mongo_id || '',
+                    last_mongo_id: lastMongoId || current?.last_mongo_id || '',
                     started_at: current?.started_at || null,
                     completed_at: now,
                     error_message: '',

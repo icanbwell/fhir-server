@@ -138,7 +138,8 @@ class PartitionWorker {
             await this.stateManager.markCompletedAsync({
                 partitionDay,
                 insertedCount,
-                sourceCount
+                sourceCount,
+                lastMongoId: lastId
             });
 
             return { insertedCount, sourceCount, skippedCount };
