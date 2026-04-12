@@ -32,7 +32,11 @@ describe('AuditEventClickHouseRepository', () => {
         expect(mockClickHouseClientManager.insertAsync).toHaveBeenCalledWith({
             table: TABLES.AUDIT_EVENT,
             values: rows,
-            format: QUERY_FORMAT.JSON_EACH_ROW
+            format: QUERY_FORMAT.JSON_EACH_ROW,
+            clickhouse_settings: {
+                async_insert: 1,
+                wait_for_async_insert: 1
+            }
         });
     });
 
