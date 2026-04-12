@@ -109,7 +109,7 @@ services:
       SUMMARY_CACHE_TTL_SECONDS: 300
       # ClickHouse configuration
       ENABLE_CLICKHOUSE: '1'
-      CLICKHOUSE_HOST: 'clickhouse'
+      CLICKHOUSE_HOST: 'http://clickhouse'
       CLICKHOUSE_PORT: '8123'
       CLICKHOUSE_DATABASE: 'fhir'
       CLICKHOUSE_USERNAME: 'default'
