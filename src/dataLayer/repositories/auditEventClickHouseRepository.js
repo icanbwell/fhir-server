@@ -48,6 +48,7 @@ class AuditEventClickHouseRepository {
             // Retry with exponential backoff
             const maxRetries = this.maxRetries;
             let delay = this.initialRetryDelayMs;
+            let currentError = error;
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
                     logWarn('ClickHouse AuditEvent insert failed, retrying', {
@@ -55,7 +56,7 @@ class AuditEventClickHouseRepository {
                         maxRetries,
                         batchSize: rows.length,
                         delay,
-                        error: error.message
+                        error: currentError.message
                     });
                     await new Promise((resolve) => setTimeout(resolve, delay));
                     await this.clickHouseClientManager.insertAsync({
@@ -65,6 +66,7 @@ class AuditEventClickHouseRepository {
                     });
                     return;
                 } catch (retryError) {
+                    currentError = retryError;
                     if (attempt === maxRetries) {
                         throw new RethrownError({
                             message: `ClickHouse AuditEvent insert failed after ${maxRetries} retries (batch size ${rows.length})`,
