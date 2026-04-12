@@ -599,6 +599,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to write AuditEvent to ClickHouse
+     * @return {boolean}
+     */
+    get enableAuditEventClickHouse() {
+        return isTrue(env.ENABLE_AUDIT_EVENT_CLICKHOUSE) && this.enableClickHouse;
+    }
+
+    /**
      * returns the maximum number of IDs to include in each audit event
      * @returns {number}
      */
