@@ -29,6 +29,9 @@ function filterCompositionSections(sections) {
         }
         if (section.section) {
             section.section = filterCompositionSections(section.section);
+            if (section.section.length === 0) {
+                delete section.section;
+            }
         }
         result.push(section);
     }
@@ -47,6 +50,9 @@ function filterCompositionSensitiveSections(resource, context) {
     }
 
     resource.section = filterCompositionSections(resource.section);
+    if (resource.section.length === 0) {
+        delete resource.section;
+    }
 }
 
 module.exports = {

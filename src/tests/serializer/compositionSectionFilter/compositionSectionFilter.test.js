@@ -113,7 +113,7 @@ describe('filterCompositionSensitiveSections', () => {
 
         filterCompositionSensitiveSections(resource, enabledContext);
 
-        expect(resource.section).toHaveLength(0);
+        expect(resource.section).toBeUndefined();
     });
 
     test('handles deeply nested sections (3 levels deep)', () => {
@@ -162,7 +162,7 @@ describe('filterCompositionSensitiveSections', () => {
         expect(resource.section[0].title).toBe('NoSystemProp');
     });
 
-    test('removes all sections when all are sensitive (returns empty array)', () => {
+    test('removes all sections when all are sensitive (deletes section property)', () => {
         const resource = makeComposition([
             makeSection('S1', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE'),
             makeSection('S2', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
@@ -170,7 +170,7 @@ describe('filterCompositionSensitiveSections', () => {
 
         filterCompositionSensitiveSections(resource, enabledContext);
 
-        expect(resource.section).toEqual([]);
+        expect(resource.section).toBeUndefined();
     });
 
     test('filters sensitive sections when config flag is enabled', () => {
