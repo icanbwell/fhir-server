@@ -125,6 +125,59 @@ services:
     healthcheck:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
+  mongo-to-clickhouse-sync:
+    depends_on:
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: development
+    environment:
+      MONGO_URL: 'mongodb://mongo:27017?appName=fhir-mongo-to-clickhouse-sync'
+      MONGO_DB_NAME: fhir
+      RESOURCE_HISTORY_MONGO_URL: mongodb://mongo:27017
+      RESOURCE_HISTORY_MONGO_DB_NAME: resource-history
+      AUDIT_EVENT_MONGO_URL: 'mongodb://mongo:27017'
+      AUDIT_EVENT_MONGO_DB_NAME: fhir
+      ACCESS_LOGS_CLUSTER_MONGO_URL: 'mongodb://mongo:27017'
+      ACCESS_LOGS_MONGO_DB_NAME: fhir
+      KAFKA_CLIENT_ID: 'fhir-mongo-to-clickhouse-sync'
+      KAFKA_URLS: 'kafka:9092'
+      KAFKAJS_NO_PARTITIONER_WARNING: '1'
+      HISTORY_SYNC_KAFKA_TOPIC: 'fhir.history_sync.commands'
+      HISTORY_SYNC_DLQ_TOPIC: 'fhir.history_sync.dlq'
+      HISTORY_SYNC_BATCH_SIZE: '100000'
+      HISTORY_SYNC_CONSUMER_GROUP: 'fhir-history-sync'
+      HISTORY_SYNC_MAX_RETRIES: '3'
+      HISTORY_SYNC_DELETE_FROM_MONGO: '1'
+      AUDIT_EVENT_SYNC_BATCH_SIZE: '50000'
+      AUDIT_EVENT_SYNC_DELETE_FROM_MONGO: '0'
+      ACCESS_LOGS_SYNC_BATCH_SIZE: '100000'
+      ACCESS_LOGS_SYNC_DELETE_FROM_MONGO: '0'
+      CLICKHOUSE_HOST: 'clickhouse'
+      CLICKHOUSE_PORT: '8123'
+      CLICKHOUSE_DATABASE: 'fhir'
+      CLICKHOUSE_USERNAME: 'default'
+      CLICKHOUSE_PASSWORD: ''
+      ENABLE_CLICKHOUSE: '1'
+      ENABLE_EVENTS_KAFKA: '1'
+      ENABLE_KAFKA_HEALTHCHECK: '1'
+      ENV: local
+      ENVIRONMENT: local
+      LOGLEVEL: 'INFO'
+      NODE_ENV: 'development'
+    volumes:
+      - ./src:/srv/src/src
+      - ./package.json:/srv/src/package.json
+      - ./yarn.lock:/srv/src/yarn.lock
+    command: node --watch src/consumers/mongoToClickHouseSync/index.js
+
   mongo:
     image: mongo:8.0.15
     ports:
@@ -212,6 +265,12 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     healthcheck:
       test: ['CMD-SHELL', '/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1']
       interval: 30s
@@ -255,14 +314,14 @@ services:
         soft: 262144
         hard: 262144
 
-  # kafkaUI:
-  #   image: provectuslabs/kafka-ui
-  #   ports:
-  #     - '9000:8080'
-  #   environment:
-  #     - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-  #     - 'JVM_OPTS=-Xms32M -Xmx64M'
-  #     - SERVER_SERVLET_CONTEXT_PATH=/
+  kafkaUI:
+    image: provectuslabs/kafka-ui
+    ports:
+      - '9000:8080'
+    environment:
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - 'JVM_OPTS=-Xms32M -Xmx64M'
+      - SERVER_SERVLET_CONTEXT_PATH=/
 
   # hapi-fhir-server:
   #   image: hapiproject/hapi:v6.10.1
@@ -276,4 +335,5 @@ services:
 
 volumes:
   mongo_data:
+  kafka_data:
   clickhouse_data:
