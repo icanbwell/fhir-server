@@ -830,6 +830,7 @@ class SearchManager {
      * @param {string | null} user
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
+     * @param {string|undefined} userType
      * @returns {Promise<Resource[]>}
      */
     async readResourcesFromCursorAsync (
@@ -995,6 +996,7 @@ class SearchManager {
      * @param {string[]|null} accepts
      * @param {string} defaultSortId
      * @param {Object} params
+     * @param {string|undefined} userType
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync (

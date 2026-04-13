@@ -48,7 +48,7 @@
                             "coding": [
                                 {
                                     "system": "https://www.icanbwell.com/sensitivity-category",
-                                    "code": "substance-abuse"
+                                    "code": "SUBSTANCE_ABUSE"
                                 }
                             ]
                         },
@@ -88,7 +88,7 @@
                             "coding": [
                                 {
                                     "system": "https://www.icanbwell.com/sensitivity-category",
-                                    "code": "mental-health"
+                                    "code": "MENTAL_HEALTH"
                                 }
                             ]
                         },
@@ -207,7 +207,7 @@
                             "coding": [
                                 {
                                     "system": "https://www.icanbwell.com/sensitivity-category",
-                                    "code": "substance-abuse"
+                                    "code": "SUBSTANCE_ABUSE"
                                 }
                             ]
                         },
@@ -247,7 +247,7 @@
                             "coding": [
                                 {
                                     "system": "https://www.icanbwell.com/sensitivity-category",
-                                    "code": "mental-health"
+                                    "code": "MENTAL_HEALTH"
                                 }
                             ]
                         },
@@ -339,7 +339,7 @@
                     "coding": [
                         {
                             "system": "https://www.icanbwell.com/sensitivity-category",
-                            "code": "substance-abuse"
+                            "code": "SUBSTANCE_ABUSE"
                         }
                     ]
                 },
@@ -365,7 +365,7 @@
                     "coding": [
                         {
                             "system": "https://www.icanbwell.com/sensitivity-category",
-                            "code": "mental-health"
+                            "code": "MENTAL_HEALTH"
                         }
                     ]
                 },
@@ -433,7 +433,7 @@
                                     "coding": [
                                         {
                                             "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "substance-abuse"
+                                            "code": "SUBSTANCE_ABUSE"
                                         }
                                     ]
                                 }
@@ -459,7 +459,7 @@
                                     "coding": [
                                         {
                                             "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "mental-health"
+                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }

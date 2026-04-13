@@ -1496,6 +1496,7 @@ class EverythingHelper {
      * Fetches the data from cursor and streams it
      * @param {{
      *  cursor: import('../../dataLayer/databaseCursor').DatabaseCursor,
+     *  requestInfo: FhirRequestInfo,
      *  responseStreamer: BaseResponseStreamer,
      *  parentParsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker|undefined,

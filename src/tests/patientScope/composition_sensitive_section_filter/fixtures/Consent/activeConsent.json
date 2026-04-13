@@ -99,6 +99,28 @@
                 "code": "Composition",
                 "display": "Composition"
             }
+        ],
+        "provision": [
+            {
+                "type": "deny",
+                "securityLabel": [
+                    {
+                        "system": "https://www.icanbwell.com/sensitivity-category",
+                        "code": "SUBSTANCE_ABUSE",
+                        "display": "Substance Abuse"
+                    }
+                ]
+            },
+            {
+                "type": "deny",
+                "securityLabel": [
+                    {
+                        "system": "https://www.icanbwell.com/sensitivity-category",
+                        "code": "MENTAL_HEALTH",
+                        "display": "Mental Health/Behavioral Health"
+                    }
+                ]
+            }
         ]
     }
 }

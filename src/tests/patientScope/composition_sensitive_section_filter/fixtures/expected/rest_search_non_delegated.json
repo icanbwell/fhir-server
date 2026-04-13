@@ -99,9 +99,9 @@
                                 "code": {
                                     "coding": [
                                         {
-                                            "id": "68905296-043d-5369-a078-72a030ef2a19",
+                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
                                             "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "substance-abuse"
+                                            "code": "SUBSTANCE_ABUSE"
                                         }
                                     ]
                                 }
@@ -140,9 +140,9 @@
                                 "code": {
                                     "coding": [
                                         {
-                                            "id": "6969ea91-2c6e-567e-a972-2b13c6d07877",
+                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
                                             "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "mental-health"
+                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }
@@ -261,9 +261,9 @@
                                 "code": {
                                     "coding": [
                                         {
-                                            "id": "68905296-043d-5369-a078-72a030ef2a19",
+                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
                                             "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "substance-abuse"
+                                            "code": "SUBSTANCE_ABUSE"
                                         }
                                     ]
                                 }
@@ -302,9 +302,9 @@
                                 "code": {
                                     "coding": [
                                         {
-                                            "id": "6969ea91-2c6e-567e-a972-2b13c6d07877",
+                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
                                             "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "mental-health"
+                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }
@@ -560,9 +560,9 @@
                         "code": {
                             "coding": [
                                 {
-                                    "id": "68905296-043d-5369-a078-72a030ef2a19",
+                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
                                     "system": "https://www.icanbwell.com/sensitivity-category",
-                                    "code": "substance-abuse"
+                                    "code": "SUBSTANCE_ABUSE"
                                 }
                             ]
                         }
@@ -586,9 +586,9 @@
                         "code": {
                             "coding": [
                                 {
-                                    "id": "6969ea91-2c6e-567e-a972-2b13c6d07877",
+                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
                                     "system": "https://www.icanbwell.com/sensitivity-category",
-                                    "code": "mental-health"
+                                    "code": "MENTAL_HEALTH"
                                 }
                             ]
                         }
@@ -740,9 +740,9 @@
                                         "code": {
                                             "coding": [
                                                 {
-                                                    "id": "68905296-043d-5369-a078-72a030ef2a19",
+                                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
                                                     "system": "https://www.icanbwell.com/sensitivity-category",
-                                                    "code": "substance-abuse"
+                                                    "code": "SUBSTANCE_ABUSE"
                                                 }
                                             ]
                                         }
@@ -768,9 +768,9 @@
                                         "code": {
                                             "coding": [
                                                 {
-                                                    "id": "6969ea91-2c6e-567e-a972-2b13c6d07877",
+                                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
                                                     "system": "https://www.icanbwell.com/sensitivity-category",
-                                                    "code": "mental-health"
+                                                    "code": "MENTAL_HEALTH"
                                                 }
                                             ]
                                         }

@@ -39,7 +39,7 @@ function filterCompositionSections(sections) {
  * If composition-sensitive-section filtering is enabled and the user is a delegated user,
  * strips sensitive sections from resource in place.
  * @param {Object} resource
- * @param {{configManager: ConfigManager, userType: string}} context
+ * @param {{configManager: ConfigManager, userType: string|undefined}} context
  */
 function filterCompositionSensitiveSections(resource, context) {
     if (!context.configManager?.enableCompositionSensitiveSectionFiltering || context.userType !== AUTH_USER_TYPES.delegatedUser || !resource?.section) {

@@ -36,7 +36,7 @@ describe('filterCompositionSensitiveSections', () => {
     test('removes sections with sensitive system in code.coding', () => {
         const resource = makeComposition([
             makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
         filterCompositionSensitiveSections(resource, enabledContext);
@@ -49,7 +49,7 @@ describe('filterCompositionSensitiveSections', () => {
         const resource = makeComposition([
             makeSection('Parent', 'http://loinc.org', '12345-6', [
                 makeSection('SafeChild', 'http://loinc.org', '11111-1'),
-                makeSection('SensitiveChild', SENSITIVE_SYSTEM, 'mental-health')
+                makeSection('SensitiveChild', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
             ])
         ]);
 
@@ -77,7 +77,7 @@ describe('filterCompositionSensitiveSections', () => {
     test('handles sections without code property (keeps them)', () => {
         const resource = makeComposition([
             { title: 'NoCode', text: { div: '<div>text</div>' } },
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
         filterCompositionSensitiveSections(resource, enabledContext);
@@ -89,7 +89,7 @@ describe('filterCompositionSensitiveSections', () => {
     test('handles section with code but no coding array', () => {
         const resource = makeComposition([
             { title: 'NoCoding', code: { text: 'Some text code' } },
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'mental-health')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
         ]);
 
         filterCompositionSensitiveSections(resource, enabledContext);
@@ -105,7 +105,7 @@ describe('filterCompositionSensitiveSections', () => {
                 code: {
                     coding: [
                         { system: 'http://loinc.org', code: '12345-6' },
-                        { system: SENSITIVE_SYSTEM, code: 'substance-abuse' }
+                        { system: SENSITIVE_SYSTEM, code: 'SUBSTANCE_ABUSE' }
                     ]
                 }
             }
@@ -121,7 +121,7 @@ describe('filterCompositionSensitiveSections', () => {
             makeSection('L1', 'http://loinc.org', '1', [
                 makeSection('L2', 'http://loinc.org', '2', [
                     makeSection('L3-Safe', 'http://loinc.org', '3'),
-                    makeSection('L3-Sensitive', SENSITIVE_SYSTEM, 'mental-health')
+                    makeSection('L3-Sensitive', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
                 ])
             ])
         ]);
@@ -164,8 +164,8 @@ describe('filterCompositionSensitiveSections', () => {
 
     test('removes all sections when all are sensitive (returns empty array)', () => {
         const resource = makeComposition([
-            makeSection('S1', SENSITIVE_SYSTEM, 'substance-abuse'),
-            makeSection('S2', SENSITIVE_SYSTEM, 'mental-health')
+            makeSection('S1', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE'),
+            makeSection('S2', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
         ]);
 
         filterCompositionSensitiveSections(resource, enabledContext);
@@ -176,7 +176,7 @@ describe('filterCompositionSensitiveSections', () => {
     test('filters sensitive sections when config flag is enabled', () => {
         const resource = makeComposition([
             makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
         filterCompositionSensitiveSections(resource, enabledContext);
@@ -188,7 +188,7 @@ describe('filterCompositionSensitiveSections', () => {
     test('does not filter when config flag is disabled', () => {
         const resource = makeComposition([
             makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
         filterCompositionSensitiveSections(resource, {
@@ -202,7 +202,7 @@ describe('filterCompositionSensitiveSections', () => {
     test('does not filter when context has no configManager', () => {
         const resource = makeComposition([
             makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
         filterCompositionSensitiveSections(resource, {});
@@ -220,7 +220,7 @@ describe('filterCompositionSensitiveSections', () => {
 
     test('does not filter when configManager flag is undefined', () => {
         const resource = makeComposition([
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
         filterCompositionSensitiveSections(resource, {
@@ -234,7 +234,7 @@ describe('filterCompositionSensitiveSections', () => {
     test('does not filter when userType is not delegatedUser', () => {
         const resource = makeComposition([
             makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
         filterCompositionSensitiveSections(resource, {
@@ -247,7 +247,7 @@ describe('filterCompositionSensitiveSections', () => {
 
     test('does not filter when userType is cmsPartnerUser', () => {
         const resource = makeComposition([
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'substance-abuse')
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
         filterCompositionSensitiveSections(resource, {

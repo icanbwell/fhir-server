@@ -27,7 +27,7 @@
         {
             "id": "sensitive-1",
             "title": "Substance Abuse History",
-            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "substance-abuse" }] }
+            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "SUBSTANCE_ABUSE" }] }
         },
         {
             "id": "normal-2",
@@ -37,7 +37,7 @@
         {
             "id": "sensitive-2",
             "title": "Mental Health Notes",
-            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "mental-health" }] }
+            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }] }
         },
         {
             "id": "sensitive-3",

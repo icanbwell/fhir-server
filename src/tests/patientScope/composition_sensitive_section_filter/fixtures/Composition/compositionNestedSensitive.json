@@ -37,7 +37,7 @@
                 {
                     "id": "p1-child-sensitive",
                     "title": "Sensitive Allergy Details",
-                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "substance-abuse" }] }
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "SUBSTANCE_ABUSE" }] }
                 }
             ]
         },
@@ -54,7 +54,7 @@
                 {
                     "id": "p2-child-sensitive",
                     "title": "Sensitive Medication Details",
-                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "mental-health" }] }
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }] }
                 },
                 {
                     "id": "p2-child-3",
@@ -103,7 +103,7 @@
                 {
                     "id": "p4-child-sensitive",
                     "title": "Sensitive Immunization Details",
-                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "substance-abuse" }] }
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "SUBSTANCE_ABUSE" }] }
                 }
             ]
         },
@@ -120,7 +120,7 @@
                 {
                     "id": "p5-child-sensitive",
                     "title": "Sensitive Vital Signs",
-                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "mental-health" }] }
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }] }
                 },
                 {
                     "id": "p5-child-3",
