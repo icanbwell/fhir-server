@@ -42,7 +42,7 @@ function filterCompositionSections(sections) {
  * @param {{configManager: ConfigManager, userType: string|undefined}} context
  */
 function filterCompositionSensitiveSections(resource, context) {
-    if (!context.configManager?.enableCompositionSensitiveSectionFiltering || context.userType !== AUTH_USER_TYPES.delegatedUser || !resource?.section) {
+    if (!context.configManager?.enableDelegatedAccessDetection || !context.configManager?.enableCompositionSensitiveSectionFiltering || context.userType !== AUTH_USER_TYPES.delegatedUser || !resource?.section) {
         return;
     }
 
