@@ -6,7 +6,7 @@ const { AUTH_USER_TYPES, SENSITIVE_CATEGORY } = require('../../../constants');
 const compositionFixture = require('./fixtures/Composition/compositionWithSensitiveSections.json');
 
 const enabledContext = {
-    configManager: { enableCompositionSensitiveSectionFiltering: true },
+    configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
     userType: AUTH_USER_TYPES.delegatedUser
 };
 
@@ -46,7 +46,7 @@ describe('Composition Section Filter — Fixture Tests', () => {
         const composition = deepcopy(compositionFixture);
 
         filterCompositionSensitiveSections(composition, {
-            configManager: { enableCompositionSensitiveSectionFiltering: true },
+            configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
             userType: undefined
         });
 

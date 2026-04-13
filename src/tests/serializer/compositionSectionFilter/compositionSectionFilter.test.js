@@ -28,7 +28,7 @@ function makeComposition(sections) {
 }
 
 const enabledContext = {
-    configManager: { enableCompositionSensitiveSectionFiltering: true },
+    configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
     userType: AUTH_USER_TYPES.delegatedUser
 };
 
@@ -238,7 +238,7 @@ describe('filterCompositionSensitiveSections', () => {
         ]);
 
         filterCompositionSensitiveSections(resource, {
-            configManager: { enableCompositionSensitiveSectionFiltering: true },
+            configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
             userType: undefined
         });
 
@@ -251,7 +251,7 @@ describe('filterCompositionSensitiveSections', () => {
         ]);
 
         filterCompositionSensitiveSections(resource, {
-            configManager: { enableCompositionSensitiveSectionFiltering: true },
+            configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
             userType: AUTH_USER_TYPES.cmsPartnerUser
         });
 
