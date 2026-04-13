@@ -63,6 +63,16 @@ describe('Person Tests', () => {
             .send(person1DuplicatePhoneNumber)
             .set(getHeaders());
         expect(resp4).toHaveMergeResponse({ created: false });
+        expect(resp4.body).toStrictEqual([
+            {
+                created: false,
+                id: 'aba5bcf41cf64435839cf0568c121843',
+                resourceType: 'Person',
+                sourceAssigningAuthority: 'bwell',
+                updated: true,
+                uuid: '849cb4f0-033b-5d6e-a614-9bbbbb3ba11e'
+            }
+        ]);
 
         // Step 5: Assert the resource is fully replaced (not merged)
         const resp5 = await request.get('/4_0_0/Person/?_bundle=1').set(getHeaders());
