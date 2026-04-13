@@ -25,6 +25,7 @@ up:
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-clickhouse`" != "healthy" ]; then docker ps && docker logs fhir-clickhouse && printf "========== ERROR: fhir-clickhouse did not start. Run docker logs fhir-clickhouse =========\n" && exit 1; fi && \
 	echo "\nInitializing ClickHouse schema" && \
 	docker exec -i fhir-clickhouse clickhouse-client --multiquery < clickhouse-init/01-init-schema.sql && \
+	docker exec -i fhir-clickhouse clickhouse-client --multiquery < clickhouse-init/02-audit-event.sql && \
 	echo "ClickHouse schema initialized successfully"
 	if [ ! -f ./generatorScripts/data/.collections_created ]; then \
 		echo "\nCreating all mongo collections and indexes" && \
