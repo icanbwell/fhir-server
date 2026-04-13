@@ -184,6 +184,42 @@ The generated token will contain:
 }
 ```
 
+## Composition Sensitive Section Filtering (Upcoming)
+
+Composition resources require an additional layer of filtering beyond DB-level resource exclusion. Even when a Composition itself passes the resource-level filter, individual **sections** within it may contain sensitive data that should be hidden from delegated users.
+
+### Phase 1: Section Filtering
+
+When `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` is enabled and the user is a `delegatedUser`, the server **recursively removes any section** whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`.
+
+**Behavior:**
+- **All** sections matching the sensitive category system are removed, regardless of the specific category code
+- Filtering is recursive — nested sections (`section.section`) are also checked
+- If a parent section is non-sensitive but a child section is sensitive, only the child is removed
+- If a parent section itself is sensitive, the entire section (including all children) is removed
+- Non-Composition resources are unaffected
+
+**Where filtering is applied:**
+
+Filtering happens at the **operation level**, right after database fetch, across all read paths:
+
+### Phase 2: Consent-Based Section Filtering
+
+Phase 2 will align section-level filtering with the consent-based approach already used for DB-level resource filtering.
+
+**Phase 1:** All sensitive sections are removed — a section with `SUBSTANCE_ABUSE` is treated the same as one with `MENTAL_HEALTH`, regardless of what the Consent says.
+
+**Phase 2:** The server will read `deniedSensitiveCategories` from the Consent (via `DelegatedAccessRulesManager.getFilteringRulesAsync`) and only remove sections whose category code appears in the denied list.
+
+**Example:**
+- Consent denies `SUBSTANCE_ABUSE` and `HIV_AIDS`
+- A Composition has sections tagged with `SUBSTANCE_ABUSE`, `MENTAL_HEALTH`, and `IMMUNIZATION`
+- Phase 1 removes all three (they all have the sensitive system)
+- Phase 2 removes only `SUBSTANCE_ABUSE` and `HIV_AIDS` (the ones in the denied list); `MENTAL_HEALTH` and `IMMUNIZATION` remain visible
+
+This mirrors how `dataSharingManager.updateQueryForDelegatedAccessSensitiveData` already works at the resource level — using the same `deniedSensitiveCategories` from the Consent to decide what to exclude.
+
 ## Config
 
 - `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules, and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
+- `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING`: true/false — **gates Composition section-level filtering**. When enabled and the user is a delegated user, sensitive sections are recursively stripped from Composition resources at the operation level. See "Composition Sensitive Section Filtering" above for details.
