@@ -213,9 +213,9 @@ Phase 2 will align section-level filtering with the consent-based approach alrea
 
 **Example:**
 - Consent denies `SUBSTANCE_ABUSE` and `HIV_AIDS`
-- A Composition has sections tagged with `SUBSTANCE_ABUSE`, `MENTAL_HEALTH`, and `IMMUNIZATION`
+- A Composition has sections tagged with `SUBSTANCE_ABUSE`, `MENTAL_HEALTH`
 - Phase 1 will remove all three (they all have the sensitive system)
-- Phase 2 will remove only `SUBSTANCE_ABUSE` and `HIV_AIDS` (the ones in the denied list); `MENTAL_HEALTH` and `IMMUNIZATION` will remain visible
+- Phase 2 will remove only `SUBSTANCE_ABUSE` and `HIV_AIDS` (the ones in the denied list); `MENTAL_HEALTH` will remain visible
 
 This will mirror how `dataSharingManager.updateQueryForDelegatedAccessSensitiveData` already works at the resource level — using the same `deniedSensitiveCategories` from the Consent to decide what to exclude.
 
