@@ -64,7 +64,7 @@ class CompositionSectionFilterTransform extends Transform {
                         {
                             error,
                             source: 'CompositionSectionFilterTransform._transform',
-                            args: { id: resource?.id, message: error.message, stack: error?.stack }
+                            args: { id: resource?.id }
                         }
                     );
                     captureException(error);
@@ -84,7 +84,7 @@ class CompositionSectionFilterTransform extends Transform {
                 {
                     error: e,
                     source: 'CompositionSectionFilterTransform._transform',
-                    args: { id: chunk?.id, message: e.message, stack: e?.stack }
+                    args: { id: chunk?.id }
                 }
             );
             captureException(e);
