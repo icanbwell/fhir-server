@@ -36,7 +36,7 @@ class ParametersResourceValidator extends BaseValidator {
          */
         let errors = [];
         // see if the resources were passed as parameters
-        if (incomingResources.resourceType === 'Parameters') {
+        if (incomingResources && incomingResources.resourceType === 'Parameters') {
             // Unfortunately our FHIR schema resource creator does not support Parameters
             // const ParametersResourceCreator = getResource(base_version, 'Parameters');
             // const parametersResource = new ParametersResourceCreator(resource_incoming);
@@ -116,7 +116,7 @@ class ParametersResourceValidator extends BaseValidator {
             let resources = [];
             // Filtering out Parameters resources if any present inside 'parameter' field of input Parameter resource
             incomingResources?.forEach(p => {
-                if (p.resourceType === 'Parameters') {
+                if (p?.resourceType === 'Parameters') {
                     const operationOutcomeIssue = new OperationOutcomeIssue({
                         severity: 'error',
                         code: 'structure',
@@ -139,7 +139,7 @@ class ParametersResourceValidator extends BaseValidator {
                             resourceType: p.resourceType
                         }
                     ));
-                } else {
+                } else if (p) {
                     resources.push(p);
                 }
             });
