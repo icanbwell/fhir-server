@@ -34,47 +34,38 @@ class AuditEventClickHouseRepository {
             return;
         }
 
-        try {
-            await this.clickHouseClientManager.insertAsync({
-                table: TABLES.AUDIT_EVENT,
-                values: rows,
-                format: QUERY_FORMAT.JSON_EACH_ROW,
-                clickhouse_settings: {
-                    async_insert: 1,
-                    wait_for_async_insert: 1
-                }
-            });
-        } catch (error) {
-            // Retry with exponential backoff
-            const maxRetries = this.maxRetries;
-            let delay = this.initialRetryDelayMs;
-            let currentError = error;
-            for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                try {
+        const insertParams = {
+            table: TABLES.AUDIT_EVENT,
+            values: rows,
+            format: QUERY_FORMAT.JSON_EACH_ROW,
+            clickhouse_settings: {
+                async_insert: 1,
+                wait_for_async_insert: 1
+            }
+        };
+
+        let delay = this.initialRetryDelayMs;
+        for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+            try {
+                if (attempt > 0) {
                     logWarn('ClickHouse AuditEvent insert failed, retrying', {
                         attempt,
-                        maxRetries,
+                        maxRetries: this.maxRetries,
                         batchSize: rows.length,
-                        delay,
-                        error: currentError.message
+                        delay
                     });
                     await new Promise((resolve) => setTimeout(resolve, delay));
-                    await this.clickHouseClientManager.insertAsync({
-                        table: TABLES.AUDIT_EVENT,
-                        values: rows,
-                        format: QUERY_FORMAT.JSON_EACH_ROW
-                    });
-                    return;
-                } catch (retryError) {
-                    currentError = retryError;
-                    if (attempt === maxRetries) {
-                        throw new RethrownError({
-                            message: `ClickHouse AuditEvent insert failed after ${maxRetries} retries (batch size ${rows.length})`,
-                            error: retryError,
-                            args: { batchSize: rows.length }
-                        });
-                    }
                     delay *= 2;
+                }
+                await this.clickHouseClientManager.insertAsync(insertParams);
+                return;
+            } catch (error) {
+                if (attempt === this.maxRetries) {
+                    throw new RethrownError({
+                        message: `ClickHouse AuditEvent insert failed after ${this.maxRetries} retries (batch size ${rows.length})`,
+                        error,
+                        args: { batchSize: rows.length }
+                    });
                 }
             }
         }

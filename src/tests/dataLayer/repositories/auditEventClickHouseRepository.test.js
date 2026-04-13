@@ -68,6 +68,20 @@ describe('AuditEventClickHouseRepository', () => {
 
         // Initial attempt + 2 retries = 3 calls total
         expect(mockClickHouseClientManager.insertAsync).toHaveBeenCalledTimes(3);
+
+        // All calls (including retries) must include clickhouse_settings
+        const expectedParams = {
+            table: TABLES.AUDIT_EVENT,
+            values: rows,
+            format: QUERY_FORMAT.JSON_EACH_ROW,
+            clickhouse_settings: {
+                async_insert: 1,
+                wait_for_async_insert: 1
+            }
+        };
+        for (const call of mockClickHouseClientManager.insertAsync.mock.calls) {
+            expect(call[0]).toEqual(expectedParams);
+        }
     });
 
     test('throws after all retries exhausted', async () => {
