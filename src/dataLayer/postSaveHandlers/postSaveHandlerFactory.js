@@ -58,6 +58,19 @@ class PostSaveHandlerFactory {
             }));
         }
 
+        if (this._shouldUseMongoDirectGroupMemberHandler(resourceType)) {
+            logDebug(`Creating MongoDB direct group member handler for ${resourceType}`);
+            const { MongoDirectGroupMemberHandler } = require('./mongoDirectGroupMemberHandler');
+            const { MongoDirectGroupMemberRepository } = require('../repositories/mongoDirectGroupMemberRepository');
+            const repository = new MongoDirectGroupMemberRepository({
+                mongoDatabaseManager: this.mongoDatabaseManager
+            });
+            handlers.push(new MongoDirectGroupMemberHandler({
+                configManager: this.configManager,
+                mongoDirectGroupMemberRepository: repository
+            }));
+        }
+
         return handlers;
     }
 
@@ -81,6 +94,16 @@ class PostSaveHandlerFactory {
      */
     _shouldUseMongoGroupMemberHandler(resourceType) {
         return this.configManager.enableMongoGroupMembers && resourceType === 'Group';
+    }
+
+    /**
+     * Determines if MongoDB direct group member handler should be used
+     * @param {string} resourceType
+     * @returns {boolean}
+     * @private
+     */
+    _shouldUseMongoDirectGroupMemberHandler(resourceType) {
+        return this.configManager.enableMongoDirectGroupMembers && resourceType === 'Group';
     }
 }
 

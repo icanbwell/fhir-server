@@ -118,6 +118,7 @@ const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
 const {MongoGroupMemberEnrichmentProvider} = require('./enrich/providers/mongoGroupMemberEnrichmentProvider');
+const {MongoDirectGroupMemberEnrichmentProvider} = require('./enrich/providers/mongoDirectGroupMemberEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -184,6 +185,10 @@ const createContainer = function () {
             }),
             new MongoGroupMemberEnrichmentProvider({
                 mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+                configManager: c.configManager
+            }),
+            new MongoDirectGroupMemberEnrichmentProvider({
+                mongoDirectGroupMemberRepository: c.mongoDirectGroupMemberRepository,
                 configManager: c.configManager
             })
         ]
@@ -387,7 +392,8 @@ const createContainer = function () {
             clickHouseClientManager: c.clickHouseClientManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
-            mongoGroupMemberRepository: c.mongoGroupMemberRepository
+            mongoGroupMemberRepository: c.mongoGroupMemberRepository,
+            mongoDirectGroupMemberRepository: c.mongoDirectGroupMemberRepository
         });
     });
 
@@ -1045,6 +1051,13 @@ const createContainer = function () {
     container.register('mongoGroupMemberRepository', (c) => {
         const { MongoGroupMemberRepository } = require('./dataLayer/repositories/mongoGroupMemberRepository');
         return new MongoGroupMemberRepository({
+            mongoDatabaseManager: c.mongoDatabaseManager
+        });
+    });
+
+    container.register('mongoDirectGroupMemberRepository', (c) => {
+        const { MongoDirectGroupMemberRepository } = require('./dataLayer/repositories/mongoDirectGroupMemberRepository');
+        return new MongoDirectGroupMemberRepository({
             mongoDatabaseManager: c.mongoDatabaseManager
         });
     });

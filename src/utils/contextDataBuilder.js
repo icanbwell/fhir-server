@@ -25,6 +25,12 @@ function buildContextDataForHybridStorage(resourceType, resource, requestInfo = 
             requestInfo?.headers?.[HEADERS.SUB_GROUP_MEMBER_REQUEST] === 'true') {
             contextData.useMongoGroupMembers = true;
         }
+        // Set flag for MongoDB Direct group member flow (V2 - no event sourcing)
+        // Requires BOTH: ENABLE_MONGO_DIRECT_GROUP_MEMBERS=1 AND header directGroupMemberRequest: true
+        if (configManager && configManager.enableMongoDirectGroupMembers &&
+            requestInfo?.headers?.[HEADERS.DIRECT_GROUP_MEMBER_REQUEST] === 'true') {
+            contextData.useMongoDirectGroupMembers = true;
+        }
         return contextData;
     }
 

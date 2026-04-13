@@ -43,7 +43,16 @@ const STORAGE_PROVIDER_TYPES = {
      *
      * Use case: Group resources with 1M+ members, alternative to ClickHouse
      */
-    MONGO_WITH_MONGO_MEMBERS: 'mongo-with-mongo-members'
+    MONGO_WITH_MONGO_MEMBERS: 'mongo-with-mongo-members',
+
+    /**
+     * MongoDB + MongoDB Direct Members storage (V2)
+     * - MongoDB: Resource metadata (Group_4_0_0)
+     * - MongoDB: Current-state members (Group_4_0_0_MemberDirect - no event sourcing)
+     *
+     * Use case: Group resources with 1M+ members, simpler/faster alternative to V1
+     */
+    MONGO_WITH_MONGO_DIRECT_MEMBERS: 'mongo-with-mongo-direct-members'
 };
 
 module.exports = { STORAGE_PROVIDER_TYPES };

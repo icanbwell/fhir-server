@@ -510,6 +510,16 @@ module.exports = {
                 options: { name: 'memberType_memberObjectId_groupId_id' }
             }
         ],
+        Group_4_0_0_MemberDirect: [
+            {
+                keys: { group_uuid: 1, member_reference: 1 },
+                options: { name: 'groupUuid_memberReference', unique: true }
+            },
+            {
+                keys: { member_reference: 1, group_uuid: 1 },
+                options: { name: 'memberReference_groupUuid' }
+            }
+        ],
         HealthcareService_4_0_0: [
             {
                 keys: {

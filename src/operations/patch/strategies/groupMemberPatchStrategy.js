@@ -107,14 +107,20 @@ class GroupMemberPatchStrategy {
             throw new Error('No post-save handlers available for Group resource');
         }
         const useMongoMembers = requestInfo?.headers?.[HEADERS.SUB_GROUP_MEMBER_REQUEST] === 'true';
-        const groupHandler = useMongoMembers
-            ? postSaveHandlers.find(h => h.constructor.name === 'MongoGroupMemberHandler')
-            : postSaveHandlers.find(h => h.constructor.name === 'ClickHouseGroupHandler');
+        const useMongoDirectMembers = requestInfo?.headers?.[HEADERS.DIRECT_GROUP_MEMBER_REQUEST] === 'true';
+        let groupHandler;
+        if (useMongoDirectMembers) {
+            groupHandler = postSaveHandlers.find(h => h.constructor.name === 'MongoDirectGroupMemberHandler');
+        } else if (useMongoMembers) {
+            groupHandler = postSaveHandlers.find(h => h.constructor.name === 'MongoGroupMemberHandler');
+        } else {
+            groupHandler = postSaveHandlers.find(h => h.constructor.name === 'ClickHouseGroupHandler');
+        }
         if (!groupHandler) {
-            throw new Error(
-                `No ${useMongoMembers ? 'MongoDB' : 'ClickHouse'} group member handler available. ` +
-                `Check ${useMongoMembers ? 'ENABLE_MONGO_GROUP_MEMBERS' : 'CLICKHOUSE_ENABLED + MONGO_WITH_CLICKHOUSE_RESOURCES'} configuration.`
-            );
+            const handlerType = useMongoDirectMembers ? 'MongoDB Direct' : useMongoMembers ? 'MongoDB' : 'ClickHouse';
+            const configHint = useMongoDirectMembers ? 'ENABLE_MONGO_DIRECT_GROUP_MEMBERS' :
+                useMongoMembers ? 'ENABLE_MONGO_GROUP_MEMBERS' : 'CLICKHOUSE_ENABLED + MONGO_WITH_CLICKHOUSE_RESOURCES';
+            throw new Error(`No ${handlerType} group member handler available. Check ${configHint} configuration.`);
         }
 
         // 1. Enforce operations limit (empirically determined)
@@ -177,7 +183,7 @@ class GroupMemberPatchStrategy {
 
         // 2b. Enrich member entity references with _uuid (PATCH ops skip referenceGlobalIdHandler)
         // Uses the Group's _sourceAssigningAuthority to generate deterministic UUIDs
-        if (useMongoMembers && eventsToAdd.length > 0) {
+        if (useMongoMembers && !useMongoDirectMembers && eventsToAdd.length > 0) {
             const sourceAssigningAuthority = foundResource._sourceAssigningAuthority;
             for (const member of eventsToAdd) {
                 if (member.entity?.reference && !member.entity._uuid) {
@@ -196,7 +202,7 @@ class GroupMemberPatchStrategy {
         }
 
         // 2c. Validate added member references exist (atomic rejection for mongo members flow)
-        if (useMongoMembers && eventsToAdd.length > 0) {
+        if (useMongoMembers && !useMongoDirectMembers && eventsToAdd.length > 0) {
             const mongoGroupMemberRepository = this.databaseBulkInserter.mongoGroupMemberRepository;
             if (mongoGroupMemberRepository) {
                 const { valid, missingReferences } = await mongoGroupMemberRepository.validateMembersExistAsync(eventsToAdd);

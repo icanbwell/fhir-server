@@ -76,6 +76,11 @@ class MongoGroupMemberHandler extends BasePostSaveHandler {
             return;
         }
 
+        // Skip if request is using MongoDB Direct group members (V2)
+        if (contextData?.useMongoDirectGroupMembers) {
+            return;
+        }
+
         try {
             // Skip if PATCH already wrote events directly
             if (contextData?.groupMemberEventsWritten) {

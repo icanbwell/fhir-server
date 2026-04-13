@@ -1151,6 +1151,15 @@ class ConfigManager {
     }
 
     /**
+     * Whether MongoDB Direct Group Members storage is enabled (V2 - no event sourcing)
+     * Mutually exclusive with enableMongoGroupMembers
+     * @return {boolean}
+     */
+    get enableMongoDirectGroupMembers() {
+        return isTrue(env.ENABLE_MONGO_DIRECT_GROUP_MEMBERS);
+    }
+
+    /**
      * Resources using ClickHouse-only storage (no MongoDB)
      *
      * ClickHouse-only architecture:

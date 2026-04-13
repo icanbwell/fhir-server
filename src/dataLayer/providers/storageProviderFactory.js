@@ -27,19 +27,22 @@ class StorageProviderFactory {
      * @param {import('../databaseAttachmentManager').DatabaseAttachmentManager} params.databaseAttachmentManager
      * @param {import('../../utils/configManager').ConfigManager} params.configManager
      * @param {import('../../dataLayer/repositories/mongoGroupMemberRepository').MongoGroupMemberRepository|null} [params.mongoGroupMemberRepository]
+     * @param {import('../../dataLayer/repositories/mongoDirectGroupMemberRepository').MongoDirectGroupMemberRepository|null} [params.mongoDirectGroupMemberRepository]
      */
     constructor({
         resourceLocatorFactory,
         clickHouseClientManager,
         databaseAttachmentManager,
         configManager,
-        mongoGroupMemberRepository = null
+        mongoGroupMemberRepository = null,
+        mongoDirectGroupMemberRepository = null
     }) {
         this.resourceLocatorFactory = resourceLocatorFactory;
         this.clickHouseClientManager = clickHouseClientManager;
         this.databaseAttachmentManager = databaseAttachmentManager;
         this.configManager = configManager;
         this.mongoGroupMemberRepository = mongoGroupMemberRepository;
+        this.mongoDirectGroupMemberRepository = mongoDirectGroupMemberRepository;
 
         // Log configuration on initialization
         if (this.configManager.enableClickHouse) {
@@ -111,6 +114,20 @@ class StorageProviderFactory {
                 });
             }
 
+            case STORAGE_PROVIDER_TYPES.MONGO_WITH_MONGO_DIRECT_MEMBERS: {
+                const { MongoWithMongoDirectMembersStorageProvider } = require('./mongoWithMongoDirectMembersStorageProvider');
+                const mongoProvider = new MongoStorageProvider({
+                    resourceLocator,
+                    databaseAttachmentManager: this.databaseAttachmentManager
+                });
+                return new MongoWithMongoDirectMembersStorageProvider({
+                    resourceLocator,
+                    mongoStorageProvider: mongoProvider,
+                    mongoDirectGroupMemberRepository: this.mongoDirectGroupMemberRepository,
+                    configManager: this.configManager
+                });
+            }
+
             case STORAGE_PROVIDER_TYPES.MONGO:
             default: {
                 // Default to MongoDB for most resources
@@ -147,6 +164,16 @@ class StorageProviderFactory {
                 return STORAGE_PROVIDER_TYPES.MONGO_WITH_CLICKHOUSE;
             }
             return STORAGE_PROVIDER_TYPES.MONGO_WITH_MONGO_MEMBERS;
+        }
+
+        // Check MongoDB Direct Group Members (V2 - no event sourcing)
+        if (this.configManager.enableMongoDirectGroupMembers && resourceType === 'Group') {
+            if (this.configManager.enableClickHouse &&
+                this.clickHouseClientManager &&
+                this.configManager.mongoWithClickHouseResources.includes(resourceType)) {
+                return STORAGE_PROVIDER_TYPES.MONGO_WITH_CLICKHOUSE;
+            }
+            return STORAGE_PROVIDER_TYPES.MONGO_WITH_MONGO_DIRECT_MEMBERS;
         }
 
         // If ClickHouse not enabled, everything else goes to MongoDB

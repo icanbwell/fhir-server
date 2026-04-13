@@ -9,11 +9,13 @@ module.exports = {
     // Collection and view names
     COLLECTIONS: {
         GROUP_MEMBER_EVENTS: 'Group_4_0_0_MemberEvent',
-        GROUP_MEMBER_CURRENT: 'Group_4_0_0_MemberCurrent' // MongoDB standard view
+        GROUP_MEMBER_CURRENT: 'Group_4_0_0_MemberCurrent', // MongoDB standard view
+        GROUP_MEMBER_DIRECT: 'Group_4_0_0_MemberDirect' // MongoDB direct storage (V2 - no event sourcing)
     },
 
     // HTTP header for per-request activation (Express lowercases headers)
     HEADERS: {
-        SUB_GROUP_MEMBER_REQUEST: 'subgroupmemberrequest'
+        SUB_GROUP_MEMBER_REQUEST: 'subgroupmemberrequest',
+        DIRECT_GROUP_MEMBER_REQUEST: 'directgroupmemberrequest'
     }
 };

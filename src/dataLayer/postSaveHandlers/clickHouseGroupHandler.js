@@ -103,6 +103,11 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 return;
             }
 
+            // Skip if request is using MongoDB Direct group members (V2)
+            if (contextData?.useMongoDirectGroupMembers) {
+                return;
+            }
+
             // Check if member events were already written (e.g., by PATCH operations)
             // PATCH writes events directly and sets this flag in contextData
             if (contextData?.groupMemberEventsWritten) {

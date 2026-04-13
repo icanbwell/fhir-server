@@ -388,3 +388,242 @@ nvm use && node node_modules/.bin/jest src/tests/performance/group/mongo_member_
 ```
 
 Tests use `docker-compose-test.yml` (no volume mounts) with an isolated `fhir_perf_test` database, so your main MongoDB data is not affected.
+
+---
+
+## MongoDB Direct Group Members (V2)
+
+### What
+
+A simpler, faster alternative to V1 for storing Group members in MongoDB. Instead of event sourcing with a view, V2 stores one document per active member and upserts/deletes in place. No member validation, no ObjectId resolution, no audit trail.
+
+### Architecture
+
+Single collection with direct CRUD:
+
+```
+Group_4_0_0                    Group resource metadata (member array always stripped to [])
+Group_4_0_0_MemberDirect       One document per active member (upsert/delete in place)
+```
+
+### Document Schema
+
+```javascript
+{
+  _id: ObjectId(),                       // MongoDB auto-generated
+  group_uuid: "Group/<uuid>",            // Group _uuid string
+  member_reference: "Patient/<uuid>",    // entity.reference (always UUID-based)
+  period: { start: ISODate, end: ISODate },
+  inactive: false,
+  updated_at: ISODate                    // Last modified timestamp
+}
+```
+
+### Indexes
+
+Two indexes are required. A single compound index cannot efficiently serve both forward and reverse lookups because MongoDB can only use leading prefixes of compound indexes.
+
+| Index | Keys | Purpose |
+|-------|------|---------|
+| `groupUuid_memberReference` (unique) | `{ group_uuid: 1, member_reference: 1 }` | Upsert dedup, forward lookups ("members of this group"), countDocuments |
+| `memberReference_groupUuid` | `{ member_reference: 1, group_uuid: 1 }` | Reverse lookups ("which groups contain this member?", `?member=Patient/X`) |
+
+### Request Flow
+
+The feature activates when BOTH conditions are true:
+1. Environment variable: `ENABLE_MONGO_DIRECT_GROUP_MEMBERS=1`
+2. Per-request header: `directGroupMemberRequest: true`
+
+```
+HTTP Request (header: directGroupMemberRequest: true)
+  -> contextDataBuilder sets contextData.useMongoDirectGroupMembers = true
+  -> databaseBulkInserter strips member[] from Group document (no validation)
+  -> Group metadata saved to Group_4_0_0 (member: [])
+  -> postSaveProcessor routes to MongoDirectGroupMemberHandler
+  -> MongoDirectGroupMemberHandler -> mongoDirectGroupMemberRepository.upsertMembersAsync()
+  -> Members written to Group_4_0_0_MemberDirect via bulkWrite (upsert)
+```
+
+For PATCH operations, `groupMemberPatchStrategy` selects the handler and calls `writeEventsAsync()` -- upsert for adds, deleteMany for removes.
+
+For PUT operations, the handler reads current members via `find`, computes a diff, then upserts new members and deletes removed ones.
+
+### Key Files
+
+| File | Role |
+|------|------|
+| `src/constants/mongoGroupMemberConstants.js` | Collection name, header constant |
+| `src/dataLayer/repositories/mongoDirectGroupMemberRepository.js` | MongoDB data access, upsert/delete/find |
+| `src/dataLayer/postSaveHandlers/mongoDirectGroupMemberHandler.js` | Post-save handler (upserts on create, diffs on update) |
+| `src/dataLayer/providers/mongoWithMongoDirectMembersStorageProvider.js` | Storage provider (routes member queries to direct collection) |
+| `src/enrich/providers/mongoDirectGroupMemberEnrichmentProvider.js` | Enrichment (sets quantity via countDocuments, strips member array) |
+| `src/utils/contextDataBuilder.js` | Sets `useMongoDirectGroupMembers` flag from header |
+
+### API Usage
+
+Same as V1 but with the `directGroupMemberRequest` header instead of `subGroupMemberRequest`.
+
+**Add members (PATCH):**
+```bash
+PATCH /4_0_0/Group/{id}
+Content-Type: application/json-patch+json
+directGroupMemberRequest: true
+
+[
+  { "op": "add", "path": "/member/-", "value": { "entity": { "reference": "Patient/<uuid>" } } }
+]
+```
+
+**Remove members (PATCH):**
+```bash
+PATCH /4_0_0/Group/{id}
+Content-Type: application/json-patch+json
+directGroupMemberRequest: true
+
+[
+  { "op": "remove", "path": "/member", "value": { "entity": { "reference": "Patient/<uuid>" } } }
+]
+```
+
+### Configuration
+
+```bash
+ENABLE_MONGO_DIRECT_GROUP_MEMBERS=1
+
+# Same limits as V1
+GROUP_PATCH_OPERATIONS_LIMIT=10000
+MAX_GROUP_MEMBERS_PER_PUT=50000
+```
+
+Mutually exclusive with V1 (`ENABLE_MONGO_GROUP_MEMBERS`). Only one MongoDB approach should be active at a time.
+
+### Running Performance Tests
+
+```bash
+docker compose -f docker-compose-test.yml up -d mongo
+
+# PATCH operation limits + search performance
+nvm use && node node_modules/.bin/jest src/tests/performance/group/mongo_direct_member_performance.test.js --testTimeout=600000
+
+# 1M member loading (100 PATCHes x 10K ops)
+nvm use && node node_modules/.bin/jest src/tests/performance/group/mongo_direct_member_1m_patch.test.js --testTimeout=600000
+```
+
+---
+
+## V1 vs V2: Storage and Index Comparison
+
+All measurements from Docker MongoDB 8.0.15 on MacBook Air (Apple Silicon), isolated `fhir_perf_test` database.
+
+### Collection at 1M Members
+
+| Metric | V1 (`Group_4_0_0_MemberEvent`) | V2 (`Group_4_0_0_MemberDirect`) |
+|--------|-------------------------------|--------------------------------|
+| Documents | 1,000,000 | 1,000,000 |
+| Data size (raw) | 342.16MB | 172.62MB |
+| Storage size (compressed) | 73.58MB | 21.22MB |
+| Avg doc size | 358 bytes | 181 bytes |
+| Total index size | 71.97MB | 112.23MB |
+| **Total on disk** | **145.55MB** | **133.45MB** |
+
+V2 documents are ~50% smaller (181 vs 358 bytes) because they omit `group_id` (ObjectId), `member_object_id` (ObjectId), `member_type`, `event_type`, and `event_time` fields. V2 index size is larger because string-based keys (`group_uuid`, `member_reference`) are bigger than V1's 12-byte ObjectId keys.
+
+### Index Breakdown at 1M
+
+**V1 (Event-Sourced):**
+
+| Index | Size | Per Doc |
+|-------|------|---------|
+| `groupId_memberType_memberObjectId_id` | 23.6MB | ~24 bytes |
+| `memberType_memberObjectId_groupId_id` | 37.6MB | ~38 bytes |
+| `_id_` | 10.8MB | ~11 bytes |
+| **Total** | **71.97MB** | **~72 bytes** |
+
+**V2 (Direct):**
+
+| Index | Size | Per Doc |
+|-------|------|---------|
+| `groupUuid_memberReference` (unique) | 35.36MB | ~35 bytes |
+| `memberReference_groupUuid` | 67.71MB | ~68 bytes |
+| `_id_` | 9.16MB | ~9 bytes |
+| **Total** | **112.23MB** | **~112 bytes** |
+
+V1 indexes are smaller because they use 12-byte ObjectIds. V2 indexes are larger because they store full UUID string references (~36 bytes each). The trade-off: V2 skips the ObjectId resolution step at write time, which is why V2 writes are faster at scale.
+
+### Per-Member Cost
+
+| Metric | V1 (Event-Sourced) | V2 (Direct) |
+|--------|-------------------|-------------|
+| Raw data per member | 358 bytes | 181 bytes |
+| Compressed storage | 73.6 bytes | 21.2 bytes |
+| Index overhead | 72 bytes | 112 bytes |
+| **Total on-disk** | **~146 bytes** | **~133 bytes** |
+
+---
+
+## Performance Comparison: V1 vs V2 vs ClickHouse
+
+All numbers measured on the same machine (MacBook Air, Apple Silicon) using `docker-compose-test.yml` (ephemeral containers, no volumes).
+
+- **MongoDB V1/V2**: 8.0.15 Docker container
+- **ClickHouse**: 24.8 Docker container
+
+### Write Speed
+
+| Operation | V2 (Direct) | V1 (Event-Sourced) | ClickHouse |
+|-----------|------------|-------------------|------------|
+| PATCH 100 ops | 43ms | 60ms | 74ms |
+| PATCH 1K ops | 141ms | 122ms | 70ms |
+| PATCH 5K ops | 352ms | 252ms | 131ms |
+| PATCH 10K ops | 714ms | 348ms | 182ms |
+| 50K via PATCH (5K x 10) | 2.64s | 2.97s | 1.74s |
+| **1M via PATCH (10K x 100)** | **52.88s** | **109.72s** | **17.61s** |
+
+V2 loads 1M members ~2x faster than V1 because it skips member reference validation and ObjectId resolution. ClickHouse is still ~3x faster than V2 at 1M scale.
+
+Batch consistency across 100 batches:
+- V2: 490ms - 675ms per 10K batch (very consistent)
+- V1: 1,043ms - 1,303ms per 10K batch
+- ClickHouse: 133ms - 335ms per 10K batch
+
+### Read Speed
+
+| Operation | V2 (Direct) | V1 (Event-Sourced) | ClickHouse |
+|-----------|------------|-------------------|------------|
+| Member count (10K) | 12ms | 47ms | 34ms |
+| Member count (50K) | 75ms | 289ms | 53ms |
+| Member count (1M) | 494ms | 7,465ms | 160ms |
+| Member search (100 members) | 55ms | 233ms | -- |
+| Member search (1K members) | 40ms | 289ms | -- |
+| Member search (5K members) | 64ms | 418ms | -- |
+
+V2 count at 1M is **15x faster** than V1 (494ms vs 7,465ms) because it uses `countDocuments` on indexed collection vs V1's aggregation pipeline through a view. ClickHouse is still ~3x faster than V2 for counts at 1M due to pre-computed materialized views.
+
+### PATCH Operation Limits
+
+| Operations per PATCH | V2 (Direct) | V1 (Event-Sourced) | ClickHouse |
+|---------------------|------------|-------------------|------------|
+| 100 | 43ms (200 OK) | 60ms (200 OK) | 74ms (200 OK) |
+| 1,000 | 141ms (200 OK) | 122ms (200 OK) | 70ms (200 OK) |
+| 5,000 | 352ms (200 OK) | 252ms (200 OK) | 131ms (200 OK) |
+| 10,000 | 714ms (200 OK) | 348ms (200 OK) | 182ms (200 OK) |
+| 25,000 | rejected (400) | rejected (400) | rejected (400) |
+
+All three hit the same default 10K operation limit (configurable via `GROUP_PATCH_OPERATIONS_LIMIT`).
+
+### Summary
+
+| Dimension | V2 (Direct) | V1 (Event-Sourced) | ClickHouse |
+|-----------|------------|-------------------|------------|
+| **Write 1M** | 52.88s | 109.72s | 17.61s |
+| **Count 1M** | 494ms | 7,465ms | 160ms |
+| **Storage/member** | ~133 bytes | ~146 bytes | -- |
+| **Audit trail** | No | Yes (full event log) | Yes (event log) |
+| **Member validation** | No | Yes | No |
+| **Infrastructure** | MongoDB only | MongoDB only | Separate cluster |
+
+### When to Use
+
+- **V1 (Event-Sourced)** when audit trail / event history matters, or when member existence validation is required
+- **V2 (Direct)** when write/read speed is the priority, you don't need audit trail, and you want MongoDB-only infrastructure
+- **ClickHouse** when you need the fastest reads at 1M+ scale and have ClickHouse infrastructure available

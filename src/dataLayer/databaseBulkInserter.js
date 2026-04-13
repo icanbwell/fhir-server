@@ -174,7 +174,10 @@ class DatabaseBulkInserter extends EventEmitter {
         const isMongoMembersEnabled = this.configManager.enableMongoGroupMembers &&
             resource.resourceType === 'Group' &&
             contextData?.useMongoGroupMembers === true;
-        if (!isClickHouseEnabled && !isMongoMembersEnabled) {
+        const isMongoDirectMembersEnabled = this.configManager.enableMongoDirectGroupMembers &&
+            resource.resourceType === 'Group' &&
+            contextData?.useMongoDirectGroupMembers === true;
+        if (!isClickHouseEnabled && !isMongoMembersEnabled && !isMongoDirectMembersEnabled) {
             return resource;
         }
 

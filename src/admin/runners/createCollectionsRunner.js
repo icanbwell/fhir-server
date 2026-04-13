@@ -136,6 +136,21 @@ class CreateCollectionsRunner extends BaseScriptRunner {
                 this.adminLogger.logInfo('MongoDB Group Members feature is disabled', { enableMongoGroupMembers: false });
             }
 
+            // Create MongoDB Direct Group Member collection (V2 - no event sourcing)
+            if (this.configManager?.enableMongoDirectGroupMembers) {
+                this.adminLogger.logInfo('MongoDB Direct Group Members feature is enabled');
+                const { COLLECTIONS } = require('../../constants/mongoGroupMemberConstants');
+
+                if (!existingMainDbCollections.includes(COLLECTIONS.GROUP_MEMBER_DIRECT)) {
+                    this.adminLogger.logInfo('Creating MongoDB Direct Group Member collection',
+                        { collection: COLLECTIONS.GROUP_MEMBER_DIRECT });
+                    await mainDb.createCollection(COLLECTIONS.GROUP_MEMBER_DIRECT);
+                } else {
+                    this.adminLogger.logInfo('MongoDB Direct Group Member collection already exists',
+                        { collection: COLLECTIONS.GROUP_MEMBER_DIRECT });
+                }
+            }
+
             // synchronize indexes
             await this.indexManager.synchronizeIndexesWithConfigAsync({
                 audit: true
