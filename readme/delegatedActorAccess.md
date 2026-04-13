@@ -184,21 +184,42 @@ The generated token will contain:
 }
 ```
 
-## Composition Sensitive Section Filtering
+## Composition Sensitive Section Filtering (Upcoming)
 
-When `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` is enabled and the user is a `delegatedUser`, the server **recursively removes any section** whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`.
+> **Status:** This functionality is **not yet implemented**. The phases below describe planned behavior and the proposed configuration.
 
-**Behavior:**
-- **All** sections matching the sensitive category system are removed, regardless of the specific category code
-- Filtering is recursive — nested sections (`section.section`) are also checked
-- If a parent section is non-sensitive but a child section is sensitive, only the child is removed
-- If a parent section itself is sensitive, the entire section (including all children) is removed
-- If all sections are removed, the `section` property is deleted from the resource (FHIR convention: omit empty optional properties)
-- Non-Composition resources are unaffected
+Composition resources will require an additional layer of filtering beyond DB-level resource exclusion. Even when a Composition itself passes the resource-level filter, individual **sections** within it may contain sensitive data that should be hidden from delegated users.
 
-Filtering happens at the **operation level**, right after database fetch, across all read paths (search, searchById, searchByVersionId, history, everything, graph).
+### Phase 1: Blanket Section Filtering
+
+When `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` is enabled and the user is a `delegatedUser`, the server will **recursively remove any section** whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`.
+
+**Planned behavior:**
+- **All** sections matching the sensitive category system will be removed, regardless of the specific category code
+- Filtering will be recursive — nested sections (`section.section`) will also be checked
+- If a parent section is non-sensitive but a child section is sensitive, only the child will be removed
+- If a parent section itself is sensitive, the entire section (including all children) will be removed
+- Non-Composition resources will be unaffected
+
+Filtering will happen at the **operation level**, right after database fetch, across all read paths.
+
+### Phase 2: Consent-Based Section Filtering
+
+Phase 2 will align section-level filtering with the consent-based approach already used for DB-level resource filtering.
+
+**Phase 1:** All sensitive sections will be removed — a section with `SUBSTANCE_ABUSE` will be treated the same as one with `MENTAL_HEALTH`, regardless of what the Consent says.
+
+**Phase 2:** The server will read `deniedSensitiveCategories` from the Consent (via `DelegatedAccessRulesManager.getFilteringRulesAsync`) and only remove sections whose category code appears in the denied list.
+
+**Example:**
+- Consent denies `SUBSTANCE_ABUSE` and `HIV_AIDS`
+- A Composition has sections tagged with `SUBSTANCE_ABUSE`, `MENTAL_HEALTH`, and `IMMUNIZATION`
+- Phase 1 will remove all three (they all have the sensitive system)
+- Phase 2 will remove only `SUBSTANCE_ABUSE` and `HIV_AIDS` (the ones in the denied list); `MENTAL_HEALTH` and `IMMUNIZATION` will remain visible
+
+This will mirror how `dataSharingManager.updateQueryForDelegatedAccessSensitiveData` already works at the resource level — using the same `deniedSensitiveCategories` from the Consent to decide what to exclude.
 
 ## Config
 
 - `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules, and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
-- `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING`: true/false — **gates Composition section-level filtering**. Requires `ENABLE_DELEGATED_ACCESS_DETECTION` to also be enabled. When both are enabled and the user is a delegated user, sensitive sections are recursively stripped from Composition resources at the operation level.
+- `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` (proposed): true/false — will **gate Composition section-level filtering**. Requires `ENABLE_DELEGATED_ACCESS_DETECTION` to also be enabled. When both are enabled and the user is a delegated user, sensitive sections will be recursively stripped from Composition resources at the operation level.
