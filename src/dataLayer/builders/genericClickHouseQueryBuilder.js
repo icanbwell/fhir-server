@@ -3,6 +3,32 @@
 const { logDebug } = require('../../operations/common/logging');
 const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 
+const DEFAULT_LIMIT = 100;
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const HTTP_BAD_REQUEST = 400;
+const ISSUE_CODE_TOO_COSTLY = 'too-costly';
+
+/**
+ * Maps MongoDB operators to ClickHouse SQL comparison operators.
+ */
+const OPERATOR_MAP = {
+    $eq: '=',
+    $gte: '>=',
+    $gt: '>',
+    $lt: '<',
+    $lte: '<=',
+    $ne: '!='
+};
+
+/**
+ * Maps schema field types to ClickHouse parameter types.
+ */
+const CLICKHOUSE_TYPE_MAP = {
+    datetime: 'String',
+    number: 'Float64'
+};
+const CLICKHOUSE_TYPE_DEFAULT = 'String';
+
 /**
  * Builds parameterized ClickHouse SQL from parsed query criteria and schema.
  *
@@ -17,31 +43,35 @@ class GenericClickHouseQueryBuilder {
      * @param {import('../clickHouse/genericClickHouseQueryParser').ParsedQuery} parsedQuery
      * @param {Object} schema - ClickHouse schema from registry
      * @param {Object} options
-     * @param {number} [options.limit=100]
+     * @param {number} [options.limit]
      * @param {number} [options.skip=0]
      * @returns {{ query: string, query_params: Object }}
      */
     buildSearchQuery (parsedQuery, schema, options = {}) {
-        const limit = options.limit || 100;
+        const limit = options.limit || DEFAULT_LIMIT;
         const skip = options.skip || 0;
         const { whereClauses, params } = this._buildWhereClauses(parsedQuery, schema);
 
-        const seekClause = this._buildSeekClause(parsedQuery.paginationCursor, schema.seekKey, params);
-
-        const query = `
-            SELECT ${schema.fhirResourceColumn}
-            FROM ${schema.tableName}
-            ${whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : ''}
-            ${seekClause}
-            ORDER BY ${schema.seekKey.join(', ')}
-            LIMIT {_limit:UInt32}
-            ${skip > 0 ? 'OFFSET {_skip:UInt32}' : ''}
-        `;
+        this._addSeekClause(parsedQuery.paginationCursor, schema.seekKey, whereClauses, params);
 
         params._limit = limit;
         if (skip > 0) {
             params._skip = skip;
         }
+
+        const parts = [
+            this._selectClause(schema.fhirResourceColumn),
+            this._fromClause(schema.tableName),
+            this._whereClause(whereClauses),
+            this._orderByClause(schema.seekKey),
+            'LIMIT {_limit:UInt32}'
+        ];
+
+        if (skip > 0) {
+            parts.push('OFFSET {_skip:UInt32}');
+        }
+
+        const query = parts.filter(Boolean).join('\n');
 
         logDebug('GenericClickHouseQueryBuilder: buildSearchQuery', {
             table: schema.tableName,
@@ -62,12 +92,13 @@ class GenericClickHouseQueryBuilder {
     buildCountQuery (parsedQuery, schema) {
         const { whereClauses, params } = this._buildWhereClauses(parsedQuery, schema);
 
-        const query = `
-            SELECT count() AS cnt
-            FROM ${schema.tableName}
-            ${whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : ''}
-        `;
+        const parts = [
+            'SELECT count() AS cnt',
+            this._fromClause(schema.tableName),
+            this._whereClause(whereClauses)
+        ];
 
+        const query = parts.filter(Boolean).join('\n');
         return { query, query_params: params };
     }
 
@@ -79,23 +110,48 @@ class GenericClickHouseQueryBuilder {
      * @returns {{ query: string, query_params: Object }}
      */
     buildFindByIdQuery (id, schema) {
-        const query = `
-            SELECT ${schema.fhirResourceColumn}
-            FROM ${schema.tableName}
-            WHERE id = {_id:String}
-            LIMIT 1
-        `;
+        const parts = [
+            this._selectClause(schema.fhirResourceColumn),
+            this._fromClause(schema.tableName),
+            'WHERE id = {_id:String}',
+            'LIMIT 1'
+        ];
 
+        const query = parts.join('\n');
         return { query, query_params: { _id: id } };
     }
 
+    // ─── SQL clause helpers ──────────────────────────────────────
+
+    /** @private */
+    _selectClause (column) {
+        return `SELECT ${column}`;
+    }
+
+    /** @private */
+    _fromClause (tableName) {
+        return `FROM ${tableName}`;
+    }
+
+    /** @private */
+    _whereClause (conditions) {
+        if (conditions.length === 0) return null;
+        return 'WHERE ' + conditions.join(' AND ');
+    }
+
+    /** @private */
+    _orderByClause (seekKey) {
+        return 'ORDER BY ' + seekKey.join(', ');
+    }
+
+    // ─── Validation ──────────────────────────────────────────────
+
     /**
      * Validates that required filters are present in the parsed query.
-     * Throws FHIR OperationOutcome (400 too-costly) if missing.
      *
      * @param {import('../clickHouse/genericClickHouseQueryParser').ParsedQuery} parsedQuery
      * @param {Object} schema
-     * @throws {Error} with diagnostics if required filter missing or range exceeded
+     * @throws {Error} with statusCode and operationOutcomeCode if validation fails
      */
     validateRequiredFilters (parsedQuery, schema) {
         if (!schema.requiredFilters || schema.requiredFilters.length === 0) {
@@ -104,33 +160,25 @@ class GenericClickHouseQueryBuilder {
 
         const presentFields = new Set(
             parsedQuery.fieldConditions
-                .filter(c => c.fieldPath) // skip $or groups
+                .filter(c => c.fieldPath)
                 .map(c => c.fieldPath)
         );
 
         for (const required of schema.requiredFilters) {
             if (!presentFields.has(required)) {
-                const error = new Error(
+                this._throwValidationError(
                     `Required filter '${required}' missing. ClickHouse-only resources require ` +
                     `these filters: ${schema.requiredFilters.join(', ')}`
                 );
-                error.statusCode = 400;
-                error.operationOutcomeCode = 'too-costly';
-                throw error;
             }
         }
 
-        // Validate date range if maxRangeDays is set
         if (schema.maxRangeDays) {
             this._validateDateRange(parsedQuery.fieldConditions, schema);
         }
     }
 
-    /**
-     * @param {Array} fieldConditions
-     * @param {Object} schema
-     * @private
-     */
+    /** @private */
     _validateDateRange (fieldConditions, schema) {
         for (const required of schema.requiredFilters) {
             const mapping = schema.fieldMappings[required];
@@ -146,24 +194,33 @@ class GenericClickHouseQueryBuilder {
             if (gteCondition && ltCondition) {
                 const startMs = new Date(gteCondition.value).getTime();
                 const endMs = new Date(ltCondition.value).getTime();
-                const rangeDays = (endMs - startMs) / (1000 * 60 * 60 * 24);
+                const rangeDays = (endMs - startMs) / MS_PER_DAY;
 
                 if (rangeDays > schema.maxRangeDays) {
-                    const error = new Error(
+                    this._throwValidationError(
                         `Date range for '${required}' exceeds maximum of ${schema.maxRangeDays} days ` +
                         `(requested: ${Math.ceil(rangeDays)} days)`
                     );
-                    error.statusCode = 400;
-                    error.operationOutcomeCode = 'too-costly';
-                    throw error;
                 }
             }
         }
     }
 
     /**
-     * Builds WHERE clauses and parameter map from parsed conditions.
-     *
+     * @param {string} message
+     * @throws {Error}
+     * @private
+     */
+    _throwValidationError (message) {
+        const error = new Error(message);
+        error.statusCode = HTTP_BAD_REQUEST;
+        error.operationOutcomeCode = ISSUE_CODE_TOO_COSTLY;
+        throw error;
+    }
+
+    // ─── WHERE clause construction ───────────────────────────────
+
+    /**
      * @param {import('../clickHouse/genericClickHouseQueryParser').ParsedQuery} parsedQuery
      * @param {Object} schema
      * @returns {{ whereClauses: string[], params: Object }}
@@ -174,7 +231,6 @@ class GenericClickHouseQueryBuilder {
         const params = {};
         let paramIndex = 0;
 
-        // Field conditions
         for (const condition of parsedQuery.fieldConditions) {
             if (condition.operator === '$or') {
                 const orParts = [];
@@ -194,7 +250,6 @@ class GenericClickHouseQueryBuilder {
             params[paramName] = this._coerceValue(condition);
         }
 
-        // Security tag filtering — mandatory, unconditional
         const { accessTags, ownerTags } = parsedQuery.securityConditions;
         if (accessTags.length > 0) {
             whereClauses.push(`hasAny(${schema.securityMappings.accessTags}, {_accessTags:Array(String)})`);
@@ -209,10 +264,8 @@ class GenericClickHouseQueryBuilder {
     }
 
     /**
-     * Converts a single field condition to a parameterized SQL clause.
-     *
      * @param {Object} condition
-     * @param {number} index - unique param index
+     * @param {number} index
      * @returns {{ clause: string, paramName: string }}
      * @private
      */
@@ -221,49 +274,28 @@ class GenericClickHouseQueryBuilder {
         const column = condition.column;
         const chType = this._clickHouseType(condition.type);
 
-        switch (condition.operator) {
-            case '$eq':
-                return { clause: `${column} = {${paramName}:${chType}}`, paramName };
-            case '$gte':
-                return { clause: `${column} >= {${paramName}:${chType}}`, paramName };
-            case '$gt':
-                return { clause: `${column} > {${paramName}:${chType}}`, paramName };
-            case '$lt':
-                return { clause: `${column} < {${paramName}:${chType}}`, paramName };
-            case '$lte':
-                return { clause: `${column} <= {${paramName}:${chType}}`, paramName };
-            case '$ne':
-                return { clause: `${column} != {${paramName}:${chType}}`, paramName };
-            case '$in':
-                return { clause: `${column} IN {${paramName}:Array(${chType})}`, paramName };
-            default:
-                throw new Error(`Unsupported operator: ${condition.operator}`);
+        if (condition.operator === '$in') {
+            return { clause: `${column} IN {${paramName}:Array(${chType})}`, paramName };
         }
+
+        const sqlOp = OPERATOR_MAP[condition.operator];
+        if (!sqlOp) {
+            throw new Error(`Unsupported operator: ${condition.operator}`);
+        }
+
+        return { clause: `${column} ${sqlOp} {${paramName}:${chType}}`, paramName };
     }
 
     /**
-     * Maps schema field type to ClickHouse parameter type.
-     * @param {string} type
-     * @returns {string}
+     * @param {string} type - schema field type
+     * @returns {string} ClickHouse parameter type
      * @private
      */
     _clickHouseType (type) {
-        switch (type) {
-            case 'datetime':
-                return 'String'; // ClickHouse auto-parses ISO strings for DateTime64 comparisons
-            case 'number':
-                return 'Float64';
-            case 'string':
-            case 'reference':
-            case 'lowcardinality':
-            case 'array<string>':
-            default:
-                return 'String';
-        }
+        return CLICKHOUSE_TYPE_MAP[type] || CLICKHOUSE_TYPE_DEFAULT;
     }
 
     /**
-     * Coerces a condition value for ClickHouse parameterization.
      * @param {Object} condition
      * @returns {*}
      * @private
@@ -276,22 +308,20 @@ class GenericClickHouseQueryBuilder {
     }
 
     /**
-     * Builds seek pagination clause based on the full seekKey tuple.
+     * Adds seek pagination condition to the WHERE clauses.
      *
-     * @param {string|null} cursor - pagination cursor value
-     * @param {string[]} seekKey - ORDER BY columns from schema
-     * @param {Object} params - parameter accumulator
-     * @returns {string} SQL clause (may be empty)
+     * @param {string|null} cursor
+     * @param {string[]} seekKey
+     * @param {string[]} whereClauses - mutated
+     * @param {Object} params - mutated
      * @private
      */
-    _buildSeekClause (cursor, seekKey, params) {
-        if (!cursor) return '';
+    _addSeekClause (cursor, seekKey, whereClauses, params) {
+        if (!cursor) return;
 
-        // For now, seek on the first column of the tuple using the cursor value.
-        // Full tuple seek (multi-column cursor) is a follow-on for Observation.
         const firstColumn = seekKey[0];
         params._seekCursor = cursor;
-        return `AND ${firstColumn} > {_seekCursor:String}`;
+        whereClauses.push(`${firstColumn} > {_seekCursor:String}`);
     }
 }
 
