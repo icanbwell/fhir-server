@@ -266,7 +266,7 @@ class FhirRouter {
                 const metadataPath = baseUrl === '/' ? '/metadata' : `${baseUrl}/metadata`;
                 app.options(metadataPath, cors(corsOptions)); // Enable metadata route
 
-                app.get(metadataPath, cors(corsOptions), getArgsMiddleware(), metadataConfig.controller({
+                app.get(metadataPath, cors(corsOptions), getArgsMiddleware(), authenticationMiddleware(config), metadataConfig.controller({
                     profiles,
                     security,
                     statementGenerator
@@ -278,7 +278,7 @@ class FhirRouter {
             // Enable cors with preflight
             app.options(metadataConfig.path, cors(corsOptions)); // Enable metadata route
 
-            app.get(metadataConfig.path, cors(corsOptions), versionValidationMiddleware(versionValidationConfiguration), getArgsMiddleware(), metadataConfig.controller({
+            app.get(metadataConfig.path, cors(corsOptions), versionValidationMiddleware(versionValidationConfiguration), getArgsMiddleware(), authenticationMiddleware(config), metadataConfig.controller({
                 profiles,
                 security,
                 statementGenerator
