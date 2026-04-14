@@ -1,6 +1,6 @@
 'use strict';
 
-const { DateTimeFormatter } = require('../../../utils/clickHouse/dateTimeFormatter');
+const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 
 /**
  * Field extractor for ScaffoldingTestResource — a synthetic resource

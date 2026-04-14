@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ClickHouseSchemaRegistry } = require('../../dataLayer/clickHouse/schemaRegistry');
-const { ScaffoldingTestFieldExtractor } = require('../../dataLayer/clickHouse/fieldExtractors/scaffoldingTestFieldExtractor');
+const { ScaffoldingTestFieldExtractor } = require('./scaffoldingTestFieldExtractor');
 const {
     WRITE_STRATEGIES,
     ENGINE_TYPES,
