@@ -20,6 +20,7 @@ const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/audit
 const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { AuditEventKafkaProducer } = require('./auditEventKafkaProducer');
+const { AuditEventClickHouseWriter } = require('./auditEventClickHouseWriter');
 const { ConfigManager } = require('./configManager');
 const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES } = require('../constants');
 const mutex = new Mutex();
@@ -33,6 +34,7 @@ class AuditLogger {
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
      * @property {AuditEventKafkaProducer} auditEventKafkaProducer
+     * @property {AuditEventClickHouseWriter|null} auditEventClickHouseWriter
      * @property {string} base_version
      *
      * @param {params}
@@ -43,6 +45,7 @@ class AuditLogger {
                     preSaveManager,
                     configManager,
                     auditEventKafkaProducer,
+                    auditEventClickHouseWriter,
                     base_version = '4_0_0'
                 }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
@@ -71,6 +74,10 @@ class AuditLogger {
         this.auditEventKafkaProducer = auditEventKafkaProducer;
         assertTypeEquals(auditEventKafkaProducer, AuditEventKafkaProducer);
         /**
+         * @type {AuditEventClickHouseWriter|null}
+         */
+        this.auditEventClickHouseWriter = auditEventClickHouseWriter || null;
+        /**
          * @type {{doc: import('../fhir/classes/4_0_0/resources/resource'), requestInfo: import('./fhirRequestInfo').FhirRequestInfo}[]}
          */
         this.queue = [];
@@ -82,7 +89,9 @@ class AuditLogger {
         /**
          * @type {boolean}
          */
-        this.isAuditEventEnabled = this.configManager.enableAuditEventMongoDB || this.configManager.enableAuditEventKafka;
+        this.isAuditEventEnabled = this.configManager.enableAuditEventMongoDB
+            || this.configManager.enableAuditEventKafka
+            || this.configManager.enableAuditEventClickHouse;
         /**
          * @type {number}
          */
@@ -306,6 +315,7 @@ class AuditLogger {
         const operationsMap = new Map();
         operationsMap.set(resourceType, []);
         const kafkaAuditEvents = [];
+        const clickHouseAuditEvents = [];
 
         for (const { doc, requestInfo } of currentQueue) {
             assertTypeEquals(doc, AuditEvent);
@@ -328,6 +338,9 @@ class AuditLogger {
                         }
                     })
                 );
+            }
+            if (this.configManager.enableAuditEventClickHouse) {
+                clickHouseAuditEvents.push(doc.toJSONInternal());
             }
         }
         if (kafkaAuditEvents.length > 0) {
@@ -355,6 +368,20 @@ class AuditLogger {
                     args: {
                         request: { id: requestId },
                         errors: mergeResultErrors
+                    }
+                });
+            }
+        }
+        if (clickHouseAuditEvents.length > 0 && this.auditEventClickHouseWriter) {
+            try {
+                await this.auditEventClickHouseWriter.writeBatchAsync(clickHouseAuditEvents);
+            } catch (err) {
+                logError('ClickHouse AuditEvent batch write failed after retries', {
+                    error: err.message,
+                    source: 'AuditLogger.flushAsync',
+                    args: {
+                        count: clickHouseAuditEvents.length,
+                        request: { id: requestId }
                     }
                 });
             }

@@ -57,6 +57,16 @@ describe('Person Tests (Fast Merge Serializer)', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp.body).toStrictEqual([
+                {
+                    created: true,
+                    id: 'aba5bcf41cf64435839cf0568c121843',
+                    resourceType: 'Person',
+                    sourceAssigningAuthority: 'bwell',
+                    updated: false,
+                    uuid: '849cb4f0-033b-5d6e-a614-9bbbbb3ba11e'
+                }
+            ]);
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
