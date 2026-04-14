@@ -351,21 +351,21 @@ function createApp({fnGetContainer}) {
     adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
-    adminRouter.get('/admin{/:op}{/:id}', (req, res) => handleAdminGet(fnGetContainer, req, res));
+    adminRouter.get('{/:op}{/:id}', (req, res) => handleAdminGet(fnGetContainer, req, res));
     adminRouter.post(
-        '/admin{/:op}{/:id}',
+        '{/:op}{/:id}',
         validateContentTypeMiddleware({allowedContentTypes: allowedContentTypes}),
         express.json({type: allowedContentTypes}),
         (req, res) => handleAdminPost(fnGetContainer, req, res)
     );
-    adminRouter.delete('/admin{/:op}', (req, res) => handleAdminDelete(fnGetContainer, req, res));
+    adminRouter.delete('{/:op}', (req, res) => handleAdminDelete(fnGetContainer, req, res));
     adminRouter.put(
-        '/admin{/:op}{/:id}',
+        '{/:op}{/:id}',
         validateContentTypeMiddleware({allowedContentTypes: allowedContentTypes}),
         express.json({type: allowedContentTypes}),
         (req, res) => handleAdminPut(fnGetContainer, req, res));
 
-    app.use(adminRouter);
+    app.use('/admin', adminRouter);
 
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', container.jwt_strategy);
