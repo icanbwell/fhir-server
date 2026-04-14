@@ -1,4 +1,4 @@
-const { SENSITIVE_CATEGORY, AUTH_USER_TYPES } = require('../constants');
+const { SENSITIVE_CATEGORY } = require('../constants');
 
 function filterSections(sections) {
     const result = sections.filter(
@@ -16,15 +16,11 @@ function filterSections(sections) {
 }
 
 /**
- * If composition-sensitive-section filtering is enabled and the user is a delegated user,
- * strips sensitive sections from resource in place.
+ * Strips sensitive sections from a Composition resource in place.
+ * Callers are responsible for gating on config flags and userType.
  */
-function filterCompositionSensitiveSections(resource, context) {
-    if (
-        !context.configManager?.enableCompositionSensitiveSectionFiltering ||
-        context.userType !== AUTH_USER_TYPES.delegatedUser ||
-        !resource?.section
-    ) {
+function filterCompositionSensitiveSections(resource) {
+    if (!resource?.section) {
         return;
     }
     resource.section = filterSections(resource.section);

@@ -1,12 +1,10 @@
 const { EnrichmentProvider } = require('./enrichmentProvider');
 const { filterCompositionSensitiveSections } = require('../../utils/compositionSectionFilter');
+const { AUTH_USER_TYPES } = require('../../constants');
 
 /**
  * Enrichment provider that strips sensitive sections from Composition resources
  * for delegated users based on consent rules.
- *
- * Reads userType from enrichmentContext to determine if filtering applies.
- * Delegates to filterCompositionSensitiveSections utility for the actual filtering logic.
  */
 class CompositionSectionFilterEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -30,13 +28,15 @@ class CompositionSectionFilterEnrichmentProvider extends EnrichmentProvider {
      * @returns {Promise<Resource[]>}
      */
     async enrichAsync({ resources, parsedArgs, enrichmentContext }) {
-        const userType = enrichmentContext?.userType;
+        if (
+            !this.configManager.enableCompositionSensitiveSectionFiltering ||
+            enrichmentContext?.userType !== AUTH_USER_TYPES.delegatedUser
+        ) {
+            return resources;
+        }
         for (const resource of resources) {
             if (resource?.resourceType === 'Composition') {
-                filterCompositionSensitiveSections(resource, {
-                    configManager: this.configManager,
-                    userType
-                });
+                filterCompositionSensitiveSections(resource);
             }
             if (resource?.contained?.length) {
                 resource.contained = await this.enrichAsync({

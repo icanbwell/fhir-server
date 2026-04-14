@@ -2,7 +2,7 @@ const { describe, test, expect } = require('@jest/globals');
 const {
     filterCompositionSensitiveSections
 } = require('../../../utils/compositionSectionFilter');
-const { SENSITIVE_CATEGORY, AUTH_USER_TYPES } = require('../../../constants');
+const { SENSITIVE_CATEGORY } = require('../../../constants');
 
 const SENSITIVE_SYSTEM = SENSITIVE_CATEGORY.SYSTEM;
 
@@ -27,11 +27,6 @@ function makeComposition(sections) {
     return { resourceType: 'Composition', section: sections };
 }
 
-const enabledContext = {
-    configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
-    userType: AUTH_USER_TYPES.delegatedUser
-};
-
 describe('filterCompositionSensitiveSections', () => {
     test('removes sections with sensitive system in code.coding', () => {
         const resource = makeComposition([
@@ -39,7 +34,7 @@ describe('filterCompositionSensitiveSections', () => {
             makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('Normal');
@@ -53,7 +48,7 @@ describe('filterCompositionSensitiveSections', () => {
             ])
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('Parent');
@@ -67,7 +62,7 @@ describe('filterCompositionSensitiveSections', () => {
             makeSection('B', 'http://loinc.org', '2')
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toHaveLength(2);
         expect(resource.section[0].title).toBe('A');
@@ -80,7 +75,7 @@ describe('filterCompositionSensitiveSections', () => {
             makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('NoCode');
@@ -92,7 +87,7 @@ describe('filterCompositionSensitiveSections', () => {
             makeSection('Sensitive', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('NoCoding');
@@ -111,7 +106,7 @@ describe('filterCompositionSensitiveSections', () => {
             }
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toBeUndefined();
     });
@@ -126,7 +121,7 @@ describe('filterCompositionSensitiveSections', () => {
             ])
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].section).toHaveLength(1);
@@ -142,7 +137,7 @@ describe('filterCompositionSensitiveSections', () => {
             }
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('EmptySystem');
@@ -156,7 +151,7 @@ describe('filterCompositionSensitiveSections', () => {
             }
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('NoSystemProp');
@@ -168,94 +163,17 @@ describe('filterCompositionSensitiveSections', () => {
             makeSection('S2', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
         ]);
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toBeUndefined();
-    });
-
-    test('filters sensitive sections when config flag is enabled', () => {
-        const resource = makeComposition([
-            makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
-        ]);
-
-        filterCompositionSensitiveSections(resource, enabledContext);
-
-        expect(resource.section).toHaveLength(1);
-        expect(resource.section[0].title).toBe('Normal');
-    });
-
-    test('does not filter when config flag is disabled', () => {
-        const resource = makeComposition([
-            makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
-        ]);
-
-        filterCompositionSensitiveSections(resource, {
-            configManager: { enableCompositionSensitiveSectionFiltering: false },
-            userType: AUTH_USER_TYPES.delegatedUser
-        });
-
-        expect(resource.section).toHaveLength(2);
-    });
-
-    test('does not filter when context has no configManager', () => {
-        const resource = makeComposition([
-            makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
-        ]);
-
-        filterCompositionSensitiveSections(resource, {});
-
-        expect(resource.section).toHaveLength(2);
     });
 
     test('no-ops when resource has no section', () => {
         const resource = { resourceType: 'Composition' };
 
-        filterCompositionSensitiveSections(resource, enabledContext);
+        filterCompositionSensitiveSections(resource);
 
         expect(resource.section).toBeUndefined();
-    });
-
-    test('does not filter when configManager flag is undefined', () => {
-        const resource = makeComposition([
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
-        ]);
-
-        filterCompositionSensitiveSections(resource, {
-            configManager: {},
-            userType: AUTH_USER_TYPES.delegatedUser
-        });
-
-        expect(resource.section).toHaveLength(1);
-    });
-
-    test('does not filter when userType is not delegatedUser', () => {
-        const resource = makeComposition([
-            makeSection('Normal', 'http://loinc.org', '12345-6'),
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
-        ]);
-
-        filterCompositionSensitiveSections(resource, {
-            configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
-            userType: undefined
-        });
-
-        expect(resource.section).toHaveLength(2);
-    });
-
-    test('does not filter when userType is cmsPartnerUser', () => {
-        const resource = makeComposition([
-            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
-        ]);
-
-        filterCompositionSensitiveSections(resource, {
-            configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
-            userType: AUTH_USER_TYPES.cmsPartnerUser
-        });
-
-        expect(resource.section).toHaveLength(1);
     });
 });
 

@@ -1,20 +1,15 @@
 const deepcopy = require('deepcopy');
 const { filterCompositionSensitiveSections } = require('../../../utils/compositionSectionFilter');
 const { describe, test, expect } = require('@jest/globals');
-const { AUTH_USER_TYPES, SENSITIVE_CATEGORY } = require('../../../constants');
+const { SENSITIVE_CATEGORY } = require('../../../constants');
 
 const compositionFixture = require('./fixtures/Composition/compositionWithSensitiveSections.json');
-
-const enabledContext = {
-    configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
-    userType: AUTH_USER_TYPES.delegatedUser
-};
 
 describe('Composition Section Filter — Fixture Tests', () => {
     test('filters sensitive sections at all nesting levels', () => {
         const composition = deepcopy(compositionFixture);
 
-        filterCompositionSensitiveSections(composition, enabledContext);
+        filterCompositionSensitiveSections(composition);
 
         // Top-level: 'Sensitive Top Level' removed, 2 remain
         expect(composition.section).toHaveLength(2);
@@ -28,29 +23,6 @@ describe('Composition Section Filter — Fixture Tests', () => {
         // Deep: 'Deep Sensitive' removed, only 'Deep Normal' remains
         expect(composition.section[0].section[0].section).toHaveLength(1);
         expect(composition.section[0].section[0].section[0].title).toBe('Deep Normal');
-    });
-
-    test('does not filter when feature flag is disabled', () => {
-        const composition = deepcopy(compositionFixture);
-
-        filterCompositionSensitiveSections(composition, {
-            configManager: { enableCompositionSensitiveSectionFiltering: false },
-            userType: AUTH_USER_TYPES.delegatedUser
-        });
-
-        expect(composition.section).toHaveLength(3);
-        expect(composition.section[0].section).toHaveLength(2);
-    });
-
-    test('does not filter for non-delegated users', () => {
-        const composition = deepcopy(compositionFixture);
-
-        filterCompositionSensitiveSections(composition, {
-            configManager: { enableDelegatedAccessDetection: true, enableCompositionSensitiveSectionFiltering: true },
-            userType: undefined
-        });
-
-        expect(composition.section).toHaveLength(3);
     });
 
     test('sensitive sections use the expected system identifier', () => {
@@ -80,7 +52,7 @@ describe('Composition Section Filter — Fixture Tests', () => {
         ]);
 
         // After filtering, none should remain
-        filterCompositionSensitiveSections(composition, enabledContext);
+        filterCompositionSensitiveSections(composition);
 
         const remaining = [];
         function collectAll(sections) {
