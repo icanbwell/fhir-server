@@ -183,7 +183,7 @@ services:
       # Delegated access user (real user with act claim for actor)
       MY_DELEGATED_ACCESS_USER_NAME: delegated-patient
       MY_DELEGATED_ACCESS_USER_PASSWORD: password
-      MY_DELEGATED_ACCESS_USER_SCOPE: patient/*.read user/*read access/*.read
+      MY_DELEGATED_ACCESS_USER_SCOPE: patient/*.read user/*.read access/*.read
       MY_DELEGATED_ACCESS_USER_TOKEN_USERNAME: delegated-patient@example.com
       MY_DELEGATED_ACCESS_USER_CLIENT_PERSON_ID: 0b2ad38a-20bc-5cf5-9739-13f242b05892
       MY_DELEGATED_ACCESS_USER_CLIENT_PATIENT_ID: 22aa18af-af51-5799-bc55-367c22c85407
