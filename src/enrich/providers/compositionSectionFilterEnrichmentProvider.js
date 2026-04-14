@@ -58,21 +58,17 @@ class CompositionSectionFilterEnrichmentProvider extends EnrichmentProvider {
      * @returns {Promise<BundleEntry[]>}
      */
     async enrichBundleEntriesAsync({ entries, parsedArgs, enrichmentContext }) {
-        const userType = enrichmentContext?.userType;
-        for (const entry of entries) {
-            if (entry?.resource?.resourceType === 'Composition') {
-                filterCompositionSensitiveSections(entry.resource, {
-                    configManager: this.configManager,
-                    userType
-                });
+       for (const entry of entries) {
+            if (entry.resource) {
+                entry.resource = (await this.enrichAsync(
+                    {
+                        resources: [entry.resource],
+                        parsedArgs,
+                        enrichmentContext
+                    }
+                ))[0];
             }
-            if (entry?.resource?.contained?.length) {
-                entry.resource.contained = await this.enrichAsync({
-                    resources: entry.resource.contained,
-                    parsedArgs,
-                    enrichmentContext
-                });
-            }
+            entry.id = entry.resource.id;
         }
         return entries;
     }
