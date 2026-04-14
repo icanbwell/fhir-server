@@ -24,6 +24,7 @@ const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backboneElements/bundleEntry.js');
 
 const { MongoInvalidArgumentError } = require('mongodb');
+const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const { FastDatabaseUpdateManager } = require('./fastDatabaseUpdateManager.js');
@@ -337,6 +338,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
             }
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            handleClickHouseGroupPreSave(doc, contextData);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
@@ -502,6 +504,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
         try {
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            handleClickHouseGroupPreSave(doc, contextData);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 

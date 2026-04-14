@@ -42,14 +42,14 @@ describe('ClickHouseTestContainer', () => {
             expect(isHealthy).toBe(true);
 
             // Verify schema tables exist
-            const eventsExists = await manager.tableExistsAsync('fhir_group_member_events');
+            const eventsExists = await manager.tableExistsAsync('Group_4_0_0_MemberEvents');
             expect(eventsExists).toBe(true);
 
-            const currentExists = await manager.tableExistsAsync('fhir_group_member_current');
+            const currentExists = await manager.tableExistsAsync('Group_4_0_0_MemberCurrent');
             expect(currentExists).toBe(true);
 
             const reverseExists = await manager.tableExistsAsync(
-                'fhir_group_member_current_by_entity'
+                'Group_4_0_0_MemberCurrentByEntity'
             );
             expect(reverseExists).toBe(true);
 

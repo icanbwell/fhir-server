@@ -227,7 +227,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             // To detect orphaned Groups after ClickHouse downtime:
             //
             // MongoDB: const mongoGroupIds = await db.collection('Group_4_0_0').distinct('id');
-            // ClickHouse: const chResult = await clickhouse.query('SELECT DISTINCT group_id FROM fhir.fhir_group_member_events');
+            // ClickHouse: const chResult = await clickhouse.query('SELECT DISTINCT group_id FROM fhir.Group_4_0_0_MemberEvents');
             // Orphans: mongoGroupIds.filter(id => !chResult.map(r => r.group_id).includes(id))
             //
             // This is better than swallowing the error (200 OK with silent data loss).

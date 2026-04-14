@@ -70,7 +70,7 @@ describe('Group member reference search via ClickHouse', () => {
         await waitForData(
             async () => {
                 const events = await clickHouseManager.queryAsync({
-                    query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+                    query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
                 });
                 return parseInt(events[0].count) === 1;
             },
@@ -81,7 +81,7 @@ describe('Group member reference search via ClickHouse', () => {
 
         // Verify the event has the correct uuid
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference_uuid, entity_reference_source_id FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+            query: `SELECT entity_reference_uuid, entity_reference_source_id FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
         });
         expect(events).toHaveLength(1);
 
@@ -130,7 +130,7 @@ describe('Group member reference search via ClickHouse', () => {
         await waitForData(
             async () => {
                 const events = await clickHouseManager.queryAsync({
-                    query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+                    query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
                 });
                 return parseInt(events[0].count) === 1;
             },
@@ -141,7 +141,7 @@ describe('Group member reference search via ClickHouse', () => {
 
         // Verify event has sourceId
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference_source_id FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+            query: `SELECT entity_reference_source_id FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
         });
         expect(events[0].entity_reference_source_id).toMatch(/^Patient\//);
     });
@@ -168,7 +168,7 @@ describe('Group member reference search via ClickHouse', () => {
         await waitForData(
             async () => {
                 const events = await clickHouseManager.queryAsync({
-                    query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+                    query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
                 });
                 return parseInt(events[0].count) === 1;
             },
@@ -176,7 +176,7 @@ describe('Group member reference search via ClickHouse', () => {
         );
 
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference, entity_reference_uuid, entity_reference_source_id FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+            query: `SELECT entity_reference, entity_reference_uuid, entity_reference_source_id FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
         });
 
         expect(events).toHaveLength(1);

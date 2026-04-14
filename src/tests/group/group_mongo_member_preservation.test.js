@@ -1,6 +1,7 @@
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { EXTERNAL_STORAGE_TAG_SYSTEM, EXTERNAL_STORAGE_TAG_CODE } = require('../../utils/clickHouseGroupPreSave');
 const {
     setupGroupTests,
     teardownGroupTests,
@@ -73,7 +74,7 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
 
     async function getClickHouseEventCount(groupId, eventType) {
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${groupId}' AND event_type = '${eventType}'`
         });
         return parseInt(events[0].count);
@@ -287,4 +288,197 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
         const removedCount = await getClickHouseEventCount(created.id, EVENT_TYPES.MEMBER_REMOVED);
         expect(removedCount).toBe(1); // merge-full-2 removed
     });
+
+    // ==================== externalStorageFields tag ====================
+
+    function hasExternalStorageTag(group) {
+        return (group.meta?.tag || []).some(
+            t => t.system === EXTERNAL_STORAGE_TAG_SYSTEM && t.code === EXTERNAL_STORAGE_TAG_CODE
+        );
+    }
+
+    test('CREATE with header: adds externalStorageFields tag', async () => {
+        const created = await createGroupWithHeader({
+            type: 'person',
+            actual: true,
+            member: [{ entity: { reference: 'Patient/tag-create-1' } }]
+        });
+
+        const mongoGroup = await getGroupFromMongo(created.id);
+        expect(hasExternalStorageTag(mongoGroup)).toBe(true);
+    });
+
+    test('PATCH with header: adds externalStorageFields tag to existing Group', async () => {
+        // Create WITHOUT header (no tag)
+        const request0 = getSharedRequest();
+        const createRes = await request0
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group', type: 'person', actual: true,
+                member: [{ entity: { reference: 'Patient/tag-patch-1' } }],
+                meta: defaultMeta
+            })
+            .set(getTestHeaders());
+        expect(createRes.status).toBe(201);
+        const groupId = createRes.body.id;
+
+        // Verify no tag before PATCH
+        const before = await getGroupFromMongo(groupId);
+        expect(hasExternalStorageTag(before)).toBe(false);
+
+        // PATCH with header
+        const request = getSharedRequest();
+        await request
+            .patch(`/4_0_0/Group/${groupId}`)
+            .send([{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/tag-patch-2' } } }])
+            .set(getHeadersWithExternalStorage())
+            .set('Content-Type', 'application/json-patch+json');
+
+        // Tag should now be present
+        const after = await getGroupFromMongo(groupId);
+        expect(hasExternalStorageTag(after)).toBe(true);
+    });
+
+    test('Tag not duplicated on subsequent writes', async () => {
+        const created = await createGroupWithHeader({
+            type: 'person',
+            actual: true,
+            member: [{ entity: { reference: 'Patient/tag-dup-1' } }]
+        });
+
+        // PUT again with header
+        const request = getSharedRequest();
+        await request
+            .put(`/4_0_0/Group/${created.id}`)
+            .send({
+                resourceType: 'Group', id: created.id, type: 'person', actual: true,
+                member: [{ entity: { reference: 'Patient/tag-dup-2' } }],
+                meta: defaultMeta
+            })
+            .set(getHeadersWithExternalStorage());
+
+        const mongoGroup = await getGroupFromMongo(created.id);
+        const tagCount = (mongoGroup.meta?.tag || []).filter(
+            t => t.system === EXTERNAL_STORAGE_TAG_SYSTEM
+        ).length;
+        expect(tagCount).toBe(1);
+    });
+
+    test('Tag not added without header', async () => {
+        const request0 = getSharedRequest();
+        const createRes = await request0
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group', type: 'person', actual: true,
+                member: [{ entity: { reference: 'Patient/tag-no-header-1' } }],
+                meta: defaultMeta
+            })
+            .set(getTestHeaders());
+        expect(createRes.status).toBe(201);
+
+        const mongoGroup = await getGroupFromMongo(createRes.body.id);
+        expect(hasExternalStorageTag(mongoGroup)).toBe(false);
+    });
+
+    // ==================== $merge smartMerge=true with tag verification ====================
+
+    test('$merge smartMerge=true: preserves MongoDB members, adds tag, ClickHouse adds only', async () => {
+        // Create group WITHOUT header (members in MongoDB, no tag)
+        const request0 = getSharedRequest();
+        const createRes = await request0
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                type: 'person',
+                actual: true,
+                member: [
+                    { entity: { reference: 'Patient/fast-merge-1' } },
+                    { entity: { reference: 'Patient/fast-merge-2' } }
+                ],
+                meta: defaultMeta
+            })
+            .set(getTestHeaders());
+        expect(createRes.status).toBe(201);
+        const groupId = createRes.body.id;
+
+        // Verify no tag before merge
+        const before = await getGroupFromMongo(groupId);
+        expect(hasExternalStorageTag(before)).toBe(false);
+        expect(before.member.length).toBe(2);
+
+        // $merge (smartMerge=true is default) with header, add a new member
+        const request = getSharedRequest();
+        const mergeResponse = await request
+            .post('/4_0_0/Group/$merge')
+            .send({
+                resourceType: 'Group',
+                id: groupId,
+                type: 'person',
+                actual: true,
+                member: [
+                    { entity: { reference: 'Patient/fast-merge-1' } },
+                    { entity: { reference: 'Patient/fast-merge-new-3' } }
+                ],
+                meta: defaultMeta
+            })
+            .set(getHeadersWithExternalStorage());
+        expect([200, 201]).toContain(mergeResponse.status);
+
+        // MongoDB: members preserved (smartMerge=true doesn't strip)
+        const after = await getGroupFromMongo(groupId);
+        expect(after.member).toBeDefined();
+        const mongoRefs = after.member.map(m => m.entity.reference);
+        expect(mongoRefs).toEqual(
+            expect.arrayContaining(['Patient/fast-merge-1', 'Patient/fast-merge-2'])
+        );
+
+        // Tag added
+        expect(hasExternalStorageTag(after)).toBe(true);
+
+        // ClickHouse: only 1 new member added, no removals
+        const addedCount = await getClickHouseEventCount(groupId, EVENT_TYPES.MEMBER_ADDED);
+        expect(addedCount).toBe(1);
+
+        const removedCount = await getClickHouseEventCount(groupId, EVENT_TYPES.MEMBER_REMOVED);
+        expect(removedCount).toBe(0);
+
+        // Second merge — verify idempotent (tag not duplicated, existing members still preserved)
+        const request2 = getSharedRequest();
+        const mergeResponse2 = await request2
+            .post('/4_0_0/Group/$merge')
+            .send({
+                resourceType: 'Group',
+                id: groupId,
+                type: 'person',
+                actual: true,
+                member: [
+                    { entity: { reference: 'Patient/fast-merge-new-4' } }
+                ],
+                meta: defaultMeta
+            })
+            .set(getHeadersWithExternalStorage());
+        expect([200, 201]).toContain(mergeResponse2.status);
+
+        const afterSecond = await getGroupFromMongo(groupId);
+        // Members still preserved
+        expect(afterSecond.member).toBeDefined();
+        const mongoRefs2 = afterSecond.member.map(m => m.entity.reference);
+        expect(mongoRefs2).toEqual(
+            expect.arrayContaining(['Patient/fast-merge-1', 'Patient/fast-merge-2'])
+        );
+
+        // Tag not duplicated
+        const tagCount = (afterSecond.meta?.tag || []).filter(
+            t => t.system === EXTERNAL_STORAGE_TAG_SYSTEM
+        ).length;
+        expect(tagCount).toBe(1);
+
+        // ClickHouse: 2 total adds (merge-new-3 + merge-new-4), still no removals
+        const finalAddedCount = await getClickHouseEventCount(groupId, EVENT_TYPES.MEMBER_ADDED);
+        expect(finalAddedCount).toBe(2);
+
+        const finalRemovedCount = await getClickHouseEventCount(groupId, EVENT_TYPES.MEMBER_REMOVED);
+        expect(finalRemovedCount).toBe(0);
+    });
+
 });

@@ -116,7 +116,7 @@ describe('PATCH Performance Testing', () => {
                     query: `SELECT count() as count
                             FROM (
                                 SELECT entity_reference
-                                FROM fhir.fhir_group_member_events
+                                FROM fhir.Group_4_0_0_MemberEvents
                                 WHERE group_id = {groupId:String}
                                 GROUP BY entity_reference
                                 HAVING argMax(event_type, (event_time, event_id)) = 'added'

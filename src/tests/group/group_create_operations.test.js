@@ -73,7 +73,7 @@ describe('Group CREATE operations', () => {
 
         // Verify ClickHouse has no events
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
         });
         expect(parseInt(events[0].count)).toBe(0);
 
@@ -111,11 +111,11 @@ describe('Group CREATE operations', () => {
 
         // Both should have events in ClickHouse
         const events50 = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${response50.body.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
         const events1000 = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${response1000.body.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
 
@@ -155,7 +155,7 @@ describe('Group CREATE operations', () => {
 
         // Verify ClickHouse count matches
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${groupId}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
         expect(parseInt(events[0].count)).toBe(3);

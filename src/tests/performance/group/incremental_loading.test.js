@@ -56,9 +56,9 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             try {
-                await clickHouseManager.truncateTableAsync('fhir_group_member_current_by_entity');
-                await clickHouseManager.truncateTableAsync('fhir_group_member_current');
-                await clickHouseManager.truncateTableAsync('fhir_group_member_events');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrentByEntity');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrent');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberEvents');
 
                 const { createTestContainer } = require('../../createTestContainer');
                 const container = createTestContainer();
@@ -140,7 +140,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
 
         // Verify ClickHouse has events
         const eventCount = await clickHouseManager.queryAsync({
-            query: `SELECT count(*) as count FROM fhir.fhir_group_member_events WHERE group_id = {groupId:String}`,
+            query: `SELECT count(*) as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = {groupId:String}`,
             query_params: { groupId: actualGroupId }
         });
         console.log(`  ClickHouse: ${parseInt(eventCount[0].count).toLocaleString()} events written\n`);
@@ -203,7 +203,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
                     query: `SELECT count() as count
                             FROM (
                                 SELECT entity_reference
-                                FROM fhir.fhir_group_member_events
+                                FROM fhir.Group_4_0_0_MemberEvents
                                 WHERE group_id = {groupId:String}
                                 GROUP BY entity_reference
                                 HAVING argMax(event_type, (event_time, event_id)) = 'added'
@@ -232,7 +232,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
             query: `SELECT count() as count
                     FROM (
                         SELECT entity_reference
-                        FROM fhir.fhir_group_member_events
+                        FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = {groupId:String}
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = 'added'
@@ -385,7 +385,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
             query: `SELECT count() as count
                     FROM (
                         SELECT entity_reference
-                        FROM fhir.fhir_group_member_events
+                        FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = {groupId:String}
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = 'added'

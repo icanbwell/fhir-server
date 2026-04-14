@@ -167,7 +167,7 @@ describe('Group Error Handling', () => {
         const groupId = response.body.id;
 
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${groupId}' AND entity_reference = 'Patient/duplicate'`
         });
 

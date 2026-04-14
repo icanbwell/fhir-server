@@ -37,6 +37,7 @@ const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const { CONTEXT_KEYS } = require('../constants/groupConstants');
 
 const { MongoInvalidArgumentError } = require('mongodb');
+const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
 const httpContext = require('express-http-context');
 
 /**
@@ -124,20 +125,6 @@ class DatabaseBulkInserter extends EventEmitter {
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
-    /**
-     * Strips member array from Group when ClickHouse manages members.
-     * Skipped for PATCH (groupMemberEventsWritten) and $merge smartMerge=true
-     * because those preserve existing MongoDB members.
-     * @private
-     */
-    _stripMembersIfNeeded (doc, contextData) {
-        if (contextData?.useExternalMemberStorage &&
-            !contextData?.groupMemberEventsWritten &&
-            !contextData?.smartMerge &&
-            doc.resourceType === 'Group') {
-            delete doc.member;
-        }
-    }
 
     /**
      * This map stores an entry per resourceType where the value is a list of operations to perform
@@ -341,7 +328,7 @@ class DatabaseBulkInserter extends EventEmitter {
             }
             // Run preSave handlers (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            this._stripMembersIfNeeded(doc, contextData);
+            handleClickHouseGroupPreSave(doc, contextData);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             /** @type {string|null} */
@@ -514,7 +501,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            this._stripMembersIfNeeded(doc, contextData);
+            handleClickHouseGroupPreSave(doc, contextData);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -610,7 +597,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            this._stripMembersIfNeeded(doc, contextData);
+            handleClickHouseGroupPreSave(doc, contextData);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 

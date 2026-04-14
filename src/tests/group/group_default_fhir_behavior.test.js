@@ -73,7 +73,7 @@ describe('Group default FHIR behavior (no useExternalMemberStorage header)', () 
 
         // No ClickHouse events should exist
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
         });
         expect(parseInt(events[0].count)).toBe(0);
     });

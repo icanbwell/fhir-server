@@ -74,7 +74,7 @@ async function initializeClickHouseSchema(clickHouseManager) {
         const path = require('path');
 
         // Check if schema is already initialized
-        const exists = await clickHouseManager.tableExistsAsync('fhir.fhir_group_member_events');
+        const exists = await clickHouseManager.tableExistsAsync('fhir.Group_4_0_0_MemberEvents');
 
         if (!exists) {
             const schemaPath = path.join(__dirname, '../../..', 'clickhouse-init', '01-init-schema.sql');
@@ -207,38 +207,6 @@ async function teardownGroupTests() {
 }
 
 /**
- * Cleans up a specific group's data from ClickHouse and MongoDB
- *
- * @param {string} groupId - The group ID to clean up
- * @returns {Promise<void>}
- */
-async function cleanupGroupData(groupId) {
-    if (!sharedClickHouseManager) {
-        return;
-    }
-
-    try {
-        await sharedClickHouseManager.queryAsync({
-            query: `ALTER TABLE fhir.fhir_group_member_events DELETE WHERE group_id = {groupId:String}`,
-            query_params: { groupId }
-        });
-
-        await syncClickHouseMaterializedViews();
-
-        const { createTestContainer } = require('../createTestContainer');
-        const container = createTestContainer();
-        if (container?.mongoClient) {
-            const db = container.mongoClient.db(container.configManager.mongoDbName);
-            await db.collection('Group_4_0_0').deleteOne({ id: groupId });
-        }
-    } catch (e) {
-        if (!e.message.includes('does not exist')) {
-            // Ignore cleanup errors
-        }
-    }
-}
-
-/**
  * Truncates all Group test data from ClickHouse and MongoDB
  *
  * @returns {Promise<void>}
@@ -249,9 +217,9 @@ async function cleanupAllData() {
     }
 
     try {
-        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_current_by_entity');
-        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_current');
-        await sharedClickHouseManager.truncateTableAsync('fhir_group_member_events');
+        await sharedClickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrentByEntity');
+        await sharedClickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrent');
+        await sharedClickHouseManager.truncateTableAsync('Group_4_0_0_MemberEvents');
 
         await syncClickHouseMaterializedViews();
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -331,11 +299,11 @@ async function syncClickHouseMaterializedViews() {
         // Force merge of all parts to ensure queries see latest state
         // FINAL keyword forces immediate merge of all parts
         await sharedClickHouseManager.queryAsync({
-            query: 'OPTIMIZE TABLE fhir.fhir_group_member_current_by_entity FINAL'
+            query: 'OPTIMIZE TABLE fhir.Group_4_0_0_MemberCurrentByEntity FINAL'
         });
 
         await sharedClickHouseManager.queryAsync({
-            query: 'OPTIMIZE TABLE fhir.fhir_group_member_current FINAL'
+            query: 'OPTIMIZE TABLE fhir.Group_4_0_0_MemberCurrent FINAL'
         });
     } catch (e) {
         // Ignore optimization errors
@@ -390,7 +358,6 @@ module.exports = {
     setupGroupTests,
     teardownGroupTests,
     cleanupAllData,
-    cleanupGroupData,
     syncClickHouseMaterializedViews,
     getSharedRequest,
     getClickHouseManager,

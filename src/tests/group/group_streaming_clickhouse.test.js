@@ -51,7 +51,7 @@ describe('Group Streaming with ClickHouse', () => {
         await clickHouseManager.getClientAsync();
 
         try {
-            await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
+            await clickHouseManager.truncateTableAsync('fhir.Group_4_0_0_MemberEvents');
         } catch (e) {
             // Ignore if table doesn't exist
         }

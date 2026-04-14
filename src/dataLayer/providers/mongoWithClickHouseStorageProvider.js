@@ -22,7 +22,7 @@ const { isTrue } = require('../../utils/isTrue');
  * - ClickHouse stores: member addition/removal events
  *
  * Architecture: Materialized views over append-only event log
- * - Uses materialized views (mv_group_member_current_by_entity) for aggregated state
+ * - Uses materialized views (Group_4_0_0_MemberCurrentByEntity_MV) for aggregated state
  * - All queries use FINAL modifier to force MV sync (ensures read-after-write consistency)
  * - Tuple tie-breaker (event_time, event_id) for deterministic argMax
  * - Seek pagination for efficient large result sets

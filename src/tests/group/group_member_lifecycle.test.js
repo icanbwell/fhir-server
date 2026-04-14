@@ -396,7 +396,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
 
         // Query events - should show no events for this member
         const events = await getClickHouseManager().queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}`,
             query_params: { groupId: actualGroupId, memberRef }
         });
@@ -443,7 +443,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         // Query events - should have 1 add + multiple removes
         const events = await getClickHouseManager().queryAsync({
             query: `SELECT event_type, count() as count
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}
                     GROUP BY event_type
                     ORDER BY event_type`,
@@ -453,7 +453,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         // argMax should still return 'removed' regardless of duplicates
         const activeMembers = await getClickHouseManager().queryAsync({
             query: `SELECT entity_reference
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String}
                     GROUP BY entity_reference
                     HAVING argMax(event_type, (event_time, event_id)) = 'added'`,

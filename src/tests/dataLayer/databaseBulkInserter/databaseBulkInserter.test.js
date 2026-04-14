@@ -457,6 +457,12 @@ describe('databaseBulkInserter Tests', () => {
                     expect(savedGroups.length).toBe(1);
                     // Member field should be deleted from MongoDB when useExternalMemberStorage is set
                     expect(savedGroups[0].member).toBeUndefined();
+                    // externalStorageFields tag should be added to meta.tag
+                    const externalStorageTag = (savedGroups[0].meta.tag || []).find(
+                        t => t.system === 'https://www.icanbwell.com/externalStorageFields'
+                    );
+                    expect(externalStorageTag).toBeDefined();
+                    expect(externalStorageTag.code).toBe('member');
                 }
             });
         });

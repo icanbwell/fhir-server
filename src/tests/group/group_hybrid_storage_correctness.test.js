@@ -175,7 +175,7 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         await new Promise(r => setTimeout(r, 2000)); // Wait for sync write
 
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${createdGroupId}' AND event_type = 'added'`
         });
 

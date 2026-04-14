@@ -249,7 +249,7 @@ describe('Group Advanced Search', () => {
 
     test('SQL injection pattern → Properly escaped', async () => {
         // Test that SQL injection attempts are safely handled
-        const maliciousRef = "Patient/'; DROP TABLE fhir_group_member_events; --";
+        const maliciousRef = "Patient/'; DROP TABLE Group_4_0_0_MemberEvents; --";
 
         const request = getSharedRequest();
         const response = await request
@@ -269,7 +269,7 @@ describe('Group Advanced Search', () => {
         // Note: The key validation is that the query returns 200 without crashing
         const clickHouseManager = getClickHouseManager();
         try {
-            const tableExists = await clickHouseManager.tableExistsAsync('fhir.fhir_group_member_events');
+            const tableExists = await clickHouseManager.tableExistsAsync('fhir.Group_4_0_0_MemberEvents');
             expect(tableExists).toBe(true);
         } catch (e) {
             // If table check fails for other reasons, still consider test passed
@@ -326,7 +326,7 @@ describe('Group Advanced Search', () => {
         // Verify Unicode preservation via ClickHouse (member array not in GET response)
         const clickHouseManager = getClickHouseManager();
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference FROM fhir.fhir_group_member_events
+            query: `SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${group.id}' AND entity_reference = '${unicodeRef}'
                     LIMIT 1`
         });

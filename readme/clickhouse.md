@@ -233,9 +233,9 @@ Every membership change creates an event. Current state is derived using ClickHo
 - `member` field preserved for PATCH and `$merge` (smartMerge=true, the default)
 
 **ClickHouse stores:**
-- Member events (`fhir_group_member_events` table)
-- Materialized current state (`fhir_group_member_current` table)
-- Reverse lookup index (`fhir_group_member_current_by_entity` table)
+- Member events (`Group_4_0_0_MemberEvents` table)
+- Materialized current state (`Group_4_0_0_MemberCurrent` table)
+- Reverse lookup index (`Group_4_0_0_MemberCurrentByEntity` table)
 
 **Write behavior by operation:**
 
@@ -255,9 +255,9 @@ Every membership change creates an event. Current state is derived using ClickHo
 
 ### ClickHouse Schema
 
-**Event Log** (`fhir_group_member_events`):
+**Event Log** (`Group_4_0_0_MemberEvents`):
 ```sql
-CREATE TABLE fhir.fhir_group_member_events (
+CREATE TABLE fhir.Group_4_0_0_MemberEvents (
     group_id String,
     entity_reference String,
     entity_reference_uuid String DEFAULT '',
@@ -279,13 +279,13 @@ CREATE TABLE fhir.fhir_group_member_events (
 ORDER BY (group_id, entity_reference, event_time, event_id);
 ```
 
-**Current State** (`fhir_group_member_current`):
+**Current State** (`Group_4_0_0_MemberCurrent`):
 - Materialized view using `AggregatingMergeTree`
 - One row per (group_id, entity_reference) after merges
 - Uses `argMax(field, (event_time, event_id))` for latest state
 - Auto-updates on every INSERT to event log
 
-**Reverse Lookup** (`fhir_group_member_current_by_entity`):
+**Reverse Lookup** (`Group_4_0_0_MemberCurrentByEntity`):
 - Ordered by (entity_reference, group_id)
 - Powers "which groups is Patient X in?" queries
 - Lightweight index for fast lookups
@@ -325,8 +325,8 @@ sequenceDiagram
     Builder-->>Handler: events[]
 
     Handler->>Repo: appendEvents(events)
-    Repo->>CH: INSERT INTO fhir_group_member_events
-    CH->>CH: Materialized view auto-updates<br/>(fhir_group_member_current)
+    Repo->>CH: INSERT INTO Group_4_0_0_MemberEvents
+    CH->>CH: Materialized view auto-updates<br/>(Group_4_0_0_MemberCurrent)
     CH-->>Repo: Success
 
     Repo-->>Handler: Success
@@ -356,7 +356,7 @@ sequenceDiagram
 
     PatchOp->>Handler: writeEventsAsync(groupId, added, removed)
     Handler->>Repo: appendEvents(events)
-    Repo->>CH: INSERT INTO fhir_group_member_events
+    Repo->>CH: INSERT INTO Group_4_0_0_MemberEvents
     CH->>CH: Materialized view updates
     CH-->>Repo: Success
     Repo-->>Handler: Success
@@ -387,7 +387,7 @@ sequenceDiagram
     Note over Provider: Detect member search parameter
     Provider->>Provider: Extract member criteria<br/>from MongoDB query
 
-    Provider->>CH: SELECT group_id<br/>FROM fhir_group_member_current_by_entity<br/>WHERE entity_reference = 'Patient/123'<br/>AND event_type = 'added'
+    Provider->>CH: SELECT group_id<br/>FROM Group_4_0_0_MemberCurrentByEntity<br/>WHERE entity_reference = 'Patient/123'<br/>AND event_type = 'added'
 
     Note over CH: Uses argMax aggregation<br/>for current state
     CH-->>Provider: [groupId1, groupId2, ...]
@@ -433,7 +433,7 @@ docker exec -it fhir-clickhouse clickhouse-client
 SELECT count() as count
 FROM (
     SELECT entity_reference
-    FROM fhir.fhir_group_member_events
+    FROM fhir.Group_4_0_0_MemberEvents
     WHERE group_id = 'my-group-id'
     GROUP BY entity_reference
     HAVING argMax(event_type, (event_time, event_id)) = 'added'
@@ -442,7 +442,7 @@ FROM (
 
 -- List active members (paginated)
 SELECT entity_reference, entity_type
-FROM fhir.fhir_group_member_events
+FROM fhir.Group_4_0_0_MemberEvents
 WHERE group_id = 'my-group-id'
 GROUP BY entity_reference, entity_type
 HAVING argMax(event_type, (event_time, event_id)) = 'added'
@@ -452,7 +452,7 @@ LIMIT 100;
 
 -- Find Groups containing a member (reverse lookup)
 SELECT group_id
-FROM fhir.fhir_group_member_events
+FROM fhir.Group_4_0_0_MemberEvents
 WHERE entity_reference = 'Patient/123'
 GROUP BY group_id
 HAVING argMax(event_type, (event_time, event_id)) = 'added'
@@ -466,7 +466,7 @@ SELECT
     actor,
     reason,
     correlation_id
-FROM fhir.fhir_group_member_events
+FROM fhir.Group_4_0_0_MemberEvents
 WHERE group_id = 'my-group-id'
   AND entity_reference = 'Patient/123'
 ORDER BY event_time ASC, event_id ASC;
@@ -579,7 +579,7 @@ The Makefile runs all `clickhouse-init/*.sql` files in alphabetical order. If th
 1. Ensure `useExternalMemberStorage: true` header is present on both write and read requests
 2. Check ClickHouse has events:
    ```sql
-   SELECT count(*) FROM fhir.fhir_group_member_events WHERE group_id = 'my-group-id';
+   SELECT count(*) FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = 'my-group-id';
    ```
 3. Verify security tags match between Group and query context
 4. Check ClickHouse logs for insert errors
@@ -604,7 +604,7 @@ The Makefile runs all `clickhouse-init/*.sql` files in alphabetical order. If th
 1. Verify materialized views exist:
    ```sql
    SHOW TABLES FROM fhir;
-   -- Should see: fhir_group_member_events, fhir_group_member_current, fhir_group_member_current_by_entity
+   -- Should see: Group_4_0_0_MemberEvents, Group_4_0_0_MemberCurrent, Group_4_0_0_MemberCurrentByEntity
    ```
 2. Check ClickHouse server resources (CPU, memory)
 3. Review ClickHouse query logs for slow queries

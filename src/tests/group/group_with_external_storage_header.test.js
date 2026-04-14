@@ -68,7 +68,7 @@ describe('Group with useExternalMemberStorage header', () => {
         await waitForData(
             async () => {
                 const events = await clickHouseManager.queryAsync({
-                    query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+                    query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
                 });
                 return parseInt(events[0].count) === 3;
             },
@@ -77,7 +77,7 @@ describe('Group with useExternalMemberStorage header', () => {
 
         // Verify events have entity_reference_uuid and entity_reference_source_id
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference, entity_reference_uuid, entity_reference_source_id FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}' ORDER BY entity_reference`
+            query: `SELECT entity_reference, entity_reference_uuid, entity_reference_source_id FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}' ORDER BY entity_reference`
         });
         expect(events).toHaveLength(3);
 
@@ -166,7 +166,7 @@ describe('Group with useExternalMemberStorage header', () => {
         await waitForData(
             async () => {
                 const events = await clickHouseManager.queryAsync({
-                    query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${groupId}'`
+                    query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
                 });
                 return parseInt(events[0].count) >= 2;
             },

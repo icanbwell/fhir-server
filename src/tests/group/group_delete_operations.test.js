@@ -82,7 +82,7 @@ describe('Group DELETE operations', () => {
 
         // Verify events exist before delete
         const eventsBefore = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}'`
         });
         expect(parseInt(eventsBefore[0].count)).toBe(5);
@@ -98,7 +98,7 @@ describe('Group DELETE operations', () => {
 
         // ClickHouse should still have events (audit trail)
         const eventsAfter = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}'`
         });
         expect(parseInt(eventsAfter[0].count)).toBe(5);
@@ -131,7 +131,7 @@ describe('Group DELETE operations', () => {
 
 
         const membersBefore = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference FROM fhir.fhir_group_member_events
+            query: `SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
                     ORDER BY entity_reference`
         });
@@ -141,7 +141,7 @@ describe('Group DELETE operations', () => {
 
         // Events should still be directly queryable in ClickHouse
         const membersAfter = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference FROM fhir.fhir_group_member_events
+            query: `SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
                     ORDER BY entity_reference`
         });
