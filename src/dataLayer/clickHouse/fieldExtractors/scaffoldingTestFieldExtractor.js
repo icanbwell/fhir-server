@@ -1,5 +1,7 @@
 'use strict';
 
+const { DateTimeFormatter } = require('../../../utils/clickHouse/dateTimeFormatter');
+
 /**
  * Field extractor for ScaffoldingTestResource — a synthetic resource
  * used only for integration testing the ClickHouse-only scaffolding.
@@ -23,7 +25,7 @@ class ScaffoldingTestFieldExtractor {
             id: resource.id || '',
             _uuid: resource._uuid || resource.id || '',
             _sourceId: resource._sourceId || `${resource.resourceType}/${resource.id}`,
-            recorded: resource.recorded || new Date().toISOString(),
+            recorded: DateTimeFormatter.toClickHouseDateTime(resource.recorded || new Date().toISOString()),
             type_code: resource.type_code || resource.type || '',
             subject_reference: resource.subject_reference || resource.subject?.reference || '',
             value_quantity: resource.value_quantity != null ? resource.value_quantity : null,
