@@ -41,6 +41,17 @@ const expectedGraphqlV1PartialDelegated = require('./fixtures/expected/graphqlV1
 const expectedSearchElementsDelegated = require('./fixtures/expected/rest_search_elements_delegated.json');
 const expectedSearchElementsNonDelegated = require('./fixtures/expected/rest_search_elements_non_delegated.json');
 
+// Expected responses — $everything
+const expectedEverythingDelegated = require('./fixtures/expected/everything_delegated.json');
+const expectedEverythingNonDelegated = require('./fixtures/expected/everything_non_delegated.json');
+
+// Expected responses — $graph
+const expectedGraphDelegated = require('./fixtures/expected/graph_delegated.json');
+const expectedGraphNonDelegated = require('./fixtures/expected/graph_non_delegated.json');
+
+// Expected responses — _debug=1
+const expectedSearchDebugDelegated = require('./fixtures/expected/rest_search_debug_delegated.json');
+
 const { ConfigManager } = require('../../../utils/configManager');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
@@ -136,7 +147,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition/')
             .set(getHeadersWithCustomPayload(delegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedRestSearchDelegated));
+        expect(resp).toHaveResponse(expectedRestSearchDelegated);
     });
 
     test('REST search: non-delegated user sees all sections unfiltered', async () => {
@@ -150,7 +161,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition/')
             .set(getHeadersWithCustomPayload(nonDelegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedRestSearchNonDelegated));
+        expect(resp).toHaveResponse(expectedRestSearchNonDelegated);
     });
 
     // ─── REST SEARCH BY ID ───────────────────────────────────────────
@@ -166,7 +177,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition/comp-no-sensitive')
             .set(getHeadersWithCustomPayload(delegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedSearchByIdDelegatedNoSensitive));
+        expect(resp).toHaveResponse(expectedSearchByIdDelegatedNoSensitive);
     });
 
     test('REST searchById: delegated user — top-level sensitive sections filtered', async () => {
@@ -180,7 +191,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition/comp-top-level-sensitive')
             .set(getHeadersWithCustomPayload(delegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedSearchByIdDelegatedTopLevel));
+        expect(resp).toHaveResponse(expectedSearchByIdDelegatedTopLevel);
     });
 
     test('REST searchById: delegated user — nested sensitive sections filtered', async () => {
@@ -194,7 +205,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition/comp-nested-sensitive')
             .set(getHeadersWithCustomPayload(delegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedSearchByIdDelegatedNested));
+        expect(resp).toHaveResponse(expectedSearchByIdDelegatedNested);
     });
 
     test('REST searchById: delegated user — deep sensitive sections filtered', async () => {
@@ -208,7 +219,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition/comp-deep-sensitive')
             .set(getHeadersWithCustomPayload(delegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedSearchByIdDelegatedDeep));
+        expect(resp).toHaveResponse(expectedSearchByIdDelegatedDeep);
     });
 
     test('REST searchById: non-delegated user sees all sections unfiltered', async () => {
@@ -222,7 +233,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition/comp-top-level-sensitive')
             .set(getHeadersWithCustomPayload(nonDelegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedSearchByIdNonDelegatedTopLevel));
+        expect(resp).toHaveResponse(expectedSearchByIdNonDelegatedTopLevel);
     });
 
     // ─── GRAPHQL V1 ──────────────────────────────────────────────────
@@ -267,7 +278,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .send({ operationName: null, variables: {}, query: graphqlV1Query })
             .set(getCustomGraphQLHeaders(delegatedPayload));
 
-        expect(resp).toHaveGraphQLResponse(deepcopy(expectedGraphqlV1Delegated), 'composition');
+        expect(resp).toHaveGraphQLResponse(expectedGraphqlV1Delegated, 'composition');
     });
 
     test('GraphQL v1: non-delegated user sees all sections unfiltered', async () => {
@@ -282,7 +293,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .send({ operationName: null, variables: {}, query: graphqlV1Query })
             .set(getCustomGraphQLHeaders(nonDelegatedPayload));
 
-        expect(resp).toHaveGraphQLResponse(deepcopy(expectedGraphqlV1NonDelegated), 'composition');
+        expect(resp).toHaveGraphQLResponse(expectedGraphqlV1NonDelegated, 'composition');
     });
 
     // ─── GRAPHQL V2 ──────────────────────────────────────────────────
@@ -327,7 +338,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .send({ operationName: null, variables: {}, query: graphqlV2Query })
             .set(getCustomGraphQLHeaders(delegatedPayload));
 
-        expect(resp).toHaveGraphQLResponse(deepcopy(expectedGraphqlV2Delegated), 'compositions');
+        expect(resp).toHaveGraphQLResponse(expectedGraphqlV2Delegated, 'compositions');
     });
 
     test('GraphQL v2: non-delegated user sees all sections unfiltered', async () => {
@@ -342,7 +353,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .send({ operationName: null, variables: {}, query: graphqlV2Query })
             .set(getCustomGraphQLHeaders(nonDelegatedPayload));
 
-        expect(resp).toHaveGraphQLResponse(deepcopy(expectedGraphqlV2NonDelegated), 'compositions');
+        expect(resp).toHaveGraphQLResponse(expectedGraphqlV2NonDelegated, 'compositions');
     });
 
     // ─── REST SEARCH WITH _elements ────────────────────────────────────
@@ -358,7 +369,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id,section')
             .set(getHeadersWithCustomPayload(delegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedSearchElementsDelegated));
+        expect(resp).toHaveResponse(expectedSearchElementsDelegated);
     });
 
     test('REST search with _elements: non-delegated user — all sections present', async () => {
@@ -372,7 +383,7 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .get('/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id,section')
             .set(getHeadersWithCustomPayload(nonDelegatedPayload));
 
-        expect(resp).toHaveResponse(deepcopy(expectedSearchElementsNonDelegated));
+        expect(resp).toHaveResponse(expectedSearchElementsNonDelegated);
     });
 
     // ─── GRAPHQL PARTIAL FIELDS (PROJECTION) ─────────────────────────
@@ -409,6 +420,88 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .send({ operationName: null, variables: {}, query: partialQuery })
             .set(getCustomGraphQLHeaders(delegatedPayload));
 
-        expect(resp).toHaveGraphQLResponse(deepcopy(expectedGraphqlV1PartialDelegated), 'composition');
+        expect(resp).toHaveGraphQLResponse(expectedGraphqlV1PartialDelegated, 'composition');
+    });
+
+    // ─── $everything ─────────────────────────────────────────────────
+
+    test('$everything: delegated user sees sensitive sections filtered across all compositions', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        const resp = await request
+            .get('/4_0_0/Patient/patient1/$everything')
+            .set(getHeadersWithCustomPayload(delegatedPayload));
+
+        expect(resp).toHaveResponse(expectedEverythingDelegated);
+    });
+
+    test('$everything: non-delegated user sees all sections unfiltered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        const resp = await request
+            .get('/4_0_0/Patient/patient1/$everything')
+            .set(getHeadersWithCustomPayload(nonDelegatedPayload));
+
+        expect(resp).toHaveResponse(expectedEverythingNonDelegated);
+    });
+
+    // ─── $graph ──────────────────────────────────────────────────────
+
+    test('$graph: delegated user sees sensitive sections filtered across all compositions', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        const graphDef = require('./fixtures/GraphDefinition/patientCompositionGraph.json');
+        const resp = await request
+            .post('/4_0_0/Patient/$graph?id=patient1')
+            .send(graphDef)
+            .set(getHeadersWithCustomPayload(delegatedPayload));
+
+        expect(resp).toHaveResponse(expectedGraphDelegated);
+    });
+
+    test('$graph: non-delegated user sees all sections unfiltered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        const graphDef = require('./fixtures/GraphDefinition/patientCompositionGraph.json');
+        const resp = await request
+            .post('/4_0_0/Patient/$graph?id=patient1')
+            .send(graphDef)
+            .set(getHeadersWithCustomPayload(nonDelegatedPayload));
+
+        expect(resp).toHaveResponse(expectedGraphNonDelegated);
+    });
+
+    // ─── REST SEARCH WITH _debug=1 (toHaveMongoQuery) ───────────────
+
+    test('REST search with _debug=1: delegated user — verify mongo query and filtered response', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        const resp = await request
+            .get('/4_0_0/Composition/?_debug=1')
+            .set(getHeadersWithCustomPayload(delegatedPayload));
+
+        const expectedResp = deepcopy(expectedSearchDebugDelegated);
+        expect(resp).toHaveMongoQuery(expectedResp);
+        expect(resp).toHaveResponse(expectedResp);
     });
 });

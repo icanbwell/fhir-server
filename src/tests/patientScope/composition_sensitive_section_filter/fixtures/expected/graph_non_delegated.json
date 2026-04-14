@@ -1,0 +1,945 @@
+{
+    "entry": [
+        {
+            "id": "patient1",
+            "resource": {
+                "birthDate": "2017-01-01",
+                "gender": "female",
+                "id": "patient1",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
+                    "source": "http://healthsystem1health.org/provider",
+                    "security": [
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "name": [
+                    {
+                        "use": "usual",
+                        "family": "PATIENT1",
+                        "given": [
+                            "SHYLA"
+                        ]
+                    }
+                ],
+                "resourceType": "Patient",
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "patient1"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "24a5930e-11b4-5525-b482-669174917044"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "comp-no-sensitive",
+            "resource": {
+                "author": [
+                    {
+                        "reference": "Organization/org1",
+                        "extension": [
+                            {
+                                "id": "sourceId",
+                                "url": "https://www.icanbwell.com/sourceId",
+                                "valueString": "Organization/org1"
+                            },
+                            {
+                                "id": "uuid",
+                                "url": "https://www.icanbwell.com/uuid",
+                                "valueString": "Organization/8ae53278-712c-5b7b-aa8c-756ad0aeb023"
+                            },
+                            {
+                                "id": "sourceAssigningAuthority",
+                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                "valueString": "healthsystem1"
+                            }
+                        ]
+                    }
+                ],
+                "date": "2025-01-01",
+                "id": "comp-no-sensitive",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
+                    "source": "https://www.icanbwell.com/test",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "484b61d9-be25-547c-a12b-bea9dcfc9598",
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "resourceType": "Composition",
+                "section": [
+                    {
+                        "id": "normal-1",
+                        "title": "Allergies",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "d337977f-4707-52f9-804d-15d3d24ec18e",
+                                    "system": "http://loinc.org",
+                                    "code": "48765-2"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "normal-2",
+                        "title": "Medications",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
+                                    "system": "http://loinc.org",
+                                    "code": "10160-0"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "normal-3",
+                        "title": "Problems",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "a01c7a6e-153a-5ccf-86b3-9459ac800b07",
+                                    "system": "http://loinc.org",
+                                    "code": "11450-4"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "status": "final",
+                "subject": {
+                    "reference": "Patient/patient1",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ]
+                },
+                "title": "Composition With No Sensitive Sections",
+                "type": {
+                    "coding": [
+                        {
+                            "id": "ba1ac791-e196-54e4-8704-b0be033687fc",
+                            "system": "http://loinc.org",
+                            "code": "11503-0",
+                            "display": "Medical records"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "comp-top-level-sensitive",
+            "resource": {
+                "author": [
+                    {
+                        "reference": "Organization/org1",
+                        "extension": [
+                            {
+                                "id": "sourceId",
+                                "url": "https://www.icanbwell.com/sourceId",
+                                "valueString": "Organization/org1"
+                            },
+                            {
+                                "id": "uuid",
+                                "url": "https://www.icanbwell.com/uuid",
+                                "valueString": "Organization/8ae53278-712c-5b7b-aa8c-756ad0aeb023"
+                            },
+                            {
+                                "id": "sourceAssigningAuthority",
+                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                "valueString": "healthsystem1"
+                            }
+                        ]
+                    }
+                ],
+                "date": "2025-01-01",
+                "id": "comp-top-level-sensitive",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
+                    "source": "https://www.icanbwell.com/test",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "484b61d9-be25-547c-a12b-bea9dcfc9598",
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "resourceType": "Composition",
+                "section": [
+                    {
+                        "id": "normal-1",
+                        "title": "Allergies",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "d337977f-4707-52f9-804d-15d3d24ec18e",
+                                    "system": "http://loinc.org",
+                                    "code": "48765-2"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-1",
+                        "title": "Substance Abuse History",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "SUBSTANCE_ABUSE"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "normal-2",
+                        "title": "Medications",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
+                                    "system": "http://loinc.org",
+                                    "code": "10160-0"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-2",
+                        "title": "Mental Health Notes",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "MENTAL_HEALTH"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-3",
+                        "title": "Reproductive Health",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "status": "final",
+                "subject": {
+                    "reference": "Patient/patient1",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ]
+                },
+                "title": "Composition With Top Level Sensitive Sections",
+                "type": {
+                    "coding": [
+                        {
+                            "id": "ba1ac791-e196-54e4-8704-b0be033687fc",
+                            "system": "http://loinc.org",
+                            "code": "11503-0",
+                            "display": "Medical records"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "comp-nested-sensitive",
+            "resource": {
+                "author": [
+                    {
+                        "reference": "Organization/org1",
+                        "extension": [
+                            {
+                                "id": "sourceId",
+                                "url": "https://www.icanbwell.com/sourceId",
+                                "valueString": "Organization/org1"
+                            },
+                            {
+                                "id": "uuid",
+                                "url": "https://www.icanbwell.com/uuid",
+                                "valueString": "Organization/8ae53278-712c-5b7b-aa8c-756ad0aeb023"
+                            },
+                            {
+                                "id": "sourceAssigningAuthority",
+                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                "valueString": "healthsystem1"
+                            }
+                        ]
+                    }
+                ],
+                "date": "2025-01-01",
+                "id": "comp-nested-sensitive",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
+                    "source": "https://www.icanbwell.com/test",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "484b61d9-be25-547c-a12b-bea9dcfc9598",
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "resourceType": "Composition",
+                "section": [
+                    {
+                        "id": "parent-1",
+                        "title": "Allergies",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "d337977f-4707-52f9-804d-15d3d24ec18e",
+                                    "system": "http://loinc.org",
+                                    "code": "48765-2"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "p1-child-1",
+                                "title": "Drug Allergies",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "fc601e38-a9d9-57b8-a69b-8cc9b89269b1",
+                                            "system": "http://loinc.org",
+                                            "code": "48765-2-1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p1-child-2",
+                                "title": "Food Allergies",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "5d0909f6-9451-5a77-baed-70769b628843",
+                                            "system": "http://loinc.org",
+                                            "code": "48765-2-2"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p1-child-sensitive",
+                                "title": "Sensitive Allergy Details",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "SUBSTANCE_ABUSE"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "parent-2",
+                        "title": "Medications",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
+                                    "system": "http://loinc.org",
+                                    "code": "10160-0"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "p2-child-1",
+                                "title": "Current Medications",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "60b6e5ee-7ee4-54c3-a4fc-4891dae6eeec",
+                                            "system": "http://loinc.org",
+                                            "code": "10160-0-1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p2-child-sensitive",
+                                "title": "Sensitive Medication Details",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "MENTAL_HEALTH"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p2-child-3",
+                                "title": "Past Medications",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "b15f2467-4bd6-555f-a30b-b2e115b414e5",
+                                            "system": "http://loinc.org",
+                                            "code": "10160-0-3"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "parent-3",
+                        "title": "Problems",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "a01c7a6e-153a-5ccf-86b3-9459ac800b07",
+                                    "system": "http://loinc.org",
+                                    "code": "11450-4"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "p3-child-sensitive",
+                                "title": "Sensitive Problem Details",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "reproductive-health"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p3-child-2",
+                                "title": "Active Problems",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "c4953cdc-5e66-5d0f-9112-e6366ad2ec0f",
+                                            "system": "http://loinc.org",
+                                            "code": "11450-4-2"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p3-child-3",
+                                "title": "Resolved Problems",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "11440360-5f8d-5143-8cee-3e124d48efbd",
+                                            "system": "http://loinc.org",
+                                            "code": "11450-4-3"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "parent-4",
+                        "title": "Immunizations",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "c7b2b2bd-4280-5fb3-b78b-5cfa5edb86c7",
+                                    "system": "http://loinc.org",
+                                    "code": "11369-6"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "p4-child-1",
+                                "title": "Childhood Immunizations",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "4eacfd29-b0b2-5c30-ae2b-6fc56e167f39",
+                                            "system": "http://loinc.org",
+                                            "code": "11369-6-1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p4-child-2",
+                                "title": "Adult Immunizations",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "ff3f3ab9-4a96-5a3b-9a90-33b3685c9d63",
+                                            "system": "http://loinc.org",
+                                            "code": "11369-6-2"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p4-child-sensitive",
+                                "title": "Sensitive Immunization Details",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "SUBSTANCE_ABUSE"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "parent-5",
+                        "title": "Vital Signs",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "d6accca3-1ca1-5ac8-97f0-39fae9bec2be",
+                                    "system": "http://loinc.org",
+                                    "code": "8716-3"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "p5-child-1",
+                                "title": "Blood Pressure",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "5cd9ca63-555c-57db-b3cc-ab99095e69a7",
+                                            "system": "http://loinc.org",
+                                            "code": "8716-3-1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p5-child-sensitive",
+                                "title": "Sensitive Vital Signs",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "MENTAL_HEALTH"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p5-child-3",
+                                "title": "Weight",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "b0e03c9e-c661-52b7-90d9-640eb9fdaa6f",
+                                            "system": "http://loinc.org",
+                                            "code": "8716-3-3"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "status": "final",
+                "subject": {
+                    "reference": "Patient/patient1",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ]
+                },
+                "title": "Composition With Nested Sensitive Sections",
+                "type": {
+                    "coding": [
+                        {
+                            "id": "ba1ac791-e196-54e4-8704-b0be033687fc",
+                            "system": "http://loinc.org",
+                            "code": "11503-0",
+                            "display": "Medical records"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "comp-deep-sensitive",
+            "resource": {
+                "author": [
+                    {
+                        "reference": "Organization/org1",
+                        "extension": [
+                            {
+                                "id": "sourceId",
+                                "url": "https://www.icanbwell.com/sourceId",
+                                "valueString": "Organization/org1"
+                            },
+                            {
+                                "id": "uuid",
+                                "url": "https://www.icanbwell.com/uuid",
+                                "valueString": "Organization/8ae53278-712c-5b7b-aa8c-756ad0aeb023"
+                            },
+                            {
+                                "id": "sourceAssigningAuthority",
+                                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                "valueString": "healthsystem1"
+                            }
+                        ]
+                    }
+                ],
+                "date": "2025-01-01",
+                "id": "comp-deep-sensitive",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
+                    "source": "https://www.icanbwell.com/test",
+                    "security": [
+                        {
+                            "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "484b61d9-be25-547c-a12b-bea9dcfc9598",
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "healthsystem1"
+                        },
+                        {
+                            "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "healthsystem1"
+                        }
+                    ]
+                },
+                "resourceType": "Composition",
+                "section": [
+                    {
+                        "id": "level1-a",
+                        "title": "Clinical Summary",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "d6dda25f-7212-5797-8bdf-ff0c74d152f3",
+                                    "system": "http://loinc.org",
+                                    "code": "51848-0"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "level2-a1",
+                                "title": "Diagnoses",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "6e8ed357-5e42-50ee-ae5b-41d7037e2ba6",
+                                            "system": "http://loinc.org",
+                                            "code": "29308-4"
+                                        }
+                                    ]
+                                },
+                                "section": [
+                                    {
+                                        "id": "level3-a1-normal",
+                                        "title": "Active Diagnoses",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "f3ab9f1d-3551-5b34-ba7a-f5b4c97a85d4",
+                                                    "system": "http://loinc.org",
+                                                    "code": "29308-4-1"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "level3-a1-sensitive",
+                                        "title": "Sensitive Diagnosis Details",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                                    "code": "SUBSTANCE_ABUSE"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "level2-a2",
+                                "title": "Procedures",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "d7e93f81-9b94-5893-8d18-6994ecf05e16",
+                                            "system": "http://loinc.org",
+                                            "code": "47519-4"
+                                        }
+                                    ]
+                                },
+                                "section": [
+                                    {
+                                        "id": "level3-a2-sensitive",
+                                        "title": "Sensitive Procedure Details",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                                    "code": "MENTAL_HEALTH"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "level3-a2-normal",
+                                        "title": "Routine Procedures",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "73197de0-8e35-5936-aa75-8bf590d85017",
+                                                    "system": "http://loinc.org",
+                                                    "code": "47519-4-2"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "level1-b",
+                        "title": "Lab Results",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "548fa3f8-df55-5a50-8491-eaf2da4c6238",
+                                    "system": "http://loinc.org",
+                                    "code": "26436-6"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "level2-b1",
+                                "title": "Blood Work",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "492fef66-21b4-5b7b-a51c-a7115d58c31b",
+                                            "system": "http://loinc.org",
+                                            "code": "26436-6-1"
+                                        }
+                                    ]
+                                },
+                                "section": [
+                                    {
+                                        "id": "level3-b1-normal",
+                                        "title": "CBC Results",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "f68ff145-2394-56a6-bd1c-9ff88a45322c",
+                                                    "system": "http://loinc.org",
+                                                    "code": "26436-6-1-1"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "status": "final",
+                "subject": {
+                    "reference": "Patient/patient1",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/patient1"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "healthsystem1"
+                        }
+                    ]
+                },
+                "title": "Composition With Deep Sensitive Sections",
+                "type": {
+                    "coding": [
+                        {
+                            "id": "ba1ac791-e196-54e4-8704-b0be033687fc",
+                            "system": "http://loinc.org",
+                            "code": "11503-0",
+                            "display": "Medical records"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "type": "searchset",
+    "timestamp": "2025-12-24T08:00:00.000Z",
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://127.0.0.1:57821/4_0_0/Patient/$graph?id=patient1"
+        }
+    ],
+    "resourceType": "Bundle",
+    "total": 5,
+    "id": "c9dd8844-0840-451a-8465-bd830ed322a7"
+}
