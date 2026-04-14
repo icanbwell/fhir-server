@@ -10,9 +10,16 @@ class BundleResourceValidator extends BaseValidator {
      */
     async validate ({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
         // if the incoming request is a bundle then unwrap the bundle
-        if (!Array.isArray(incomingResources) && incomingResources.resourceType === 'Bundle') {
+        if (
+            incomingResources &&
+            !Array.isArray(incomingResources) &&
+            incomingResources.resourceType === 'Bundle'
+        ) {
             // unwrap the resources
-            incomingResources = incomingResources.entry ? incomingResources.entry.map(e => e.resource) : [];
+            incomingResources =
+                incomingResources.entry && incomingResources.entry.length
+                    ? incomingResources.entry.map((e) => e && e.resource)
+                    : [];
         }
 
         return { validatedObjects: incomingResources, preCheckErrors: [], wasAList: false };

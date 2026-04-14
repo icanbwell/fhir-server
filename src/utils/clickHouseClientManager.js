@@ -62,7 +62,7 @@ class ClickHouseClientManager {
         }
 
         try {
-            const url = `http://${this.configManager.clickHouseHost}:${this.configManager.clickHousePort}`;
+            const url = `${this.configManager.clickHouseHost}:${this.configManager.clickHousePort}`;
 
             logInfo('Connecting to ClickHouse', {
                 host: this.configManager.clickHouseHost,
@@ -135,7 +135,7 @@ class ClickHouseClientManager {
             // JSONEachRow returns array directly, not {data: [...]}
             return Array.isArray(result) ? result.length > 0 : (result && result.data && result.data.length > 0);
         } catch (error) {
-            logError('ClickHouse ping failed', { error: error.message });
+            logError('ClickHouse ping failed', { error: error.message, stack: error.stack });
             return false;
         }
     }
@@ -231,9 +231,10 @@ class ClickHouseClientManager {
      * @param {string} params.table - Table name
      * @param {Array<Object>} params.values - Array of rows to insert
      * @param {string} [params.format] - Data format (default: JSONEachRow)
+     * @param {Object} [params.clickhouse_settings] - Per-query ClickHouse settings (e.g. async_insert, wait_for_async_insert)
      * @returns {Promise<void>}
      */
-    async insertAsync({ table, values, format = 'JSONEachRow' }) {
+    async insertAsync({ table, values, format = 'JSONEachRow', clickhouse_settings }) {
         const startTime = Date.now();
         const rowCount = values?.length || 0;
 
@@ -264,7 +265,8 @@ class ClickHouseClientManager {
                 await client.insert({
                     table,
                     values,
-                    format
+                    format,
+                    clickhouse_settings
                 });
 
                 const duration = Date.now() - startTime;

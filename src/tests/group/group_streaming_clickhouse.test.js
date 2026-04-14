@@ -1,17 +1,11 @@
-// Set env vars FIRST, before any requires
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
-process.env.CLICKHOUSE_HOST = 'localhost';
-process.env.CLICKHOUSE_PORT = '8123';
-process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'SILENT';
 
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
-const fs = require('fs');
-const path = require('path');
+const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 /**
  * Streaming Tests for ClickHouse-enabled Groups
@@ -34,78 +28,20 @@ class MockConfigManagerStreaming extends ConfigManager {
     }
 }
 
+
 describe('Group Streaming with ClickHouse', () => {
     let clickHouseManager;
 
-    async function waitForClickHouse(manager, maxWaitMs = 30000) {
-        const startTime = Date.now();
-        while (Date.now() - startTime < maxWaitMs) {
-            try {
-                await manager.getClientAsync();
-                const isHealthy = await manager.isHealthyAsync();
-                if (isHealthy) {
-                    return true;
-                }
-            } catch (e) {
-                // Continue polling
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-    }
-
-    async function initializeClickHouseSchema(manager) {
-        try {
-            const exists = await manager.tableExistsAsync('fhir.fhir_group_member_events');
-            if (!exists) {
-                const schemaPath = path.join(__dirname, '../../../clickhouse-init/01-init-schema.sql');
-                if (!fs.existsSync(schemaPath)) {
-                    console.warn('Schema file not found at:', schemaPath);
-                    return;
-                }
-                const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-                const statements = schemaSql
-                    .split(';')
-                    .map(s => s.trim())
-                    .filter(s => {
-                        if (!s) return false;
-                        if (s.startsWith('--')) return false;
-                        // Skip SET commands (require --multiquery mode)
-                        if (s.toUpperCase().startsWith('SET ')) return false;
-                        // Skip if it's just comment fragments (doesn't contain SQL keywords)
-                        const upper = s.toUpperCase();
-                        const hasSqlKeyword = /\b(CREATE|ALTER|DROP|SELECT|INSERT|UPDATE|DELETE)\b/.test(upper);
-                        if (!hasSqlKeyword) return false;
-                        return true;
-                    });
-
-                for (const statement of statements) {
-                    if (statement) {
-                        try {
-                            await manager.queryAsync({ query: statement });
-                        } catch (e) {
-                            // Ignore "already exists" errors - schema is created by Docker on startup
-                            if (!e.message.includes('already exists')) {
-                                console.error('Failed to execute schema statement:', e.message);
-                                console.error('Statement (first 200 chars):', statement.substring(0, 200));
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Failed to initialize ClickHouse schema:', error.message);
-            throw error;
-        }
-    }
-
+    let clickHouseTestContainer;
     beforeAll(async () => {
+        clickHouseTestContainer = new ClickHouseTestContainer();
+        await clickHouseTestContainer.start();
+        clickHouseTestContainer.applyEnvVars();
+
         await commonBeforeEach();
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
-
-        await waitForClickHouse(clickHouseManager);
-        await initializeClickHouseSchema(clickHouseManager);
+        await clickHouseManager.getClientAsync();
 
         try {
             await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
@@ -117,6 +53,9 @@ describe('Group Streaming with ClickHouse', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
+        }
+        if (clickHouseTestContainer) {
+            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     });

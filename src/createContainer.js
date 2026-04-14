@@ -338,6 +338,28 @@ const createContainer = function () {
         }
         return null;
     });
+    // Register AuditEvent ClickHouse repository (if enabled)
+    container.register('auditEventClickHouseRepository', (c) => {
+        if (c.configManager.enableAuditEventClickHouse && c.clickHouseClientManager) {
+            const { AuditEventClickHouseRepository } = require('./dataLayer/repositories/auditEventClickHouseRepository');
+            return new AuditEventClickHouseRepository({
+                clickHouseClientManager: c.clickHouseClientManager
+            });
+        }
+        return null;
+    });
+    // Register AuditEvent ClickHouse writer (if repository available)
+    container.register('auditEventClickHouseWriter', (c) => {
+        if (c.auditEventClickHouseRepository) {
+            const { AuditEventClickHouseWriter } = require('./utils/auditEventClickHouseWriter');
+            const { AuditEventTransformer } = require('./admin/utils/auditEventTransformer');
+            return new AuditEventClickHouseWriter({
+                auditEventClickHouseRepository: c.auditEventClickHouseRepository,
+                auditEventTransformer: new AuditEventTransformer()
+            });
+        }
+        return null;
+    });
     container.register('indexManager', (c) => new IndexManager(
         {
             indexProvider: c.indexProvider,
@@ -553,7 +575,8 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager,
-                auditEventKafkaProducer: c.auditEventKafkaProducer
+                auditEventKafkaProducer: c.auditEventKafkaProducer,
+                auditEventClickHouseWriter: c.auditEventClickHouseWriter
             }
         )
     );

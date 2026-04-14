@@ -20,6 +20,8 @@ const { describe, beforeAll, afterAll, test, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
+
 
 // Save original env vars
 const ORIGINAL_ENABLE_CLICKHOUSE = process.env.ENABLE_CLICKHOUSE;
@@ -31,33 +33,23 @@ const ORIGINAL_MAX_GROUP_MEMBERS = process.env.MAX_GROUP_MEMBERS_PER_PUT;
 describe('Hybrid Storage Architecture - Correctness Test', () => {
     let clickHouseManager;
 
+    let clickHouseTestContainer;
+    let savedContainerEnvVars;
     beforeAll(async () => {
         // Set up for tests
         process.env.LOGLEVEL = 'ERROR'; // Suppress noise
         process.env.PAYLOAD_LIMIT = '200mb'; // Allow large payloads for test
         process.env.MAX_GROUP_MEMBERS_PER_PUT = '50000'; // Use default limit (30K is within this)
         process.env.CLICKHOUSE_WRITE_MODE = 'sync';
-        process.env.CLICKHOUSE_DATABASE = 'fhir';
+
+        clickHouseTestContainer = new ClickHouseTestContainer();
+        await clickHouseTestContainer.start();
+        savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
 
         // Initialize ClickHouse connection (for cleanup and verification)
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
-
-        // Wait for ClickHouse to be ready
-        let ready = false;
-        for (let i = 0; i < 30; i++) {
-            try {
-                await clickHouseManager.getClientAsync();
-                if (await clickHouseManager.isHealthyAsync()) {
-                    ready = true;
-                    break;
-                }
-            } catch (e) {
-                // Continue
-            }
-            await new Promise(r => setTimeout(r, 1000));
-        }
-        if (!ready) throw new Error('ClickHouse not ready');
+        await clickHouseManager.getClientAsync();
 
         await commonBeforeEach();
     }, 60000);
@@ -65,6 +57,12 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
+        }
+        if (clickHouseTestContainer) {
+            if (savedContainerEnvVars) {
+                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
+            }
+            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
 

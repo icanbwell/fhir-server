@@ -550,7 +550,7 @@ class ResourceMerger {
             mergedObject = mergeObject(currentResourceWithAttachmentDataObject, resourceToMerge);
         }
         else {
-            mergedObject = resourceToMerge;
+            mergedObject = deepcopy(resourceToMerge);
         }
 
         // now create a patch between the document in db and the incoming document
