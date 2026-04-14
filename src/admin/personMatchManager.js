@@ -66,7 +66,8 @@ class PersonMatchManager {
      * @param {string|undefined} sourceType
      * @param {string} targetId
      * @param {string|undefined} targetType
-     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo]
+     * @param {boolean} [includeMatchRequest]
      * @return {Promise<Object>}
      */
     async personMatchAsync (
@@ -75,7 +76,8 @@ class PersonMatchManager {
             sourceType,
             targetId,
             targetType,
-            requestInfo
+            requestInfo,
+            includeMatchRequest
         }
     ) {
         /**
@@ -229,26 +231,30 @@ class PersonMatchManager {
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)
             .timeout(this.configManager.requestTimeoutMs);
             const json = res.body;
-            this.postRequestProcessor.add({
-                requestId: requestInfo.requestId,
-                fnTask: async () => {
-                    await this.auditLogger.logAuditEntryAsync({
-                        requestInfo,
-                        base_version: '4_0_0',
-                        resourceType: sourceType,
-                        operation: 'read',
-                        ids: [sourceId]
-                    });
-                    await this.auditLogger.logAuditEntryAsync({
-                        requestInfo,
-                        base_version: '4_0_0',
-                        resourceType: targetType,
-                        operation: 'read',
-                        ids: [targetId]
-                    });
-                }
-            });
-            return { matchRequest: parameters, matchResponse: json };
+            if (requestInfo) {
+                this.postRequestProcessor.add({
+                    requestId: requestInfo.requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version: '4_0_0',
+                            resourceType: sourceType,
+                            operation: 'read',
+                            ids: [sourceId]
+                        });
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version: '4_0_0',
+                            resourceType: targetType,
+                            operation: 'read',
+                            ids: [targetId]
+                        });
+                    }
+                });
+            }
+            return includeMatchRequest
+                ? { matchRequest: parameters, matchResponse: json }
+                : json;
         } catch (error) {
             if (error.timeout) {
                 return new OperationOutcome({
@@ -300,9 +306,10 @@ class PersonMatchManager {
      * @param {string|undefined} resourceType - "Patient" or "Person"
      * @param {string|undefined} matchResourceType - "Patient" or "Person"
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {boolean} [includeMatchRequest]
      * @returns {Promise<Object>}
      */
-    async personOneToNMatchAsync ({ id, resourceType, matchResourceType, requestInfo }) {
+    async personOneToNMatchAsync ({ id, resourceType, matchResourceType, requestInfo, includeMatchRequest }) {
         resourceType = resourceType || 'Patient';
         // strip resourceType from id if provided as "Patient/123"
         if (id.includes('/')) {
@@ -417,7 +424,9 @@ class PersonMatchManager {
                     });
                 }
             });
-            return { matchRequest: parameters, matchResponse: res.body };
+            return includeMatchRequest
+                ? { matchRequest: parameters, matchResponse: res.body }
+                : res.body;
         } catch (error) {
             if (error.timeout) {
                 return new OperationOutcome({

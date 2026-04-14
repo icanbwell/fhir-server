@@ -14,6 +14,7 @@ const { REQUEST_ID_HEADER, REGEX } = require('../constants');
 const { AdminExportManager } = require('../admin/adminExportManager');
 const { logError } = require('../operations/common/logging');
 const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
+const { isTrue } = require('../utils/isTrue');
 
 /**
  * shows indexes
@@ -189,12 +190,14 @@ async function handleAdminGet (
                     const personMatchManager = container.personMatchManager;
                     assertIsValid(personMatchManager);
                     const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
+                    const includeMatchRequest = isTrue(req.query.includeMatchRequest);
                     const json = await personMatchManager.personMatchAsync({
                         sourceType,
                         sourceId,
                         targetType,
                         targetId,
-                        requestInfo
+                        requestInfo,
+                        includeMatchRequest
                     });
                     return res.json(json);
                 }
@@ -248,12 +251,14 @@ async function handleAdminGet (
                     }
                     const personMatchManager = container.personMatchManager;
                     assertIsValid(personMatchManager);
+                    const includeMatchRequest = isTrue(req.query.includeMatchRequest);
                     const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
                     const json = await personMatchManager.personOneToNMatchAsync({
                         id,
                         resourceType,
                         matchResourceType,
-                        requestInfo
+                        requestInfo,
+                        includeMatchRequest
                     });
                     return res.json(json);
                 }
