@@ -6,7 +6,7 @@ const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutco
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { logInfo } = require('../operations/common/logging');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
-const { isUuid } = require('../utils/uid.util');
+const { isUuid, generateUUID } = require('../utils/uid.util');
 const { OAuthClientCredentialsHelper } = require('../utils/oauthClientCredentialsHelper');
 const { AuditLogger } = require('../utils/auditLogger');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
@@ -248,7 +248,7 @@ class PersonMatchManager {
                     });
                 }
             });
-            return json;
+            return { matchRequest: parameters, matchResponse: json };
         } catch (error) {
             if (error.timeout) {
                 return new OperationOutcome({
@@ -372,9 +372,11 @@ class PersonMatchManager {
         }
 
         const demographicResource = this._extractDemographics(resources[0]);
+        demographicResource.id = generateUUID();
         demographicResource.resourceType = matchResourceType || resourceType;
 
         const parameters = {
+            id: generateUUID(),
             resourceType: 'Parameters',
             parameter: [
                 {
@@ -415,7 +417,7 @@ class PersonMatchManager {
                     });
                 }
             });
-            return res.body;
+            return { matchRequest: parameters, matchResponse: res.body };
         } catch (error) {
             if (error.timeout) {
                 return new OperationOutcome({
