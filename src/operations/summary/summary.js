@@ -11,7 +11,7 @@ const { ParsedArgsItem } = require('../query/parsedArgsItem');
 const { QueryParameterValue } = require('../query/queryParameterValue');
 const { logInfo, logError } = require('../common/logging');
 const { isUuid } = require('../../utils/uid.util');
-const { PERSON_PROXY_PREFIX, CACHE_STATUS } = require('../../constants');
+const { PERSON_PROXY_PREFIX, CACHE_STATUS, AUTH_USER_TYPES } = require('../../constants');
 const { SummaryCacheKeyGenerator } = require('./summaryCacheKeyGenerator');
 const { RedisManager } = require('../../utils/redisManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -129,6 +129,9 @@ class SummaryOperation {
      * @returns {Promise<string|undefined>}
      */
     async getCacheKey(parsedArgs, requestInfo) {
+        if (requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
+            return undefined;
+        }
         let paramsIds = this.fetchOriginalIdsFromParams(parsedArgs);
         // Multiple ids are not supported and check for cacheable response type
         if (

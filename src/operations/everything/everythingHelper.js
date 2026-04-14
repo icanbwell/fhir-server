@@ -32,7 +32,8 @@ const {
     PERSON_PROXY_PREFIX,
     EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH,
     HTTP_CONTEXT_KEYS,
-    REGEX
+    REGEX,
+    AUTH_USER_TYPES
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
@@ -285,7 +286,7 @@ class EverythingHelper {
      * @returns {Promise<string|undefined>}
      */
     async getCacheKey(parsedArgs, requestInfo, resourceType, base_version) {
-        if (!requestInfo.personIdFromJwtToken) {
+        if (!requestInfo.personIdFromJwtToken || requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
             return undefined;
         }
         const keyGenerator = new PatientEverythingCacheKeyGenerator();
@@ -316,8 +317,7 @@ class EverythingHelper {
                 id: idForCache,
                 isPersonId: isProxyPatient,
                 parsedArgs: parsedArgs,
-                scope: requestInfo.scope,
-                userType: requestInfo.userType
+                scope: requestInfo.scope
             })
             : undefined;
     }
