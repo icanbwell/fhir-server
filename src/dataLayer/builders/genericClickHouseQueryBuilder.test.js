@@ -1,0 +1,282 @@
+'use strict';
+
+const { describe, test, beforeEach, expect } = require('@jest/globals');
+const { GenericClickHouseQueryBuilder } = require('./genericClickHouseQueryBuilder');
+const { RESOURCE_COLUMN_TYPES } = require('../../constants/clickHouseConstants');
+
+describe('GenericClickHouseQueryBuilder', () => {
+    let builder;
+    let schema;
+
+    beforeEach(() => {
+        builder = new GenericClickHouseQueryBuilder();
+        schema = {
+            tableName: 'fhir.fhir_test_resource',
+            fhirResourceColumn: '_fhir_resource',
+            fhirResourceColumnType: RESOURCE_COLUMN_TYPES.STRING,
+            seekKey: ['recorded', 'id'],
+            fieldMappings: {
+                recorded: { column: 'recorded', type: 'datetime' },
+                code: { column: 'code_code', type: 'lowcardinality' },
+                'subject.reference': { column: 'subject_reference', type: 'reference' },
+                status: { column: 'status', type: 'lowcardinality' },
+                value: { column: 'value_quantity', type: 'number' }
+            },
+            securityMappings: {
+                accessTags: 'access_tags',
+                ownerTags: 'owner_tags',
+                sourceAssigningAuthority: 'source_assigning_authority'
+            },
+            requiredFilters: ['recorded'],
+            maxRangeDays: 30
+        };
+    });
+
+    describe('buildSearchQuery', () => {
+        test('equality condition generates correct WHERE', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' }
+                ],
+                securityConditions: { accessTags: ['client-a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('status = {_p0:String}');
+            expect(query_params._p0).toBe('final');
+        });
+
+        test.each([
+            ['$gte', '>='],
+            ['$gt', '>'],
+            ['$lt', '<'],
+            ['$lte', '<='],
+            ['$ne', '!=']
+        ])('operator %s generates %s', (op, sqlOp) => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: op, value: '2024-01-01' }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain(`recorded ${sqlOp} {_p0:String}`);
+        });
+
+        test('$in generates IN clause with Array type', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$in', value: ['final', 'amended'] }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('status IN {_p0:Array(String)}');
+            expect(query_params._p0).toEqual(['final', 'amended']);
+        });
+
+        test('security tags generate hasAny WHERE clauses', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['client-a'], ownerTags: ['org-1'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('hasAny(access_tags, {_accessTags:Array(String)})');
+            expect(query).toContain('hasAny(owner_tags, {_ownerTags:Array(String)})');
+            expect(query_params._accessTags).toEqual(['client-a']);
+            expect(query_params._ownerTags).toEqual(['org-1']);
+        });
+
+        test('pagination cursor generates seek clause', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: 'cursor-value'
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('recorded > {_seekCursor:String}');
+            expect(query_params._seekCursor).toBe('cursor-value');
+        });
+
+        test('LIMIT and OFFSET are parameterized', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema, { limit: 50, skip: 10 });
+            expect(query).toContain('LIMIT {_limit:UInt32}');
+            expect(query).toContain('OFFSET {_skip:UInt32}');
+            expect(query_params._limit).toBe(50);
+            expect(query_params._skip).toBe(10);
+        });
+
+        test('ORDER BY uses full seekKey tuple', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('ORDER BY recorded, id');
+        });
+
+        test('SELECT uses fhirResourceColumn from schema', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('SELECT _fhir_resource');
+        });
+
+        test('$or conditions grouped with OR', () => {
+            const parsed = {
+                fieldConditions: [
+                    {
+                        operator: '$or',
+                        conditions: [
+                            { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' },
+                            { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'amended' }
+                        ]
+                    }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('(status = {_p0:String} OR status = {_p1:String})');
+        });
+
+        test('number type uses Float64 parameter type', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'value', column: 'value_quantity', type: 'number', operator: '$gt', value: 98.6 }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('value_quantity > {_p0:Float64}');
+        });
+
+        test('no SQL injection via parameterized queries (no raw string interpolation of values)', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: "'; DROP TABLE fhir.test; --" }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            // Value goes into params, not into the SQL string
+            expect(query).not.toContain('DROP TABLE');
+            expect(query).toContain('status = {_p0:String}');
+            expect(query_params._p0).toBe("'; DROP TABLE fhir.test; --");
+        });
+    });
+
+    describe('buildCountQuery', () => {
+        test('generates SELECT count()', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' }
+                ],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildCountQuery(parsed, schema);
+            expect(query).toContain('SELECT count() AS cnt');
+            expect(query).toContain('status = {_p0:String}');
+            expect(query).toContain('hasAny(access_tags');
+        });
+    });
+
+    describe('buildFindByIdQuery', () => {
+        test('generates WHERE id = parameterized', () => {
+            const { query, query_params } = builder.buildFindByIdQuery('resource-123', schema);
+            expect(query).toContain('WHERE id = {_id:String}');
+            expect(query).toContain('LIMIT 1');
+            expect(query_params._id).toBe('resource-123');
+        });
+    });
+
+    describe('validateRequiredFilters', () => {
+        test('passes when required filter is present', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-01-01' }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.validateRequiredFilters(parsed, schema)).not.toThrow();
+        });
+
+        test('throws 400 when required filter missing', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.validateRequiredFilters(parsed, schema)).toThrow("Required filter 'recorded' missing");
+            try {
+                builder.validateRequiredFilters(parsed, schema);
+            } catch (e) {
+                expect(e.statusCode).toBe(400);
+                expect(e.operationOutcomeCode).toBe('too-costly');
+            }
+        });
+
+        test('throws when date range exceeds maxRangeDays', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-01-01T00:00:00Z' },
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-03-01T00:00:00Z' }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.validateRequiredFilters(parsed, schema)).toThrow('exceeds maximum of 30 days');
+        });
+
+        test('passes when date range within maxRangeDays', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-01-01T00:00:00Z' },
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-01-15T00:00:00Z' }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.validateRequiredFilters(parsed, schema)).not.toThrow();
+        });
+
+        test('skips validation when no requiredFilters defined', () => {
+            const noRequiredSchema = { ...schema, requiredFilters: [] };
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.validateRequiredFilters(parsed, noRequiredSchema)).not.toThrow();
+        });
+    });
+
+    describe('unsupported operator', () => {
+        test('throws on unknown operator', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'status', column: 'status', type: 'string', operator: '$regex', value: '.*' }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('Unsupported operator: $regex');
+        });
+    });
+});
