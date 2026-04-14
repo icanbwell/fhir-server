@@ -226,6 +226,120 @@ class PersonMatchManager {
             throw error;
         }
     }
+
+    /**
+     * Performs 1:N person matching
+     * @param {string} id
+     * @param {string|undefined} resourceType - "Patient" or "Person"
+     * @returns {Promise<Object>}
+     */
+    async personOneToNMatchAsync ({ id, resourceType }) {
+        resourceType = resourceType || 'Patient';
+        // strip resourceType from id if provided as "Patient/123"
+        if (id.includes('/')) {
+            resourceType = id.split('/')[0];
+            id = id.split('/')[1];
+        }
+
+        if (resourceType !== 'Patient' && resourceType !== 'Person') {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        diagnostics: `resourceType must be "Patient" or "Person", got "${resourceType}"`
+                    })
+                ]
+            }).toJSON();
+        }
+
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType,
+            base_version: '4_0_0'
+        });
+
+        const idQuery = isUuid(id) ? { _uuid: id } : { id };
+        const cursor = await databaseQueryManager.findAsync({ query: idQuery });
+
+        const resources = [];
+        while (await cursor.hasNext()) {
+            const resource = await cursor.nextObject();
+            resources.push(resource);
+        }
+
+        if (resources.length === 0) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'not-found',
+                        diagnostics: `Resource with type: ${resourceType} and id: ${id} was not found`
+                    })
+                ]
+            }).toJSON();
+        }
+        if (resources.length > 1) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'info',
+                        diagnostics: `Multiple resources with type: ${resourceType} and id: ${id} found`
+                    })
+                ]
+            }).toJSON();
+        }
+
+        // Convert Date object to string
+        if (resources[0].birthDate instanceof Date) {
+            resources[0].birthDate = resources[0].birthDate.toISOString().split('T')[0];
+        }
+
+        const parameters = {
+            resourceType: 'Parameters',
+            parameter: [
+                {
+                    name: 'resource',
+                    resource: resources[0].toJSON()
+                }
+            ]
+        };
+
+        const url = this.configManager.personMatchingServiceUrl;
+        assertIsValid(url, 'PERSON_MATCHING_SERVICE_URL environment variable is not set');
+
+        logInfo('Sending 1:N patient match request to person-matching service', {});
+
+        const accessToken = await this.oauthClientCredentialsHelper.getAccessTokenAsync();
+        const header = {
+            'Content-Type': 'application/fhir+json',
+            Accept: 'application/fhir+json',
+            Authorization: `Bearer ${accessToken}`
+        };
+
+        try {
+            const res = await superagent
+                .post(url)
+                .send(parameters)
+                .set(header)
+                .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+                .timeout(this.configManager.requestTimeoutMs);
+            return res.body;
+        } catch (error) {
+            if (error.timeout) {
+                return new OperationOutcome({
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'timeout',
+                            diagnostics: `Request timed out while sending request to person-matching service for 1:N match on ${resourceType}/${id}`
+                        })
+                    ]
+                }).toJSON();
+            }
+            throw error;
+        }
+    }
 }
 
 module.exports = {

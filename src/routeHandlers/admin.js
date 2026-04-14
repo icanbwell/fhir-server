@@ -233,6 +233,24 @@ async function handleAdminGet (
                     });
                 }
 
+                case 'runPersonOneToNMatch': {
+                    logInfo('', { 'req.query': req.query });
+                    const id = req.query.id;
+                    const resourceType = req.query.resourceType;
+                    if (!id) {
+                        return res.status(400).json({
+                            message: 'id query parameter is required'
+                        });
+                    }
+                    const personMatchManager = container.personMatchManager;
+                    assertIsValid(personMatchManager);
+                    const json = await personMatchManager.personOneToNMatchAsync({
+                        id,
+                        resourceType
+                    });
+                    return res.json(json);
+                }
+
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }
