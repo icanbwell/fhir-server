@@ -1,4 +1,4 @@
-const { ACCESS_LOGS_COLLECTION_NAME, CONSENT_OF_LINKED_PERSON_INDEX } = require('../constants');
+const { ACCESS_LOGS_COLLECTION_NAME, CONSENT_OF_LINKED_PERSON_INDEX, CONSENT_OF_LINKED_ACTOR_INDEX } = require('../constants');
 
 /**
  * List of custom indexes to add.  (* means these indexes should be applied to all collections)
@@ -360,6 +360,15 @@ module.exports = {
                 },
                 options: {
                     name: CONSENT_OF_LINKED_PERSON_INDEX
+                }
+            },
+            {
+                keys: {
+                    status: 1,
+                    'provision.actor.reference._uuid': 1
+                },
+                options: {
+                    name: CONSENT_OF_LINKED_ACTOR_INDEX
                 }
             },
             {
