@@ -25,7 +25,6 @@ const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
-const { CompositionSectionFilterTransform } = require('../streaming/compositionSectionFilterTransform');
 const { DataSharingManager } = require('./dataSharingManager');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
@@ -873,15 +872,10 @@ class SearchManager {
                         signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark,
-                        configManager: this.configManager
+                        configManager: this.configManager,
+                        enrichmentContext: { userType }
                     }
                 ),
-                new CompositionSectionFilterTransform({
-                    configManager: this.configManager,
-                    userType,
-                    signal: ac.signal,
-                    highWaterMark
-                }),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
                 new Transform({
                     writableObjectMode: true,
@@ -1084,18 +1078,10 @@ class SearchManager {
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark,
                 configManager: this.configManager,
-                response: res
+                response: res,
+                enrichmentContext: { userType }
             }
         );
-        /**
-         * @type {CompositionSectionFilterTransform}
-         */
-        const compositionSectionFilterTransform = new CompositionSectionFilterTransform({
-            configManager: this.configManager,
-            userType,
-            signal: ac.signal,
-            highWaterMark
-        });
         /**
          * @type {ResourceIdTracker}
          */
@@ -1133,7 +1119,6 @@ class SearchManager {
                 //     }
                 // }),
                 resourcePreparerTransform,
-                compositionSectionFilterTransform,
                 resourceIdTracker,
                 fhirWriter,
                 responseWriter

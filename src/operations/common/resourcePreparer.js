@@ -1,5 +1,6 @@
 const { EnrichmentManager } = require('../../enrich/enrich');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { CompositionSectionFilterEnrichmentProvider } = require('../../enrich/providers/compositionSectionFilterEnrichmentProvider');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
 const { AccessIndexManager } = require('./accessIndexManager');
@@ -13,13 +14,15 @@ class ResourcePreparer {
      * @param {EnrichmentManager} enrichmentManager
      * @param {ResourceManager} resourceManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {CompositionSectionFilterEnrichmentProvider} compositionSectionFilterEnrichmentProvider
      */
     constructor({
         scopesManager,
         accessIndexManager,
         enrichmentManager,
         resourceManager,
-        identifierEnrichmentProvider
+        identifierEnrichmentProvider,
+        compositionSectionFilterEnrichmentProvider
     }) {
         /**
          * @type {ScopesManager}
@@ -50,6 +53,12 @@ class ResourcePreparer {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {CompositionSectionFilterEnrichmentProvider}
+         */
+        this.compositionSectionFilterEnrichmentProvider = compositionSectionFilterEnrichmentProvider;
+        assertTypeEquals(compositionSectionFilterEnrichmentProvider, CompositionSectionFilterEnrichmentProvider);
     }
 
     /**
@@ -90,9 +99,10 @@ class ResourcePreparer {
      * @param {ParsedArgs} parsedArgs
      * @param {Resource} element
      * @param {string} resourceType
+     * @param {EnrichmentContext|undefined} enrichmentContext
      * @returns {Promise<Resource[]>}
      */
-    async prepareResourceAsync({ parsedArgs, element, resourceType }) {
+    async prepareResourceAsync({ parsedArgs, element, resourceType, enrichmentContext }) {
         if (parsedArgs.get('_elements') && !parsedArgs.get('_isGraphQLRequest')) {
             /**
              * @type {Resource}
@@ -102,6 +112,10 @@ class ResourcePreparer {
                 element,
                 resourceType
             });
+            // Security: filter sensitive sections even with _elements
+            [element] = await this.compositionSectionFilterEnrichmentProvider.enrichAsync({
+                resources: [element], parsedArgs, enrichmentContext
+            });
         }
         if (!parsedArgs.get('_elements') || parsedArgs.get('_isGraphQLRequest')) {
             /**
@@ -109,7 +123,8 @@ class ResourcePreparer {
              */
             [element] = await this.enrichmentManager.enrichAsync({
                 resources: [element],
-                parsedArgs
+                parsedArgs,
+                enrichmentContext
             });
         }
         return [element];

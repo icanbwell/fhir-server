@@ -56,7 +56,6 @@ const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
-const { filterCompositionSensitiveSections } = require('../../utils/compositionSectionFilter');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -943,7 +942,8 @@ class EverythingHelper {
             } else {
                 entries = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries,
-                    parsedArgs
+                    parsedArgs,
+                    enrichmentContext: { userType: requestInfo.userType }
                 });
             }
 
@@ -1552,9 +1552,6 @@ class EverythingHelper {
                 startResource = await this.databaseAttachmentManager.transformAttachments(
                     startResource, RETRIEVE
                 );
-                if (startResource?.resourceType === 'Composition') {
-                    filterCompositionSensitiveSections(startResource, { configManager: this.configManager, userType: requestInfo.userType });
-                }
                 let current_entity = {
                     id: startResource._sourceId,
                     resource: startResource
@@ -1698,7 +1695,8 @@ class EverythingHelper {
                                 }
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                                     entries: [current_entity],
-                                    parsedArgs: parentParsedArgs
+                                    parsedArgs: parentParsedArgs,
+                                    enrichmentContext: { userType: requestInfo.userType }
                                 });
 
                                 await responseStreamer.writeBundleEntryAsync({

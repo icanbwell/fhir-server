@@ -28,7 +28,6 @@ const {logError} = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const { filterCompositionSensitiveSections } = require('../../utils/compositionSectionFilter');
 const {
     GRIDFS: {RETRIEVE},
     OPERATIONS: {READ},
@@ -372,9 +371,6 @@ class GraphHelper {
                     relatedResource = await this.databaseAttachmentManager.transformAttachments(
                         relatedResource, RETRIEVE
                     );
-                    if (relatedResource?.resourceType === 'Composition') {
-                        filterCompositionSensitiveSections(relatedResource, { configManager: this.configManager, userType: requestInfo.userType });
-                    }
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
                         entityUuid: relatedResource._uuid,
@@ -669,9 +665,6 @@ class GraphHelper {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
                         relatedResourcePropertyCurrent, RETRIEVE
                     );
-                    if (relatedResourcePropertyCurrent?.resourceType === 'Composition') {
-                        filterCompositionSensitiveSections(relatedResourcePropertyCurrent, { configManager: this.configManager, userType: requestInfo.userType });
-                    }
                     if (filterProperty !== null) {
                         if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
                             continue;
@@ -1476,9 +1469,6 @@ class GraphHelper {
                     startResource = await this.databaseAttachmentManager.transformAttachments(
                         startResource, RETRIEVE
                     );
-                    if (startResource?.resourceType === 'Composition') {
-                        filterCompositionSensitiveSections(startResource, { configManager: this.configManager, userType: requestInfo.userType });
-                    }
                     const current_entity = {
                         id: startResource.id,
                         resource: startResource
@@ -1565,7 +1555,8 @@ class GraphHelper {
                 bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
                     {
                         entries: bundleEntriesForTopLevelResource,
-                        parsedArgs
+                        parsedArgs,
+                        enrichmentContext: { userType: requestInfo.userType }
                     }
                 );
                 // /**

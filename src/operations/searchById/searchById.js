@@ -17,7 +17,6 @@ const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmen
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
-const { filterCompositionSensitiveSections } = require('../../utils/compositionSectionFilter');
 
 class SearchByIdOperation {
     /**
@@ -233,13 +232,10 @@ class SearchByIdOperation {
                 // remove any nulls or empty objects or arrays
                 resource = removeNull(resource);
 
-                if (resource?.resourceType === 'Composition') {
-                    filterCompositionSensitiveSections(resource, { configManager: this.configManager, userType });
-                }
-
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], parsedArgs
+                            resources: [resource], parsedArgs,
+                            enrichmentContext: { userType }
                         }
                     )
                 )[0];

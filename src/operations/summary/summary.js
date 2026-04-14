@@ -462,7 +462,8 @@ class SummaryOperation {
             } else {
                 patientDataBundle.entry = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries: patientDataBundle.entry,
-                    parsedArgs
+                    parsedArgs,
+                    enrichmentContext: { userType: requestInfo.userType }
                 });
 
                 await builder.readBundleAsync(

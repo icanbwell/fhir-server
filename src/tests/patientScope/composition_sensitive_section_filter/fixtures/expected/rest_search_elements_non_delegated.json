@@ -1,0 +1,92 @@
+{
+    "entry": [
+        {
+            "resource": {
+                "id": "comp-top-level-sensitive",
+                "section": [
+                    {
+                        "id": "normal-1",
+                        "title": "Allergies",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "d337977f-4707-52f9-804d-15d3d24ec18e",
+                                    "system": "http://loinc.org",
+                                    "code": "48765-2"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-1",
+                        "title": "Substance Abuse History",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "SUBSTANCE_ABUSE"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "normal-2",
+                        "title": "Medications",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
+                                    "system": "http://loinc.org",
+                                    "code": "10160-0"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-2",
+                        "title": "Mental Health Notes",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "MENTAL_HEALTH"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-3",
+                        "title": "Reproductive Health",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "resourceType": "Composition"
+            }
+        }
+    ],
+    "type": "searchset",
+    "timestamp": "2025-12-24T08:00:00.000Z",
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://127.0.0.1:64561/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id,section"
+        },
+        {
+            "relation": "next",
+            "url": "http://127.0.0.1:64561/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id%2Csection&id%3Aabove=c72fbe51-7a3d-5835-a645-fd241d3b711d"
+        }
+    ],
+    "resourceType": "Bundle",
+    "total": 0,
+    "id": "9499f672-eddd-4842-bdde-758a88839810"
+}

@@ -37,6 +37,10 @@ const expectedGraphqlV2Delegated = require('./fixtures/expected/graphqlV2_delega
 const expectedGraphqlV2NonDelegated = require('./fixtures/expected/graphqlV2_non_delegated.json');
 const expectedGraphqlV1PartialDelegated = require('./fixtures/expected/graphqlV1_partial_delegated.json');
 
+// Expected responses — REST _elements
+const expectedSearchElementsDelegated = require('./fixtures/expected/rest_search_elements_delegated.json');
+const expectedSearchElementsNonDelegated = require('./fixtures/expected/rest_search_elements_non_delegated.json');
+
 const { ConfigManager } = require('../../../utils/configManager');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
@@ -339,6 +343,36 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .set(getCustomGraphQLHeaders(nonDelegatedPayload));
 
         expect(resp).toHaveGraphQLResponse(deepcopy(expectedGraphqlV2NonDelegated), 'compositions');
+    });
+
+    // ─── REST SEARCH WITH _elements ────────────────────────────────────
+
+    test('REST search with _elements: delegated user — sensitive sections still filtered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        const resp = await request
+            .get('/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id,section')
+            .set(getHeadersWithCustomPayload(delegatedPayload));
+
+        expect(resp).toHaveResponse(deepcopy(expectedSearchElementsDelegated));
+    });
+
+    test('REST search with _elements: non-delegated user — all sections present', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        const resp = await request
+            .get('/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id,section')
+            .set(getHeadersWithCustomPayload(nonDelegatedPayload));
+
+        expect(resp).toHaveResponse(deepcopy(expectedSearchElementsNonDelegated));
     });
 
     // ─── GRAPHQL PARTIAL FIELDS (PROJECTION) ─────────────────────────
