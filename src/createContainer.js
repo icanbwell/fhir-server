@@ -1014,7 +1014,9 @@ const createContainer = function () {
         {
             databaseQueryFactory: c.databaseQueryFactory,
             configManager: c.configManager,
-            oauthClientCredentialsHelper: c.oauthClientCredentialsHelper
+            oauthClientCredentialsHelper: c.oauthClientCredentialsHelper,
+            auditLogger: c.auditLogger,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
 

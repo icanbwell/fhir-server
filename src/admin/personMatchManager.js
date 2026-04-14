@@ -8,6 +8,8 @@ const { logInfo } = require('../operations/common/logging');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const { isUuid } = require('../utils/uid.util');
 const { OAuthClientCredentialsHelper } = require('../utils/oauthClientCredentialsHelper');
+const { AuditLogger } = require('../utils/auditLogger');
+const { PostRequestProcessor } = require('../utils/postRequestProcessor');
 
 class PersonMatchManager {
     /**
@@ -15,12 +17,16 @@ class PersonMatchManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
      * @param {OAuthClientCredentialsHelper} oauthClientCredentialsHelper
+     * @param {AuditLogger} auditLogger
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
         {
             databaseQueryFactory,
             configManager,
-            oauthClientCredentialsHelper
+            oauthClientCredentialsHelper,
+            auditLogger,
+            postRequestProcessor
         }
     ) {
         /**
@@ -40,6 +46,18 @@ class PersonMatchManager {
          */
         this.oauthClientCredentialsHelper = oauthClientCredentialsHelper;
         assertTypeEquals(oauthClientCredentialsHelper, OAuthClientCredentialsHelper);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -48,6 +66,7 @@ class PersonMatchManager {
      * @param {string|undefined} sourceType
      * @param {string} targetId
      * @param {string|undefined} targetType
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @return {Promise<Object>}
      */
     async personMatchAsync (
@@ -55,7 +74,8 @@ class PersonMatchManager {
             sourceId,
             sourceType,
             targetId,
-            targetType
+            targetType,
+            requestInfo
         }
     ) {
         /**
@@ -209,6 +229,25 @@ class PersonMatchManager {
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)
             .timeout(this.configManager.requestTimeoutMs);
             const json = res.body;
+            this.postRequestProcessor.add({
+                requestId: requestInfo.requestId,
+                fnTask: async () => {
+                    await this.auditLogger.logAuditEntryAsync({
+                        requestInfo,
+                        base_version: '4_0_0',
+                        resourceType: sourceType,
+                        operation: 'read',
+                        ids: [sourceId]
+                    });
+                    await this.auditLogger.logAuditEntryAsync({
+                        requestInfo,
+                        base_version: '4_0_0',
+                        resourceType: targetType,
+                        operation: 'read',
+                        ids: [targetId]
+                    });
+                }
+            });
             return json;
         } catch (error) {
             if (error.timeout) {
@@ -260,9 +299,10 @@ class PersonMatchManager {
      * @param {string} id
      * @param {string|undefined} resourceType - "Patient" or "Person"
      * @param {string|undefined} matchResourceType - "Patient" or "Person"
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @returns {Promise<Object>}
      */
-    async personOneToNMatchAsync ({ id, resourceType, matchResourceType }) {
+    async personOneToNMatchAsync ({ id, resourceType, matchResourceType, requestInfo }) {
         resourceType = resourceType || 'Patient';
         // strip resourceType from id if provided as "Patient/123"
         if (id.includes('/')) {
@@ -363,6 +403,18 @@ class PersonMatchManager {
                 .set(header)
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.configManager.requestTimeoutMs);
+            this.postRequestProcessor.add({
+                requestId: requestInfo.requestId,
+                fnTask: async () => {
+                    await this.auditLogger.logAuditEntryAsync({
+                        requestInfo,
+                        base_version: '4_0_0',
+                        resourceType,
+                        operation: 'read',
+                        ids: [id]
+                    });
+                }
+            });
             return res.body;
         } catch (error) {
             if (error.timeout) {
