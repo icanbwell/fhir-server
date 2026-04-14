@@ -228,12 +228,41 @@ class PersonMatchManager {
     }
 
     /**
+     * Extracts only demographic fields from a FHIR Patient or Person resource.
+     * @param {Object} resource - A FHIR resource
+     * @returns {Object}
+     * @private
+     */
+    _extractDemographics (resource) {
+        const demographics = {};
+        if (resource.name) {
+            demographics.name = resource.name;
+        }
+        if (resource.gender) {
+            demographics.gender = resource.gender;
+        }
+        if (resource.birthDate) {
+            demographics.birthDate = resource.birthDate instanceof Date
+                ? resource.birthDate.toISOString().split('T')[0]
+                : resource.birthDate;
+        }
+        if (resource.telecom) {
+            demographics.telecom = resource.telecom;
+        }
+        if (resource.address) {
+            demographics.address = resource.address;
+        }
+        return demographics;
+    }
+
+    /**
      * Performs 1:N person matching
      * @param {string} id
      * @param {string|undefined} resourceType - "Patient" or "Person"
+     * @param {string|undefined} matchResourceType - "Patient" or "Person"
      * @returns {Promise<Object>}
      */
-    async personOneToNMatchAsync ({ id, resourceType }) {
+    async personOneToNMatchAsync ({ id, resourceType, matchResourceType }) {
         resourceType = resourceType || 'Patient';
         // strip resourceType from id if provided as "Patient/123"
         if (id.includes('/')) {
@@ -248,6 +277,18 @@ class PersonMatchManager {
                         severity: 'error',
                         code: 'invalid',
                         diagnostics: `resourceType must be "Patient" or "Person", got "${resourceType}"`
+                    })
+                ]
+            }).toJSON();
+        }
+
+        if (matchResourceType && matchResourceType !== 'Patient' && matchResourceType !== 'Person') {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        diagnostics: `matchResourceType must be "Patient" or "Person", got "${matchResourceType}"`
                     })
                 ]
             }).toJSON();
@@ -290,17 +331,15 @@ class PersonMatchManager {
             }).toJSON();
         }
 
-        // Convert Date object to string
-        if (resources[0].birthDate instanceof Date) {
-            resources[0].birthDate = resources[0].birthDate.toISOString().split('T')[0];
-        }
+        const demographicResource = this._extractDemographics(resources[0]);
+        demographicResource.resourceType = matchResourceType || resourceType;
 
         const parameters = {
             resourceType: 'Parameters',
             parameter: [
                 {
                     name: 'resource',
-                    resource: resources[0].toJSON()
+                    resource: demographicResource
                 }
             ]
         };

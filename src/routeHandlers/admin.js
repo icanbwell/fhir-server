@@ -237,6 +237,7 @@ async function handleAdminGet (
                     logInfo('', { 'req.query': req.query });
                     const id = req.query.id;
                     const resourceType = req.query.resourceType;
+                    const matchResourceType = req.query.matchResourceType;
                     if (!id) {
                         return res.status(400).json({
                             message: 'id query parameter is required'
@@ -246,7 +247,8 @@ async function handleAdminGet (
                     assertIsValid(personMatchManager);
                     const json = await personMatchManager.personOneToNMatchAsync({
                         id,
-                        resourceType
+                        resourceType,
+                        matchResourceType
                     });
                     return res.json(json);
                 }
