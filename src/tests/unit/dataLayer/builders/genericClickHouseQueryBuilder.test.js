@@ -1,8 +1,8 @@
 'use strict';
 
 const { describe, test, beforeEach, expect } = require('@jest/globals');
-const { GenericClickHouseQueryBuilder } = require('./genericClickHouseQueryBuilder');
-const { RESOURCE_COLUMN_TYPES } = require('../../constants/clickHouseConstants');
+const { GenericClickHouseQueryBuilder } = require('../../../../dataLayer/builders/genericClickHouseQueryBuilder');
+const { RESOURCE_COLUMN_TYPES } = require('../../../../constants/clickHouseConstants');
 
 describe('GenericClickHouseQueryBuilder', () => {
     let builder;

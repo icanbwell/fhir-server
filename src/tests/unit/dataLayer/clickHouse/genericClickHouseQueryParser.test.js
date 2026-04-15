@@ -1,7 +1,7 @@
 'use strict';
 
 const { describe, test, beforeEach, expect } = require('@jest/globals');
-const { GenericClickHouseQueryParser } = require('./genericClickHouseQueryParser');
+const { GenericClickHouseQueryParser } = require('../../../../dataLayer/clickHouse/genericClickHouseQueryParser');
 
 describe('GenericClickHouseQueryParser', () => {
     let parser;

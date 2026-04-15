@@ -1,8 +1,8 @@
 'use strict';
 
 const { describe, test, expect } = require('@jest/globals');
-const { ClickHouseDatabaseCursor } = require('./clickHouseDatabaseCursor');
-const { RESOURCE_COLUMN_TYPES } = require('../../constants/clickHouseConstants');
+const { ClickHouseDatabaseCursor } = require('../../../../dataLayer/databaseCursor/clickHouseDatabaseCursor');
+const { RESOURCE_COLUMN_TYPES } = require('../../../../constants/clickHouseConstants');
 
 describe('ClickHouseDatabaseCursor', () => {
     const fhirDoc1 = { resourceType: 'Observation', id: 'obs-1', status: 'final' };

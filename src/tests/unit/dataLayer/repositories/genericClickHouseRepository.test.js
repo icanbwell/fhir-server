@@ -1,7 +1,7 @@
 'use strict';
 
 const { describe, test, beforeEach, expect, jest: jestGlobal } = require('@jest/globals');
-const { GenericClickHouseRepository } = require('./genericClickHouseRepository');
+const { GenericClickHouseRepository } = require('../../../../dataLayer/repositories/genericClickHouseRepository');
 
 describe('GenericClickHouseRepository', () => {
     let repository;

@@ -1,13 +1,13 @@
 'use strict';
 
 const { describe, test, beforeEach, expect, jest: jestGlobal } = require('@jest/globals');
-const { ClickHouseBulkWriteExecutor } = require('./clickHouseBulkWriteExecutor');
-const { ClickHouseSchemaRegistry } = require('../clickHouse/schemaRegistry');
+const { ClickHouseBulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
+const { ClickHouseSchemaRegistry } = require('../../../../dataLayer/clickHouse/schemaRegistry');
 const {
     WRITE_STRATEGIES,
     ENGINE_TYPES,
     RESOURCE_COLUMN_TYPES
-} = require('../../constants/clickHouseConstants');
+} = require('../../../../constants/clickHouseConstants');
 
 /**
  * Tests that executor routing works correctly:

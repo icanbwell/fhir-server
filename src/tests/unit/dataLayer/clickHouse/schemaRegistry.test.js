@@ -1,12 +1,12 @@
 'use strict';
 
 const { describe, test, beforeEach, expect } = require('@jest/globals');
-const { ClickHouseSchemaRegistry } = require('./schemaRegistry');
+const { ClickHouseSchemaRegistry } = require('../../../../dataLayer/clickHouse/schemaRegistry');
 const {
     WRITE_STRATEGIES,
     ENGINE_TYPES,
     RESOURCE_COLUMN_TYPES
-} = require('../../constants/clickHouseConstants');
+} = require('../../../../constants/clickHouseConstants');
 
 describe('ClickHouseSchemaRegistry', () => {
     let registry;

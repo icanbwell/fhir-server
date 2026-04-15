@@ -1,8 +1,8 @@
 'use strict';
 
 const { describe, test, beforeEach, expect, jest: jestGlobal } = require('@jest/globals');
-const { ClickHouseBulkWriteExecutor } = require('./clickHouseBulkWriteExecutor');
-const { WRITE_STRATEGIES } = require('../../constants/clickHouseConstants');
+const { ClickHouseBulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
+const { WRITE_STRATEGIES } = require('../../../../constants/clickHouseConstants');
 
 describe('ClickHouseBulkWriteExecutor', () => {
     let executor;
