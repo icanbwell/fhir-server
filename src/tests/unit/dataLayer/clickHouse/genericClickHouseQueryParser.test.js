@@ -81,6 +81,24 @@ describe('GenericClickHouseQueryParser', () => {
             expect(result.fieldConditions[0].conditions).toHaveLength(2);
         });
 
+        test('$or with multi-field branches wraps in $and', () => {
+            const result = parser.parse({
+                $or: [
+                    { status: 'final', recorded: { $gte: '2024-01-01' } },
+                    { status: 'amended' }
+                ]
+            }, schema);
+            expect(result.fieldConditions).toHaveLength(1);
+            const orNode = result.fieldConditions[0];
+            expect(orNode.operator).toBe('$or');
+            expect(orNode.conditions).toHaveLength(2);
+            // First branch has two fields → wrapped in $and
+            expect(orNode.conditions[0].operator).toBe('$and');
+            expect(orNode.conditions[0].conditions).toHaveLength(2);
+            // Second branch has one field → not wrapped
+            expect(orNode.conditions[1].operator).toBe('$eq');
+        });
+
         test('unmapped field path is skipped with warning (no error)', () => {
             const result = parser.parse({ 'unknown.field': 'value' }, schema);
             expect(result.fieldConditions).toHaveLength(0);

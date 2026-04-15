@@ -77,6 +77,18 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(query_params._p0).toEqual(['final', 'amended']);
         });
 
+        test('$in with datetime values coerces array elements', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$in', value: ['2024-01-01T00:00:00Z', '2024-02-01T00:00:00Z'] }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query_params._p0).toEqual(['2024-01-01 00:00:00', '2024-02-01 00:00:00']);
+        });
+
         test('security tags generate hasAny WHERE clauses', () => {
             const parsed = {
                 fieldConditions: [],
@@ -151,6 +163,30 @@ describe('GenericClickHouseQueryBuilder', () => {
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
             expect(query).toContain('(status = {_p0:String} OR status = {_p1:String})');
+        });
+
+        test('$or with multi-field branches preserves AND grouping', () => {
+            const parsed = {
+                fieldConditions: [
+                    {
+                        operator: '$or',
+                        conditions: [
+                            {
+                                operator: '$and',
+                                conditions: [
+                                    { fieldPath: 'code', column: 'code_code', type: 'lowcardinality', operator: '$eq', value: 'vital-signs' },
+                                    { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' }
+                                ]
+                            },
+                            { fieldPath: 'code', column: 'code_code', type: 'lowcardinality', operator: '$eq', value: 'lab' }
+                        ]
+                    }
+                ],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('((code_code = {_p0:String} AND status = {_p1:String}) OR code_code = {_p2:String})');
         });
 
         test('number type uses Float64 parameter type', () => {

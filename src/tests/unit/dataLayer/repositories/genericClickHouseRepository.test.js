@@ -85,10 +85,13 @@ describe('GenericClickHouseRepository', () => {
             expect(result.rows).toHaveLength(1);
         });
 
-        test('hasMore is true when result count equals limit', async () => {
+        test('hasMore is true when more results exist (limit+1 pattern)', async () => {
+            // With limit=2, repository queries for 3 (limit+1).
+            // If 3 come back, hasMore=true and only 2 are returned.
             mockClientManager.queryAsync.mockResolvedValue([
                 { _fhir_resource: '{"id":"1"}' },
-                { _fhir_resource: '{"id":"2"}' }
+                { _fhir_resource: '{"id":"2"}' },
+                { _fhir_resource: '{"id":"3"}' }
             ]);
 
             const result = await repository.searchAsync({
@@ -98,11 +101,15 @@ describe('GenericClickHouseRepository', () => {
             });
 
             expect(result.hasMore).toBe(true);
+            expect(result.rows).toHaveLength(2);
         });
 
-        test('hasMore is false when result count < limit', async () => {
+        test('hasMore is false when all results fit (limit+1 pattern)', async () => {
+            // With limit=2, repository queries for 3.
+            // If only 2 come back, hasMore=false.
             mockClientManager.queryAsync.mockResolvedValue([
-                { _fhir_resource: '{"id":"1"}' }
+                { _fhir_resource: '{"id":"1"}' },
+                { _fhir_resource: '{"id":"2"}' }
             ]);
 
             const result = await repository.searchAsync({

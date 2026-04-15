@@ -47,8 +47,12 @@ class GenericClickHouseRepository {
 
                 this.queryBuilder.validateRequiredFilters(parsedQuery, schema);
 
-                const queryDef = this.queryBuilder.buildSearchQuery(parsedQuery, schema, options);
                 const limit = options.limit || 100;
+                // Fetch limit+1 to determine if more results exist without
+                // a false positive at exact page boundaries
+                const queryDef = this.queryBuilder.buildSearchQuery(
+                    parsedQuery, schema, { ...options, limit: limit + 1 }
+                );
 
                 span.setAttributes({
                     'db.system': 'clickhouse',
@@ -56,8 +60,10 @@ class GenericClickHouseRepository {
                     'fhir.resourceType': resourceType
                 });
 
-                const rows = await this.clickHouseClientManager.queryAsync(queryDef);
-                const hasMore = (rows || []).length === limit;
+                const allRows = await this.clickHouseClientManager.queryAsync(queryDef);
+                const fetchedRows = allRows || [];
+                const hasMore = fetchedRows.length > limit;
+                const rows = hasMore ? fetchedRows.slice(0, limit) : fetchedRows;
 
                 logDebug('GenericClickHouseRepository: search complete', {
                     resourceType,

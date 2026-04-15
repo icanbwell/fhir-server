@@ -227,40 +227,76 @@ class GenericClickHouseQueryBuilder {
      * @private
      */
     _buildWhereClauses (parsedQuery, schema) {
-        const whereClauses = [];
         const params = {};
-        let paramIndex = 0;
+        const context = { paramIndex: 0 };
 
-        for (const condition of parsedQuery.fieldConditions) {
-            if (condition.operator === '$or') {
-                const orParts = [];
-                for (const sub of condition.conditions) {
-                    const { clause, paramName } = this._conditionToSql(sub, paramIndex++);
-                    orParts.push(clause);
-                    params[paramName] = this._coerceValue(sub);
-                }
-                if (orParts.length > 0) {
-                    whereClauses.push(`(${orParts.join(' OR ')})`);
-                }
-                continue;
-            }
+        // Build field condition clauses (recursive for $or/$and nesting)
+        const fieldClauses = parsedQuery.fieldConditions.map(
+            condition => this._conditionTreeToSql(condition, params, context)
+        ).filter(Boolean);
 
-            const { clause, paramName } = this._conditionToSql(condition, paramIndex++);
-            whereClauses.push(clause);
-            params[paramName] = this._coerceValue(condition);
+        // Security tag filtering — mandatory, unconditional
+        const securityClauses = this._buildSecurityClauses(
+            parsedQuery.securityConditions, schema.securityMappings, params
+        );
+
+        return {
+            whereClauses: [...fieldClauses, ...securityClauses],
+            params
+        };
+    }
+
+    /**
+     * Recursively converts a condition tree node to a SQL clause.
+     * Handles leaf conditions, $or groups, and $and groups.
+     *
+     * @param {Object} node - condition tree node
+     * @param {Object} params - parameter accumulator (mutated)
+     * @param {Object} context - { paramIndex } counter (mutated)
+     * @returns {string} SQL clause
+     * @private
+     */
+    _conditionTreeToSql (node, params, context) {
+        if (node.operator === '$or' && node.conditions) {
+            const parts = node.conditions
+                .map(sub => this._conditionTreeToSql(sub, params, context))
+                .filter(Boolean);
+            return parts.length > 0 ? `(${parts.join(' OR ')})` : null;
         }
 
-        const { accessTags, ownerTags } = parsedQuery.securityConditions;
+        if (node.operator === '$and' && node.conditions) {
+            const parts = node.conditions
+                .map(sub => this._conditionTreeToSql(sub, params, context))
+                .filter(Boolean);
+            return parts.length > 0 ? `(${parts.join(' AND ')})` : null;
+        }
+
+        // Leaf condition
+        const { clause, paramName } = this._conditionToSql(node, context.paramIndex++);
+        params[paramName] = this._coerceValue(node);
+        return clause;
+    }
+
+    /**
+     * Builds security tag WHERE clauses.
+     * @param {{accessTags: string[], ownerTags: string[]}} securityConditions
+     * @param {Object} securityMappings
+     * @param {Object} params - mutated
+     * @returns {string[]}
+     * @private
+     */
+    _buildSecurityClauses (securityConditions, securityMappings, params) {
+        const clauses = [];
+        const { accessTags, ownerTags } = securityConditions;
         if (accessTags.length > 0) {
-            whereClauses.push(`hasAny(${schema.securityMappings.accessTags}, {_accessTags:Array(String)})`);
+            clauses.push(`hasAny(${securityMappings.accessTags}, {_accessTags:Array(String)})`);
             params._accessTags = accessTags;
         }
         if (ownerTags.length > 0) {
-            whereClauses.push(`hasAny(${schema.securityMappings.ownerTags}, {_ownerTags:Array(String)})`);
+            clauses.push(`hasAny(${securityMappings.ownerTags}, {_ownerTags:Array(String)})`);
             params._ownerTags = ownerTags;
         }
-
-        return { whereClauses, params };
+        return clauses;
     }
 
     /**
@@ -301,8 +337,15 @@ class GenericClickHouseQueryBuilder {
      * @private
      */
     _coerceValue (condition) {
-        if (condition.type === 'datetime' && typeof condition.value === 'string') {
-            return DateTimeFormatter.toClickHouseDateTime(condition.value);
+        if (condition.type === 'datetime') {
+            if (typeof condition.value === 'string') {
+                return DateTimeFormatter.toClickHouseDateTime(condition.value);
+            }
+            if (Array.isArray(condition.value)) {
+                return condition.value.map(v =>
+                    typeof v === 'string' ? DateTimeFormatter.toClickHouseDateTime(v) : v
+                );
+            }
         }
         return condition.value;
     }

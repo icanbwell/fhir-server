@@ -76,16 +76,20 @@ class GenericClickHouseQueryParser {
                 continue;
             }
 
-            // Recurse into $or — store as grouped conditions
+            // Recurse into $or — each branch preserves its internal AND grouping
             if (key === '$or' && Array.isArray(value)) {
-                const orConditions = [];
+                const orBranches = [];
                 for (const condition of value) {
                     const subResults = [];
                     this._extractFieldConditions(condition, fieldMappings, subResults);
-                    orConditions.push(...subResults);
+                    if (subResults.length === 1) {
+                        orBranches.push(subResults[0]);
+                    } else if (subResults.length > 1) {
+                        orBranches.push({ operator: '$and', conditions: subResults });
+                    }
                 }
-                if (orConditions.length > 0) {
-                    results.push({ operator: '$or', conditions: orConditions });
+                if (orBranches.length > 0) {
+                    results.push({ operator: '$or', conditions: orBranches });
                 }
                 continue;
             }
