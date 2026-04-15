@@ -599,6 +599,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to read AuditEvent from ClickHouse instead of MongoDB
+     * @return {boolean}
+     */
+    get clickHouseEnableAuditEventRead() {
+        return isTrue(env.CLICKHOUSE_ENABLE_AUDIT_EVENT_READ) && this.enableClickHouse;
+    }
+
+    /**
      * returns the maximum number of IDs to include in each audit event
      * @returns {number}
      */

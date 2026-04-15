@@ -123,6 +123,11 @@ class StorageProviderFactory {
             return STORAGE_PROVIDER_TYPES.MONGO;
         }
 
+        // AuditEvent: optionally read from ClickHouse
+        if (resourceType === 'AuditEvent' && this.configManager.clickHouseEnableAuditEventRead) {
+            return STORAGE_PROVIDER_TYPES.CLICKHOUSE;
+        }
+
         // Check MongoDB + ClickHouse resources configuration
         if (this.configManager.mongoWithClickHouseResources.includes(resourceType)) {
             return STORAGE_PROVIDER_TYPES.MONGO_WITH_CLICKHOUSE;

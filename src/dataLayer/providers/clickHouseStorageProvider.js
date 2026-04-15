@@ -1,14 +1,16 @@
 const { StorageProvider } = require('./storageProvider');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
+const { ClickHouseDatabaseCursor } = require('../clickHouseDatabaseCursor');
+const { AuditEventQueryTranslator } = require('./clickHouseAuditEvent/queryTranslator');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { logDebug } = require('../../operations/common/logging');
 
 /**
- * Stub for ClickHouse-only resources (e.g., AuditEvent).
- * Append-only, no MongoDB. Implement when first ClickHouse-only resource is added.
+ * ClickHouse storage provider for AuditEvent reads.
  *
- * Architecture:
- * - All data stored in ClickHouse (no MongoDB fallback)
- * - Optimized for append-only operations (audit logs, analytics)
- * - Event-sourced model with time-series optimization
+ * Translates MongoDB query documents (produced by R4SearchQueryCreator)
+ * into parameterized ClickHouse SQL and returns results via
+ * ClickHouseDatabaseCursor which implements the DatabaseCursor interface.
  */
 class ClickHouseStorageProvider extends StorageProvider {
     /**
@@ -25,47 +27,102 @@ class ClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
-     * Finds resources - ClickHouse-only query
+     * Finds resources matching query via ClickHouse
      * @param {Object} params
-     * @param {Object} params.query
-     * @param {Object} [params.options]
+     * @param {Object} params.query - MongoDB query document
+     * @param {Object} [params.options] - { sort, limit, skip, projection }
      * @param {Object} [params.extraInfo]
-     * @returns {Promise<import('../databaseCursor').DatabaseCursor>}
+     * @returns {Promise<ClickHouseDatabaseCursor>}
      */
     async findAsync({ query, options, extraInfo }) {
-        throw new Error('ClickHouseStorageProvider.findAsync not yet implemented');
+        const translator = new AuditEventQueryTranslator();
+        const { query: sql, query_params } = translator.buildSearchQuery({ query, options });
+
+        logDebug('ClickHouseStorageProvider.findAsync', {
+            sql: sql.substring(0, 200),
+            paramCount: Object.keys(query_params).length
+        });
+
+        const results = await this.clickHouseClientManager.queryAsync({
+            query: sql,
+            query_params
+        });
+
+        return new ClickHouseDatabaseCursor({
+            base_version: this.resourceLocator._base_version,
+            resourceType: 'AuditEvent',
+            results,
+            query
+        });
     }
 
     /**
-     * Finds one resource
+     * Finds one resource matching query via ClickHouse
      * @param {Object} params
-     * @param {Object} params.query
+     * @param {Object} params.query - MongoDB query document
      * @param {Object} [params.options]
-     * @returns {Promise<Object|null>}
+     * @returns {Promise<Resource|null>}
      */
     async findOneAsync({ query, options }) {
-        throw new Error('ClickHouseStorageProvider.findOneAsync not yet implemented');
+        const translator = new AuditEventQueryTranslator();
+        const findOneOptions = { ...options, limit: 1 };
+        const { query: sql, query_params } = translator.buildSearchQuery({
+            query,
+            options: findOneOptions
+        });
+
+        logDebug('ClickHouseStorageProvider.findOneAsync', {
+            sql: sql.substring(0, 200)
+        });
+
+        const results = await this.clickHouseClientManager.queryAsync({
+            query: sql,
+            query_params
+        });
+
+        if (!results || results.length === 0) {
+            return null;
+        }
+
+        const doc = results[0].resource || results[0];
+        return FhirResourceCreator.createByResourceType(doc, 'AuditEvent');
     }
 
     /**
-     * Counts resources
+     * Counts resources matching query via ClickHouse
      * @param {Object} params
-     * @param {Object} params.query
+     * @param {Object} params.query - MongoDB query document
      * @returns {Promise<number>}
      */
     async countAsync({ query }) {
-        throw new Error('ClickHouseStorageProvider.countAsync not yet implemented');
+        const translator = new AuditEventQueryTranslator();
+        const { query: sql, query_params } = translator.buildCountQuery({ query });
+
+        logDebug('ClickHouseStorageProvider.countAsync', {
+            sql: sql.substring(0, 200)
+        });
+
+        const results = await this.clickHouseClientManager.queryAsync({
+            query: sql,
+            query_params
+        });
+
+        if (!results || results.length === 0) {
+            return 0;
+        }
+
+        return Number(results[0].cnt) || 0;
     }
 
     /**
-     * Inserts/updates resources (ClickHouse-only)
+     * Inserts/updates resources (not implemented — writes go through AuditEventClickHouseWriter)
      * @param {Object} params
      * @param {Array<Object>} params.resources
      * @param {Object} [params.options]
      * @returns {Promise<Object>}
      */
     async upsertAsync({ resources, options }) {
-        throw new Error('ClickHouseStorageProvider.upsertAsync not yet implemented');
+        throw new Error('ClickHouseStorageProvider.upsertAsync not supported — writes go through AuditEventClickHouseWriter');
     }
 
     /**
