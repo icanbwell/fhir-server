@@ -1,5 +1,6 @@
 const { describe, beforeAll, afterAll, beforeEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../utils/configManager');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const {
     setupGroupTests,
     teardownGroupTests,
@@ -8,6 +9,10 @@ const {
     getClickHouseManager,
     getTestHeaders
 } = require('./groupTestSetup');
+
+function getHeadersWithExternalStorage() {
+    return { ...getTestHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 describe('Group Member Lifecycle in ClickHouse', () => {
     let requestId;
@@ -83,7 +88,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getTestHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -97,7 +102,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const response = await request
             .put(`/4_0_0/Group/${groupId}`)
             .send(updatedGroup)
-            .set(getTestHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         return response.body;
@@ -110,7 +115,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         return response.body;
@@ -123,7 +128,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group?member=${encodeURIComponent(memberReference)}`)
-            .set(getTestHeaders());
+            .set(getHeadersWithExternalStorage());
 
         if (response.status !== 200) {
             console.error('Search failed with status:', response.status);
@@ -391,7 +396,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
 
         // Query events - should show no events for this member
         const events = await getClickHouseManager().queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}`,
             query_params: { groupId: actualGroupId, memberRef }
         });
@@ -438,7 +443,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         // Query events - should have 1 add + multiple removes
         const events = await getClickHouseManager().queryAsync({
             query: `SELECT event_type, count() as count
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}
                     GROUP BY event_type
                     ORDER BY event_type`,
@@ -448,7 +453,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         // argMax should still return 'removed' regardless of duplicates
         const activeMembers = await getClickHouseManager().queryAsync({
             query: `SELECT entity_reference
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String}
                     GROUP BY entity_reference
                     HAVING argMax(event_type, (event_time, event_id)) = 'added'`,

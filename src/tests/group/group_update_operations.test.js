@@ -6,8 +6,12 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 /**
  * Group UPDATE Operations Test Suite
@@ -35,7 +39,7 @@ describe('Group UPDATE operations', () => {
 
     beforeEach(async () => {
         try {
-            await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
+            await clickHouseManager.truncateTableAsync('fhir.Group_4_0_0_MemberEvents');
         } catch (e) {
             // Ignore
         }
@@ -66,7 +70,7 @@ describe('Group UPDATE operations', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         return response.body;
     }
@@ -76,7 +80,7 @@ describe('Group UPDATE operations', () => {
         return await request
             .put(`/4_0_0/Group/${groupId}`)
             .send(updates)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
     }
 
     test('PUT metadata only → MongoDB only, no ClickHouse', async () => {
@@ -88,7 +92,7 @@ describe('Group UPDATE operations', () => {
 
 
         const eventsBefore = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}'`
         });
 
@@ -103,7 +107,7 @@ describe('Group UPDATE operations', () => {
 
 
         const eventsAfter = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}'`
         });
 
@@ -131,7 +135,7 @@ describe('Group UPDATE operations', () => {
 
 
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
         expect(parseInt(events[0].count)).toBe(10);
@@ -162,7 +166,7 @@ describe('Group UPDATE operations', () => {
 
         // Should have 3 removal events
         const removeEvents = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}' AND event_type = '${EVENT_TYPES.MEMBER_REMOVED}'`
         });
         expect(parseInt(removeEvents[0].count)).toBe(3);
@@ -170,7 +174,7 @@ describe('Group UPDATE operations', () => {
         // Current state should be 2 members
         const currentCount = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM (
-                        SELECT entity_reference FROM fhir.fhir_group_member_events
+                        SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = '${created.id}'
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
@@ -194,7 +198,7 @@ describe('Group UPDATE operations', () => {
 
         // Check initial state
         const initialEvents = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}'`
         });
 
@@ -208,7 +212,7 @@ describe('Group UPDATE operations', () => {
 
         // Debug: Check all events
         const allEvents = await clickHouseManager.queryAsync({
-            query: `SELECT event_type, entity_reference FROM fhir.fhir_group_member_events
+            query: `SELECT event_type, entity_reference FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}'
                     ORDER BY event_time, event_id`
         });
@@ -219,7 +223,7 @@ describe('Group UPDATE operations', () => {
         // All members should be removed
         const currentCount = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM (
-                        SELECT entity_reference FROM fhir.fhir_group_member_events
+                        SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = '${created.id}'
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
@@ -258,7 +262,7 @@ describe('Group UPDATE operations', () => {
         const request = await createTestRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();
@@ -269,7 +273,7 @@ describe('Group UPDATE operations', () => {
         // Verify ClickHouse count matches
         const events = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM (
-                        SELECT entity_reference FROM fhir.fhir_group_member_events
+                        SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = '${created.id}'
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
@@ -296,7 +300,7 @@ describe('Group UPDATE operations', () => {
         const request = await createTestRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${created.id}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();

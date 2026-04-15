@@ -7,8 +7,12 @@ const {
     getClickHouseManager,
     getTestHeaders
 } = require('./groupTestSetup');
-const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+
+function getTestHeadersWithExternalStorage() {
+    return { ...getTestHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 /**
  * FHIR R4B Group Resource Compliance Tests
@@ -41,7 +45,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -51,7 +55,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         if (response.status === 404) {
             return null; // Group not found
@@ -113,7 +117,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
 
         const events = await clickHouseManager.queryAsync({
             query: `SELECT period_start, period_end, entity_reference
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE entity_reference = 'Patient/r4b-period-patient'
                     AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
                     ORDER BY event_time DESC LIMIT 1`
@@ -157,7 +161,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
 
         const events = await clickHouseManager.queryAsync({
             query: `SELECT inactive, entity_reference
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE entity_reference = 'Patient/r4b-inactive-patient'
                     AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
                     ORDER BY event_time DESC LIMIT 1`
@@ -217,7 +221,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
                         argMax(period_start, (event_time, event_id)) as period_start,
                         argMax(period_end, (event_time, event_id)) as period_end,
                         argMax(inactive, (event_time, event_id)) as inactive
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String}
                     AND entity_reference IN ('Patient/r4b-full-patient-1', 'Patient/r4b-full-patient-2')
                     GROUP BY entity_reference
@@ -267,7 +271,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(invalidGroup)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         // VERIFY HTTP 400 (Enhanced for Phase 3.1)
         expect(response.status).toBe(400);
@@ -513,7 +517,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         // This test documents that element IDs may not be preserved in ClickHouse architecture
         // Verify members were stored (even if IDs aren't)
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference FROM fhir.fhir_group_member_events
+            query: `SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String}
                     AND event_type = {eventType:String}
                     ORDER BY entity_reference`,
@@ -578,7 +582,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
             // If GET fails, verify via ClickHouse that both members were stored
             const events = await clickHouseManager.queryAsync({
                 query: `SELECT entity_reference, period_start, period_end, inactive
-                        FROM fhir.fhir_group_member_events
+                        FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = {groupId:String}
                         AND entity_reference IN ('Practitioner/r4b-roundtrip-1', 'Practitioner/r4b-roundtrip-2')
                         AND event_type = {eventType:String}
@@ -620,7 +624,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         // Verify member was added via argMax query
         const addedEvents = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String}
                     AND entity_reference = 'Patient/r4b-removal-patient'
                     GROUP BY entity_reference
@@ -639,7 +643,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         const updateResponse = await request
             .put(`/4_0_0/Group/${actualGroupId}`)
             .send(updated)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         // PUT can return 200 (updated) or 201 (created if not found)
         expect([200, 201]).toContain(updateResponse.status);
@@ -648,7 +652,7 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         // Verify MEMBER_REMOVED event preserves original reference (not "Unknown")
         const removalEvents = await clickHouseManager.queryAsync({
             query: `SELECT event_type, entity_reference, entity_type
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${actualGroupId}'
                     AND entity_reference = 'Patient/r4b-removal-patient'
                     AND event_type = '${EVENT_TYPES.MEMBER_REMOVED}'

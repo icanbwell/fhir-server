@@ -117,7 +117,8 @@ class SearchByIdOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchById';
         const extraInfo = {
-            currentOperationName
+            currentOperationName,
+            headers: requestInfo.headers
         };
         /**
          * @type {number}

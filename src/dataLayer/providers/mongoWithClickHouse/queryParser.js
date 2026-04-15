@@ -246,30 +246,39 @@ class QueryParser {
     }
 
     /**
-     * Validates extracted member criteria and returns entity reference if valid
+     * Validates extracted member criteria and maps to ClickHouse columns
+     *
+     * ReferenceQueryRewriter transforms references before they reach us:
+     * - Patient/123|client → member.entity._uuid = Patient/<uuidv5("123|client")>
+     * - Patient/123 (no owner) → member.entity._sourceId = Patient/123
+     *
+     * We map these to the corresponding ClickHouse columns:
+     * - memberUuid → entity_reference_uuid column
+     * - memberSourceId → entity_reference_source_id column
      *
      * @param {Object} criteria - Extracted member criteria
-     * @param {string|null} criteria.memberReference - Direct entity reference
-     * @param {string|null} criteria.memberSourceId - Source ID (may need resource type)
-     * @param {string|null} criteria.memberUuid - UUID (not supported in ClickHouse schema)
-     * @returns {{valid: boolean, entityReference?: string, reason?: string}}
+     * @param {string|null} criteria.memberReference - Direct entity reference (not used for search)
+     * @param {string|null} criteria.memberSourceId - Source ID reference
+     * @param {string|null} criteria.memberUuid - UUID reference
+     * @returns {{valid: boolean, entityReferenceUuid?: string, entityReferenceSourceId?: string, reason?: string}}
      */
     static validateMemberCriteria({ memberReference, memberSourceId, memberUuid }) {
-        if (memberReference) {
-            return { valid: true, entityReference: memberReference };
+        // UUID path: Patient/<uuidv5> from ReferenceQueryRewriter
+        if (memberUuid?.includes('/')) {
+            return { valid: true, entityReferenceUuid: memberUuid };
         }
 
-        // If memberSourceId looks like a full reference (has /), use it directly
+        // SourceId path: Patient/123 (no owner suffix)
         if (memberSourceId?.includes('/')) {
-            return { valid: true, entityReference: memberSourceId };
+            return { valid: true, entityReferenceSourceId: memberSourceId };
         }
 
-        // Invalid cases
-        if (memberSourceId) {
-            return { valid: false, reason: 'memberSourceId_without_reference' };
-        }
+        // Invalid: has value but missing resource type prefix
         if (memberUuid) {
-            return { valid: false, reason: 'uuid_not_supported' };
+            return { valid: false, reason: 'uuid_without_resource_type' };
+        }
+        if (memberSourceId) {
+            return { valid: false, reason: 'source_id_without_resource_type' };
         }
 
         return { valid: false, reason: 'no_criteria' };

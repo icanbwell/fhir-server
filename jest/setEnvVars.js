@@ -47,3 +47,6 @@ process.env.CLICKHOUSE_USERNAME = 'default';
 process.env.CLICKHOUSE_PASSWORD = '';
 process.env.CLICKHOUSE_ENABLED_RESOURCES = '';
 process.env.CMS_NETWORK_TENANT_ORGANIZATION_TYPE = 'example-network-tenant';
+// for running ClickHouse tests in CI with Testcontainers
+// https://node.testcontainers.org/supported-container-runtimes/#docker
+process.env.TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE='/var/run/docker.sock';

@@ -16,7 +16,6 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { AuditLogger } = require('../../../utils/auditLogger');
-const { MockKafkaClient } = require('../../mocks/mockKafkaClient');
 
 const headers = getHeaders('patient/*.* user/*.* access/*.*');
 
@@ -33,14 +32,6 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
 
     describe('Patient $everything Audit Event Creation Tests', () => {
         test('Patient $everything creates audit events with exact resource references', async () => {
-            const enableAuditEventKafka = process.env.ENABLE_AUDIT_EVENT_KAFKA;
-            process.env.ENABLE_AUDIT_EVENT_KAFKA = 'true';
-
-            /**
-             * @type {MockKafkaClient}
-             */
-            let mockKafkaClient;
-
             const request = await createTestRequest((container) => {
                 container.register(
                     'auditLogger',
@@ -49,18 +40,9 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
                             postRequestProcessor: c.postRequestProcessor,
                             databaseBulkInserter: c.databaseBulkInserter,
                             preSaveManager: c.preSaveManager,
-                            configManager: c.configManager,
-                            auditEventKafkaProducer: c.auditEventKafkaProducer
-                        })
-                );
-                container.register(
-                    'kafkaClient',
-                    (c) =>
-                        new MockKafkaClient({
                             configManager: c.configManager
                         })
                 );
-                mockKafkaClient = container.kafkaClient;
                 return container;
             });
             const container = getTestContainer();
@@ -140,7 +122,6 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             await auditEventCollection.deleteMany({});
-            mockKafkaClient.clear();
 
             // Call $everything endpoint
             resp = await request
@@ -207,38 +188,6 @@ describe('Person and Patient $everything Audit Logging Tests', () => {
                 expect(resourceTypes.size).toBe(1);
             });
 
-            // Verify Kafka messages were sent
-            expect(mockKafkaClient.messages.length).toBe(5);
-
-            // Verify Kafka message structure for audit events
-            mockKafkaClient.messages.forEach((message) => {
-                const kafkaMessage = JSON.parse(message.value);
-                expect(kafkaMessage).toMatchObject({
-                    specversion: '1.0',
-                    id: expect.any(String),
-                    type: 'FhirAuditEvent',
-                    datacontenttype: 'application/json',
-                    data: expect.objectContaining({
-                        resourceType: 'AuditEvent',
-                        type: expect.any(Object),
-                        action: 'R',
-                        recorded: expect.any(String),
-                        entity: expect.any(Array)
-                    })
-                });
-
-                // Verify the audit event data contains expected entities
-                const auditEventData = kafkaMessage.data;
-                expect(auditEventData.entity.length).toBeGreaterThan(0);
-                auditEventData.entity.forEach((entity) => {
-                    expect(entity.what).toBeDefined();
-                    expect(entity.what.reference).toBeDefined();
-                    expect(expectedReferences).toContain(entity.what.reference);
-                });
-            });
-
-            // Restore environment variables
-            process.env.ENABLE_AUDIT_EVENT_KAFKA = enableAuditEventKafka;
         });
     });
 });

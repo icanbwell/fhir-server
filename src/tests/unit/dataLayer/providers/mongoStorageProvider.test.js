@@ -1,6 +1,6 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
-const { MongoStorageProvider } = require('./mongoStorageProvider');
-const { DatabaseCursor } = require('../databaseCursor');
+const { MongoStorageProvider } = require('../../../../dataLayer/providers/mongoStorageProvider');
+const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
 
 describe('MongoStorageProvider', () => {
     let provider;

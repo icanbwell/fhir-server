@@ -10,8 +10,12 @@ const {
     assertTooCostlyOperationOutcome,
     getMaxPatchOperations
 } = require('./groupTestHelpers');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 /**
  * Group PATCH Operations Test Suite
@@ -44,7 +48,7 @@ describe('Group PATCH operations', () => {
 
     beforeEach(async () => {
         try {
-            await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
+            await clickHouseManager.truncateTableAsync('fhir.Group_4_0_0_MemberEvents');
         } catch (e) {
             // Ignore
         }
@@ -75,7 +79,7 @@ describe('Group PATCH operations', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
         return response.body;
     }
 
@@ -84,7 +88,7 @@ describe('Group PATCH operations', () => {
         return await request
             .patch(`/4_0_0/Group/${groupId}`)
             .send(patches)
-            .set(getHeaders())
+            .set(getHeadersWithExternalStorage())
             .set('Content-Type', 'application/json-patch+json'); // Must be AFTER getHeaders() to avoid overwrite
     }
 
@@ -113,7 +117,7 @@ describe('Group PATCH operations', () => {
 
         // Verify ClickHouse events
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${group.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
 
@@ -162,7 +166,7 @@ describe('Group PATCH operations', () => {
         const events = await clickHouseManager.queryAsync({
             query: `
                 SELECT event_type, entity_reference
-                FROM fhir.fhir_group_member_events
+                FROM fhir.Group_4_0_0_MemberEvents
                 WHERE group_id = '${group.id}'
                 ORDER BY event_time
             `
@@ -191,7 +195,7 @@ describe('Group PATCH operations', () => {
 
 
         const eventsBefore = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${group.id}'`
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${group.id}'`
         });
 
         const patches = [
@@ -203,7 +207,7 @@ describe('Group PATCH operations', () => {
 
 
         const eventsAfter = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events WHERE group_id = '${group.id}'`
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${group.id}'`
         });
 
         // No new ClickHouse events for metadata-only patch
@@ -232,7 +236,7 @@ describe('Group PATCH operations', () => {
 
         // Verify member events written to ClickHouse
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${group.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
         expect(parseInt(events[0].count)).toBe(2);
@@ -357,7 +361,7 @@ describe('Group PATCH operations', () => {
         const request = await createTestRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${group.id}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();
@@ -368,7 +372,7 @@ describe('Group PATCH operations', () => {
         // Verify ClickHouse count matches
         const events = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM (
-                        SELECT entity_reference FROM fhir.fhir_group_member_events
+                        SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = '${group.id}'
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
@@ -406,7 +410,7 @@ describe('Group PATCH operations', () => {
         const request = await createTestRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${group.id}`)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.quantity).toBeDefined();
@@ -417,7 +421,7 @@ describe('Group PATCH operations', () => {
         // Verify ClickHouse count matches
         const events = await clickHouseManager.queryAsync({
             query: `SELECT count() as count FROM (
-                        SELECT entity_reference FROM fhir.fhir_group_member_events
+                        SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = '${group.id}'
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'

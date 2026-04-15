@@ -205,7 +205,7 @@ async function migrateMongoDBMembersToClickHouse() {
             for (let i = 0; i < events.length; i += BATCH_SIZE) {
                 const batch = events.slice(i, i + BATCH_SIZE);
                 await clickHouseManager.insertAsync({
-                    table: 'fhir.fhir_group_member_events',
+                    table: 'fhir.Group_4_0_0_MemberEvents',
                     values: batch,
                     format: 'JSONEachRow'
                 });
@@ -245,7 +245,7 @@ async function migrateMongoDBMembersToClickHouse() {
 
         // Verify ClickHouse has the events
         const eventCount = await clickHouseManager.queryAsync({
-            query: 'SELECT COUNT(*) as count FROM fhir_group_member_events'
+            query: 'SELECT COUNT(*) as count FROM Group_4_0_0_MemberEvents'
         });
         console.log(`  ClickHouse total events: ${eventCount[0].count}`);
 

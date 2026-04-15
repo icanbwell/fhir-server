@@ -209,11 +209,11 @@ class DatabaseQueryManager {
      * @param { import('mongodb').MongoCountPreferences|null} options
      * @return {Promise<number>}
      */
-    async exactDocumentCountAsync({ query, options }) {
+    async exactDocumentCountAsync({ query, options, extraInfo }) {
         try {
             // Check if storage provider handles counts (e.g., ClickHouse for Group member queries)
             if (this.storageProvider && typeof this.storageProvider.countAsync === 'function') {
-                return await this.storageProvider.countAsync({ query, options });
+                return await this.storageProvider.countAsync({ query, options, extraInfo });
             }
 
             // Fallback to MongoDB

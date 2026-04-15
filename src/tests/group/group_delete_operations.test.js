@@ -6,7 +6,7 @@ const {
     cleanupAllData,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders
+    getTestHeadersWithExternalStorage
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -50,7 +50,7 @@ describe('Group DELETE operations', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
         return response.body;
     }
 
@@ -58,14 +58,14 @@ describe('Group DELETE operations', () => {
         const request = getSharedRequest();
         return await request
             .delete(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
     }
 
     async function getGroup(groupId) {
         const request = getSharedRequest();
         return await request
             .get(`/4_0_0/Group/${groupId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
     }
 
     test('DELETE Group → MongoDB deleted, ClickHouse events remain', async () => {
@@ -82,7 +82,7 @@ describe('Group DELETE operations', () => {
 
         // Verify events exist before delete
         const eventsBefore = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}'`
         });
         expect(parseInt(eventsBefore[0].count)).toBe(5);
@@ -98,7 +98,7 @@ describe('Group DELETE operations', () => {
 
         // ClickHouse should still have events (audit trail)
         const eventsAfter = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}'`
         });
         expect(parseInt(eventsAfter[0].count)).toBe(5);
@@ -131,7 +131,7 @@ describe('Group DELETE operations', () => {
 
 
         const membersBefore = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference FROM fhir.fhir_group_member_events
+            query: `SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
                     ORDER BY entity_reference`
         });
@@ -141,7 +141,7 @@ describe('Group DELETE operations', () => {
 
         // Events should still be directly queryable in ClickHouse
         const membersAfter = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference FROM fhir.fhir_group_member_events
+            query: `SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${created.id}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'
                     ORDER BY entity_reference`
         });

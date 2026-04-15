@@ -10,18 +10,20 @@ SET max_ast_depth = 10000;
 SET max_expanded_ast_elements = 500000;
 
 -- ===========================================================================
--- Table: fhir.fhir_group_member_events (Event Log - Append Only)
+-- Table: fhir.Group_4_0_0_MemberEvents (Event Log - Append Only)
 -- ===========================================================================
 -- Stores all Group membership changes as immutable events (source of truth).
 -- Reads that require "current state" should use the derived current tables.
 
-CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_events
+CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberEvents
 (
     -- Group identity
     group_id String,
 
     -- member.entity (R! 1..1 per R4B spec)
     entity_reference String,
+    entity_reference_uuid String DEFAULT '',
+    entity_reference_source_id String DEFAULT '',
     entity_type LowCardinality(String),
 
     -- Event semantics (storage-layer, not FHIR)
@@ -62,7 +64,7 @@ ORDER BY (group_id, entity_reference, event_time, event_id);
 -- If lifecycle management is needed later, consider partitioning by a stable group_id hash bucket.
 
 -- ===========================================================================
--- Derived Table: fhir.fhir_group_member_current (Current State by Group + Member)
+-- Derived Table: fhir.Group_4_0_0_MemberCurrent (Current State by Group + Member)
 -- ===========================================================================
 -- One logical row per (group_id, entity_reference) after background merges.
 -- This is the hot path for:
@@ -70,10 +72,12 @@ ORDER BY (group_id, entity_reference, event_time, event_id);
 --   - Member state checks
 --   - Updating Group.quantity in Mongo
 
-CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_current
+CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberCurrent
 (
     group_id String,
     entity_reference String,
+    entity_reference_uuid AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
+    entity_reference_source_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
 
     -- Latest entity_type (kept consistent with other columns)
     entity_type AggregateFunction(argMax, LowCardinality(String), Tuple(DateTime64(3, 'UTC'), UUID)),
@@ -103,12 +107,14 @@ ENGINE = AggregatingMergeTree
 ORDER BY (group_id, entity_reference);
 
 -- MV: Maintain current member state as events arrive
-CREATE MATERIALIZED VIEW IF NOT EXISTS fhir.mv_group_member_current
-TO fhir.fhir_group_member_current
+CREATE MATERIALIZED VIEW IF NOT EXISTS fhir.Group_4_0_0_MemberCurrent_MV
+TO fhir.Group_4_0_0_MemberCurrent
 AS
 SELECT
     group_id,
     entity_reference,
+    argMaxState(entity_reference_uuid, tie) AS entity_reference_uuid,
+    argMaxState(entity_reference_source_id, tie) AS entity_reference_source_id,
     argMaxState(entity_type, tie) AS entity_type,
     argMaxState(event_type, tie) AS event_type,
     argMaxState(event_time, tie) AS event_time,
@@ -128,6 +134,8 @@ FROM (
     SELECT
         group_id,
         entity_reference,
+        entity_reference_uuid,
+        entity_reference_source_id,
         entity_type,
         event_type,
         event_time,
@@ -144,12 +152,12 @@ FROM (
         access_tags,
         owner_tags,
         tuple(event_time, event_id) AS tie
-    FROM fhir.fhir_group_member_events
+    FROM fhir.Group_4_0_0_MemberEvents
 )
 GROUP BY group_id, entity_reference;
 
 -- ===========================================================================
--- Derived Table: fhir.fhir_group_member_current_by_entity (Reverse Lookup)
+-- Derived Table: fhir.Group_4_0_0_MemberCurrentByEntity (Reverse Lookup)
 -- ===========================================================================
 -- Lightweight current-state index optimized for:
 --   - "Which groups is Patient/X currently in?"
@@ -157,10 +165,12 @@ GROUP BY group_id, entity_reference;
 -- Includes security tags (access_tags, owner_tags) for authorization filtering.
 -- Excludes other provenance/metadata to keep it relatively fast.
 
-CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_current_by_entity
+CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberCurrentByEntity
 (
     entity_reference String,
     group_id String,
+    entity_reference_uuid AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
+    entity_reference_source_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
 
     event_type AggregateFunction(argMax, Enum8('added' = 1, 'removed' = 2), Tuple(DateTime64(3, 'UTC'), UUID)),
     inactive   AggregateFunction(argMax, UInt8, Tuple(DateTime64(3, 'UTC'), UUID)),
@@ -173,12 +183,14 @@ CREATE TABLE IF NOT EXISTS fhir.fhir_group_member_current_by_entity
 ENGINE = AggregatingMergeTree
 ORDER BY (entity_reference, group_id);
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS fhir.mv_group_member_current_by_entity
-TO fhir.fhir_group_member_current_by_entity
+CREATE MATERIALIZED VIEW IF NOT EXISTS fhir.Group_4_0_0_MemberCurrentByEntity_MV
+TO fhir.Group_4_0_0_MemberCurrentByEntity
 AS
 SELECT
     entity_reference,
     group_id,
+    argMaxState(entity_reference_uuid, tie) AS entity_reference_uuid,
+    argMaxState(entity_reference_source_id, tie) AS entity_reference_source_id,
     argMaxState(event_type, tie) AS event_type,
     argMaxState(inactive, tie) AS inactive,
     argMaxState(access_tags, tie) AS access_tags,
@@ -187,6 +199,8 @@ FROM (
     SELECT
         entity_reference,
         group_id,
+        entity_reference_uuid,
+        entity_reference_source_id,
         event_type,
         event_time,
         event_id,
@@ -194,100 +208,9 @@ FROM (
         access_tags,
         owner_tags,
         tuple(event_time, event_id) AS tie
-    FROM fhir.fhir_group_member_events
+    FROM fhir.Group_4_0_0_MemberEvents
 )
 GROUP BY entity_reference, group_id;
-
--- ===========================================================================
--- Backfill (OPTIONAL - only needed when migrating existing event data)
--- ===========================================================================
--- ClickHouse materialized views process NEW inserts only.
--- If fhir_group_member_events already has data when you deploy this schema,
--- you must backfill the derived tables once.
---
--- ⚠️  WARNING: DO NOT RUN IN PRODUCTION ⚠️
--- This will TRUNCATE current state tables and rebuild from event log.
--- Only run this intentionally during migration, not as part of normal init.
---
--- For fresh deployments, this backfill is NOT needed.
--- Test data should be cleaned up by test teardown, not this init script.
---
--- Uncomment the following block to run one-time backfill during migration:
-
--- TRUNCATE TABLE fhir.fhir_group_member_current;
--- TRUNCATE TABLE fhir.fhir_group_member_current_by_entity;
---
--- -- Backfill current-by-group table:
--- INSERT INTO fhir.fhir_group_member_current
--- SELECT
---     group_id,
---     entity_reference,
---     argMaxState(entity_type, tie) AS entity_type,
---     argMaxState(event_type, tie) AS event_type,
---     argMaxState(event_time, tie) AS event_time,
---     argMaxState(event_id, tie) AS event_id,
---     argMaxState(period_start, tie) AS period_start,
---     argMaxState(period_end, tie) AS period_end,
---     argMaxState(inactive, tie) AS inactive,
---     argMaxState(actor, tie) AS actor,
---     argMaxState(reason, tie) AS reason,
---     argMaxState(source, tie) AS source,
---     argMaxState(correlation_id, tie) AS correlation_id,
---     argMaxState(group_source_id, tie) AS group_source_id,
---     argMaxState(group_source_assigning_authority, tie) AS group_source_assigning_authority,
---     argMaxState(access_tags, tie) AS access_tags,
---     argMaxState(owner_tags, tie) AS owner_tags
--- FROM (
---     SELECT
---         group_id,
---         entity_reference,
---         entity_type,
---         event_type,
---         event_time,
---         event_id,
---         period_start,
---         period_end,
---         inactive,
---         actor,
---         reason,
---         source,
---         correlation_id,
---         group_source_id,
---         group_source_assigning_authority,
---         access_tags,
---         owner_tags,
---         tuple(event_time, event_id) AS tie
---     FROM fhir.fhir_group_member_events
--- )
--- GROUP BY group_id, entity_reference;
---
--- -- Backfill reverse lookup table:
--- INSERT INTO fhir.fhir_group_member_current_by_entity
--- SELECT
---     entity_reference,
---     group_id,
---     argMaxState(event_type, tie) AS event_type,
---     argMaxState(inactive, tie) AS inactive,
---     argMaxState(access_tags, tie) AS access_tags,
---     argMaxState(owner_tags, tie) AS owner_tags
--- FROM (
---     SELECT
---         entity_reference,
---         group_id,
---         event_type,
---         event_time,
---         event_id,
---         inactive,
---         access_tags,
---         owner_tags,
---         tuple(event_time, event_id) AS tie
---     FROM fhir.fhir_group_member_events
--- )
--- GROUP BY entity_reference, group_id;
-
--- Operational note:
--- For strict correctness during backfill, pause membership writes (or buffer) if possible.
--- If your pipeline can emit out-of-order events (late event_time), avoid time-window backfills.
 
 -- ===========================================================================
 -- Helper Queries (reference/documentation)
@@ -300,7 +223,7 @@ GROUP BY entity_reference, group_id;
 --         entity_reference,
 --         argMaxMerge(entity_type) AS entity_type,
 --         argMaxMerge(inactive) AS inactive
---     FROM fhir.fhir_group_member_current
+--     FROM fhir.Group_4_0_0_MemberCurrent
 --     WHERE group_id = 'group-123'
 --       AND entity_reference > 'Patient/000123'   -- cursor
 --     GROUP BY entity_reference
@@ -317,7 +240,7 @@ GROUP BY entity_reference, group_id;
 -- FROM
 -- (
 --     SELECT entity_reference
---     FROM fhir.fhir_group_member_current
+--     FROM fhir.Group_4_0_0_MemberCurrent
 --     WHERE group_id = 'group-123'
 --     GROUP BY entity_reference
 --     HAVING argMaxMerge(event_type) = 'added'
@@ -326,7 +249,7 @@ GROUP BY entity_reference, group_id;
 
 -- Reverse lookup: groups for a member
 -- SELECT group_id
--- FROM fhir.fhir_group_member_current_by_entity
+-- FROM fhir.Group_4_0_0_MemberCurrentByEntity
 -- WHERE entity_reference = 'Patient/123'
 -- GROUP BY group_id
 -- HAVING argMaxMerge(event_type) = 'added'
@@ -337,7 +260,7 @@ GROUP BY entity_reference, group_id;
 --     event_type, event_time, event_id,
 --     period_start, period_end, inactive,
 --     actor, reason, source, correlation_id
--- FROM fhir.fhir_group_member_events
+-- FROM fhir.Group_4_0_0_MemberEvents
 -- WHERE group_id = 'group-123'
 --   AND entity_reference = 'Patient/456'
 -- ORDER BY event_time, event_id;

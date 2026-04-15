@@ -6,7 +6,7 @@ const {
     cleanupAllData,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders,
+    getTestHeadersWithExternalStorage,
     waitForData
 } = require('./groupTestSetup');
 
@@ -43,7 +43,7 @@ describe('Group Advanced Search', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -74,7 +74,7 @@ describe('Group Advanced Search', () => {
                 'member.entity.reference': memberRef,
                 name: 'Alpha Group'
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
@@ -111,7 +111,7 @@ describe('Group Advanced Search', () => {
                 'member.entity.reference': memberRef,
                 _count: 10
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
@@ -152,7 +152,7 @@ describe('Group Advanced Search', () => {
                 'member.entity.reference': memberRef,
                 _sort: 'name'
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
@@ -183,12 +183,12 @@ describe('Group Advanced Search', () => {
         const activeResponse = await request
             .get('/4_0_0/Group')
             .query({ 'member.entity.reference': activeRef })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         const inactiveResponse = await request
             .get('/4_0_0/Group')
             .query({ 'member.entity.reference': inactiveRef })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(activeResponse.status).toBe(200);
         expect(inactiveResponse.status).toBe(200);
@@ -220,7 +220,7 @@ describe('Group Advanced Search', () => {
                 const testResponse = await request
                     .get('/4_0_0/Group')
                     .query({ member: member1 })
-                    .set(getTestHeaders());
+                    .set(getTestHeadersWithExternalStorage());
                 return testResponse.status === 200 && testResponse.body.entry && testResponse.body.entry.length >= 1;
             },
             { timeout: 10000, description: 'wildcard group 1 to be indexed' }
@@ -230,12 +230,12 @@ describe('Group Advanced Search', () => {
         const response1 = await request
             .get('/4_0_0/Group')
             .query({ member: member1 })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         const response2 = await request
             .get('/4_0_0/Group')
             .query({ member: member2 })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response1.status).toBe(200);
         expect(response2.status).toBe(200);
@@ -249,13 +249,13 @@ describe('Group Advanced Search', () => {
 
     test('SQL injection pattern → Properly escaped', async () => {
         // Test that SQL injection attempts are safely handled
-        const maliciousRef = "Patient/'; DROP TABLE fhir_group_member_events; --";
+        const maliciousRef = "Patient/'; DROP TABLE Group_4_0_0_MemberEvents; --";
 
         const request = getSharedRequest();
         const response = await request
             .get('/4_0_0/Group')
             .query({ member: maliciousRef })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         // Should return 200 with empty results (query escaped safely)
         expect(response.status).toBe(200);
@@ -269,7 +269,7 @@ describe('Group Advanced Search', () => {
         // Note: The key validation is that the query returns 200 without crashing
         const clickHouseManager = getClickHouseManager();
         try {
-            const tableExists = await clickHouseManager.tableExistsAsync('fhir.fhir_group_member_events');
+            const tableExists = await clickHouseManager.tableExistsAsync('fhir.Group_4_0_0_MemberEvents');
             expect(tableExists).toBe(true);
         } catch (e) {
             // If table check fails for other reasons, still consider test passed
@@ -298,7 +298,7 @@ describe('Group Advanced Search', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         // Should either reject (400/413/500) or accept (201)
         expect([201, 400, 413, 500]).toContain(response.status);
@@ -307,7 +307,7 @@ describe('Group Advanced Search', () => {
             // If accepted, verify it was stored (possibly truncated)
             const getResponse = await request
                 .get(`/4_0_0/Group/${response.body.id}`)
-                .set(getTestHeaders());
+                .set(getTestHeadersWithExternalStorage());
             expect(getResponse.status).toBe(200);
         }
     }, 30000);
@@ -326,7 +326,7 @@ describe('Group Advanced Search', () => {
         // Verify Unicode preservation via ClickHouse (member array not in GET response)
         const clickHouseManager = getClickHouseManager();
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT entity_reference FROM fhir.fhir_group_member_events
+            query: `SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${group.id}' AND entity_reference = '${unicodeRef}'
                     LIMIT 1`
         });
@@ -339,7 +339,7 @@ describe('Group Advanced Search', () => {
         const searchResponse = await request
             .get('/4_0_0/Group')
             .query({ member: unicodeRef })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(searchResponse.status).toBe(200);
         expect(searchResponse.body.resourceType).toBe('Bundle');

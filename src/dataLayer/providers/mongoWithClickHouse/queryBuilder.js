@@ -14,8 +14,12 @@ class QueryBuilder {
      * Builds query to find Groups containing a specific member
      * Supports pagination (seek cursor or offset) and security tag filtering
      *
+     * Searches on entity_reference_uuid or entity_reference_source_id columns,
+     * which are AggregateFunction columns filtered via HAVING with argMaxMerge().
+     *
      * @param {Object} params
-     * @param {string} params.memberReference - Entity reference to search for (e.g., "Patient/123")
+     * @param {string} [params.memberReferenceUuid] - UUID reference (e.g., "Patient/<uuidv5>")
+     * @param {string} [params.memberReferenceSourceId] - Source ID reference (e.g., "Patient/123")
      * @param {string[]} params.accessTags - Access security tags for filtering
      * @param {string[]} params.ownerTags - Owner security tags for filtering
      * @param {number} params.limit - Page size
@@ -24,44 +28,43 @@ class QueryBuilder {
      * @returns {{query: string, query_params: Object}}
      */
     static buildFindGroupsByMemberQuery({
-        memberReference,
+        memberReferenceUuid,
+        memberReferenceSourceId,
         accessTags = [],
         ownerTags = [],
         limit,
         afterGroupId = null,
         skip = 0
     }) {
-        const whereClause = 'WHERE entity_reference = {memberReference:String}';
-        const havingClause = this._buildActiveMemberHavingClause(accessTags, ownerTags);
+        const havingClause = this._buildActiveMemberHavingClause(
+            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
+        );
 
         let query;
         const query_params = {
-            memberReference,
+            memberReferenceUuid: memberReferenceUuid || '',
+            memberReferenceSourceId: memberReferenceSourceId || '',
             limit,
             ...(accessTags.length > 0 && { accessTags }),
             ...(ownerTags.length > 0 && { ownerTags })
         };
 
         if (afterGroupId) {
-            // Seek cursor pagination - O(log n) at any depth
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                ${whereClause}
-                  AND group_id > {afterGroupId:String}
-                GROUP BY group_id
+                WHERE group_id > {afterGroupId:String}
+                GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
                 LIMIT {limit:UInt32}
             `;
             query_params.afterGroupId = afterGroupId;
         } else if (skip > 0) {
-            // Numeric offset pagination - O(n) but simpler for tests
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                ${whereClause}
-                GROUP BY group_id
+                GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
                 LIMIT {limit:UInt32}
@@ -69,12 +72,10 @@ class QueryBuilder {
             `;
             query_params.skip = skip;
         } else {
-            // No pagination params - first page
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                ${whereClause}
-                GROUP BY group_id
+                GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
                 LIMIT {limit:UInt32}
@@ -89,32 +90,35 @@ class QueryBuilder {
      * Matches filtering logic from findGroupsByMemberQuery
      *
      * @param {Object} params
-     * @param {string} params.memberReference - Entity reference to search for
+     * @param {string} [params.memberReferenceUuid] - UUID reference
+     * @param {string} [params.memberReferenceSourceId] - Source ID reference
      * @param {string[]} params.accessTags - Access security tags for filtering
      * @param {string[]} params.ownerTags - Owner security tags for filtering
      * @returns {{query: string, query_params: Object}}
      */
     static buildCountGroupsByMemberQuery({
-        memberReference,
+        memberReferenceUuid,
+        memberReferenceSourceId,
         accessTags = [],
         ownerTags = []
     }) {
-        const whereClause = 'WHERE entity_reference = {memberReference:String}';
-        const havingClause = this._buildActiveMemberHavingClause(accessTags, ownerTags);
+        const havingClause = this._buildActiveMemberHavingClause(
+            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
+        );
 
         const query = `
             SELECT count() as total
             FROM (
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                ${whereClause}
-                GROUP BY group_id
+                GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
             )
         `;
 
         const query_params = {
-            memberReference,
+            memberReferenceUuid: memberReferenceUuid || '',
+            memberReferenceSourceId: memberReferenceSourceId || '',
             ...(accessTags.length > 0 && { accessTags }),
             ...(ownerTags.length > 0 && { ownerTags })
         };
@@ -193,22 +197,37 @@ class QueryBuilder {
 
     /**
      * Builds HAVING clause for active member filtering with optional security tags
+     * and entity reference matching
      *
      * Active members are those where:
      * - event_type = MEMBER_ADDED (not removed)
      * - inactive = 0 (not marked inactive)
+     * - AND entity_reference_uuid or entity_reference_source_id matches (if provided)
      * - AND security tags match (if provided)
+     *
+     * entity_reference_uuid and entity_reference_source_id are AggregateFunction columns,
+     * so they must be filtered via argMaxMerge() in HAVING, not WHERE.
      *
      * @param {string[]} accessTags - Access security tags
      * @param {string[]} ownerTags - Owner security tags
+     * @param {string} [memberReferenceUuid] - UUID reference to match
+     * @param {string} [memberReferenceSourceId] - Source ID reference to match
      * @returns {string} HAVING clause (without "HAVING" keyword)
      * @private
      */
-    static _buildActiveMemberHavingClause(accessTags, ownerTags) {
+    static _buildActiveMemberHavingClause(accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId) {
         const clauses = [
             `argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'`,
             `argMaxMerge(inactive) = 0`
         ];
+
+        // Entity reference filtering via AggregateFunction columns
+        if (memberReferenceUuid) {
+            clauses.push(`argMaxMerge(entity_reference_uuid) = {memberReferenceUuid:String}`);
+        }
+        if (memberReferenceSourceId) {
+            clauses.push(`argMaxMerge(entity_reference_source_id) = {memberReferenceSourceId:String}`);
+        }
 
         // Security tags are AggregateFunction columns, must filter in HAVING after argMaxMerge
         if (accessTags.length > 0) {

@@ -566,7 +566,8 @@ class SearchManager {
                     resourceType,
                     base_version,
                     query,
-                    maxMongoTimeMS
+                    maxMongoTimeMS,
+                    extraInfo
                 });
         }
 
@@ -693,7 +694,7 @@ class SearchManager {
     async handleGetTotalsAsync (
         {
             resourceType, base_version,
-            query, maxMongoTimeMS
+            query, maxMongoTimeMS, extraInfo
         }
     ) {
         try {
@@ -705,7 +706,8 @@ class SearchManager {
             );
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,
-                options: { maxTimeMS: maxMongoTimeMS }
+                options: { maxTimeMS: maxMongoTimeMS },
+                extraInfo
             });
         } catch (e) {
             throw new RethrownError({

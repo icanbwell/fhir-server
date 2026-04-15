@@ -2,6 +2,8 @@ const { EnrichmentProvider } = require('./enrichmentProvider');
 const { logDebug, logError } = require('../../operations/common/logging');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { isTrue } = require('../../utils/isTrue');
 
 /**
  * Enrichment provider for Group resources using ClickHouse member storage
@@ -48,6 +50,11 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
             return resources;
         }
 
+        // Skip enrichment if request did not opt into external member storage
+        if (!isTrue(parsedArgs?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER])) {
+            return resources;
+        }
+
         try {
             // Process each Group resource
             const enrichedResources = await Promise.all(
@@ -79,6 +86,10 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
      */
     async enrichBundleEntriesAsync({ entries, parsedArgs }) {
         if (!this.isEnabled()) {
+            return entries;
+        }
+
+        if (!isTrue(parsedArgs?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER])) {
             return entries;
         }
 

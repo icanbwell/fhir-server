@@ -7,7 +7,7 @@ const {
     syncClickHouseMaterializedViews,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders,
+    getTestHeadersWithExternalStorage,
     waitForData
 } = require('./groupTestSetup');
 
@@ -112,7 +112,7 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -125,7 +125,7 @@ describe('Group - All 10 FHIR R4B Search Parameters', () => {
             .join('&');
         const response = await request
             .get(`/4_0_0/Group?${queryString}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
         return response;
     }
 

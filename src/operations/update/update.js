@@ -396,7 +396,7 @@ class UpdateOperation {
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
 
                 if (data && data.meta) {
-                    const contextData = buildContextDataForHybridStorage(resourceType, doc);
+                    const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
@@ -417,7 +417,7 @@ class UpdateOperation {
                         resource: doc, requestInfo, base_version
                     });
 
-                    const contextData = buildContextDataForHybridStorage(resourceType, doc);
+                    const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
                     await this.databaseBulkInserter.insertOneAsync({
                         base_version,

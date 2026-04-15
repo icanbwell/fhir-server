@@ -1,9 +1,12 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
-const { MongoWithClickHouseStorageProvider } = require('./mongoWithClickHouseStorageProvider');
-const { DatabaseCursor } = require('../databaseCursor');
-const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
-const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
-const { QueryParser } = require('./mongoWithClickHouse/queryParser');
+const { MongoWithClickHouseStorageProvider } = require('../../../../dataLayer/providers/mongoWithClickHouseStorageProvider');
+const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
+const { STORAGE_PROVIDER_TYPES } = require('../../../../dataLayer/providers/storageProviderTypes');
+const { QueryFragments } = require('../../../../utils/clickHouse/queryFragments');
+const { QueryParser } = require('../../../../dataLayer/providers/mongoWithClickHouse/queryParser');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../../utils/contextDataBuilder');
+
+const extraInfoWithHeader = { headers: { [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' } };
 
 describe('MongoWithClickHouseStorageProvider', () => {
     let provider;
@@ -96,7 +99,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
 
         test('should route member queries to ClickHouse', async () => {
-            const query = withSecurityTags({ 'member.entity.reference': 'Patient/123' });
+            const query = withSecurityTags({ 'member.entity._sourceId': 'Patient/123' });
             const mockCursor = {};
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
@@ -105,13 +108,13 @@ describe('MongoWithClickHouseStorageProvider', () => {
             ]);
             mockMongoStorageProvider.findAsync.mockResolvedValue(mockCursor);
 
-            await provider.findAsync({ query, options: {}, extraInfo: {} });
+            await provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader });
 
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
             expect(mockMongoStorageProvider.findAsync).toHaveBeenCalledWith(
                 expect.objectContaining({
                     query: { id: { $in: ['group-1', 'group-2'] } },
-                    extraInfo: {}
+                    extraInfo: extraInfoWithHeader
                 })
             );
         });
@@ -129,14 +132,14 @@ describe('MongoWithClickHouseStorageProvider', () => {
 
     describe('Edge Cases', () => {
         test('should handle MongoDB operator unwrapping in member queries', async () => {
-            const query = withSecurityTags({ 'member.entity.reference': { $in: ['Patient/1', 'Patient/2'] } });
+            const query = withSecurityTags({ 'member.entity._sourceId': { $in: ['Patient/1', 'Patient/2'] } });
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
                 { group_id: 'group-1' }
             ]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
-            await provider.findAsync({ query, options: {}, extraInfo: {} });
+            await provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader });
 
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
         });
@@ -152,14 +155,14 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
 
         test('should pass limit option to ClickHouse queries', async () => {
-            const query = withSecurityTags({ 'member.entity.reference': 'Patient/123' });
+            const query = withSecurityTags({ 'member.entity._sourceId': 'Patient/123' });
             const options = { limit: 50 };
 
             mockClickHouseClientManager.queryAsync
                 .mockResolvedValueOnce([{ group_id: 'group-1' }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
-            await provider.findAsync({ query, options, extraInfo: {} });
+            await provider.findAsync({ query, options, extraInfo: extraInfoWithHeader });
 
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalledTimes(1);
             const pageQueryCall = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
@@ -167,14 +170,14 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
 
         test('should use default limit of 100 when not specified', async () => {
-            const query = withSecurityTags({ 'member.entity.reference': 'Patient/123' });
+            const query = withSecurityTags({ 'member.entity._sourceId': 'Patient/123' });
             const options = {};
 
             mockClickHouseClientManager.queryAsync
                 .mockResolvedValueOnce([{ group_id: 'group-1' }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
-            await provider.findAsync({ query, options, extraInfo: {} });
+            await provider.findAsync({ query, options, extraInfo: extraInfoWithHeader });
 
             const pageQueryCall = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
             expect(pageQueryCall.query_params.limit).toBe(100);
@@ -182,7 +185,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
 
         test('should handle nested $and/$or queries', async () => {
             const query = withSecurityTags({
-                $and: [{ 'member.entity.reference': 'Patient/123' }]
+                $and: [{ 'member.entity._sourceId': 'Patient/123' }]
             });
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
@@ -190,36 +193,36 @@ describe('MongoWithClickHouseStorageProvider', () => {
             ]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
-            await provider.findAsync({ query, options: {}, extraInfo: {} });
+            await provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader });
 
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
         });
 
         test('should handle empty ClickHouse result set', async () => {
-            const query = withSecurityTags({ 'member.entity.reference': 'Patient/nonexistent' });
+            const query = withSecurityTags({ 'member.entity._sourceId': 'Patient/nonexistent' });
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
-            await provider.findAsync({ query, options: {}, extraInfo: {} });
+            await provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader });
 
             expect(mockMongoStorageProvider.findAsync).toHaveBeenCalledWith({
                 query: { id: { $in: [] } },
                 options: {},
-                extraInfo: {}
+                extraInfo: extraInfoWithHeader
             });
         });
     });
 
     describe('Error Handling', () => {
         test('should propagate ClickHouse query errors', async () => {
-            const query = { 'member.entity.reference': 'Patient/123' };
+            const query = { 'member.entity._sourceId': 'Patient/123' };
             const error = new Error('ClickHouse connection failed');
 
             mockClickHouseClientManager.queryAsync.mockRejectedValue(error);
 
             await expect(
-                provider.findAsync({ query, options: {}, extraInfo: {} })
+                provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader })
             ).rejects.toThrow();
         });
 
@@ -323,11 +326,11 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
 
         test('succeeds with valid security tags', async () => {
-            const query = withSecurityTags({ 'member.entity.reference': 'Patient/test' });
+            const query = withSecurityTags({ 'member.entity._sourceId': 'Patient/test' });
             mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_id: 'group-1' }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
-            await provider.findAsync({ query, options: {}, extraInfo: {} });
+            await provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader });
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
         });
     });

@@ -5,7 +5,7 @@ const {
     cleanupAllData,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders
+    getTestHeadersWithExternalStorage
 } = require('./groupTestSetup');
 const {
     assertTooCostlyOperationOutcome,
@@ -55,7 +55,7 @@ describe('Group Error Handling', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(expectStatus);
         return response;
@@ -129,7 +129,7 @@ describe('Group Error Handling', () => {
         const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group/${createdId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.quantity).toBeGreaterThanOrEqual(0);
@@ -167,7 +167,7 @@ describe('Group Error Handling', () => {
         const groupId = response.body.id;
 
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${groupId}' AND entity_reference = 'Patient/duplicate'`
         });
 
@@ -186,7 +186,7 @@ describe('Group Error Handling', () => {
         const request = getSharedRequest();
         const getResponse = await request
             .get(`/4_0_0/Group/${response.body.id}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(getResponse.body.quantity).toBe(0);
     });
@@ -229,7 +229,7 @@ describe('Group Error Handling', () => {
         const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group/${createdId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.quantity).toBeDefined();
@@ -254,7 +254,7 @@ describe('Group Error Handling', () => {
         const request = getSharedRequest();
         const response = await request
             .get(`/4_0_0/Group/${createdId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.quantity).toBeDefined();
@@ -269,7 +269,7 @@ describe('Group Error Handling', () => {
         const response = await request
             .get('/4_0_0/Group')
             .query({ member: 'Patient/nonexistent-empty-results-test' })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         expect(response.status).toBe(200);
         expect(response.body.resourceType).toBe('Bundle');
@@ -287,7 +287,7 @@ describe('Group Error Handling', () => {
         const response = await request
             .get('/4_0_0/Group')
             .query({ 'member[$gte]': 'Patient/malformed-test' })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         // Should either reject (400) or safely ignore the invalid parameter (200)
         expect([200, 400]).toContain(response.status);

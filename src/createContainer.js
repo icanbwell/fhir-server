@@ -133,7 +133,6 @@ const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageE
 const { PatientPersonManualLinkingEventProducer } = require('./utils/patientPersonManualLinkingEventProducer');
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
-const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
@@ -143,6 +142,8 @@ const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheK
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 const { FastMergeManager } = require('./operations/merge/fastMergeManager');
+const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
+const deepcopy = require('deepcopy');
 
 /**
  * Creates a container and sets up all the services
@@ -534,6 +535,26 @@ const createContainer = function () {
         }
     ));
 
+    container.register('mongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        configManager: c.configManager,
+        postSaveProcessor: c.postSaveProcessor,
+        postRequestProcessor: c.postRequestProcessor,
+        cloneResource: (resource) => resource.clone(),
+        createUpdateManager: ({resourceType, base_version}) =>
+            c.databaseUpdateFactory.createDatabaseUpdateManager({resourceType, base_version})
+    }));
+
+    container.register('fastMongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        configManager: c.configManager,
+        postSaveProcessor: c.postSaveProcessor,
+        postRequestProcessor: c.postRequestProcessor,
+        cloneResource: (resource) => deepcopy(resource),
+        createUpdateManager: ({resourceType, base_version}) =>
+            c.databaseUpdateFactory.createFastDatabaseUpdateManager({resourceType, base_version})
+    }));
+
     container.register('databaseBulkInserter', (c) => new DatabaseBulkInserter(
             {
                 resourceManager: c.resourceManager,
@@ -545,7 +566,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                bulkWriteExecutors: [c.mongoBulkWriteExecutor]
             }
         )
     );
@@ -561,7 +583,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                bulkWriteExecutors: [c.fastMongoBulkWriteExecutor]
             }
         )
     );
@@ -581,15 +604,7 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager,
-                auditEventKafkaProducer: c.auditEventKafkaProducer,
                 auditEventClickHouseWriter: c.auditEventClickHouseWriter
-            }
-        )
-    );
-    container.register('auditEventKafkaProducer', (c) => new AuditEventKafkaProducer(
-            {
-                kafkaClient: c.kafkaClient,
-                auditEventKafkaTopic: process.env.AUDIT_EVENT_KAFKA_TOPIC || 'fhir.audit_event.stream'
             }
         )
     );
@@ -1022,7 +1037,9 @@ const createContainer = function () {
         {
             databaseQueryFactory: c.databaseQueryFactory,
             configManager: c.configManager,
-            oauthClientCredentialsHelper: c.oauthClientCredentialsHelper
+            oauthClientCredentialsHelper: c.oauthClientCredentialsHelper,
+            auditLogger: c.auditLogger,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
 

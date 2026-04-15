@@ -1,5 +1,5 @@
 const { describe, test, expect } = require('@jest/globals');
-const { GroupMemberDiffComputer } = require('./groupMemberDiffComputer');
+const { GroupMemberDiffComputer } = require('../../../../domain/group/groupMemberDiffComputer');
 
 describe('GroupMemberDiffComputer', () => {
     describe('compute', () => {

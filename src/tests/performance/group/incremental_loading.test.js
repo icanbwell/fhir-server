@@ -31,8 +31,12 @@ const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
     let clickHouseManager;
@@ -52,9 +56,9 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             try {
-                await clickHouseManager.truncateTableAsync('fhir_group_member_current_by_entity');
-                await clickHouseManager.truncateTableAsync('fhir_group_member_current');
-                await clickHouseManager.truncateTableAsync('fhir_group_member_events');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrentByEntity');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrent');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberEvents');
 
                 const { createTestContainer } = require('../../createTestContainer');
                 const container = createTestContainer();
@@ -120,7 +124,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         let batchTime = Date.now() - startTime;
         batchTimes.push(batchTime);
@@ -136,7 +140,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
 
         // Verify ClickHouse has events
         const eventCount = await clickHouseManager.queryAsync({
-            query: `SELECT count(*) as count FROM fhir.fhir_group_member_events WHERE group_id = {groupId:String}`,
+            query: `SELECT count(*) as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = {groupId:String}`,
             query_params: { groupId: actualGroupId }
         });
         console.log(`  ClickHouse: ${parseInt(eventCount[0].count).toLocaleString()} events written\n`);
@@ -179,7 +183,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
                         lastUpdated: createResponse.body.meta.lastUpdated
                     }
                 })
-                .set(getHeaders());
+                .set(getHeadersWithExternalStorage());
 
             batchTime = Date.now() - startTime;
             batchTimes.push(batchTime);
@@ -199,7 +203,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
                     query: `SELECT count() as count
                             FROM (
                                 SELECT entity_reference
-                                FROM fhir.fhir_group_member_events
+                                FROM fhir.Group_4_0_0_MemberEvents
                                 WHERE group_id = {groupId:String}
                                 GROUP BY entity_reference
                                 HAVING argMax(event_type, (event_time, event_id)) = 'added'
@@ -228,7 +232,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
             query: `SELECT count() as count
                     FROM (
                         SELECT entity_reference
-                        FROM fhir.fhir_group_member_events
+                        FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = {groupId:String}
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = 'added'
@@ -321,7 +325,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         let batchTime = Date.now() - startTime;
         batchTimes.push(batchTime);
@@ -355,7 +359,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
             const patchResponse = await request
                 .patch(`/4_0_0/Group/${actualGroupId}`)
                 .send(patchOps)
-                .set(getHeaders())
+                .set(getHeadersWithExternalStorage())
                 .set('Content-Type', 'application/json-patch+json');
 
             batchTime = Date.now() - startTime;
@@ -381,7 +385,7 @@ describe('Incremental Loading - FHIR R4B Compliant Pattern', () => {
             query: `SELECT count() as count
                     FROM (
                         SELECT entity_reference
-                        FROM fhir.fhir_group_member_events
+                        FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = {groupId:String}
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = 'added'

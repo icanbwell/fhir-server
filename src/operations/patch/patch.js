@@ -236,7 +236,8 @@ class PatchOperation {
             let effectivePatchContent = patchContent;
             const memberOpsResult = this.groupMemberPatchStrategy.detectMemberOperations({
                 patchContent,
-                resourceType
+                resourceType,
+                requestInfo
             });
             if (memberOpsResult) {
                 groupMemberOperations = memberOpsResult.memberOps;
@@ -434,7 +435,12 @@ class PatchOperation {
 
                 // Same as update from this point on
                 // Insert/update our resource record
-                const contextData = buildContextDataForHybridStorage(resourceType, resource);
+                const contextData = buildContextDataForHybridStorage(resourceType, resource, requestInfo);
+
+                // If member operations were already written (mixed PATCH), skip post-save member processing
+                if (groupMemberOperations && groupMemberOperations.length > 0 && contextData) {
+                    contextData.groupMemberEventsWritten = true;
+                }
 
                 await this.databaseBulkInserter.replaceOneAsync(
                     {
