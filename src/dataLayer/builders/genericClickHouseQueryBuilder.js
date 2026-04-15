@@ -161,25 +161,25 @@ class GenericClickHouseQueryBuilder {
      * @throws {Error}
      */
     validateRequiredFilters (parsedQuery, schema) {
-        if (!schema.requiredFilters || schema.requiredFilters.length === 0) {
-            return;
-        }
+        // Check required filters are present
+        if (schema.requiredFilters && schema.requiredFilters.length > 0) {
+            const presentFields = new Set(
+                parsedQuery.fieldConditions
+                    .filter(c => c.fieldPath)
+                    .map(c => c.fieldPath)
+            );
 
-        const presentFields = new Set(
-            parsedQuery.fieldConditions
-                .filter(c => c.fieldPath)
-                .map(c => c.fieldPath)
-        );
-
-        for (const required of schema.requiredFilters) {
-            if (!presentFields.has(required)) {
-                this._throwValidationError(
-                    `Required filter '${required}' missing. ClickHouse-only resources require ` +
-                    `these filters: ${schema.requiredFilters.join(', ')}`
-                );
+            for (const required of schema.requiredFilters) {
+                if (!presentFields.has(required)) {
+                    this._throwValidationError(
+                        `Required filter '${required}' missing. ClickHouse-only resources require ` +
+                        `these filters: ${schema.requiredFilters.join(', ')}`
+                    );
+                }
             }
         }
 
+        // Check date range on ALL datetime fields (not just required ones)
         if (schema.maxRangeDays) {
             this._validateDateRange(parsedQuery.fieldConditions, schema);
         }

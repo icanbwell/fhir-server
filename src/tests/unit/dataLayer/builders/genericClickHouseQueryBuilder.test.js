@@ -380,4 +380,130 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(query).toContain(`test_col = {_p0:${expectedChType}}`);
         });
     });
+
+    describe('adversarial inputs', () => {
+        test('deeply nested $or inside $and inside $or', () => {
+            const parsed = {
+                fieldConditions: [
+                    {
+                        operator: '$or',
+                        conditions: [
+                            {
+                                operator: '$and',
+                                conditions: [
+                                    { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' },
+                                    {
+                                        operator: '$or',
+                                        conditions: [
+                                            { fieldPath: 'code', column: 'code_code', type: 'lowcardinality', operator: '$eq', value: 'a' },
+                                            { fieldPath: 'code', column: 'code_code', type: 'lowcardinality', operator: '$eq', value: 'b' }
+                                        ]
+                                    }
+                                ]
+                            },
+                            { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'amended' }
+                        ]
+                    }
+                ],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('((status = {_p0:String} AND (code_code = {_p1:String} OR code_code = {_p2:String})) OR status = {_p3:String})');
+        });
+
+        test('malformed composite cursor (invalid JSON) falls back to id seek', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: 'not-valid-json{'
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('id > {_sk_id:String}');
+            expect(query_params._sk_id).toBe('not-valid-json{');
+        });
+
+        test('composite cursor with missing seekKey fields still builds tuple', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: JSON.stringify({ recorded: '2024-01-01 00:00:00' })
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('(recorded, id) > tuple(');
+            expect(query_params._sk0).toBe('2024-01-01 00:00:00');
+            expect(query_params._sk1).toBeUndefined();
+        });
+
+        test('composite cursor with SQL injection in values uses parameterized query', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: JSON.stringify({ recorded: "'; DROP TABLE fhir.test; --", id: 'ok' })
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).not.toContain('DROP TABLE');
+            expect(query).toContain('tuple({_sk0:String}, {_sk1:String})');
+            // Value is parameterized (not in SQL string) — safe regardless of content
+            expect(query_params._sk0).toBeDefined();
+        });
+
+        test('security: accessTags with empty string still passes (non-empty array)', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [''], ownerTags: [] },
+                paginationCursor: null
+            };
+            // Empty string in array is technically a non-empty array — debatable
+            // but matching the current behavior. The auth layer should prevent this.
+            expect(() => builder.buildSearchQuery(parsed, schema)).not.toThrow();
+        });
+
+        test('count query also enforces security', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.buildCountQuery(parsed, schema)).toThrow('Security violation');
+        });
+
+        test('condition node missing column throws', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'bad', operator: '$eq', value: 'x', type: 'string' }
+                ],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('missing column');
+        });
+
+        test('maxRangeDays applied to non-required datetime field', () => {
+            const schemaWithNonRequired = {
+                ...schema,
+                requiredFilters: [],
+                maxRangeDays: 7
+            };
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-01-01T00:00:00Z' },
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-02-01T00:00:00Z' }
+                ],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.validateRequiredFilters(parsed, schemaWithNonRequired)).toThrow('exceeds maximum of 7 days');
+        });
+
+        test('JSON array cursor falls back to id seek (not a cursor object)', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: JSON.stringify(['not', 'an', 'object'])
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('id > {_sk_id:String}');
+        });
+    });
 });
