@@ -49,8 +49,7 @@ describe('GraphQL Patient Tests', () => {
                             postRequestProcessor: c.postRequestProcessor,
                             databaseBulkInserter: c.databaseBulkInserter,
                             preSaveManager: c.preSaveManager,
-                            configManager: c.configManager,
-                            auditEventKafkaProducer: c.auditEventKafkaProducer
+                            configManager: c.configManager
                         })
                 );
                 return container;
