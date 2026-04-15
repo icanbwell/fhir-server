@@ -3,14 +3,13 @@
 const { logDebug } = require('../../operations/common/logging');
 const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 
+// ─── Constants ───────────────────────────────────────────────────
 const DEFAULT_LIMIT = 100;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const HTTP_BAD_REQUEST = 400;
 const ISSUE_CODE_TOO_COSTLY = 'too-costly';
 
-/**
- * Maps MongoDB operators to ClickHouse SQL comparison operators.
- */
+/** MongoDB operators → ClickHouse SQL operators */
 const OPERATOR_MAP = {
     $eq: '=',
     $gte: '>=',
@@ -21,13 +20,28 @@ const OPERATOR_MAP = {
 };
 
 /**
- * Maps schema field types to ClickHouse parameter types.
+ * Schema field types → ClickHouse parameter types.
+ * Exhaustive over the documented type set in the schema contract.
+ * Unknown types throw at query time so schema typos fail loudly.
  */
 const CLICKHOUSE_TYPE_MAP = {
+    string: 'String',
+    reference: 'String',
+    lowcardinality: 'String',
     datetime: 'String',
-    number: 'Float64'
+    number: 'Float64',
+    'array<string>': 'String'
 };
-const CLICKHOUSE_TYPE_DEFAULT = 'String';
+
+/** Reserved parameter names used by the builder. */
+const RESERVED_PARAMS = {
+    LIMIT: '_limit',
+    SKIP: '_skip',
+    ACCESS_TAGS: '_accessTags',
+    OWNER_TAGS: '_ownerTags',
+    ID: '_id',
+    SEEK_PREFIX: '_sk'
+};
 
 /**
  * Builds parameterized ClickHouse SQL from parsed query criteria and schema.
@@ -38,10 +52,8 @@ const CLICKHOUSE_TYPE_DEFAULT = 'String';
  */
 class GenericClickHouseQueryBuilder {
     /**
-     * Builds a SELECT query for searching resources.
-     *
      * @param {import('../clickHouse/genericClickHouseQueryParser').ParsedQuery} parsedQuery
-     * @param {Object} schema - ClickHouse schema from registry
+     * @param {Object} schema
      * @param {Object} options
      * @param {number} [options.limit]
      * @param {number} [options.skip=0]
@@ -54,9 +66,9 @@ class GenericClickHouseQueryBuilder {
 
         this._addSeekClause(parsedQuery.paginationCursor, schema, whereClauses, params);
 
-        params._limit = limit;
+        params[RESERVED_PARAMS.LIMIT] = limit;
         if (skip > 0) {
-            params._skip = skip;
+            params[RESERVED_PARAMS.SKIP] = skip;
         }
 
         const parts = [
@@ -64,11 +76,11 @@ class GenericClickHouseQueryBuilder {
             this._fromClause(schema.tableName),
             this._whereClause(whereClauses),
             this._orderByClause(schema.seekKey),
-            'LIMIT {_limit:UInt32}'
+            `LIMIT {${RESERVED_PARAMS.LIMIT}:UInt32}`
         ];
 
         if (skip > 0) {
-            parts.push('OFFSET {_skip:UInt32}');
+            parts.push(`OFFSET {${RESERVED_PARAMS.SKIP}:UInt32}`);
         }
 
         const query = parts.filter(Boolean).join('\n');
@@ -83,8 +95,6 @@ class GenericClickHouseQueryBuilder {
     }
 
     /**
-     * Builds a COUNT query.
-     *
      * @param {import('../clickHouse/genericClickHouseQueryParser').ParsedQuery} parsedQuery
      * @param {Object} schema
      * @returns {{ query: string, query_params: Object }}
@@ -103,9 +113,7 @@ class GenericClickHouseQueryBuilder {
     }
 
     /**
-     * Builds a findById query.
-     *
-     * @param {string} id - Resource id
+     * @param {string} id
      * @param {Object} schema
      * @returns {{ query: string, query_params: Object }}
      */
@@ -113,12 +121,12 @@ class GenericClickHouseQueryBuilder {
         const parts = [
             this._selectClause(schema.fhirResourceColumn),
             this._fromClause(schema.tableName),
-            'WHERE id = {_id:String}',
+            `WHERE id = {${RESERVED_PARAMS.ID}:String}`,
             'LIMIT 1'
         ];
 
         const query = parts.join('\n');
-        return { query, query_params: { _id: id } };
+        return { query, query_params: { [RESERVED_PARAMS.ID]: id } };
     }
 
     // ─── SQL clause helpers ──────────────────────────────────────
@@ -147,11 +155,10 @@ class GenericClickHouseQueryBuilder {
     // ─── Validation ──────────────────────────────────────────────
 
     /**
-     * Validates that required filters are present in the parsed query.
-     *
+     * Validates required filters and date range constraints.
      * @param {import('../clickHouse/genericClickHouseQueryParser').ParsedQuery} parsedQuery
      * @param {Object} schema
-     * @throws {Error} with statusCode and operationOutcomeCode if validation fails
+     * @throws {Error}
      */
     validateRequiredFilters (parsedQuery, schema) {
         if (!schema.requiredFilters || schema.requiredFilters.length === 0) {
@@ -180,15 +187,15 @@ class GenericClickHouseQueryBuilder {
 
     /** @private */
     _validateDateRange (fieldConditions, schema) {
-        for (const required of schema.requiredFilters) {
-            const mapping = schema.fieldMappings[required];
-            if (!mapping || mapping.type !== 'datetime') continue;
+        // Check all datetime fields, not just required ones
+        for (const [fieldPath, mapping] of Object.entries(schema.fieldMappings)) {
+            if (mapping.type !== 'datetime') continue;
 
             const gteCondition = fieldConditions.find(
-                c => c.fieldPath === required && (c.operator === '$gte' || c.operator === '$gt')
+                c => c.fieldPath === fieldPath && (c.operator === '$gte' || c.operator === '$gt')
             );
             const ltCondition = fieldConditions.find(
-                c => c.fieldPath === required && (c.operator === '$lt' || c.operator === '$lte')
+                c => c.fieldPath === fieldPath && (c.operator === '$lt' || c.operator === '$lte')
             );
 
             if (gteCondition && ltCondition) {
@@ -198,7 +205,7 @@ class GenericClickHouseQueryBuilder {
 
                 if (rangeDays > schema.maxRangeDays) {
                     this._throwValidationError(
-                        `Date range for '${required}' exceeds maximum of ${schema.maxRangeDays} days ` +
+                        `Date range for '${fieldPath}' exceeds maximum of ${schema.maxRangeDays} days ` +
                         `(requested: ${Math.ceil(rangeDays)} days)`
                     );
                 }
@@ -206,11 +213,7 @@ class GenericClickHouseQueryBuilder {
         }
     }
 
-    /**
-     * @param {string} message
-     * @throws {Error}
-     * @private
-     */
+    /** @private */
     _throwValidationError (message) {
         const error = new Error(message);
         error.statusCode = HTTP_BAD_REQUEST;
@@ -230,12 +233,10 @@ class GenericClickHouseQueryBuilder {
         const params = {};
         const context = { paramIndex: 0 };
 
-        // Build field condition clauses (recursive for $or/$and nesting)
         const fieldClauses = parsedQuery.fieldConditions.map(
             condition => this._conditionTreeToSql(condition, params, context)
         ).filter(Boolean);
 
-        // Security tag filtering — mandatory, unconditional
         const securityClauses = this._buildSecurityClauses(
             parsedQuery.securityConditions, schema.securityMappings, params
         );
@@ -248,30 +249,35 @@ class GenericClickHouseQueryBuilder {
 
     /**
      * Recursively converts a condition tree node to a SQL clause.
-     * Handles leaf conditions, $or groups, and $and groups.
+     * Nodes are discriminated by presence of `conditions` array (group)
+     * vs `column` (leaf). Groups have operator '$or' or '$and'.
      *
-     * @param {Object} node - condition tree node
-     * @param {Object} params - parameter accumulator (mutated)
-     * @param {Object} context - { paramIndex } counter (mutated)
-     * @returns {string} SQL clause
+     * @param {Object} node
+     * @param {Object} params - mutated
+     * @param {Object} context - { paramIndex } counter, mutated
+     * @returns {string|null} SQL clause
      * @private
      */
     _conditionTreeToSql (node, params, context) {
-        if (node.operator === '$or' && node.conditions) {
+        if (node.conditions && node.operator === '$or') {
             const parts = node.conditions
                 .map(sub => this._conditionTreeToSql(sub, params, context))
                 .filter(Boolean);
             return parts.length > 0 ? `(${parts.join(' OR ')})` : null;
         }
 
-        if (node.operator === '$and' && node.conditions) {
+        if (node.conditions && node.operator === '$and') {
             const parts = node.conditions
                 .map(sub => this._conditionTreeToSql(sub, params, context))
                 .filter(Boolean);
             return parts.length > 0 ? `(${parts.join(' AND ')})` : null;
         }
 
-        // Leaf condition
+        // Leaf condition — must have column
+        if (!node.column) {
+            throw new Error(`Condition node missing column: ${JSON.stringify(node)}`);
+        }
+
         const { clause, paramName } = this._conditionToSql(node, context.paramIndex++);
         params[paramName] = this._coerceValue(node);
         return clause;
@@ -279,6 +285,8 @@ class GenericClickHouseQueryBuilder {
 
     /**
      * Builds security tag WHERE clauses.
+     * Empty accessTags is a security violation — tenant isolation is mandatory.
+     *
      * @param {{accessTags: string[], ownerTags: string[]}} securityConditions
      * @param {Object} securityMappings
      * @param {Object} params - mutated
@@ -288,14 +296,22 @@ class GenericClickHouseQueryBuilder {
     _buildSecurityClauses (securityConditions, securityMappings, params) {
         const clauses = [];
         const { accessTags, ownerTags } = securityConditions;
-        if (accessTags.length > 0) {
-            clauses.push(`hasAny(${securityMappings.accessTags}, {_accessTags:Array(String)})`);
-            params._accessTags = accessTags;
+
+        if (!accessTags || accessTags.length === 0) {
+            throw new Error(
+                'Security violation: accessTags cannot be empty. ' +
+                'Tenant isolation is mandatory on every ClickHouse query.'
+            );
         }
+
+        clauses.push(`hasAny(${securityMappings.accessTags}, {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)})`);
+        params[RESERVED_PARAMS.ACCESS_TAGS] = accessTags;
+
         if (ownerTags.length > 0) {
-            clauses.push(`hasAny(${securityMappings.ownerTags}, {_ownerTags:Array(String)})`);
-            params._ownerTags = ownerTags;
+            clauses.push(`hasAny(${securityMappings.ownerTags}, {${RESERVED_PARAMS.OWNER_TAGS}:Array(String)})`);
+            params[RESERVED_PARAMS.OWNER_TAGS] = ownerTags;
         }
+
         return clauses;
     }
 
@@ -323,15 +339,29 @@ class GenericClickHouseQueryBuilder {
     }
 
     /**
-     * @param {string} type - schema field type
-     * @returns {string} ClickHouse parameter type
+     * Maps schema field type to ClickHouse parameter type.
+     * Exhaustive over the documented type set. Throws on unknown types
+     * so schema typos fail at the first query, not silently.
+     *
+     * @param {string} type
+     * @returns {string}
      * @private
      */
     _clickHouseType (type) {
-        return CLICKHOUSE_TYPE_MAP[type] || CLICKHOUSE_TYPE_DEFAULT;
+        const chType = CLICKHOUSE_TYPE_MAP[type];
+        if (!chType) {
+            throw new Error(
+                `Unknown field type '${type}'. ` +
+                `Supported types: ${Object.keys(CLICKHOUSE_TYPE_MAP).join(', ')}`
+            );
+        }
+        return chType;
     }
 
     /**
+     * Coerces condition values for ClickHouse parameterization.
+     * Handles scalar strings and arrays for datetime conversion.
+     *
      * @param {Object} condition
      * @returns {*}
      * @private
@@ -351,15 +381,17 @@ class GenericClickHouseQueryBuilder {
     }
 
     /**
-     * Adds seek pagination condition to the WHERE clauses.
+     * Adds composite seek pagination using the full seekKey tuple.
      *
-     * The FHIR search pipeline uses _uuid.$gt as the pagination cursor,
-     * which carries the last resource's UUID/id. Following the Group
-     * ClickHouse pattern, we seek on the `id` column which matches the
-     * cursor value. The table's ORDER BY (seekKey) determines sort order;
-     * the seek clause filters by `id` for pagination correctness.
+     * The cursor is a JSON-encoded object carrying the seekKey column
+     * values from the last row of the previous page. ClickHouse tuple
+     * comparison ensures correct page boundaries across the compound
+     * ORDER BY.
      *
-     * @param {string|null} cursor - UUID/id from _uuid.$gt
+     * If the cursor is a plain string (legacy _uuid.$gt), falls back
+     * to seeking on the `id` column for backward compatibility.
+     *
+     * @param {string|null} cursor - JSON cursor or UUID string
      * @param {Object} schema
      * @param {string[]} whereClauses - mutated
      * @param {Object} params - mutated
@@ -368,8 +400,47 @@ class GenericClickHouseQueryBuilder {
     _addSeekClause (cursor, schema, whereClauses, params) {
         if (!cursor) return;
 
-        params._seekCursor = cursor;
-        whereClauses.push('id > {_seekCursor:String}');
+        // Try parsing as composite cursor (JSON object with seekKey values)
+        let cursorObj = null;
+        try {
+            const parsed = JSON.parse(cursor);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                cursorObj = parsed;
+            }
+        } catch (e) {
+            // Not JSON — treat as simple id cursor
+        }
+
+        if (cursorObj) {
+            // Composite cursor: (col1, col2, ...) > tuple(val1, val2, ...)
+            const columns = [];
+            const tupleParams = [];
+
+            for (let i = 0; i < schema.seekKey.length; i++) {
+                const col = schema.seekKey[i];
+                const paramName = `${RESERVED_PARAMS.SEEK_PREFIX}${i}`;
+                const fieldMapping = Object.values(schema.fieldMappings || {})
+                    .find(m => m.column === col);
+                const chType = fieldMapping ? this._clickHouseType(fieldMapping.type) : 'String';
+
+                let value = cursorObj[col];
+                if (fieldMapping && fieldMapping.type === 'datetime' && typeof value === 'string') {
+                    value = DateTimeFormatter.toClickHouseDateTime(value);
+                }
+
+                columns.push(col);
+                tupleParams.push(`{${paramName}:${chType}}`);
+                params[paramName] = value;
+            }
+
+            whereClauses.push(
+                `(${columns.join(', ')}) > tuple(${tupleParams.join(', ')})`
+            );
+        } else {
+            // Simple cursor: seek on id column (backward-compatible with _uuid.$gt)
+            params[`${RESERVED_PARAMS.SEEK_PREFIX}_id`] = cursor;
+            whereClauses.push(`id > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
+        }
     }
 }
 
