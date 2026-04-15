@@ -85,12 +85,15 @@ describe('ClickHouseSchemaRegistry', () => {
 
     describe('startup validation', () => {
         test.each([
-            ['tableName', { tableName: '' }, 'tableName must be a non-empty string'],
-            ['tableName null', { tableName: null }, 'tableName must be a non-empty string'],
+            ['tableName', { tableName: '' }, 'tableName must match pattern'],
+            ['tableName null', { tableName: null }, 'tableName must match pattern'],
+            ['tableName no dot', { tableName: 'nodot' }, 'tableName must match pattern'],
+            ['tableName injection', { tableName: 'fhir.test; DROP TABLE' }, 'tableName must match pattern'],
             ['engine invalid', { engine: 'InvalidEngine' }, 'engine must be one of'],
             ['seekKey empty', { seekKey: [] }, 'seekKey must be a non-empty array'],
             ['seekKey not array', { seekKey: 'bad' }, 'seekKey must be a non-empty array'],
-            ['fhirResourceColumn empty', { fhirResourceColumn: '' }, 'fhirResourceColumn must be a non-empty string'],
+            ['fhirResourceColumn empty', { fhirResourceColumn: '' }, 'fhirResourceColumn must be a valid column name'],
+            ['fhirResourceColumn injection', { fhirResourceColumn: 'col; DROP' }, 'fhirResourceColumn must be a valid column name'],
             ['fhirResourceColumnType invalid', { fhirResourceColumnType: 'binary' }, 'fhirResourceColumnType must be one of'],
             ['securityMappings missing accessTags', {
                 securityMappings: { ownerTags: 'o', sourceAssigningAuthority: 's' }

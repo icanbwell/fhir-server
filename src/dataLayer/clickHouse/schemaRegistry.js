@@ -73,9 +73,10 @@ class ClickHouseSchemaRegistry {
     _validateSchema (resourceType, schema) {
         const errors = [];
 
-        // tableName: non-empty string
-        if (!schema.tableName || typeof schema.tableName !== 'string') {
-            errors.push('tableName must be a non-empty string');
+        // tableName: must match database.table pattern (defense-in-depth against SQL injection)
+        const TABLE_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*\.[a-zA-Z_][a-zA-Z0-9_]*$/;
+        if (!schema.tableName || !TABLE_NAME_PATTERN.test(schema.tableName)) {
+            errors.push('tableName must match pattern database.table (alphanumeric and underscores only)');
         }
 
         // engine: must be a recognized value
@@ -94,14 +95,21 @@ class ClickHouseSchemaRegistry {
             );
         }
 
-        // seekKey: non-empty array
+        // seekKey: non-empty array of valid column names
+        const COLUMN_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
         if (!Array.isArray(schema.seekKey) || schema.seekKey.length === 0) {
             errors.push('seekKey must be a non-empty array');
+        } else {
+            for (const col of schema.seekKey) {
+                if (!COLUMN_NAME_PATTERN.test(col)) {
+                    errors.push(`seekKey column '${col}' must be alphanumeric/underscore only`);
+                }
+            }
         }
 
-        // fhirResourceColumn: non-empty string
-        if (!schema.fhirResourceColumn || typeof schema.fhirResourceColumn !== 'string') {
-            errors.push('fhirResourceColumn must be a non-empty string');
+        // fhirResourceColumn: valid column name
+        if (!schema.fhirResourceColumn || !COLUMN_NAME_PATTERN.test(schema.fhirResourceColumn)) {
+            errors.push('fhirResourceColumn must be a valid column name (alphanumeric and underscores only)');
         }
 
         // fhirResourceColumnType: 'string' or 'json'
@@ -110,18 +118,30 @@ class ClickHouseSchemaRegistry {
             errors.push(`fhirResourceColumnType must be one of: ${validColumnTypes.join(', ')}`);
         }
 
-        // securityMappings: mandatory with all three keys
+        // securityMappings: mandatory with all three keys, valid column names
         if (!schema.securityMappings ||
             typeof schema.securityMappings !== 'object' ||
             !schema.securityMappings.accessTags ||
             !schema.securityMappings.ownerTags ||
             !schema.securityMappings.sourceAssigningAuthority) {
             errors.push('securityMappings must have accessTags, ownerTags, and sourceAssigningAuthority');
+        } else {
+            for (const [key, col] of Object.entries(schema.securityMappings)) {
+                if (!COLUMN_NAME_PATTERN.test(col)) {
+                    errors.push(`securityMappings.${key} column '${col}' must be alphanumeric/underscore only`);
+                }
+            }
         }
 
-        // fieldMappings: must be an object
+        // fieldMappings: must be an object with valid column names
         if (!schema.fieldMappings || typeof schema.fieldMappings !== 'object') {
             errors.push('fieldMappings must be an object');
+        } else {
+            for (const [path, mapping] of Object.entries(schema.fieldMappings)) {
+                if (!mapping.column || !COLUMN_NAME_PATTERN.test(mapping.column)) {
+                    errors.push(`fieldMappings['${path}'].column must be alphanumeric/underscore only`);
+                }
+            }
         }
 
         // requiredFilters: must reference paths in fieldMappings
