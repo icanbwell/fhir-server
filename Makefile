@@ -62,7 +62,7 @@ up-offline:
 
 .PHONY:down
 down:
-	docker compose -p fhir-dev -f docker-compose.yml down && \
+	docker compose -p fhir-dev -f docker-compose.yml down --remove-orphans && \
 	docker system prune -f
 
 .PHONY:clean
