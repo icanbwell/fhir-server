@@ -1,0 +1,126 @@
+{
+    "author": [
+        {
+            "reference": "Organization/org1",
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Organization/org1"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Organization/8ae53278-712c-5b7b-aa8c-756ad0aeb023"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "healthsystem1"
+                }
+            ]
+        }
+    ],
+    "date": "2025-01-01",
+    "id": "comp-no-sensitive",
+    "meta": {
+        "versionId": "1",
+        "source": "https://www.icanbwell.com/test",
+        "security": [
+            {
+                "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                "system": "https://www.icanbwell.com/owner",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                "system": "https://www.icanbwell.com/access",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "484b61d9-be25-547c-a12b-bea9dcfc9598",
+                "system": "https://www.icanbwell.com/vendor",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "healthsystem1"
+            }
+        ]
+    },
+    "resourceType": "Composition",
+    "section": [
+        {
+            "id": "normal-1",
+            "title": "Allergies",
+            "code": {
+                "coding": [
+                    {
+                        "id": "d337977f-4707-52f9-804d-15d3d24ec18e",
+                        "system": "http://loinc.org",
+                        "code": "48765-2"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "normal-2",
+            "title": "Medications",
+            "code": {
+                "coding": [
+                    {
+                        "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
+                        "system": "http://loinc.org",
+                        "code": "10160-0"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "normal-3",
+            "title": "Problems",
+            "code": {
+                "coding": [
+                    {
+                        "id": "a01c7a6e-153a-5ccf-86b3-9459ac800b07",
+                        "system": "http://loinc.org",
+                        "code": "11450-4"
+                    }
+                ]
+            }
+        }
+    ],
+    "status": "final",
+    "subject": {
+        "reference": "Patient/patient1",
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/patient1"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "healthsystem1"
+            }
+        ]
+    },
+    "title": "Composition With No Sensitive Sections",
+    "type": {
+        "coding": [
+            {
+                "id": "ba1ac791-e196-54e4-8704-b0be033687fc",
+                "system": "http://loinc.org",
+                "code": "11503-0",
+                "display": "Medical records"
+            }
+        ]
+    }
+}

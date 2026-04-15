@@ -32,7 +32,8 @@ const {
     PERSON_PROXY_PREFIX,
     EVERYTHING_OP_NON_CLINICAL_RESOURCE_DEPTH,
     HTTP_CONTEXT_KEYS,
-    REGEX
+    REGEX,
+    AUTH_USER_TYPES
 } = require('../../constants');
 const { SearchParametersManager } = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
@@ -284,7 +285,7 @@ class EverythingHelper {
      * @returns {Promise<string|undefined>}
      */
     async getCacheKey(parsedArgs, requestInfo, resourceType, base_version) {
-        if (!requestInfo.personIdFromJwtToken) {
+        if (!requestInfo.personIdFromJwtToken || requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
             return undefined;
         }
         const keyGenerator = new PatientEverythingCacheKeyGenerator();
@@ -941,7 +942,8 @@ class EverythingHelper {
             } else {
                 entries = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries,
-                    parsedArgs
+                    parsedArgs,
+                    enrichmentContext: { userType: requestInfo.userType }
                 });
             }
 
@@ -1114,6 +1116,7 @@ class EverythingHelper {
 
             const { bundleEntries, streamedResources: streamedResources1 } = await this.processCursorAsync({
                 cursor,
+                requestInfo,
                 parentParsedArgs: parsedArgs,
                 responseStreamer: responseStreamer,
                 bundleEntryIdsProcessedTracker,
@@ -1446,6 +1449,7 @@ class EverythingHelper {
 
             const promiseResult = this.processCursorAsync({
                 cursor,
+                requestInfo,
                 responseStreamer,
                 parentParsedArgs: parsedArgs,
                 bundleEntryIdsProcessedTracker,
@@ -1492,6 +1496,7 @@ class EverythingHelper {
      * Fetches the data from cursor and streams it
      * @param {{
      *  cursor: import('../../dataLayer/databaseCursor').DatabaseCursor,
+     *  requestInfo: FhirRequestInfo,
      *  responseStreamer: BaseResponseStreamer,
      *  parentParsedArgs: ParsedArgs,
      *  bundleEntryIdsProcessedTracker: ResourceProccessedTracker|undefined,
@@ -1510,6 +1515,7 @@ class EverythingHelper {
      */
     async processCursorAsync({
         cursor,
+        requestInfo,
         responseStreamer,
         parentParsedArgs,
         bundleEntryIdsProcessedTracker,
@@ -1689,7 +1695,8 @@ class EverythingHelper {
                                 }
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                                     entries: [current_entity],
-                                    parsedArgs: parentParsedArgs
+                                    parsedArgs: parentParsedArgs,
+                                    enrichmentContext: { userType: requestInfo.userType }
                                 });
 
                                 await responseStreamer.writeBundleEntryAsync({

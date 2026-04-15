@@ -241,7 +241,9 @@ class SearchByVersionIdOperation {
 
                 // run any enrichment
                 historyResource = (await this.enrichmentManager.enrichAsync({
-                            resources: [historyResource], parsedArgs
+                            resources: [historyResource],
+                            parsedArgs,
+                            enrichmentContext: { userType }
                         }
                     )
                 )[0];

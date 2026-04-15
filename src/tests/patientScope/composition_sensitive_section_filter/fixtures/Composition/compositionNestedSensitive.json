@@ -1,0 +1,133 @@
+{
+    "resourceType": "Composition",
+    "id": "comp-nested-sensitive",
+    "meta": {
+        "source": "https://www.icanbwell.com/test",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/vendor", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "healthsystem1" }
+        ]
+    },
+    "status": "final",
+    "type": {
+        "coding": [{ "system": "http://loinc.org", "code": "11503-0", "display": "Medical records" }]
+    },
+    "subject": { "reference": "Patient/patient1" },
+    "date": "2025-01-01",
+    "title": "Composition With Nested Sensitive Sections",
+    "author": [{ "reference": "Organization/org1" }],
+    "section": [
+        {
+            "id": "parent-1",
+            "title": "Allergies",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "48765-2" }] },
+            "section": [
+                {
+                    "id": "p1-child-1",
+                    "title": "Drug Allergies",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "48765-2-1" }] }
+                },
+                {
+                    "id": "p1-child-2",
+                    "title": "Food Allergies",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "48765-2-2" }] }
+                },
+                {
+                    "id": "p1-child-sensitive",
+                    "title": "Allergy Notes",
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "SUBSTANCE_ABUSE" }] }
+                }
+            ]
+        },
+        {
+            "id": "parent-2",
+            "title": "Medications",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "10160-0" }] },
+            "section": [
+                {
+                    "id": "p2-child-1",
+                    "title": "Current Medications",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "10160-0-1" }] }
+                },
+                {
+                    "id": "p2-child-sensitive",
+                    "title": "Medication Notes",
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }] }
+                },
+                {
+                    "id": "p2-child-3",
+                    "title": "Past Medications",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "10160-0-3" }] }
+                }
+            ]
+        },
+        {
+            "id": "parent-3",
+            "title": "Problems",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "11450-4" }] },
+            "section": [
+                {
+                    "id": "p3-child-sensitive",
+                    "title": "Condition Notes",
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "reproductive-health" }] }
+                },
+                {
+                    "id": "p3-child-2",
+                    "title": "Active Problems",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "11450-4-2" }] }
+                },
+                {
+                    "id": "p3-child-3",
+                    "title": "Resolved Problems",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "11450-4-3" }] }
+                }
+            ]
+        },
+        {
+            "id": "parent-4",
+            "title": "Immunizations",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "11369-6" }] },
+            "section": [
+                {
+                    "id": "p4-child-1",
+                    "title": "Childhood Immunizations",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "11369-6-1" }] }
+                },
+                {
+                    "id": "p4-child-2",
+                    "title": "Adult Immunizations",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "11369-6-2" }] }
+                },
+                {
+                    "id": "p4-child-sensitive",
+                    "title": "Immunization Records",
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "SUBSTANCE_ABUSE" }] }
+                }
+            ]
+        },
+        {
+            "id": "parent-5",
+            "title": "Vital Signs",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "8716-3" }] },
+            "section": [
+                {
+                    "id": "p5-child-1",
+                    "title": "Blood Pressure",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "8716-3-1" }] }
+                },
+                {
+                    "id": "p5-child-sensitive",
+                    "title": "Heart Rate Trends",
+                    "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }] }
+                },
+                {
+                    "id": "p5-child-3",
+                    "title": "Weight",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "8716-3-3" }] }
+                }
+            ]
+        }
+    ]
+}

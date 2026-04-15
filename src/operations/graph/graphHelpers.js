@@ -1555,7 +1555,8 @@ class GraphHelper {
                 bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
                     {
                         entries: bundleEntriesForTopLevelResource,
-                        parsedArgs
+                        parsedArgs,
+                        enrichmentContext: { userType: requestInfo.userType }
                     }
                 );
                 // /**

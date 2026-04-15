@@ -1,0 +1,397 @@
+[
+    {
+        "id": "comp-nested-sensitive",
+        "title": "Composition With Nested Sensitive Sections",
+        "section": [
+            {
+                "id": "parent-1",
+                "title": "Allergies",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "48765-2"
+                        }
+                    ]
+                },
+                "section": [
+                    {
+                        "id": "p1-child-1",
+                        "title": "Drug Allergies",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "48765-2-1"
+                                }
+                            ]
+                        },
+                        "section": null
+                    },
+                    {
+                        "id": "p1-child-2",
+                        "title": "Food Allergies",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "48765-2-2"
+                                }
+                            ]
+                        },
+                        "section": null
+                    }
+                ]
+            },
+            {
+                "id": "parent-2",
+                "title": "Medications",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "10160-0"
+                        }
+                    ]
+                },
+                "section": [
+                    {
+                        "id": "p2-child-1",
+                        "title": "Current Medications",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "10160-0-1"
+                                }
+                            ]
+                        },
+                        "section": null
+                    },
+                    {
+                        "id": "p2-child-3",
+                        "title": "Past Medications",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "10160-0-3"
+                                }
+                            ]
+                        },
+                        "section": null
+                    }
+                ]
+            },
+            {
+                "id": "parent-3",
+                "title": "Problems",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "11450-4"
+                        }
+                    ]
+                },
+                "section": [
+                    {
+                        "id": "p3-child-2",
+                        "title": "Active Problems",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "11450-4-2"
+                                }
+                            ]
+                        },
+                        "section": null
+                    },
+                    {
+                        "id": "p3-child-3",
+                        "title": "Resolved Problems",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "11450-4-3"
+                                }
+                            ]
+                        },
+                        "section": null
+                    }
+                ]
+            },
+            {
+                "id": "parent-4",
+                "title": "Immunizations",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "11369-6"
+                        }
+                    ]
+                },
+                "section": [
+                    {
+                        "id": "p4-child-1",
+                        "title": "Childhood Immunizations",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "11369-6-1"
+                                }
+                            ]
+                        },
+                        "section": null
+                    },
+                    {
+                        "id": "p4-child-2",
+                        "title": "Adult Immunizations",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "11369-6-2"
+                                }
+                            ]
+                        },
+                        "section": null
+                    }
+                ]
+            },
+            {
+                "id": "parent-5",
+                "title": "Vital Signs",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "8716-3"
+                        }
+                    ]
+                },
+                "section": [
+                    {
+                        "id": "p5-child-1",
+                        "title": "Blood Pressure",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "8716-3-1"
+                                }
+                            ]
+                        },
+                        "section": null
+                    },
+                    {
+                        "id": "p5-child-3",
+                        "title": "Weight",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "8716-3-3"
+                                }
+                            ]
+                        },
+                        "section": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "comp-no-sensitive",
+        "title": "Composition With No Sensitive Sections",
+        "section": [
+            {
+                "id": "normal-1",
+                "title": "Allergies",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "48765-2"
+                        }
+                    ]
+                },
+                "section": null
+            },
+            {
+                "id": "normal-2",
+                "title": "Medications",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "10160-0"
+                        }
+                    ]
+                },
+                "section": null
+            },
+            {
+                "id": "normal-3",
+                "title": "Problems",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "11450-4"
+                        }
+                    ]
+                },
+                "section": null
+            }
+        ]
+    },
+    {
+        "id": "comp-top-level-sensitive",
+        "title": "Composition With Top Level Sensitive Sections",
+        "section": [
+            {
+                "id": "normal-1",
+                "title": "Allergies",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "48765-2"
+                        }
+                    ]
+                },
+                "section": null
+            },
+            {
+                "id": "normal-2",
+                "title": "Medications",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "10160-0"
+                        }
+                    ]
+                },
+                "section": null
+            }
+        ]
+    },
+    {
+        "id": "comp-deep-sensitive",
+        "title": "Composition With Deep Sensitive Sections",
+        "section": [
+            {
+                "id": "level1-a",
+                "title": "Clinical Summary",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "51848-0"
+                        }
+                    ]
+                },
+                "section": [
+                    {
+                        "id": "level2-a1",
+                        "title": "Diagnoses",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "29308-4"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "level3-a1-normal",
+                                "title": "Active Diagnoses",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "system": "http://loinc.org",
+                                            "code": "29308-4-1"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "level2-a2",
+                        "title": "Procedures",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "47519-4"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "level3-a2-normal",
+                                "title": "Routine Procedures",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "system": "http://loinc.org",
+                                            "code": "47519-4-2"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "level1-b",
+                "title": "Lab Results",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "26436-6"
+                        }
+                    ]
+                },
+                "section": [
+                    {
+                        "id": "level2-b1",
+                        "title": "Blood Work",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "26436-6-1"
+                                }
+                            ]
+                        },
+                        "section": [
+                            {
+                                "id": "level3-b1-normal",
+                                "title": "CBC Results",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "system": "http://loinc.org",
+                                            "code": "26436-6-1-1"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

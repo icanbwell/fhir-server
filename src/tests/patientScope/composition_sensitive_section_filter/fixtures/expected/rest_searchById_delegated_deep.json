@@ -1,0 +1,201 @@
+{
+    "author": [
+        {
+            "reference": "Organization/org1",
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Organization/org1"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Organization/8ae53278-712c-5b7b-aa8c-756ad0aeb023"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "healthsystem1"
+                }
+            ]
+        }
+    ],
+    "date": "2025-01-01",
+    "id": "comp-deep-sensitive",
+    "meta": {
+        "versionId": "1",
+        "source": "https://www.icanbwell.com/test",
+        "security": [
+            {
+                "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                "system": "https://www.icanbwell.com/owner",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                "system": "https://www.icanbwell.com/access",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "484b61d9-be25-547c-a12b-bea9dcfc9598",
+                "system": "https://www.icanbwell.com/vendor",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "healthsystem1"
+            }
+        ]
+    },
+    "resourceType": "Composition",
+    "section": [
+        {
+            "id": "level1-a",
+            "title": "Clinical Summary",
+            "code": {
+                "coding": [
+                    {
+                        "id": "d6dda25f-7212-5797-8bdf-ff0c74d152f3",
+                        "system": "http://loinc.org",
+                        "code": "51848-0"
+                    }
+                ]
+            },
+            "section": [
+                {
+                    "id": "level2-a1",
+                    "title": "Diagnoses",
+                    "code": {
+                        "coding": [
+                            {
+                                "id": "6e8ed357-5e42-50ee-ae5b-41d7037e2ba6",
+                                "system": "http://loinc.org",
+                                "code": "29308-4"
+                            }
+                        ]
+                    },
+                    "section": [
+                        {
+                            "id": "level3-a1-normal",
+                            "title": "Active Diagnoses",
+                            "code": {
+                                "coding": [
+                                    {
+                                        "id": "f3ab9f1d-3551-5b34-ba7a-f5b4c97a85d4",
+                                        "system": "http://loinc.org",
+                                        "code": "29308-4-1"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "level2-a2",
+                    "title": "Procedures",
+                    "code": {
+                        "coding": [
+                            {
+                                "id": "d7e93f81-9b94-5893-8d18-6994ecf05e16",
+                                "system": "http://loinc.org",
+                                "code": "47519-4"
+                            }
+                        ]
+                    },
+                    "section": [
+                        {
+                            "id": "level3-a2-normal",
+                            "title": "Routine Procedures",
+                            "code": {
+                                "coding": [
+                                    {
+                                        "id": "73197de0-8e35-5936-aa75-8bf590d85017",
+                                        "system": "http://loinc.org",
+                                        "code": "47519-4-2"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "level1-b",
+            "title": "Lab Results",
+            "code": {
+                "coding": [
+                    {
+                        "id": "548fa3f8-df55-5a50-8491-eaf2da4c6238",
+                        "system": "http://loinc.org",
+                        "code": "26436-6"
+                    }
+                ]
+            },
+            "section": [
+                {
+                    "id": "level2-b1",
+                    "title": "Blood Work",
+                    "code": {
+                        "coding": [
+                            {
+                                "id": "492fef66-21b4-5b7b-a51c-a7115d58c31b",
+                                "system": "http://loinc.org",
+                                "code": "26436-6-1"
+                            }
+                        ]
+                    },
+                    "section": [
+                        {
+                            "id": "level3-b1-normal",
+                            "title": "CBC Results",
+                            "code": {
+                                "coding": [
+                                    {
+                                        "id": "f68ff145-2394-56a6-bd1c-9ff88a45322c",
+                                        "system": "http://loinc.org",
+                                        "code": "26436-6-1-1"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "status": "final",
+    "subject": {
+        "reference": "Patient/patient1",
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/patient1"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "healthsystem1"
+            }
+        ]
+    },
+    "title": "Composition With Deep Sensitive Sections",
+    "type": {
+        "coding": [
+            {
+                "id": "ba1ac791-e196-54e4-8704-b0be033687fc",
+                "system": "http://loinc.org",
+                "code": "11503-0",
+                "display": "Medical records"
+            }
+        ]
+    }
+}

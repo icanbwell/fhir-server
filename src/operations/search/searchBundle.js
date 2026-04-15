@@ -311,7 +311,8 @@ class SearchBundleOperation {
                         cursor,
                         user,
                         parsedArgs,
-                        resourceType
+                        resourceType,
+                        userType
                     }
                 );
 

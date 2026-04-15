@@ -149,6 +149,10 @@ Delegated users are restricted to **read-only** operations. Access is enforced b
 
 Any denied operation returns **403 Forbidden**. GraphQL mutations return an error in the GraphQL response body.
 
+## Redis Caching
+
+Redis response caching is **disabled** for delegated users. The `$everything` and `$summary` operations skip both cache reads and writes when the requesting user is a delegated actor.
+
 ## Audit Logging
 When a delegated actor is present, the audit event contains **two agents**:
 - **Patient agent** (`requestor: false`): the patient on whose behalf the action is performed (`Patient/person.<personId>`)

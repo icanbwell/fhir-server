@@ -1,0 +1,83 @@
+{
+    "resourceType": "Composition",
+    "id": "comp-deep-sensitive",
+    "meta": {
+        "source": "https://www.icanbwell.com/test",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/vendor", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "healthsystem1" }
+        ]
+    },
+    "status": "final",
+    "type": {
+        "coding": [{ "system": "http://loinc.org", "code": "11503-0", "display": "Medical records" }]
+    },
+    "subject": { "reference": "Patient/patient1" },
+    "date": "2025-01-01",
+    "title": "Composition With Deep Sensitive Sections",
+    "author": [{ "reference": "Organization/org1" }],
+    "section": [
+        {
+            "id": "level1-a",
+            "title": "Clinical Summary",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "51848-0" }] },
+            "section": [
+                {
+                    "id": "level2-a1",
+                    "title": "Diagnoses",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "29308-4" }] },
+                    "section": [
+                        {
+                            "id": "level3-a1-normal",
+                            "title": "Active Diagnoses",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "29308-4-1" }] }
+                        },
+                        {
+                            "id": "level3-a1-sensitive",
+                            "title": "Diagnosis Notes",
+                            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "SUBSTANCE_ABUSE" }] }
+                        }
+                    ]
+                },
+                {
+                    "id": "level2-a2",
+                    "title": "Procedures",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "47519-4" }] },
+                    "section": [
+                        {
+                            "id": "level3-a2-sensitive",
+                            "title": "Procedure Notes",
+                            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }] }
+                        },
+                        {
+                            "id": "level3-a2-normal",
+                            "title": "Routine Procedures",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "47519-4-2" }] }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "level1-b",
+            "title": "Lab Results",
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "26436-6" }] },
+            "section": [
+                {
+                    "id": "level2-b1",
+                    "title": "Blood Work",
+                    "code": { "coding": [{ "system": "http://loinc.org", "code": "26436-6-1" }] },
+                    "section": [
+                        {
+                            "id": "level3-b1-normal",
+                            "title": "CBC Results",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "26436-6-1-1" }] }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

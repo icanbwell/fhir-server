@@ -117,6 +117,7 @@ const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
 const {GroupMemberEnrichmentProvider} = require('./enrich/providers/groupMemberEnrichmentProvider');
+const {CompositionSectionFilterEnrichmentProvider} = require('./enrich/providers/compositionSectionFilterEnrichmentProvider');
 const {EverythingHelper} = require('./operations/everything/everythingHelper');
 const {EverythingRelatedResourcesMapper} = require('./operations/everything/everythingRelatedResourcesMapper');
 const {SummaryOperation} = require("./operations/summary/summary");
@@ -178,6 +179,7 @@ const createContainer = function () {
             }),
             new HashReferencesEnrichmentProvider(),
             new MetaUuidEnrichmentProvider(),
+            c.compositionSectionFilterEnrichmentProvider,
             new GroupMemberEnrichmentProvider({
                 clickHouseClientManager: c.clickHouseClientManager,
                 configManager: c.configManager
@@ -187,13 +189,17 @@ const createContainer = function () {
     container.register('identifierEnrichmentProvider', (c) => new IdentifierEnrichmentProvider({
         fhirTypesManager: c.fhirTypesManager
     }));
+    container.register('compositionSectionFilterEnrichmentProvider', (c) => new CompositionSectionFilterEnrichmentProvider({
+        configManager: c.configManager
+    }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
             enrichmentManager: c.enrichmentManager,
             resourceManager: c.resourceManager,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
         }
     ));
     container.register('preSaveManager', (c) => new PreSaveManager({
@@ -820,7 +826,8 @@ const createContainer = function () {
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -836,7 +843,8 @@ const createContainer = function () {
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
-            identifierEnrichmentProvider: c.identifierEnrichmentProvider
+            identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+            compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(

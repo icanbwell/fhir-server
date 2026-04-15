@@ -368,7 +368,8 @@ class SearchStreamingOperation {
                         resourceType,
                         defaultSortId,
                         accepts: requestInfo.accept,
-                        params
+                        params,
+                        userType: requestInfo.userType
                     });
 
                 if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {

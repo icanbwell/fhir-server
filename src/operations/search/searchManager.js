@@ -831,11 +831,12 @@ class SearchManager {
      * @param {string | null} user
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
+     * @param {string|undefined} userType
      * @returns {Promise<Resource[]>}
      */
     async readResourcesFromCursorAsync (
         {
-            cursor, user, parsedArgs, resourceType
+            cursor, user, parsedArgs, resourceType, userType
         }
     ) {
         /**
@@ -873,7 +874,8 @@ class SearchManager {
                         signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark,
-                        configManager: this.configManager
+                        configManager: this.configManager,
+                        enrichmentContext: { userType }
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -990,6 +992,7 @@ class SearchManager {
      * @param {string[]|null} accepts
      * @param {string} defaultSortId
      * @param {Object} params
+     * @param {string|undefined} userType
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync (
@@ -1004,7 +1007,8 @@ class SearchManager {
             resourceType,
             accepts,
             defaultSortId,
-            params
+            params,
+            userType
         }
     ) {
         assertIsValid(requestId);
@@ -1076,7 +1080,8 @@ class SearchManager {
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark,
                 configManager: this.configManager,
-                response: res
+                response: res,
+                enrichmentContext: { userType }
             }
         );
         /**

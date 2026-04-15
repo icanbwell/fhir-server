@@ -18,6 +18,7 @@ const { ScopesManager } = require('../security/scopesManager');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { getLastUpdatedISO } = require('../../utils/date.util');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { CompositionSectionFilterEnrichmentProvider } = require('../../enrich/providers/compositionSectionFilterEnrichmentProvider');
 
 class BaseHistoryOperationProcessor {
     /**
@@ -34,6 +35,7 @@ class BaseHistoryOperationProcessor {
      * @param {ScopesManager} scopesManager
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {CompositionSectionFilterEnrichmentProvider} compositionSectionFilterEnrichmentProvider
      */
     constructor (
         {
@@ -48,7 +50,8 @@ class BaseHistoryOperationProcessor {
             databaseAttachmentManager,
             scopesManager,
             historyResourceCloudStorageClient,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            compositionSectionFilterEnrichmentProvider
         }
     ) {
         /**
@@ -120,6 +123,12 @@ class BaseHistoryOperationProcessor {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * @type {CompositionSectionFilterEnrichmentProvider}
+         */
+        this.compositionSectionFilterEnrichmentProvider = compositionSectionFilterEnrichmentProvider;
+        assertTypeEquals(compositionSectionFilterEnrichmentProvider, CompositionSectionFilterEnrichmentProvider);
     }
 
     /**
@@ -408,10 +417,15 @@ class BaseHistoryOperationProcessor {
             }
         );
 
-        // serialize bundle
+        // enrich bundle
         resultBundle.entry = await this.identifierEnrichmentProvider.enrichBundleEntriesAsync({
             entries: resultBundle.entry,
             parsedArgs
+        });
+        resultBundle.entry = await this.compositionSectionFilterEnrichmentProvider.enrichBundleEntriesAsync({
+            entries: resultBundle.entry,
+            parsedArgs,
+            enrichmentContext: { userType }
         });
         FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
 

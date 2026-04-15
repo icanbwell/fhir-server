@@ -1,0 +1,18 @@
+{
+    "resourceType": "GraphDefinition",
+    "id": "patient-composition-graph",
+    "name": "patient_composition",
+    "status": "active",
+    "start": "Patient",
+    "link": [
+        {
+            "description": "Compositions for this Patient",
+            "target": [
+                {
+                    "type": "Composition",
+                    "params": "subject={ref}"
+                }
+            ]
+        }
+    ]
+}

@@ -235,7 +235,9 @@ class SearchByIdOperation {
 
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], parsedArgs
+                            resources: [resource],
+                            parsedArgs,
+                            enrichmentContext: { userType }
                         }
                     )
                 )[0];

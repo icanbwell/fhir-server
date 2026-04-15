@@ -1,0 +1,33 @@
+{
+    "resourceType": "Composition",
+    "id": "comp-all-sensitive",
+    "meta": {
+        "source": "https://www.icanbwell.com/test",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/access", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/vendor", "code": "healthsystem1" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "healthsystem1" }
+        ]
+    },
+    "status": "final",
+    "type": {
+        "coding": [{ "system": "http://loinc.org", "code": "11503-0", "display": "Medical records" }]
+    },
+    "subject": { "reference": "Patient/patient1" },
+    "date": "2025-01-01",
+    "title": "Composition With All Sections Classified",
+    "author": [{ "reference": "Organization/org1" }],
+    "section": [
+        {
+            "id": "section-1",
+            "title": "Treatment History",
+            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "SUBSTANCE_ABUSE" }] }
+        },
+        {
+            "id": "section-2",
+            "title": "Behavioral Health Notes",
+            "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }] }
+        }
+    ]
+}

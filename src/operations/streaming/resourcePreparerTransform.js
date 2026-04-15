@@ -16,6 +16,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
+     * @param {EnrichmentContext|undefined} enrichmentContext
      */
     constructor (
         {
@@ -25,7 +26,8 @@ class ResourcePreparerTransform extends Transform {
             resourcePreparer,
             highWaterMark,
             configManager,
-            response
+            response,
+            enrichmentContext
         }
     ) {
         super({ objectMode: true, highWaterMark });
@@ -37,6 +39,10 @@ class ResourcePreparerTransform extends Transform {
          * @type {string}
          */
         this.resourceName = resourceType;
+        /**
+         * @type {EnrichmentContext|undefined}
+         */
+        this.enrichmentContext = enrichmentContext;
         /**
          * @type {AbortSignal}
          */
@@ -175,7 +181,8 @@ class ResourcePreparerTransform extends Transform {
             {
                 parsedArgs: this.parsedArgs,
                 element: chunk1,
-                resourceType: this.resourceName
+                resourceType: this.resourceName,
+                enrichmentContext: this.enrichmentContext
             })
             .then(
                 /** @type {Resource[]} */resources => {

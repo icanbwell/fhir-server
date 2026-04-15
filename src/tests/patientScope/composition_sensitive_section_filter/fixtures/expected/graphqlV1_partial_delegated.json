@@ -1,0 +1,31 @@
+[
+    {
+        "id": "comp-top-level-sensitive",
+        "section": [
+            {
+                "title": "Allergies",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "48765-2"
+                        }
+                    ]
+                },
+                "section": null
+            },
+            {
+                "title": "Medications",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "10160-0"
+                        }
+                    ]
+                },
+                "section": null
+            }
+        ]
+    }
+]
