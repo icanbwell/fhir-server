@@ -2,7 +2,7 @@ const { EnrichmentProvider } = require('./enrichmentProvider');
 const { logDebug, logError } = require('../../operations/common/logging');
 const { TABLES } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { isTrue } = require('../../utils/isTrue');
 
 /**
@@ -51,7 +51,7 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
         }
 
         // Skip enrichment if request did not opt into external member storage
-        if (!isTrue(parsedArgs?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER])) {
+        if (!isTrue(parsedArgs?.headers?.[USE_EXTERNAL_STORAGE_HEADER])) {
             return resources;
         }
 
@@ -89,7 +89,7 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
             return entries;
         }
 
-        if (!isTrue(parsedArgs?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER])) {
+        if (!isTrue(parsedArgs?.headers?.[USE_EXTERNAL_STORAGE_HEADER])) {
             return entries;
         }
 

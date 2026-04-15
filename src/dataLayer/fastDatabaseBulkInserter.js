@@ -352,7 +352,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
             }
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            handleClickHouseGroupPreSave(doc, contextData);
+            handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
@@ -518,7 +518,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
         try {
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            handleClickHouseGroupPreSave(doc, contextData);
+            handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 

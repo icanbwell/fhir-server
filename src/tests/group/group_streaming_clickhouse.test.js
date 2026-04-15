@@ -5,13 +5,13 @@ const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 const fs = require('fs');
 const path = require('path');
 
 function getHeadersWithExternalStorage() {
-    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+    return { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
 }
 
 /**

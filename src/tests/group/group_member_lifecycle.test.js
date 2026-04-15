@@ -1,6 +1,6 @@
 const { describe, beforeAll, afterAll, beforeEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../utils/configManager');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const {
     setupGroupTests,
     teardownGroupTests,
@@ -11,7 +11,7 @@ const {
 } = require('./groupTestSetup');
 
 function getHeadersWithExternalStorage() {
-    return { ...getTestHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+    return { ...getTestHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
 }
 
 describe('Group Member Lifecycle in ClickHouse', () => {

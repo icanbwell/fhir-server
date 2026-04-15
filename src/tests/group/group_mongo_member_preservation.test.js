@@ -1,6 +1,6 @@
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { EXTERNAL_STORAGE_TAG_SYSTEM, EXTERNAL_STORAGE_TAG_CODE } = require('../../utils/clickHouseGroupPreSave');
 const {
     setupGroupTests,
@@ -12,13 +12,13 @@ const {
 } = require('./groupTestSetup');
 
 function getHeadersWithExternalStorage() {
-    return { ...getTestHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+    return { ...getTestHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
 }
 
 /**
  * MongoDB Member Behavior Tests
  *
- * Expected behavior with useExternalMemberStorage header:
+ * Expected behavior with useExternalStorage header:
  *
  * | Operation              | MongoDB members            | ClickHouse events              |
  * |------------------------|----------------------------|--------------------------------|

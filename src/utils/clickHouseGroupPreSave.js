@@ -11,10 +11,10 @@ const EXTERNAL_STORAGE_TAG_CODE = 'member';
  * Indicates that this Group's member field is tracked in ClickHouse.
  *
  * @param {Resource} doc - The Group resource being saved
- * @param {Object|null} contextData - Context data with useExternalMemberStorage flag
+ * @param {Object|null} contextData - Context data with useExternalStorage flag
  */
 function addExternalStorageTagIfNeeded(doc, contextData) {
-    if (!contextData?.useExternalMemberStorage || doc.resourceType !== 'Group') {
+    if (!contextData?.useExternalStorage || doc.resourceType !== 'Group') {
         return;
     }
 
@@ -55,7 +55,7 @@ function addExternalStorageTagIfNeeded(doc, contextData) {
  * @param {Object|null} contextData - Context data with flags
  */
 function stripMembersIfNeeded(doc, contextData) {
-    if (contextData?.useExternalMemberStorage &&
+    if (contextData?.useExternalStorage &&
         !contextData?.groupMemberEventsWritten &&
         !contextData?.smartMerge &&
         doc.resourceType === 'Group') {
@@ -68,9 +68,14 @@ function stripMembersIfNeeded(doc, contextData) {
  * Called from both DatabaseBulkInserter and FastDatabaseBulkInserter after preSaveManager runs.
  *
  * @param {Resource} doc - The Group resource being saved
- * @param {Object|null} contextData - Context data with useExternalMemberStorage and other flags
+ * @param {Object|null} contextData - Context data with useExternalStorage and other flags
+ * @param {Object} configManager - ConfigManager instance to check ClickHouse enablement
  */
-function handleClickHouseGroupPreSave(doc, contextData) {
+function handleClickHouseGroupPreSave(doc, contextData, configManager) {
+    if (!configManager?.enableClickHouse ||
+        !configManager?.mongoWithClickHouseResources?.includes(doc.resourceType)) {
+        return;
+    }
     addExternalStorageTagIfNeeded(doc, contextData);
     stripMembersIfNeeded(doc, contextData);
 }

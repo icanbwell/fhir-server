@@ -38,9 +38,11 @@ const PATCH_OPERATIONS = {
  * JSON Patch operation paths for Group resources
  */
 const PATCH_PATHS = {
-    /** Path prefix for member operations */
+    /** Path prefix for detecting member operations (used with startsWith) */
     MEMBER_PREFIX: '/member',
-    /** Path for appending to member array */
+    /** Valid path for member add/remove operations */
+    MEMBER_PATH: '/member/',
+    /** Valid path for member add/remove operations (append syntax) */
     MEMBER_APPEND: '/member/-'
 };
 

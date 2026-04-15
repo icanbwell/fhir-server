@@ -12,13 +12,13 @@ const {
  * Default FHIR Behavior Test Suite
  *
  * Verifies that when ClickHouse IS enabled (env vars set) but the
- * useExternalMemberStorage header is ABSENT, Groups behave as standard FHIR:
+ * useExternalStorage header is ABSENT, Groups behave as standard FHIR:
  * - Members stored inline in MongoDB
  * - Members returned in GET responses
  * - No ClickHouse events written
  * - Standard JSON Patch works on member array
  */
-describe('Group default FHIR behavior (no useExternalMemberStorage header)', () => {
+describe('Group default FHIR behavior (no useExternalStorage header)', () => {
     beforeAll(async () => {
         await setupGroupTests();
     });

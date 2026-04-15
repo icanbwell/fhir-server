@@ -2,7 +2,7 @@ const { BadRequestError } = require('../../../utils/httpErrors');
 const { PATCH_PATHS, PATCH_OPERATIONS } = require('../../../constants/groupConstants');
 const { createTooCostlyError } = require('../../../utils/fhirErrorFactory');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const { buildContextDataForHybridStorage, USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
+const { buildContextDataForHybridStorage, USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { isTrue } = require('../../../utils/isTrue');
 const { enrichMemberReferences } = require('../../../utils/referenceEnricher');
 
@@ -53,7 +53,7 @@ class GroupMemberPatchStrategy {
             return null;
         }
 
-        if (!isTrue(requestInfo?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER])) {
+        if (!isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER])) {
             return null; // Use standard FHIR PATCH flow
         }
 
@@ -132,14 +132,30 @@ class GroupMemberPatchStrategy {
         const eventsToRemove = [];
 
         for (const op of memberOperations) {
-            if (op.op === PATCH_OPERATIONS.ADD && op.path === PATCH_PATHS.MEMBER_APPEND) {
+            const isValidMemberPath = op.path === PATCH_PATHS.MEMBER_PATH || op.path === PATCH_PATHS.MEMBER_APPEND;
+
+            // Validate required fields before accessing them
+            if (isValidMemberPath && !op.value?.entity?.reference) {
+                throw new BadRequestError({
+                    message: `Missing required value.entity.reference in PATCH operation: ${JSON.stringify(op)}`,
+                    toString: function () { return this.message; }
+                }, {
+                    issue: [new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'required',
+                        diagnostics: 'Each member PATCH operation must include value.entity.reference'
+                    })]
+                });
+            }
+
+            if (op.op === PATCH_OPERATIONS.ADD && isValidMemberPath) {
                 // RFC 6902: path "/member/-" means append to member array
                 eventsToAdd.push({
                     entity: op.value.entity,
                     period: op.value.period,
                     inactive: op.value.inactive || false
                 });
-            } else if (op.op === PATCH_OPERATIONS.REMOVE && op.path === PATCH_PATHS.MEMBER_PREFIX && op.value?.entity) {
+            } else if (op.op === PATCH_OPERATIONS.REMOVE && isValidMemberPath) {
                 // Server-side extension: remove member by entity reference
                 // Creates MEMBER_REMOVED event in ClickHouse event log
                 // Note: This is a pragmatic extension for event sourcing (not standard RFC 6902)
@@ -152,9 +168,10 @@ class GroupMemberPatchStrategy {
                 // UNSUPPORTED: remove by index (e.g., /member/0)
                 // Would require reading current state to resolve index
                 const message = `Unsupported PATCH operation on Group.member: ${op.op} ${op.path}. ` +
+                    `Supported paths: "${PATCH_PATHS.MEMBER_PATH}" or "${PATCH_PATHS.MEMBER_APPEND}". ` +
                     `Supported operations: ` +
                     `1) Add member: {"op":"add","path":"${PATCH_PATHS.MEMBER_APPEND}","value":{"entity":{"reference":"Patient/123"}}} ` +
-                    `2) Remove member: {"op":"remove","path":"${PATCH_PATHS.MEMBER_PREFIX}","value":{"entity":{"reference":"Patient/123"}}}`;
+                    `2) Remove member: {"op":"remove","path":"${PATCH_PATHS.MEMBER_APPEND}","value":{"entity":{"reference":"Patient/123"}}}`;
                 throw new BadRequestError({
                     message,
                     toString: function () {

@@ -4,9 +4,9 @@ const { DatabaseCursor } = require('../../../../dataLayer/databaseCursor');
 const { STORAGE_PROVIDER_TYPES } = require('../../../../dataLayer/providers/storageProviderTypes');
 const { QueryFragments } = require('../../../../utils/clickHouse/queryFragments');
 const { QueryParser } = require('../../../../dataLayer/providers/mongoWithClickHouse/queryParser');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../../utils/contextDataBuilder');
 
-const extraInfoWithHeader = { headers: { [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' } };
+const extraInfoWithHeader = { headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' } };
 
 describe('MongoWithClickHouseStorageProvider', () => {
     let provider;
