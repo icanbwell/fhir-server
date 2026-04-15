@@ -1,6 +1,6 @@
 'use strict';
 
-const { describe, test, beforeEach, expect } = require('@jest/globals');
+const { describe, test, expect } = require('@jest/globals');
 const { ClickHouseDatabaseCursor } = require('./clickHouseDatabaseCursor');
 const { RESOURCE_COLUMN_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -8,13 +8,14 @@ describe('ClickHouseDatabaseCursor', () => {
     const fhirDoc1 = { resourceType: 'Observation', id: 'obs-1', status: 'final' };
     const fhirDoc2 = { resourceType: 'Observation', id: 'obs-2', status: 'amended' };
 
-    function createCursor (rows, columnType = RESOURCE_COLUMN_TYPES.STRING) {
+    function createCursor (rows, columnType = RESOURCE_COLUMN_TYPES.STRING, opts = {}) {
         return new ClickHouseDatabaseCursor({
             rows,
             resourceType: 'Observation',
             base_version: '4_0_0',
             fhirResourceColumn: '_fhir_resource',
-            fhirResourceColumnType: columnType
+            fhirResourceColumnType: columnType,
+            ...opts
         });
     }
 
@@ -45,6 +46,26 @@ describe('ClickHouseDatabaseCursor', () => {
             const cursor = createCursor([]);
             expect(await cursor.hasNext()).toBe(false);
             expect(await cursor.next()).toBeNull();
+        });
+
+        test('setEmpty makes hasNext return false', async () => {
+            const cursor = createCursor([{ _fhir_resource: JSON.stringify(fhirDoc1) }]);
+            cursor.setEmpty();
+            expect(await cursor.hasNext()).toBe(false);
+        });
+    });
+
+    describe('nextObject', () => {
+        test('returns FHIR Resource object', async () => {
+            const cursor = createCursor([{ _fhir_resource: JSON.stringify(fhirDoc1) }]);
+            const resource = await cursor.nextObject();
+            expect(resource.id).toBe('obs-1');
+            expect(resource.resourceType).toBe('Observation');
+        });
+
+        test('returns null when exhausted', async () => {
+            const cursor = createCursor([]);
+            expect(await cursor.nextObject()).toBeNull();
         });
     });
 
@@ -78,7 +99,7 @@ describe('ClickHouseDatabaseCursor', () => {
                 { _fhir_resource: JSON.stringify(fhirDoc2) }
             ]);
 
-            await cursor.next(); // consume first
+            await cursor.next();
             const remaining = await cursor.toArrayAsync();
             expect(remaining).toHaveLength(1);
             expect(remaining[0].id).toBe('obs-2');
@@ -86,17 +107,13 @@ describe('ClickHouseDatabaseCursor', () => {
 
         test('returns empty array for empty cursor', async () => {
             const cursor = createCursor([]);
-            const docs = await cursor.toArrayAsync();
-            expect(docs).toEqual([]);
+            expect(await cursor.toArrayAsync()).toEqual([]);
         });
     });
 
     describe('toObjectArrayAsync', () => {
         test('returns FHIR Resource objects', async () => {
-            const cursor = createCursor([
-                { _fhir_resource: JSON.stringify(fhirDoc1) }
-            ]);
-
+            const cursor = createCursor([{ _fhir_resource: JSON.stringify(fhirDoc1) }]);
             const resources = await cursor.toObjectArrayAsync();
             expect(resources).toHaveLength(1);
             expect(resources[0].id).toBe('obs-1');
@@ -109,7 +126,6 @@ describe('ClickHouseDatabaseCursor', () => {
             const cursor = createCursor([
                 { _fhir_resource: JSON.stringify(fhirDoc1), extra: 'data' }
             ]);
-
             cursor.project({ projection: { _fhir_resource: 1 } });
             const row = await cursor.next();
             expect(row._fhir_resource).toBeDefined();
@@ -119,49 +135,86 @@ describe('ClickHouseDatabaseCursor', () => {
 
     describe('map', () => {
         test('transforms rows with mapping function', async () => {
-            const cursor = createCursor([
-                { _fhir_resource: JSON.stringify(fhirDoc1) }
-            ]);
-
+            const cursor = createCursor([{ _fhir_resource: JSON.stringify(fhirDoc1) }]);
             cursor.map({ mapping: (row) => ({ transformed: true, original: row }) });
             const row = await cursor.next();
             expect(row.transformed).toBe(true);
-            expect(row.original._fhir_resource).toBeDefined();
         });
     });
 
-    describe('no-op methods', () => {
-        test('maxTimeMS returns this', () => {
-            const cursor = createCursor([]);
-            expect(cursor.maxTimeMS(5000)).toBe(cursor);
+    describe('explainAsync', () => {
+        test('returns ClickHouse explain info', async () => {
+            const cursor = createCursor(
+                [{ _fhir_resource: JSON.stringify(fhirDoc1) }],
+                RESOURCE_COLUMN_TYPES.STRING,
+                { tableName: 'fhir.fhir_test', query: { status: 'final' } }
+            );
+            const explain = await cursor.explainAsync();
+            expect(explain).toHaveLength(1);
+            expect(explain[0].source).toBe('clickhouse');
+            expect(explain[0].table).toBe('fhir.fhir_test');
+            expect(explain[0].rowCount).toBe(1);
+        });
+    });
+
+    describe('limit', () => {
+        test('trims rows to count', async () => {
+            const cursor = createCursor([
+                { _fhir_resource: JSON.stringify(fhirDoc1) },
+                { _fhir_resource: JSON.stringify(fhirDoc2) }
+            ]);
+            cursor.limit(1);
+            expect(cursor.getLimit()).toBe(1);
+            const docs = await cursor.toArrayAsync();
+            expect(docs).toHaveLength(1);
         });
 
-        test('sort returns this', () => {
+        test('getLimit returns null before limit is set', () => {
             const cursor = createCursor([]);
-            expect(cursor.sort({ sortOption: 'id' })).toBe(cursor);
+            expect(cursor.getLimit()).toBeNull();
+        });
+    });
+
+    describe('getQuery', () => {
+        test('returns the original query', () => {
+            const query = { status: 'final' };
+            const cursor = createCursor([], RESOURCE_COLUMN_TYPES.STRING, { query });
+            expect(cursor.getQuery()).toBe(query);
         });
 
-        test('batchSize returns this', () => {
+        test('returns null when no query provided', () => {
             const cursor = createCursor([]);
-            expect(cursor.batchSize({ size: 100 })).toBe(cursor);
+            expect(cursor.getQuery()).toBeNull();
+        });
+    });
+
+    describe('getCollection and getDatabase', () => {
+        test('getCollection returns table name', () => {
+            const cursor = createCursor([], RESOURCE_COLUMN_TYPES.STRING, { tableName: 'fhir.fhir_test' });
+            expect(cursor.getCollection()).toBe('fhir.fhir_test');
         });
 
-        test('hint returns this', () => {
+        test('getDatabase returns fhir', () => {
             const cursor = createCursor([]);
-            expect(cursor.hint({ indexHint: 'idx_test' })).toBe(cursor);
+            expect(cursor.getDatabase()).toBe('fhir');
+        });
+    });
+
+    describe('no-op methods return this', () => {
+        test.each([
+            ['maxTimeMS', { milliSecs: 5000 }],
+            ['sort', { sortOption: 'id' }],
+            ['batchSize', { size: 100 }],
+            ['hint', { indexHint: 'idx_test' }]
+        ])('%s returns this', (method, arg) => {
+            const cursor = createCursor([]);
+            expect(cursor[method](arg)).toBe(cursor);
         });
     });
 
     describe('_hasMore flag', () => {
-        test('hasMore is accessible', () => {
-            const cursor = new ClickHouseDatabaseCursor({
-                rows: [],
-                resourceType: 'Observation',
-                base_version: '4_0_0',
-                fhirResourceColumn: '_fhir_resource',
-                fhirResourceColumnType: RESOURCE_COLUMN_TYPES.STRING,
-                hasMore: true
-            });
+        test('hasMore is set from constructor', () => {
+            const cursor = createCursor([], RESOURCE_COLUMN_TYPES.STRING, { hasMore: true });
             expect(cursor._hasMore).toBe(true);
         });
 

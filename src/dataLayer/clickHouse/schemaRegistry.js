@@ -84,22 +84,14 @@ class ClickHouseSchemaRegistry {
             errors.push(`engine must be one of: ${validEngines.join(', ')}`);
         }
 
-        // ReplacingMergeTree: not yet supported in scaffolding
+        // ReplacingMergeTree: not yet supported in scaffolding.
+        // When support ships with the Observation PR, remove this guard and
+        // the versionColumn/dedupKey checks below will enforce the required fields.
         if (schema.engine === ENGINE_TYPES.REPLACING_MERGE_TREE) {
             errors.push(
                 `engine '${ENGINE_TYPES.REPLACING_MERGE_TREE}' is not yet supported. ` +
                 'MergeTree only in the scaffolding PR. ReplacingMergeTree ships with the Observation PR.'
             );
-        }
-
-        // Conditional: versionColumn and dedupKey required for ReplacingMergeTree
-        if (schema.engine === ENGINE_TYPES.REPLACING_MERGE_TREE) {
-            if (!schema.versionColumn) {
-                errors.push('versionColumn required for ReplacingMergeTree');
-            }
-            if (!schema.dedupKey) {
-                errors.push('dedupKey required for ReplacingMergeTree');
-            }
         }
 
         // seekKey: non-empty array

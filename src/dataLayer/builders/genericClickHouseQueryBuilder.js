@@ -237,7 +237,7 @@ class GenericClickHouseQueryBuilder {
                 for (const sub of condition.conditions) {
                     const { clause, paramName } = this._conditionToSql(sub, paramIndex++);
                     orParts.push(clause);
-                    params[paramName] = sub.value;
+                    params[paramName] = this._coerceValue(sub);
                 }
                 if (orParts.length > 0) {
                     whereClauses.push(`(${orParts.join(' OR ')})`);

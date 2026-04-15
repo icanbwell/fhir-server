@@ -56,20 +56,16 @@ class ClickHouseStorageProvider extends StorageProvider {
             }
         });
 
-        const cursor = new ClickHouseDatabaseCursor({
+        return new ClickHouseDatabaseCursor({
             rows,
             resourceType: this.resourceType,
             base_version: '4_0_0',
             fhirResourceColumn: schema.fhirResourceColumn,
             fhirResourceColumnType: schema.fhirResourceColumnType,
-            hasMore
+            hasMore,
+            query,
+            tableName: schema.tableName
         });
-
-        if (hasMore) {
-            cursor._hasMore = true;
-        }
-
-        return cursor;
     }
 
     /**

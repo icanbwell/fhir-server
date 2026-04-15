@@ -22,6 +22,8 @@ class ClickHouseDatabaseCursor {
      * @param {string} params.fhirResourceColumn - Column name holding the FHIR JSON
      * @param {string} params.fhirResourceColumnType - 'string' or 'json'
      * @param {boolean} [params.hasMore=false] - Whether more results exist beyond this page
+     * @param {Object} [params.query=null] - Original query for debugging/explain
+     * @param {string} [params.tableName=''] - Table name for debugging/explain
      */
     constructor ({
         rows,
@@ -29,7 +31,9 @@ class ClickHouseDatabaseCursor {
         base_version,
         fhirResourceColumn,
         fhirResourceColumnType,
-        hasMore = false
+        hasMore = false,
+        query = null,
+        tableName = ''
     }) {
         /** @type {Object[]} */
         this._rows = rows || [];
@@ -45,6 +49,14 @@ class ClickHouseDatabaseCursor {
         this._fhirResourceColumnType = fhirResourceColumnType;
         /** @type {boolean} */
         this._hasMore = hasMore;
+        /** @type {number|null} */
+        this._limit = null;
+        /** @type {boolean} */
+        this._empty = false;
+        /** @type {Object|null} */
+        this.query = query;
+        /** @type {string} */
+        this._tableName = tableName;
     }
 
     /**
@@ -52,7 +64,6 @@ class ClickHouseDatabaseCursor {
      * @return {ClickHouseDatabaseCursor}
      */
     maxTimeMS (milliSecs) {
-        // No-op for ClickHouse — timeout is set at query execution time
         return this;
     }
 
@@ -60,6 +71,7 @@ class ClickHouseDatabaseCursor {
      * @returns {Promise<boolean>}
      */
     async hasNext () {
+        if (this._empty) return false;
         return this._index < this._rows.length;
     }
 
@@ -138,7 +150,7 @@ class ClickHouseDatabaseCursor {
     }
 
     /**
-     * Sort — no-op for ClickHouse cursor (sorting done in SQL).
+     * Sort — no-op (sorting done in SQL).
      * @param {{ sortOption: * }} params
      * @return {ClickHouseDatabaseCursor}
      */
@@ -147,7 +159,7 @@ class ClickHouseDatabaseCursor {
     }
 
     /**
-     * Batch size — no-op for ClickHouse cursor (all rows already fetched).
+     * Batch size — no-op (all rows already fetched).
      * @param {{ size: number }} params
      * @return {ClickHouseDatabaseCursor}
      */
@@ -156,12 +168,76 @@ class ClickHouseDatabaseCursor {
     }
 
     /**
-     * Hint — no-op for ClickHouse cursor (indexes managed by ClickHouse).
+     * Hint — no-op (indexes managed by ClickHouse engine).
      * @param {{ indexHint: string|null }} params
      * @return {ClickHouseDatabaseCursor}
      */
     hint ({ indexHint }) {
         return this;
+    }
+
+    /**
+     * Returns query plan information.
+     * ClickHouse equivalent of MongoDB explain.
+     * @return {Promise<Object[]>}
+     */
+    async explainAsync () {
+        return [{
+            source: 'clickhouse',
+            table: this._tableName,
+            query: this.query,
+            rowCount: this._rows.length,
+            note: 'ClickHouse query plan not available via this interface'
+        }];
+    }
+
+    /**
+     * Marks cursor as empty so hasNext returns false.
+     */
+    setEmpty () {
+        this._empty = true;
+    }
+
+    /**
+     * Returns the original query.
+     * @return {Object|null}
+     */
+    getQuery () {
+        return this.query;
+    }
+
+    /**
+     * Sets result limit. For ClickHouse cursor this trims the in-memory rows.
+     * @param {number} count
+     * @return {ClickHouseDatabaseCursor}
+     */
+    limit (count) {
+        this._limit = count;
+        this._rows = this._rows.slice(0, count);
+        return this;
+    }
+
+    /**
+     * @returns {number|null}
+     */
+    getLimit () {
+        return this._limit;
+    }
+
+    /**
+     * Returns the table name (ClickHouse equivalent of MongoDB collection).
+     * @return {string}
+     */
+    getCollection () {
+        return this._tableName;
+    }
+
+    /**
+     * Returns the database name.
+     * @return {string}
+     */
+    getDatabase () {
+        return 'fhir';
     }
 
     /**
@@ -177,11 +253,9 @@ class ClickHouseDatabaseCursor {
         if (!rawValue) return row;
 
         if (this._fhirResourceColumnType === RESOURCE_COLUMN_TYPES.JSON) {
-            // Native ClickHouse JSON — already a parsed object
             return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
         }
 
-        // String column — opaque JSON blob, needs parsing
         return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
     }
 }

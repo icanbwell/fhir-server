@@ -137,13 +137,22 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
         // Post-save: no history (append-only), fireChangeEvents from schema
         if (!bulkError && schema.fireChangeEvents) {
             for (const entry of operations) {
-                await this.postSaveProcessor.afterSaveAsync({
-                    requestId: requestInfo.requestId,
-                    eventType: entry.isCreateOperation ? 'C' : 'U',
-                    resourceType,
-                    doc: entry.resource,
-                    contextData: entry.contextData
-                });
+                try {
+                    await this.postSaveProcessor.afterSaveAsync({
+                        requestId: requestInfo.requestId,
+                        eventType: entry.isCreateOperation ? 'C' : 'U',
+                        resourceType,
+                        doc: entry.resource,
+                        contextData: entry.contextData
+                    });
+                } catch (postSaveErr) {
+                    logError('ClickHouseBulkWriteExecutor: change event failed', {
+                        error: postSaveErr.message,
+                        resourceType,
+                        id: entry.id,
+                        requestId: requestInfo.requestId
+                    });
+                }
             }
         }
 
