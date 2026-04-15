@@ -36,7 +36,7 @@
                         },
                         {
                             "id": "level3-a1-sensitive",
-                            "title": "Sensitive Diagnosis Details",
+                            "title": "Diagnosis Notes",
                             "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "SUBSTANCE_ABUSE" }] }
                         }
                     ]
@@ -48,7 +48,7 @@
                     "section": [
                         {
                             "id": "level3-a2-sensitive",
-                            "title": "Sensitive Procedure Details",
+                            "title": "Procedure Notes",
                             "code": { "coding": [{ "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }] }
                         },
                         {

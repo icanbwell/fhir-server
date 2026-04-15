@@ -11,16 +11,16 @@ describe('Composition Section Filter — Fixture Tests', () => {
 
         filterCompositionSensitiveSections(composition);
 
-        // Top-level: 'Sensitive Top Level' removed, 2 remain
+        // Top-level: 'Top Level Care Notes' removed, 2 remain
         expect(composition.section).toHaveLength(2);
         expect(composition.section[0].title).toBe('Normal Section 1');
         expect(composition.section[1].title).toBe('Normal Section 2');
 
-        // Nested: 'Nested Sensitive' removed from first section's children
+        // Nested: 'Nested Care Notes' removed from first section's children
         expect(composition.section[0].section).toHaveLength(1);
         expect(composition.section[0].section[0].title).toBe('Nested Normal');
 
-        // Deep: 'Deep Sensitive' removed, only 'Deep Normal' remains
+        // Deep: 'Deep Care Notes' removed, only 'Deep Normal' remains
         expect(composition.section[0].section[0].section).toHaveLength(1);
         expect(composition.section[0].section[0].section[0].title).toBe('Deep Normal');
     });
@@ -46,9 +46,9 @@ describe('Composition Section Filter — Fixture Tests', () => {
         collectSensitive(composition.section);
 
         expect(sensitiveSections).toEqual([
-            'Deep Sensitive',
-            'Nested Sensitive',
-            'Sensitive Top Level'
+            'Deep Care Notes',
+            'Nested Care Notes',
+            'Top Level Care Notes'
         ]);
 
         // After filtering, none should remain

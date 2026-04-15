@@ -78,7 +78,7 @@
                         },
                         {
                             "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
-                            "title": "Deep Sensitive",
+                            "title": "Deep Care Notes",
                             "code": {
                                 "coding": [
                                     {
@@ -92,7 +92,7 @@
                 },
                 {
                     "id": "a7b8c9d0-e1f2-3456-abcd-567890123456",
-                    "title": "Nested Sensitive",
+                    "title": "Nested Care Notes",
                     "code": {
                         "coding": [
                             {
@@ -106,7 +106,7 @@
         },
         {
             "id": "b8c9d0e1-f2a3-4567-bcde-678901234567",
-            "title": "Sensitive Top Level",
+            "title": "Top Level Care Notes",
             "code": {
                 "coding": [
                     {

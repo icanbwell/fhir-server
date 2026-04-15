@@ -19,7 +19,7 @@
                     },
                     {
                         "id": "sensitive-1",
-                        "title": "Substance Abuse History",
+                        "title": "Treatment History",
                         "code": {
                             "coding": [
                                 {
@@ -45,7 +45,7 @@
                     },
                     {
                         "id": "sensitive-2",
-                        "title": "Mental Health Notes",
+                        "title": "Behavioral Health Notes",
                         "code": {
                             "coding": [
                                 {
@@ -58,7 +58,7 @@
                     },
                     {
                         "id": "sensitive-3",
-                        "title": "Reproductive Health",
+                        "title": "Family Planning",
                         "code": {
                             "coding": [
                                 {

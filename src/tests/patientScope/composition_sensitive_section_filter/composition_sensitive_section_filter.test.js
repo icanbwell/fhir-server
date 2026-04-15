@@ -20,6 +20,7 @@ const compositionNoSensitive = require('./fixtures/Composition/compositionNoSens
 const compositionTopLevelSensitive = require('./fixtures/Composition/compositionTopLevelSensitive.json');
 const compositionNestedSensitive = require('./fixtures/Composition/compositionNestedSensitive.json');
 const compositionDeepSensitive = require('./fixtures/Composition/compositionDeepSensitive.json');
+const compositionAllSensitive = require('./fixtures/Composition/compositionAllSensitive.json');
 
 // Expected responses — REST
 const expectedRestSearchDelegated = require('./fixtures/expected/rest_search_delegated.json');
@@ -28,6 +29,7 @@ const expectedSearchByIdDelegatedNoSensitive = require('./fixtures/expected/rest
 const expectedSearchByIdDelegatedTopLevel = require('./fixtures/expected/rest_searchById_delegated_top_level.json');
 const expectedSearchByIdDelegatedNested = require('./fixtures/expected/rest_searchById_delegated_nested.json');
 const expectedSearchByIdDelegatedDeep = require('./fixtures/expected/rest_searchById_delegated_deep.json');
+const expectedSearchByIdDelegatedAllSensitive = require('./fixtures/expected/rest_searchById_delegated_all_sensitive.json');
 const expectedSearchByIdNonDelegatedTopLevel = require('./fixtures/expected/rest_searchById_non_delegated_top_level.json');
 
 // Expected responses — GraphQL
@@ -220,6 +222,27 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .set(getHeadersWithCustomPayload(delegatedPayload));
 
         expect(resp).toHaveResponse(expectedSearchByIdDelegatedDeep);
+    });
+
+    test('REST searchById: delegated user — all top-level sections classified, section property removed', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request);
+
+        // Seed the all-sensitive composition separately so it doesn't affect other tests
+        const mergeResp = await request
+            .post('/4_0_0/Composition/1/$merge?validate=true')
+            .send(compositionAllSensitive)
+            .set(getHeaders());
+        expect(mergeResp).toHaveMergeResponse({ created: true });
+
+        const resp = await request
+            .get('/4_0_0/Composition/comp-all-sensitive')
+            .set(getHeadersWithCustomPayload(delegatedPayload));
+
+        expect(resp).toHaveResponse(expectedSearchByIdDelegatedAllSensitive);
     });
 
     test('REST searchById: non-delegated user sees all sections unfiltered', async () => {

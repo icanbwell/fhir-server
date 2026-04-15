@@ -95,7 +95,7 @@
                             },
                             {
                                 "id": "p1-child-sensitive",
-                                "title": "Sensitive Allergy Details",
+                                "title": "Allergy Notes",
                                 "code": {
                                     "coding": [
                                         {
@@ -136,7 +136,7 @@
                             },
                             {
                                 "id": "p2-child-sensitive",
-                                "title": "Sensitive Medication Details",
+                                "title": "Medication Notes",
                                 "code": {
                                     "coding": [
                                         {
@@ -177,7 +177,7 @@
                         "section": [
                             {
                                 "id": "p3-child-sensitive",
-                                "title": "Sensitive Problem Details",
+                                "title": "Condition Notes",
                                 "code": {
                                     "coding": [
                                         {
@@ -257,7 +257,7 @@
                             },
                             {
                                 "id": "p4-child-sensitive",
-                                "title": "Sensitive Immunization Details",
+                                "title": "Immunization Records",
                                 "code": {
                                     "coding": [
                                         {
@@ -298,7 +298,7 @@
                             },
                             {
                                 "id": "p5-child-sensitive",
-                                "title": "Sensitive Vital Signs",
+                                "title": "Heart Rate Trends",
                                 "code": {
                                     "coding": [
                                         {
@@ -556,7 +556,7 @@
                     },
                     {
                         "id": "sensitive-1",
-                        "title": "Substance Abuse History",
+                        "title": "Treatment History",
                         "code": {
                             "coding": [
                                 {
@@ -582,7 +582,7 @@
                     },
                     {
                         "id": "sensitive-2",
-                        "title": "Mental Health Notes",
+                        "title": "Behavioral Health Notes",
                         "code": {
                             "coding": [
                                 {
@@ -595,7 +595,7 @@
                     },
                     {
                         "id": "sensitive-3",
-                        "title": "Reproductive Health",
+                        "title": "Family Planning",
                         "code": {
                             "coding": [
                                 {
@@ -736,7 +736,7 @@
                                     },
                                     {
                                         "id": "level3-a1-sensitive",
-                                        "title": "Sensitive Diagnosis Details",
+                                        "title": "Diagnosis Notes",
                                         "code": {
                                             "coding": [
                                                 {
@@ -764,7 +764,7 @@
                                 "section": [
                                     {
                                         "id": "level3-a2-sensitive",
-                                        "title": "Sensitive Procedure Details",
+                                        "title": "Procedure Notes",
                                         "code": {
                                             "coding": [
                                                 {
