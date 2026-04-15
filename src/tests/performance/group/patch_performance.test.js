@@ -20,8 +20,12 @@ const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 describe('PATCH Performance Testing', () => {
     let clickHouseManager;
@@ -82,7 +86,7 @@ describe('PATCH Performance Testing', () => {
                             ]
                         }
                     })
-                    .set(getHeaders());
+                    .set(getHeadersWithExternalStorage());
 
                 // Build PATCH operations
                 const operations = Array.from({ length: numOps }, (_, i) => ({
@@ -99,7 +103,7 @@ describe('PATCH Performance Testing', () => {
                     .patch(`/4_0_0/Group/${groupId}`)
                     .set('Content-Type', 'application/json-patch+json')
                     .send(operations)
-                    .set(getHeaders());
+                    .set(getHeadersWithExternalStorage());
 
                 const responseTime = Date.now() - startTime;
                 const memAfter = process.memoryUsage().heapUsed / 1024 / 1024; // MB
@@ -112,7 +116,7 @@ describe('PATCH Performance Testing', () => {
                     query: `SELECT count() as count
                             FROM (
                                 SELECT entity_reference
-                                FROM fhir.fhir_group_member_events
+                                FROM fhir.Group_4_0_0_MemberEvents
                                 WHERE group_id = {groupId:String}
                                 GROUP BY entity_reference
                                 HAVING argMax(event_type, (event_time, event_id)) = 'added'

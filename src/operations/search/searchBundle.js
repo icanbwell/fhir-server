@@ -118,7 +118,8 @@ class SearchBundleOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'search';
         const extraInfo = {
-            currentOperationName
+            currentOperationName,
+            headers: requestInfo.headers
         };
         /**
          * @type {number}

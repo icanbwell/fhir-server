@@ -4,6 +4,7 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { OPERATION_TYPES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { GroupMemberEventBuilder } = require('../builders/groupMemberEventBuilder');
 const { GroupMemberDiffComputer } = require('../../domain/group/groupMemberDiffComputer');
+const { enrichMemberReferences } = require('../../utils/referenceEnricher');
 const { trace } = require('@opentelemetry/api');
 
 // Create OpenTelemetry tracer for Group operations
@@ -97,6 +98,10 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             return;
         }
 
+        if (!contextData?.useExternalMemberStorage) {
+            return;
+        }
+
         try {
             // Check if member events were already written (e.g., by PATCH operations)
             // PATCH writes events directly and sets this flag in contextData
@@ -177,7 +182,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 const docWithMembers = { ...doc, member: originalMembers };
 
                 // Always await - Groups require synchronous writes
-                await this._handleUpdateAsync(docWithMembers);
+                await this._handleUpdateAsync(docWithMembers, { smartMerge: contextData?.smartMerge });
 
                 logInfo('ClickHouse UPDATE events written', {
                     groupId: doc.id
@@ -222,7 +227,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             // To detect orphaned Groups after ClickHouse downtime:
             //
             // MongoDB: const mongoGroupIds = await db.collection('Group_4_0_0').distinct('id');
-            // ClickHouse: const chResult = await clickhouse.query('SELECT DISTINCT group_id FROM fhir.fhir_group_member_events');
+            // ClickHouse: const chResult = await clickhouse.query('SELECT DISTINCT group_id FROM fhir.Group_4_0_0_MemberEvents');
             // Orphans: mongoGroupIds.filter(id => !chResult.map(r => r.group_id).includes(id))
             //
             // This is better than swallowing the error (200 OK with silent data loss).
@@ -359,16 +364,26 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @returns {Promise<{added: number, removed: number, finalCount: number}>} Member change statistics
      * @private
      */
-    async _handleUpdateAsync(groupResource) {
+    async _handleUpdateAsync(groupResource, { smartMerge } = {}) {
         try {
             // Get current members from repository
             const currentReferences = await this._getCurrentMembers(groupResource.id);
 
             // Compute diff
-            const { additions, removals } = GroupMemberDiffComputer.compute(
+            const { additions, removals: computedRemovals } = GroupMemberDiffComputer.compute(
                 currentReferences,
                 groupResource.member
             );
+
+            // smartMerge=true: additions only (no removals from ClickHouse)
+            // smartMerge=false / PUT: full diff (additions + removals)
+            const removals = smartMerge ? [] : computedRemovals;
+
+            // Enrich removal references with _uuid and _sourceId
+            // GroupMemberDiffComputer creates bare { entity: { reference } } objects
+            // that lack the enriched fields required by GroupMemberEventBuilder
+            const sourceAssigningAuthority = groupResource._sourceAssigningAuthority;
+            enrichMemberReferences(removals, sourceAssigningAuthority);
 
             const currentCount = currentReferences.size;
             const finalCount = currentCount + additions.length - removals.length;
@@ -379,7 +394,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 removals: removals.length,
                 current: currentCount,
                 incoming: (groupResource.member || []).length,
-                finalCount
+                finalCount,
+                smartMerge
             });
 
             // Write combined events in single INSERT

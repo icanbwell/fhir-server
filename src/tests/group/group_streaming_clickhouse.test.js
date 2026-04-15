@@ -5,7 +5,14 @@ const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
+const fs = require('fs');
+const path = require('path');
+
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 /**
  * Streaming Tests for ClickHouse-enabled Groups
@@ -44,7 +51,7 @@ describe('Group Streaming with ClickHouse', () => {
         await clickHouseManager.getClientAsync();
 
         try {
-            await clickHouseManager.truncateTableAsync('fhir.fhir_group_member_events');
+            await clickHouseManager.truncateTableAsync('fhir.Group_4_0_0_MemberEvents');
         } catch (e) {
             // Ignore if table doesn't exist
         }
@@ -81,7 +88,7 @@ describe('Group Streaming with ClickHouse', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(response.status).toBe(201);
         return response.body;
@@ -120,7 +127,7 @@ describe('Group Streaming with ClickHouse', () => {
         const response = await request
             .get('/4_0_0/Group')
             .query({ 'member.entity._reference': 'Patient/streaming-patient-1', _total: 'accurate' })
-            .set(getHeaders())
+            .set(getHeadersWithExternalStorage())
             .expect(200);
 
         // With streaming enabled, response may be ndjson format
@@ -180,7 +187,7 @@ describe('Group Streaming with ClickHouse', () => {
         const response = await request
             .get('/4_0_0/Group')
             .query({ 'member.entity._reference': targetMember, _total: 'accurate' })
-            .set(getHeaders())
+            .set(getHeadersWithExternalStorage())
             .expect(200);
         const queryTime = Date.now() - startTime;
 
@@ -229,7 +236,7 @@ describe('Group Streaming with ClickHouse', () => {
         const streamResponse = await streamingRequest
             .get('/4_0_0/Group')
             .query({ 'member.entity._reference': targetMember, _total: 'accurate' })
-            .set(getHeaders())
+            .set(getHeadersWithExternalStorage())
             .expect(200);
         const streamTime = Date.now() - streamStart;
 
@@ -239,7 +246,7 @@ describe('Group Streaming with ClickHouse', () => {
         const normalResponse = await normalRequest
             .get('/4_0_0/Group')
             .query({ 'member.entity._reference': targetMember, _total: 'accurate' })
-            .set(getHeaders())
+            .set(getHeadersWithExternalStorage())
             .expect(200);
         const normalTime = Date.now() - normalStart;
 
@@ -275,7 +282,7 @@ describe('Group Streaming with ClickHouse', () => {
         const response = await request
             .get('/4_0_0/Group')
             .query({ 'member.entity._reference': memberRef, _count: 10 })
-            .set(getHeaders())
+            .set(getHeadersWithExternalStorage())
             .expect(200);
 
         // Check response format

@@ -1,6 +1,6 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
-const { ClickHouseGroupHandler } = require('./clickHouseGroupHandler');
-const { OPERATION_TYPES } = require('../../constants/clickHouseConstants');
+const { ClickHouseGroupHandler } = require('../../../../dataLayer/postSaveHandlers/clickHouseGroupHandler');
+const { OPERATION_TYPES } = require('../../../../constants/clickHouseConstants');
 const httpContext = require('express-http-context');
 
 // Mock httpContext
@@ -84,7 +84,11 @@ describe('ClickHouseGroupHandler', () => {
         test('should process Group save when configured', async () => {
             const groupId = 'group-1';
             const members = [{
-                entity: { reference: 'Patient/patient-1' }
+                entity: {
+                    reference: 'Patient/patient-1',
+                    _uuid: 'Patient/uuid-patient-1',
+                    _sourceId: 'Patient/patient-1'
+                }
             }];
 
             await handler.afterSaveAsync({
@@ -105,6 +109,7 @@ describe('ClickHouseGroupHandler', () => {
                     }
                 },
                 contextData: {
+                    useExternalMemberStorage: true,
                     groupMembers: members,
                     resourceType: 'Group',
                     resourceId: 'group-1'
@@ -117,7 +122,11 @@ describe('ClickHouseGroupHandler', () => {
         test('should propagate errors from ClickHouse', async () => {
             const groupId = 'group-1';
             const members = [{
-                entity: { reference: 'Patient/test' }
+                entity: {
+                    reference: 'Patient/test',
+                    _uuid: 'Patient/uuid-test',
+                    _sourceId: 'Patient/test'
+                }
             }];
 
             // Mock appendEvents to reject with error
@@ -139,6 +148,7 @@ describe('ClickHouseGroupHandler', () => {
                     }
                 },
                 contextData: {
+                    useExternalMemberStorage: true,
                     groupMembers: members,
                     resourceType: 'Group',
                     resourceId: groupId
@@ -169,7 +179,13 @@ describe('ClickHouseGroupHandler', () => {
 
         test('afterSaveAsync always blocks for Group writes', async () => {
             const groupId = 'group-1';
-            const members = [{ entity: { reference: 'Patient/1' } }];
+            const members = [{
+                entity: {
+                    reference: 'Patient/1',
+                    _uuid: 'Patient/uuid-1',
+                    _sourceId: 'Patient/1'
+                }
+            }];
 
             let writeCompleted = false;
             mockGroupMemberRepository.appendEvents.mockImplementation(async () => {
@@ -196,6 +212,7 @@ describe('ClickHouseGroupHandler', () => {
                     }
                 },
                 contextData: {
+                    useExternalMemberStorage: true,
                     groupMembers: members,
                     resourceType: 'Group',
                     resourceId: groupId

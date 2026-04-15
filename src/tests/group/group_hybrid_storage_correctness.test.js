@@ -20,8 +20,12 @@ const { describe, beforeAll, afterAll, test, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 // Save original env vars
 const ORIGINAL_ENABLE_CLICKHOUSE = process.env.ENABLE_CLICKHOUSE;
@@ -150,7 +154,7 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         const response = await request
             .post('/4_0_0/Group')
             .send(group)
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         const duration = Date.now() - startTime;
 
@@ -171,7 +175,7 @@ describe('Hybrid Storage Architecture - Correctness Test', () => {
         await new Promise(r => setTimeout(r, 2000)); // Wait for sync write
 
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${createdGroupId}' AND event_type = 'added'`
         });
 

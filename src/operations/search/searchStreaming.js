@@ -100,7 +100,8 @@ class SearchStreamingOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
         const extraInfo = {
-            currentOperationName
+            currentOperationName,
+            headers: requestInfo.headers
         };
         /**
          * @type {number}

@@ -203,7 +203,9 @@ class MergeManager {
                     requestInfo,
                     resourceToMerge: patched_resource_incoming,
                     previousVersionId: currentResource.meta.versionId,
-                    patches
+                    patches,
+                    smartMerge,
+                    currentMembers: currentResource.member
                 }
             );
             return null;
@@ -576,7 +578,9 @@ class MergeManager {
             requestInfo,
             resourceToMerge,
             previousVersionId,
-            patches
+            patches,
+            smartMerge,
+            currentMembers
         }
     ) {
         try {
@@ -588,8 +592,21 @@ class MergeManager {
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
-            // Insert/update our resource record
-            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge);
+            // Build contextData with merged members (for ClickHouse event processing)
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo, { smartMerge });
+
+            // For smartMerge=true with external storage:
+            // 1. Only track truly NEW members in ClickHouse (not existing MongoDB members)
+            // 2. Restore current MongoDB members on the resource so MongoDB keeps them intact
+            if (smartMerge && contextData?.useExternalMemberStorage && currentMembers) {
+                const currentRefs = new Set(
+                    (currentMembers || []).map(m => m.entity?.reference).filter(Boolean)
+                );
+                contextData.groupMembers = (resourceToMerge.member || []).filter(
+                    m => m.entity?.reference && !currentRefs.has(m.entity.reference)
+                );
+                resourceToMerge.member = currentMembers;
+            }
 
             await this.databaseBulkInserter.mergeOneAsync(
                 {
@@ -634,7 +651,7 @@ class MergeManager {
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
 
             // Insert/update our resource record
-            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge);
+            const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
 
             await this.databaseBulkInserter.insertOneAsync({
                     base_version,

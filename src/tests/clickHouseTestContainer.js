@@ -76,7 +76,7 @@ class ClickHouseTestContainer {
             let delay = 200;
 
             while (Date.now() - startTime < maxWaitMs) {
-                const exists = await manager.tableExistsAsync('fhir_group_member_events');
+                const exists = await manager.tableExistsAsync('Group_4_0_0_MemberEvents');
                 if (exists) {
                     await manager.closeAsync();
                     return;

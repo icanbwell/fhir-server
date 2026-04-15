@@ -380,7 +380,8 @@ describe('databaseBulkInserter Tests', () => {
                     {
                         groupMembers: [{ entity: { reference: 'Patient/1' } }],
                         resourceType: 'Group',
-                        resourceId: 'group-1'
+                        resourceId: 'group-1',
+                        useExternalMemberStorage: true
                     },
                     true
                 ],
@@ -454,9 +455,14 @@ describe('databaseBulkInserter Tests', () => {
                     const collection = `Group_${base_version}`;
                     const savedGroups = await fhirDb.collection(collection).find({ id: doc.id }).toArray();
                     expect(savedGroups.length).toBe(1);
-                    // Member array should be stripped (either [] or undefined, both mean no members in MongoDB)
-                    const member = savedGroups[0].member;
-                    expect(member === undefined || (Array.isArray(member) && member.length === 0)).toBe(true);
+                    // Member field should be deleted from MongoDB when useExternalMemberStorage is set
+                    expect(savedGroups[0].member).toBeUndefined();
+                    // externalStorageFields tag should be added to meta.tag
+                    const externalStorageTag = (savedGroups[0].meta.tag || []).find(
+                        t => t.system === 'https://www.icanbwell.com/externalStorageFields'
+                    );
+                    expect(externalStorageTag).toBeDefined();
+                    expect(externalStorageTag.code).toBe('member');
                 }
             });
         });

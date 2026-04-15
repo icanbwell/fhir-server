@@ -3,10 +3,9 @@ const {
     setupGroupTests,
     teardownGroupTests,
     cleanupAllData,
-    cleanupGroupData,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeaders
+    getTestHeadersWithExternalStorage
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -39,7 +38,7 @@ describe('Group Concurrency Tests', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         return response;
     }
@@ -62,7 +61,7 @@ describe('Group Concurrency Tests', () => {
                     ]
                 }
             })
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         return response;
     }
@@ -87,7 +86,7 @@ describe('Group Concurrency Tests', () => {
 
 
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${actualId}' AND entity_reference = '${memberRef}'`
         });
 
@@ -95,7 +94,7 @@ describe('Group Concurrency Tests', () => {
 
         const activeMembers = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${actualId}'
                     GROUP BY entity_reference
                     HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'`
@@ -125,7 +124,7 @@ describe('Group Concurrency Tests', () => {
 
         const activeMembers = await clickHouseManager.queryAsync({
             query: `SELECT entity_reference
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${actualId}'
                     GROUP BY entity_reference
                     HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'`
@@ -156,7 +155,7 @@ describe('Group Concurrency Tests', () => {
         expect(successCount).toBeGreaterThan(0);
 
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${actualId}'`
         });
 
@@ -181,7 +180,7 @@ describe('Group Concurrency Tests', () => {
         const request = getSharedRequest();
         const readPromise = request
             .get(`/4_0_0/Group/${actualId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         const [writeResult, readResult] = await Promise.all([writePromise, readPromise]);
 
@@ -206,7 +205,7 @@ describe('Group Concurrency Tests', () => {
         const request = getSharedRequest();
         const deletePromise = request
             .delete(`/4_0_0/Group/${actualId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         const updatePromise = updateGroup(actualId, [
             { entity: { reference: 'Patient/delete-test' } },
@@ -236,7 +235,7 @@ describe('Group Concurrency Tests', () => {
                 request
                     .get('/4_0_0/Group')
                     .query({ 'member.entity.reference': memberRef, _total: 'accurate' })
-                    .set(getTestHeaders())
+                    .set(getTestHeadersWithExternalStorage())
             );
         }
 
@@ -261,14 +260,14 @@ describe('Group Concurrency Tests', () => {
         const request = getSharedRequest();
         const deletePromise = request
             .delete(`/4_0_0/Group/${actualId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         // Small delay to let DELETE start but not finish
         await new Promise(r => setTimeout(r, 10));
 
         const readPromise = request
             .get(`/4_0_0/Group/${actualId}`)
-            .set(getTestHeaders());
+            .set(getTestHeadersWithExternalStorage());
 
         const [deleteResult, readResult] = await Promise.all([deletePromise, readPromise]);
 
@@ -309,7 +308,7 @@ describe('Group Concurrency Tests', () => {
                         value: { entity: { reference: `Patient/flood-${i}` } }
                     }
                 ])
-                .set(getTestHeaders())
+                .set(getTestHeadersWithExternalStorage())
                 .set('Content-Type', 'application/json-patch+json');
 
             patchPromises.push(patchPromise);
@@ -325,7 +324,7 @@ describe('Group Concurrency Tests', () => {
 
         // Verify all events were stored in ClickHouse
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.fhir_group_member_events
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${actualId}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
         });
 
@@ -335,7 +334,7 @@ describe('Group Concurrency Tests', () => {
         // Verify final state via argMax (handles duplicates and race conditions)
         const uniqueMembers = await clickHouseManager.queryAsync({
             query: `SELECT count(DISTINCT entity_reference) as count
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = '${actualId}'
                     GROUP BY group_id
                     HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'`
@@ -361,7 +360,7 @@ describe('Group Concurrency Tests', () => {
 
         // Insert events: same event_time, different event_id (tie-breaker scenario)
         await clickHouseManager.insertAsync({
-            table: 'fhir.fhir_group_member_events',
+            table: 'fhir.Group_4_0_0_MemberEvents',
             values: [
                 {
                     group_id: groupId,
@@ -429,7 +428,7 @@ describe('Group Concurrency Tests', () => {
             query: `SELECT
                         entity_reference,
                         argMax(event_type, (event_time, event_id)) as final_event_type
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String}
                     GROUP BY entity_reference`,
             query_params: { groupId }
@@ -443,7 +442,7 @@ describe('Group Concurrency Tests', () => {
         // Verify determinism - query again, should get same result
         const result2 = await clickHouseManager.queryAsync({
             query: `SELECT argMax(event_type, (event_time, event_id)) as final_event_type
-                    FROM fhir.fhir_group_member_events
+                    FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}
                     GROUP BY entity_reference`,
             query_params: { groupId, memberRef }

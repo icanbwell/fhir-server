@@ -22,8 +22,12 @@ const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals')
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
+const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
+function getHeadersWithExternalStorage() {
+    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+}
 
 describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
     let clickHouseManager;
@@ -43,9 +47,9 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             try {
-                await clickHouseManager.truncateTableAsync('fhir_group_member_current_by_entity');
-                await clickHouseManager.truncateTableAsync('fhir_group_member_current');
-                await clickHouseManager.truncateTableAsync('fhir_group_member_events');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrentByEntity');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrent');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberEvents');
 
                 const { createTestContainer } = require('../../createTestContainer');
                 const container = createTestContainer();
@@ -100,7 +104,7 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
                     ]
                 }
             })
-            .set(getHeaders());
+            .set(getHeadersWithExternalStorage());
 
         expect(createResponse.status).toBe(201);
 
@@ -129,7 +133,7 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
             const patchResponse = await request
                 .patch(`/4_0_0/Group/${actualGroupId}`)
                 .send(operations)
-                .set(getHeaders())
+                .set(getHeadersWithExternalStorage())
                 .set('Content-Type', 'application/json-patch+json'); // Must be AFTER getHeaders() to avoid overwrite
 
             const patchTime = Date.now() - startTime;
@@ -165,7 +169,7 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
             query: `SELECT count() as count
                     FROM (
                         SELECT entity_reference
-                        FROM fhir.fhir_group_member_events
+                        FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = {groupId:String}
                         GROUP BY entity_reference
                         HAVING argMax(event_type, (event_time, event_id)) = 'added'
