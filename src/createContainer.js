@@ -132,7 +132,6 @@ const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageE
 const { PatientPersonManualLinkingEventProducer } = require('./utils/patientPersonManualLinkingEventProducer');
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
 const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
-const { AuditEventKafkaProducer } = require('./utils/auditEventKafkaProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
@@ -599,15 +598,7 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager,
-                auditEventKafkaProducer: c.auditEventKafkaProducer,
                 auditEventClickHouseWriter: c.auditEventClickHouseWriter
-            }
-        )
-    );
-    container.register('auditEventKafkaProducer', (c) => new AuditEventKafkaProducer(
-            {
-                kafkaClient: c.kafkaClient,
-                auditEventKafkaTopic: process.env.AUDIT_EVENT_KAFKA_TOPIC || 'fhir.audit_event.stream'
             }
         )
     );

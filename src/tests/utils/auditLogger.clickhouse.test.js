@@ -4,7 +4,6 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ConfigManager } = require('../../utils/configManager');
-const { AuditEventKafkaProducer } = require('../../utils/auditEventKafkaProducer');
 const { AuditEventClickHouseWriter } = require('../../utils/auditEventClickHouseWriter');
 const AuditEvent = require('../../fhir/classes/4_0_0/resources/auditEvent');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
@@ -50,7 +49,6 @@ describe('AuditLogger ClickHouse Integration', () => {
     let mockDatabaseBulkInserter;
     let mockPreSaveManager;
     let mockConfigManager;
-    let mockKafkaProducer;
     let mockClickHouseWriter;
 
     beforeEach(() => {
@@ -66,12 +64,8 @@ describe('AuditLogger ClickHouse Integration', () => {
 
         mockConfigManager = Object.create(ConfigManager.prototype);
         Object.defineProperty(mockConfigManager, 'enableAuditEventMongoDB', { get: () => false });
-        Object.defineProperty(mockConfigManager, 'enableAuditEventKafka', { get: () => false });
         Object.defineProperty(mockConfigManager, 'enableAuditEventClickHouse', { get: () => true });
         Object.defineProperty(mockConfigManager, 'maxIdsPerAuditEvent', { get: () => 50 });
-
-        mockKafkaProducer = Object.create(AuditEventKafkaProducer.prototype);
-        mockKafkaProducer.produce = jest.fn().mockResolvedValue(undefined);
 
         mockClickHouseWriter = Object.create(AuditEventClickHouseWriter.prototype);
         mockClickHouseWriter.writeBatchAsync = jest.fn().mockResolvedValue({ inserted: 1, skipped: 0 });
@@ -84,7 +78,6 @@ describe('AuditLogger ClickHouse Integration', () => {
             databaseBulkInserter: mockDatabaseBulkInserter,
             preSaveManager: mockPreSaveManager,
             configManager: config,
-            auditEventKafkaProducer: mockKafkaProducer,
             auditEventClickHouseWriter: overrides.auditEventClickHouseWriter !== undefined
                 ? overrides.auditEventClickHouseWriter
                 : mockClickHouseWriter
@@ -107,7 +100,7 @@ describe('AuditLogger ClickHouse Integration', () => {
     test('does not write to ClickHouse when disabled', async () => {
         const disabledConfig = Object.create(ConfigManager.prototype);
         Object.defineProperty(disabledConfig, 'enableAuditEventMongoDB', { get: () => true });
-        Object.defineProperty(disabledConfig, 'enableAuditEventKafka', { get: () => false });
+
         Object.defineProperty(disabledConfig, 'enableAuditEventClickHouse', { get: () => false });
         Object.defineProperty(disabledConfig, 'maxIdsPerAuditEvent', { get: () => 50 });
 
@@ -146,7 +139,7 @@ describe('AuditLogger ClickHouse Integration', () => {
     test('writes to both MongoDB and ClickHouse when both enabled', async () => {
         const bothEnabledConfig = Object.create(ConfigManager.prototype);
         Object.defineProperty(bothEnabledConfig, 'enableAuditEventMongoDB', { get: () => true });
-        Object.defineProperty(bothEnabledConfig, 'enableAuditEventKafka', { get: () => false });
+
         Object.defineProperty(bothEnabledConfig, 'enableAuditEventClickHouse', { get: () => true });
         Object.defineProperty(bothEnabledConfig, 'maxIdsPerAuditEvent', { get: () => 50 });
 
@@ -182,7 +175,7 @@ describe('AuditLogger ClickHouse Integration', () => {
     test('isAuditEventEnabled is true when only ClickHouse is enabled', () => {
         const chOnlyConfig = Object.create(ConfigManager.prototype);
         Object.defineProperty(chOnlyConfig, 'enableAuditEventMongoDB', { get: () => false });
-        Object.defineProperty(chOnlyConfig, 'enableAuditEventKafka', { get: () => false });
+
         Object.defineProperty(chOnlyConfig, 'enableAuditEventClickHouse', { get: () => true });
         Object.defineProperty(chOnlyConfig, 'maxIdsPerAuditEvent', { get: () => 50 });
 

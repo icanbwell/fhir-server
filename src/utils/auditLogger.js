@@ -19,7 +19,6 @@ const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditE
 const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
 const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
-const { AuditEventKafkaProducer } = require('./auditEventKafkaProducer');
 const { AuditEventClickHouseWriter } = require('./auditEventClickHouseWriter');
 const { ConfigManager } = require('./configManager');
 const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES } = require('../constants');
@@ -33,7 +32,6 @@ class AuditLogger {
      * @property {DatabaseBulkInserter} databaseBulkInserter
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
-     * @property {AuditEventKafkaProducer} auditEventKafkaProducer
      * @property {AuditEventClickHouseWriter|null} auditEventClickHouseWriter
      * @property {string} base_version
      *
@@ -44,7 +42,6 @@ class AuditLogger {
                     databaseBulkInserter,
                     preSaveManager,
                     configManager,
-                    auditEventKafkaProducer,
                     auditEventClickHouseWriter,
                     base_version = '4_0_0'
                 }) {
@@ -69,11 +66,6 @@ class AuditLogger {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
         /**
-         * @type {AuditEventKafkaProducer}
-         */
-        this.auditEventKafkaProducer = auditEventKafkaProducer;
-        assertTypeEquals(auditEventKafkaProducer, AuditEventKafkaProducer);
-        /**
          * @type {AuditEventClickHouseWriter|null}
          */
         this.auditEventClickHouseWriter = auditEventClickHouseWriter || null;
@@ -90,7 +82,6 @@ class AuditLogger {
          * @type {boolean}
          */
         this.isAuditEventEnabled = this.configManager.enableAuditEventMongoDB
-            || this.configManager.enableAuditEventKafka
             || this.configManager.enableAuditEventClickHouse;
         /**
          * @type {number}
@@ -314,16 +305,12 @@ class AuditLogger {
          */
         const operationsMap = new Map();
         operationsMap.set(resourceType, []);
-        const kafkaAuditEvents = [];
         const clickHouseAuditEvents = [];
 
         for (const { doc, requestInfo } of currentQueue) {
             assertTypeEquals(doc, AuditEvent);
             ({ requestId } = requestInfo);
 
-            if (this.configManager.enableAuditEventKafka) {
-                kafkaAuditEvents.push({ data: doc.toJSONInternal(), requestId });
-            }
             if (this.configManager.enableAuditEventMongoDB) {
                 operationsMap.get(resourceType).push(
                     this.databaseBulkInserter.getOperationForResourceAsync({
@@ -342,9 +329,6 @@ class AuditLogger {
             if (this.configManager.enableAuditEventClickHouse) {
                 clickHouseAuditEvents.push(doc.toJSONInternal());
             }
-        }
-        if (kafkaAuditEvents.length > 0) {
-            await this.auditEventKafkaProducer.produce(kafkaAuditEvents);
         }
         if (operationsMap.get(resourceType).length > 0) {
             const requestInfo = currentQueue[0].requestInfo;

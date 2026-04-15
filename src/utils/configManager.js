@@ -591,14 +591,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to send AuditEvent to kafka
-     * @return {boolean}
-     */
-    get enableAuditEventKafka() {
-        return isTrue(env.ENABLE_AUDIT_EVENT_KAFKA);
-    }
-
-    /**
      * whether to write AuditEvent to ClickHouse
      * @return {boolean}
      */
