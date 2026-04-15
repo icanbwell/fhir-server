@@ -1,0 +1,59 @@
+[
+    {
+        "resourceType": "Observation",
+        "id": "obs-underscore-test-1",
+        "meta": {
+            "source": "https://www.icanbwell.com",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "bwell"
+                },
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "bwell"
+                }
+            ]
+        },
+        "status": "final",
+        "code": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "85354-9",
+                    "display": "Blood pressure panel",
+                    "_display": {
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                                "valueCode": "unknown"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "subject": {
+            "reference": "Patient/patient-1"
+        },
+        "valueQuantity": {
+            "value": 76,
+            "_system": {
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                    }
+                ]
+            },
+            "_code": {
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                    }
+                ]
+            }
+        }
+    }
+]

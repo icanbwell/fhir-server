@@ -14,6 +14,7 @@ const { validateResource } = require('../../../utils/validator.util');
 const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { logError } = require('../../common/logging');
+const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -177,8 +178,11 @@ class MergeResourceValidator extends BaseValidator {
 
                 const resourceUuid = resource._uuid;
                 const resourceSourceAssigningAuthority = resource._sourceAssigningAuthority;
-                delete resource._uuid;
-                delete resource._sourceAssigningAuthority;
+
+                // remove all fields starting with _ before validation since these are
+                // internal fields (e.g. _uuid, _sourceAssigningAuthority) or unsupported
+                // FHIR primitive extensions (e.g. _system, _code) that are not supported yet
+                removeUnderscoreFieldsRecursive(resource);
 
                 const validationError = validateResource({
                     resourceBody: resource,
