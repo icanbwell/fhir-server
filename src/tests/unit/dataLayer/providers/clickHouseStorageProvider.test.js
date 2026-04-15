@@ -93,7 +93,8 @@ describe('ClickHouseStorageProvider', () => {
 
             expect(mockRepository.findByIdAsync).toHaveBeenCalledWith({
                 resourceType: 'TestResource',
-                id: 'found'
+                id: 'found',
+                mongoQuery: { id: 'found' }
             });
             expect(result.id).toBe('found');
         });

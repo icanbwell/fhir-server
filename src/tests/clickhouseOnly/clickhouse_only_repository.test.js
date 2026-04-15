@@ -108,7 +108,15 @@ describe('ClickHouse-only scaffolding integration', () => {
 
             const found = await repository.findByIdAsync({
                 resourceType: 'ScaffoldingTestResource',
-                id: 'find-by-id-test'
+                id: 'find-by-id-test',
+                mongoQuery: {
+                    'meta.security': {
+                        $elemMatch: {
+                            system: 'https://www.icanbwell.com/access',
+                            code: 'test-access'
+                        }
+                    }
+                }
             });
 
             expect(found).not.toBeNull();
@@ -119,7 +127,15 @@ describe('ClickHouse-only scaffolding integration', () => {
         test('findByIdAsync returns null for missing resource', async () => {
             const found = await repository.findByIdAsync({
                 resourceType: 'ScaffoldingTestResource',
-                id: 'does-not-exist'
+                id: 'does-not-exist',
+                mongoQuery: {
+                    'meta.security': {
+                        $elemMatch: {
+                            system: 'https://www.icanbwell.com/access',
+                            code: 'test-access'
+                        }
+                    }
+                }
             });
             expect(found).toBeNull();
         });

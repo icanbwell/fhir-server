@@ -154,7 +154,7 @@ describe('GenericClickHouseRepository', () => {
             });
 
             expect(result).toEqual({ _fhir_resource: '{"id":"found"}' });
-            expect(mockQueryBuilder.buildFindByIdQuery).toHaveBeenCalledWith('found', testSchema);
+            expect(mockQueryBuilder.buildFindByIdQuery).toHaveBeenCalledWith('found', testSchema, expect.any(Object));
         });
 
         test('returns null when not found', async () => {

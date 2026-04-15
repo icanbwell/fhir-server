@@ -86,17 +86,21 @@ class GenericClickHouseRepository {
     }
 
     /**
-     * Finds a single resource by id.
+     * Finds a single resource by id with security filtering.
      *
      * @param {Object} params
      * @param {string} params.resourceType
      * @param {string} params.id
+     * @param {Object} [params.mongoQuery] - MongoDB query to extract security tags from
      * @returns {Promise<Object|null>}
      */
-    async findByIdAsync ({ resourceType, id }) {
+    async findByIdAsync ({ resourceType, id, mongoQuery }) {
         try {
             const schema = this.schemaRegistry.getSchema(resourceType);
-            const queryDef = this.queryBuilder.buildFindByIdQuery(id, schema);
+            const securityConditions = mongoQuery
+                ? this.queryParser.parse(mongoQuery, schema).securityConditions
+                : { accessTags: [], ownerTags: [] };
+            const queryDef = this.queryBuilder.buildFindByIdQuery(id, schema, securityConditions);
             const rows = await this.clickHouseClientManager.queryAsync(queryDef);
             return (rows && rows.length > 0) ? rows[0] : null;
         } catch (error) {

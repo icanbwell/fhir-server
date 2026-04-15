@@ -252,11 +252,14 @@ class ClickHouseDatabaseCursor {
         const rawValue = row[this._fhirResourceColumn];
         if (!rawValue) return row;
 
-        if (this._fhirResourceColumnType === RESOURCE_COLUMN_TYPES.JSON) {
-            return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
-        }
+        if (typeof rawValue !== 'string') return rawValue;
 
-        return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+        try {
+            return JSON.parse(rawValue);
+        } catch (e) {
+            // Corrupted data — return raw row rather than crashing the entire query
+            return row;
+        }
     }
 }
 

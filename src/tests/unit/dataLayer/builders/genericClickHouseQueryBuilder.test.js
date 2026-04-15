@@ -246,11 +246,20 @@ describe('GenericClickHouseQueryBuilder', () => {
     });
 
     describe('buildFindByIdQuery', () => {
-        test('generates WHERE id = parameterized', () => {
-            const { query, query_params } = builder.buildFindByIdQuery('resource-123', schema);
-            expect(query).toContain('WHERE id = {_id:String}');
+        test('generates WHERE id = parameterized with security', () => {
+            const { query, query_params } = builder.buildFindByIdQuery(
+                'resource-123', schema, { accessTags: ['test-access'], ownerTags: [] }
+            );
+            expect(query).toContain('id = {_id:String}');
+            expect(query).toContain('hasAny(access_tags');
             expect(query).toContain('LIMIT 1');
             expect(query_params._id).toBe('resource-123');
+        });
+
+        test('findByIdQuery enforces security (throws on empty accessTags)', () => {
+            expect(() => builder.buildFindByIdQuery(
+                'resource-123', schema, { accessTags: [], ownerTags: [] }
+            )).toThrow('Security violation');
         });
     });
 
@@ -423,16 +432,16 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(query_params._sk_id).toBe('not-valid-json{');
         });
 
-        test('composite cursor with missing seekKey fields still builds tuple', () => {
+        test('composite cursor with missing seekKey fields falls back to id seek', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { accessTags: ['a'], ownerTags: [] },
                 paginationCursor: JSON.stringify({ recorded: '2024-01-01 00:00:00' })
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
-            expect(query).toContain('(recorded, id) > tuple(');
-            expect(query_params._sk0).toBe('2024-01-01 00:00:00');
-            expect(query_params._sk1).toBeUndefined();
+            // Missing 'id' in cursor — falls back to simple id seek
+            expect(query).toContain('id > {_sk_id:String}');
+            expect(query).not.toContain('tuple(');
         });
 
         test('composite cursor with SQL injection in values uses parameterized query', () => {

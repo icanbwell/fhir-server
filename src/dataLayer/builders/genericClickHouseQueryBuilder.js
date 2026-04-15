@@ -115,18 +115,30 @@ class GenericClickHouseQueryBuilder {
     /**
      * @param {string} id
      * @param {Object} schema
+     * @param {{accessTags: string[], ownerTags: string[]}} securityConditions
      * @returns {{ query: string, query_params: Object }}
      */
-    buildFindByIdQuery (id, schema) {
+    buildFindByIdQuery (id, schema, securityConditions) {
+        const params = { [RESERVED_PARAMS.ID]: id };
+        const whereClauses = [`id = {${RESERVED_PARAMS.ID}:String}`];
+
+        // Security filtering mandatory — same as search queries
+        const securityClauses = this._buildSecurityClauses(
+            securityConditions || { accessTags: [], ownerTags: [] },
+            schema.securityMappings,
+            params
+        );
+        whereClauses.push(...securityClauses);
+
         const parts = [
             this._selectClause(schema.fhirResourceColumn),
             this._fromClause(schema.tableName),
-            `WHERE id = {${RESERVED_PARAMS.ID}:String}`,
+            this._whereClause(whereClauses),
             'LIMIT 1'
         ];
 
-        const query = parts.join('\n');
-        return { query, query_params: { [RESERVED_PARAMS.ID]: id } };
+        const query = parts.filter(Boolean).join('\n');
+        return { query, query_params: params };
     }
 
     // ─── SQL clause helpers ──────────────────────────────────────
@@ -408,7 +420,8 @@ class GenericClickHouseQueryBuilder {
                 cursorObj = parsed;
             }
         } catch (e) {
-            // Not JSON — treat as simple id cursor
+            // Not JSON — treat as simple id cursor (expected for _uuid.$gt values)
+            logDebug('GenericClickHouseQueryBuilder: cursor is not JSON, using id seek', { cursor });
         }
 
         if (cursorObj) {
@@ -424,6 +437,15 @@ class GenericClickHouseQueryBuilder {
                 const chType = fieldMapping ? this._clickHouseType(fieldMapping.type) : 'String';
 
                 let value = cursorObj[col];
+                if (value === undefined || value === null) {
+                    // Incomplete cursor — fall back to id-based seek
+                    logDebug('GenericClickHouseQueryBuilder: incomplete composite cursor, falling back to id seek', {
+                        missingColumn: col
+                    });
+                    params[`${RESERVED_PARAMS.SEEK_PREFIX}_id`] = cursor;
+                    whereClauses.push(`id > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
+                    return;
+                }
                 if (fieldMapping && fieldMapping.type === 'datetime' && typeof value === 'string') {
                     value = DateTimeFormatter.toClickHouseDateTime(value);
                 }

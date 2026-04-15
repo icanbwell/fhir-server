@@ -80,7 +80,8 @@ class ClickHouseStorageProvider extends StorageProvider {
         if (query.id && typeof query.id === 'string') {
             const row = await this.repository.findByIdAsync({
                 resourceType: this.resourceType,
-                id: query.id
+                id: query.id,
+                mongoQuery: query
             });
             if (!row) return null;
 
@@ -147,7 +148,12 @@ class ClickHouseStorageProvider extends StorageProvider {
     _extractFhirDocument(row, schema) {
         const rawValue = row[schema.fhirResourceColumn];
         if (!rawValue) return row;
-        return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+        if (typeof rawValue !== 'string') return rawValue;
+        try {
+            return JSON.parse(rawValue);
+        } catch (e) {
+            return row;
+        }
     }
 }
 
