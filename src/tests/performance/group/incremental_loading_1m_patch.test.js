@@ -13,6 +13,8 @@
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
+process.env.CLICKHOUSE_HOST = 'http://127.0.0.1';
+process.env.CLICKHOUSE_PORT = '8123';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.LOGLEVEL = 'SILENT';
 process.env.STREAM_RESPONSE = '0';
@@ -23,7 +25,6 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
 function getHeadersWithExternalStorage() {
     return { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
@@ -32,11 +33,7 @@ function getHeadersWithExternalStorage() {
 describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
     let clickHouseManager;
 
-    let clickHouseTestContainer;
     beforeAll(async () => {
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start();
-        clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
 
         const configManager = new ConfigManager();
@@ -62,9 +59,6 @@ describe('1M Member Loading - FHIR R4B PATCH Pattern', () => {
             }
 
             await clickHouseManager.closeAsync();
-        }
-        if (clickHouseTestContainer) {
-            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     }, 30000);
