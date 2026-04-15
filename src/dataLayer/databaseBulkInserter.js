@@ -342,7 +342,7 @@ class DatabaseBulkInserter extends EventEmitter {
             }
             // Run preSave handlers (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            handleClickHouseGroupPreSave(doc, contextData);
+            handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             /** @type {string|null} */
@@ -515,7 +515,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            handleClickHouseGroupPreSave(doc, contextData);
+            handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
@@ -611,7 +611,7 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
             doc = await this.preSaveManager.preSaveAsync({ resource: doc });
-            handleClickHouseGroupPreSave(doc, contextData);
+            handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 

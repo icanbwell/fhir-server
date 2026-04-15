@@ -10,11 +10,11 @@ const {
     assertTooCostlyOperationOutcome,
     getMaxPatchOperations
 } = require('./groupTestHelpers');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 function getHeadersWithExternalStorage() {
-    return { ...getHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+    return { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
 }
 
 /**
@@ -156,7 +156,7 @@ describe('Group PATCH operations', () => {
 
         // Remove one member by reference (server-side event-sourcing extension)
         const patches = [
-            { op: 'remove', path: '/member', value: { entity: { reference: 'Patient/patch-remove-1' } } }
+            { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/patch-remove-1' } } }
         ];
 
         const response = await patchGroup(group.id, patches);
@@ -397,7 +397,7 @@ describe('Group PATCH operations', () => {
         const patches = [
             {
                 op: 'remove',
-                path: '/member',
+                path: '/member/',
                 value: { entity: { reference: 'Patient/patch-remove-qty-2' } }
             }
         ];

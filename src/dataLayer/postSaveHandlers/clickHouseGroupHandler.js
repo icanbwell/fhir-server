@@ -98,7 +98,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             return;
         }
 
-        if (!contextData?.useExternalMemberStorage) {
+        if (!contextData?.useExternalStorage) {
             return;
         }
 

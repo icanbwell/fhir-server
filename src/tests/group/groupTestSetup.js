@@ -16,7 +16,7 @@
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 // Set env vars
@@ -344,13 +344,13 @@ function getTestHeaders() {
 }
 
 /**
- * Helper to get headers with the useExternalMemberStorage flag enabled
+ * Helper to get headers with the useExternalStorage flag enabled
  * Used by tests that exercise ClickHouse member storage paths
  */
 function getTestHeadersWithExternalStorage() {
     return {
         ...getHeaders(),
-        [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true'
+        [USE_EXTERNAL_STORAGE_HEADER]: 'true'
     };
 }
 

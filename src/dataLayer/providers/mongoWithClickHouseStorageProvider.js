@@ -7,7 +7,7 @@ const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 const { QueryParser } = require('./mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('./mongoWithClickHouse/queryBuilder');
 const { QueryExecutor } = require('./mongoWithClickHouse/queryExecutor');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { isTrue } = require('../../utils/isTrue');
 
 /**
@@ -216,7 +216,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
         try {
             // Detect if this is a member query
             const isMemberQuery = this._isMemberQuery(query);
-            const useExternal = isTrue(extraInfo?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER]);
+            const useExternal = isTrue(extraInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]);
 
             if (isMemberQuery && useExternal) {
                 logInfo('Routing Group member query to ClickHouse', {
@@ -304,7 +304,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
     async countAsync({ query, options, extraInfo }) {
         // For member queries, get count from ClickHouse
         const isMemberQuery = this._isMemberQuery(query);
-        const useExternal = isTrue(extraInfo?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER]);
+        const useExternal = isTrue(extraInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]);
         if (isMemberQuery && useExternal) {
             // Parse and validate member criteria
             const memberCriteria = QueryParser.extractMemberCriteria(query);

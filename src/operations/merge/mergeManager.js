@@ -598,7 +598,7 @@ class MergeManager {
             // For smartMerge=true with external storage:
             // 1. Only track truly NEW members in ClickHouse (not existing MongoDB members)
             // 2. Restore current MongoDB members on the resource so MongoDB keeps them intact
-            if (smartMerge && contextData?.useExternalMemberStorage && currentMembers) {
+            if (smartMerge && contextData?.useExternalStorage && currentMembers) {
                 const currentRefs = new Set(
                     (currentMembers || []).map(m => m.entity?.reference).filter(Boolean)
                 );

@@ -38,11 +38,11 @@ CLICKHOUSE_PASSWORD=
 
 ### Header-Based Activation
 
-ClickHouse member tracking is activated per-request using the `useExternalMemberStorage` header:
+ClickHouse member tracking is activated per-request using the `useExternalStorage` header:
 
 ```bash
 # With header: ClickHouse events are written alongside MongoDB
-curl -H "useExternalMemberStorage: true" -X POST /4_0_0/Group ...
+curl -H "useExternalStorage: true" -X POST /4_0_0/Group ...
 
 # Without header: Standard FHIR behavior (MongoDB only)
 curl -X POST /4_0_0/Group ...
@@ -71,7 +71,7 @@ Schema initialization runs all SQL files in `clickhouse-init/` in alphabetical o
 
 ## Group API Usage
 
-All standard FHIR operations work with the `useExternalMemberStorage: true` header to enable ClickHouse member tracking. Without the header, standard FHIR behavior applies.
+All standard FHIR operations work with the `useExternalStorage: true` header to enable ClickHouse member tracking. Without the header, standard FHIR behavior applies.
 
 ### Creating Groups
 
@@ -94,7 +94,7 @@ Content-Type: application/fhir+json
 }
 ```
 
-Response: `201 Created` with Group metadata. When the `useExternalMemberStorage` header is set, the `member` field is removed from the stored document (member data tracked in ClickHouse).
+Response: `201 Created` with Group metadata. When the `useExternalStorage` header is set, the `member` field is removed from the stored document (member data tracked in ClickHouse).
 
 ### Incremental Loading with PATCH (Recommended)
 
@@ -187,7 +187,7 @@ Searches use enriched ClickHouse columns (`entity_reference_uuid`, `entity_refer
 GET /4_0_0/Group/{id}
 ```
 
-Returns the Group resource. When created with the `useExternalMemberStorage` header, the `member` field will not be present (members tracked in ClickHouse). Groups created without the header retain their `member` array in MongoDB.
+Returns the Group resource. When created with the `useExternalStorage` header, the `member` field will not be present (members tracked in ClickHouse). Groups created without the header retain their `member` array in MongoDB.
 
 ### Removing Members
 
@@ -200,7 +200,7 @@ Content-Type: application/json-patch+json
 [
   {
     "op": "remove",
-    "path": "/member",
+    "path": "/member/-",
     "value": { "entity": { "reference": "Patient/123" } }
   }
 ]
@@ -225,7 +225,7 @@ event_type='added': Patient/1 @ 10:15  → Patient/1: active
 
 Every membership change creates an event. Current state is derived using ClickHouse's `argMax` aggregation over the event log.
 
-### Dual Storage Model (when `useExternalMemberStorage` header is present)
+### Dual Storage Model (when `useExternalStorage` header is present)
 
 **MongoDB stores:**
 - Group resource metadata (id, name, type, actual, meta)
@@ -576,7 +576,7 @@ The Makefile runs all `clickhouse-init/*.sql` files in alphabetical order. If th
 **Symptom:** `GET /Group?member=Patient/X` returns empty results
 
 **Solutions:**
-1. Ensure `useExternalMemberStorage: true` header is present on both write and read requests
+1. Ensure `useExternalStorage: true` header is present on both write and read requests
 2. Check ClickHouse has events:
    ```sql
    SELECT count(*) FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = 'my-group-id';
@@ -590,11 +590,11 @@ The Makefile runs all `clickhouse-init/*.sql` files in alphabetical order. If th
 
 **Solutions:**
 1. Verify `Content-Type: application/json-patch+json` header
-2. Verify `useExternalMemberStorage: true` header is present
+2. Verify `useExternalStorage: true` header is present
 3. Check operation count (default limit: 10K operations)
 3. Validate PATCH operation format:
-   - Add: `{"op": "add", "path": "/member/-", "value": {"entity": {"reference": "Patient/123"}}}`
-   - Remove: `{"op": "remove", "path": "/member", "value": {"entity": {"reference": "Patient/123"}}}`
+   - Add: `{"op": "add", "path": "/member/-", "value": {"entity": {"reference": "Patient/123"}}}` (also accepts `/member/`)
+   - Remove: `{"op": "remove", "path": "/member/-", "value": {"entity": {"reference": "Patient/123"}}}` (also accepts `/member/`)
 
 ### Performance Issues
 

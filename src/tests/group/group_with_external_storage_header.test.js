@@ -10,17 +10,17 @@ const {
     waitForData
 } = require('./groupTestSetup');
 const { getHeadersJsonPatch } = require('../common');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 
 /**
  * ClickHouse Activation with Header Test Suite
  *
- * Verifies that WITH the useExternalMemberStorage header:
+ * Verifies that WITH the useExternalStorage header:
  * - Members are stripped from MongoDB and written to ClickHouse
  * - GET returns quantity from ClickHouse (no member array)
  * - PATCH writes ClickHouse events
  */
-describe('Group with useExternalMemberStorage header', () => {
+describe('Group with useExternalStorage header', () => {
     beforeAll(async () => {
         await setupGroupTests();
     });
@@ -146,7 +146,7 @@ describe('Group with useExternalMemberStorage header', () => {
         // PATCH to add member with header
         const patchHeaders = {
             ...getHeadersJsonPatch(),
-            [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true'
+            [USE_EXTERNAL_STORAGE_HEADER]: 'true'
         };
 
         const patchResponse = await request
@@ -175,6 +175,6 @@ describe('Group with useExternalMemberStorage header', () => {
     });
 
     test('header constant is correctly lowercased', () => {
-        expect(USE_EXTERNAL_MEMBER_STORAGE_HEADER).toBe('useexternalmemberstorage');
+        expect(USE_EXTERNAL_STORAGE_HEADER).toBe('useexternalstorage');
     });
 });

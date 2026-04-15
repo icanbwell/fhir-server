@@ -1,6 +1,6 @@
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { EXTERNAL_STORAGE_TAG_SYSTEM, EXTERNAL_STORAGE_TAG_CODE } = require('../../utils/clickHouseGroupPreSave');
 const {
     setupGroupTests,
@@ -12,13 +12,13 @@ const {
 } = require('./groupTestSetup');
 
 function getHeadersWithExternalStorage() {
-    return { ...getTestHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+    return { ...getTestHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
 }
 
 /**
  * MongoDB Member Behavior Tests
  *
- * Expected behavior with useExternalMemberStorage header:
+ * Expected behavior with useExternalStorage header:
  *
  * | Operation              | MongoDB members            | ClickHouse events              |
  * |------------------------|----------------------------|--------------------------------|
@@ -479,6 +479,145 @@ describe('MongoDB Member Behavior with ClickHouse', () => {
 
         const finalRemovedCount = await getClickHouseEventCount(groupId, EVENT_TYPES.MEMBER_REMOVED);
         expect(finalRemovedCount).toBe(0);
+    });
+
+    // ==================== Header with ClickHouse disabled ====================
+
+    describe('Header sent but ClickHouse env disabled', () => {
+        let savedEnableClickHouse;
+        let savedResources;
+
+        beforeAll(() => {
+            savedEnableClickHouse = process.env.ENABLE_CLICKHOUSE;
+            savedResources = process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
+            process.env.ENABLE_CLICKHOUSE = '0';
+            delete process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
+        });
+
+        afterAll(() => {
+            process.env.ENABLE_CLICKHOUSE = savedEnableClickHouse;
+            if (savedResources !== undefined) {
+                process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = savedResources;
+            }
+        });
+
+        test('CREATE with header but env disabled: members preserved, no tag', async () => {
+            const request = getSharedRequest();
+            const createRes = await request
+                .post('/4_0_0/Group')
+                .send({
+                    resourceType: 'Group', type: 'person', actual: true,
+                    member: [
+                        { entity: { reference: 'Patient/disabled-create-1' } },
+                        { entity: { reference: 'Patient/disabled-create-2' } }
+                    ],
+                    meta: defaultMeta
+                })
+                .set(getHeadersWithExternalStorage());
+            expect(createRes.status).toBe(201);
+
+            const mongoGroup = await getGroupFromMongo(createRes.body.id);
+            expect(mongoGroup.member).toBeDefined();
+            expect(mongoGroup.member.length).toBe(2);
+            expect(hasExternalStorageTag(mongoGroup)).toBe(false);
+        });
+
+        test('PUT with header but env disabled: members preserved, no tag', async () => {
+            // Create first
+            const request0 = getSharedRequest();
+            const createRes = await request0
+                .post('/4_0_0/Group')
+                .send({
+                    resourceType: 'Group', type: 'person', actual: true,
+                    member: [{ entity: { reference: 'Patient/disabled-put-1' } }],
+                    meta: defaultMeta
+                })
+                .set(getHeadersWithExternalStorage());
+            expect(createRes.status).toBe(201);
+            const groupId = createRes.body.id;
+
+            // PUT with header
+            const request = getSharedRequest();
+            const putRes = await request
+                .put(`/4_0_0/Group/${groupId}`)
+                .send({
+                    resourceType: 'Group', id: groupId, type: 'person', actual: true,
+                    member: [
+                        { entity: { reference: 'Patient/disabled-put-1' } },
+                        { entity: { reference: 'Patient/disabled-put-2' } }
+                    ],
+                    meta: defaultMeta
+                })
+                .set(getHeadersWithExternalStorage());
+            expect([200, 201]).toContain(putRes.status);
+
+            const mongoGroup = await getGroupFromMongo(groupId);
+            expect(mongoGroup.member).toBeDefined();
+            expect(mongoGroup.member.length).toBe(2);
+            expect(hasExternalStorageTag(mongoGroup)).toBe(false);
+        });
+
+        test('PATCH with header but env disabled: members preserved, no tag', async () => {
+            const request0 = getSharedRequest();
+            const createRes = await request0
+                .post('/4_0_0/Group')
+                .send({
+                    resourceType: 'Group', type: 'person', actual: true,
+                    member: [{ entity: { reference: 'Patient/disabled-patch-1' } }],
+                    meta: defaultMeta
+                })
+                .set(getHeadersWithExternalStorage());
+            expect(createRes.status).toBe(201);
+            const groupId = createRes.body.id;
+
+            // PATCH with header
+            const request = getSharedRequest();
+            const patchRes = await request
+                .patch(`/4_0_0/Group/${groupId}`)
+                .send([{ op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/disabled-patch-2' } } }])
+                .set(getHeadersWithExternalStorage())
+                .set('Content-Type', 'application/json-patch+json');
+            expect(patchRes.status).toBe(200);
+
+            const mongoGroup = await getGroupFromMongo(groupId);
+            expect(mongoGroup.member).toBeDefined();
+            expect(mongoGroup.member.length).toBe(1); // PATCH without ClickHouse falls back to standard FHIR
+            expect(hasExternalStorageTag(mongoGroup)).toBe(false);
+        });
+
+        test('$merge with header but env disabled: members preserved, no tag', async () => {
+            const request0 = getSharedRequest();
+            const createRes = await request0
+                .post('/4_0_0/Group')
+                .send({
+                    resourceType: 'Group', type: 'person', actual: true,
+                    member: [{ entity: { reference: 'Patient/disabled-merge-1' } }],
+                    meta: defaultMeta
+                })
+                .set(getHeadersWithExternalStorage());
+            expect(createRes.status).toBe(201);
+            const groupId = createRes.body.id;
+
+            // $merge with header
+            const request = getSharedRequest();
+            const mergeRes = await request
+                .post('/4_0_0/Group/$merge')
+                .send({
+                    resourceType: 'Group', id: groupId, type: 'person', actual: true,
+                    member: [
+                        { entity: { reference: 'Patient/disabled-merge-1' } },
+                        { entity: { reference: 'Patient/disabled-merge-2' } }
+                    ],
+                    meta: defaultMeta
+                })
+                .set(getHeadersWithExternalStorage());
+            expect([200, 201]).toContain(mergeRes.status);
+
+            const mongoGroup = await getGroupFromMongo(groupId);
+            expect(mongoGroup.member).toBeDefined();
+            expect(mongoGroup.member.length).toBe(2);
+            expect(hasExternalStorageTag(mongoGroup)).toBe(false);
+        });
     });
 
 });

@@ -1,9 +1,9 @@
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 const { GroupMemberPatchStrategy } = require('../../../../../operations/patch/strategies/groupMemberPatchStrategy');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../../../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../../../utils/contextDataBuilder');
 const { generateUUIDv5 } = require('../../../../../utils/uid.util');
 
-const requestInfoWithHeader = { headers: { [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' } };
+const requestInfoWithHeader = { headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' } };
 const SOURCE_AUTHORITY = 'test-owner';
 
 /**
@@ -64,13 +64,13 @@ describe('GroupMemberPatchStrategy', () => {
                 'Group',
                 [
                     { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } },
-                    { op: 'remove', path: '/member', value: { entity: { reference: 'Patient/2' } } }
+                    { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/2' } } }
                 ],
                 [{}],
                 {
                     memberOps: [
                         { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } },
-                        { op: 'remove', path: '/member', value: { entity: { reference: 'Patient/2' } } }
+                        { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/2' } } }
                     ],
                     nonMemberOps: [],
                     hasOnlyMemberOperations: true
@@ -173,7 +173,57 @@ describe('GroupMemberPatchStrategy', () => {
 
         test('executes remove operations', async () => {
             const memberOperations = [
-                { op: 'remove', path: '/member', value: { entity: { reference: 'Patient/1' } } }
+                { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/1' } } }
+            ];
+
+            await strategy.executeMemberOperations({
+                requestInfo: {},
+                parsedArgs: {},
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations,
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+            });
+
+            expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
+                groupId: 'group-1',
+                added: [],
+                removed: [
+                    { entity: enrichedEntity('Patient/1'), period: undefined, inactive: false }
+                ],
+                groupResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+            });
+        });
+
+        test('add with /member/ path works (same as /member/-)', async () => {
+            const memberOperations = [
+                { op: 'add', path: '/member/', value: { entity: { reference: 'Patient/1' } } }
+            ];
+
+            await strategy.executeMemberOperations({
+                requestInfo: {},
+                parsedArgs: {},
+                resourceType: 'Group',
+                id: 'group-1',
+                base_version: '4_0_0',
+                memberOperations,
+                foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+            });
+
+            expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledWith({
+                groupId: 'group-1',
+                added: [
+                    { entity: enrichedEntity('Patient/1'), period: undefined, inactive: false }
+                ],
+                removed: [],
+                groupResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+            });
+        });
+
+        test('remove with /member/- path works (same as /member)', async () => {
+            const memberOperations = [
+                { op: 'remove', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
             ];
 
             await strategy.executeMemberOperations({
@@ -235,7 +285,7 @@ describe('GroupMemberPatchStrategy', () => {
         test('handles mixed add and remove operations', async () => {
             const memberOperations = [
                 { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' }, period: { start: '2024-01-01' } } },
-                { op: 'remove', path: '/member', value: { entity: { reference: 'Patient/2' } } },
+                { op: 'remove', path: '/member/', value: { entity: { reference: 'Patient/2' } } },
                 { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/3' }, inactive: true } }
             ];
 

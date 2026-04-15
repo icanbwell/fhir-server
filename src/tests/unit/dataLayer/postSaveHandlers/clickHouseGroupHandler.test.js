@@ -109,7 +109,7 @@ describe('ClickHouseGroupHandler', () => {
                     }
                 },
                 contextData: {
-                    useExternalMemberStorage: true,
+                    useExternalStorage: true,
                     groupMembers: members,
                     resourceType: 'Group',
                     resourceId: 'group-1'
@@ -148,7 +148,7 @@ describe('ClickHouseGroupHandler', () => {
                     }
                 },
                 contextData: {
-                    useExternalMemberStorage: true,
+                    useExternalStorage: true,
                     groupMembers: members,
                     resourceType: 'Group',
                     resourceId: groupId
@@ -212,7 +212,7 @@ describe('ClickHouseGroupHandler', () => {
                     }
                 },
                 contextData: {
-                    useExternalMemberStorage: true,
+                    useExternalStorage: true,
                     groupMembers: members,
                     resourceType: 'Group',
                     resourceId: groupId

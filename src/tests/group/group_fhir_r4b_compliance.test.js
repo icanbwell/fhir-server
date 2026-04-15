@@ -8,10 +8,10 @@ const {
     getTestHeaders
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
-const { USE_EXTERNAL_MEMBER_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 
 function getTestHeadersWithExternalStorage() {
-    return { ...getTestHeaders(), [USE_EXTERNAL_MEMBER_STORAGE_HEADER]: 'true' };
+    return { ...getTestHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
 }
 
 /**

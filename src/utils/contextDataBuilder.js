@@ -1,16 +1,16 @@
 const { isTrue } = require('./isTrue');
 
 /**
- * Header name for activating external member storage (ClickHouse).
- * When present and truthy, Group member data is stored in ClickHouse.
- * When absent, standard FHIR behavior applies (members stored inline in MongoDB).
+ * Header name for activating external storage (ClickHouse).
+ * When present and truthy, array fields (e.g. Group.member) are tracked in ClickHouse.
+ * When absent, standard FHIR behavior applies (stored inline in MongoDB).
  *
  * This constant is the SINGLE source of truth for the header name.
  * Import it everywhere the header is checked — never hardcode the string.
  *
  * NOTE: Express lowercases all incoming header names.
  */
-const USE_EXTERNAL_MEMBER_STORAGE_HEADER = 'useexternalmemberstorage';
+const USE_EXTERNAL_STORAGE_HEADER = 'useexternalstorage';
 
 /**
  * Builds contextData for resources using hybrid storage (MongoDB metadata + ClickHouse arrays)
@@ -24,13 +24,13 @@ const USE_EXTERNAL_MEMBER_STORAGE_HEADER = 'useexternalmemberstorage';
  */
 function buildContextDataForHybridStorage(resourceType, resource, requestInfo = null, { smartMerge } = {}) {
     if (resourceType === 'Group') {
-        const useExternalMemberStorage = isTrue(requestInfo?.headers?.[USE_EXTERNAL_MEMBER_STORAGE_HEADER]);
+        const useExternalStorage = isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]);
 
         return {
             groupMembers: resource.member || [],
             resourceType,
             resourceId: resource.id,
-            useExternalMemberStorage,
+            useExternalStorage,
             smartMerge: smartMerge ?? undefined
         };
     }
@@ -42,5 +42,5 @@ function buildContextDataForHybridStorage(resourceType, resource, requestInfo = 
 
 module.exports = {
     buildContextDataForHybridStorage,
-    USE_EXTERNAL_MEMBER_STORAGE_HEADER
+    USE_EXTERNAL_STORAGE_HEADER
 };
