@@ -24,8 +24,6 @@ services:
       AUTH_CONFIGURATION_URI: http://keycloak:8080/realms/master/.well-known/openid-configuration
       AUTH_JWKS_URL: http://keycloak:8080/realms/master/protocol/openid-connect/certs
       AUTH_CODE_FLOW_URL: http://keycloak:8080/realms/master/protocol/openid-connect/auth
-      MAX_INDEX_NAME_LENGTH: 65
-      ENV: local
       ENVIRONMENT: local
       ENABLE_MONGO_PROJECTIONS_IN_GRAPHQL: 0
       ENABLE_MONGO_PROJECTIONS_IN_GRAPHQLV2: 0
@@ -68,7 +66,6 @@ services:
       PERSON_MATCHING_SERVICE_TOKEN_URL: "${PERSON_MATCHING_SERVICE_TOKEN_URL:-}"
       WHITELIST: "http://localhost:5051"
       GRIDFS_RESOURCES: "DocumentReference"
-      ENABLE_ACCESS_TAG_UPDATE: '0'
       ENABLE_GRAPHQL_PLAYGROUND: '1'
       ENABLE_GRAPHQLV2_PLAYGROUND: '1'
       ENABLE_GRAPHQLV2: '1'
@@ -96,7 +93,6 @@ services:
       REDIS_PORT: '6379'
       REDIS_REJECT_UNAUTHORIZED_FLAG: 'false'
       REDIS_ENABLE_TLS: 'false'
-      ENABLE_REDIS_ENDPOINT: 1
       ENABLE_REDIS: 1
       REDIS_KEY_DEFAULT_TTL_SECONDS: 600
       ENABLE_REDIS_CACHE_WRITE_FOR_EVERYTHING_OPERATION: 1
