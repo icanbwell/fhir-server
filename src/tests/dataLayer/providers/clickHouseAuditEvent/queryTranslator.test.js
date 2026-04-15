@@ -482,13 +482,25 @@ describe('AuditEventQueryTranslator', () => {
             expect(query).toContain('ORDER BY _uuid ASC');
         });
 
-        test('sort by unmapped field uses resource JSON path', () => {
+        test('sort by unmapped field is rejected (strict whitelist)', () => {
             const { query } = translator.buildSearchQuery({
                 query: {},
                 options: { sort: { outcome: -1 } }
             });
 
-            expect(query).toContain('ORDER BY resource.outcome DESC');
+            // Unknown sort fields are dropped; falls back to default _uuid ASC
+            expect(query).not.toContain('outcome');
+            expect(query).toContain('ORDER BY _uuid ASC');
+        });
+
+        test('sort with mix of valid and invalid fields keeps only valid', () => {
+            const { query } = translator.buildSearchQuery({
+                query: {},
+                options: { sort: { recorded: -1, unknownField: 1, _uuid: 1 } }
+            });
+
+            expect(query).toContain('ORDER BY recorded DESC, _uuid ASC');
+            expect(query).not.toContain('unknownField');
         });
 
         test('multi-field sort', () => {

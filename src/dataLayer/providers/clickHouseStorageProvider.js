@@ -36,7 +36,7 @@ class ClickHouseStorageProvider extends StorageProvider {
      */
     async findAsync({ query, options, extraInfo }) {
         const translator = new AuditEventQueryTranslator();
-        const { query: sql, query_params } = translator.buildSearchQuery({ query, options });
+        const { query: sql, query_params } = translator.buildSearchQuery({ query, options: options || {} });
 
         logDebug('ClickHouseStorageProvider.findAsync', {
             sql: sql.substring(0, 200),
@@ -66,7 +66,7 @@ class ClickHouseStorageProvider extends StorageProvider {
      */
     async findOneAsync({ query, options }) {
         const translator = new AuditEventQueryTranslator();
-        const findOneOptions = { ...options, limit: 1 };
+        const findOneOptions = { ...(options || {}), limit: 1 };
         const { query: sql, query_params } = translator.buildSearchQuery({
             query,
             options: findOneOptions

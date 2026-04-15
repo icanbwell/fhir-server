@@ -248,6 +248,7 @@ class AuditEventQueryTranslator {
             }
             // For nested operator objects, recurse
             const clauses = [];
+            const supportedArrayOps = new Set(['$in', '$eq']);
             for (const [op, val] of Object.entries(value)) {
                 if (op.startsWith('$')) {
                     // Handle sub-operators
@@ -255,6 +256,10 @@ class AuditEventQueryTranslator {
                         const paramName = this._nextParam(column);
                         params[paramName] = val.map(String);
                         clauses.push(`hasAny(${column}, {${paramName}:Array(String)})`);
+                    } else if (!supportedArrayOps.has(op)) {
+                        logWarn('Unsupported operator on array column — only $in and $eq are supported', {
+                            operator: op, column, context: '_translateArrayColumn'
+                        });
                     }
                 } else {
                     // Nested field like agent.who._uuid — still query the array column
@@ -535,10 +540,11 @@ class AuditEventQueryTranslator {
 
         const parts = [];
         for (const [field, direction] of Object.entries(sort)) {
-            if (!isSafeIdentifier(field, '_buildOrderBy')) {
+            const column = SORT_FIELD_MAP[field];
+            if (!column) {
+                logWarn('Unknown sort field rejected — not in SORT_FIELD_MAP whitelist', { field, context: '_buildOrderBy' });
                 continue;
             }
-            const column = SORT_FIELD_MAP[field] || `resource.${field}`;
             parts.push(`${column} ${direction === -1 ? 'DESC' : 'ASC'}`);
         }
 

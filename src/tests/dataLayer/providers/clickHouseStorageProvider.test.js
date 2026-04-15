@@ -75,6 +75,23 @@ describe('ClickHouseStorageProvider', () => {
             expect(doc.id).toBe('audit-1');
         });
 
+        test('handles null options without throwing', async () => {
+            const cursor = await provider.findAsync({
+                query: { action: 'R' },
+                options: null
+            });
+
+            expect(cursor).toBeInstanceOf(ClickHouseDatabaseCursor);
+        });
+
+        test('handles undefined options without throwing', async () => {
+            const cursor = await provider.findAsync({
+                query: { action: 'R' }
+            });
+
+            expect(cursor).toBeInstanceOf(ClickHouseDatabaseCursor);
+        });
+
         test('passes sort and limit options to translator', async () => {
             await provider.findAsync({
                 query: {},
@@ -96,6 +113,18 @@ describe('ClickHouseStorageProvider', () => {
 
             const result = await provider.findOneAsync({
                 query: { id: 'audit-1' }
+            });
+
+            expect(result).toBeDefined();
+            expect(result.id).toBe('audit-1');
+        });
+
+        test('handles null options without throwing', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([sampleRows[0]]);
+
+            const result = await provider.findOneAsync({
+                query: { id: 'audit-1' },
+                options: null
             });
 
             expect(result).toBeDefined();
