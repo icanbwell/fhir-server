@@ -310,7 +310,13 @@ class GenericClickHouseQueryBuilder {
     /**
      * Adds seek pagination condition to the WHERE clauses.
      *
-     * @param {string|null} cursor
+     * The FHIR search pipeline uses _uuid.$gt as the pagination cursor,
+     * which carries the last resource's UUID/id. Following the Group
+     * ClickHouse pattern, we seek on the `id` column which matches the
+     * cursor value. The table's ORDER BY (seekKey) determines sort order;
+     * the seek clause filters by `id` for pagination correctness.
+     *
+     * @param {string|null} cursor - UUID/id from _uuid.$gt
      * @param {Object} schema
      * @param {string[]} whereClauses - mutated
      * @param {Object} params - mutated
@@ -319,15 +325,8 @@ class GenericClickHouseQueryBuilder {
     _addSeekClause (cursor, schema, whereClauses, params) {
         if (!cursor) return;
 
-        const firstColumn = schema.seekKey[0];
-        const fieldMapping = Object.values(schema.fieldMappings || {})
-            .find(m => m.column === firstColumn);
-        const isDatetime = fieldMapping && fieldMapping.type === 'datetime';
-
-        params._seekCursor = isDatetime
-            ? DateTimeFormatter.toClickHouseDateTime(cursor)
-            : cursor;
-        whereClauses.push(`${firstColumn} > {_seekCursor:String}`);
+        params._seekCursor = cursor;
+        whereClauses.push('id > {_seekCursor:String}');
     }
 }
 

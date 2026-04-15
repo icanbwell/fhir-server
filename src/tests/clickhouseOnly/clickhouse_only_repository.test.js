@@ -230,4 +230,89 @@ describe('ClickHouse-only scaffolding integration', () => {
             expect(count).toBeGreaterThanOrEqual(10);
         });
     });
+
+    describe('pagination', () => {
+        test('fetches page 1 and page 2 with no overlap', async () => {
+            // Insert 5 resources with predictable IDs (sorted alphabetically)
+            const resources = ['page-a', 'page-b', 'page-c', 'page-d', 'page-e'].map(id =>
+                makeTestResource({ id })
+            );
+
+            await repository.insertAsync({
+                resourceType: 'ScaffoldingTestResource',
+                resources
+            });
+
+            const securityQuery = {
+                'meta.security': {
+                    $elemMatch: {
+                        system: 'https://www.icanbwell.com/access',
+                        code: 'test-access'
+                    }
+                }
+            };
+
+            // Page 1: limit 3
+            const page1 = await repository.searchAsync({
+                resourceType: 'ScaffoldingTestResource',
+                mongoQuery: securityQuery,
+                options: { limit: 3 }
+            });
+
+            expect(page1.rows.length).toBe(3);
+            expect(page1.hasMore).toBe(true);
+
+            const page1Ids = page1.rows.map(r => JSON.parse(r._fhir_resource).id);
+
+            // Page 2: limit 3, cursor = last id from page 1
+            const lastId = page1Ids[page1Ids.length - 1];
+            const page2 = await repository.searchAsync({
+                resourceType: 'ScaffoldingTestResource',
+                mongoQuery: {
+                    ...securityQuery,
+                    _uuid: { $gt: lastId }
+                },
+                options: { limit: 3 }
+            });
+
+            const page2Ids = page2.rows.map(r => JSON.parse(r._fhir_resource).id);
+
+            // No overlap between pages
+            for (const id of page2Ids) {
+                expect(page1Ids).not.toContain(id);
+            }
+
+            // Together we should have all 5
+            const allIds = [...page1Ids, ...page2Ids];
+            expect(allIds.length).toBe(5);
+            expect(allIds.sort()).toEqual(['page-a', 'page-b', 'page-c', 'page-d', 'page-e']);
+        });
+
+        test('empty second page when all results fit on first page', async () => {
+            const resources = ['small-a', 'small-b'].map(id =>
+                makeTestResource({ id })
+            );
+
+            await repository.insertAsync({
+                resourceType: 'ScaffoldingTestResource',
+                resources
+            });
+
+            const result = await repository.searchAsync({
+                resourceType: 'ScaffoldingTestResource',
+                mongoQuery: {
+                    'meta.security': {
+                        $elemMatch: {
+                            system: 'https://www.icanbwell.com/access',
+                            code: 'test-access'
+                        }
+                    }
+                },
+                options: { limit: 10 }
+            });
+
+            expect(result.rows.length).toBe(2);
+            expect(result.hasMore).toBe(false);
+        });
+    });
 });

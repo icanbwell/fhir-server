@@ -90,15 +90,16 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(query_params._ownerTags).toEqual(['org-1']);
         });
 
-        test('pagination cursor generates seek clause', () => {
+        test('pagination cursor seeks on id column (matches _uuid.$gt pattern)', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { accessTags: [], ownerTags: [] },
-                paginationCursor: 'cursor-value'
+                paginationCursor: 'some-uuid-value'
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
-            expect(query).toContain('recorded > {_seekCursor:String}');
-            expect(query_params._seekCursor).toBe('cursor-value');
+            expect(query).toContain('id > {_seekCursor:String}');
+            expect(query).not.toContain('recorded > {_seekCursor');
+            expect(query_params._seekCursor).toBe('some-uuid-value');
         });
 
         test('LIMIT and OFFSET are parameterized', () => {
