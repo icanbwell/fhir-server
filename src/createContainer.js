@@ -1039,7 +1039,8 @@ const createContainer = function () {
             configManager: c.configManager,
             oauthClientCredentialsHelper: c.oauthClientCredentialsHelper,
             auditLogger: c.auditLogger,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            requestSpecificCache: c.requestSpecificCache
         }
     ));
 

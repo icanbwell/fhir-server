@@ -10,6 +10,7 @@ const { isUuid, generateUUID } = require('../utils/uid.util');
 const { OAuthClientCredentialsHelper } = require('../utils/oauthClientCredentialsHelper');
 const { AuditLogger } = require('../utils/auditLogger');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
+const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 
 class PersonMatchManager {
     /**
@@ -19,6 +20,7 @@ class PersonMatchManager {
      * @param {OAuthClientCredentialsHelper} oauthClientCredentialsHelper
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {RequestSpecificCache} requestSpecificCache
      */
     constructor (
         {
@@ -26,7 +28,8 @@ class PersonMatchManager {
             configManager,
             oauthClientCredentialsHelper,
             auditLogger,
-            postRequestProcessor
+            postRequestProcessor,
+            requestSpecificCache
         }
     ) {
         /**
@@ -58,6 +61,12 @@ class PersonMatchManager {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {RequestSpecificCache}
+         */
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
     }
 
     /**
@@ -220,6 +229,7 @@ class PersonMatchManager {
             Accept: 'application/json',
             Authorization: `Bearer ${accessToken}`
         };
+        const requestId = requestInfo ? requestInfo.requestId : undefined;
         try {
             /**
              * @type {request.Response}
@@ -231,15 +241,16 @@ class PersonMatchManager {
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)
             .timeout(this.configManager.requestTimeoutMs);
             const json = res.body;
-            if (requestInfo) {
+            if (requestId) {
                 this.postRequestProcessor.add({
-                    requestId: requestInfo.requestId,
+                    requestId,
                     fnTask: async () => {
                         await this.auditLogger.logAuditEntryAsync({
                             requestInfo,
                             base_version: '4_0_0',
                             resourceType: sourceType,
                             operation: 'read',
+                            args: {},
                             ids: [sourceId]
                         });
                         await this.auditLogger.logAuditEntryAsync({
@@ -247,6 +258,7 @@ class PersonMatchManager {
                             base_version: '4_0_0',
                             resourceType: targetType,
                             operation: 'read',
+                            args: {},
                             ids: [targetId]
                         });
                     }
@@ -269,6 +281,11 @@ class PersonMatchManager {
                 }).toJSON();
             }
             throw error;
+        } finally {
+            if (requestId) {
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
+            }
         }
     }
 
@@ -405,6 +422,7 @@ class PersonMatchManager {
             Authorization: `Bearer ${accessToken}`
         };
 
+        const requestId = requestInfo ? requestInfo.requestId : undefined;
         try {
             const res = await superagent
                 .post(url)
@@ -412,18 +430,21 @@ class PersonMatchManager {
                 .set(header)
                 .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.configManager.requestTimeoutMs);
-            this.postRequestProcessor.add({
-                requestId: requestInfo.requestId,
-                fnTask: async () => {
-                    await this.auditLogger.logAuditEntryAsync({
-                        requestInfo,
-                        base_version: '4_0_0',
-                        resourceType,
-                        operation: 'read',
-                        ids: [id]
-                    });
-                }
-            });
+            if (requestId) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version: '4_0_0',
+                            resourceType,
+                            operation: 'read',
+                            args: {},
+                            ids: [id]
+                        });
+                    }
+                });
+            }
             return includeMatchRequest
                 ? { matchRequest: parameters, matchResponse: res.body }
                 : res.body;
@@ -440,6 +461,11 @@ class PersonMatchManager {
                 }).toJSON();
             }
             throw error;
+        } finally {
+            if (requestId) {
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
+            }
         }
     }
 }
