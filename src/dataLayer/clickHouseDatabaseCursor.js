@@ -15,10 +15,11 @@ class ClickHouseDatabaseCursor {
      * @property {string} resourceType
      * @property {Object[]} results - Array of ClickHouse row objects (each has a `resource` field)
      * @property {Object} query - The original query (for diagnostics)
+     * @property {string} [database] - ClickHouse database name (defaults to 'fhir')
      *
      * @param {ClickHouseDatabaseCursorOptions} options
      */
-    constructor ({ base_version, resourceType, results, query }) {
+    constructor ({ base_version, resourceType, results, query, database }) {
         assertIsValid(base_version);
         assertIsValid(resourceType);
 
@@ -56,6 +57,11 @@ class ClickHouseDatabaseCursor {
          * @type {boolean}
          */
         this._empty = false;
+
+        /**
+         * @type {string}
+         */
+        this._database = database || 'fhir';
     }
 
     /**
@@ -237,14 +243,14 @@ class ClickHouseDatabaseCursor {
      * @return {string}
      */
     getCollection () {
-        return 'AuditEvent_4_0_0';
+        return `${this.resourceType}_${this.base_version}`;
     }
 
     /**
      * @return {string}
      */
     getDatabase () {
-        return 'fhir';
+        return this._database;
     }
 }
 

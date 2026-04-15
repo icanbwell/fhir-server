@@ -1,4 +1,5 @@
 const { TABLES } = require('../../../constants/clickHouseConstants');
+const { logWarn } = require('../../../operations/common/logging');
 
 const TABLE_NAME = TABLES.AUDIT_EVENT;
 
@@ -36,6 +37,22 @@ const SORT_FIELD_MAP = {
     _id: '_uuid'
 };
 
+/**
+ * Validates that a field identifier is safe to interpolate into SQL.
+ * Allows only alphanumeric characters, dots, and underscores.
+ * @param {string} identifier
+ * @returns {boolean}
+ */
+const SAFE_IDENTIFIER_PATTERN = /^[a-zA-Z0-9_.]+$/;
+
+function isSafeIdentifier (identifier, context) {
+    const safe = typeof identifier === 'string' && SAFE_IDENTIFIER_PATTERN.test(identifier);
+    if (!safe) {
+        logWarn('Unsafe ClickHouse identifier rejected', { identifier, context });
+    }
+    return safe;
+}
+
 class AuditEventQueryTranslator {
     constructor () {
         this._paramCounter = 0;
@@ -67,8 +84,18 @@ class AuditEventQueryTranslator {
             : '';
 
         const orderBy = this._buildOrderBy(options.sort);
-        const limitClause = options.limit ? `LIMIT ${Number(options.limit)}` : '';
-        const offsetClause = options.skip ? `OFFSET ${Number(options.skip)}` : '';
+
+        let limitClause = '';
+        if (options.limit != null && Number.isFinite(Number(options.limit))) {
+            params.limit = Number(options.limit);
+            limitClause = 'LIMIT {limit:UInt32}';
+        }
+
+        let offsetClause = '';
+        if (options.skip != null && Number.isFinite(Number(options.skip))) {
+            params.skip = Number(options.skip);
+            offsetClause = 'OFFSET {skip:UInt32}';
+        }
 
         const sql = [
             `SELECT resource, _uuid FROM ${TABLE_NAME}`,
@@ -167,7 +194,7 @@ class AuditEventQueryTranslator {
         // Check dedicated scalar columns
         const mapping = FIELD_COLUMN_MAP[fieldPath];
         if (mapping) {
-            return this._translateDedicatedColumn(mapping, value, params);
+            return this._translateDedicatedColumn(mapping, value, params, fieldPath);
         }
 
         // Check array column prefixes (agent.who.*, entity.what.*, agent.altId)
@@ -183,13 +210,17 @@ class AuditEventQueryTranslator {
 
     /**
      * Translates a query against a dedicated ClickHouse column
+     * @param {Object} mapping
+     * @param {*} value
+     * @param {Object} params
+     * @param {string} fieldPath - Original MongoDB field path
      */
-    _translateDedicatedColumn (mapping, value, params) {
+    _translateDedicatedColumn (mapping, value, params, fieldPath) {
         const { column, type } = mapping;
 
         if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
             // Operator object: { $gte: ..., $lt: ..., $in: [...], etc. }
-            return this._translateOperators(column, value, params, type);
+            return this._translateOperators(column, value, params, type, fieldPath);
         }
 
         // Direct equality
@@ -249,8 +280,13 @@ class AuditEventQueryTranslator {
 
     /**
      * Translates operator objects ($gte, $lt, $in, etc.) for a dedicated column
+     * @param {string} column - ClickHouse column name
+     * @param {Object} operators - Operator object
+     * @param {Object} params - Accumulator for query_params
+     * @param {string} type - Column type ('scalar' or 'datetime')
+     * @param {string} fieldPath - Original MongoDB field path
      */
-    _translateOperators (column, operators, params, type) {
+    _translateOperators (column, operators, params, type, fieldPath) {
         const clauses = [];
 
         const opMap = {
@@ -273,7 +309,7 @@ class AuditEventQueryTranslator {
                 clauses.push(`${column} IN {${paramName}:Array(String)}`);
             } else if (op === '$nin') {
                 const paramName = this._nextParam(column);
-                params[paramName] = val.map(v => String(v));
+                params[paramName] = val.map(v => type === 'datetime' ? this._toClickHouseDateTime(v) : String(v));
                 clauses.push(`${column} NOT IN {${paramName}:Array(String)}`);
             } else if (op === '$regex') {
                 const paramName = this._nextParam(column);
@@ -296,20 +332,22 @@ class AuditEventQueryTranslator {
                 clauses.push(val ? `isNotNull(${column})` : `isNull(${column})`);
             } else if (op === '$elemMatch') {
                 clauses.push(this._translateElemMatch(column, val, params));
-            } else if (!op.startsWith('$')) {
+            } else if (!op.startsWith('$') && isSafeIdentifier(op, '_translateOperators')) {
                 // Nested field in an operator position — this is a sub-document query
                 // e.g., { "agent.who": { "_uuid": { "$in": [...] } } }
-                // Check if the parent path maps to an array column
+                // Check if the original field path maps to an array column
+                let matched = false;
                 for (const [prefix, arrayCol] of Object.entries(ARRAY_COLUMN_PREFIXES)) {
-                    if (column === arrayCol || column.startsWith(prefix)) {
+                    if (fieldPath === prefix || fieldPath.startsWith(`${prefix}.`)) {
                         const innerClauses = this._translateArrayColumn(arrayCol, { [op]: val }, params);
                         clauses.push(...innerClauses);
+                        matched = true;
                         break;
                     }
                 }
                 // If not an array column, fall through to JSON
-                if (clauses.length === 0) {
-                    clauses.push(...this._translateJsonField(`${column}.${op}`, val, params));
+                if (!matched) {
+                    clauses.push(...this._translateJsonField(`${fieldPath}.${op}`, val, params));
                 }
             }
         }
@@ -371,6 +409,9 @@ class AuditEventQueryTranslator {
         // Fall back to JSON column query
         const conditions = [];
         for (const [field, val] of Object.entries(elemMatch)) {
+            if (!isSafeIdentifier(field, '_translateElemMatch')) {
+                continue;
+            }
             const jsonPath = `resource.${column}.${field}`;
             if (typeof val === 'object' && val.$in) {
                 const paramName = this._nextParam('em');
@@ -386,9 +427,51 @@ class AuditEventQueryTranslator {
     }
 
     /**
+     * Translates a $regex operator against a JSON column path
+     */
+    _translateJsonRegex (jsonPath, pattern, options, params) {
+        const paramName = this._nextParam('j');
+        const patternStr = String(pattern);
+        if (patternStr.startsWith('^')) {
+            params[paramName] = patternStr.substring(1) + '%';
+            const caseInsensitive = options && options.includes('i');
+            return caseInsensitive
+                ? `${jsonPath} ILIKE {${paramName}:String}`
+                : `${jsonPath} LIKE {${paramName}:String}`;
+        }
+        params[paramName] = patternStr;
+        return `match(${jsonPath}, {${paramName}:String})`;
+    }
+
+    /**
+     * Translates a $elemMatch operator against a JSON column path
+     */
+    _translateJsonElemMatch (jsonPath, elemMatch, params) {
+        const conditions = [];
+        for (const [field, fieldVal] of Object.entries(elemMatch)) {
+            if (!isSafeIdentifier(field, '_translateJsonElemMatch')) {
+                continue;
+            }
+            if (typeof fieldVal === 'object' && fieldVal.$in) {
+                const pn = this._nextParam('j');
+                params[pn] = fieldVal.$in.map(String);
+                conditions.push(`${jsonPath}.${field} IN {${pn}:Array(String)}`);
+            } else {
+                const pn = this._nextParam('j');
+                params[pn] = String(fieldVal);
+                conditions.push(`${jsonPath}.${field} = {${pn}:String}`);
+            }
+        }
+        return conditions.length > 0 ? conditions.join(' AND ') : null;
+    }
+
+    /**
      * Translates a field query against the resource JSON column
      */
     _translateJsonField (fieldPath, value, params) {
+        if (!isSafeIdentifier(fieldPath, '_translateJsonField')) {
+            return [];
+        }
         const jsonPath = `resource.${fieldPath}`;
 
         if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
@@ -417,43 +500,17 @@ class AuditEventQueryTranslator {
                     params[paramName] = val.map(String);
                     clauses.push(`${jsonPath} NOT IN {${paramName}:Array(String)}`);
                 } else if (op === '$regex') {
-                    const paramName = this._nextParam('j');
-                    let pattern = String(val);
-                    if (pattern.startsWith('^')) {
-                        params[paramName] = pattern.substring(1) + '%';
-                        const caseInsensitive = value.$options && value.$options.includes('i');
-                        clauses.push(
-                            caseInsensitive
-                                ? `${jsonPath} ILIKE {${paramName}:String}`
-                                : `${jsonPath} LIKE {${paramName}:String}`
-                        );
-                    } else {
-                        params[paramName] = pattern;
-                        clauses.push(`match(${jsonPath}, {${paramName}:String})`);
-                    }
+                    clauses.push(this._translateJsonRegex(jsonPath, val, value.$options, params));
                 } else if (op === '$exists') {
                     clauses.push(val ? `isNotNull(${jsonPath})` : `isNull(${jsonPath})`);
                 } else if (op === '$elemMatch') {
-                    // For nested array matches in JSON
-                    const conditions = [];
-                    for (const [field, fieldVal] of Object.entries(val)) {
-                        if (typeof fieldVal === 'object' && fieldVal.$in) {
-                            const pn = this._nextParam('j');
-                            params[pn] = fieldVal.$in.map(String);
-                            conditions.push(`${jsonPath}.${field} IN {${pn}:Array(String)}`);
-                        } else {
-                            const pn = this._nextParam('j');
-                            params[pn] = String(fieldVal);
-                            conditions.push(`${jsonPath}.${field} = {${pn}:String}`);
-                        }
-                    }
-                    if (conditions.length > 0) {
-                        clauses.push(conditions.join(' AND '));
+                    const condition = this._translateJsonElemMatch(jsonPath, val, params);
+                    if (condition) {
+                        clauses.push(condition);
                     }
                 } else if (op === '$options') {
                     // Skip — handled alongside $regex
-                } else if (!op.startsWith('$')) {
-                    // Sub-document field: { "source.observer": { "_uuid": "..." } }
+                } else if (!op.startsWith('$') && isSafeIdentifier(op, '_translateJsonField.subDocument')) {
                     clauses.push(...this._translateJsonField(`${fieldPath}.${op}`, val, params));
                 }
             }
@@ -478,6 +535,9 @@ class AuditEventQueryTranslator {
 
         const parts = [];
         for (const [field, direction] of Object.entries(sort)) {
+            if (!isSafeIdentifier(field, '_buildOrderBy')) {
+                continue;
+            }
             const column = SORT_FIELD_MAP[field] || `resource.${field}`;
             parts.push(`${column} ${direction === -1 ? 'DESC' : 'ASC'}`);
         }

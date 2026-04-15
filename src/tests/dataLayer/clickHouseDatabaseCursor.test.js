@@ -166,12 +166,31 @@ describe('ClickHouseDatabaseCursor', () => {
     });
 
     describe('metadata methods', () => {
-        test('getCollection returns AuditEvent_4_0_0', () => {
+        test('getCollection is computed from resourceType and base_version', () => {
             expect(cursor.getCollection()).toBe('AuditEvent_4_0_0');
+
+            const otherCursor = new ClickHouseDatabaseCursor({
+                base_version: '5_0_0',
+                resourceType: 'Observation',
+                results: [],
+                query: {}
+            });
+            expect(otherCursor.getCollection()).toBe('Observation_5_0_0');
         });
 
-        test('getDatabase returns fhir', () => {
+        test('getDatabase defaults to fhir', () => {
             expect(cursor.getDatabase()).toBe('fhir');
+        });
+
+        test('getDatabase returns configured database', () => {
+            const customCursor = new ClickHouseDatabaseCursor({
+                base_version: '4_0_0',
+                resourceType: 'AuditEvent',
+                results: [],
+                query: {},
+                database: 'custom_db'
+            });
+            expect(customCursor.getDatabase()).toBe('custom_db');
         });
 
         test('getQuery returns original query', () => {

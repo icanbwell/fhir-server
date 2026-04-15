@@ -52,7 +52,8 @@ class ClickHouseStorageProvider extends StorageProvider {
             base_version: this.resourceLocator._base_version,
             resourceType: 'AuditEvent',
             results,
-            query
+            query,
+            database: this.configManager.clickHouseDatabase
         });
     }
 

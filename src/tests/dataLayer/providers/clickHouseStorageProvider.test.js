@@ -83,8 +83,10 @@ describe('ClickHouseStorageProvider', () => {
 
             const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
             expect(callArgs.query).toContain('ORDER BY recorded DESC');
-            expect(callArgs.query).toContain('LIMIT 10');
-            expect(callArgs.query).toContain('OFFSET 5');
+            expect(callArgs.query).toContain('LIMIT {limit:UInt32}');
+            expect(callArgs.query).toContain('OFFSET {skip:UInt32}');
+            expect(callArgs.query_params.limit).toBe(10);
+            expect(callArgs.query_params.skip).toBe(5);
         });
     });
 
@@ -116,7 +118,8 @@ describe('ClickHouseStorageProvider', () => {
             });
 
             const callArgs = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
-            expect(callArgs.query).toContain('LIMIT 1');
+            expect(callArgs.query).toContain('LIMIT {limit:UInt32}');
+            expect(callArgs.query_params.limit).toBe(1);
         });
     });
 

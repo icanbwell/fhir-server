@@ -93,6 +93,21 @@ describe('AuditEventQueryTranslator', () => {
             expect(query).toMatch(/action NOT IN \{action_\d+:Array\(String\)\}/);
             expect(Object.values(query_params)).toContainEqual(['D', 'C']);
         });
+
+        test('$nin on datetime column converts values', () => {
+            const { query, query_params } = translator.buildSearchQuery({
+                query: { recorded: { $nin: ['2024-01-01T00:00:00Z', '2024-02-01T00:00:00Z'] } }
+            });
+
+            expect(query).toMatch(/recorded NOT IN/);
+            const paramValues = Object.values(query_params).find(Array.isArray);
+            expect(paramValues).toContainEqual('2024-01-01 00:00:00');
+            expect(paramValues).toContainEqual('2024-02-01 00:00:00');
+            paramValues.forEach(v => {
+                expect(v).not.toContain('T');
+                expect(v).not.toContain('Z');
+            });
+        });
     });
 
     describe('Array column searches', () => {
@@ -485,32 +500,56 @@ describe('AuditEventQueryTranslator', () => {
             expect(query).toContain('ORDER BY recorded DESC, _uuid ASC');
         });
 
-        test('limit', () => {
-            const { query } = translator.buildSearchQuery({
+        test('limit uses parameterized UInt32', () => {
+            const { query, query_params } = translator.buildSearchQuery({
                 query: {},
                 options: { limit: 20 }
             });
 
-            expect(query).toContain('LIMIT 20');
+            expect(query).toContain('LIMIT {limit:UInt32}');
+            expect(query_params.limit).toBe(20);
         });
 
-        test('skip (offset)', () => {
-            const { query } = translator.buildSearchQuery({
+        test('skip uses parameterized UInt32', () => {
+            const { query, query_params } = translator.buildSearchQuery({
                 query: {},
                 options: { skip: 40 }
             });
 
-            expect(query).toContain('OFFSET 40');
+            expect(query).toContain('OFFSET {skip:UInt32}');
+            expect(query_params.skip).toBe(40);
         });
 
         test('limit + skip combo', () => {
-            const { query } = translator.buildSearchQuery({
+            const { query, query_params } = translator.buildSearchQuery({
                 query: {},
                 options: { limit: 20, skip: 40 }
             });
 
-            expect(query).toContain('LIMIT 20');
-            expect(query).toContain('OFFSET 40');
+            expect(query).toContain('LIMIT {limit:UInt32}');
+            expect(query).toContain('OFFSET {skip:UInt32}');
+            expect(query_params.limit).toBe(20);
+            expect(query_params.skip).toBe(40);
+        });
+
+        test('non-numeric limit is ignored', () => {
+            const { query, query_params } = translator.buildSearchQuery({
+                query: {},
+                options: { limit: 'invalid' }
+            });
+
+            expect(query).not.toContain('LIMIT');
+            expect(query_params.limit).toBeUndefined();
+        });
+
+        test('non-numeric skip is ignored', () => {
+            const { query, query_params } = translator.buildSearchQuery({
+                query: {},
+                options: { skip: 'bad' }
+            });
+
+            expect(query).not.toContain('OFFSET');
+            expect(query_params.skip).toBeUndefined();
         });
 
         test('no limit or skip omits LIMIT and OFFSET', () => {
@@ -593,6 +632,78 @@ describe('AuditEventQueryTranslator', () => {
             });
 
             expect(query).toMatch(/^SELECT resource, _uuid FROM fhir\.AuditEvent_4_0_0/);
+        });
+    });
+
+    describe('SQL injection prevention', () => {
+        test('sort field with SQL injection is dropped', () => {
+            const { query } = translator.buildSearchQuery({
+                query: {},
+                options: { sort: { 'action; DROP TABLE fhir.AuditEvent_4_0_0 --': 1 } }
+            });
+
+            expect(query).not.toContain('DROP');
+            expect(query).not.toContain(';');
+            expect(query).toContain('ORDER BY _uuid ASC');
+        });
+
+        test('sort field with special characters is dropped', () => {
+            const { query } = translator.buildSearchQuery({
+                query: {},
+                options: { sort: { 'field OR 1=1': -1 } }
+            });
+
+            expect(query).not.toContain('OR 1=1');
+            expect(query).toContain('ORDER BY _uuid ASC');
+        });
+
+        test('query field path with injection is dropped', () => {
+            const { query } = translator.buildSearchQuery({
+                query: { 'field; DROP TABLE--': 'value' }
+            });
+
+            expect(query).not.toContain('DROP');
+            expect(query).not.toContain(';');
+        });
+
+        test('valid sort fields still work after sanitization', () => {
+            const { query } = translator.buildSearchQuery({
+                query: {},
+                options: { sort: { recorded: -1 } }
+            });
+
+            expect(query).toContain('ORDER BY recorded DESC');
+        });
+
+        test('valid dotted JSON field paths still work', () => {
+            const { query, query_params } = translator.buildSearchQuery({
+                query: { 'source.observer._uuid': 'Person/abc' }
+            });
+
+            expect(query).toContain('resource.source.observer._uuid');
+            expect(Object.values(query_params)).toContain('Person/abc');
+        });
+
+        test('elemMatch field with injection is dropped', () => {
+            const { query } = translator.buildSearchQuery({
+                query: {
+                    'type.coding': {
+                        $elemMatch: { 'code; DROP TABLE--': 'val' }
+                    }
+                }
+            });
+
+            expect(query).not.toContain('DROP');
+        });
+
+        test('sub-document key with injection is dropped', () => {
+            const { query } = translator.buildSearchQuery({
+                query: {
+                    'source.observer': { 'x; DROP TABLE--': 'val' }
+                }
+            });
+
+            expect(query).not.toContain('DROP');
         });
     });
 });
