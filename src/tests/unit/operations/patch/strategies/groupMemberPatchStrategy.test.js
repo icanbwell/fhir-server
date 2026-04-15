@@ -221,7 +221,7 @@ describe('GroupMemberPatchStrategy', () => {
             });
         });
 
-        test('remove with /member/- path works (same as /member)', async () => {
+        test('remove with /member/- path works (same as /member/)', async () => {
             const memberOperations = [
                 { op: 'remove', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
             ];
@@ -244,6 +244,29 @@ describe('GroupMemberPatchStrategy', () => {
                 ],
                 groupResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
             });
+        });
+
+        test('throws error when value.entity.reference is missing', async () => {
+            const testCases = [
+                { op: 'add', path: '/member/-' },
+                { op: 'add', path: '/member/-', value: {} },
+                { op: 'add', path: '/member/-', value: { entity: {} } },
+                { op: 'remove', path: '/member/', value: { entity: {} } }
+            ];
+
+            for (const badOp of testCases) {
+                await expect(
+                    strategy.executeMemberOperations({
+                        requestInfo: {},
+                        parsedArgs: {},
+                        resourceType: 'Group',
+                        id: 'group-1',
+                        base_version: '4_0_0',
+                        memberOperations: [badOp],
+                        foundResource: { id: 'group-1', resourceType: 'Group', _sourceAssigningAuthority: SOURCE_AUTHORITY }
+                    })
+                ).rejects.toThrow('Missing required value.entity.reference');
+            }
         });
 
         test('throws error for unsupported operations', async () => {
