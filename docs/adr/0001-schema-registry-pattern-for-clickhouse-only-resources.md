@@ -2,12 +2,12 @@
 
 ## Status
 
-Implementing (EA-2193)
+Implemented
 
 **Scope notes:**
 - Scaffolding implements MergeTree engine only. ReplacingMergeTree support (needed by Observation for at-least-once delivery dedup) ships with the Observation PR.
 - `writeStrategy` names a capability, not an implementation. Concrete implementations live in the executor layer and are selected by DI container wiring.
-- DCON-3409 implemented AuditEvent ClickHouse writes as a bespoke side-channel. EA-2202 tracks migrating AuditEvent to the generic scaffolding.
+- A bespoke AuditEvent ClickHouse write path exists separately. A follow-on ticket tracks migrating it to the generic scaffolding.
 
 ## Context
 
@@ -204,13 +204,13 @@ CREATE TABLE fhir.fhir_resources (
 
 ## Related Decisions
 
-- EA-2202: Migration of AuditEvent from bespoke ClickHouse path to generic scaffolding
-- [Future] ReplacingMergeTree support for Observation (deterministic IDs + dedup)
-- [Future] ClickHouse cluster configuration and high availability
-- [Future] TTL policies for audit log retention
+- Migration of AuditEvent from bespoke ClickHouse path to generic scaffolding
+- ReplacingMergeTree support for Observation (deterministic IDs + dedup)
+- ClickHouse cluster configuration and high availability
+- TTL policies for audit log retention
 
 ---
 
 **Date**: 2026-03-05
 **Authors**: Bill Field
-**Status**: Proposed (awaiting implementation)
+**Status**: Implemented
