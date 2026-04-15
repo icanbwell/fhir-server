@@ -52,7 +52,7 @@ class GenericClickHouseQueryBuilder {
         const skip = options.skip || 0;
         const { whereClauses, params } = this._buildWhereClauses(parsedQuery, schema);
 
-        this._addSeekClause(parsedQuery.paginationCursor, schema.seekKey, whereClauses, params);
+        this._addSeekClause(parsedQuery.paginationCursor, schema, whereClauses, params);
 
         params._limit = limit;
         if (skip > 0) {
@@ -311,16 +311,22 @@ class GenericClickHouseQueryBuilder {
      * Adds seek pagination condition to the WHERE clauses.
      *
      * @param {string|null} cursor
-     * @param {string[]} seekKey
+     * @param {Object} schema
      * @param {string[]} whereClauses - mutated
      * @param {Object} params - mutated
      * @private
      */
-    _addSeekClause (cursor, seekKey, whereClauses, params) {
+    _addSeekClause (cursor, schema, whereClauses, params) {
         if (!cursor) return;
 
-        const firstColumn = seekKey[0];
-        params._seekCursor = cursor;
+        const firstColumn = schema.seekKey[0];
+        const fieldMapping = Object.values(schema.fieldMappings || {})
+            .find(m => m.column === firstColumn);
+        const isDatetime = fieldMapping && fieldMapping.type === 'datetime';
+
+        params._seekCursor = isDatetime
+            ? DateTimeFormatter.toClickHouseDateTime(cursor)
+            : cursor;
         whereClauses.push(`${firstColumn} > {_seekCursor:String}`);
     }
 }

@@ -92,8 +92,8 @@ async function initializeTestSchema (manager) {
         const schemaSQL = fs.readFileSync(TEST_SCHEMA_PATH, 'utf8');
         const statements = schemaSQL
             .split(';')
-            .map(s => s.trim())
-            .filter(s => s.length > 0 && !s.startsWith('--'));
+            .map(s => s.replace(/--.*$/gm, '').trim())
+            .filter(s => s.length > 0);
 
         for (const stmt of statements) {
             await manager.queryAsync({ query: stmt });
