@@ -104,11 +104,25 @@ class GenericClickHouseQueryParser {
                 continue;
             }
 
+            // Handle $elemMatch: R4SearchQueryCreator uses $elemMatch for
+            // CodeableConcept.coding arrays (e.g., code.coding: { $elemMatch: { system: ..., code: ... } }).
+            // Expand into separate conditions for each sub-field mapped in fieldMappings.
+            if (value !== null && typeof value === 'object' && value.$elemMatch) {
+                this._expandElemMatch(key, value.$elemMatch, fieldMappings, results);
+                continue;
+            }
+
+            // Resolve R4 reference paths: R4SearchQueryCreator produces
+            // 'subject._sourceId' for reference params. Map to the schema's
+            // 'subject.reference' field mapping.
+            const resolvedKey = this._resolveFieldPath(key, fieldMappings);
+
             // Look up in fieldMappings
-            const mapping = fieldMappings[key];
+            const mapping = fieldMappings[resolvedKey];
             if (!mapping) {
                 logWarn('GenericClickHouseQueryParser: unmapped field path, skipping', {
-                    fieldPath: key
+                    fieldPath: key,
+                    resolvedKey
                 });
                 continue;
             }
@@ -119,7 +133,7 @@ class GenericClickHouseQueryParser {
                 for (const [op, opValue] of Object.entries(value)) {
                     if (op.startsWith('$')) {
                         results.push({
-                            fieldPath: key,
+                            fieldPath: resolvedKey,
                             column: mapping.column,
                             type: mapping.type,
                             operator: op,
@@ -130,11 +144,96 @@ class GenericClickHouseQueryParser {
             } else {
                 // Direct equality: { field: value }
                 results.push({
-                    fieldPath: key,
+                    fieldPath: resolvedKey,
                     column: mapping.column,
                     type: mapping.type,
                     operator: '$eq',
                     value
+                });
+            }
+        }
+    }
+
+    /**
+     * Resolves R4SearchQueryCreator field paths to schema field mapping keys.
+     *
+     * R4 reference filters use '._sourceId' suffix (e.g., 'subject._sourceId'),
+     * but schema fieldMappings key references as '.reference' (e.g., 'subject.reference').
+     *
+     * @param {string} key - MongoDB field path from R4SearchQueryCreator
+     * @param {Object} fieldMappings - schema.fieldMappings
+     * @returns {string} Resolved key that matches fieldMappings
+     * @private
+     */
+    _resolveFieldPath (key, fieldMappings) {
+        // Direct match — most common case
+        if (fieldMappings[key]) {
+            return key;
+        }
+
+        // R4 reference path: 'subject._sourceId' → 'subject.reference'
+        if (key.endsWith('._sourceId') || key.endsWith('._uuid')) {
+            const basePath = key.replace(/\._(sourceId|uuid)$/, '.reference');
+            if (fieldMappings[basePath]) {
+                return basePath;
+            }
+        }
+
+        return key;
+    }
+
+    /**
+     * Expands a MongoDB $elemMatch on an array field into separate conditions
+     * for each sub-field that has a mapping in fieldMappings.
+     *
+     * R4SearchQueryCreator produces queries like:
+     *   { 'code.coding': { $elemMatch: { system: 'http://loinc.org', code: '8867-4' } } }
+     *
+     * This expands to conditions on 'code.coding.system' and 'code.coding.code',
+     * which are mapped to ClickHouse columns in the schema.
+     *
+     * @param {string} arrayPath - The array field path (e.g., 'code.coding')
+     * @param {Object} elemMatch - The $elemMatch value
+     * @param {Object} fieldMappings - schema.fieldMappings
+     * @param {FieldCondition[]} results - accumulator
+     * @private
+     */
+    _expandElemMatch (arrayPath, elemMatch, fieldMappings, results) {
+        for (const [subField, subValue] of Object.entries(elemMatch)) {
+            // Skip MongoDB operators inside $elemMatch
+            if (subField.startsWith('$')) continue;
+
+            const fullPath = `${arrayPath}.${subField}`;
+            const mapping = fieldMappings[fullPath];
+            if (!mapping) {
+                logDebug('GenericClickHouseQueryParser: unmapped $elemMatch sub-field, skipping', {
+                    arrayPath,
+                    subField,
+                    fullPath
+                });
+                continue;
+            }
+
+            if (subValue !== null && typeof subValue === 'object' && !Array.isArray(subValue)) {
+                // Operator value: { $in: [...] }
+                for (const [op, opValue] of Object.entries(subValue)) {
+                    if (op.startsWith('$')) {
+                        results.push({
+                            fieldPath: fullPath,
+                            column: mapping.column,
+                            type: mapping.type,
+                            operator: op,
+                            value: opValue
+                        });
+                    }
+                }
+            } else {
+                results.push({
+                    fieldPath: fullPath,
+                    column: mapping.column,
+                    type: mapping.type,
+                    operator: '$eq',
+                    value: subValue
                 });
             }
         }

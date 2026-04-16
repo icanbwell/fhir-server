@@ -97,9 +97,16 @@ class GenericClickHouseRepository {
     async findByIdAsync ({ resourceType, id, mongoQuery }) {
         try {
             const schema = this.schemaRegistry.getSchema(resourceType);
-            const securityConditions = mongoQuery
-                ? this.queryParser.parse(mongoQuery, schema).securityConditions
-                : { accessTags: [], ownerTags: [] };
+            let securityConditions = null;
+            if (mongoQuery) {
+                const parsed = this.queryParser.parse(mongoQuery, schema);
+                // Only enforce security if tags were actually present in the query.
+                // Wildcard access (access/*.*) produces no security tags — the caller
+                // already passed authorization at the operation level.
+                if (parsed.securityConditions.accessTags.length > 0) {
+                    securityConditions = parsed.securityConditions;
+                }
+            }
             const queryDef = this.queryBuilder.buildFindByIdQuery(id, schema, securityConditions);
             const rows = await this.clickHouseClientManager.queryAsync(queryDef);
             return (rows && rows.length > 0) ? rows[0] : null;

@@ -176,13 +176,16 @@ class GenericClickHouseQueryBuilder {
         const params = { [RESERVED_PARAMS.ID]: id };
         const whereClauses = [`id = {${RESERVED_PARAMS.ID}:String}`];
 
-        // Security filtering mandatory — same as search queries
-        const securityClauses = this._buildSecurityClauses(
-            securityConditions || { accessTags: [], ownerTags: [] },
-            schema.securityMappings,
-            params
-        );
-        whereClauses.push(...securityClauses);
+        // Security filtering when security conditions are provided.
+        // Null securityConditions = wildcard access (access/*.*), skip enforcement.
+        if (securityConditions) {
+            const securityClauses = this._buildSecurityClauses(
+                securityConditions,
+                schema.securityMappings,
+                params
+            );
+            whereClauses.push(...securityClauses);
+        }
 
         const isReplacing = schema.engine === ENGINE_TYPES.REPLACING_MERGE_TREE;
 
@@ -240,13 +243,12 @@ class GenericClickHouseQueryBuilder {
      * @throws {Error}
      */
     validateRequiredFilters (parsedQuery, schema) {
-        // Check required filters are present
+        // Check required filters are present.
+        // Collect fieldPaths recursively — R4SearchQueryCreator wraps
+        // date conditions inside $or with multiple effective[x] variants.
         if (schema.requiredFilters && schema.requiredFilters.length > 0) {
-            const presentFields = new Set(
-                parsedQuery.fieldConditions
-                    .filter(c => c.fieldPath)
-                    .map(c => c.fieldPath)
-            );
+            const presentFields = new Set();
+            this._collectFieldPaths(parsedQuery.fieldConditions, presentFields);
 
             for (const required of schema.requiredFilters) {
                 if (!presentFields.has(required)) {
@@ -266,14 +268,18 @@ class GenericClickHouseQueryBuilder {
 
     /** @private */
     _validateDateRange (fieldConditions, schema) {
+        // Flatten all leaf conditions from the tree (including inside $or/$and)
+        const allLeaves = [];
+        this._collectLeafConditions(fieldConditions, allLeaves);
+
         // Check all datetime fields, not just required ones
         for (const [fieldPath, mapping] of Object.entries(schema.fieldMappings)) {
             if (mapping.type !== 'datetime') continue;
 
-            const gteCondition = fieldConditions.find(
+            const gteCondition = allLeaves.find(
                 c => c.fieldPath === fieldPath && (c.operator === '$gte' || c.operator === '$gt')
             );
-            const ltCondition = fieldConditions.find(
+            const ltCondition = allLeaves.find(
                 c => c.fieldPath === fieldPath && (c.operator === '$lt' || c.operator === '$lte')
             );
 
@@ -288,6 +294,41 @@ class GenericClickHouseQueryBuilder {
                         `(requested: ${Math.ceil(rangeDays)} days)`
                     );
                 }
+            }
+        }
+    }
+
+    /**
+     * Recursively collects leaf conditions (those with fieldPath) from a condition tree.
+     * @param {Array} conditions
+     * @param {Array} leaves - accumulator
+     * @private
+     */
+    _collectLeafConditions (conditions, leaves) {
+        for (const condition of conditions) {
+            if (condition.fieldPath) {
+                leaves.push(condition);
+            }
+            if (condition.conditions && Array.isArray(condition.conditions)) {
+                this._collectLeafConditions(condition.conditions, leaves);
+            }
+        }
+    }
+
+    /**
+     * Recursively collects all fieldPaths from a condition tree.
+     * Handles leaf conditions, $or nodes, and $and nodes.
+     * @param {Array} conditions
+     * @param {Set<string>} fieldPaths - accumulator
+     * @private
+     */
+    _collectFieldPaths (conditions, fieldPaths) {
+        for (const condition of conditions) {
+            if (condition.fieldPath) {
+                fieldPaths.add(condition.fieldPath);
+            }
+            if (condition.conditions && Array.isArray(condition.conditions)) {
+                this._collectFieldPaths(condition.conditions, fieldPaths);
             }
         }
     }
@@ -316,9 +357,18 @@ class GenericClickHouseQueryBuilder {
             condition => this._conditionTreeToSql(condition, params, context)
         ).filter(Boolean);
 
-        const securityClauses = this._buildSecurityClauses(
-            parsedQuery.securityConditions, schema.securityMappings, params
-        );
+        // Security filtering: skip when caller has wildcard access (empty tags).
+        // Wildcard access (access/*.*) passes no security tags — authorization
+        // was already verified at the operation/JWT level.
+        const { accessTags, ownerTags } = parsedQuery.securityConditions;
+        const hasSecurityContext = (accessTags && accessTags.length > 0) ||
+            (ownerTags && ownerTags.length > 0);
+
+        const securityClauses = hasSecurityContext
+            ? this._buildSecurityClauses(
+                parsedQuery.securityConditions, schema.securityMappings, params
+            )
+            : [];
 
         return {
             whereClauses: [...fieldClauses, ...securityClauses],

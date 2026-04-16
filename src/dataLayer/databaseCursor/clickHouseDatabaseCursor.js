@@ -76,14 +76,15 @@ class ClickHouseDatabaseCursor {
     }
 
     /**
-     * Returns the next raw row.
+     * Returns the next row as a FHIR document.
+     * Extracts the FHIR resource from the _fhir_resource column.
      * @returns {Promise<Object|null>}
      */
     async next () {
         if (this._index >= this._rows.length) {
             return null;
         }
-        return this._rows[this._index++];
+        return this._extractFhirDocument(this._rows[this._index++]);
     }
 
     /**

@@ -47,6 +47,30 @@ class ClickHouseStorageProvider extends StorageProvider {
             limit: options?.limit
         });
 
+        // Handle id/_uuid lookup (used by searchById operations).
+        // The query may be { _uuid: '<id>' } with no security tags when the
+        // caller has wildcard access (access/*.*). Skip security enforcement
+        // in findById — access control already passed at the JWT/operation level.
+        const idLookup = this._extractIdLookup(query);
+        if (idLookup) {
+            const row = await this.repository.findByIdAsync({
+                resourceType: this.resourceType,
+                id: idLookup,
+                mongoQuery: null
+            });
+            const rows = row ? [row] : [];
+            return new ClickHouseDatabaseCursor({
+                rows,
+                resourceType: this.resourceType,
+                base_version: '4_0_0',
+                fhirResourceColumn: schema.fhirResourceColumn,
+                fhirResourceColumnType: schema.fhirResourceColumnType,
+                hasMore: false,
+                query,
+                tableName: schema.tableName
+            });
+        }
+
         const { rows, hasMore } = await this.repository.searchAsync({
             resourceType: this.resourceType,
             mongoQuery: query,
@@ -76,11 +100,18 @@ class ClickHouseStorageProvider extends StorageProvider {
      * @returns {Promise<Object|null>}
      */
     async findOneAsync({ query, options }) {
-        // If query has an id field, use findById for efficiency
-        if (query.id && typeof query.id === 'string') {
+        // If query has an id or _uuid field, use findById for efficiency.
+        // SearchByIdOperation passes { _uuid: '<uuid>' }, not { id: '<id>' }.
+        const lookupId = (query.id && typeof query.id === 'string')
+            ? query.id
+            : (query._uuid && typeof query._uuid === 'string')
+                ? query._uuid
+                : null;
+
+        if (lookupId) {
             const row = await this.repository.findByIdAsync({
                 resourceType: this.resourceType,
-                id: query.id,
+                id: lookupId,
                 mongoQuery: query
             });
             if (!row) return null;
@@ -136,6 +167,21 @@ class ClickHouseStorageProvider extends StorageProvider {
      */
     getStorageType() {
         return STORAGE_PROVIDER_TYPES.CLICKHOUSE;
+    }
+
+    /**
+     * Detects if a query is a simple id or _uuid lookup.
+     * SearchByIdOperation passes { _uuid: '<id>' } for GET /Resource/:id.
+     * @param {Object} query
+     * @returns {string|null} The id value, or null if not a simple lookup
+     * @private
+     */
+    _extractIdLookup(query) {
+        if (!query || typeof query !== 'object') return null;
+        // Simple { _uuid: 'value' } query (possibly with meta.security)
+        if (query._uuid && typeof query._uuid === 'string') return query._uuid;
+        if (query.id && typeof query.id === 'string') return query.id;
+        return null;
     }
 
     /**

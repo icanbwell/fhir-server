@@ -256,10 +256,12 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(query_params._id).toBe('resource-123');
         });
 
-        test('findByIdQuery enforces security (throws on empty accessTags)', () => {
-            expect(() => builder.buildFindByIdQuery(
-                'resource-123', schema, { accessTags: [], ownerTags: [] }
-            )).toThrow('Security violation');
+        test('findByIdQuery with null security skips security filtering (wildcard access)', () => {
+            const { query } = builder.buildFindByIdQuery(
+                'resource-123', schema, null
+            );
+            expect(query).toContain('id = {_id:String}');
+            expect(query).not.toContain('hasAny(access_tags');
         });
     });
 
@@ -339,22 +341,24 @@ describe('GenericClickHouseQueryBuilder', () => {
     });
 
     describe('security enforcement', () => {
-        test('throws on empty accessTags (tenant isolation mandatory)', () => {
+        test('empty accessTags skips security filtering (wildcard access)', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { accessTags: [], ownerTags: [] },
                 paginationCursor: null
             };
-            expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('Security violation');
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).not.toContain('hasAny(access_tags');
         });
 
-        test('throws when accessTags is undefined', () => {
+        test('undefined accessTags skips security filtering', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { ownerTags: [] },
                 paginationCursor: null
             };
-            expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('Security violation');
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).not.toContain('hasAny(access_tags');
         });
     });
 
@@ -468,13 +472,14 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(() => builder.buildSearchQuery(parsed, schema)).not.toThrow();
         });
 
-        test('count query also enforces security', () => {
+        test('count query skips security with empty accessTags (wildcard access)', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { accessTags: [], ownerTags: [] },
                 paginationCursor: null
             };
-            expect(() => builder.buildCountQuery(parsed, schema)).toThrow('Security violation');
+            const { query } = builder.buildCountQuery(parsed, schema);
+            expect(query).not.toContain('hasAny(access_tags');
         });
 
         test('condition node missing column throws', () => {
