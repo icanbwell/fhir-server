@@ -26,12 +26,13 @@ class DateTimeFormatter {
         // and plain ISO strings. R4SearchQueryCreator may produce '2024-06-01T00:00:00+00:00'.
         let result;
         if (isoDate instanceof Date) {
-            result = isoDate.toISOString();
+            result = isNaN(isoDate.getTime()) ? String(isoDate) : isoDate.toISOString();
         } else {
             const str = String(isoDate);
             // If the string has a timezone offset (e.g., +00:00, -05:00), parse and normalize
             if (/[+-]\d{2}:\d{2}$/.test(str)) {
-                result = new Date(str).toISOString();
+                const parsed = new Date(str);
+                result = isNaN(parsed.getTime()) ? str : parsed.toISOString();
             } else {
                 result = str;
             }

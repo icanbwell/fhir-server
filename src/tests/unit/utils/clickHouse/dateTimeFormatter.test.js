@@ -26,6 +26,32 @@ describe('DateTimeFormatter', () => {
         test('returns null for empty string', () => {
             expect(DateTimeFormatter.toClickHouseDateTime('')).toBe(null);
         });
+
+        test('handles Date objects', () => {
+            const date = new Date('2024-06-15T10:30:00.000Z');
+            const result = DateTimeFormatter.toClickHouseDateTime(date);
+            expect(result).toBe('2024-06-15 10:30:00.000');
+        });
+
+        test('handles timezone offset strings (+00:00)', () => {
+            const result = DateTimeFormatter.toClickHouseDateTime('2024-06-01T00:00:00+00:00');
+            expect(result).toBe('2024-06-01 00:00:00.000');
+        });
+
+        test('handles negative timezone offset strings (-05:00)', () => {
+            const result = DateTimeFormatter.toClickHouseDateTime('2024-06-01T12:00:00-05:00');
+            expect(result).toBe('2024-06-01 17:00:00.000');
+        });
+
+        test('does not crash on malformed date with timezone offset', () => {
+            const result = DateTimeFormatter.toClickHouseDateTime('not-a-date+00:00');
+            expect(result).toBe('not-a-date+00:00');
+        });
+
+        test('does not crash on invalid Date object', () => {
+            const result = DateTimeFormatter.toClickHouseDateTime(new Date('invalid'));
+            expect(result).toBe('Invalid Date');
+        });
     });
 
     describe('toISODateTime', () => {

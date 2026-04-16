@@ -29,7 +29,7 @@ class ObservationFieldExtractor {
         const row = {
             id: resource.id || '',
             _uuid: resource._uuid || resource.id || '',
-            _sourceId: resource._sourceId || `Observation/${resource.id}`,
+            _sourceId: resource._sourceId || (resource.id ? `Observation/${resource.id}` : ''),
             meta_version_id: this._parseVersionId(meta.versionId),
             effective_datetime: DateTimeFormatter.toClickHouseDateTime(
                 resource.effectiveDateTime || new Date().toISOString()

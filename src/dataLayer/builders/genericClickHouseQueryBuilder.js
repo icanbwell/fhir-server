@@ -357,12 +357,13 @@ class GenericClickHouseQueryBuilder {
             condition => this._conditionTreeToSql(condition, params, context)
         ).filter(Boolean);
 
-        // Security filtering: skip when caller has wildcard access (empty tags).
+        // Security filtering: skip when caller has wildcard access (empty accessTags).
         // Wildcard access (access/*.*) passes no security tags — authorization
         // was already verified at the operation/JWT level.
-        const { accessTags, ownerTags } = parsedQuery.securityConditions;
-        const hasSecurityContext = (accessTags && accessTags.length > 0) ||
-            (ownerTags && ownerTags.length > 0);
+        // Gate on accessTags only — _buildSecurityClauses requires non-empty accessTags,
+        // and ownerTags alone is not a complete security context.
+        const { accessTags } = parsedQuery.securityConditions;
+        const hasSecurityContext = accessTags && accessTags.length > 0;
 
         const securityClauses = hasSecurityContext
             ? this._buildSecurityClauses(
