@@ -103,7 +103,7 @@ describe('PATCH Performance Testing', () => {
 
                 const actualGroupId = createResponse.body.id;
 
-                const patchResponse = await request 
+                const patchResponse = await request
                     .patch(`/4_0_0/Group/${actualGroupId}`)
                     .send(operations)
                     .set(getHeadersWithExternalStorage())
