@@ -127,6 +127,8 @@ class ClickHouseSchemaRegistry {
             errors.push('securityMappings must have accessTags, ownerTags, and sourceAssigningAuthority');
         } else {
             for (const [key, col] of Object.entries(schema.securityMappings)) {
+                // securityFormat is a format flag, not a column reference
+                if (key === 'securityFormat') continue;
                 if (!COLUMN_NAME_PATTERN.test(col)) {
                     errors.push(`securityMappings.${key} column '${col}' must be alphanumeric/underscore only`);
                 }
@@ -134,12 +136,21 @@ class ClickHouseSchemaRegistry {
         }
 
         // fieldMappings: must be an object with valid column names
+        // JSON path expressions (mapping.jsonPath === true) use dot/bracket notation
+        // (e.g., resource.agent[].who._sourceId) instead of plain column names.
+        const JSON_PATH_PATTERN = /^[a-zA-Z_][\w.[\]]*$/;
         if (!schema.fieldMappings || typeof schema.fieldMappings !== 'object') {
             errors.push('fieldMappings must be an object');
         } else {
             for (const [path, mapping] of Object.entries(schema.fieldMappings)) {
-                if (!mapping.column || !COLUMN_NAME_PATTERN.test(mapping.column)) {
-                    errors.push(`fieldMappings['${path}'].column must be alphanumeric/underscore only`);
+                if (mapping.jsonPath) {
+                    if (!mapping.column || !JSON_PATH_PATTERN.test(mapping.column)) {
+                        errors.push(`fieldMappings['${path}'].column must be a valid JSON path (alphanumeric, dots, brackets)`);
+                    }
+                } else {
+                    if (!mapping.column || !COLUMN_NAME_PATTERN.test(mapping.column)) {
+                        errors.push(`fieldMappings['${path}'].column must be alphanumeric/underscore only`);
+                    }
                 }
             }
         }

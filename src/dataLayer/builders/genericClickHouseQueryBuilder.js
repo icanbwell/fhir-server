@@ -2,6 +2,7 @@
 
 const { logDebug } = require('../../operations/common/logging');
 const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
+const { SECURITY_TAG_SYSTEMS } = require('../../constants/securityTagSystems');
 
 // ─── Constants ───────────────────────────────────────────────────
 const DEFAULT_LIMIT = 100;
@@ -298,6 +299,11 @@ class GenericClickHouseQueryBuilder {
     /**
      * Builds security tag WHERE clauses.
      * Empty accessTags is a security violation — tenant isolation is mandatory.
+     * Wildcard '*' in accessTags means unrestricted access — skip the access filter.
+     *
+     * Supports two security column formats via securityMappings.securityFormat:
+     * - 'flat' (default): access_tags Array(String) — uses hasAny()
+     * - 'tuple': meta_security Array(Tuple(system, code)) — uses arrayExists() with lambda
      *
      * @param {{accessTags: string[], ownerTags: string[]}} securityConditions
      * @param {Object} securityMappings
@@ -316,11 +322,30 @@ class GenericClickHouseQueryBuilder {
             );
         }
 
-        clauses.push(`hasAny(${securityMappings.accessTags}, {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)})`);
-        params[RESERVED_PARAMS.ACCESS_TAGS] = accessTags;
+        const hasWildcardAccess = accessTags.includes('*');
+        const isTupleFormat = securityMappings.securityFormat === 'tuple';
+
+        if (!hasWildcardAccess) {
+            if (isTupleFormat) {
+                clauses.push(
+                    `arrayExists(t -> t.1 = '${SECURITY_TAG_SYSTEMS.ACCESS}' AND ` +
+                    `t.2 IN {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)}, ${securityMappings.accessTags})`
+                );
+            } else {
+                clauses.push(`hasAny(${securityMappings.accessTags}, {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)})`);
+            }
+            params[RESERVED_PARAMS.ACCESS_TAGS] = accessTags;
+        }
 
         if (ownerTags.length > 0) {
-            clauses.push(`hasAny(${securityMappings.ownerTags}, {${RESERVED_PARAMS.OWNER_TAGS}:Array(String)})`);
+            if (isTupleFormat) {
+                clauses.push(
+                    `arrayExists(t -> t.1 = '${SECURITY_TAG_SYSTEMS.OWNER}' AND ` +
+                    `t.2 IN {${RESERVED_PARAMS.OWNER_TAGS}:Array(String)}, ${securityMappings.ownerTags})`
+                );
+            } else {
+                clauses.push(`hasAny(${securityMappings.ownerTags}, {${RESERVED_PARAMS.OWNER_TAGS}:Array(String)})`);
+            }
             params[RESERVED_PARAMS.OWNER_TAGS] = ownerTags;
         }
 
@@ -337,6 +362,22 @@ class GenericClickHouseQueryBuilder {
         const paramName = `_p${index}`;
         const column = condition.column;
         const chType = this._clickHouseType(condition.type);
+
+        // Array column searches use has()/hasAny() instead of scalar operators.
+        // This covers both dedicated Array(String) columns (e.g., agent_who)
+        // and JSON path expressions (e.g., resource.agent[].who._sourceId)
+        // which also return arrays.
+        if (condition.type === 'array<string>') {
+            if (condition.operator === '$in') {
+                return { clause: `hasAny(${column}, {${paramName}:Array(${chType})})`, paramName };
+            }
+            if (condition.operator === '$eq') {
+                return { clause: `has(${column}, {${paramName}:${chType}})`, paramName };
+            }
+            if (condition.operator === '$ne') {
+                return { clause: `NOT has(${column}, {${paramName}:${chType}})`, paramName };
+            }
+        }
 
         if (condition.operator === '$in') {
             return { clause: `${column} IN {${paramName}:Array(${chType})}`, paramName };

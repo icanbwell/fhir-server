@@ -375,8 +375,7 @@ describe('GenericClickHouseQueryBuilder', () => {
             ['reference', 'String'],
             ['lowcardinality', 'String'],
             ['datetime', 'String'],
-            ['number', 'Float64'],
-            ['array<string>', 'String']
+            ['number', 'Float64']
         ])('field type %s maps to ClickHouse type %s', (fieldType, expectedChType) => {
             const parsed = {
                 fieldConditions: [
@@ -387,6 +386,18 @@ describe('GenericClickHouseQueryBuilder', () => {
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
             expect(query).toContain(`test_col = {_p0:${expectedChType}}`);
+        });
+
+        test('array<string> $eq generates has()', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'test', column: 'test_col', type: 'array<string>', operator: '$eq', value: 'x' }
+                ],
+                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('has(test_col, {_p0:String})');
         });
     });
 
@@ -513,6 +524,172 @@ describe('GenericClickHouseQueryBuilder', () => {
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
             expect(query).toContain('id > {_sk_id:String}');
+        });
+    });
+
+    describe('array<string> column support', () => {
+        test('$eq generates has()', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'agent.who._uuid', column: 'agent_who', type: 'array<string>', operator: '$eq', value: 'Patient/123' }
+                ],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('has(agent_who, {_p0:String})');
+            expect(query_params._p0).toBe('Patient/123');
+        });
+
+        test('$in generates hasAny()', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'agent.who._uuid', column: 'agent_who', type: 'array<string>', operator: '$in', value: ['Patient/123', 'Patient/456'] }
+                ],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('hasAny(agent_who, {_p0:Array(String)})');
+            expect(query_params._p0).toEqual(['Patient/123', 'Patient/456']);
+        });
+
+        test('$ne generates NOT has()', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'agent.who._uuid', column: 'agent_who', type: 'array<string>', operator: '$ne', value: 'Patient/123' }
+                ],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('NOT has(agent_who, {_p0:String})');
+            expect(query_params._p0).toBe('Patient/123');
+        });
+
+        test('JSON path column used for array search', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'agent.who._sourceId', column: 'resource.agent[].who._sourceId', type: 'array<string>', operator: '$in', value: ['Practitioner/dr-smith'] }
+                ],
+                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('hasAny(resource.agent[].who._sourceId, {_p0:Array(String)})');
+            expect(query_params._p0).toEqual(['Practitioner/dr-smith']);
+        });
+    });
+
+    describe('tuple security format', () => {
+        let tupleSchema;
+
+        beforeEach(() => {
+            tupleSchema = {
+                ...schema,
+                securityMappings: {
+                    accessTags: 'meta_security',
+                    ownerTags: 'meta_security',
+                    sourceAssigningAuthority: '_sourceAssigningAuthority',
+                    securityFormat: 'tuple'
+                }
+            };
+        });
+
+        test('generates arrayExists for access tags', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['client-a'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, tupleSchema);
+            expect(query).toContain("arrayExists(t -> t.1 = 'https://www.icanbwell.com/access' AND t.2 IN {_accessTags:Array(String)}, meta_security)");
+            expect(query_params._accessTags).toEqual(['client-a']);
+        });
+
+        test('generates arrayExists for owner tags', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['client-a'], ownerTags: ['org-1'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, tupleSchema);
+            expect(query).toContain("arrayExists(t -> t.1 = 'https://www.icanbwell.com/owner' AND t.2 IN {_ownerTags:Array(String)}, meta_security)");
+            expect(query_params._ownerTags).toEqual(['org-1']);
+        });
+
+        test('throws on empty access tags in tuple format', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: [], ownerTags: [] },
+                paginationCursor: null
+            };
+            expect(() => builder.buildSearchQuery(parsed, tupleSchema)).toThrow('Security violation');
+        });
+    });
+
+    describe('wildcard * access tag bypass', () => {
+        test('skips access tag filter for flat format when accessTags contains *', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['*'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).not.toContain('access_tags');
+            expect(query_params._accessTags).toBeUndefined();
+        });
+
+        test('skips access tag filter for tuple format when accessTags contains *', () => {
+            const tupleSchema = {
+                ...schema,
+                securityMappings: {
+                    accessTags: 'meta_security',
+                    ownerTags: 'meta_security',
+                    sourceAssigningAuthority: '_sourceAssigningAuthority',
+                    securityFormat: 'tuple'
+                }
+            };
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['*'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, tupleSchema);
+            expect(query).not.toContain('arrayExists');
+            expect(query_params._accessTags).toBeUndefined();
+        });
+
+        test('still applies owner tag filter even with wildcard access', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['*'], ownerTags: ['org-1'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).not.toContain('hasAny(access_tags');
+            expect(query).toContain('hasAny(owner_tags, {_ownerTags:Array(String)})');
+            expect(query_params._ownerTags).toEqual(['org-1']);
+        });
+
+        test('wildcard access with tuple format still applies owner tag', () => {
+            const tupleSchema = {
+                ...schema,
+                securityMappings: {
+                    accessTags: 'meta_security',
+                    ownerTags: 'meta_security',
+                    sourceAssigningAuthority: '_sourceAssigningAuthority',
+                    securityFormat: 'tuple'
+                }
+            };
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['*'], ownerTags: ['org-1'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, tupleSchema);
+            expect(query).toContain("arrayExists(t -> t.1 = 'https://www.icanbwell.com/owner'");
+            expect(query_params._ownerTags).toEqual(['org-1']);
         });
     });
 });
