@@ -11,7 +11,8 @@ module.exports = {
         GROUP_MEMBER_EVENTS: 'fhir.Group_4_0_0_MemberEvents',
         GROUP_MEMBER_CURRENT: 'fhir.Group_4_0_0_MemberCurrent',
         GROUP_MEMBER_CURRENT_BY_ENTITY: 'fhir.Group_4_0_0_MemberCurrentByEntity',
-        AUDIT_EVENT: 'fhir.AuditEvent_4_0_0'
+        AUDIT_EVENT: 'fhir.AuditEvent_4_0_0',
+        OBSERVATION: 'fhir.Observation_4_0_0'
     },
 
     // Event types for CRUD operations

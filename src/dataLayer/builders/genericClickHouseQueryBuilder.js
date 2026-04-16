@@ -74,8 +74,11 @@ class GenericClickHouseQueryBuilder {
         let query;
         if (isReplacing) {
             // Subquery deduplicates via LIMIT 1 BY dedupKey.
-            // Filters and security go in the inner query for partition pruning.
-            // Seek pagination and final ORDER BY go in the outer query.
+            // Filters AND security tags go in the inner query for:
+            //   1. Partition pruning (datetime filters in inner query)
+            //   2. Tenant isolation (security tags filter before dedup)
+            // The outer query only applies seek pagination — its data source
+            // is the already-filtered, already-deduplicated inner result.
             const seekClauses = [];
             this._addSeekClause(parsedQuery.paginationCursor, schema, seekClauses, params);
 
