@@ -297,8 +297,9 @@ class GenericClickHouseQueryBuilder {
 
     /**
      * Builds security tag WHERE clauses.
-     * Empty accessTags is a security violation — tenant isolation is mandatory.
-     * Wildcard '*' in accessTags means unrestricted access — skip the access filter.
+     * Mirrors MongoDB behavior:
+     * - Empty/missing accessTags or wildcard '*' → no security filter (unrestricted access)
+     * - Non-empty accessTags → hasAny() filter for tenant isolation
      *
      * @param {{accessTags: string[]}} securityConditions
      * @param {Object} securityMappings
@@ -310,19 +311,12 @@ class GenericClickHouseQueryBuilder {
         const clauses = [];
         const { accessTags } = securityConditions;
 
-        if (!accessTags || accessTags.length === 0) {
-            throw new Error(
-                'Security violation: accessTags cannot be empty. ' +
-                'Tenant isolation is mandatory on every ClickHouse query.'
-            );
+        if (!accessTags || accessTags.length === 0 || accessTags.includes('*')) {
+            return clauses;
         }
 
-        const hasWildcardAccess = accessTags.includes('*');
-
-        if (!hasWildcardAccess) {
-            clauses.push(`hasAny(${securityMappings.accessTags}, {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)})`);
-            params[RESERVED_PARAMS.ACCESS_TAGS] = accessTags;
-        }
+        clauses.push(`hasAny(${securityMappings.accessTags}, {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)})`);
+        params[RESERVED_PARAMS.ACCESS_TAGS] = accessTags;
 
         return clauses;
     }

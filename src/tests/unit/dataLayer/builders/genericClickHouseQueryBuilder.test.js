@@ -253,10 +253,12 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(query_params._id).toBe('resource-123');
         });
 
-        test('findByIdQuery enforces security (throws on empty accessTags)', () => {
-            expect(() => builder.buildFindByIdQuery(
+        test('findByIdQuery with empty accessTags skips security filter', () => {
+            const { query, query_params } = builder.buildFindByIdQuery(
                 'resource-123', schema, { accessTags: [] }
-            )).toThrow('Security violation');
+            );
+            expect(query).not.toContain('access_tags');
+            expect(query_params._accessTags).toBeUndefined();
         });
     });
 
@@ -336,22 +338,26 @@ describe('GenericClickHouseQueryBuilder', () => {
     });
 
     describe('security enforcement', () => {
-        test('throws on empty accessTags (tenant isolation mandatory)', () => {
+        test('empty accessTags skips security filter (unrestricted access)', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { accessTags: [] },
                 paginationCursor: null
             };
-            expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('Security violation');
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).not.toContain('access_tags');
+            expect(query_params._accessTags).toBeUndefined();
         });
 
-        test('throws when accessTags is undefined', () => {
+        test('undefined accessTags skips security filter (unrestricted access)', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: {},
                 paginationCursor: null
             };
-            expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('Security violation');
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).not.toContain('access_tags');
+            expect(query_params._accessTags).toBeUndefined();
         });
     });
 
@@ -476,13 +482,15 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(() => builder.buildSearchQuery(parsed, schema)).not.toThrow();
         });
 
-        test('count query also enforces security', () => {
+        test('count query with empty accessTags skips security filter', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { accessTags: [] },
                 paginationCursor: null
             };
-            expect(() => builder.buildCountQuery(parsed, schema)).toThrow('Security violation');
+            const { query, query_params } = builder.buildCountQuery(parsed, schema);
+            expect(query).not.toContain('access_tags');
+            expect(query_params._accessTags).toBeUndefined();
         });
 
         test('condition node missing column throws', () => {
