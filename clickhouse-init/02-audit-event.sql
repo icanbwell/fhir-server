@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
     resource                     JSON(max_dynamic_paths=256),
 
     -- Skip indexes for array search columns
+    INDEX idx_access_tags   access_tags   TYPE bloom_filter(0.01) GRANULARITY 4,
     INDEX idx_entity_what   entity_what   TYPE bloom_filter(0.01) GRANULARITY 4,
     INDEX idx_agent_who     agent_who     TYPE bloom_filter(0.01) GRANULARITY 4
 )
