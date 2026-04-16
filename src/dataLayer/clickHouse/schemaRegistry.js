@@ -118,12 +118,11 @@ class ClickHouseSchemaRegistry {
             errors.push(`fhirResourceColumnType must be one of: ${validColumnTypes.join(', ')}`);
         }
 
-        // securityMappings: mandatory with all three keys, valid column names
+        // securityMappings: accessTags is mandatory; other keys are optional
         if (!schema.securityMappings ||
             typeof schema.securityMappings !== 'object' ||
-            !schema.securityMappings.accessTags ||
-            !schema.securityMappings.sourceAssigningAuthority) {
-            errors.push('securityMappings must have accessTags and sourceAssigningAuthority');
+            !schema.securityMappings.accessTags) {
+            errors.push('securityMappings must have accessTags');
         } else {
             for (const [key, col] of Object.entries(schema.securityMappings)) {
                 if (!COLUMN_NAME_PATTERN.test(col)) {

@@ -53,8 +53,7 @@ function getAuditEventClickHouseSchema () {
             'entity.what._sourceId': { column: 'resource.entity[].what._sourceId', type: 'array<string>', jsonPath: true }
         },
         securityMappings: {
-            accessTags: 'access_tags',
-            sourceAssigningAuthority: '_sourceAssigningAuthority'
+            accessTags: 'access_tags'
         },
         requiredFilters: ['recorded'],
         maxRangeDays: 30,
