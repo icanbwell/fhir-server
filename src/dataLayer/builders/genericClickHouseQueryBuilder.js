@@ -454,12 +454,12 @@ class GenericClickHouseQueryBuilder {
 
                 let value = cursorObj[col];
                 if (value === undefined || value === null) {
-                    // Incomplete cursor — fall back to id-based seek
-                    logDebug('GenericClickHouseQueryBuilder: incomplete composite cursor, falling back to id seek', {
+                    // Incomplete cursor — fall back to _uuid seek
+                    logDebug('GenericClickHouseQueryBuilder: incomplete composite cursor, falling back to _uuid seek', {
                         missingColumn: col
                     });
                     params[`${RESERVED_PARAMS.SEEK_PREFIX}_id`] = cursor;
-                    whereClauses.push(`id > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
+                    whereClauses.push(`_uuid > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
                     return;
                 }
                 if (fieldMapping && fieldMapping.type === 'datetime' && typeof value === 'string') {
@@ -475,9 +475,9 @@ class GenericClickHouseQueryBuilder {
                 `(${columns.join(', ')}) > tuple(${tupleParams.join(', ')})`
             );
         } else {
-            // Simple cursor: seek on id column (backward-compatible with _uuid.$gt)
+            // Simple cursor: seek on _uuid column
             params[`${RESERVED_PARAMS.SEEK_PREFIX}_id`] = cursor;
-            whereClauses.push(`id > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
+            whereClauses.push(`_uuid > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
         }
     }
 }

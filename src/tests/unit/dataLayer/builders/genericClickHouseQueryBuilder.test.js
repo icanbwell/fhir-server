@@ -106,7 +106,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 paginationCursor: 'some-uuid-value'
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
-            expect(query).toContain('id > {_sk_id:String}');
+            expect(query).toContain('_uuid > {_sk_id:String}');
             expect(query_params._sk_id).toBe('some-uuid-value');
         });
 
@@ -436,7 +436,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 paginationCursor: 'not-valid-json{'
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
-            expect(query).toContain('id > {_sk_id:String}');
+            expect(query).toContain('_uuid > {_sk_id:String}');
             expect(query_params._sk_id).toBe('not-valid-json{');
         });
 
@@ -448,7 +448,7 @@ describe('GenericClickHouseQueryBuilder', () => {
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
             // Missing 'id' in cursor — falls back to simple id seek
-            expect(query).toContain('id > {_sk_id:String}');
+            expect(query).toContain('_uuid > {_sk_id:String}');
             expect(query).not.toContain('tuple(');
         });
 
@@ -520,7 +520,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 paginationCursor: JSON.stringify(['not', 'an', 'object'])
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
-            expect(query).toContain('id > {_sk_id:String}');
+            expect(query).toContain('_uuid > {_sk_id:String}');
         });
     });
 
@@ -588,6 +588,201 @@ describe('GenericClickHouseQueryBuilder', () => {
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
             expect(query).not.toContain('access_tags');
             expect(query_params._accessTags).toBeUndefined();
+        });
+    });
+
+    describe('AuditEvent full SQL snapshot', () => {
+        let auditSchema;
+
+        beforeEach(() => {
+            const { getAuditEventClickHouseSchema } = require('../../../../dataLayer/clickHouse/auditEventClickHouseSchema');
+            auditSchema = getAuditEventClickHouseSchema();
+        });
+
+        test('search by date range and action', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-06-01T00:00:00Z' },
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-06-15T00:00:00Z' },
+                    { fieldPath: 'action', column: 'action', type: 'lowcardinality', operator: '$eq', value: 'R' }
+                ],
+                securityConditions: { accessTags: ['client-a'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, auditSchema, { limit: 10 });
+            expect(query).toBe(
+                'SELECT resource\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE recorded >= {_p0:String} AND recorded < {_p1:String} AND action = {_p2:String} AND hasAny(access_tags, {_accessTags:Array(String)})\n' +
+                'ORDER BY recorded, _uuid\n' +
+                'LIMIT {_limit:UInt32}'
+            );
+            expect(query_params).toEqual({
+                _p0: '2024-06-01 00:00:00',
+                _p1: '2024-06-15 00:00:00',
+                _p2: 'R',
+                _accessTags: ['client-a'],
+                _limit: 10
+            });
+        });
+
+        test('search with offset', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-06-01T00:00:00Z' }
+                ],
+                securityConditions: { accessTags: ['tenant-x'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, auditSchema, { limit: 20, skip: 40 });
+            expect(query).toBe(
+                'SELECT resource\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE recorded >= {_p0:String} AND hasAny(access_tags, {_accessTags:Array(String)})\n' +
+                'ORDER BY recorded, _uuid\n' +
+                'LIMIT {_limit:UInt32}\n' +
+                'OFFSET {_skip:UInt32}'
+            );
+            expect(query_params).toEqual({
+                _p0: '2024-06-01 00:00:00',
+                _accessTags: ['tenant-x'],
+                _limit: 20,
+                _skip: 40
+            });
+        });
+
+        test('search by agent with _uuid cursor', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-06-01T00:00:00Z' },
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-06-30T00:00:00Z' },
+                    { fieldPath: 'agent.who._uuid', column: 'agent_who', type: 'array<string>', operator: '$eq', value: 'Practitioner/pract-uuid' }
+                ],
+                securityConditions: { accessTags: ['client-b'] },
+                paginationCursor: 'last-uuid'
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, auditSchema);
+            expect(query).toBe(
+                'SELECT resource\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE recorded >= {_p0:String} AND recorded < {_p1:String} AND has(agent_who, {_p2:String}) AND hasAny(access_tags, {_accessTags:Array(String)}) AND _uuid > {_sk_id:String}\n' +
+                'ORDER BY recorded, _uuid\n' +
+                'LIMIT {_limit:UInt32}'
+            );
+            expect(query_params).toEqual({
+                _p0: '2024-06-01 00:00:00',
+                _p1: '2024-06-30 00:00:00',
+                _p2: 'Practitioner/pract-uuid',
+                _accessTags: ['client-b'],
+                _sk_id: 'last-uuid',
+                _limit: 100
+            });
+        });
+
+        test('search by entity with hasAny', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'entity.what._uuid', column: 'entity_what', type: 'array<string>', operator: '$in', value: ['Patient/p1', 'Patient/p2'] }
+                ],
+                securityConditions: { accessTags: ['client-a'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, auditSchema);
+            expect(query).toBe(
+                'SELECT resource\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE hasAny(entity_what, {_p0:Array(String)}) AND hasAny(access_tags, {_accessTags:Array(String)})\n' +
+                'ORDER BY recorded, _uuid\n' +
+                'LIMIT {_limit:UInt32}'
+            );
+            expect(query_params).toEqual({
+                _p0: ['Patient/p1', 'Patient/p2'],
+                _accessTags: ['client-a'],
+                _limit: 100
+            });
+        });
+
+        test('search by agent _sourceId via JSON path', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'agent.who._sourceId', column: 'resource.agent[].who._sourceId', type: 'array<string>', operator: '$in', value: ['Practitioner/dr-smith'] }
+                ],
+                securityConditions: { accessTags: ['client-a'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, auditSchema);
+            expect(query).toBe(
+                'SELECT resource\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE hasAny(resource.agent[].who._sourceId, {_p0:Array(String)}) AND hasAny(access_tags, {_accessTags:Array(String)})\n' +
+                'ORDER BY recorded, _uuid\n' +
+                'LIMIT {_limit:UInt32}'
+            );
+            expect(query_params).toEqual({
+                _p0: ['Practitioner/dr-smith'],
+                _accessTags: ['client-a'],
+                _limit: 100
+            });
+        });
+
+        test('search with wildcard access skips security clause', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'action', column: 'action', type: 'lowcardinality', operator: '$eq', value: 'C' }
+                ],
+                securityConditions: { accessTags: ['*'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, auditSchema);
+            expect(query).toBe(
+                'SELECT resource\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE action = {_p0:String}\n' +
+                'ORDER BY recorded, _uuid\n' +
+                'LIMIT {_limit:UInt32}'
+            );
+            expect(query_params).toEqual({
+                _p0: 'C',
+                _limit: 100
+            });
+        });
+
+        test('count query', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-06-01T00:00:00Z' },
+                    { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-06-15T00:00:00Z' }
+                ],
+                securityConditions: { accessTags: ['client-a'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildCountQuery(parsed, auditSchema);
+            expect(query).toBe(
+                'SELECT count() AS cnt\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE recorded >= {_p0:String} AND recorded < {_p1:String} AND hasAny(access_tags, {_accessTags:Array(String)})'
+            );
+            expect(query_params).toEqual({
+                _p0: '2024-06-01 00:00:00',
+                _p1: '2024-06-15 00:00:00',
+                _accessTags: ['client-a']
+            });
+        });
+
+        test('findById', () => {
+            const { query, query_params } = builder.buildFindByIdQuery(
+                'ae-123', auditSchema, { accessTags: ['tenant-1'] }
+            );
+            expect(query).toBe(
+                'SELECT resource\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE id = {_id:String} AND hasAny(access_tags, {_accessTags:Array(String)})\n' +
+                'LIMIT 1'
+            );
+            expect(query_params).toEqual({
+                _id: 'ae-123',
+                _accessTags: ['tenant-1']
+            });
         });
     });
 });
