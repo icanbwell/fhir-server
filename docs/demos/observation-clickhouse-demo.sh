@@ -252,18 +252,18 @@ step3_fhir_search() {
     step "Search heart rate by subject + code + date"
     echo -e "${CYAN}GET /Observation?subject=Patient/PatientX&code=http://loinc.org|8867-4&date=ge2024-06-15&date=lt2024-06-16&_count=5${NC}\n"
 
-    local response=$(fhir_get "Observation?subject=Patient/PatientX&code=http://loinc.org|8867-4&date=ge2024-06-15&date=lt2024-06-16&_count=5")
-    local total=$(echo "$response" | jq '.total // (.entry | length)')
+    local response=$(fhir_get "Observation?subject=Patient/PatientX&code=http://loinc.org|8867-4&date=ge2024-06-10&date=lt2024-06-17&_count=5")
+    local entry_count=$(echo "$response" | jq '[.entry[]?] | length')
     echo "$response" | jq '[.entry[:5][] | {time: .resource.effectiveDateTime, heartRate: .resource.valueQuantity.value}]'
     echo ""
-    success "Found $total heart rate readings (showing first 5)"
+    success "Found $entry_count heart rate readings in this page (showing first 5)"
 
     pause
 
     step "Search blood pressure panels"
-    echo -e "${CYAN}GET /Observation?subject=Patient/PatientX&code=http://loinc.org|85354-9&date=ge2024-06-15&date=lt2024-06-16${NC}\n"
+    echo -e "${CYAN}GET /Observation?subject=Patient/PatientX&code=http://loinc.org|85354-9&date=ge2024-06-10&date=lt2024-06-17${NC}\n"
 
-    local bp_response=$(fhir_get "Observation?subject=Patient/PatientX&code=http://loinc.org|85354-9&date=ge2024-06-15&date=lt2024-06-16")
+    local bp_response=$(fhir_get "Observation?subject=Patient/PatientX&code=http://loinc.org|85354-9&date=ge2024-06-10&date=lt2024-06-17")
     echo "$bp_response" | jq '[.entry[]? | {
         time: .resource.effectiveDateTime,
         systolic: (.resource.component[]? | select(.code.coding[0].code == "8480-6") | .valueQuantity.value),
