@@ -143,6 +143,11 @@ const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesMan
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 const { FastMergeManager } = require('./operations/merge/fastMergeManager');
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
+const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
+const { ClickHouseSchemaRegistry } = require('./dataLayer/clickHouse/schemaRegistry');
+const { GenericClickHouseQueryParser } = require('./dataLayer/clickHouse/genericClickHouseQueryParser');
+const { GenericClickHouseQueryBuilder } = require('./dataLayer/builders/genericClickHouseQueryBuilder');
+const { GenericClickHouseRepository } = require('./dataLayer/repositories/genericClickHouseRepository');
 const deepcopy = require('deepcopy');
 
 /**
@@ -388,7 +393,9 @@ const createContainer = function () {
             resourceLocatorFactory: c.resourceLocatorFactory,
             clickHouseClientManager: c.clickHouseClientManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            configManager: c.configManager
+            configManager: c.configManager,
+            genericClickHouseRepository: c.genericClickHouseRepository,
+            schemaRegistry: c.clickHouseSchemaRegistry
         });
     });
 
@@ -535,6 +542,29 @@ const createContainer = function () {
         }
     ));
 
+    // ClickHouse-only resource infrastructure
+    container.register('clickHouseSchemaRegistry', () => new ClickHouseSchemaRegistry());
+    container.register('genericClickHouseQueryParser', () => new GenericClickHouseQueryParser());
+    container.register('genericClickHouseQueryBuilder', () => new GenericClickHouseQueryBuilder());
+    container.register('genericClickHouseRepository', (c) => {
+        if (!c.clickHouseClientManager) return null;
+        return new GenericClickHouseRepository({
+            clickHouseClientManager: c.clickHouseClientManager,
+            schemaRegistry: c.clickHouseSchemaRegistry,
+            queryParser: c.genericClickHouseQueryParser,
+            queryBuilder: c.genericClickHouseQueryBuilder
+        });
+    });
+
+    container.register('clickHouseBulkWriteExecutor', (c) => {
+        if (!c.genericClickHouseRepository) return null;
+        return new ClickHouseBulkWriteExecutor({
+            genericClickHouseRepository: c.genericClickHouseRepository,
+            schemaRegistry: c.clickHouseSchemaRegistry,
+            postSaveProcessor: c.postSaveProcessor
+        });
+    });
+
     container.register('mongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
         resourceLocatorFactory: c.resourceLocatorFactory,
         configManager: c.configManager,
@@ -567,7 +597,7 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bulkWriteExecutors: [c.mongoBulkWriteExecutor]
+                bulkWriteExecutors: [c.clickHouseBulkWriteExecutor, c.mongoBulkWriteExecutor].filter(Boolean)
             }
         )
     );
@@ -584,7 +614,7 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bulkWriteExecutors: [c.fastMongoBulkWriteExecutor]
+                bulkWriteExecutors: [c.clickHouseBulkWriteExecutor, c.fastMongoBulkWriteExecutor].filter(Boolean)
             }
         )
     );

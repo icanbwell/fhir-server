@@ -1,8 +1,8 @@
 /**
- * Constants for ClickHouse Group implementation
+ * Constants for ClickHouse integration
  *
  * This module centralizes all magic strings and numbers used in the ClickHouse
- * Group member tracking system to improve maintainability and prevent errors.
+ * storage layer to improve maintainability and prevent errors.
  */
 
 module.exports = {
@@ -59,5 +59,25 @@ module.exports = {
         ACCESS: 'https://www.icanbwell.com/access',
         OWNER: 'https://www.icanbwell.com/owner',
         SOURCE_ASSIGNING_AUTHORITY: 'https://www.icanbwell.com/sourceAssigningAuthority'
+    },
+
+    // Write strategies for ClickHouse-only resources.
+    // Names capabilities, not implementations. Concrete implementations
+    // live in the executor layer and are selected by DI container wiring.
+    // MongoDB is not listed — it's the default when no ClickHouse schema exists.
+    WRITE_STRATEGIES: {
+        SYNC_DIRECT: 'sync-direct'       // Synchronous write via clickHouseClientManager
+    },
+
+    // Supported ClickHouse engine types for schema validation
+    ENGINE_TYPES: {
+        MERGE_TREE: 'MergeTree',
+        REPLACING_MERGE_TREE: 'ReplacingMergeTree'
+    },
+
+    // Supported column types for fhirResourceColumn
+    RESOURCE_COLUMN_TYPES: {
+        STRING: 'string',   // Opaque JSON blob, app parses via JSON.parse()
+        JSON: 'json'        // Native ClickHouse JSON type, returned as parsed object
     }
 };

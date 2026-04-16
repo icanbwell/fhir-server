@@ -30,12 +30,16 @@ class StorageProviderFactory {
         resourceLocatorFactory,
         clickHouseClientManager,
         databaseAttachmentManager,
-        configManager
+        configManager,
+        genericClickHouseRepository,
+        schemaRegistry
     }) {
         this.resourceLocatorFactory = resourceLocatorFactory;
         this.clickHouseClientManager = clickHouseClientManager;
         this.databaseAttachmentManager = databaseAttachmentManager;
         this.configManager = configManager;
+        this.genericClickHouseRepository = genericClickHouseRepository || null;
+        this.schemaRegistry = schemaRegistry || null;
 
         // Log configuration on initialization
         if (this.configManager.enableClickHouse) {
@@ -89,7 +93,10 @@ class StorageProviderFactory {
                 return new ClickHouseStorageProvider({
                     resourceLocator,
                     clickHouseClientManager: this.clickHouseClientManager,
-                    configManager: this.configManager
+                    configManager: this.configManager,
+                    genericClickHouseRepository: this.genericClickHouseRepository,
+                    resourceType,
+                    schemaRegistry: this.schemaRegistry
                 });
             }
 
