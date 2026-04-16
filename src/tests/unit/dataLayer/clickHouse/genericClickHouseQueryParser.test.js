@@ -128,13 +128,6 @@ describe('GenericClickHouseQueryParser', () => {
             expect(result.securityConditions.accessTags).toEqual(['client-a']);
         });
 
-        test('extracts owner tags from $elemMatch', () => {
-            const result = parser.parse({
-                'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/owner', code: 'org-1' } }
-            }, schema);
-            expect(result.securityConditions.ownerTags).toEqual(['org-1']);
-        });
-
         test('extracts multiple tags from $in', () => {
             const result = parser.parse({
                 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: { $in: ['a', 'b'] } } }
@@ -150,7 +143,6 @@ describe('GenericClickHouseQueryParser', () => {
                 ]
             }, schema);
             expect(result.securityConditions.accessTags).toEqual(['client-a']);
-            expect(result.securityConditions.ownerTags).toEqual(['org-1']);
         });
 
         test('extracts _access.* index fields', () => {
@@ -200,7 +192,7 @@ describe('GenericClickHouseQueryParser', () => {
         test('empty query returns empty results', () => {
             const result = parser.parse({}, schema);
             expect(result.fieldConditions).toEqual([]);
-            expect(result.securityConditions).toEqual({ accessTags: [], ownerTags: [] });
+            expect(result.securityConditions).toEqual({ accessTags: [] });
             expect(result.paginationCursor).toBeNull();
         });
     });

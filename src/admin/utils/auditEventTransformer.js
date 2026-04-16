@@ -1,3 +1,5 @@
+const { SECURITY_TAG_SYSTEMS } = require('../../constants/securityTagSystems');
+
 /**
  * Transforms MongoDB AuditEvent documents into ClickHouse rows matching the
  * lean RFC schema (see clickhouse-init/02-audit-event.sql).
@@ -81,6 +83,23 @@ class AuditEventTransformer {
     }
 
     /**
+     * Extracts security tag codes for a specific system as a flat string array.
+     * @param {Array|undefined} securityArray - doc.meta.security
+     * @param {string} system - the tag system URL to filter on
+     * @returns {string[]}
+     */
+    extractSecurityCodes (securityArray, system) {
+        if (!Array.isArray(securityArray)) return [];
+        const codes = [];
+        for (const tag of securityArray) {
+            if (tag.system === system && tag.code) {
+                codes.push(tag.code);
+            }
+        }
+        return codes;
+    }
+
+    /**
      * Extracts purposeOfEvent codings as array of named tuples.
      * AuditEvent.purposeOfEvent is Array(CodeableConcept), each with .coding[].
      * Flattens all codings into a single Array(Tuple(system, code)).
@@ -129,6 +148,7 @@ class AuditEventTransformer {
             agent_requestor_who: this.extractRequestorWho(agents),
             purpose_of_event: this.extractPurposeOfEvent(doc.purposeOfEvent),
             meta_security: this.extractMetaSecurity(doc.meta?.security),
+            access_tags: this.extractSecurityCodes(doc.meta?.security, SECURITY_TAG_SYSTEMS.ACCESS),
             _sourceAssigningAuthority: doc._sourceAssigningAuthority || '',
             _sourceId: doc._sourceId || '',
             resource: doc

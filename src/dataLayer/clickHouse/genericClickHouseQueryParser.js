@@ -20,7 +20,7 @@ class GenericClickHouseQueryParser {
      *
      * @typedef {Object} ParsedQuery
      * @property {FieldCondition[]} fieldConditions
-     * @property {{accessTags: string[], ownerTags: string[]}} securityConditions
+     * @property {{accessTags: string[]}} securityConditions
      * @property {string|null} paginationCursor - _uuid.$gt cursor value
      * @property {number} skip - offset from options
      */
@@ -35,7 +35,6 @@ class GenericClickHouseQueryParser {
         logDebug('GenericClickHouseQueryParser: parsed query', {
             fieldConditionCount: fieldConditions.length,
             accessTagCount: securityConditions.accessTags.length,
-            ownerTagCount: securityConditions.ownerTags.length,
             hasCursor: !!paginationCursor
         });
 
@@ -141,15 +140,15 @@ class GenericClickHouseQueryParser {
     }
 
     /**
-     * Extracts security tags from MongoDB query.
+     * Extracts access tags from MongoDB query.
      * Reuses the proven pattern from the Group QueryParser.
      *
      * @param {Object} query
-     * @returns {{accessTags: string[], ownerTags: string[]}}
+     * @returns {{accessTags: string[]}}
      * @private
      */
     _extractSecurityTags (query) {
-        const result = { accessTags: [], ownerTags: [] };
+        const result = { accessTags: [] };
 
         const extractRecursive = (obj) => {
             if (!obj || typeof obj !== 'object') return;
@@ -159,8 +158,6 @@ class GenericClickHouseQueryParser {
                 const codes = this._extractCodesFromElemMatch(elemMatch);
                 if (elemMatch.system === SECURITY_TAG_SYSTEMS.ACCESS) {
                     result.accessTags.push(...codes);
-                } else if (elemMatch.system === SECURITY_TAG_SYSTEMS.OWNER) {
-                    result.ownerTags.push(...codes);
                 }
             }
 
@@ -177,7 +174,6 @@ class GenericClickHouseQueryParser {
 
         extractRecursive(query);
         result.accessTags = [...new Set(result.accessTags)];
-        result.ownerTags = [...new Set(result.ownerTags)];
         return result;
     }
 

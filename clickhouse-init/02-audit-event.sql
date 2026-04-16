@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
                                      code LowCardinality(String)
                                  )),
 
+    -- Flat security tag array for generic hasAny() queries
+    access_tags                  Array(String),
+
     -- b.well internal columns
     _sourceAssigningAuthority    LowCardinality(String),
     _sourceId                    String,

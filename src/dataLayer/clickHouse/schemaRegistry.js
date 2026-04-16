@@ -122,13 +122,10 @@ class ClickHouseSchemaRegistry {
         if (!schema.securityMappings ||
             typeof schema.securityMappings !== 'object' ||
             !schema.securityMappings.accessTags ||
-            !schema.securityMappings.ownerTags ||
             !schema.securityMappings.sourceAssigningAuthority) {
-            errors.push('securityMappings must have accessTags, ownerTags, and sourceAssigningAuthority');
+            errors.push('securityMappings must have accessTags and sourceAssigningAuthority');
         } else {
             for (const [key, col] of Object.entries(schema.securityMappings)) {
-                // securityFormat is a format flag, not a column reference
-                if (key === 'securityFormat') continue;
                 if (!COLUMN_NAME_PATTERN.test(col)) {
                     errors.push(`securityMappings.${key} column '${col}' must be alphanumeric/underscore only`);
                 }

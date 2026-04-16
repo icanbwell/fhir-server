@@ -28,7 +28,6 @@ describe('ClickHouseSchemaRegistry', () => {
             },
             securityMappings: {
                 accessTags: 'access_tags',
-                ownerTags: 'owner_tags',
                 sourceAssigningAuthority: 'source_assigning_authority'
             },
             requiredFilters: ['recorded'],
@@ -96,7 +95,7 @@ describe('ClickHouseSchemaRegistry', () => {
             ['fhirResourceColumn injection', { fhirResourceColumn: 'col; DROP' }, 'fhirResourceColumn must be a valid column name'],
             ['fhirResourceColumnType invalid', { fhirResourceColumnType: 'binary' }, 'fhirResourceColumnType must be one of'],
             ['securityMappings missing accessTags', {
-                securityMappings: { ownerTags: 'o', sourceAssigningAuthority: 's' }
+                securityMappings: { sourceAssigningAuthority: 's' }
             }, 'securityMappings must have accessTags'],
             ['securityMappings null', { securityMappings: null }, 'securityMappings must have accessTags'],
             ['fieldMappings null', { fieldMappings: null }, 'fieldMappings must be an object'],
@@ -129,17 +128,15 @@ describe('ClickHouseSchemaRegistry', () => {
             expect(() => registry.registerSchema('JsonCol', schema)).not.toThrow();
         });
 
-        test('accepts securityMappings with securityFormat tuple', () => {
+        test('accepts securityMappings with access tags and sourceAssigningAuthority', () => {
             const schema = {
                 ...validSchema,
                 securityMappings: {
-                    accessTags: 'meta_security',
-                    ownerTags: 'meta_security',
-                    sourceAssigningAuthority: 'source_assigning_authority',
-                    securityFormat: 'tuple'
+                    accessTags: 'access_tags',
+                    sourceAssigningAuthority: 'source_assigning_authority'
                 }
             };
-            expect(() => registry.registerSchema('TupleSecurity', schema)).not.toThrow();
+            expect(() => registry.registerSchema('FlatSecurity', schema)).not.toThrow();
         });
 
         test('accepts fieldMappings with jsonPath columns', () => {
@@ -186,14 +183,13 @@ describe('ClickHouseSchemaRegistry', () => {
             expect(schema.fieldMappings['entity.what._sourceId'].jsonPath).toBe(true);
         });
 
-        test('AuditEvent schema has tuple security format', () => {
+        test('AuditEvent schema has flat security tag columns', () => {
             const { getAuditEventClickHouseSchema } = require('../../../../dataLayer/clickHouse/auditEventClickHouseSchema');
             const auditSchema = getAuditEventClickHouseSchema();
             registry.registerSchema('AuditEvent', auditSchema);
             const schema = registry.getSchema('AuditEvent');
 
-            expect(schema.securityMappings.securityFormat).toBe('tuple');
-            expect(schema.securityMappings.accessTags).toBe('meta_security');
+            expect(schema.securityMappings.accessTags).toBe('access_tags');
         });
     });
 });

@@ -24,7 +24,6 @@ describe('GenericClickHouseQueryBuilder', () => {
             },
             securityMappings: {
                 accessTags: 'access_tags',
-                ownerTags: 'owner_tags',
                 sourceAssigningAuthority: 'source_assigning_authority'
             },
             requiredFilters: ['recorded'],
@@ -38,7 +37,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' }
                 ],
-                securityConditions: { accessTags: ['client-a'], ownerTags: [] },
+                securityConditions: { accessTags: ['client-a'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -57,7 +56,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: op, value: '2024-01-01' }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -69,7 +68,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$in', value: ['final', 'amended'] }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -82,7 +81,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$in', value: ['2024-01-01T00:00:00Z', '2024-02-01T00:00:00Z'] }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query_params } = builder.buildSearchQuery(parsed, schema);
@@ -92,20 +91,18 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('security tags generate hasAny WHERE clauses', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['client-a'], ownerTags: ['org-1'] },
+                securityConditions: { accessTags: ['client-a'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
             expect(query).toContain('hasAny(access_tags, {_accessTags:Array(String)})');
-            expect(query).toContain('hasAny(owner_tags, {_ownerTags:Array(String)})');
             expect(query_params._accessTags).toEqual(['client-a']);
-            expect(query_params._ownerTags).toEqual(['org-1']);
         });
 
         test('simple cursor seeks on id column (backward-compatible with _uuid.$gt)', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: 'some-uuid-value'
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -117,7 +114,7 @@ describe('GenericClickHouseQueryBuilder', () => {
             const cursorObj = { recorded: '2024-06-15 10:30:00.000', id: 'last-id' };
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: JSON.stringify(cursorObj)
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -129,7 +126,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('LIMIT and OFFSET are parameterized', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema, { limit: 50, skip: 10 });
@@ -142,7 +139,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('ORDER BY uses full seekKey tuple', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -152,7 +149,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('SELECT uses fhirResourceColumn from schema', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -170,7 +167,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                         ]
                     }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -194,7 +191,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                         ]
                     }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -206,7 +203,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'value', column: 'value_quantity', type: 'number', operator: '$gt', value: 98.6 }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -218,7 +215,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: "'; DROP TABLE fhir.test; --" }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -235,7 +232,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' }
                 ],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: null
             };
             const { query } = builder.buildCountQuery(parsed, schema);
@@ -248,7 +245,7 @@ describe('GenericClickHouseQueryBuilder', () => {
     describe('buildFindByIdQuery', () => {
         test('generates WHERE id = parameterized with security', () => {
             const { query, query_params } = builder.buildFindByIdQuery(
-                'resource-123', schema, { accessTags: ['test-access'], ownerTags: [] }
+                'resource-123', schema, { accessTags: ['test-access'] }
             );
             expect(query).toContain('id = {_id:String}');
             expect(query).toContain('hasAny(access_tags');
@@ -258,7 +255,7 @@ describe('GenericClickHouseQueryBuilder', () => {
 
         test('findByIdQuery enforces security (throws on empty accessTags)', () => {
             expect(() => builder.buildFindByIdQuery(
-                'resource-123', schema, { accessTags: [], ownerTags: [] }
+                'resource-123', schema, { accessTags: [] }
             )).toThrow('Security violation');
         });
     });
@@ -269,7 +266,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-01-01' }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             expect(() => builder.validateRequiredFilters(parsed, schema)).not.toThrow();
@@ -278,7 +275,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('throws 400 when required filter missing', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             expect(() => builder.validateRequiredFilters(parsed, schema)).toThrow("Required filter 'recorded' missing");
@@ -296,7 +293,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-01-01T00:00:00Z' },
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-03-01T00:00:00Z' }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             expect(() => builder.validateRequiredFilters(parsed, schema)).toThrow('exceeds maximum of 30 days');
@@ -308,7 +305,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-01-01T00:00:00Z' },
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-01-15T00:00:00Z' }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             expect(() => builder.validateRequiredFilters(parsed, schema)).not.toThrow();
@@ -318,7 +315,7 @@ describe('GenericClickHouseQueryBuilder', () => {
             const noRequiredSchema = { ...schema, requiredFilters: [] };
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             expect(() => builder.validateRequiredFilters(parsed, noRequiredSchema)).not.toThrow();
@@ -331,7 +328,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'status', column: 'status', type: 'string', operator: '$regex', value: '.*' }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('Unsupported operator: $regex');
@@ -342,7 +339,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('throws on empty accessTags (tenant isolation mandatory)', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: [], ownerTags: [] },
+                securityConditions: { accessTags: [] },
                 paginationCursor: null
             };
             expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('Security violation');
@@ -351,7 +348,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('throws when accessTags is undefined', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { ownerTags: [] },
+                securityConditions: {},
                 paginationCursor: null
             };
             expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('Security violation');
@@ -364,7 +361,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'custom', column: 'custom', type: 'unknown_type', operator: '$eq', value: 'x' }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             expect(() => builder.buildSearchQuery(parsed, schema)).toThrow("Unknown field type 'unknown_type'");
@@ -381,7 +378,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'test', column: 'test_col', type: fieldType, operator: '$eq', value: 'x' }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -393,7 +390,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'test', column: 'test_col', type: 'array<string>', operator: '$eq', value: 'x' }
                 ],
-                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                securityConditions: { accessTags: ['test-access'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -425,7 +422,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                         ]
                     }
                 ],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: null
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -435,7 +432,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('malformed composite cursor (invalid JSON) falls back to id seek', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: 'not-valid-json{'
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -446,7 +443,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('composite cursor with missing seekKey fields falls back to id seek', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: JSON.stringify({ recorded: '2024-01-01 00:00:00' })
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -458,7 +455,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('composite cursor with SQL injection in values uses parameterized query', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: JSON.stringify({ recorded: "'; DROP TABLE fhir.test; --", id: 'ok' })
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -471,7 +468,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('security: accessTags with empty string still passes (non-empty array)', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: [''], ownerTags: [] },
+                securityConditions: { accessTags: [''] },
                 paginationCursor: null
             };
             // Empty string in array is technically a non-empty array — debatable
@@ -482,7 +479,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('count query also enforces security', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: [], ownerTags: [] },
+                securityConditions: { accessTags: [] },
                 paginationCursor: null
             };
             expect(() => builder.buildCountQuery(parsed, schema)).toThrow('Security violation');
@@ -493,7 +490,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'bad', operator: '$eq', value: 'x', type: 'string' }
                 ],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: null
             };
             expect(() => builder.buildSearchQuery(parsed, schema)).toThrow('missing column');
@@ -510,7 +507,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$gte', value: '2024-01-01T00:00:00Z' },
                     { fieldPath: 'recorded', column: 'recorded', type: 'datetime', operator: '$lt', value: '2024-02-01T00:00:00Z' }
                 ],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: null
             };
             expect(() => builder.validateRequiredFilters(parsed, schemaWithNonRequired)).toThrow('exceeds maximum of 7 days');
@@ -519,7 +516,7 @@ describe('GenericClickHouseQueryBuilder', () => {
         test('JSON array cursor falls back to id seek (not a cursor object)', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: JSON.stringify(['not', 'an', 'object'])
             };
             const { query } = builder.buildSearchQuery(parsed, schema);
@@ -533,7 +530,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'agent.who._uuid', column: 'agent_who', type: 'array<string>', operator: '$eq', value: 'Patient/123' }
                 ],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -546,7 +543,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'agent.who._uuid', column: 'agent_who', type: 'array<string>', operator: '$in', value: ['Patient/123', 'Patient/456'] }
                 ],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -559,7 +556,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'agent.who._uuid', column: 'agent_who', type: 'array<string>', operator: '$ne', value: 'Patient/123' }
                 ],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -572,7 +569,7 @@ describe('GenericClickHouseQueryBuilder', () => {
                 fieldConditions: [
                     { fieldPath: 'agent.who._sourceId', column: 'resource.agent[].who._sourceId', type: 'array<string>', operator: '$in', value: ['Practitioner/dr-smith'] }
                 ],
-                securityConditions: { accessTags: ['a'], ownerTags: [] },
+                securityConditions: { accessTags: ['a'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
@@ -581,115 +578,16 @@ describe('GenericClickHouseQueryBuilder', () => {
         });
     });
 
-    describe('tuple security format', () => {
-        let tupleSchema;
-
-        beforeEach(() => {
-            tupleSchema = {
-                ...schema,
-                securityMappings: {
-                    accessTags: 'meta_security',
-                    ownerTags: 'meta_security',
-                    sourceAssigningAuthority: '_sourceAssigningAuthority',
-                    securityFormat: 'tuple'
-                }
-            };
-        });
-
-        test('generates arrayExists for access tags', () => {
-            const parsed = {
-                fieldConditions: [],
-                securityConditions: { accessTags: ['client-a'], ownerTags: [] },
-                paginationCursor: null
-            };
-            const { query, query_params } = builder.buildSearchQuery(parsed, tupleSchema);
-            expect(query).toContain("arrayExists(t -> t.1 = 'https://www.icanbwell.com/access' AND t.2 IN {_accessTags:Array(String)}, meta_security)");
-            expect(query_params._accessTags).toEqual(['client-a']);
-        });
-
-        test('generates arrayExists for owner tags', () => {
-            const parsed = {
-                fieldConditions: [],
-                securityConditions: { accessTags: ['client-a'], ownerTags: ['org-1'] },
-                paginationCursor: null
-            };
-            const { query, query_params } = builder.buildSearchQuery(parsed, tupleSchema);
-            expect(query).toContain("arrayExists(t -> t.1 = 'https://www.icanbwell.com/owner' AND t.2 IN {_ownerTags:Array(String)}, meta_security)");
-            expect(query_params._ownerTags).toEqual(['org-1']);
-        });
-
-        test('throws on empty access tags in tuple format', () => {
-            const parsed = {
-                fieldConditions: [],
-                securityConditions: { accessTags: [], ownerTags: [] },
-                paginationCursor: null
-            };
-            expect(() => builder.buildSearchQuery(parsed, tupleSchema)).toThrow('Security violation');
-        });
-    });
-
     describe('wildcard * access tag bypass', () => {
-        test('skips access tag filter for flat format when accessTags contains *', () => {
+        test('skips access tag filter when accessTags contains *', () => {
             const parsed = {
                 fieldConditions: [],
-                securityConditions: { accessTags: ['*'], ownerTags: [] },
+                securityConditions: { accessTags: ['*'] },
                 paginationCursor: null
             };
             const { query, query_params } = builder.buildSearchQuery(parsed, schema);
             expect(query).not.toContain('access_tags');
             expect(query_params._accessTags).toBeUndefined();
-        });
-
-        test('skips access tag filter for tuple format when accessTags contains *', () => {
-            const tupleSchema = {
-                ...schema,
-                securityMappings: {
-                    accessTags: 'meta_security',
-                    ownerTags: 'meta_security',
-                    sourceAssigningAuthority: '_sourceAssigningAuthority',
-                    securityFormat: 'tuple'
-                }
-            };
-            const parsed = {
-                fieldConditions: [],
-                securityConditions: { accessTags: ['*'], ownerTags: [] },
-                paginationCursor: null
-            };
-            const { query, query_params } = builder.buildSearchQuery(parsed, tupleSchema);
-            expect(query).not.toContain('arrayExists');
-            expect(query_params._accessTags).toBeUndefined();
-        });
-
-        test('still applies owner tag filter even with wildcard access', () => {
-            const parsed = {
-                fieldConditions: [],
-                securityConditions: { accessTags: ['*'], ownerTags: ['org-1'] },
-                paginationCursor: null
-            };
-            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
-            expect(query).not.toContain('hasAny(access_tags');
-            expect(query).toContain('hasAny(owner_tags, {_ownerTags:Array(String)})');
-            expect(query_params._ownerTags).toEqual(['org-1']);
-        });
-
-        test('wildcard access with tuple format still applies owner tag', () => {
-            const tupleSchema = {
-                ...schema,
-                securityMappings: {
-                    accessTags: 'meta_security',
-                    ownerTags: 'meta_security',
-                    sourceAssigningAuthority: '_sourceAssigningAuthority',
-                    securityFormat: 'tuple'
-                }
-            };
-            const parsed = {
-                fieldConditions: [],
-                securityConditions: { accessTags: ['*'], ownerTags: ['org-1'] },
-                paginationCursor: null
-            };
-            const { query, query_params } = builder.buildSearchQuery(parsed, tupleSchema);
-            expect(query).toContain("arrayExists(t -> t.1 = 'https://www.icanbwell.com/owner'");
-            expect(query_params._ownerTags).toEqual(['org-1']);
         });
     });
 });

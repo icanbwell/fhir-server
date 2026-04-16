@@ -37,6 +37,7 @@ describe('AuditEventFieldExtractor', () => {
         expect(row.agent_who).toEqual(['Practitioner/pract-uuid']);
         expect(row.entity_what).toEqual(['Patient/patient-uuid']);
         expect(row.agent_requestor_who).toBe('Practitioner/pract-uuid');
+        expect(row.access_tags).toEqual(['client-a']);
         expect(row._sourceAssigningAuthority).toBe('org-1');
     });
 

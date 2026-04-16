@@ -2,7 +2,7 @@
 
 const { logDebug } = require('../../operations/common/logging');
 const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
-const { SECURITY_TAG_SYSTEMS } = require('../../constants/securityTagSystems');
+
 
 // ─── Constants ───────────────────────────────────────────────────
 const DEFAULT_LIMIT = 100;
@@ -39,7 +39,6 @@ const RESERVED_PARAMS = {
     LIMIT: '_limit',
     SKIP: '_skip',
     ACCESS_TAGS: '_accessTags',
-    OWNER_TAGS: '_ownerTags',
     ID: '_id',
     SEEK_PREFIX: '_sk'
 };
@@ -116,7 +115,7 @@ class GenericClickHouseQueryBuilder {
     /**
      * @param {string} id
      * @param {Object} schema
-     * @param {{accessTags: string[], ownerTags: string[]}} securityConditions
+     * @param {{accessTags: string[]}} securityConditions
      * @returns {{ query: string, query_params: Object }}
      */
     buildFindByIdQuery (id, schema, securityConditions) {
@@ -125,7 +124,7 @@ class GenericClickHouseQueryBuilder {
 
         // Security filtering mandatory — same as search queries
         const securityClauses = this._buildSecurityClauses(
-            securityConditions || { accessTags: [], ownerTags: [] },
+            securityConditions || { accessTags: [] },
             schema.securityMappings,
             params
         );
@@ -301,11 +300,7 @@ class GenericClickHouseQueryBuilder {
      * Empty accessTags is a security violation — tenant isolation is mandatory.
      * Wildcard '*' in accessTags means unrestricted access — skip the access filter.
      *
-     * Supports two security column formats via securityMappings.securityFormat:
-     * - 'flat' (default): access_tags Array(String) — uses hasAny()
-     * - 'tuple': meta_security Array(Tuple(system, code)) — uses arrayExists() with lambda
-     *
-     * @param {{accessTags: string[], ownerTags: string[]}} securityConditions
+     * @param {{accessTags: string[]}} securityConditions
      * @param {Object} securityMappings
      * @param {Object} params - mutated
      * @returns {string[]}
@@ -313,7 +308,7 @@ class GenericClickHouseQueryBuilder {
      */
     _buildSecurityClauses (securityConditions, securityMappings, params) {
         const clauses = [];
-        const { accessTags, ownerTags } = securityConditions;
+        const { accessTags } = securityConditions;
 
         if (!accessTags || accessTags.length === 0) {
             throw new Error(
@@ -323,30 +318,10 @@ class GenericClickHouseQueryBuilder {
         }
 
         const hasWildcardAccess = accessTags.includes('*');
-        const isTupleFormat = securityMappings.securityFormat === 'tuple';
 
         if (!hasWildcardAccess) {
-            if (isTupleFormat) {
-                clauses.push(
-                    `arrayExists(t -> t.1 = '${SECURITY_TAG_SYSTEMS.ACCESS}' AND ` +
-                    `t.2 IN {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)}, ${securityMappings.accessTags})`
-                );
-            } else {
-                clauses.push(`hasAny(${securityMappings.accessTags}, {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)})`);
-            }
+            clauses.push(`hasAny(${securityMappings.accessTags}, {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)})`);
             params[RESERVED_PARAMS.ACCESS_TAGS] = accessTags;
-        }
-
-        if (ownerTags.length > 0) {
-            if (isTupleFormat) {
-                clauses.push(
-                    `arrayExists(t -> t.1 = '${SECURITY_TAG_SYSTEMS.OWNER}' AND ` +
-                    `t.2 IN {${RESERVED_PARAMS.OWNER_TAGS}:Array(String)}, ${securityMappings.ownerTags})`
-                );
-            } else {
-                clauses.push(`hasAny(${securityMappings.ownerTags}, {${RESERVED_PARAMS.OWNER_TAGS}:Array(String)})`);
-            }
-            params[RESERVED_PARAMS.OWNER_TAGS] = ownerTags;
         }
 
         return clauses;

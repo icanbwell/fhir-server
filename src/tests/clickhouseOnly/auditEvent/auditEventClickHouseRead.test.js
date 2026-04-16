@@ -154,6 +154,7 @@ describe('AuditEvent ClickHouse read integration', () => {
                 { system: 'https://www.icanbwell.com/access', code: 'client-a' },
                 { system: 'https://www.icanbwell.com/owner', code: 'org-1' }
             ],
+            access_tags: ['client-a'],
             _sourceAssigningAuthority: 'org-1',
             _sourceId: `AuditEvent/${id}`,
             resource: {
@@ -321,11 +322,12 @@ describe('AuditEvent ClickHouse read integration', () => {
         });
     });
 
-    describe('security filtering with tuple format', () => {
+    describe('security filtering', () => {
         test('resources with different access tags are isolated', async () => {
             const rowA = makeAuditEvent({
                 id: 'tenant-a-ae',
                 _uuid: 'AuditEvent/tenant-a-ae',
+                access_tags: ['tenant-a'],
                 meta_security: [
                     { system: 'https://www.icanbwell.com/access', code: 'tenant-a' },
                     { system: 'https://www.icanbwell.com/owner', code: 'org-a' }
@@ -347,6 +349,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             const rowB = makeAuditEvent({
                 id: 'tenant-b-ae',
                 _uuid: 'AuditEvent/tenant-b-ae',
+                access_tags: ['tenant-b'],
                 meta_security: [
                     { system: 'https://www.icanbwell.com/access', code: 'tenant-b' },
                     { system: 'https://www.icanbwell.com/owner', code: 'org-b' }
@@ -391,6 +394,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             const rowA = makeAuditEvent({
                 id: 'wildcard-a',
                 _uuid: 'AuditEvent/wildcard-a',
+                access_tags: ['tenant-a'],
                 meta_security: [
                     { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
                 ],
@@ -406,6 +410,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             const rowB = makeAuditEvent({
                 id: 'wildcard-b',
                 _uuid: 'AuditEvent/wildcard-b',
+                access_tags: ['tenant-b'],
                 meta_security: [
                     { system: 'https://www.icanbwell.com/access', code: 'tenant-b' }
                 ],
