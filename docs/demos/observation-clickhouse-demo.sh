@@ -326,16 +326,14 @@ step4_dedup() {
 step5_analytics() {
     header "Step 5: Analytics -- Trends, Peer Comparison, and Population Health"
 
-    echo -e "${BOLD}These are the queries that an AI health agent or care manager would run.${NC}"
-    echo -e "${BOLD}They require cross-patient analytics -- impossible with per-patient MongoDB queries.${NC}\n"
+    echo -e "${BOLD}These are the queries an AI health agent or care manager would run.${NC}"
+    echo -e "${BOLD}Cross-patient analytics at scale -- not possible with per-patient MongoDB queries.${NC}\n"
 
-    # ── Trend Analysis ──────────────────────────────────────
+    # ── Query 1: BP Trend ───────────────────────────────────
 
-    step "Patient Trend: \"How has my blood pressure trended this week?\""
-    echo -e "${CYAN}A fast sequential scan over contiguous, physically co-located data.${NC}\n"
+    step "Query 1: \"How has my blood pressure trended this week?\""
 
-    ch_query "
-SELECT
+    local bp_trend_query="SELECT
     toDate(effective_datetime) AS date,
     component_systolic AS systolic,
     component_diastolic AS diastolic,
@@ -352,17 +350,22 @@ WHERE subject_reference = 'Patient/PatientX'
   AND effective_datetime < '2024-06-17'
 ORDER BY date"
 
+    echo -e "${CYAN}ClickHouse Query:${NC}"
+    echo "$bp_trend_query"
     echo ""
-    info "An AI agent could summarize: \"Your blood pressure has been consistently"
-    info "normal this week. No readings in the elevated or hypertensive range.\""
+    ch_query "$bp_trend_query"
+
+    echo ""
+    echo -e "${BOLD}AI agent summary:${NC} \"Your blood pressure has been consistently"
+    echo "normal this week. No readings in the elevated or hypertensive range.\""
 
     pause
 
-    step "Patient Trend: Daily heart rate pattern"
-    echo -e "${CYAN}\"What does my heart rate look like over the course of a day?\"${NC}\n"
+    # ── Query 2: HR Daily Pattern ───────────────────────────
 
-    ch_query "
-SELECT
+    step "Query 2: \"What does my heart rate look like throughout the day?\""
+
+    local hr_pattern_query="SELECT
     toHour(effective_datetime) AS hour,
     round(avg(value_quantity_value), 0) AS avg_hr,
     min(value_quantity_value) AS min_hr,
@@ -376,19 +379,22 @@ WHERE subject_reference = 'Patient/PatientX'
 GROUP BY hour
 ORDER BY hour"
 
+    echo -e "${CYAN}ClickHouse Query:${NC}"
+    echo "$hr_pattern_query"
     echo ""
-    info "\"Your resting heart rate averages 58 bpm overnight, peaks in the"
-    info "afternoon around 68 bpm, typical for someone with your fitness level.\""
+    ch_query "$hr_pattern_query"
+
+    echo ""
+    echo -e "${BOLD}AI agent summary:${NC} \"Your resting heart rate averages 58 bpm overnight,"
+    echo "peaks in the afternoon around 68 bpm. Consistent with your fitness level.\""
 
     pause
 
-    # ── Peer Comparison ─────────────────────────────────────
+    # ── Query 3: Peer Comparison ────────────────────────────
 
-    step "Peer Comparison: \"How do my vitals compare to others?\""
-    echo -e "${CYAN}Population percentiles -- requires cross-patient aggregation at scale.${NC}\n"
+    step "Query 3: \"How does my heart rate compare to others?\""
 
-    ch_query "
-SELECT
+    local peer_query="SELECT
     subject_reference AS patient,
     round(avg(value_quantity_value), 1) AS avg_hr,
     round(median(value_quantity_value), 1) AS median_hr,
@@ -401,17 +407,22 @@ WHERE code_code = '8867-4'
 GROUP BY patient
 ORDER BY avg_hr"
 
+    echo -e "${CYAN}ClickHouse Query:${NC}"
+    echo "$peer_query"
     echo ""
-    info "\"Your average resting heart rate of ~58 bpm puts you in the lowest"
-    info "quartile of the population -- consistent with an active lifestyle.\""
+    ch_query "$peer_query"
+
+    echo ""
+    echo -e "${BOLD}AI agent summary:${NC} \"Your average heart rate of ~58 bpm puts you in the"
+    echo "lowest quartile -- consistent with an active lifestyle.\""
 
     pause
 
-    step "Population Health: Patients with elevated blood pressure"
-    echo -e "${CYAN}\"Which patients need intervention?\" -- care gap detection at scale.${NC}\n"
+    # ── Query 4: Population Intervention ────────────────────
 
-    ch_query "
-SELECT
+    step "Query 4: \"Which patients need BP intervention?\""
+
+    local intervention_query="SELECT
     subject_reference AS patient,
     round(avg(component_systolic), 0) AS avg_systolic,
     round(avg(component_diastolic), 0) AS avg_diastolic,
@@ -429,28 +440,38 @@ WHERE code_code = '85354-9'
 GROUP BY patient
 ORDER BY avg_systolic DESC"
 
+    echo -e "${CYAN}ClickHouse Query:${NC}"
+    echo "$intervention_query"
     echo ""
-    info "A care manager could instantly identify patients needing outreach."
-    info "Try this across millions of patients -- ClickHouse handles it in milliseconds."
+    ch_query "$intervention_query"
+
+    echo ""
+    echo -e "${BOLD}Care manager action:${NC} Patient-H and Patient-B flagged for outreach."
+    echo "At population scale, this query runs in milliseconds across millions of readings."
 
     pause
 
-    # ── Storage ─────────────────────────────────────────────
+    # ── Query 5: Storage Efficiency ─────────────────────────
 
-    step "Storage: ZSTD compression on FHIR JSON"
-    ch_query "
-SELECT
-    count() as total_rows,
-    formatReadableSize(sum(data_compressed_bytes)) as compressed_size,
-    formatReadableSize(sum(data_uncompressed_bytes)) as uncompressed_size,
-    round(sum(data_uncompressed_bytes) / greatest(sum(data_compressed_bytes), 1), 1) as compression_ratio
+    step "Query 5: Storage efficiency -- ZSTD compression on FHIR JSON"
+
+    local storage_query="SELECT
+    sum(rows) AS total_rows,
+    formatReadableSize(sum(data_compressed_bytes)) AS compressed_size,
+    formatReadableSize(sum(data_uncompressed_bytes)) AS uncompressed_size,
+    round(sum(data_uncompressed_bytes) / greatest(sum(data_compressed_bytes), 1), 1) AS compression_ratio
 FROM system.parts
 WHERE database = 'fhir' AND table = 'Observation_4_0_0' AND active = 1"
 
+    echo -e "${CYAN}ClickHouse Query:${NC}"
+    echo "$storage_query"
     echo ""
-    info "Full FHIR JSON stored with ZSTD(3) compression."
-    info "Dedicated columns for search (code, subject, datetime) -- no JSON parsing for filters."
-    info "Columnar storage means analytical queries scan only the columns they need."
+    ch_query "$storage_query"
+
+    echo ""
+    echo "Dedicated search columns (code, subject, datetime) for fast filtering."
+    echo "Full FHIR JSON stored with ZSTD(3) -- only deserialized for response."
+    echo "Columnar storage: analytical queries scan only the columns they need."
 
     pause
 }
