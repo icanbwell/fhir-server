@@ -11,6 +11,8 @@
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = 'Group';
 process.env.CLICKHOUSE_WRITE_MODE = 'sync';
+process.env.CLICKHOUSE_HOST = 'http://127.0.0.1';
+process.env.CLICKHOUSE_PORT = '8123';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.LOGLEVEL = 'SILENT';
 process.env.STREAM_RESPONSE = '0';
@@ -21,7 +23,6 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../utils/contextDataBuilder');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
 function getHeadersWithExternalStorage() {
     return { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
@@ -30,11 +31,7 @@ function getHeadersWithExternalStorage() {
 describe('PATCH Performance Testing', () => {
     let clickHouseManager;
 
-    let clickHouseTestContainer;
     beforeAll(async () => {
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start();
-        clickHouseTestContainer.applyEnvVars();
         await commonBeforeEach();
 
         const configManager = new ConfigManager();
@@ -44,10 +41,15 @@ describe('PATCH Performance Testing', () => {
 
     afterAll(async () => {
         if (clickHouseManager) {
+            try {
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrentByEntity');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrent');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberEvents');
+            } catch (e) {
+                console.warn('Cleanup warning:', e.message);
+            }
+
             await clickHouseManager.closeAsync();
-        }
-        if (clickHouseTestContainer) {
-            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     }, 30000);
@@ -70,7 +72,7 @@ describe('PATCH Performance Testing', () => {
                 const request = await createTestRequest();
 
                 // Create empty Group
-                await request
+                const createResponse = await request
                     .post('/4_0_0/Group')
                     .send({
                         resourceType: 'Group',
@@ -99,11 +101,13 @@ describe('PATCH Performance Testing', () => {
                 const startTime = Date.now();
                 const memBefore = process.memoryUsage().heapUsed / 1024 / 1024; // MB
 
+                const actualGroupId = createResponse.body.id;
+
                 const patchResponse = await request
-                    .patch(`/4_0_0/Group/${groupId}`)
-                    .set('Content-Type', 'application/json-patch+json')
+                    .patch(`/4_0_0/Group/${actualGroupId}`)
                     .send(operations)
-                    .set(getHeadersWithExternalStorage());
+                    .set(getHeadersWithExternalStorage())
+                    .set('Content-Type', 'application/json-patch+json');
 
                 const responseTime = Date.now() - startTime;
                 const memAfter = process.memoryUsage().heapUsed / 1024 / 1024; // MB
@@ -121,7 +125,7 @@ describe('PATCH Performance Testing', () => {
                                 GROUP BY entity_reference
                                 HAVING argMax(event_type, (event_time, event_id)) = 'added'
                             )`,
-                    query_params: { groupId }
+                    query_params: { groupId: actualGroupId }
                 });
 
                 const verified = parseInt(countResult[0].count) === numOps;
