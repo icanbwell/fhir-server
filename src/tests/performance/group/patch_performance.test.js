@@ -41,6 +41,14 @@ describe('PATCH Performance Testing', () => {
 
     afterAll(async () => {
         if (clickHouseManager) {
+            try {
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrentByEntity');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberCurrent');
+                await clickHouseManager.truncateTableAsync('Group_4_0_0_MemberEvents');
+            } catch (e) {
+                console.warn('Cleanup warning:', e.message);
+            }
+
             await clickHouseManager.closeAsync();
         }
         await commonAfterEach();
