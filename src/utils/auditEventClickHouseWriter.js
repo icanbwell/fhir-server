@@ -1,6 +1,6 @@
 const { logError } = require('../operations/common/logging');
 const { AuditEventClickHouseRepository } = require('../dataLayer/repositories/auditEventClickHouseRepository');
-const { AuditEventTransformer } = require('../admin/utils/auditEventTransformer');
+const { AuditEventTransformer } = require('../dataLayer/clickHouse/auditEventTransformer');
 const { assertTypeEquals } = require('./assertType');
 
 /**

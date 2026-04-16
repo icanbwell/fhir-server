@@ -1,6 +1,6 @@
 'use strict';
 
-const { AuditEventTransformer } = require('../../admin/utils/auditEventTransformer');
+const { AuditEventTransformer } = require('./auditEventTransformer');
 
 /**
  * Field extractor for AuditEvent ClickHouse-only storage.

@@ -1,5 +1,5 @@
 const { describe, test, expect } = require('@jest/globals');
-const { AuditEventTransformer } = require('../../admin/utils/auditEventTransformer');
+const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const { generateDailyPartitions } = require('../../admin/utils/migrationStateManager');
 const deepcopy = require('deepcopy');
 const auditEventSample = require('./fixtures/audit_event_sample.json');

@@ -364,7 +364,7 @@ const createContainer = function () {
     container.register('auditEventClickHouseWriter', (c) => {
         if (c.auditEventClickHouseRepository) {
             const { AuditEventClickHouseWriter } = require('./utils/auditEventClickHouseWriter');
-            const { AuditEventTransformer } = require('./admin/utils/auditEventTransformer');
+            const { AuditEventTransformer } = require('./dataLayer/clickHouse/auditEventTransformer');
             return new AuditEventClickHouseWriter({
                 auditEventClickHouseRepository: c.auditEventClickHouseRepository,
                 auditEventTransformer: new AuditEventTransformer()
