@@ -48,15 +48,14 @@ class ClickHouseStorageProvider extends StorageProvider {
         });
 
         // Handle id/_uuid lookup (used by searchById operations).
-        // The query may be { _uuid: '<id>' } with no security tags when the
-        // caller has wildcard access (access/*.*). Skip security enforcement
-        // in findById — access control already passed at the JWT/operation level.
+        // Route to findByIdAsync which skips required filter validation.
+        // Pass the full query through so security tags are enforced when present.
         const idLookup = this._extractIdLookup(query);
         if (idLookup) {
             const row = await this.repository.findByIdAsync({
                 resourceType: this.resourceType,
                 id: idLookup,
-                mongoQuery: null
+                mongoQuery: query
             });
             const rows = row ? [row] : [];
             return new ClickHouseDatabaseCursor({

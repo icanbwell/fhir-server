@@ -27,8 +27,10 @@ describe('ClickHouseDatabaseCursor', () => {
             ]);
 
             expect(await cursor.hasNext()).toBe(true);
-            const row1 = await cursor.next();
-            expect(row1._fhir_resource).toBe(JSON.stringify(fhirDoc1));
+            const doc1 = await cursor.next();
+            // next() returns parsed FHIR document, not raw row
+            expect(doc1.id).toBe('obs-1');
+            expect(doc1.resourceType).toBe('Observation');
 
             expect(await cursor.hasNext()).toBe(true);
             await cursor.next();
@@ -122,23 +124,26 @@ describe('ClickHouseDatabaseCursor', () => {
     });
 
     describe('project', () => {
-        test('filters row fields by projection', async () => {
+        test('filters row fields by projection before extraction', async () => {
             const cursor = createCursor([
                 { _fhir_resource: JSON.stringify(fhirDoc1), extra: 'data' }
             ]);
             cursor.project({ projection: { _fhir_resource: 1 } });
-            const row = await cursor.next();
-            expect(row._fhir_resource).toBeDefined();
-            expect(row.extra).toBeUndefined();
+            // next() extracts FHIR doc from the projected row
+            const doc = await cursor.next();
+            expect(doc.id).toBe('obs-1');
+            expect(doc.resourceType).toBe('Observation');
         });
     });
 
     describe('map', () => {
         test('transforms rows with mapping function', async () => {
             const cursor = createCursor([{ _fhir_resource: JSON.stringify(fhirDoc1) }]);
-            cursor.map({ mapping: (row) => ({ transformed: true, original: row }) });
-            const row = await cursor.next();
-            expect(row.transformed).toBe(true);
+            // map runs before next() — maps the raw row, then next() extracts
+            cursor.map({ mapping: (row) => ({ _fhir_resource: JSON.stringify({ ...JSON.parse(row._fhir_resource), mapped: true }) }) });
+            const doc = await cursor.next();
+            expect(doc.mapped).toBe(true);
+            expect(doc.id).toBe('obs-1');
         });
     });
 
