@@ -5,11 +5,6 @@ const fs = require('fs');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 const { ClickHouseSchemaRegistry } = require('../../dataLayer/clickHouse/schemaRegistry');
 const { getObservationSchema } = require('../../dataLayer/clickHouse/schemas/observationSchema');
-const {
-    WRITE_STRATEGIES,
-    ENGINE_TYPES,
-    RESOURCE_COLUMN_TYPES
-} = require('../../constants/clickHouseConstants');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
