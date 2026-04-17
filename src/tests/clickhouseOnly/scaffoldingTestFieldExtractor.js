@@ -31,7 +31,6 @@ class ScaffoldingTestFieldExtractor {
             value_quantity: resource.value_quantity != null ? resource.value_quantity : null,
             status: resource.status || '',
             access_tags: this._extractSecurityCodes(security, 'https://www.icanbwell.com/access'),
-            owner_tags: this._extractSecurityCodes(security, 'https://www.icanbwell.com/owner'),
             source_assigning_authority: resource._sourceAssigningAuthority ||
                 this._extractFirstCode(security, 'https://www.icanbwell.com/owner') || '',
             _fhir_resource: typeof resource.toJSON === 'function'

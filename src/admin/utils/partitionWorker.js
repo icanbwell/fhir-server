@@ -6,7 +6,7 @@
  */
 
 const { ObjectId } = require('mongodb');
-const { AuditEventTransformer } = require('./auditEventTransformer');
+const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const { logInfo, logWarn } = require('../../operations/common/logging');
 
 class PartitionWorker {

@@ -3,6 +3,7 @@
 const { logDebug } = require('../../operations/common/logging');
 const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 
+
 // ─── Constants ───────────────────────────────────────────────────
 const DEFAULT_LIMIT = 100;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -38,7 +39,6 @@ const RESERVED_PARAMS = {
     LIMIT: '_limit',
     SKIP: '_skip',
     ACCESS_TAGS: '_accessTags',
-    OWNER_TAGS: '_ownerTags',
     ID: '_id',
     SEEK_PREFIX: '_sk'
 };
@@ -115,7 +115,7 @@ class GenericClickHouseQueryBuilder {
     /**
      * @param {string} id
      * @param {Object} schema
-     * @param {{accessTags: string[], ownerTags: string[]}} securityConditions
+     * @param {{accessTags: string[]}} securityConditions
      * @returns {{ query: string, query_params: Object }}
      */
     buildFindByIdQuery (id, schema, securityConditions) {
@@ -124,7 +124,7 @@ class GenericClickHouseQueryBuilder {
 
         // Security filtering mandatory — same as search queries
         const securityClauses = this._buildSecurityClauses(
-            securityConditions || { accessTags: [], ownerTags: [] },
+            securityConditions || { accessTags: [] },
             schema.securityMappings,
             params
         );
@@ -297,9 +297,11 @@ class GenericClickHouseQueryBuilder {
 
     /**
      * Builds security tag WHERE clauses.
-     * Empty accessTags is a security violation — tenant isolation is mandatory.
+     * Mirrors MongoDB behavior:
+     * - Empty/missing accessTags or wildcard '*' → no security filter (unrestricted access)
+     * - Non-empty accessTags → hasAny() filter for tenant isolation
      *
-     * @param {{accessTags: string[], ownerTags: string[]}} securityConditions
+     * @param {{accessTags: string[]}} securityConditions
      * @param {Object} securityMappings
      * @param {Object} params - mutated
      * @returns {string[]}
@@ -307,22 +309,14 @@ class GenericClickHouseQueryBuilder {
      */
     _buildSecurityClauses (securityConditions, securityMappings, params) {
         const clauses = [];
-        const { accessTags, ownerTags } = securityConditions;
+        const { accessTags } = securityConditions;
 
-        if (!accessTags || accessTags.length === 0) {
-            throw new Error(
-                'Security violation: accessTags cannot be empty. ' +
-                'Tenant isolation is mandatory on every ClickHouse query.'
-            );
+        if (!accessTags || accessTags.length === 0 || accessTags.includes('*')) {
+            return clauses;
         }
 
         clauses.push(`hasAny(${securityMappings.accessTags}, {${RESERVED_PARAMS.ACCESS_TAGS}:Array(String)})`);
         params[RESERVED_PARAMS.ACCESS_TAGS] = accessTags;
-
-        if (ownerTags.length > 0) {
-            clauses.push(`hasAny(${securityMappings.ownerTags}, {${RESERVED_PARAMS.OWNER_TAGS}:Array(String)})`);
-            params[RESERVED_PARAMS.OWNER_TAGS] = ownerTags;
-        }
 
         return clauses;
     }
@@ -337,6 +331,22 @@ class GenericClickHouseQueryBuilder {
         const paramName = `_p${index}`;
         const column = condition.column;
         const chType = this._clickHouseType(condition.type);
+
+        // Array column searches use has()/hasAny() instead of scalar operators.
+        // This covers both dedicated Array(String) columns (e.g., agent_who)
+        // and JSON path expressions (e.g., resource.agent[].who._sourceId)
+        // which also return arrays.
+        if (condition.type === 'array<string>') {
+            if (condition.operator === '$in') {
+                return { clause: `hasAny(${column}, {${paramName}:Array(${chType})})`, paramName };
+            }
+            if (condition.operator === '$eq') {
+                return { clause: `has(${column}, {${paramName}:${chType}})`, paramName };
+            }
+            if (condition.operator === '$ne') {
+                return { clause: `NOT has(${column}, {${paramName}:${chType}})`, paramName };
+            }
+        }
 
         if (condition.operator === '$in') {
             return { clause: `${column} IN {${paramName}:Array(${chType})}`, paramName };
@@ -438,12 +448,12 @@ class GenericClickHouseQueryBuilder {
 
                 let value = cursorObj[col];
                 if (value === undefined || value === null) {
-                    // Incomplete cursor — fall back to id-based seek
-                    logDebug('GenericClickHouseQueryBuilder: incomplete composite cursor, falling back to id seek', {
+                    // Incomplete cursor — fall back to _uuid seek
+                    logDebug('GenericClickHouseQueryBuilder: incomplete composite cursor, falling back to _uuid seek', {
                         missingColumn: col
                     });
                     params[`${RESERVED_PARAMS.SEEK_PREFIX}_id`] = cursor;
-                    whereClauses.push(`id > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
+                    whereClauses.push(`_uuid > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
                     return;
                 }
                 if (fieldMapping && fieldMapping.type === 'datetime' && typeof value === 'string') {
@@ -459,9 +469,9 @@ class GenericClickHouseQueryBuilder {
                 `(${columns.join(', ')}) > tuple(${tupleParams.join(', ')})`
             );
         } else {
-            // Simple cursor: seek on id column (backward-compatible with _uuid.$gt)
+            // Simple cursor: seek on _uuid column
             params[`${RESERVED_PARAMS.SEEK_PREFIX}_id`] = cursor;
-            whereClauses.push(`id > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
+            whereClauses.push(`_uuid > {${RESERVED_PARAMS.SEEK_PREFIX}_id:String}`);
         }
     }
 }

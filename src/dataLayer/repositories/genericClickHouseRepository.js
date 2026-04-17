@@ -99,7 +99,7 @@ class GenericClickHouseRepository {
             const schema = this.schemaRegistry.getSchema(resourceType);
             const securityConditions = mongoQuery
                 ? this.queryParser.parse(mongoQuery, schema).securityConditions
-                : { accessTags: [], ownerTags: [] };
+                : { accessTags: [] };
             const queryDef = this.queryBuilder.buildFindByIdQuery(id, schema, securityConditions);
             const rows = await this.clickHouseClientManager.queryAsync(queryDef);
             return (rows && rows.length > 0) ? rows[0] : null;

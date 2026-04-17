@@ -54,7 +54,6 @@ function getTestSchema () {
         },
         securityMappings: {
             accessTags: 'access_tags',
-            ownerTags: 'owner_tags',
             sourceAssigningAuthority: 'source_assigning_authority'
         },
         requiredFilters: [],

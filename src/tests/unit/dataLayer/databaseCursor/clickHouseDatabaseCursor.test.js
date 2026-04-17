@@ -28,7 +28,7 @@ describe('ClickHouseDatabaseCursor', () => {
 
             expect(await cursor.hasNext()).toBe(true);
             const row1 = await cursor.next();
-            expect(row1._fhir_resource).toBe(JSON.stringify(fhirDoc1));
+            expect(row1.id).toBe('obs-1');
 
             expect(await cursor.hasNext()).toBe(true);
             await cursor.next();
@@ -128,7 +128,9 @@ describe('ClickHouseDatabaseCursor', () => {
             ]);
             cursor.project({ projection: { _fhir_resource: 1 } });
             const row = await cursor.next();
-            expect(row._fhir_resource).toBeDefined();
+            // Projection keeps _fhir_resource, then next() extracts the FHIR doc
+            expect(row.id).toBe('obs-1');
+            expect(row.resourceType).toBe('Observation');
             expect(row.extra).toBeUndefined();
         });
     });

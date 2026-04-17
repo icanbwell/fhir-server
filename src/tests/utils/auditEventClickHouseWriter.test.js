@@ -1,7 +1,7 @@
 const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
 const { AuditEventClickHouseWriter } = require('../../utils/auditEventClickHouseWriter');
 const { AuditEventClickHouseRepository } = require('../../dataLayer/repositories/auditEventClickHouseRepository');
-const { AuditEventTransformer } = require('../../admin/utils/auditEventTransformer');
+const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const deepcopy = require('deepcopy');
 const auditEventSample = require('../scripts/fixtures/audit_event_sample.json');
 

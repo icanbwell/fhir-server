@@ -364,7 +364,7 @@ const createContainer = function () {
     container.register('auditEventClickHouseWriter', (c) => {
         if (c.auditEventClickHouseRepository) {
             const { AuditEventClickHouseWriter } = require('./utils/auditEventClickHouseWriter');
-            const { AuditEventTransformer } = require('./admin/utils/auditEventTransformer');
+            const { AuditEventTransformer } = require('./dataLayer/clickHouse/auditEventTransformer');
             return new AuditEventClickHouseWriter({
                 auditEventClickHouseRepository: c.auditEventClickHouseRepository,
                 auditEventTransformer: new AuditEventTransformer()
@@ -543,7 +543,14 @@ const createContainer = function () {
     ));
 
     // ClickHouse-only resource infrastructure
-    container.register('clickHouseSchemaRegistry', () => new ClickHouseSchemaRegistry());
+    container.register('clickHouseSchemaRegistry', (c) => {
+        const registry = new ClickHouseSchemaRegistry();
+        if (c.configManager.clickHouseOnlyResources.includes('AuditEvent')) {
+            const { getAuditEventClickHouseSchema } = require('./dataLayer/clickHouse/auditEventClickHouseSchema');
+            registry.registerSchema('AuditEvent', getAuditEventClickHouseSchema());
+        }
+        return registry;
+    });
     container.register('genericClickHouseQueryParser', () => new GenericClickHouseQueryParser());
     container.register('genericClickHouseQueryBuilder', () => new GenericClickHouseQueryBuilder());
     container.register('genericClickHouseRepository', (c) => {

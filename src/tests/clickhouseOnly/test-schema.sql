@@ -26,15 +26,13 @@ CREATE TABLE IF NOT EXISTS fhir.fhir_scaffolding_test
 
     -- Security / multi-tenancy (mandatory per schema contract)
     access_tags                  Array(String) DEFAULT [],
-    owner_tags                   Array(String) DEFAULT [],
     source_assigning_authority   LowCardinality(String) DEFAULT '',
 
     -- Full FHIR resource as JSON string (ZSTD compressed)
     _fhir_resource               String CODEC(ZSTD(3)),
 
     -- Bloom filter indexes for array searches
-    INDEX idx_access_tags access_tags TYPE bloom_filter(0.01) GRANULARITY 4,
-    INDEX idx_owner_tags  owner_tags  TYPE bloom_filter(0.01) GRANULARITY 4
+    INDEX idx_access_tags access_tags TYPE bloom_filter(0.01) GRANULARITY 4
 )
 ENGINE = MergeTree()
 ORDER BY (recorded, id)

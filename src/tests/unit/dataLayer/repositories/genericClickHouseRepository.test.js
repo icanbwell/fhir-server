@@ -35,7 +35,7 @@ describe('GenericClickHouseRepository', () => {
         mockQueryParser = {
             parse: jestGlobal.fn().mockReturnValue({
                 fieldConditions: [],
-                securityConditions: { accessTags: [], ownerTags: [] },
+                securityConditions: { accessTags: [] },
                 paginationCursor: null
             })
         };
