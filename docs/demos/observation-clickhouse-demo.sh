@@ -19,6 +19,7 @@ NC='\033[0m'
 FHIR_URL="http://localhost:3000/4_0_0"
 KEYCLOAK_URL="http://localhost:8080/realms/master/protocol/openid-connect/token"
 TOKEN=""
+DEMO_RESTARTED_FHIR=0
 
 header() {
     echo -e "\n${BOLD}${CYAN}════════════════════════════════════════════════════════════════${NC}"
@@ -85,9 +86,10 @@ check_services() {
 
     local ch_only=$(docker exec fhir-server-fhir-1 printenv CLICKHOUSE_ONLY_RESOURCES 2>/dev/null || echo "")
     if [[ "$ch_only" != *"Observation"* ]]; then
-        echo -e "${RED}CLICKHOUSE_ONLY_RESOURCES does not include 'Observation'.${NC}"
-        echo -e "${YELLOW}Rebuild with: make up${NC}"
-        exit 1
+        info "Restarting FHIR server with CLICKHOUSE_ONLY_RESOURCES=Observation..."
+        CLICKHOUSE_ONLY_RESOURCES=Observation docker-compose up -d --no-deps fhir > /dev/null 2>&1
+        sleep 10
+        DEMO_RESTARTED_FHIR=1
     fi
     success "CLICKHOUSE_ONLY_RESOURCES includes Observation"
 
@@ -519,6 +521,12 @@ main() {
 
     info "Cleaning up demo data..."
     cleanup
+
+    if [ "${DEMO_RESTARTED_FHIR:-0}" = "1" ]; then
+        info "Restoring FHIR server to original config..."
+        docker-compose up -d --no-deps fhir > /dev/null 2>&1
+    fi
+
     success "Done"
 }
 
