@@ -148,8 +148,8 @@ function makeAuditEvent (overrides = {}) {
     const agentWho = overrides.agent_who || [DEFAULT_AGENT_WHO_UUID];
     const agentAltid = overrides.agent_altid || ['dr-smith'];
     const entityWhat = overrides.entity_what || [DEFAULT_ENTITY_WHAT_UUID];
-    const agentWhoSourceId = overrides.agent_who_sourceId || agentWho[0];
-    const entityWhatSourceId = overrides.entity_what_sourceId || entityWhat[0];
+    const agentWhoSourceId = overrides.agent_who_sourceId || agentWho;
+    const entityWhatSourceId = overrides.entity_what_sourceId || entityWhat;
     const accessTags = overrides.access_tags || ['client-a'];
     const outcome = overrides.outcome || '0';
 
@@ -183,22 +183,22 @@ function makeAuditEvent (overrides = {}) {
                 display: 'Query'
             },
             subtype: [{ system: 'http://hl7.org/fhir/restful-interaction', code: 'search-type', display: 'search' }],
-            agent: [{
+            agent: agentWho.map((ref, i) => ({
                 who: {
-                    _uuid: agentWho[0],
-                    reference: agentWho[0],
-                    _sourceId: agentWhoSourceId
+                    _uuid: ref,
+                    reference: agentWhoSourceId[i] || ref,
+                    _sourceId: agentWhoSourceId[i] || ref
                 },
-                altId: agentAltid[0],
-                requestor: true
-            }],
-            entity: [{
+                altId: agentAltid[i] || '',
+                requestor: i === 0
+            })),
+            entity: entityWhat.map((ref, i) => ({
                 what: {
-                    _uuid: entityWhat[0],
-                    reference: entityWhat[0],
-                    _sourceId: entityWhatSourceId
+                    _uuid: ref,
+                    reference: entityWhatSourceId[i] || ref,
+                    _sourceId: entityWhatSourceId[i] || ref
                 }
-            }],
+            })),
             source: {
                 site: 'https://access.example.org',
                 observer: { reference: 'Organization/TestOrg' }

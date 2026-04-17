@@ -189,12 +189,12 @@ describe('AuditEvent ClickHouse API search integration', () => {
                 makeAuditEvent({
                     id: 'ae-agent-src-1',
                     agent_who: ['Practitioner/00000000-0000-4000-8000-111111111111'],
-                    agent_who_sourceId: 'Practitioner/dr-smith-123'
+                    agent_who_sourceId: ['Practitioner/dr-smith-123']
                 }),
                 makeAuditEvent({
                     id: 'ae-agent-src-2',
                     agent_who: ['Practitioner/00000000-0000-4000-8000-222222222222'],
-                    agent_who_sourceId: 'Practitioner/dr-jones-456'
+                    agent_who_sourceId: ['Practitioner/dr-jones-456']
                 })
             ];
             await insertRows(rows);
@@ -251,12 +251,12 @@ describe('AuditEvent ClickHouse API search integration', () => {
                 makeAuditEvent({
                     id: 'ae-entity-src-1',
                     entity_what: ['Patient/00000000-0000-4000-8000-333333333333'],
-                    entity_what_sourceId: 'Patient/patient-abc'
+                    entity_what_sourceId: ['Patient/patient-abc']
                 }),
                 makeAuditEvent({
                     id: 'ae-entity-src-2',
                     entity_what: ['Patient/00000000-0000-4000-8000-444444444444'],
-                    entity_what_sourceId: 'Patient/patient-xyz'
+                    entity_what_sourceId: ['Patient/patient-xyz']
                 })
             ];
             await insertRows(rows);
