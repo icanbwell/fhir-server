@@ -586,6 +586,34 @@ describe('GenericClickHouseQueryBuilder', () => {
         });
     });
 
+    describe('_uuid filter support', () => {
+        test('$in on _uuid generates IN clause', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: '_uuid', column: '_uuid', type: 'string', operator: '$in', value: ['uuid-1', 'uuid-2'] }
+                ],
+                securityConditions: { accessTags: ['test-access'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('_uuid IN {_p0:Array(String)}');
+            expect(query_params._p0).toEqual(['uuid-1', 'uuid-2']);
+        });
+
+        test('$eq on _uuid generates equality clause', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: '_uuid', column: '_uuid', type: 'string', operator: '$eq', value: 'uuid-1' }
+                ],
+                securityConditions: { accessTags: ['test-access'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, schema);
+            expect(query).toContain('_uuid = {_p0:String}');
+            expect(query_params._p0).toBe('uuid-1');
+        });
+    });
+
     describe('wildcard * access tag bypass', () => {
         test('skips access tag filter when accessTags contains *', () => {
             const parsed = {
@@ -774,6 +802,29 @@ describe('GenericClickHouseQueryBuilder', () => {
                 _p0: '2024-06-01 00:00:00',
                 _p1: '2024-06-15 00:00:00',
                 _accessTags: ['client-a']
+            });
+        });
+
+        test('search by _uuid $in', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: '_uuid', column: '_uuid', type: 'string', operator: '$in', value: ['uuid-1', 'uuid-2'] }
+                ],
+                securityConditions: { accessTags: ['client-a'] },
+                paginationCursor: null
+            };
+            const { query, query_params } = builder.buildSearchQuery(parsed, auditSchema);
+            expect(query).toBe(
+                'SELECT resource\n' +
+                'FROM fhir.AuditEvent_4_0_0\n' +
+                'WHERE _uuid IN {_p0:Array(String)} AND hasAny(access_tags, {_accessTags:Array(String)})\n' +
+                'ORDER BY recorded, _uuid\n' +
+                'LIMIT {_limit:UInt32}'
+            );
+            expect(query_params).toEqual({
+                _p0: ['uuid-1', 'uuid-2'],
+                _accessTags: ['client-a'],
+                _limit: 100
             });
         });
 

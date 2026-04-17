@@ -28,9 +28,11 @@ class GenericClickHouseQueryParser {
         const fieldConditions = [];
         const securityConditions = this._extractSecurityTags(mongoQuery);
         const paginationCursor = this._extractPaginationCursor(mongoQuery);
+        const uuidFilters = this._extractUuidFilter(mongoQuery);
         const cleanedQuery = this._cleanPaginationFromQuery(mongoQuery);
 
         this._extractFieldConditions(cleanedQuery, schema.fieldMappings, fieldConditions);
+        fieldConditions.push(...uuidFilters);
 
         logDebug('GenericClickHouseQueryParser: parsed query', {
             fieldConditionCount: fieldConditions.length,
@@ -203,6 +205,53 @@ class GenericClickHouseQueryParser {
             }
         }
         return null;
+    }
+
+    /**
+     * Extracts non-pagination _uuid filters (e.g. $in, $eq) into field conditions.
+     * These map directly to the _uuid column in ClickHouse.
+     *
+     * @param {Object} query
+     * @returns {FieldCondition[]}
+     * @private
+     */
+    _extractUuidFilter (query) {
+        const results = [];
+        const extract = (obj) => {
+            if (!obj || typeof obj !== 'object') return;
+            if (obj._uuid) {
+                const uuidVal = obj._uuid;
+                if (typeof uuidVal === 'string') {
+                    results.push({
+                        fieldPath: '_uuid',
+                        column: '_uuid',
+                        type: 'string',
+                        operator: '$eq',
+                        value: uuidVal
+                    });
+                } else if (typeof uuidVal === 'object' && !Array.isArray(uuidVal)) {
+                    for (const [op, opValue] of Object.entries(uuidVal)) {
+                        if (op === '$gt') continue;
+                        if (op.startsWith('$')) {
+                            results.push({
+                                fieldPath: '_uuid',
+                                column: '_uuid',
+                                type: 'string',
+                                operator: op,
+                                value: opValue
+                            });
+                        }
+                    }
+                }
+            }
+            if (obj.$and && Array.isArray(obj.$and)) {
+                for (const condition of obj.$and) {
+                    extract(condition);
+                }
+            }
+        };
+        extract(query);
+        return results;
     }
 
     /**

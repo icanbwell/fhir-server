@@ -447,6 +447,101 @@ describe('AuditEvent ClickHouse API search integration', () => {
         });
     });
 
+    describe('id search parameter (multi-value _uuid $in)', () => {
+        test('filters by multiple UUIDs with id=uuid1,uuid2', async () => {
+            const request = getSharedRequest();
+            const rows = [
+                makeAuditEvent({ id: 'ae-id-match-1', _uuid: '00166190-bc01-47ca-9953-088fe29c8091' }),
+                makeAuditEvent({ id: 'ae-id-match-2', _uuid: '00166190-bc01-47ca-9953-088fe29c8092' }),
+                makeAuditEvent({ id: 'ae-id-no-match', _uuid: '00166190-bc01-47ca-9953-088fe29c8099' })
+            ];
+            await insertRows(rows);
+
+            const resp = await request
+                .get('/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&id=00166190-bc01-47ca-9953-088fe29c8091,00166190-bc01-47ca-9953-088fe29c8092')
+                .set(getTestHeaders());
+
+            expect(resp).toHaveStatusCode(200);
+            expect(resp).toHaveResourceCount(2);
+            const ids = resp.body.entry.map(e => e.resource.id);
+            expect(ids).toContain('ae-id-match-1');
+            expect(ids).toContain('ae-id-match-2');
+            expect(ids).not.toContain('ae-id-no-match');
+        });
+
+        test('filters by single UUID with id=uuid', async () => {
+            const request = getSharedRequest();
+            const rows = [
+                makeAuditEvent({ id: 'ae-single-id-1', _uuid: '10166190-bc01-47ca-9953-088fe29c8091' }),
+                makeAuditEvent({ id: 'ae-single-id-2', _uuid: '10166190-bc01-47ca-9953-088fe29c8092' })
+            ];
+            await insertRows(rows);
+
+            const resp = await request
+                .get('/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&id=10166190-bc01-47ca-9953-088fe29c8091')
+                .set(getTestHeaders());
+
+            expect(resp).toHaveStatusCode(200);
+            expect(resp).toHaveResourceCount(1);
+            expect(resp.body.entry[0].resource.id).toBe('ae-single-id-1');
+        });
+
+        test('id filter combined with _count and _getpagesoffset', async () => {
+            const request = getSharedRequest();
+            const targetUuids = [];
+            const rows = [];
+            for (let i = 0; i < 12; i++) {
+                const uuid = `20166190-bc01-47ca-9953-088fe29c${String(i).padStart(4, '0')}`;
+                targetUuids.push(uuid);
+                rows.push(makeAuditEvent({
+                    id: `ae-id-page-${String(i).padStart(2, '0')}`,
+                    _uuid: uuid,
+                    recorded: `2024-06-15 10:${String(i).padStart(2, '0')}:00.000`,
+                    recordedISO: `2024-06-15T10:${String(i).padStart(2, '0')}:00.000Z`
+                }));
+            }
+            // Insert an extra row NOT in the id filter
+            rows.push(makeAuditEvent({ id: 'ae-id-page-excluded', _uuid: '99999999-bc01-47ca-9953-088fe29c0000' }));
+            await insertRows(rows);
+
+            const idParam = targetUuids.join(',');
+
+            const page0Resp = await request
+                .get(`/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&_getpagesoffset=0&_count=5&id=${idParam}`)
+                .set(getTestHeaders());
+
+            const page1Resp = await request
+                .get(`/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&_getpagesoffset=1&_count=5&id=${idParam}`)
+                .set(getTestHeaders());
+
+            expect(page0Resp).toHaveStatusCode(200);
+            expect(page1Resp).toHaveStatusCode(200);
+            expect(page0Resp.body.entry.length).toBe(5);
+            expect(page1Resp.body.entry.length).toBe(5);
+
+            const allReturnedIds = [
+                ...page0Resp.body.entry.map(e => e.resource.id),
+                ...page1Resp.body.entry.map(e => e.resource.id)
+            ];
+            // No overlap between pages
+            expect(new Set(allReturnedIds).size).toBe(10);
+            // Excluded row should not appear
+            expect(allReturnedIds).not.toContain('ae-id-page-excluded');
+        });
+
+        test('returns empty when id filter matches nothing', async () => {
+            const request = getSharedRequest();
+            await insertRows([makeAuditEvent({ id: 'ae-id-exists' })]);
+
+            const resp = await request
+                .get('/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&id=ffffffff-ffff-ffff-ffff-ffffffffffff')
+                .set(getTestHeaders());
+
+            expect(resp).toHaveStatusCode(200);
+            expect(resp).toHaveResourceCount(0);
+        });
+    });
+
     describe('combined search parameters', () => {
         test('multiple filters applied together', async () => {
             const comboAgent1 = 'Practitioner/00000000-0000-4000-8000-eeeeeeeeeeee';
