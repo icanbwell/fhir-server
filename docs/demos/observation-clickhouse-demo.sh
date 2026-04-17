@@ -4,8 +4,6 @@
 #
 # Prerequisites:
 #   make up
-#   Add CLICKHOUSE_ONLY_RESOURCES: 'Observation' to docker-compose.yml
-#   docker-compose up -d --force-recreate fhir
 
 set -e
 
@@ -87,9 +85,8 @@ check_services() {
 
     local ch_only=$(docker exec fhir-server-fhir-1 printenv CLICKHOUSE_ONLY_RESOURCES 2>/dev/null || echo "")
     if [[ "$ch_only" != *"Observation"* ]]; then
-        echo -e "${RED}CLICKHOUSE_ONLY_RESOURCES must include 'Observation'${NC}"
-        echo -e "${YELLOW}Add to docker-compose.yml:  CLICKHOUSE_ONLY_RESOURCES: 'Observation'${NC}"
-        echo -e "${YELLOW}Then run:  docker-compose up -d --force-recreate fhir${NC}"
+        echo -e "${RED}CLICKHOUSE_ONLY_RESOURCES does not include 'Observation'.${NC}"
+        echo -e "${YELLOW}Rebuild with: make up${NC}"
         exit 1
     fi
     success "CLICKHOUSE_ONLY_RESOURCES includes Observation"
