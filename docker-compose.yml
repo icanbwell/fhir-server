@@ -115,6 +115,7 @@ services:
       MONGO_WITH_CLICKHOUSE_RESOURCES: 'Group'
       ENABLE_AUDIT_EVENT_CLICKHOUSE: '1'
       CLICKHOUSE_ONLY_RESOURCES: 'AuditEvent'
+      ENABLE_ACCESS_LOGS_CLICKHOUSE: '1'
     ports:
       - '3000:3000'
     volumes:

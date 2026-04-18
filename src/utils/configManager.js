@@ -599,6 +599,14 @@ class ConfigManager {
     }
 
     /**
+     * whether to write access logs to ClickHouse
+     * @return {boolean}
+     */
+    get enableAccessLogsClickHouse() {
+        return isTrue(env.ENABLE_ACCESS_LOGS_CLICKHOUSE) && this.enableClickHouse;
+    }
+
+    /**
      * returns the maximum number of IDs to include in each audit event
      * @returns {number}
      */

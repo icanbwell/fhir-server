@@ -372,6 +372,28 @@ const createContainer = function () {
         }
         return null;
     });
+    // Register AccessLog ClickHouse repository (if enabled)
+    container.register('accessLogClickHouseRepository', (c) => {
+        if (c.configManager.enableAccessLogsClickHouse && c.clickHouseClientManager) {
+            const { AccessLogClickHouseRepository } = require('./dataLayer/repositories/accessLogClickHouseRepository');
+            return new AccessLogClickHouseRepository({
+                clickHouseClientManager: c.clickHouseClientManager
+            });
+        }
+        return null;
+    });
+    // Register AccessLog ClickHouse writer (if repository available)
+    container.register('accessLogClickHouseWriter', (c) => {
+        if (c.accessLogClickHouseRepository) {
+            const { AccessLogClickHouseWriter } = require('./utils/accessLogClickHouseWriter');
+            const { AccessLogTransformer } = require('./dataLayer/clickHouse/accessLogTransformer');
+            return new AccessLogClickHouseWriter({
+                accessLogClickHouseRepository: c.accessLogClickHouseRepository,
+                accessLogTransformer: new AccessLogTransformer()
+            });
+        }
+        return null;
+    });
     container.register('indexManager', (c) => new IndexManager(
         {
             indexProvider: c.indexProvider,
@@ -652,7 +674,8 @@ const createContainer = function () {
                 imageVersion: getImageVersion(),
                 configManager: c.configManager,
                 databaseBulkInserter: c.databaseBulkInserter,
-                accessLogsEventProducer: c.accessLogsEventProducer
+                accessLogsEventProducer: c.accessLogsEventProducer,
+                accessLogClickHouseWriter: c.accessLogClickHouseWriter
             }
         )
     );
@@ -1041,6 +1064,16 @@ const createContainer = function () {
             accessIndexManager: c.accessIndexManager,
             r4ArgsParser: c.r4ArgsParser
         }));
+
+    container.register('adminAccessLogClickHouseManager', (c) => {
+        if (c.configManager.enableAccessLogsClickHouse && c.clickHouseClientManager) {
+            const { AdminAccessLogClickHouseManager } = require('./admin/adminAccessLogClickHouseManager');
+            return new AdminAccessLogClickHouseManager({
+                clickHouseClientManager: c.clickHouseClientManager
+            });
+        }
+        return null;
+    });
 
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,

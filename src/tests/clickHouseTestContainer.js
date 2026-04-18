@@ -3,7 +3,12 @@ const path = require('path');
 const { withNockSuspended, setEnvVars, restoreEnvVars } = require('./testContainerUtils');
 
 const CLICKHOUSE_IMAGE = 'clickhouse/clickhouse-server:25.12.1';
-const SCHEMA_PATH = path.join(__dirname, '../../clickhouse-init/01-init-schema.sql');
+const SCHEMA_FILES = [
+    '01-init-schema.sql',
+    '02-audit-event.sql',
+    '03-audit-event-migration-state.sql',
+    '04-access-log.sql'
+];
 
 class ClickHouseTestContainer {
     constructor() {
@@ -38,12 +43,12 @@ class ClickHouseTestContainer {
                 .withEnvironment({
                     CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: '1'
                 })
-                .withCopyFilesToContainer([
-                    {
-                        source: SCHEMA_PATH,
-                        target: '/docker-entrypoint-initdb.d/01-init-schema.sql'
-                    }
-                ])
+                .withCopyFilesToContainer(
+                    SCHEMA_FILES.map((file) => ({
+                        source: path.join(__dirname, '../../clickhouse-init/', file),
+                        target: `/docker-entrypoint-initdb.d/${file}`
+                    }))
+                )
                 .withStartupTimeout(startupTimeoutMs)
                 .start()
         );
