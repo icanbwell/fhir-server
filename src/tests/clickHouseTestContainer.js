@@ -2,7 +2,7 @@ const { ClickHouseContainer } = require('@testcontainers/clickhouse');
 const path = require('path');
 const { withNockSuspended, setEnvVars, restoreEnvVars } = require('./testContainerUtils');
 
-const CLICKHOUSE_IMAGE = 'clickhouse/clickhouse-server:24.8';
+const CLICKHOUSE_IMAGE = 'clickhouse/clickhouse-server:25.12.1';
 const SCHEMA_PATH = path.join(__dirname, '../../clickhouse-init/01-init-schema.sql');
 
 class ClickHouseTestContainer {

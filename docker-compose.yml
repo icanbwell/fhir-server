@@ -231,7 +231,7 @@ services:
       start_period: 30s
 
   clickhouse:
-    image: clickhouse/clickhouse-server:24.8
+    image: clickhouse/clickhouse-server:25.12.1
     container_name: fhir-clickhouse
     ports:
       - '8123:8123'   # HTTP interface
