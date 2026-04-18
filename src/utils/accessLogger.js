@@ -16,6 +16,7 @@ const { ConfigManager } = require('./configManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { AccessLogsEventProducer } = require('./accessLogsEventProducer');
+const { AccessLogClickHouseWriter } = require('./accessLogClickHouseWriter');
 const mutex = new Mutex();
 
 class AccessLogger {
@@ -29,6 +30,7 @@ class AccessLogger {
      * @property {ConfigManager} configManager
      * @property {DatabaseBulkInserter} databaseBulkInserter
      * @property {AccessLogsEventProducer} accessLogsEventProducer
+     * @property {AccessLogClickHouseWriter|null} [accessLogClickHouseWriter]
      *
      * @param {params}
      */
@@ -39,7 +41,8 @@ class AccessLogger {
         imageVersion,
         configManager,
         databaseBulkInserter,
-        accessLogsEventProducer
+        accessLogsEventProducer,
+        accessLogClickHouseWriter = null
     }) {
         /**
          * @type {ScopesManager}
@@ -77,6 +80,13 @@ class AccessLogger {
          */
         this.accessLogsEventProducer = accessLogsEventProducer;
         assertTypeEquals(accessLogsEventProducer, AccessLogsEventProducer);
+        /**
+         * @type {AccessLogClickHouseWriter|null}
+         */
+        this.accessLogClickHouseWriter = accessLogClickHouseWriter;
+        if (accessLogClickHouseWriter) {
+            assertTypeEquals(accessLogClickHouseWriter, AccessLogClickHouseWriter);
+        }
         /**
          * @type {object[]}
          */
@@ -249,6 +259,8 @@ class AccessLogger {
         const operationsMap = new Map();
         operationsMap.set(ACCESS_LOGS_COLLECTION_NAME, []);
         const accessLogs = [];
+        const clickHouseAccessLogs = [];
+        const clickHouseEnabled = this.configManager.enableAccessLogsClickHouse && this.accessLogClickHouseWriter;
 
         for (const { doc, requestInfo } of currentQueue) {
             ({ requestId } = requestInfo);
@@ -274,9 +286,16 @@ class AccessLogger {
                     })
                 );
             }
+            if (clickHouseEnabled) {
+                clickHouseAccessLogs.push(doc);
+            }
         }
         if (accessLogs.length > 0) {
             await this.accessLogsEventProducer.produce(accessLogs);
+        }
+        if (clickHouseAccessLogs.length > 0) {
+            // Writer swallows errors internally; a lost access-log must not break the request cycle.
+            await this.accessLogClickHouseWriter.writeBatchAsync(clickHouseAccessLogs);
         }
         if (operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).length > 0) {
             const requestInfo = currentQueue[0].requestInfo;
