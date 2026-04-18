@@ -135,6 +135,14 @@ async function cleanupBetweenTests () {
     }
 }
 
+const TEST_DATES = (() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    return { ym: `${y}-${m}` };
+})();
+
 const DEFAULT_AGENT_WHO_UUID = 'Practitioner/00000000-0000-4000-8000-000000000001';
 const DEFAULT_ENTITY_WHAT_UUID = 'Patient/00000000-0000-4000-8000-000000000002';
 
@@ -142,8 +150,8 @@ function makeAuditEvent (overrides = {}) {
     const id = overrides.id || `ae-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const ownerCode = overrides.ownerCode || 'org-1';
     const uuid = overrides._uuid || generateUUIDv5(`${id}|${ownerCode}`);
-    const recorded = overrides.recorded || '2024-06-15 10:30:00.000';
-    const recordedISO = overrides.recordedISO || '2024-06-15T10:30:00.000Z';
+    const recorded = overrides.recorded || `${TEST_DATES.ym}-15 10:30:00.000`;
+    const recordedISO = overrides.recordedISO || `${TEST_DATES.ym}-15T10:30:00.000Z`;
     const action = overrides.action || 'R';
     const agentWho = overrides.agent_who || [DEFAULT_AGENT_WHO_UUID];
     const agentAltid = overrides.agent_altid || ['dr-smith'];
@@ -237,5 +245,6 @@ module.exports = {
     getTestHeaders,
     getTestHeadersWithCustomPayload,
     makeAuditEvent,
-    insertRows
+    insertRows,
+    TEST_DATES
 };

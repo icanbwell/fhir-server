@@ -9,8 +9,11 @@ const {
     getTestHeaders,
     getTestHeadersWithCustomPayload,
     makeAuditEvent,
-    insertRows
+    insertRows,
+    TEST_DATES
 } = require('./auditEventClickHouseTestSetup');
+
+const YM = TEST_DATES.ym;
 
 describe('AuditEvent ClickHouse API search integration', () => {
     beforeAll(async () => {
@@ -29,14 +32,14 @@ describe('AuditEvent ClickHouse API search integration', () => {
         test('returns AuditEvents within date range', async () => {
             const request = getSharedRequest();
             const rows = [
-                makeAuditEvent({ id: 'ae-date-1', recorded: '2024-06-10 08:00:00.000', recordedISO: '2024-06-10T08:00:00.000Z' }),
-                makeAuditEvent({ id: 'ae-date-2', recorded: '2024-06-15 10:30:00.000', recordedISO: '2024-06-15T10:30:00.000Z' }),
-                makeAuditEvent({ id: 'ae-date-3', recorded: '2024-06-20 14:00:00.000', recordedISO: '2024-06-20T14:00:00.000Z' })
+                makeAuditEvent({ id: 'ae-date-1', recorded: `${YM}-10 08:00:00.000`, recordedISO: `${YM}-10T08:00:00.000Z` }),
+                makeAuditEvent({ id: 'ae-date-2', recorded: `${YM}-15 10:30:00.000`, recordedISO: `${YM}-15T10:30:00.000Z` }),
+                makeAuditEvent({ id: 'ae-date-3', recorded: `${YM}-20 14:00:00.000`, recordedISO: `${YM}-20T14:00:00.000Z` })
             ];
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(3);
@@ -45,13 +48,13 @@ describe('AuditEvent ClickHouse API search integration', () => {
         test('excludes AuditEvents outside date range', async () => {
             const request = getSharedRequest();
             const rows = [
-                makeAuditEvent({ id: 'ae-in-range', recorded: '2024-06-15 10:30:00.000', recordedISO: '2024-06-15T10:30:00.000Z' }),
-                makeAuditEvent({ id: 'ae-out-range', recorded: '2024-07-15 10:30:00.000', recordedISO: '2024-07-15T10:30:00.000Z' })
+                makeAuditEvent({ id: 'ae-in-range', recorded: `${YM}-15 10:30:00.000`, recordedISO: `${YM}-15T10:30:00.000Z` }),
+                makeAuditEvent({ id: 'ae-out-range', recorded: `${YM}-01 00:00:00.000`, recordedISO: `${YM}-01T00:00:00.000Z` })
             ];
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
@@ -61,12 +64,12 @@ describe('AuditEvent ClickHouse API search integration', () => {
         test('supports ge/le operators', async () => {
             const request = getSharedRequest();
             const rows = [
-                makeAuditEvent({ id: 'ae-boundary', recorded: '2024-06-15 00:00:00.000', recordedISO: '2024-06-15T00:00:00.000Z' })
+                makeAuditEvent({ id: 'ae-boundary', recorded: `${YM}-15 00:00:00.000`, recordedISO: `${YM}-15T00:00:00.000Z` })
             ];
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=ge2024-06-15&date=le2024-06-15')
+                .get(`/4_0_0/AuditEvent/?date=ge${YM}-15&date=le${YM}-15`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
@@ -105,7 +108,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             const request = getSharedRequest();
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveStatusCode(400);
@@ -115,7 +118,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             const request = getSharedRequest();
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=2024-06-15&date=ew2024-06-30')
+                .get(`/4_0_0/AuditEvent/?date=${YM}-15&date=ew${YM}-28`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveStatusCode(400);
@@ -145,7 +148,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&action=R')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&action=R`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
@@ -157,7 +160,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows([makeAuditEvent({ id: 'ae-read', action: 'R' })]);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&action=D')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&action=D`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(0);
@@ -176,7 +179,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get(`/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&agent=${encodeURIComponent(agentUuid1)}`)
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&agent=${encodeURIComponent(agentUuid1)}`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
@@ -200,7 +203,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get(`/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&agent=${encodeURIComponent('Practitioner/dr-smith-123')}`)
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&agent=${encodeURIComponent('Practitioner/dr-smith-123')}`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
@@ -218,7 +221,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&altid=dr-smith')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&altid=dr-smith`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
@@ -238,7 +241,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get(`/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&entity=${encodeURIComponent(entityUuid1)}`)
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&entity=${encodeURIComponent(entityUuid1)}`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
@@ -262,7 +265,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get(`/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&entity=${encodeURIComponent('Patient/patient-abc')}`)
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&entity=${encodeURIComponent('Patient/patient-abc')}`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
@@ -276,7 +279,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows([makeAuditEvent({ id: 'ae-specific-id' })]);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/ae-specific-id/?date=gt2024-06-01&date=lt2024-06-30')
+                .get(`/4_0_0/AuditEvent/ae-specific-id/?date=gt${YM}-01&date=lt${YM}-28`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveStatusCode(200);
@@ -308,7 +311,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28`)
                 .set(getTestHeaders('user/AuditEvent.read access/tenant-a.*'));
 
             expect(resp).toHaveStatusCode(200);
@@ -326,7 +329,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveStatusCode(200);
@@ -339,7 +342,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             const request = getSharedRequest();
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28`)
                 .set(getTestHeaders('user/AuditEvent.read'));
 
             expect(resp).toHaveStatusCode(403);
@@ -350,7 +353,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows([makeAuditEvent({ id: 'ae-patient-scope' })]);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28`)
                 .set(getTestHeadersWithCustomPayload({
                     scope: 'patient/AuditEvent.read',
                     clientFhirPersonId: 'clientFhirPerson',
@@ -377,7 +380,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&_count=2')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&_count=2`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveStatusCode(200);
@@ -390,18 +393,18 @@ describe('AuditEvent ClickHouse API search integration', () => {
             for (let i = 0; i < 10; i++) {
                 rows.push(makeAuditEvent({
                     id: `ae-page-${String(i).padStart(2, '0')}`,
-                    recorded: `2024-06-15 10:${String(i).padStart(2, '0')}:00.000`,
-                    recordedISO: `2024-06-15T10:${String(i).padStart(2, '0')}:00.000Z`
+                    recorded: `${YM}-15 10:${String(i).padStart(2, '0')}:00.000`,
+                    recordedISO: `${YM}-15T10:${String(i).padStart(2, '0')}:00.000Z`
                 }));
             }
             await insertRows(rows);
 
             const page0Resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&_getpagesoffset=0&_count=5')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&_getpagesoffset=0&_count=5`)
                 .set(getTestHeaders());
 
             const page1Resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&_getpagesoffset=1&_count=5')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&_getpagesoffset=1&_count=5`)
                 .set(getTestHeaders());
 
             expect(page0Resp).toHaveStatusCode(200);
@@ -421,18 +424,18 @@ describe('AuditEvent ClickHouse API search integration', () => {
             for (let i = 0; i < 10; i++) {
                 rows.push(makeAuditEvent({
                     id: `ae-window-${String(i).padStart(2, '0')}`,
-                    recorded: `2024-06-15 11:${String(i).padStart(2, '0')}:00.000`,
-                    recordedISO: `2024-06-15T11:${String(i).padStart(2, '0')}:00.000Z`
+                    recorded: `${YM}-15 11:${String(i).padStart(2, '0')}:00.000`,
+                    recordedISO: `${YM}-15T11:${String(i).padStart(2, '0')}:00.000Z`
                 }));
             }
             await insertRows(rows);
 
             const page0Resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&_getpagesoffset=0&_count=5')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&_getpagesoffset=0&_count=5`)
                 .set(getTestHeaders());
 
             const page1Resp = await request
-                .get('/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&_getpagesoffset=1&_count=5')
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&_getpagesoffset=1&_count=5`)
                 .set(getTestHeaders());
 
             expect(page0Resp).toHaveStatusCode(200);
@@ -458,7 +461,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&id=00166190-bc01-47ca-9953-088fe29c8091,00166190-bc01-47ca-9953-088fe29c8092')
+                .get(`/4_0_0/AuditEvent/?date=ge${YM}-01&date=le${YM}-28&id=00166190-bc01-47ca-9953-088fe29c8091,00166190-bc01-47ca-9953-088fe29c8092`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveStatusCode(200);
@@ -478,7 +481,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&id=10166190-bc01-47ca-9953-088fe29c8091')
+                .get(`/4_0_0/AuditEvent/?date=ge${YM}-01&date=le${YM}-28&id=10166190-bc01-47ca-9953-088fe29c8091`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveStatusCode(200);
@@ -496,8 +499,8 @@ describe('AuditEvent ClickHouse API search integration', () => {
                 rows.push(makeAuditEvent({
                     id: `ae-id-page-${String(i).padStart(2, '0')}`,
                     _uuid: uuid,
-                    recorded: `2024-06-15 10:${String(i).padStart(2, '0')}:00.000`,
-                    recordedISO: `2024-06-15T10:${String(i).padStart(2, '0')}:00.000Z`
+                    recorded: `${YM}-15 10:${String(i).padStart(2, '0')}:00.000`,
+                    recordedISO: `${YM}-15T10:${String(i).padStart(2, '0')}:00.000Z`
                 }));
             }
             // Insert an extra row NOT in the id filter
@@ -507,11 +510,11 @@ describe('AuditEvent ClickHouse API search integration', () => {
             const idParam = targetUuids.join(',');
 
             const page0Resp = await request
-                .get(`/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&_getpagesoffset=0&_count=5&id=${idParam}`)
+                .get(`/4_0_0/AuditEvent/?date=ge${YM}-01&date=le${YM}-28&_getpagesoffset=0&_count=5&id=${idParam}`)
                 .set(getTestHeaders());
 
             const page1Resp = await request
-                .get(`/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&_getpagesoffset=1&_count=5&id=${idParam}`)
+                .get(`/4_0_0/AuditEvent/?date=ge${YM}-01&date=le${YM}-28&_getpagesoffset=1&_count=5&id=${idParam}`)
                 .set(getTestHeaders());
 
             expect(page0Resp).toHaveStatusCode(200);
@@ -534,7 +537,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows([makeAuditEvent({ id: 'ae-id-exists' })]);
 
             const resp = await request
-                .get('/4_0_0/AuditEvent/?date=ge2024-06-01&date=le2024-06-30&id=ffffffff-ffff-ffff-ffff-ffffffffffff')
+                .get(`/4_0_0/AuditEvent/?date=ge${YM}-01&date=le${YM}-28&id=ffffffff-ffff-ffff-ffff-ffffffffffff`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveStatusCode(200);
@@ -555,7 +558,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
             await insertRows(rows);
 
             const resp = await request
-                .get(`/4_0_0/AuditEvent/?date=gt2024-06-01&date=lt2024-06-30&action=R&agent=${encodeURIComponent(comboAgent1)}`)
+                .get(`/4_0_0/AuditEvent/?date=gt${YM}-01&date=lt${YM}-28&action=R&agent=${encodeURIComponent(comboAgent1)}`)
                 .set(getTestHeaders());
 
             expect(resp).toHaveResourceCount(1);
