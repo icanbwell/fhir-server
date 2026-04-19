@@ -13,7 +13,9 @@ const { ClickHouseClientManager } = require('../../../utils/clickHouseClientMana
 const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 const { commonBeforeEach, commonAfterEach } = require('../../common');
-const { makeAuditEvent } = require('./auditEventClickHouseTestSetup');
+const { makeAuditEvent, TEST_DATES } = require('./auditEventClickHouseTestSetup');
+
+const YM = TEST_DATES.ym;
 
 const AUDIT_EVENT_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/02-audit-event.sql');
 
@@ -137,8 +139,8 @@ describe('AuditEvent ClickHouse read integration', () => {
                 resourceType: 'AuditEvent',
                 mongoQuery: {
                     recorded: {
-                        $gte: '2024-06-01T00:00:00Z',
-                        $lt: '2024-07-01T00:00:00Z'
+                        $gte: `${YM}-01T00:00:00Z`,
+                        $lt: `${YM}-28T23:59:59Z`
                     },
                     'meta.security': {
                         $elemMatch: {
@@ -161,7 +163,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             const result = await repository.searchAsync({
                 resourceType: 'AuditEvent',
                 mongoQuery: {
-                    recorded: { $gte: '2024-06-01T00:00:00Z', $lt: '2024-07-01T00:00:00Z' },
+                    recorded: { $gte: `${YM}-01T00:00:00Z`, $lt: `${YM}-28T23:59:59Z` },
                     'agent.who._uuid': { $in: [agentUuid] },
                     'meta.security': {
                         $elemMatch: {
@@ -183,7 +185,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             const result = await repository.searchAsync({
                 resourceType: 'AuditEvent',
                 mongoQuery: {
-                    recorded: { $gte: '2024-06-01T00:00:00Z', $lt: '2024-07-01T00:00:00Z' },
+                    recorded: { $gte: `${YM}-01T00:00:00Z`, $lt: `${YM}-28T23:59:59Z` },
                     'entity.what._uuid': { $in: [entityUuid] },
                     'meta.security': {
                         $elemMatch: {
@@ -204,7 +206,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             const result = await repository.searchAsync({
                 resourceType: 'AuditEvent',
                 mongoQuery: {
-                    recorded: { $gte: '2024-06-01T00:00:00Z', $lt: '2024-07-01T00:00:00Z' },
+                    recorded: { $gte: `${YM}-01T00:00:00Z`, $lt: `${YM}-28T23:59:59Z` },
                     action: 'C',
                     'meta.security': {
                         $elemMatch: {
@@ -250,7 +252,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             const resultA = await repository.searchAsync({
                 resourceType: 'AuditEvent',
                 mongoQuery: {
-                    recorded: { $gte: '2024-06-01T00:00:00Z', $lt: '2024-07-01T00:00:00Z' },
+                    recorded: { $gte: `${YM}-01T00:00:00Z`, $lt: `${YM}-28T23:59:59Z` },
                     'meta.security': {
                         $elemMatch: {
                             system: 'https://www.icanbwell.com/access',
@@ -275,7 +277,7 @@ describe('AuditEvent ClickHouse read integration', () => {
             const result = await repository.searchAsync({
                 resourceType: 'AuditEvent',
                 mongoQuery: {
-                    recorded: { $gte: '2024-06-01T00:00:00Z', $lt: '2024-07-01T00:00:00Z' },
+                    recorded: { $gte: `${YM}-01T00:00:00Z`, $lt: `${YM}-28T23:59:59Z` },
                     '_access.*': 1
                 },
                 options: { limit: 100 }
@@ -331,7 +333,7 @@ describe('AuditEvent ClickHouse read integration', () => {
 
             const cursor = await storageProvider.findAsync({
                 query: {
-                    recorded: { $gte: '2024-06-01T00:00:00Z', $lt: '2024-07-01T00:00:00Z' },
+                    recorded: { $gte: `${YM}-01T00:00:00Z`, $lt: `${YM}-28T23:59:59Z` },
                     'meta.security': {
                         $elemMatch: {
                             system: 'https://www.icanbwell.com/access',
@@ -352,7 +354,7 @@ describe('AuditEvent ClickHouse read integration', () => {
 
             const count = await storageProvider.countAsync({
                 query: {
-                    recorded: { $gte: '2024-06-01T00:00:00Z', $lt: '2024-07-01T00:00:00Z' },
+                    recorded: { $gte: `${YM}-01T00:00:00Z`, $lt: `${YM}-28T23:59:59Z` },
                     'meta.security': {
                         $elemMatch: {
                             system: 'https://www.icanbwell.com/access',

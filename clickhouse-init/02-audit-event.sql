@@ -54,4 +54,5 @@ CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
 )
 ENGINE = MergeTree()
 ORDER BY (recorded, _uuid)
-PARTITION BY toYYYYMM(recorded);
+PARTITION BY toYYYYMM(recorded)
+TTL recorded + INTERVAL 13 MONTH DELETE;
