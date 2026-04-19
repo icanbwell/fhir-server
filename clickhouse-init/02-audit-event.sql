@@ -1,8 +1,9 @@
 -- AuditEvent table for FHIR AuditEvent resources
 -- Lean schema: dedicated columns for frequently-queried fields,
 -- full FHIR JSON in Native JSON `resource` column for all other queries.
-
-SET allow_experimental_json_type = 1;
+--
+-- Requires server-level setting: allow_experimental_json_type = 1
+-- (enabled via clickhouse-config/users.d/experimental.xml at the default profile).
 
 CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
     -- Resource identifiers

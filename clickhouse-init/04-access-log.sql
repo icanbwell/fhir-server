@@ -3,8 +3,9 @@
 -- columns preserving the exact shape emitted by AccessLogger; lean flat mirrors
 -- (agent_altId, origin_service, request_id) materialized from the JSON for
 -- indexed point lookups.
-
-SET allow_experimental_json_type = 1;
+--
+-- Requires server-level setting: allow_experimental_json_type = 1
+-- (enabled via clickhouse-config/users.d/experimental.xml at the default profile).
 
 CREATE TABLE IF NOT EXISTS fhir.AccessLog (
     timestamp                    DateTime64(3, 'UTC'),
