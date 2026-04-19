@@ -7,9 +7,7 @@ const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager
 /**
  * @classdesc Applies ClickHouse DDL (CREATE DATABASE / CREATE TABLE / CREATE MATERIALIZED VIEW)
  * from .sql files to the configured ClickHouse instance. Idempotent when the DDL uses
- * `IF NOT EXISTS`. `SET` statements in the files are skipped — the HTTP client is stateless
- * per request, so session SETs wouldn't carry across statements. Any server settings the
- * DDL requires must already be enabled at the server / user-profile level.
+ * `IF NOT EXISTS`.
  */
 class ApplyClickHouseDDLRunner extends BaseScriptRunner {
     /**
@@ -131,9 +129,8 @@ class ApplyClickHouseDDLRunner extends BaseScriptRunner {
 
     /**
      * Strips `-- ...` line comments first (so a `;` inside a comment cannot be
-     * treated as a statement terminator), then splits on `;`, trims, drops
-     * empties and session-scoped `SET` statements (HTTP client is stateless
-     * per request — server profile settings must carry those flags instead).
+     * treated as a statement terminator), then splits on `;`, trims, and drops
+     * empties.
      * @param {string} sqlText
      * @returns {string[]}
      * @private
@@ -143,7 +140,7 @@ class ApplyClickHouseDDLRunner extends BaseScriptRunner {
             .replace(/--.*$/gm, '')
             .split(';')
             .map((s) => s.trim())
-            .filter((s) => s.length > 0 && !/^SET\b/i.test(s));
+            .filter((s) => s.length > 0);
     }
 }
 
