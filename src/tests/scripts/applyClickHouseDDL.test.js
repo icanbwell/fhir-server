@@ -71,7 +71,19 @@ describe('applyClickHouseDDL admin runner', () => {
             mongoDatabaseManager,
             dir: DDL_DIR
         });
-        await runner.processAsync();
+        try {
+            await runner.processAsync();
+        } catch (e) {
+            // Surface the underlying ClickHouse error so we can diagnose failures.
+            const nested = e.nested || e.original_error;
+            console.error(
+                'processAsync failed:', e.message,
+                '\nnested:', nested && nested.message,
+                '\nargs:', e.args,
+                '\noriginal:', e.original_error && e.original_error.message
+            );
+            throw e;
+        }
 
         for (const table of EXPECTED_TABLES) {
             expect(await clickHouseClientManager.tableExistsAsync(table)).toBe(true);
