@@ -20,10 +20,6 @@ const { AdminLogger } = require('../adminLogger');
  *   --file <path>   Apply a single .sql file (overrides --dir)
  *   --dry-run       Log statements without executing
  *
- * The script skips `SET` statements in the DDL (the HTTP client is stateless per
- * request, so session SETs wouldn't carry across statements anyway). Any server
- * setting the DDL requires must already be enabled at the server / user-profile level.
- *
  * Examples:
  *   ENABLE_CLICKHOUSE=1 CLICKHOUSE_HOST=http://localhost CLICKHOUSE_PORT=8123 \
  *     node src/admin/scripts/applyClickHouseDDL.js --dir clickhouse-init
