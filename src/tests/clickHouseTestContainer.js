@@ -9,6 +9,7 @@ const SCHEMA_FILES = [
     '03-audit-event-migration-state.sql',
     '04-access-log.sql'
 ];
+const USERS_OVERRIDE_PATH = path.join(__dirname, '../../clickhouse-config/users.d/experimental.xml');
 
 class ClickHouseTestContainer {
     constructor() {
@@ -22,10 +23,12 @@ class ClickHouseTestContainer {
      * (set by jest/setEnvVars.js or the calling test file).
      * @param {object} [options]
      * @param {number} [options.startupTimeoutMs=60000] - Max time to wait for container readiness
+     * @param {boolean} [options.loadSchema=true] - When false, skip copying clickhouse-init/*.sql
+     *     into the container's entrypoint dir so the container boots empty.
      * @returns {Promise<void>}
      */
     async start(options = {}) {
-        const { startupTimeoutMs = 60000 } = options;
+        const { startupTimeoutMs = 60000, loadSchema = true } = options;
 
         if (this._container) {
             return; // Already running
@@ -35,26 +38,44 @@ class ClickHouseTestContainer {
         const username = process.env.CLICKHOUSE_USERNAME || 'default';
         const password = process.env.CLICKHOUSE_PASSWORD || '';
 
-        this._container = await withNockSuspended(() =>
-            new ClickHouseContainer(CLICKHOUSE_IMAGE)
+        this._container = await withNockSuspended(() => {
+            // Always mount the experimental-settings users override so DDL using
+            // experimental features (e.g. Native JSON columns in AuditEvent /
+            // AccessLog) works even when callers apply DDL statement-by-statement
+            // via the HTTP client (where session SETs don't persist).
+            // Mirrors the docker-compose clickhouse service.
+            const filesToCopy = [
+                {
+                    source: USERS_OVERRIDE_PATH,
+                    target: '/etc/clickhouse-server/users.d/experimental.xml'
+                }
+            ];
+
+            if (loadSchema) {
+                for (const file of SCHEMA_FILES) {
+                    filesToCopy.push({
+                        source: path.join(__dirname, '../../clickhouse-init/', file),
+                        target: `/docker-entrypoint-initdb.d/${file}`
+                    });
+                }
+            }
+
+            return new ClickHouseContainer(CLICKHOUSE_IMAGE)
                 .withDatabase(database)
                 .withUsername(username)
                 .withPassword(password)
                 .withEnvironment({
                     CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: '1'
                 })
-                .withCopyFilesToContainer(
-                    SCHEMA_FILES.map((file) => ({
-                        source: path.join(__dirname, '../../clickhouse-init/', file),
-                        target: `/docker-entrypoint-initdb.d/${file}`
-                    }))
-                )
+                .withCopyFilesToContainer(filesToCopy)
                 .withStartupTimeout(startupTimeoutMs)
-                .start()
-        );
+                .start();
+        });
 
-        // Wait for schema init to complete (entrypoint scripts run after health check passes)
-        await this._waitForSchema();
+        if (loadSchema) {
+            // Wait for schema init to complete (entrypoint scripts run after health check passes)
+            await this._waitForSchema();
+        }
     }
 
     /**
