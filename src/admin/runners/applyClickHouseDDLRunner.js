@@ -7,9 +7,9 @@ const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager
 /**
  * @classdesc Applies ClickHouse DDL (CREATE DATABASE / CREATE TABLE / CREATE MATERIALIZED VIEW)
  * from .sql files to the configured ClickHouse instance. Idempotent when the DDL uses
- * `IF NOT EXISTS`. `SET` statements in the files are skipped — any session settings the
- * DDL requires (e.g. allow_experimental_json_type) must be enabled at the server / user
- * profile level.
+ * `IF NOT EXISTS`. `SET` statements in the files are skipped — the HTTP client is stateless
+ * per request, so session SETs wouldn't carry across statements. Any server settings the
+ * DDL requires must already be enabled at the server / user-profile level.
  */
 class ApplyClickHouseDDLRunner extends BaseScriptRunner {
     /**
