@@ -130,18 +130,19 @@ class ApplyClickHouseDDLRunner extends BaseScriptRunner {
     }
 
     /**
-     * Strips `-- ...` line comments, splits on `;`, drops empties and `SET` statements.
-     * Mirrors the pattern in src/tests/clickhouseOnly/clickhouseOnlyTestSetup.js but
-     * drops session-scoped SETs since the HTTP client is stateless per request — server
-     * profile settings must carry those flags instead.
+     * Strips `-- ...` line comments first (so a `;` inside a comment cannot be
+     * treated as a statement terminator), then splits on `;`, trims, drops
+     * empties and session-scoped `SET` statements (HTTP client is stateless
+     * per request — server profile settings must carry those flags instead).
      * @param {string} sqlText
      * @returns {string[]}
      * @private
      */
     _parseStatements(sqlText) {
         return sqlText
+            .replace(/--.*$/gm, '')
             .split(';')
-            .map((s) => s.replace(/--.*$/gm, '').trim())
+            .map((s) => s.trim())
             .filter((s) => s.length > 0 && !/^SET\b/i.test(s));
     }
 }
