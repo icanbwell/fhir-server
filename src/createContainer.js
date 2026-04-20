@@ -132,7 +132,6 @@ const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
 const { PatientPersonManualLinkingEventProducer } = require('./utils/patientPersonManualLinkingEventProducer');
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
-const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
@@ -674,15 +673,7 @@ const createContainer = function () {
                 imageVersion: getImageVersion(),
                 configManager: c.configManager,
                 databaseBulkInserter: c.databaseBulkInserter,
-                accessLogsEventProducer: c.accessLogsEventProducer,
                 accessLogClickHouseWriter: c.accessLogClickHouseWriter
-            }
-        )
-    );
-    container.register('accessLogsEventProducer', (c) => new AccessLogsEventProducer(
-            {
-                kafkaClient: c.kafkaClient,
-                accessLogsEventTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events'
             }
         )
     );

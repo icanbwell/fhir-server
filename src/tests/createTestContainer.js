@@ -29,8 +29,7 @@ const createTestContainer = function (fnUpdateContainer) {
             scopesManager: c.scopesManager,
             fhirOperationsManager: c.fhirOperationsManager,
             configManager: c.configManager,
-            databaseBulkInserter: c.databaseBulkInserter,
-            accessLogsEventProducer: c.accessLogsEventProducer
+            databaseBulkInserter: c.databaseBulkInserter
         }));
     container.register('cronTasksProcessor', (c) => new MockCronTasksProcessor(
         {
