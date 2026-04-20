@@ -567,16 +567,8 @@ class ConfigManager {
         return isTrue(env.ENABLE_ACCESS_LOGS_MIDDLEWARE);
     }
 
-    /**
-     * whether to send access-log events to kafka
-     * @return {boolean}
-     */
-    get kafkaEnableAccessLogsEvent() {
-        return isTrue(env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS);
-    }
-
     get enableAccessLogs() {
-        return this.enableAccessLogsMiddleware || this.kafkaEnableAccessLogsEvent;
+        return this.enableAccessLogsMiddleware || this.enableAccessLogsClickHouse;
     }
 
     /**

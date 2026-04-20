@@ -1,19 +1,16 @@
 const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
 const { AccessLogger } = require('../../utils/accessLogger');
 const { AccessLogClickHouseWriter } = require('../../utils/accessLogClickHouseWriter');
-const { AccessLogsEventProducer } = require('../../utils/accessLogsEventProducer');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { ConfigManager } = require('../../utils/configManager');
 const { ScopesManager } = require('../../operations/security/scopesManager');
 const { FhirOperationsManager } = require('../../operations/fhirOperationsManager');
 
 function makeConfig ({
-    kafka = false,
     mongo = false,
     clickHouse = true
 } = {}) {
     const cm = Object.create(ConfigManager.prototype);
-    Object.defineProperty(cm, 'kafkaEnableAccessLogsEvent', { get: () => kafka });
     Object.defineProperty(cm, 'enableAccessLogsMiddleware', { get: () => mongo });
     Object.defineProperty(cm, 'enableAccessLogsClickHouse', { get: () => clickHouse });
     return cm;
@@ -35,8 +32,6 @@ function makeLogger ({ configManager, writer }) {
     const databaseBulkInserter = Object.create(DatabaseBulkInserter.prototype);
     databaseBulkInserter.getOperationForResourceAsync = jest.fn().mockReturnValue({});
     databaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([]);
-    const accessLogsEventProducer = Object.create(AccessLogsEventProducer.prototype);
-    accessLogsEventProducer.produce = jest.fn().mockResolvedValue(undefined);
 
     return new AccessLogger({
         scopesManager,
@@ -44,7 +39,6 @@ function makeLogger ({ configManager, writer }) {
         imageVersion: 'test',
         configManager,
         databaseBulkInserter,
-        accessLogsEventProducer,
         accessLogClickHouseWriter: writer
     });
 }
@@ -107,9 +101,9 @@ describe('AccessLogger ClickHouse integration', () => {
         expect(writer.writeBatchAsync).toHaveBeenCalledTimes(1);
     });
 
-    test('runs Kafka, Mongo, and ClickHouse branches together when all enabled', async () => {
+    test('runs Mongo and ClickHouse branches together when both enabled', async () => {
         const logger = makeLogger({
-            configManager: makeConfig({ kafka: true, mongo: true, clickHouse: true }),
+            configManager: makeConfig({ mongo: true, clickHouse: true }),
             writer
         });
         logger.queue.push({ doc: makeLogEntry('req-5'), requestInfo: { requestId: 'req-5' } });
@@ -117,7 +111,6 @@ describe('AccessLogger ClickHouse integration', () => {
         await logger.flushAsync();
 
         expect(writer.writeBatchAsync).toHaveBeenCalledTimes(1);
-        expect(logger.accessLogsEventProducer.produce).toHaveBeenCalledTimes(1);
         expect(logger.databaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
     });
 });
