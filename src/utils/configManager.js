@@ -558,17 +558,18 @@ class ConfigManager {
     }
 
     /**
-     * whether to write access logs from middleware
+     * whether to write access logs to MongoDB
+     * @return {boolean}
      */
-    get enableAccessLogsMiddleware() {
-        if (env.ENABLE_ACCESS_LOGS_MIDDLEWARE === null || env.ENABLE_ACCESS_LOGS_MIDDLEWARE === undefined) {
+    get enableAccessLogsMongoDB() {
+        if (env.ENABLE_ACCESS_LOGS_MONGODB === null || env.ENABLE_ACCESS_LOGS_MONGODB === undefined) {
             return true;
         }
-        return isTrue(env.ENABLE_ACCESS_LOGS_MIDDLEWARE);
+        return isTrue(env.ENABLE_ACCESS_LOGS_MONGODB);
     }
 
     get enableAccessLogs() {
-        return this.enableAccessLogsMiddleware || this.enableAccessLogsClickHouse;
+        return this.enableAccessLogsMongoDB || this.enableAccessLogsClickHouse;
     }
 
     /**

@@ -255,7 +255,7 @@ class AccessLogger {
 
         for (const { doc, requestInfo } of currentQueue) {
             ({ requestId } = requestInfo);
-            if (this.configManager.enableAccessLogsMiddleware){
+            if (this.configManager.enableAccessLogsMongoDB){
                 operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).push(
                     this.databaseBulkInserter.getOperationForResourceAsync({
                         requestId,

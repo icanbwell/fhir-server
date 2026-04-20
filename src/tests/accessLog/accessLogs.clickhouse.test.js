@@ -11,7 +11,7 @@ function makeConfig ({
     clickHouse = true
 } = {}) {
     const cm = Object.create(ConfigManager.prototype);
-    Object.defineProperty(cm, 'enableAccessLogsMiddleware', { get: () => mongo });
+    Object.defineProperty(cm, 'enableAccessLogsMongoDB', { get: () => mongo });
     Object.defineProperty(cm, 'enableAccessLogsClickHouse', { get: () => clickHouse });
     return cm;
 }
