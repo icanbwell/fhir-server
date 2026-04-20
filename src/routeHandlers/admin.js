@@ -122,6 +122,10 @@ async function handleAdminGet (
                                 message: 'Invalid id parameter'
                             });
                         }
+                        if (container.configManager.enableAccessLogsClickHouse) {
+                            const json = await container.adminAccessLogClickHouseManager.getLogAsync(id);
+                            return res.json(json);
+                        }
                         const adminLogManager = new AdminLogManager({ mongoDatabaseManager: container.mongoDatabaseManager });
                         const json = await adminLogManager.getLogAsync(id);
                         return res.json(json);
