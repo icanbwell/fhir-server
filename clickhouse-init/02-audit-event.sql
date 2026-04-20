@@ -2,8 +2,6 @@
 -- Lean schema: dedicated columns for frequently-queried fields,
 -- full FHIR JSON in Native JSON `resource` column for all other queries.
 
-SET allow_experimental_json_type = 1;
-
 CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
     -- Resource identifiers
     id                           String,

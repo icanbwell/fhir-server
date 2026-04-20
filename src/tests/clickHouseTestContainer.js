@@ -22,10 +22,12 @@ class ClickHouseTestContainer {
      * (set by jest/setEnvVars.js or the calling test file).
      * @param {object} [options]
      * @param {number} [options.startupTimeoutMs=60000] - Max time to wait for container readiness
+     * @param {boolean} [options.loadSchema=true] - When false, skip copying clickhouse-init/*.sql
+     *     into the container's entrypoint dir so the container boots empty.
      * @returns {Promise<void>}
      */
     async start(options = {}) {
-        const { startupTimeoutMs = 60000 } = options;
+        const { startupTimeoutMs = 60000, loadSchema = true } = options;
 
         if (this._container) {
             return; // Already running
@@ -35,26 +37,32 @@ class ClickHouseTestContainer {
         const username = process.env.CLICKHOUSE_USERNAME || 'default';
         const password = process.env.CLICKHOUSE_PASSWORD || '';
 
-        this._container = await withNockSuspended(() =>
-            new ClickHouseContainer(CLICKHOUSE_IMAGE)
+        this._container = await withNockSuspended(() => {
+            const container = new ClickHouseContainer(CLICKHOUSE_IMAGE)
                 .withDatabase(database)
                 .withUsername(username)
                 .withPassword(password)
                 .withEnvironment({
                     CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: '1'
                 })
-                .withCopyFilesToContainer(
+                .withStartupTimeout(startupTimeoutMs);
+
+            if (loadSchema) {
+                container.withCopyFilesToContainer(
                     SCHEMA_FILES.map((file) => ({
                         source: path.join(__dirname, '../../clickhouse-init/', file),
                         target: `/docker-entrypoint-initdb.d/${file}`
                     }))
-                )
-                .withStartupTimeout(startupTimeoutMs)
-                .start()
-        );
+                );
+            }
 
-        // Wait for schema init to complete (entrypoint scripts run after health check passes)
-        await this._waitForSchema();
+            return container.start();
+        });
+
+        if (loadSchema) {
+            // Wait for schema init to complete (entrypoint scripts run after health check passes)
+            await this._waitForSchema();
+        }
     }
 
     /**

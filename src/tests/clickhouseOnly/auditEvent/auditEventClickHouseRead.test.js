@@ -68,15 +68,10 @@ describe('AuditEvent ClickHouse read integration', () => {
             const statements = schemaSQL
                 .split(';')
                 .map(s => s.replace(/--.*$/gm, '').trim())
-                .filter(s => s.length > 0)
-                .filter(s => !s.startsWith('SET '));
+                .filter(s => s.length > 0);
 
-            const client = await clientManager.getClientAsync();
             for (const stmt of statements) {
-                await client.query({
-                    query: stmt,
-                    clickhouse_settings: { allow_experimental_json_type: 1 }
-                });
+                await clientManager.queryAsync({ query: stmt });
             }
         }
 

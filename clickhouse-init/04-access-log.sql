@@ -4,8 +4,6 @@
 -- (agent_altId, origin_service, request_id) materialized from the JSON for
 -- indexed point lookups.
 
-SET allow_experimental_json_type = 1;
-
 CREATE TABLE IF NOT EXISTS fhir.AccessLog (
     timestamp                    DateTime64(3, 'UTC'),
     outcome_desc                 LowCardinality(String),
