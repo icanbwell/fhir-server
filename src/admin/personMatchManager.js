@@ -524,7 +524,7 @@ class PersonMatchManager {
                         new OperationOutcomeIssue({
                             severity: 'error',
                             code: 'timeout',
-                            diagnostics: 'Request timed out while sending edited payload to person-matching service'
+                            diagnostics: 'Request timed out while sending Parameters payload to person-matching service'
                         })
                     ]
                 }).toJSON();
