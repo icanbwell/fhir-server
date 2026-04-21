@@ -94,7 +94,7 @@ module.exports = {
                 }
                 const patientToChange = patients[0];
                 // create care team
-                const careTeam = mapCareTeam(args.team);
+                let careTeam = mapCareTeam(args.team);
                 if (!careTeam.id) {
                     careTeam.id = getHash(careTeam);
                 }
