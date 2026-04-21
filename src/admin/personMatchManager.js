@@ -468,6 +468,70 @@ class PersonMatchManager {
             }
         }
     }
+
+    /**
+     * Forwards a Parameters payload to the Person Matching Service.
+     * @param {Object} parameters - FHIR Parameters resource
+     * @returns {Promise<Object>}
+     */
+    async runMatchWithPayloadAsync ({ parameters }) {
+        if (!parameters || parameters.resourceType !== 'Parameters') {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        diagnostics: 'resourceType must be "Parameters"'
+                    })
+                ]
+            }).toJSON();
+        }
+
+        if (!parameters.parameter || !Array.isArray(parameters.parameter) || parameters.parameter.length === 0) {
+            return new OperationOutcome({
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        diagnostics: 'parameter must be a non-empty array'
+                    })
+                ]
+            }).toJSON();
+        }
+
+        const url = this.configManager.personMatchingServiceUrl;
+        assertIsValid(url, 'PERSON_MATCHING_SERVICE_URL environment variable is not set');
+
+        const accessToken = await this.oauthClientCredentialsHelper.getAccessTokenAsync();
+        const header = {
+            'Content-Type': 'application/fhir+json',
+            Accept: 'application/fhir+json',
+            Authorization: `Bearer ${accessToken}`
+        };
+
+        try {
+            const res = await superagent
+                .post(url)
+                .send(parameters)
+                .set(header)
+                .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+                .timeout(this.configManager.requestTimeoutMs);
+            return res.body;
+        } catch (error) {
+            if (error.timeout) {
+                return new OperationOutcome({
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'timeout',
+                            diagnostics: 'Request timed out while sending Parameters payload to person-matching service'
+                        })
+                    ]
+                }).toJSON();
+            }
+            throw error;
+        }
+    }
 }
 
 module.exports = {
