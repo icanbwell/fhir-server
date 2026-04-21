@@ -493,7 +493,7 @@ class PersonMatchManager {
                     new OperationOutcomeIssue({
                         severity: 'error',
                         code: 'invalid',
-                        diagnostics: 'parameter array must not be empty'
+                        diagnostics: 'parameter must be a non-empty array'
                     })
                 ]
             }).toJSON();
