@@ -8,6 +8,7 @@ const { K8sClient } = require('../../utils/k8sClient');
 const { logInfo } = require('../../operations/common/logging');
 const { ConfigManager } = require('../../utils/configManager');
 const { generateUUID } = require('../../utils/uid.util');
+const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 
 class ExportManager {
     /**
@@ -114,7 +115,10 @@ class ExportManager {
             );
         });
 
-        await this.preSaveManager.preSaveAsync({ resource: exportStatusResource });
+        await this.preSaveManager.preSaveAsync({
+            resource: exportStatusResource,
+            options: PreSaveOptions.fromRequestInfo(requestInfo)
+        });
 
         return exportStatusResource;
     }

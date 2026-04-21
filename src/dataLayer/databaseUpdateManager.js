@@ -8,6 +8,7 @@ const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const { ReadPreference } = require('mongodb');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
@@ -83,12 +84,15 @@ class DatabaseUpdateManager {
 
     /**
      * Inserts a resource into the database
-     * @param {Resource} doc
+     * @param {Object} params
+     * @param {Resource} params.doc
+     * @param {FhirRequestInfo} [params.requestInfo]
      * @return {Promise<Resource>}
      */
-    async insertOneAsync ({ doc }) {
+    async insertOneAsync ({ doc, requestInfo }) {
         try {
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             const collection = await this.resourceLocator.getCollectionForResourceAsync(doc);
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
@@ -104,15 +108,15 @@ class DatabaseUpdateManager {
 
     /**
      * Updates the resource present in db
-     * @typedef {Object} UpdateOneAsyncParams
-     * @property {Resource} doc
-     *
-     * @param {UpdateOneAsyncParams}
+     * @param {Object} params
+     * @param {Resource} params.doc
+     * @param {FhirRequestInfo} [params.requestInfo]
      */
-    async updateOneAsync ({ doc }) {
+    async updateOneAsync ({ doc, requestInfo }) {
         assertTypeEquals(doc, Resource);
         try {
-            await this.preSaveManager.preSaveAsync({ resource: doc });
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
              */
@@ -142,7 +146,8 @@ class DatabaseUpdateManager {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertTypeEquals(doc, Resource);
         const originalDoc = doc.clone();
-        doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+        doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
         /**
          * @type {Resource[]}
          */
@@ -185,7 +190,7 @@ class DatabaseUpdateManager {
                 }
             );
             if (!resourceInDatabase) {
-                return { savedResource: await this.insertOneAsync({ doc }), patches: null };
+                return { savedResource: await this.insertOneAsync({ doc, requestInfo }), patches: null };
             }
             /**
              * @type {Resource|null}
@@ -209,7 +214,7 @@ class DatabaseUpdateManager {
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (runsLeft > 0) {
-                const updatedDoc = await this.preSaveManager.preSaveAsync({ resource: doc.clone() });
+                const updatedDoc = await this.preSaveManager.preSaveAsync({ resource: doc.clone(), options: preSaveOptions });
                 const previousVersionId = parseInt(updatedDoc.meta.versionId) - 1;
                 const filter = previousVersionId > 0
                     ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
@@ -327,7 +332,8 @@ class DatabaseUpdateManager {
         assertTypeEquals(doc, Resource);
         const requestId = requestInfo.requestId;
         const method = requestInfo.method;
-        doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+        doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
         const historyCollectionName = this.resourceLocator.getHistoryCollectionNameForResource(doc);
         const historyCollection = await this.resourceLocator.getCollectionByNameAsync(historyCollectionName);
         await historyCollection.insertOne(new BundleEntry({

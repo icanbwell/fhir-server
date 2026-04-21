@@ -1,0 +1,94 @@
+{
+    "encounter": {},
+    "id": "ct-team-1",
+    "meta": {
+        "versionId": "1",
+        "source": "client",
+        "security": [
+            {
+                "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            },
+            {
+                "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client"
+            },
+            {
+                "id": "2a642de9-eaea-53d5-a5d5-277d9d46ac1e",
+                "system": "https://www.icanbwell.com/sensitivity-category",
+                "code": "unclassified"
+            }
+        ]
+    },
+    "name": "Test Care Team",
+    "participant": [
+        {
+            "role": [
+                {
+                    "text": "adviser"
+                }
+            ],
+            "member": {
+                "reference": "Practitioner/ct-pract-1",
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Practitioner/ct-pract-1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Practitioner/ebdc2937-2bd1-5539-82e3-fd54a853de21"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "client"
+                    }
+                ]
+            },
+            "onBehalfOf": {}
+        }
+    ],
+    "resourceType": "CareTeam",
+    "subject": {
+        "reference": "Patient/ct-patient-1",
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/ct-patient-1"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/c4b2f04b-686e-545d-ad91-58f516a668d0"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "client"
+            }
+        ]
+    },
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "ct-team-1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "8d759165-8451-5168-a741-e97c05d35dc7"
+        }
+    ]
+}

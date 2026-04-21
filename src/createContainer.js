@@ -65,6 +65,7 @@ const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientP
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
 const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
 const {GroupInvariantHandler} = require('./preSaveHandlers/handlers/groupInvariantHandler');
+const {UnclassifiedSensitivityTagHandler} = require('./preSaveHandlers/handlers/unclassifiedSensitivityTagHandler');
 const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
@@ -217,6 +218,7 @@ const createContainer = function () {
             new AccessColumnHandler(),
             new OwnerColumnHandler(),
             c.sourceAssigningAuthorityColumnHandler,
+            new UnclassifiedSensitivityTagHandler({ configManager: c.configManager }),
             new CodeableConceptIdHandler({
                 configManager: c.configManager
             }),

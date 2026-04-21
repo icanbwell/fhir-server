@@ -811,6 +811,26 @@ class ConfigManager {
     }
 
     /**
+     * Whether to automatically add unclassified sensitivity tag on resource writes
+     * @returns {boolean}
+     */
+    get enableUnclassifiedSensitivityTagging() {
+        return isTrue(env.ENABLE_UNCLASSIFIED_SENSITIVITY_TAGGING);
+    }
+
+    /**
+     * Resource types that receive the unclassified sensitivity tag on write.
+     * Returns empty Set when feature is disabled; otherwise reads from env var.
+     * @returns {Set<string>}
+     */
+    get resourceTypesForUnclassifiedTagging() {
+        if (!this.enableUnclassifiedSensitivityTagging) {
+            return new Set();
+        }
+        return new Set(this._parseCommaSeparatedList(env.UNCLASSIFIED_TAGGING_RESOURCES, []));
+    }
+
+    /**
      * Cloud storage client for history resources
      * @returns {string}
      */

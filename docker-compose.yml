@@ -104,6 +104,8 @@ services:
       SUMMARY_CACHE_TTL_SECONDS: 300
       ENABLE_DELEGATED_ACCESS_DETECTION: 'true'
       ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING: 'true'
+      ENABLE_UNCLASSIFIED_SENSITIVITY_TAGGING: 'true'
+      UNCLASSIFIED_TAGGING_RESOURCES: 'AllergyIntolerance,Appointment,CarePlan,ChargeItem,Claim,ClaimResponse,ClinicalImpression,Condition,DeviceRequest,DiagnosticReport,DocumentReference,Encounter,ExplanationOfBenefit,FamilyMemberHistory,Goal,ImagingStudy,Immunization,Invoice,MeasureReport,MedicationAdministration,MedicationDispense,MedicationRequest,MedicationStatement,Observation,Procedure,QuestionnaireResponse,RiskAssessment,ServiceRequest,Specimen'
       # ClickHouse configuration
       ENABLE_CLICKHOUSE: '1'
       CLICKHOUSE_HOST: 'http://clickhouse'
