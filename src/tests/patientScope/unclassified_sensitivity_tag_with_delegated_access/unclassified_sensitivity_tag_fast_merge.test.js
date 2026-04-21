@@ -18,7 +18,7 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const activeConsentResource = require('./fixtures/Consent/activeConsent.json');
-const expectedPatientSearchVisible = require('./fixtures/expected/patientSearchVisible.json');
+const expectedPatientScopedObservation = require('./fixtures/expected/patientSearchVisible.json');
 const expectedDelegatedSearchHidden = require('./fixtures/expected/delegatedSearchHidden.json');
 const expectedUnclassifiedObservation = require('./fixtures/expected/expectedUnclassifiedObservation.json');
 const expectedUnclassifiedCareTeam = require('./fixtures/expected/expectedUnclassifiedCareTeam.json');
@@ -133,9 +133,9 @@ describe('Unclassified Sensitivity Tag (Fast Merge Serializer)', () => {
             .get('/4_0_0/Observation/?_debug=1')
             .set(getHeadersWithCustomPayload(patientPayload));
 
-        const expectedPatient = deepcopy(expectedPatientSearchVisible);
-        expect(resp).toHaveMongoQuery(expectedPatient);
-        expect(resp).toHaveResponse(expectedPatient);
+        const expectedResponse = deepcopy(expectedPatientScopedObservation);
+        expect(resp).toHaveMongoQuery(expectedResponse);
+        expect(resp).toHaveResponse(expectedResponse);
     });
 
     test('$merge insert adds unclassified tag, hidden from delegated user', async () => {
@@ -206,10 +206,11 @@ describe('Unclassified Sensitivity Tag (Fast Merge Serializer)', () => {
             .get('/4_0_0/Observation/?_debug=1')
             .set(getHeadersWithCustomPayload(patientPayload));
 
-        const expectedPatient = deepcopy(expectedPatientSearchVisible);
-        expectedPatient.entry[0].resource.valueQuantity.value = 240;
-        expectedPatient.entry[0].resource.meta.versionId = '2';
-        expect(resp).toHaveResponse(expectedPatient);
+        const expectedResponse = deepcopy(expectedPatientScopedObservation);
+        expectedResponse.entry[0].resource.valueQuantity.value = 240;
+        expectedResponse.entry[0].resource.meta.versionId = '2';
+        expect(resp).toHaveMongoQuery(expectedResponse);
+        expect(resp).toHaveResponse(expectedResponse);
     });
 
     test('PATCH preserves unclassified tag on patched resource', async () => {

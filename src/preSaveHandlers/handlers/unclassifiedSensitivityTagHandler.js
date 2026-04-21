@@ -41,7 +41,7 @@ class UnclassifiedSensitivityTagHandler extends PreSaveHandler {
             return resource;
         }
 
-        // suppressUnclassifiedTag skips tagging when called is not a user.
+        // suppressUnclassifiedTag skips tagging when caller is not a user.
         if (options?.suppressUnclassifiedTag && !options.isUser) {
             return resource;
         }

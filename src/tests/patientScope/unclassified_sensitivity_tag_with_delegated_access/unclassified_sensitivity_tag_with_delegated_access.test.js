@@ -17,7 +17,7 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 // Expected responses
-const expectedPatientSearchVisible = require('./fixtures/expected/patientSearchVisible.json');
+const expectedPatientScopedObservation = require('./fixtures/expected/patientSearchVisible.json');
 const expectedUnclassifiedObservation = require('./fixtures/expected/expectedUnclassifiedObservation.json');
 const expectedPatientNoTag = require('./fixtures/expected/expectedPatientNoTag.json');
 const expectedUnclassifiedCareTeam = require('./fixtures/expected/expectedUnclassifiedCareTeam.json');
@@ -94,7 +94,7 @@ describe('Unclassified Sensitivity Tag', () => {
             .get('/4_0_0/Observation/?_debug=1')
             .set(getHeadersWithCustomPayload(patientPayload));
 
-        const expected = deepcopy(expectedPatientSearchVisible);
+        const expected = deepcopy(expectedPatientScopedObservation);
         expect(resp).toHaveMongoQuery(expected);
         expect(resp).toHaveResponse(expected);
     });
