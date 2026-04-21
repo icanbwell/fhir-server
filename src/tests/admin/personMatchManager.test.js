@@ -125,7 +125,7 @@ describe('PersonMatchManager', () => {
 
         expect(result.issue).toBeDefined();
         expect(result.issue[0].severity).toBe('error');
-        expect(result.issue[0].diagnostics).toContain('parameter array must not be empty');
+        expect(result.issue[0].diagnostics).toContain('parameter must be a non-empty array');
         expect(mockPost).not.toHaveBeenCalled();
     });
 
@@ -139,7 +139,7 @@ describe('PersonMatchManager', () => {
         });
 
         expect(result.issue).toBeDefined();
-        expect(result.issue[0].diagnostics).toContain('parameter array must not be empty');
+        expect(result.issue[0].diagnostics).toContain('parameter must be a non-empty array');
         expect(mockPost).not.toHaveBeenCalled();
     });
 
