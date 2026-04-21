@@ -490,6 +490,17 @@ async function handleAdminPost (
                         return res.status(error.statusCode || 500).json(operationOutcome);
                     }
                 }
+
+                case 'runMatchWithPayload': {
+                    logInfo('', { operation: 'runMatchWithPayload' });
+                    const parameters = req.body;
+                    const personMatchManager = container.personMatchManager;
+                    assertIsValid(personMatchManager);
+                    const json = await personMatchManager.runMatchWithPayloadAsync({
+                        parameters
+                    });
+                    return res.json(json);
+                }
                 default: {
                     return res.json({ message: 'Invalid Path' });
                 }
