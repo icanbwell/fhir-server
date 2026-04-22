@@ -1,10 +1,9 @@
-const { describe, test, expect, jest, beforeEach, afterEach } = require('@jest/globals');
+const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ConfigManager } = require('../../utils/configManager');
-const { AuditEventClickHouseWriter } = require('../../utils/auditEventClickHouseWriter');
 const AuditEvent = require('../../fhir/classes/4_0_0/resources/auditEvent');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
@@ -12,9 +11,6 @@ const Reference = require('../../fhir/classes/4_0_0/complex_types/reference');
 const AuditEventAgent = require('../../fhir/classes/4_0_0/backbone_elements/auditEventAgent');
 const AuditEventSource = require('../../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 
-/**
- * Creates a minimal AuditEvent resource for testing
- */
 function createTestAuditEvent (id) {
     return new AuditEvent({
         id,
@@ -44,12 +40,11 @@ function createTestAuditEvent (id) {
     });
 }
 
-describe('AuditLogger ClickHouse Integration', () => {
+describe('AuditLogger', () => {
     let mockPostRequestProcessor;
     let mockDatabaseBulkInserter;
     let mockPreSaveManager;
     let mockConfigManager;
-    let mockClickHouseWriter;
 
     beforeEach(() => {
         mockPostRequestProcessor = Object.create(PostRequestProcessor.prototype);
@@ -63,12 +58,8 @@ describe('AuditLogger ClickHouse Integration', () => {
         mockPreSaveManager.preSaveAsync = jest.fn().mockResolvedValue(undefined);
 
         mockConfigManager = Object.create(ConfigManager.prototype);
-        Object.defineProperty(mockConfigManager, 'enableAuditEventMongoDB', { get: () => false });
-        Object.defineProperty(mockConfigManager, 'enableAuditEventClickHouse', { get: () => true });
+        Object.defineProperty(mockConfigManager, 'enableAuditEvent', { get: () => true });
         Object.defineProperty(mockConfigManager, 'maxIdsPerAuditEvent', { get: () => 50 });
-
-        mockClickHouseWriter = Object.create(AuditEventClickHouseWriter.prototype);
-        mockClickHouseWriter.writeBatchAsync = jest.fn().mockResolvedValue({ inserted: 1, skipped: 0 });
     });
 
     function createAuditLogger (overrides = {}) {
@@ -77,109 +68,104 @@ describe('AuditLogger ClickHouse Integration', () => {
             postRequestProcessor: mockPostRequestProcessor,
             databaseBulkInserter: mockDatabaseBulkInserter,
             preSaveManager: mockPreSaveManager,
-            configManager: config,
-            auditEventClickHouseWriter: overrides.auditEventClickHouseWriter !== undefined
-                ? overrides.auditEventClickHouseWriter
-                : mockClickHouseWriter
+            configManager: config
         });
     }
 
-    test('writes to ClickHouse when enabled', async () => {
+    test('sends audit events through databaseBulkInserter', async () => {
         const logger = createAuditLogger();
         const doc = createTestAuditEvent('test-audit-1');
         logger.queue.push({ doc, requestInfo: { requestId: 'req-1' } });
 
         await logger.flushAsync();
 
-        expect(mockClickHouseWriter.writeBatchAsync).toHaveBeenCalledTimes(1);
-        const docs = mockClickHouseWriter.writeBatchAsync.mock.calls[0][0];
-        expect(docs).toHaveLength(1);
-        expect(docs[0]._uuid).toBe('AuditEvent/test-audit-1');
-    });
-
-    test('does not write to ClickHouse when disabled', async () => {
-        const disabledConfig = Object.create(ConfigManager.prototype);
-        Object.defineProperty(disabledConfig, 'enableAuditEventMongoDB', { get: () => true });
-
-        Object.defineProperty(disabledConfig, 'enableAuditEventClickHouse', { get: () => false });
-        Object.defineProperty(disabledConfig, 'maxIdsPerAuditEvent', { get: () => 50 });
-
-        const logger = createAuditLogger({ configManager: disabledConfig });
-        const doc = createTestAuditEvent('test-audit-2');
-        logger.queue.push({ doc, requestInfo: { requestId: 'req-2' } });
-
-        await logger.flushAsync();
-
-        expect(mockClickHouseWriter.writeBatchAsync).not.toHaveBeenCalled();
-    });
-
-    test('does not write to ClickHouse when writer is null', async () => {
-        const logger = createAuditLogger({ auditEventClickHouseWriter: null });
-        const doc = createTestAuditEvent('test-audit-3');
-        logger.queue.push({ doc, requestInfo: { requestId: 'req-3' } });
-
-        await logger.flushAsync();
-
-        // Should not throw, just skip
-        expect(mockClickHouseWriter.writeBatchAsync).not.toHaveBeenCalled();
-    });
-
-    test('logs error but does not throw when ClickHouse write fails', async () => {
-        mockClickHouseWriter.writeBatchAsync.mockRejectedValue(new Error('ClickHouse down'));
-
-        const logger = createAuditLogger();
-        const doc = createTestAuditEvent('test-audit-4');
-        logger.queue.push({ doc, requestInfo: { requestId: 'req-4' } });
-
-        // Should not throw
-        await expect(logger.flushAsync()).resolves.toBeUndefined();
-        expect(mockClickHouseWriter.writeBatchAsync).toHaveBeenCalledTimes(1);
-    });
-
-    test('writes to both MongoDB and ClickHouse when both enabled', async () => {
-        const bothEnabledConfig = Object.create(ConfigManager.prototype);
-        Object.defineProperty(bothEnabledConfig, 'enableAuditEventMongoDB', { get: () => true });
-
-        Object.defineProperty(bothEnabledConfig, 'enableAuditEventClickHouse', { get: () => true });
-        Object.defineProperty(bothEnabledConfig, 'maxIdsPerAuditEvent', { get: () => 50 });
-
-        const logger = createAuditLogger({ configManager: bothEnabledConfig });
-        const doc = createTestAuditEvent('test-audit-5');
-        logger.queue.push({ doc, requestInfo: { requestId: 'req-5' } });
-
-        await logger.flushAsync();
-
-        // ClickHouse write should happen
-        expect(mockClickHouseWriter.writeBatchAsync).toHaveBeenCalledTimes(1);
-        // MongoDB operations should be created
         expect(mockDatabaseBulkInserter.getOperationForResourceAsync).toHaveBeenCalledTimes(1);
         expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
     });
 
-    test('writes multiple events in a single batch', async () => {
+    test('sends multiple events in a single executeAsync call', async () => {
         const logger = createAuditLogger();
-        const doc1 = createTestAuditEvent('test-audit-6a');
-        const doc2 = createTestAuditEvent('test-audit-6b');
+        const doc1 = createTestAuditEvent('test-audit-2a');
+        const doc2 = createTestAuditEvent('test-audit-2b');
+        const doc3 = createTestAuditEvent('test-audit-2c');
         logger.queue.push(
-            { doc: doc1, requestInfo: { requestId: 'req-6' } },
-            { doc: doc2, requestInfo: { requestId: 'req-6' } }
+            { doc: doc1, requestInfo: { requestId: 'req-2' } },
+            { doc: doc2, requestInfo: { requestId: 'req-2' } },
+            { doc: doc3, requestInfo: { requestId: 'req-2' } }
         );
 
         await logger.flushAsync();
 
-        expect(mockClickHouseWriter.writeBatchAsync).toHaveBeenCalledTimes(1);
-        const docs = mockClickHouseWriter.writeBatchAsync.mock.calls[0][0];
-        expect(docs).toHaveLength(2);
+        expect(mockDatabaseBulkInserter.getOperationForResourceAsync).toHaveBeenCalledTimes(3);
+        expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
     });
 
-    test('isAuditEventEnabled is true when only ClickHouse is enabled', () => {
-        const chOnlyConfig = Object.create(ConfigManager.prototype);
-        Object.defineProperty(chOnlyConfig, 'enableAuditEventMongoDB', { get: () => false });
+    test('does not flush when queue is empty', async () => {
+        const logger = createAuditLogger();
 
-        Object.defineProperty(chOnlyConfig, 'enableAuditEventClickHouse', { get: () => true });
-        Object.defineProperty(chOnlyConfig, 'maxIdsPerAuditEvent', { get: () => 50 });
+        await logger.flushAsync();
 
-        const logger = createAuditLogger({ configManager: chOnlyConfig });
-        expect(logger.isAuditEventEnabled).toBe(true);
+        expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
+    });
+
+    test('does not create audit entries when enableAuditEvent is false', async () => {
+        const disabledConfig = Object.create(ConfigManager.prototype);
+        Object.defineProperty(disabledConfig, 'enableAuditEvent', { get: () => false });
+        Object.defineProperty(disabledConfig, 'maxIdsPerAuditEvent', { get: () => 50 });
+
+        const logger = createAuditLogger({ configManager: disabledConfig });
+
+        await logger.logAuditEntryAsync({
+            requestInfo: { requestId: 'req-3', user: 'test-user' },
+            base_version: '4_0_0',
+            resourceType: 'Patient',
+            operation: 'read',
+            args: {},
+            ids: ['patient-1']
+        });
+
+        expect(logger.queue).toHaveLength(0);
+    });
+
+    test('does not create audit entries for AuditEvent resourceType', async () => {
+        const logger = createAuditLogger();
+
+        await logger.logAuditEntryAsync({
+            requestInfo: { requestId: 'req-4', user: 'test-user' },
+            base_version: '4_0_0',
+            resourceType: 'AuditEvent',
+            operation: 'read',
+            args: {},
+            ids: ['audit-1']
+        });
+
+        expect(logger.queue).toHaveLength(0);
+    });
+
+    test('logs errors from executeAsync but does not throw', async () => {
+        mockDatabaseBulkInserter.executeAsync.mockResolvedValue([
+            { issue: { severity: 'error', code: 'exception' } }
+        ]);
+
+        const logger = createAuditLogger();
+        const doc = createTestAuditEvent('test-audit-5');
+        logger.queue.push({ doc, requestInfo: { requestId: 'req-5' } });
+
+        await expect(logger.flushAsync()).resolves.toBeUndefined();
+        expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
+    });
+
+    test('clears queue after flush', async () => {
+        const logger = createAuditLogger();
+        const doc = createTestAuditEvent('test-audit-6');
+        logger.queue.push({ doc, requestInfo: { requestId: 'req-6' } });
+
+        await logger.flushAsync();
+
+        expect(logger.queue).toHaveLength(0);
+
+        mockDatabaseBulkInserter.executeAsync.mockClear();
+        await logger.flushAsync();
+        expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
     });
 });

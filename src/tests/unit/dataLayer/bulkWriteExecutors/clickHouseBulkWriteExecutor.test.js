@@ -36,7 +36,9 @@ describe('ClickHouseBulkWriteExecutor', () => {
         executor = new ClickHouseBulkWriteExecutor({
             genericClickHouseRepository: mockRepository,
             schemaRegistry: mockSchemaRegistry,
-            postSaveProcessor: mockPostSaveProcessor
+            postSaveProcessor: mockPostSaveProcessor,
+            maxRetries: 0,
+            initialRetryDelayMs: 0
         });
     });
 
@@ -180,6 +182,104 @@ describe('ClickHouseBulkWriteExecutor', () => {
             });
 
             expect(mockPostSaveProcessor.afterSaveAsync).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('executeBulkAsync — retry and fallback on failure', () => {
+        let mockFallbackExecutor;
+
+        beforeEach(() => {
+            mockFallbackExecutor = {
+                executeBulkAsync: jestGlobal.fn().mockResolvedValue({
+                    resourceType: 'TestResource',
+                    mergeResult: null,
+                    mergeResultEntries: [{ id: 'r1', created: true }],
+                    error: null
+                })
+            };
+        });
+
+        test('succeeds on retry without falling back', async () => {
+            mockRepository.insertAsync
+                .mockRejectedValueOnce(new Error('transient failure'))
+                .mockRejectedValueOnce(new Error('transient failure'))
+                .mockResolvedValueOnce({ insertedCount: 1 });
+
+            const executorWithFallback = new ClickHouseBulkWriteExecutor({
+                genericClickHouseRepository: mockRepository,
+                schemaRegistry: mockSchemaRegistry,
+                postSaveProcessor: mockPostSaveProcessor,
+                fallbackExecutor: mockFallbackExecutor,
+                maxRetries: 2,
+                initialRetryDelayMs: 0
+            });
+
+            const operations = [makeEntry({ id: 'r1', uuid: 'u1' })];
+            const result = await executorWithFallback.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations,
+                requestInfo: { requestId: 'req-retry-2' },
+                base_version: '4_0_0'
+            });
+
+            expect(mockRepository.insertAsync).toHaveBeenCalledTimes(3);
+            expect(mockFallbackExecutor.executeBulkAsync).not.toHaveBeenCalled();
+            expect(result.mergeResultEntries[0].created).toBe(true);
+        });
+
+        test('delegates to fallback after all retries exhausted', async () => {
+            mockRepository.insertAsync.mockRejectedValue(new Error('ClickHouse unavailable'));
+
+            const executorWithFallback = new ClickHouseBulkWriteExecutor({
+                genericClickHouseRepository: mockRepository,
+                schemaRegistry: mockSchemaRegistry,
+                postSaveProcessor: mockPostSaveProcessor,
+                fallbackExecutor: mockFallbackExecutor,
+                maxRetries: 0,
+                initialRetryDelayMs: 0
+            });
+
+            const operations = [makeEntry({ id: 'r1', uuid: 'u1' })];
+            const params = {
+                resourceType: 'TestResource',
+                operations,
+                requestInfo: { requestId: 'req-fb-1' },
+                base_version: '4_0_0',
+                useHistoryCollection: false,
+                maintainOrder: true,
+                isAccessLogOperation: false,
+                insertOneHistoryFn: jestGlobal.fn()
+            };
+
+            const result = await executorWithFallback.executeBulkAsync(params);
+
+            expect(mockRepository.insertAsync).toHaveBeenCalledTimes(1);
+            expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledTimes(1);
+            expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledWith(params);
+            expect(result.error).toBeNull();
+        });
+
+        test('returns error entries when no fallback and ClickHouse fails', async () => {
+            mockRepository.insertAsync.mockRejectedValue(new Error('ClickHouse unavailable'));
+
+            const executorNoFallback = new ClickHouseBulkWriteExecutor({
+                genericClickHouseRepository: mockRepository,
+                schemaRegistry: mockSchemaRegistry,
+                postSaveProcessor: mockPostSaveProcessor,
+                maxRetries: 0,
+                initialRetryDelayMs: 0
+            });
+
+            const operations = [makeEntry({ id: 'r1', uuid: 'u1' })];
+            const result = await executorNoFallback.executeBulkAsync({
+                resourceType: 'TestResource',
+                operations,
+                requestInfo: { requestId: 'req-fb-4' },
+                base_version: '4_0_0'
+            });
+
+            expect(result.error).toBeInstanceOf(Error);
+            expect(result.mergeResultEntries[0].issue).toBeDefined();
         });
     });
 

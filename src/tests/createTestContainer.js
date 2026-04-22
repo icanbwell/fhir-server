@@ -43,8 +43,7 @@ const createTestContainer = function (fnUpdateContainer) {
             postRequestProcessor: c.postRequestProcessor,
             databaseBulkInserter: c.databaseBulkInserter,
             preSaveManager: c.preSaveManager,
-            configManager: c.configManager,
-            auditEventClickHouseWriter: c.auditEventClickHouseWriter
+            configManager: c.configManager
         }));
     container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({
         configManager: c.configManager

@@ -349,28 +349,6 @@ const createContainer = function () {
         }
         return null;
     });
-    // Register AuditEvent ClickHouse repository (if enabled)
-    container.register('auditEventClickHouseRepository', (c) => {
-        if (c.configManager.enableAuditEventClickHouse && c.clickHouseClientManager) {
-            const { AuditEventClickHouseRepository } = require('./dataLayer/repositories/auditEventClickHouseRepository');
-            return new AuditEventClickHouseRepository({
-                clickHouseClientManager: c.clickHouseClientManager
-            });
-        }
-        return null;
-    });
-    // Register AuditEvent ClickHouse writer (if repository available)
-    container.register('auditEventClickHouseWriter', (c) => {
-        if (c.auditEventClickHouseRepository) {
-            const { AuditEventClickHouseWriter } = require('./utils/auditEventClickHouseWriter');
-            const { AuditEventTransformer } = require('./dataLayer/clickHouse/auditEventTransformer');
-            return new AuditEventClickHouseWriter({
-                auditEventClickHouseRepository: c.auditEventClickHouseRepository,
-                auditEventTransformer: new AuditEventTransformer()
-            });
-        }
-        return null;
-    });
     // Register AccessLog ClickHouse repository (if enabled)
     container.register('accessLogClickHouseRepository', (c) => {
         if (c.configManager.enableAccessLogsClickHouse && c.clickHouseClientManager) {
@@ -589,7 +567,8 @@ const createContainer = function () {
         return new ClickHouseBulkWriteExecutor({
             genericClickHouseRepository: c.genericClickHouseRepository,
             schemaRegistry: c.clickHouseSchemaRegistry,
-            postSaveProcessor: c.postSaveProcessor
+            postSaveProcessor: c.postSaveProcessor,
+            fallbackExecutor: c.mongoBulkWriteExecutor
         });
     });
 
@@ -661,8 +640,7 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.databaseBulkInserter,
                 preSaveManager: c.preSaveManager,
-                configManager: c.configManager,
-                auditEventClickHouseWriter: c.auditEventClickHouseWriter
+                configManager: c.configManager
             }
         )
     );
