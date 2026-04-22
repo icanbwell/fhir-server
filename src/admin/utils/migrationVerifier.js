@@ -119,9 +119,18 @@ class MigrationVerifier {
         dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
 
         const collection = this.sourceDb.collection(this.collectionName);
-        return collection.countDocuments({
+        const query = {
             recorded: { $gte: dayStart, $lt: dayEnd }
+        };
+        logInfo('MongoDB query', {
+            operation: 'countDocuments',
+            db: this.sourceDb.databaseName,
+            collection: this.collectionName,
+            partitionDay,
+            query,
+            context: 'verifier.getSourceCount'
         });
+        return collection.countDocuments(query);
     }
 
     /**
