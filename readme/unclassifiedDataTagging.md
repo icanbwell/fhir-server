@@ -1,4 +1,4 @@
-# Unclassified Data Tagging (Upcoming)
+# Unclassified Data Tagging
 
 Unclassified security tag will get added to the specific resources on every write operation when the resource type is in `UNCLASSIFIED_TAGGING_RESOURCES`.
 
