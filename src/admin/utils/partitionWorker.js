@@ -9,6 +9,23 @@ const { ObjectId } = require('mongodb');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const { logInfo, logWarn } = require('../../operations/common/logging');
 
+/**
+ * Normalize a `recorded` field value to an ISO-8601 string for checkpoint storage.
+ * Online Archive may return either a Date (ISODate-backed docs) or a string
+ * (legacy string-backed docs); both need to round-trip back through
+ * `new Date(lastRecorded)` on resume.
+ * @param {Date|string|null|undefined} value
+ * @returns {string}
+ */
+function toIsoString(value) {
+    if (!value) return '';
+    if (value instanceof Date) return value.toISOString();
+    // Already a string; trust it if it parses, otherwise store as-is so a human
+    // can investigate rather than silently losing the checkpoint.
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toISOString();
+}
+
 class PartitionWorker {
     /**
      * @param {Object} params
@@ -40,29 +57,57 @@ class PartitionWorker {
      * Process a single day partition
      * @param {Object} params
      * @param {string} params.partitionDay - 'YYYY-MM-DD'
-     * @param {string} params.lastMongoId - Resume point (empty string if fresh start)
+     * @param {string} params.lastMongoId - Resume point _id (empty string if fresh start)
+     * @param {string} params.lastRecorded - Resume point `recorded` ISO-8601 (empty string if fresh start)
      * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number}>}
      */
-    async processAsync({ partitionDay, lastMongoId }) {
+    async processAsync({ partitionDay, lastMongoId, lastRecorded }) {
         const dayStart = new Date(partitionDay + 'T00:00:00.000Z');
         const dayEnd = new Date(dayStart);
         dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
 
         const collection = this.sourceDb.collection(this.collectionName);
 
-        // Build query: filter by recorded date range + resume from last_mongo_id
-        // Use Date objects (not ISO strings) so the query matches both ISODate and string storage
-        const query = {
-            recorded: { $gte: dayStart, $lt: dayEnd }
-        };
-        if (lastMongoId) {
-            query._id = { $gt: new ObjectId(lastMongoId) };
+        // Build query: filter by recorded date range + resume from (recorded, _id) checkpoint.
+        //
+        // Ordering by (recorded, _id) matches the Online Archive partition layout
+        // (archive field is `recorded`), so the federation engine can stream S3 objects
+        // in order instead of materializing + sorting a full day's worth of documents.
+        //
+        // Resume filter uses $or so the `recorded` bound can prune S3 partitions on the
+        // archive side, unlike a bare `_id: {$gt}` which would force a full-day scan.
+        let query;
+        if (lastRecorded && lastMongoId) {
+            const lastRecordedDate = new Date(lastRecorded);
+            query = {
+                $and: [
+                    { recorded: { $gte: dayStart, $lt: dayEnd } },
+                    {
+                        $or: [
+                            { recorded: { $gt: lastRecordedDate } },
+                            {
+                                recorded: lastRecordedDate,
+                                _id: { $gt: new ObjectId(lastMongoId) }
+                            }
+                        ]
+                    }
+                ]
+            };
+        } else {
+            query = { recorded: { $gte: dayStart, $lt: dayEnd } };
         }
 
         // Get source count for this day (for verification)
         const sourceCountQuery = {
             recorded: { $gte: dayStart, $lt: dayEnd }
         };
+        logInfo('MongoDB query', {
+            operation: 'countDocuments',
+            db: this.sourceDb.databaseName,
+            collection: this.collectionName,
+            partitionDay,
+            query: sourceCountQuery
+        });
         const sourceCount = await collection.countDocuments(sourceCountQuery);
 
         if (this.dryRun) {
@@ -83,7 +128,17 @@ class PartitionWorker {
 
         await this.stateManager.markInProgressAsync(partitionDay);
 
-        const cursor = collection.find(query).sort({ _id: 1 }).batchSize(this.batchSize);
+        const sort = { recorded: 1, _id: 1 };
+        logInfo('MongoDB query', {
+            operation: 'find',
+            db: this.sourceDb.databaseName,
+            collection: this.collectionName,
+            partitionDay,
+            query,
+            sort,
+            batchSize: this.batchSize
+        });
+        const cursor = collection.find(query).sort(sort).batchSize(this.batchSize);
 
         let batch = [];
         let insertedCount = lastMongoId
@@ -91,6 +146,7 @@ class PartitionWorker {
             : 0;
         let skippedCount = 0;
         let lastId = lastMongoId;
+        let lastRecordedCheckpoint = lastRecorded || '';
 
         try {
             while (await cursor.hasNext()) {
@@ -111,12 +167,15 @@ class PartitionWorker {
                     insertedCount += result.inserted;
                     skippedCount += result.skipped;
 
-                    lastId = batch[batch.length - 1]._id.toString();
+                    const tailDoc = batch[batch.length - 1];
+                    lastId = tailDoc._id.toString();
+                    lastRecordedCheckpoint = toIsoString(tailDoc.recorded);
 
                     // Checkpoint after each batch
                     await this.stateManager.updateCheckpointAsync({
                         partitionDay,
                         lastMongoId: lastId,
+                        lastRecorded: lastRecordedCheckpoint,
                         insertedCount
                     });
 
@@ -138,7 +197,9 @@ class PartitionWorker {
                 const result = await this._processBatchAsync(batch);
                 insertedCount += result.inserted;
                 skippedCount += result.skipped;
-                lastId = batch[batch.length - 1]._id.toString();
+                const tailDoc = batch[batch.length - 1];
+                lastId = tailDoc._id.toString();
+                lastRecordedCheckpoint = toIsoString(tailDoc.recorded);
             }
 
             // Mark completed
@@ -146,7 +207,8 @@ class PartitionWorker {
                 partitionDay,
                 insertedCount,
                 sourceCount,
-                lastMongoId: lastId
+                lastMongoId: lastId,
+                lastRecorded: lastRecordedCheckpoint
             });
 
             return { insertedCount, sourceCount, skippedCount };

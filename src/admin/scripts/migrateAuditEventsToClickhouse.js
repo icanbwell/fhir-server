@@ -23,6 +23,8 @@
  *   --dry-run                Count source docs and seed state without inserting
  *   --verify-only            Skip migration, run count verification only
  *   --resume                 Resume from incomplete partitions
+ *   --show-state             Print audit_event_migration_state rows (no archive creds required)
+ *   --delete-partitions <days> Delete AuditEvent rows for given YYYY-MM-DD days and reset state
  *   --help, -h               Show this help
  *
  * Examples:
@@ -94,7 +96,9 @@ function parseArgs() {
         concurrency: 3,
         dryRun: false,
         verifyOnly: false,
-        resume: false
+        resume: false,
+        showState: false,
+        deletePartitions: null // Array<string> of 'YYYY-MM-DD' once parsed
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -123,6 +127,15 @@ function parseArgs() {
             case '--resume':
                 options.resume = true;
                 break;
+            case '--show-state':
+                options.showState = true;
+                break;
+            case '--delete-partitions':
+                options.deletePartitions = args[++i]
+                    .split(',')
+                    .map((d) => d.trim())
+                    .filter(Boolean);
+                break;
             case '--help':
             case '-h':
                 logInfo(`
@@ -143,6 +156,10 @@ Options:
   --dry-run                Seed state, count docs, don't insert
   --verify-only            Run count verification only
   --resume                 Resume incomplete partitions
+  --show-state             Print audit_event_migration_state rows (ClickHouse only, no archive needed)
+  --delete-partitions <days> Comma-separated YYYY-MM-DD list. Deletes AuditEvent rows for
+                           those days via ALTER ... DELETE (blocking mutation) and resets
+                           the state row to 'pending' so --resume will re-migrate it.
   --help, -h               Show this help
                 `);
                 process.exit(0);
@@ -204,7 +221,11 @@ async function runWorkersAsync({
             const partition = partitions[idx];
             if (!partition) break;
 
-            const { partition_day: day, last_mongo_id: lastId } = partition;
+            const {
+                partition_day: day,
+                last_mongo_id: lastId,
+                last_recorded: lastRecorded
+            } = partition;
 
             try {
                 const worker = new PartitionWorker({
@@ -218,7 +239,8 @@ async function runWorkersAsync({
 
                 const result = await worker.processAsync({
                     partitionDay: day,
-                    lastMongoId: lastId || ''
+                    lastMongoId: lastId || '',
+                    lastRecorded: lastRecorded || ''
                 });
 
                 totalInserted += result.insertedCount;
@@ -253,10 +275,199 @@ async function runWorkersAsync({
 }
 
 /**
+ * Print the migration state table.
+ *
+ * Runs against ClickHouse only — does not require Online Archive credentials,
+ * so an operator can check progress with just ClickHouse access. Filters by the
+ * same --start-date / --end-date flags the migration modes use, so operators
+ * get a consistent slice across runs.
+ *
+ * @param {Object} params
+ * @param {MigrationStateManager} params.stateManager
+ * @param {string} params.startDate - inclusive 'YYYY-MM-DD'
+ * @param {string} params.endDate - exclusive 'YYYY-MM-DD'
+ * @returns {Promise<void>}
+ */
+async function showMigrationStateAsync({ stateManager, startDate, endDate }) {
+    const allStates = await stateManager.getAllStatesAsync();
+    const states = allStates.filter(
+        (s) => s.partition_day >= startDate && s.partition_day < endDate
+    );
+
+    logInfo('Migration state table', {
+        table: 'fhir.audit_event_migration_state',
+        startDate,
+        endDate,
+        rows: states.length
+    });
+
+    for (const s of states) {
+        logInfo('Partition state', {
+            partitionDay: s.partition_day,
+            status: s.status,
+            sourceCount: Number(s.source_count) || 0,
+            insertedCount: Number(s.inserted_count) || 0,
+            lastMongoId: s.last_mongo_id || '',
+            lastRecorded: s.last_recorded || '',
+            startedAt: s.started_at || null,
+            completedAt: s.completed_at || null,
+            errorMessage: s.error_message || ''
+        });
+    }
+
+    const summary = {
+        total: states.length,
+        pending: 0,
+        in_progress: 0,
+        completed: 0,
+        failed: 0,
+        totalSource: 0,
+        totalInserted: 0
+    };
+    for (const s of states) {
+        summary[s.status] = (summary[s.status] || 0) + 1;
+        summary.totalSource += Number(s.source_count) || 0;
+        summary.totalInserted += Number(s.inserted_count) || 0;
+    }
+    logInfo('Migration state summary', summary);
+}
+
+/**
+ * Validates a YYYY-MM-DD string and normalizes it to canonical form.
+ * Rejects malformed input — critical because this string interpolates into an
+ * ALTER ... DELETE predicate (though we parameterize, we still want clean data).
+ * @param {string} day
+ * @returns {string} canonical 'YYYY-MM-DD'
+ * @throws {Error} if the date is malformed or invalid
+ */
+function validatePartitionDay(day) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+        throw new Error(`Invalid partition day '${day}': expected YYYY-MM-DD`);
+    }
+    const parsed = new Date(day + 'T00:00:00.000Z');
+    if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== day) {
+        throw new Error(`Invalid partition day '${day}': not a real calendar date`);
+    }
+    return day;
+}
+
+/**
+ * Delete AuditEvent rows for specified partition days and reset their state rows.
+ *
+ * AuditEvent_4_0_0 is PARTITION BY toYYYYMM(recorded) (monthly), so we can't
+ * DROP PARTITION for a single day — we use ALTER TABLE ... DELETE with
+ * mutations_sync = 2 so the call blocks until the mutation completes. On a
+ * 55TB table this can take minutes per day.
+ *
+ * State rows are not DELETE-d; they're re-inserted as 'pending' so --resume
+ * will re-migrate them. ReplacingMergeTree collapse does the rest.
+ *
+ * @param {Object} params
+ * @param {ClickHouseClientManager} params.clickHouseClientManager
+ * @param {MigrationStateManager} params.stateManager
+ * @param {string[]} params.days - Array of YYYY-MM-DD strings
+ * @returns {Promise<void>}
+ */
+async function deletePartitionsAsync({ clickHouseClientManager, stateManager, days }) {
+    const validated = days.map(validatePartitionDay);
+
+    // Preview what's about to get nuked
+    const allStates = await stateManager.getAllStatesAsync();
+    const stateByDay = new Map(allStates.map((s) => [s.partition_day, s]));
+
+    logWarn('About to delete partitions', {
+        table: 'fhir.AuditEvent_4_0_0',
+        days: validated,
+        count: validated.length
+    });
+    for (const day of validated) {
+        const s = stateByDay.get(day);
+        logWarn('Partition to delete', {
+            partitionDay: day,
+            currentStatus: s?.status || '(no state row)',
+            currentInsertedCount: Number(s?.inserted_count) || 0,
+            currentSourceCount: Number(s?.source_count) || 0
+        });
+    }
+
+    for (const day of validated) {
+        logInfo('Deleting AuditEvent rows', { partitionDay: day });
+        // mutations_sync = 2 blocks until the mutation finishes on all replicas.
+        // Without this, ALTER DELETE returns immediately and the caller can't
+        // tell whether the data is actually gone yet.
+        await clickHouseClientManager.queryAsync({
+            query: `ALTER TABLE fhir.AuditEvent_4_0_0
+                    DELETE WHERE toDate(recorded) = {day:String}
+                    SETTINGS mutations_sync = 2`,
+            query_params: { day }
+        });
+
+        logInfo('Resetting migration state row', { partitionDay: day });
+        await stateManager.resetPartitionAsync(day);
+
+        logInfo('Partition deleted', { partitionDay: day });
+    }
+
+    logInfo('Delete complete', { days: validated, count: validated.length });
+}
+
+/**
  * Main migration function
  */
 async function main() {
     const options = parseArgs();
+
+    // --show-state and --delete-partitions run without archive credentials;
+    // handle before buildMongoUrl() which exits(1) when the archive URL is absent.
+    if (options.showState) {
+        const configManager = new ConfigManager();
+        const clickHouseManager = new ClickHouseClientManager({ configManager });
+        await clickHouseManager.getClientAsync();
+        const stateManager = new MigrationStateManager({
+            clickHouseClientManager: clickHouseManager
+        });
+        await showMigrationStateAsync({
+            stateManager,
+            startDate: options.startDate,
+            endDate: options.endDate
+        });
+        await clickHouseManager.closeAsync();
+        return;
+    }
+
+    if (options.deletePartitions) {
+        if (options.deletePartitions.length === 0) {
+            logError('--delete-partitions requires at least one YYYY-MM-DD day');
+            process.exit(1);
+        }
+        // Validate days up-front so we fail fast on malformed input — before
+        // opening a ClickHouse connection or printing a scary confirmation banner.
+        let validatedDays;
+        try {
+            validatedDays = options.deletePartitions.map(validatePartitionDay);
+        } catch (err) {
+            logError(err.message);
+            process.exit(1);
+        }
+
+        const configManager = new ConfigManager();
+        const clickHouseManager = new ClickHouseClientManager({ configManager });
+        await clickHouseManager.getClientAsync();
+        const stateManager = new MigrationStateManager({
+            clickHouseClientManager: clickHouseManager
+        });
+        try {
+            await deletePartitionsAsync({
+                clickHouseClientManager: clickHouseManager,
+                stateManager,
+                days: validatedDays
+            });
+        } finally {
+            await clickHouseManager.closeAsync();
+        }
+        return;
+    }
+
     const { mongoUrl, dbName } = buildMongoUrl();
 
     const mode = options.dryRun
@@ -362,7 +573,11 @@ async function main() {
         partitions = await stateManager.getPendingPartitionsAsync(dateRange);
         logInfo('Continuing migration', { partitionsRemaining: partitions.length, ...dateRange });
     } else {
-        partitions = days.map((day) => ({ partition_day: day, last_mongo_id: '' }));
+        partitions = days.map((day) => ({
+            partition_day: day,
+            last_mongo_id: '',
+            last_recorded: ''
+        }));
         logInfo('Processing all partitions', { total: partitions.length });
     }
 

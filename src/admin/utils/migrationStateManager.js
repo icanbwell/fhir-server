@@ -38,6 +38,7 @@ class MigrationStateManager {
             source_count: 0,
             inserted_count: 0,
             last_mongo_id: '',
+            last_recorded: '',
             started_at: null,
             completed_at: null,
             error_message: '',
@@ -82,10 +83,10 @@ class MigrationStateManager {
      * @param {Object} [options]
      * @param {string} [options.startDate] - Inclusive start date 'YYYY-MM-DD'
      * @param {string} [options.endDate] - Exclusive end date 'YYYY-MM-DD'
-     * @returns {Promise<Array<{partition_day: string, status: string, last_mongo_id: string}>>}
+     * @returns {Promise<Array<{partition_day: string, status: string, last_mongo_id: string, last_recorded: string}>>}
      */
     async getPendingPartitionsAsync({ startDate, endDate } = {}) {
-        let query = `SELECT partition_day, status, last_mongo_id
+        let query = `SELECT partition_day, status, last_mongo_id, last_recorded
                     FROM ${this.table} FINAL
                     WHERE status IN ('pending', 'in_progress', 'failed')`;
         const query_params = {};
@@ -121,6 +122,7 @@ class MigrationStateManager {
                     source_count: Number(current?.source_count) || 0,
                     inserted_count: Number(current?.inserted_count) || 0,
                     last_mongo_id: current?.last_mongo_id || '',
+                    last_recorded: current?.last_recorded || '',
                     started_at: now,
                     completed_at: null,
                     error_message: '',
@@ -136,10 +138,11 @@ class MigrationStateManager {
      * @param {Object} params
      * @param {string} params.partitionDay
      * @param {string} params.lastMongoId
+     * @param {string} params.lastRecorded - ISO-8601 string of the last processed doc's `recorded` field
      * @param {number} params.insertedCount
      * @returns {Promise<void>}
      */
-    async updateCheckpointAsync({ partitionDay, lastMongoId, insertedCount }) {
+    async updateCheckpointAsync({ partitionDay, lastMongoId, lastRecorded, insertedCount }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
         const current = await this.getStateForDayAsync(partitionDay);
         await this.clickHouseClientManager.insertAsync({
@@ -151,6 +154,7 @@ class MigrationStateManager {
                     source_count: Number(current?.source_count) || 0,
                     inserted_count: insertedCount,
                     last_mongo_id: lastMongoId,
+                    last_recorded: lastRecorded || '',
                     started_at: current?.started_at || null,
                     completed_at: null,
                     error_message: '',
@@ -168,9 +172,16 @@ class MigrationStateManager {
      * @param {number} params.insertedCount
      * @param {number} params.sourceCount
      * @param {string} [params.lastMongoId] - Final mongo _id processed
+     * @param {string} [params.lastRecorded] - Final mongo `recorded` ISO-8601 string processed
      * @returns {Promise<void>}
      */
-    async markCompletedAsync({ partitionDay, insertedCount, sourceCount, lastMongoId }) {
+    async markCompletedAsync({
+        partitionDay,
+        insertedCount,
+        sourceCount,
+        lastMongoId,
+        lastRecorded
+    }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
         const current = await this.getStateForDayAsync(partitionDay);
         await this.clickHouseClientManager.insertAsync({
@@ -182,6 +193,7 @@ class MigrationStateManager {
                     source_count: sourceCount,
                     inserted_count: insertedCount,
                     last_mongo_id: lastMongoId || current?.last_mongo_id || '',
+                    last_recorded: lastRecorded || current?.last_recorded || '',
                     started_at: current?.started_at || null,
                     completed_at: now,
                     error_message: '',
@@ -212,6 +224,7 @@ class MigrationStateManager {
                     source_count: Number(current?.source_count) || 0,
                     inserted_count: insertedCount,
                     last_mongo_id: current?.last_mongo_id || '',
+                    last_recorded: current?.last_recorded || '',
                     started_at: current?.started_at || null,
                     completed_at: null,
                     error_message: errorMessage.substring(0, 1000),
@@ -240,9 +253,44 @@ class MigrationStateManager {
                     source_count: sourceCount,
                     inserted_count: Number(current?.inserted_count) || 0,
                     last_mongo_id: current?.last_mongo_id || '',
+                    last_recorded: current?.last_recorded || '',
                     started_at: current?.started_at || null,
                     completed_at: current?.completed_at || null,
                     error_message: current?.error_message || '',
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
+        });
+    }
+
+    /**
+     * Resets a partition back to 'pending' with cleared checkpoints. Used by the
+     * --delete-partitions flow after the AuditEvent rows for this day are deleted.
+     *
+     * We write a fresh row rather than DELETE-ing the existing one: the state table is
+     * ReplacingMergeTree(updated_at) ORDER BY (partition_day), so a later-updated_at
+     * row naturally supersedes earlier ones on merge, and --resume picks up 'pending'
+     * partitions via getPendingPartitionsAsync.
+     *
+     * @param {string} partitionDay
+     * @returns {Promise<void>}
+     */
+    async resetPartitionAsync(partitionDay) {
+        const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_day: partitionDay,
+                    status: 'pending',
+                    source_count: 0,
+                    inserted_count: 0,
+                    last_mongo_id: '',
+                    last_recorded: '',
+                    started_at: null,
+                    completed_at: null,
+                    error_message: '',
                     updated_at: now
                 }
             ],
