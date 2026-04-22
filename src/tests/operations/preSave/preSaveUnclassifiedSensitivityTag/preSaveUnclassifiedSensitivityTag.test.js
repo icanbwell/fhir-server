@@ -12,10 +12,6 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 const { SENSITIVE_CATEGORY } = require('../../../../constants');
 
 class MockConfigManager extends ConfigManager {
-    get enableUnclassifiedSensitivityTagging () {
-        return true;
-    }
-
     get resourceTypesForUnclassifiedTagging () {
         return new Set(['Observation']);
     }

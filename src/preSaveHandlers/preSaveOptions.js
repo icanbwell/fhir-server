@@ -1,4 +1,5 @@
 const { isTrue } = require('../utils/isTrue');
+const { SENSITIVE_CATEGORY } = require('../constants');
 
 /**
  * Options passed to preSave handlers from the HTTP request context
@@ -25,7 +26,7 @@ class PreSaveOptions {
             return new PreSaveOptions();
         }
         return new PreSaveOptions({
-            suppressUnclassifiedTag: isTrue(requestInfo.headers?.['x-suppress-unclassified-tag']),
+            suppressUnclassifiedTag: isTrue(requestInfo.headers?.[SENSITIVE_CATEGORY.SUPPRESS_HEADER]),
             isUser: requestInfo.isUser
         });
     }

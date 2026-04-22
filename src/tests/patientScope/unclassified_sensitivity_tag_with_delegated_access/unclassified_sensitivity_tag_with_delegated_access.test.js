@@ -23,14 +23,11 @@ const expectedPatientNoTag = require('./fixtures/expected/expectedPatientNoTag.j
 const expectedUnclassifiedCareTeam = require('./fixtures/expected/expectedUnclassifiedCareTeam.json');
 
 const { ConfigManager } = require('../../../utils/configManager');
+const { SENSITIVE_CATEGORY } = require('../../../constants');
 const deepcopy = require('deepcopy');
 
 class MockConfigManager extends ConfigManager {
     get enableReturnBundle () {
-        return true;
-    }
-
-    get enableUnclassifiedSensitivityTagging () {
         return true;
     }
 
@@ -145,7 +142,7 @@ describe('Unclassified Sensitivity Tag', () => {
         let resp = await request
             .post('/4_0_0/Observation/1/$merge?validate=true')
             .send(observation1Resource)
-            .set({ ...getHeaders(), 'x-suppress-unclassified-tag': 'true' });
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
         expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
@@ -190,7 +187,7 @@ describe('Unclassified Sensitivity Tag', () => {
         let resp = await request
             .post('/4_0_0/Observation/1/$merge?validate=true')
             .send(observation1Resource)
-            .set({ ...getHeaders(), 'x-suppress-unclassified-tag': 'true' });
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
         expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
