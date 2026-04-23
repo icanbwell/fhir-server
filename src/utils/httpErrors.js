@@ -11,9 +11,6 @@ class BadRequestError extends ServerError {
             code: 'invalid',
             details: { text: error.message }
         };
-        if (Object.hasOwn(error, 'stack')) {
-            operationOutcomeIssue.diagnostics = error.stack;
-        }
         super(error.message, {
             // Set this to make the HTTP status code 409
             statusCode: 400,

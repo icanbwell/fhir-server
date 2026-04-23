@@ -175,12 +175,12 @@ const internal = (err, base_version) => {
     const error = new ErrorConstructor({
         text: {
             status: 'generated',
-            div: div_content(ISSUE.SEVERITY.ERROR, err.message || 'Internal server error')
+            div: div_content(ISSUE.SEVERITY.ERROR, 'Internal Server Error')
         },
         issue: {
             code: ISSUE.CODE.EXCEPTION,
             severity: ISSUE.SEVERITY.ERROR,
-            diagnostics: err.message || '500: Internal server error'
+            diagnostics: 'Internal Server Error'
         }
     });
     error.statusCode = 500;
