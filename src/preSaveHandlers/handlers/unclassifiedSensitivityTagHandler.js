@@ -4,7 +4,7 @@ const { SENSITIVE_CATEGORY } = require('../../constants');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 
 /**
- * Adds a sensitivity-category tag to configured resource types on write
+ * Adds a sensitivity-category tag to configured resource types on write.
  */
 class UnclassifiedSensitivityTagHandler extends PreSaveHandler {
     /**
@@ -37,9 +37,7 @@ class UnclassifiedSensitivityTagHandler extends PreSaveHandler {
         // remove any duplicate unclassified tag
         if (tagLength > 0) {
             const firstUnclassifiedTag = unclassifiedTags[0];
-            if (!firstUnclassifiedTag.id) {
-                firstUnclassifiedTag.id = generateUUIDv5(`${SENSITIVE_CATEGORY.SYSTEM}|${SENSITIVE_CATEGORY.UNCLASSIFIED_CODE}`);
-            }
+            firstUnclassifiedTag.id = generateUUIDv5(`${SENSITIVE_CATEGORY.SYSTEM}|${SENSITIVE_CATEGORY.UNCLASSIFIED_CODE}`);
             if (tagLength > 1) {
                 resource.meta.security = resource.meta.security.filter(
                     s => !isUnclassified(s)

@@ -12,6 +12,8 @@ The tag added to `meta.security`:
 }
 ```
 
+> **Disclaimer:** The `id` for this tag is always a fixed deterministic UUID derived from `system|code`. Any user-supplied `id` is overwritten on every write. Also the unclassified tag cannot be removed via smart merge `-delete` directives unless the suppress header is set.
+
 ## Suppress Header
 
 To suppress this behaviour, send the `X-Suppress-Unclassified-Tag: true` header. When suppressed, the tag is not added on write.
