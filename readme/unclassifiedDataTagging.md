@@ -1,4 +1,4 @@
-# Unclassified Data Tagging (Upcoming)
+# Unclassified Data Tagging
 
 Unclassified security tag will get added to the specific resources on every write operation when the resource type is in `UNCLASSIFIED_TAGGING_RESOURCES`.
 
@@ -12,9 +12,13 @@ The tag added to `meta.security`:
 }
 ```
 
+> **Disclaimer:** 
+- The `id` for this tag is always a fixed deterministic UUID derived from `system|code`. Any user-supplied `id` is overwritten on every write. Also the unclassified tag cannot be removed via smart merge `-delete` directives unless the suppress header is set.
+- When sending a smart merge `-delete` directive for this tag, ensure we follow the standards by sending **only the `id`**. If we send additional fields like `system` or `code`, it will end up with adding `unclassified` tag.
+
 ## Suppress Header
 
-To suppress this behaviour, we can send `X-Suppress-Unclassified-Tag: true` header. This would only be suppressed for non-patient-scoped JWT token.
+To suppress this behaviour, send the `X-Suppress-Unclassified-Tag: true` header. When suppressed, the tag is not added on write.
 
 ## Interaction with Delegated Access
 

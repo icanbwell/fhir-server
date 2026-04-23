@@ -5,6 +5,7 @@ const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
 const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
 const { MergeManager } = require('../mergeManager');
 const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
+const { PreSaveOptions } = require('../../../preSaveHandlers/preSaveOptions');
 const { ResourceValidator } = require('../../common/resourceValidator');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
@@ -148,7 +149,7 @@ class MergeResourceValidator extends BaseValidator {
                             resource = await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource });
                             resource = await this.uuidColumnHandler.preSaveAsync({ resource });
                         } else {
-                            resource = await this.preSaveManager.preSaveAsync({ resource });
+                            resource = await this.preSaveManager.preSaveAsync({ resource, options: PreSaveOptions.fromRequestInfo(requestInfo) });
                         }
                     } catch (error) {
                         return { resource: null, mergePreCheckError: MergeResultEntry.createFromError({ error, resource }) };

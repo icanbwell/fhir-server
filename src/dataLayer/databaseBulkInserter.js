@@ -33,6 +33,7 @@ const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const { CONTEXT_KEYS } = require('../constants/groupConstants');
 
@@ -340,8 +341,9 @@ class DatabaseBulkInserter extends EventEmitter {
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             // Run preSave handlers (includes invariant validation)
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
@@ -514,7 +516,8 @@ class DatabaseBulkInserter extends EventEmitter {
         try {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
@@ -610,7 +613,8 @@ class DatabaseBulkInserter extends EventEmitter {
         try {
             assertTypeEquals(doc, Resource);
             // Run preSave handlers FIRST (includes invariant validation)
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);

@@ -17,6 +17,7 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { RethrownError } = require('../../utils/rethrownError');
@@ -149,6 +150,7 @@ class MergeManager {
         assertTypeEquals(resourceToMerge, Resource);
         assertTypeEquals(currentResource, Resource);
         assertTypeEquals(requestInfo, FhirRequestInfo);
+        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
 
         /**
          * @type {string}
@@ -158,7 +160,7 @@ class MergeManager {
 
         // found an existing resource
         currentResource = await this.preSaveManager.preSaveAsync({
-            resource: currentResource
+            resource: currentResource, options: preSaveOptions
         });
 
         /**
@@ -585,8 +587,9 @@ class MergeManager {
     ) {
         try {
             assertTypeEquals(resourceToMerge, Resource);
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resourceToMerge = await this.preSaveManager.preSaveAsync({
-                resource: resourceToMerge
+                resource: resourceToMerge, options: preSaveOptions
             });
 
             // Update attachments after all validations
@@ -646,8 +649,9 @@ class MergeManager {
         assertTypeEquals(resourceToMerge, Resource);
         try {
             assertTypeEquals(resourceToMerge, Resource);
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             await this.preSaveManager.preSaveAsync({
-                resource: resourceToMerge
+                resource: resourceToMerge, options: preSaveOptions
             });
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);

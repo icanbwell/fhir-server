@@ -811,6 +811,15 @@ class ConfigManager {
     }
 
     /**
+     * Resource types that receive the unclassified sensitivity tag on write.
+     * Empty Set disables the feature.
+     * @returns {Set<string>}
+     */
+    get resourceTypesForUnclassifiedTagging() {
+        return new Set(this._parseCommaSeparatedList(env.UNCLASSIFIED_TAGGING_RESOURCES, []));
+    }
+
+    /**
      * Cloud storage client for history resources
      * @returns {string}
      */

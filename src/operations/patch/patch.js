@@ -6,6 +6,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
@@ -374,7 +375,8 @@ class PatchOperation {
                 });
             }
 
-            resource = await this.preSaveManager.preSaveAsync({ resource });
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            resource = await this.preSaveManager.preSaveAsync({ resource, options: preSaveOptions });
 
             /**
              * @type {OperationOutcome|null}

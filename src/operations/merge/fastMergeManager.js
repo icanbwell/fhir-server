@@ -12,6 +12,7 @@ const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { RethrownError } = require('../../utils/rethrownError');
@@ -148,6 +149,7 @@ class FastMergeManager {
         smartMerge=true
     }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
+        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
 
         /**
          * @type {string}
@@ -157,7 +159,7 @@ class FastMergeManager {
 
         // found an existing resource
         currentResource = await this.preSaveManager.preSaveAsync({
-            resource: currentResource
+            resource: currentResource, options: preSaveOptions
         });
 
         /**
@@ -577,8 +579,9 @@ class FastMergeManager {
         }
     ) {
         try {
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resourceToMerge = await this.preSaveManager.preSaveAsync({
-                resource: resourceToMerge
+                resource: resourceToMerge, options: preSaveOptions
             });
 
             // Update attachments after all validations
@@ -636,8 +639,9 @@ class FastMergeManager {
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         try {
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             await this.preSaveManager.preSaveAsync({
-                resource: resourceToMerge
+                resource: resourceToMerge, options: preSaveOptions
             });
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);

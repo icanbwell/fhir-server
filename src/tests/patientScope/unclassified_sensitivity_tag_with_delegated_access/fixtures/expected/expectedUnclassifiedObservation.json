@@ -1,0 +1,80 @@
+{
+    "code": {
+        "coding": [
+            {
+                "id": "27c6f010-913e-5f4b-aac6-3385e9dab875",
+                "system": "http://loinc.org",
+                "code": "2093-3",
+                "display": "Cholesterol [Mass/volume] in Serum or Plasma"
+            }
+        ]
+    },
+    "effectiveDateTime": "2021-06-15T10:00:00.000Z",
+    "id": "b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b",
+    "meta": {
+        "versionId": "1",
+        "source": "/patients",
+        "security": [
+            {
+                "id": "6e1a1bd3-9764-55e3-93a3-4cc9f74b3f43",
+                "system": "https://www.icanbwell.com/owner",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "21ef6cd5-667d-53e9-a787-f6fc10847183",
+                "system": "https://www.icanbwell.com/access",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "e4a94e06-a98b-5f89-8724-d2a8cc5bfeef",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "healthsystem1"
+            },
+            {
+                "id": "2a642de9-eaea-53d5-a5d5-277d9d46ac1e",
+                "system": "https://www.icanbwell.com/sensitivity-category",
+                "code": "unclassified"
+            }
+        ]
+    },
+    "resourceType": "Observation",
+    "status": "final",
+    "subject": {
+        "reference": "Patient/patient1",
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/patient1"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "healthsystem1"
+            }
+        ]
+    },
+    "valueQuantity": {
+        "value": 195,
+        "unit": "mg/dL",
+        "system": "http://unitsofmeasure.org",
+        "code": "mg/dL"
+    },
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b"
+        }
+    ]
+}
