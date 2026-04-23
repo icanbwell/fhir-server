@@ -423,7 +423,7 @@ describe('Unclassified Sensitivity Tag', () => {
         expect(resp.body.meta.versionId).toBe('1');
     });
 
-        test('smart merge -delete on unclassified tag returns updated:false (tag re-added by preSave) and sending whole meta', async () => {
+    test('smart merge -delete on unclassified tag should remove the tag with suppress headers', async () => {
         const request = await createTestRequest((c) => {
             c.register('configManager', () => new MockConfigManager());
             return c;
@@ -451,13 +451,7 @@ describe('Unclassified Sensitivity Tag', () => {
             id: 'b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b',
             meta: {
                 source: '/patients',
-                security: [
-                    {
-                        id: `${unclassifiedTag.id}-delete`,
-                        system: 'https://www.icanbwell.com/sensitivity-category',
-                        code: 'unclassified'
-                    }
-                ]
+                security: [{ id: `${unclassifiedTag.id}-delete` }]
             }
         };
 
@@ -467,14 +461,21 @@ describe('Unclassified Sensitivity Tag', () => {
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ updated: false });
 
+        // lets check with supress headers
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(deleteDirective)
+            .set({ ...getHeadersJsonPatch(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp).toHaveMergeResponse({ updated: true });
+
         resp = await request
             .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
             .set(getHeaders());
         expect(resp).toHaveStatusOk();
         expect(resp.body.meta.security.find(
             s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
-        )).toBeDefined();
-        expect(resp.body.meta.versionId).toBe('1');
+        )).toBeUndefined();
+        expect(resp.body.meta.versionId).toBe('2');
     });
 
     test('$merge with duplicate unclassified tags in payload deduplicates to one', async () => {

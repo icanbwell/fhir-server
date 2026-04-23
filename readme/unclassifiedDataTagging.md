@@ -12,7 +12,9 @@ The tag added to `meta.security`:
 }
 ```
 
-> **Disclaimer:** The `id` for this tag is always a fixed deterministic UUID derived from `system|code`. Any user-supplied `id` is overwritten on every write. Also the unclassified tag cannot be removed via smart merge `-delete` directives unless the suppress header is set.
+> **Disclaimer:** 
+- The `id` for this tag is always a fixed deterministic UUID derived from `system|code`. Any user-supplied `id` is overwritten on every write. Also the unclassified tag cannot be removed via smart merge `-delete` directives unless the suppress header is set.
+- When sending a smart merge `-delete` directive for this tag, ensure we follow the standards by sending **only the `id`**. If we send additional fields like `system` or `code`, it will end up with adding `unclassified` tag.
 
 ## Suppress Header
 
