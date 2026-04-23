@@ -2,8 +2,6 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 const patient2Resource = require('./fixtures/patient/patient2.json');
 const patient3Resource = require('./fixtures/patient/patient3.json');
 
-const auditEvent1Resource = require('./fixtures/AuditEvent/auditEvent1.json');
-
 const {
     commonBeforeEach,
     commonAfterEach,
