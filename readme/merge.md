@@ -145,6 +145,11 @@ Note: In streaming $merge, the response is always returned as ndjson only.
     }
     ```
 
+### AuditEvent resources
+
+> [!WARNING]
+> When using $merge with AuditEvent resources, always pass a unique `id` for each request. Unlike other resource types, $merge will always create a new AuditEvent regardless of whether an AuditEvent with the given `id` already exists in the database. Reusing an `id` will result in duplicate AuditEvent records.
+
 ### Implementation in FHIR server
 
 [src/operations/merge/merge.js](../src/operations/merge/merge.js)

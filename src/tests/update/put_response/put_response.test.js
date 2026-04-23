@@ -132,25 +132,13 @@ describe('ActivityDefinition Tests', () => {
                 'ActivityDefinition_4_0_0', 'ActivityDefinition_4_0_0_History'
             ]));
         });
-        test('system AuditEvent is not created while creating/updating AuditEvent', async () => {
-            const envValue = process.env.REQUIRED_AUDIT_EVENT_FILTERS;
-            process.env.REQUIRED_AUDIT_EVENT_FILTERS = '';
-
+        test('PUT on AuditEvent returns 405 Method Not Allowed', async () => {
             const request = await createTestRequest();
-            // Create api hit with valid resource
-            let resp = await request
+            await request
                 .put('/4_0_0/AuditEvent/1')
                 .send(auditEvent1Resource)
                 .set(getHeaders())
-                .expect(201);
-
-            resp = await request
-                .get('/4_0_0/AuditEvent/')
-                .set(getHeaders())
-                .expect(200);
-
-            expect(resp).toHaveResourceCount(1);
-            process.env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
+                .expect(405);
         });
         test('Resource is not validated without VALIDATE_SCHEMA env and _validate flag', async () => {
             const envValue = process.env.VALIDATE_SCHEMA;

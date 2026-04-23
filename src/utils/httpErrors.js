@@ -238,6 +238,30 @@ class PreconditionFailedError extends ServerError {
     }
 }
 
+class MethodNotAllowedError extends ServerError {
+    constructor (message, options = {}) {
+        super(message, {
+            statusCode: 405,
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'not-supported',
+                    details: { text: message }
+                }
+            ]
+        });
+        this.logLevel = 'info';
+
+        for (const [key, value] of Object.entries(options)) {
+            this[`${key}`] = value;
+        }
+    }
+
+    get statusCode () {
+        return 405;
+    }
+}
+
 module.exports = {
     BadRequestError,
     NotFoundError,
@@ -246,5 +270,6 @@ module.exports = {
     UnauthorizedError,
     ForbiddenError,
     ExternalTimeoutError,
-    PreconditionFailedError
+    PreconditionFailedError,
+    MethodNotAllowedError
 };

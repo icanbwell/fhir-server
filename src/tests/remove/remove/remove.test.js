@@ -105,39 +105,13 @@ describe('Patient Tests for Remove operation', () => {
             expect(resp).toHaveMergeResponse({ deleted: 0 });
         });
 
-        test('System AuditEvent is not generated for deleting AuditEvent', async () => {
-            const envValue = process.env.REQUIRED_AUDIT_EVENT_FILTERS;
-            process.env.REQUIRED_AUDIT_EVENT_FILTERS = '';
+        test('DELETE on AuditEvent returns 405 Method Not Allowed', async () => {
             const request = await createTestRequest();
 
-            let resp = await request
-                .post('/4_0_0/AuditEvent/$merge')
-                .send(auditEvent1Resource)
-                .set(getHeaders())
-                .expect(200);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .get('/4_0_0/AuditEvent/')
-                .set(getHeaders())
-                .expect(200);
-
-            expect(resp).toHaveResourceCount(1);
-
-            // Nothing is deleted
-            resp = await request
+            await request
                 .delete('/4_0_0/AuditEvent/113aeb5b-e939-43d3-816d-b902168d9d22')
                 .set(getHeaders())
-                .expect(204);
-
-            resp = await request
-                .get('/4_0_0/AuditEvent/')
-                .set(getHeaders())
-                .expect(200);
-
-            expect(resp).toHaveResourceCount(0);
-            process.env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
+                .expect(405);
         });
     });
 });
