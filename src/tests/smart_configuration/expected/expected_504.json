@@ -3,9 +3,9 @@
   "issue": [
     {
       "severity": "error",
-      "code": "timeout",
+      "code": "internal",
       "details": {
-        "text": "Unexpected Error: Request timeout for 5000 ms while fetching Configuration"
+        "text": "Internal Server Error"
       }
     }
   ]

@@ -127,7 +127,7 @@ describe('Export Tests', () => {
             let exportStatusResponse2 = await request
                 .get(`/admin/ExportStatus/${randomUUID}`)
                 .set(getHeaders('admin/*.* user/*.* access/*.*'))
-                .expect(200)
+                .expect(404)
 
             expect(JSON.parse(exportStatusResponse2.text)).toStrictEqual(
                 {
