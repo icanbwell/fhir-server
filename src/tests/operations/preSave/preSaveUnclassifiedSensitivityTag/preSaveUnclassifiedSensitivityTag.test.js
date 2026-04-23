@@ -99,7 +99,45 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             expect(tags).toHaveLength(1);
         });
 
-        test('suppress header skips tag for system request', async () => {
+        test('deduplicates multiple unclassified tags to exactly one', async () => {
+            await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            const container = getTestContainer();
+            const preSaveManager = container.preSaveManager;
+            assertTypeEquals(preSaveManager, PreSaveManager);
+            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const options = PreSaveOptions.fromRequestInfo(requestInfo);
+            const resource = new Observation({
+                ...observationWithTagResource,
+                meta: {
+                    ...observationWithTagResource.meta,
+                    security: [
+                        ...observationWithTagResource.meta.security,
+                        {
+                            system: SENSITIVE_CATEGORY.SYSTEM,
+                            code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+                        },
+                        {
+                            system: SENSITIVE_CATEGORY.SYSTEM,
+                            code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+                        }
+                    ]
+                }
+            });
+
+            const result = await preSaveManager.preSaveAsync({ resource, options });
+
+            const newResource = new Observation(result);
+            const tags = newResource.meta.security.filter(
+                s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+            );
+            expect(tags).toHaveLength(1);
+            expect(tags[0].id).toBeDefined();
+        });
+
+        test('suppress header skips adding tag for system request (no existing tag)', async () => {
             await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -119,7 +157,28 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             expect(tag).toBeUndefined();
         });
 
-        test('suppress header ignored for user request', async () => {
+        test('suppress header preserves existing unclassified tag for system request', async () => {
+            await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            const container = getTestContainer();
+            const preSaveManager = container.preSaveManager;
+            assertTypeEquals(preSaveManager, PreSaveManager);
+            const options = new PreSaveOptions({ suppressUnclassifiedTag: true, isUser: false });
+            const resource = new Observation(observationWithTagResource);
+
+            const result = await preSaveManager.preSaveAsync({ resource, options });
+
+            const newResource = new Observation(result);
+            const tags = newResource.meta.security.filter(
+                s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+            );
+            expect(tags).toHaveLength(1);
+            expect(tags[0].id).toBeDefined();
+        });
+
+        test('suppress header ignored for user request (tag still added)', async () => {
             await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;

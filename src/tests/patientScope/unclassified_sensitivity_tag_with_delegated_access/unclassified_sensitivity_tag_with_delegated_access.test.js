@@ -216,6 +216,193 @@ describe('Unclassified Sensitivity Tag', () => {
         expectedPut.valueQuantity.value = 230;
         expectedPut.meta.versionId = '2';
         expect(resp).toHaveResponse(expectedPut);
+
+        // PUT with supress, should now remove the unclassified tag
+        resp = await request
+            .put('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .send(updatedObservation)
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp.status).toBe(200);
+        expect(resp.body.meta.security.find(
+            s => s.system === 'https://www.icanbwell.com/sensitivity-category' && s.code === 'unclassified'
+        )).toBeUndefined();
+    });
+
+    test('suppress header on $merge update preserves existing unclassified tag', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+
+        await seedBaseFixtures(request);
+
+        // create with tag
+        let resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+
+        // $merge update with suppress header — existing tag preserved
+        let updatedObservation = deepcopy(observation1Resource);
+        updatedObservation.valueQuantity.value = 250;
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(updatedObservation)
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp).toHaveMergeResponse({ updated: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+
+        // smartMerge=false will remove the tag
+        updatedObservation = deepcopy(observation1Resource);
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true&smartMerge=0')
+            .send(updatedObservation)
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp).toHaveMergeResponse({ updated: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeUndefined();
+    });
+
+    test('$merge update without suppress adds tag to previously suppressed resource', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+
+        await seedBaseFixtures(request);
+
+        // create with suppress — no tag
+        let resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeUndefined();
+
+        // $merge update without suppress — tag should be added
+        const updatedObservation = deepcopy(observation1Resource);
+        updatedObservation.valueQuantity.value = 260;
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(updatedObservation)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ updated: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+    });
+
+    test('suppress header on PATCH preserves existing unclassified tag', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        mockHttpContext();
+
+        await seedBaseFixtures(request);
+
+        // create with tag
+        let resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+
+        // PATCH with suppress header — existing tag preserved
+        const patchOps = [
+            { op: 'replace', path: '/valueQuantity/value', value: 270 }
+        ];
+
+        resp = await request
+            .patch('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .send(patchOps)
+            .set({ ...getHeadersJsonPatch(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp.status).toBe(200);
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+    });
+
+    test('$merge with duplicate unclassified tags in payload deduplicates to one', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+
+        await seedBaseFixtures(request);
+
+        const observationWithDuplicateTags = deepcopy(observation1Resource);
+        observationWithDuplicateTags.meta.security.push(
+            { system: SENSITIVE_CATEGORY.SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE },
+            { system: SENSITIVE_CATEGORY.SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE },
+            { system: SENSITIVE_CATEGORY.SYSTEM, code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE }
+        );
+
+        let resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observationWithDuplicateTags)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        const tags = resp.body.meta.security.filter(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        );
+        expect(tags).toHaveLength(1);
+        expect(tags[0].id).toBeDefined();
     });
 
     describe('GraphQL mutations with unclassified tagging', () => {

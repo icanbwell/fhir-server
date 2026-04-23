@@ -30,13 +30,21 @@ class UnclassifiedSensitivityTagHandler extends PreSaveHandler {
             return resource;
         }
 
-        const existingTag = resource.meta.security.find(
-            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
-        );
+        const isUnclassified = (s) => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE;
+        const unclassifiedTags = resource.meta.security.filter(isUnclassified);
+        const tagLength = unclassifiedTags.length;
 
-        if (existingTag) {
-            if (!existingTag.id) {
-                existingTag.id = generateUUIDv5(`${SENSITIVE_CATEGORY.SYSTEM}|${SENSITIVE_CATEGORY.UNCLASSIFIED_CODE}`);
+        // remove any duplicate unclassified tag
+        if (tagLength > 0) {
+            const firstUnclassifiedTag = unclassifiedTags[0];
+            if (!firstUnclassifiedTag.id) {
+                firstUnclassifiedTag.id = generateUUIDv5(`${SENSITIVE_CATEGORY.SYSTEM}|${SENSITIVE_CATEGORY.UNCLASSIFIED_CODE}`);
+            }
+            if (tagLength > 1) {
+                resource.meta.security = resource.meta.security.filter(
+                    s => !isUnclassified(s)
+                );
+                resource.meta.security.push(firstUnclassifiedTag);
             }
             return resource;
         }
