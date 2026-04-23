@@ -736,7 +736,7 @@ class FhirOperationsManager {
                 /**
                  * @type {OperationOutcome}
                  */
-                const operationOutcome = convertErrorToOperationOutcome({ error: err });
+                const operationOutcome = convertErrorToOperationOutcome({ error: err, internalError: status >= 500 });
                 await responseStreamer.writeBundleEntryAsync({
                     bundleEntry: new BundleEntry({
                         resource: operationOutcome
@@ -819,8 +819,9 @@ class FhirOperationsManager {
                 });
             return undefined;
         } catch (err) {
-            const operationOutcome = convertErrorToOperationOutcome({ error: err });
-            await responseHandler.setStatusCodeAsync({ statusCode: err.statusCode || 500 });
+            const status = err.statusCode || 500;
+            const operationOutcome = convertErrorToOperationOutcome({ error: err, internalError: status >= 500 });
+            await responseHandler.setStatusCodeAsync({ statusCode: status });
             await responseHandler.writeOperationOutcomeAsync(operationOutcome);
         }
     }
@@ -1113,7 +1114,7 @@ class FhirOperationsManager {
             /**
              * @type {OperationOutcome}
              */
-            const operationOutcome = convertErrorToOperationOutcome({ error: err });
+            const operationOutcome = convertErrorToOperationOutcome({ error: err, internalError: status >= 500 });
             await responseStreamer.writeBundleEntryAsync({
                 bundleEntry: new BundleEntry({
                     resource: operationOutcome

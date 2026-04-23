@@ -281,16 +281,17 @@ async function handleAdminGet (
             stack: error.stack,
             source: 'handleAdminGet'
         });
+        const statusCode = error.statusCode || 500;
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue({
                     severity: 'error',
                     code: 'exception',
-                    diagnostics: 'Internal Server Error'
+                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
                 })
             ]
         });
-        return res.end(JSON.stringify(operationOutcome));
+        return res.status(statusCode).json(operationOutcome);
     }
 }
 
@@ -501,16 +502,17 @@ async function handleAdminPost (
             stack: error.stack,
             source: 'handleAdminPost'
         });
+        const statusCode = error.statusCode || 500;
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue({
                     severity: 'error',
                     code: 'exception',
-                    diagnostics: 'Internal Server Error'
+                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
                 })
             ]
         });
-        return res.status(error.statusCode || 500).json(operationOutcome);
+        return res.status(statusCode).json(operationOutcome);
     }
 }
 
@@ -579,17 +581,17 @@ async function handleAdminPut(
             stack: error.stack,
             source: 'handleAdminPut'
         });
+        const statusCode = error.statusCode || 500;
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue({
                     severity: 'error',
                     code: 'exception',
-                    diagnostics: 'Internal Server Error'
+                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
                 })
             ]
         });
-
-        return res.status(error.statusCode || 500).json(operationOutcome);
+        return res.status(statusCode).json(operationOutcome);
     }
 }
 
@@ -791,16 +793,17 @@ async function handleAdminDelete (
             stack: error.stack,
             source: 'handleAdminDelete'
         });
+        const statusCode = error.statusCode || 500;
         const operationOutcome = new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue({
                     severity: 'error',
                     code: 'exception',
-                    diagnostics: 'Internal Server Error'
+                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
                 })
             ]
         });
-        return res.end(JSON.stringify(operationOutcome));
+        return res.status(statusCode).json(operationOutcome);
     }
 }
 
