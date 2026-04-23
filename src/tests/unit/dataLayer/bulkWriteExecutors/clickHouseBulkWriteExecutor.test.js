@@ -2,6 +2,7 @@
 
 const { describe, test, beforeEach, expect, jest: jestGlobal } = require('@jest/globals');
 const { ClickHouseBulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
+const { BulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/bulkWriteExecutor');
 const { WRITE_STRATEGIES } = require('../../../../constants/clickHouseConstants');
 
 describe('ClickHouseBulkWriteExecutor', () => {
@@ -189,14 +190,13 @@ describe('ClickHouseBulkWriteExecutor', () => {
         let mockFallbackExecutor;
 
         beforeEach(() => {
-            mockFallbackExecutor = {
-                executeBulkAsync: jestGlobal.fn().mockResolvedValue({
-                    resourceType: 'TestResource',
-                    mergeResult: null,
-                    mergeResultEntries: [{ id: 'r1', created: true }],
-                    error: null
-                })
-            };
+            mockFallbackExecutor = new BulkWriteExecutor();
+            mockFallbackExecutor.executeBulkAsync = jestGlobal.fn().mockResolvedValue({
+                resourceType: 'TestResource',
+                mergeResult: null,
+                mergeResultEntries: [{ id: 'r1', created: true }],
+                error: null
+            });
         });
 
         test('succeeds on retry without falling back', async () => {
@@ -211,7 +211,7 @@ describe('ClickHouseBulkWriteExecutor', () => {
                 postSaveProcessor: mockPostSaveProcessor,
                 fallbackExecutor: mockFallbackExecutor,
                 maxRetries: 2,
-                initialRetryDelayMs: 0
+                initialRetryDelayMs: 10
             });
 
             const operations = [makeEntry({ id: 'r1', uuid: 'u1' })];
@@ -266,8 +266,8 @@ describe('ClickHouseBulkWriteExecutor', () => {
                 genericClickHouseRepository: mockRepository,
                 schemaRegistry: mockSchemaRegistry,
                 postSaveProcessor: mockPostSaveProcessor,
-                maxRetries: 0,
-                initialRetryDelayMs: 0
+                maxRetries: 1,
+                initialRetryDelayMs: 10
             });
 
             const operations = [makeEntry({ id: 'r1', uuid: 'u1' })];

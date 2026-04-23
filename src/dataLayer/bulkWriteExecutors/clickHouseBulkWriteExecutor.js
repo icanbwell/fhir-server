@@ -6,7 +6,8 @@ const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeable
 const { MergeResultEntry } = require('../../operations/common/mergeResultEntry');
 const { BulkWriteExecutor } = require('./bulkWriteExecutor');
 const { WRITE_STRATEGIES } = require('../../constants/clickHouseConstants');
-const { assertIsValid } = require('../../utils/assertType');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { retryWithBackoff } = require('../../utils/retryWithBackoff');
 
 /**
  * Executes bulk write operations against ClickHouse for ClickHouse-only resources.
@@ -42,8 +43,13 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
         this.postSaveProcessor = postSaveProcessor;
         assertIsValid(postSaveProcessor, 'postSaveProcessor is required');
         this.fallbackExecutor = fallbackExecutor;
+        if (fallbackExecutor) {
+            assertTypeEquals(fallbackExecutor, BulkWriteExecutor, 'fallbackExecutor must be a BulkWriteExecutor');
+        }
         this.maxRetries = maxRetries;
+        assertIsValid(maxRetries != null, 'maxRetries is required');
         this.initialRetryDelayMs = initialRetryDelayMs;
+        assertIsValid(initialRetryDelayMs != null, 'initialRetryDelayMs is required');
     }
 
     /**
@@ -100,32 +106,21 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
                 requestId: requestInfo.requestId
             });
 
-            let delay = this.initialRetryDelayMs;
-            for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
-                try {
-                    if (attempt > 0) {
-                        logWarn('ClickHouseBulkWriteExecutor: retrying insert', {
-                            attempt,
-                            maxRetries: this.maxRetries,
-                            resourceType,
-                            count: resources.length,
-                            requestId: requestInfo.requestId,
-                            delay
-                        });
-                        await new Promise((resolve) => setTimeout(resolve, delay));
-                        delay *= 2;
-                    }
-                    await this.repository.insertAsync({
+            await retryWithBackoff({
+                fn: () => this.repository.insertAsync({ resourceType, resources }),
+                maxRetries: this.maxRetries,
+                initialDelayMs: this.initialRetryDelayMs,
+                onRetry: ({ attempt, delay }) => {
+                    logWarn('ClickHouseBulkWriteExecutor: retrying insert', {
+                        attempt,
+                        maxRetries: this.maxRetries,
                         resourceType,
-                        resources
+                        count: resources.length,
+                        requestId: requestInfo.requestId,
+                        delay
                     });
-                    break;
-                } catch (retryErr) {
-                    if (attempt === this.maxRetries) {
-                        throw retryErr;
-                    }
                 }
-            }
+            });
 
             for (const entry of operations) {
                 mergeResultEntries.push(new MergeResultEntry({
