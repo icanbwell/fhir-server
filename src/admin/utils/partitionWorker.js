@@ -5,7 +5,6 @@
  * Resume-safe: if interrupted, resumes from last_mongo_id checkpoint.
  */
 
-const { ObjectId } = require('mongodb');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const { logInfo, logWarn } = require('../../operations/common/logging');
 
@@ -68,34 +67,15 @@ class PartitionWorker {
 
         const collection = this.sourceDb.collection(this.collectionName);
 
-        // Build query: filter by recorded date range + resume from (recorded, _id) checkpoint.
+        // Build query: filter by recorded date range only. Sorting is done in Node
+        // after fetching, not by the Online Archive federation engine.
         //
-        // Ordering by (recorded, _id) matches the Online Archive partition layout
-        // (archive field is `recorded`), so the federation engine can stream S3 objects
-        // in order instead of materializing + sorting a full day's worth of documents.
-        //
-        // Resume filter uses $or so the `recorded` bound can prune S3 partitions on the
-        // archive side, unlike a bare `_id: {$gt}` which would force a full-day scan.
-        let query;
-        if (lastRecorded && lastMongoId) {
-            const lastRecordedDate = new Date(lastRecorded);
-            query = {
-                $and: [
-                    { recorded: { $gte: dayStart, $lt: dayEnd } },
-                    {
-                        $or: [
-                            { recorded: { $gt: lastRecordedDate } },
-                            {
-                                recorded: lastRecordedDate,
-                                _id: { $gt: new ObjectId(lastMongoId) }
-                            }
-                        ]
-                    }
-                ]
-            };
-        } else {
-            query = { recorded: { $gte: dayStart, $lt: dayEnd } };
-        }
+        // When resuming, push the lower bound forward to `lastRecorded` so the
+        // archive-side scan prunes already-migrated S3 partitions. The exact
+        // (recorded, _id) tiebreak is applied in Node below.
+        const lastRecordedDate = lastRecorded ? new Date(lastRecorded) : null;
+        const lowerBound = lastRecordedDate || dayStart;
+        const query = { recorded: { $gte: lowerBound, $lt: dayEnd } };
 
         // Get source count for this day (for verification)
         const sourceCountQuery = {
@@ -128,18 +108,22 @@ class PartitionWorker {
 
         await this.stateManager.markInProgressAsync(partitionDay);
 
-        const sort = { recorded: 1, _id: 1 };
         logInfo('MongoDB query', {
             operation: 'find',
             db: this.sourceDb.databaseName,
             collection: this.collectionName,
             partitionDay,
             query,
-            sort,
             batchSize: this.batchSize
         });
-        const cursor = collection.find(query).sort(sort).batchSize(this.batchSize);
+        // No server-side sort: let the federation engine stream S3 objects in
+        // whatever order is fastest. The query's `recorded >= lastRecorded` lower
+        // bound already drops every pre-checkpoint doc; the only Node-side case
+        // left is the tie where `recorded == lastRecorded` and `_id` needs to be
+        // compared against the checkpoint.
+        const cursor = collection.find(query).batchSize(this.batchSize);
 
+        const lastRecordedMs = lastRecordedDate ? lastRecordedDate.getTime() : null;
         let batch = [];
         let insertedCount = lastMongoId
             ? await this._getExistingInsertedCountAsync(partitionDay)
@@ -151,6 +135,18 @@ class PartitionWorker {
         try {
             while (await cursor.hasNext()) {
                 const doc = await cursor.next();
+
+                // Tie-break: at the checkpoint boundary, skip docs whose _id
+                // was already migrated. `recorded` is always a Date.
+                if (
+                    lastRecordedMs !== null &&
+                    lastMongoId &&
+                    doc.recorded.getTime() === lastRecordedMs &&
+                    doc._id.toString() <= lastMongoId
+                ) {
+                    continue;
+                }
+
                 batch.push(doc);
 
                 if (batch.length >= this.batchSize) {
