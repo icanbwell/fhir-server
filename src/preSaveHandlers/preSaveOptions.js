@@ -8,13 +8,10 @@ class PreSaveOptions {
     /**
      * @param {Object} [params]
      * @param {boolean} [params.suppressUnclassifiedTag]
-     * @param {boolean} [params.isUser]
      */
-    constructor ({ suppressUnclassifiedTag, isUser } = {}) {
+    constructor ({ suppressUnclassifiedTag } = {}) {
         /** @type {boolean} */
         this.suppressUnclassifiedTag = suppressUnclassifiedTag;
-        /** @type {boolean} */
-        this.isUser = isUser;
     }
 
     /**
@@ -26,8 +23,7 @@ class PreSaveOptions {
             return new PreSaveOptions();
         }
         return new PreSaveOptions({
-            suppressUnclassifiedTag: isTrue(requestInfo.headers?.[SENSITIVE_CATEGORY.SUPPRESS_HEADER]),
-            isUser: requestInfo.isUser
+            suppressUnclassifiedTag: isTrue(requestInfo.headers?.[SENSITIVE_CATEGORY.SUPPRESS_HEADER])
         });
     }
 }

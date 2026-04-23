@@ -14,7 +14,7 @@ The tag added to `meta.security`:
 
 ## Suppress Header
 
-To suppress this behaviour, we can send `X-Suppress-Unclassified-Tag: true` header. This would only be suppressed for non-patient-scoped JWT token.
+To suppress this behaviour, send the `X-Suppress-Unclassified-Tag: true` header. When suppressed, the tag is not added on write.
 
 ## Interaction with Delegated Access
 

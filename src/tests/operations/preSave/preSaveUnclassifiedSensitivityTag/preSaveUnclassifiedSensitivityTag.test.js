@@ -137,7 +137,7 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             expect(tags[0].id).toBeDefined();
         });
 
-        test('suppress header skips adding tag for system request (no existing tag)', async () => {
+        test('suppress header skips adding tag (no existing tag)', async () => {
             await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -145,7 +145,7 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             const container = getTestContainer();
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
-            const options = new PreSaveOptions({ suppressUnclassifiedTag: true, isUser: false });
+            const options = new PreSaveOptions({ suppressUnclassifiedTag: true });
             const resource = new Observation(observationNoTagResource);
 
             const result = await preSaveManager.preSaveAsync({ resource, options });
@@ -157,7 +157,7 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             expect(tag).toBeUndefined();
         });
 
-        test('suppress header preserves existing unclassified tag for system request', async () => {
+        test('suppress header preserves existing unclassified tag', async () => {
             await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -165,7 +165,7 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             const container = getTestContainer();
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
-            const options = new PreSaveOptions({ suppressUnclassifiedTag: true, isUser: false });
+            const options = new PreSaveOptions({ suppressUnclassifiedTag: true });
             const resource = new Observation(observationWithTagResource);
 
             const result = await preSaveManager.preSaveAsync({ resource, options });
@@ -176,26 +176,6 @@ describe('PreSave UnclassifiedSensitivityTag Tests', () => {
             );
             expect(tags).toHaveLength(1);
             expect(tags[0].id).toBeDefined();
-        });
-
-        test('suppress header ignored for user request (tag still added)', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
-            const container = getTestContainer();
-            const preSaveManager = container.preSaveManager;
-            assertTypeEquals(preSaveManager, PreSaveManager);
-            const options = new PreSaveOptions({ suppressUnclassifiedTag: true, isUser: true });
-            const resource = new Observation(observationNoTagResource);
-
-            const result = await preSaveManager.preSaveAsync({ resource, options });
-
-            const newResource = new Observation(result);
-            const tag = newResource.meta.security.find(
-                s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
-            );
-            expect(tag).toBeDefined();
         });
     });
 });
