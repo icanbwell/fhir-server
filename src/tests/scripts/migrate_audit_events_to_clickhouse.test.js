@@ -1,6 +1,7 @@
-const { describe, test, expect } = require('@jest/globals');
+const { describe, test, expect, jest } = require('@jest/globals');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const { generateDailyPartitions } = require('../../admin/utils/migrationStateManager');
+const { PartitionWorker } = require('../../admin/utils/partitionWorker');
 const deepcopy = require('deepcopy');
 const auditEventSample = require('./fixtures/audit_event_sample.json');
 
@@ -327,6 +328,112 @@ describe('AuditEvent Migration', () => {
             expect(days.length).toBeLessThan(1600);
             expect(days[0]).toBe('2022-01-01');
             expect(days[days.length - 1]).toBe('2026-03-31');
+        });
+    });
+
+    describe('PartitionWorker.processAsync retry semantics', () => {
+        // Minimal fakes: the goal is to assert the DELETE + clearInsertedCount
+        // sequence fires ahead of any Mongo read when priorInsertedCount > 0.
+        function makeFakes({ sourceDocs = [] } = {}) {
+            const calls = [];
+            const clickHouseClientManager = {
+                queryAsync: jest.fn(async ({ query }) => {
+                    calls.push({ type: 'ch.query', query });
+                    return [];
+                }),
+                insertAsync: jest.fn(async () => {
+                    calls.push({ type: 'ch.insert' });
+                })
+            };
+            const stateManager = {
+                clearInsertedCountAsync: jest.fn(async () => {
+                    calls.push({ type: 'state.clear' });
+                }),
+                markInProgressAsync: jest.fn(async () => {
+                    calls.push({ type: 'state.inProgress' });
+                }),
+                markCompletedAsync: jest.fn(async () => {
+                    calls.push({ type: 'state.completed' });
+                }),
+                markFailedAsync: jest.fn()
+            };
+            const sourceDb = {
+                databaseName: 'fhir',
+                collection: () => ({
+                    countDocuments: jest.fn(async () => {
+                        calls.push({ type: 'mongo.count' });
+                        return sourceDocs.length;
+                    }),
+                    find: jest.fn(() => ({
+                        batchSize: () => ({
+                            hasNext: jest.fn(async () => false),
+                            next: jest.fn(),
+                            close: jest.fn(async () => {})
+                        })
+                    }))
+                })
+            };
+            return { calls, clickHouseClientManager, stateManager, sourceDb };
+        }
+
+        test('when priorInsertedCount > 0, DELETEs before touching Mongo', async () => {
+            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 100,
+                dryRun: false
+            });
+
+            await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 42 });
+
+            // DELETE must come before the first Mongo op.
+            const firstMongo = calls.findIndex((c) => c.type.startsWith('mongo'));
+            const firstDelete = calls.findIndex(
+                (c) => c.type === 'ch.query' && /ALTER TABLE fhir\.AuditEvent_4_0_0\s+DELETE/.test(c.query)
+            );
+            expect(firstDelete).toBeGreaterThanOrEqual(0);
+            expect(firstDelete).toBeLessThan(firstMongo);
+            expect(stateManager.clearInsertedCountAsync).toHaveBeenCalledWith('2024-05-10');
+        });
+
+        test('when priorInsertedCount is 0, no DELETE is issued', async () => {
+            const { clickHouseClientManager, stateManager, sourceDb } = makeFakes();
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 100,
+                dryRun: false
+            });
+
+            await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 0 });
+
+            expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+            expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
+        });
+
+        test('dry-run suppresses DELETE even when priorInsertedCount > 0', async () => {
+            const { clickHouseClientManager, stateManager, sourceDb } = makeFakes();
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 100,
+                dryRun: true
+            });
+
+            await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 42 });
+
+            expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+            expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
         });
     });
 });

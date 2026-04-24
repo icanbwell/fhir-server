@@ -3,45 +3,19 @@
  * Migrate AuditEvent data from Atlas Online Archive (via Data Federation) to ClickHouse.
  *
  * Processes ~55TB of AuditEvent documents across ~1,553 daily partitions with
- * configurable concurrency. Resume-safe via ClickHouse state table.
+ * configurable concurrency. Partitions are atomic at the day grain: if a prior
+ * attempt wrote any rows, the worker DELETEs the day before re-migrating.
  *
  * Usage:
  *   node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
  *
- * Environment Variables (required):
- *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string
+ * Environment Variables:
+ *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string (required for migration/verify)
  *   AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional if URL has creds)
- *   AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (optional if URL has creds)
+ *   AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (required when username is set)
  *   AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
  *
- * Options:
- *   --collection <name>      Source collection name (default: AuditEvent_4_0_0)
- *   --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
- *   --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
- *   --batch-size <n>         Documents per ClickHouse insert batch (default: 50000)
- *   --concurrency <n>        Number of concurrent day-workers (default: 3)
- *   --dry-run                Count source docs and seed state without inserting
- *   --verify-only            Skip migration, run count verification only
- *   --resume                 Resume from incomplete partitions
- *   --show-state             Print audit_event_migration_state rows (no archive creds required)
- *   --delete-partitions <days> Delete AuditEvent rows for given YYYY-MM-DD days and reset state
- *   --help, -h               Show this help
- *
- * Examples:
- *   # Dry run to see partition counts
- *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb://..." \
- *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --dry-run
- *
- *   # Full migration with higher concurrency (increase heap for more workers)
- *   NODE_OPTIONS=--max-old-space-size=8192 \
- *   AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL="mongodb://..." \
- *     node src/admin/scripts/migrateAuditEventsToClickhouse.js --concurrency 6
- *
- *   # Resume after interruption
- *   node src/admin/scripts/migrateAuditEventsToClickhouse.js --resume
- *
- *   # Verify counts after migration
- *   node src/admin/scripts/migrateAuditEventsToClickhouse.js --verify-only
+ * See --help for options.
  */
 
 const { MongoClient } = require('mongodb');
@@ -55,9 +29,37 @@ const {
 const { PartitionWorker } = require('../utils/partitionWorker');
 const { MigrationVerifier } = require('../utils/migrationVerifier');
 
+const USAGE = `
+Usage: node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
+
+Environment Variables:
+  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string (required for migration/verify)
+  AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional)
+  AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (required when username is set)
+  AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
+
+Options:
+  --collection <name>      Source collection (default: AuditEvent_4_0_0)
+  --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
+  --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
+  --batch-size <n>         Docs per ClickHouse insert batch (default: 50000)
+  --concurrency <n>        Concurrent day-workers (default: 3)
+  --dry-run                Seed state, count docs, don't insert into AuditEvent table
+  --verify-only            Run count verification only
+  --resume                 Retry any pending/in_progress/failed partitions. Days with
+                           inserted_count > 0 are DELETEd before re-migration.
+  --show-state             Print audit_event_migration_state rows (ClickHouse only)
+  --delete-partitions <days> Comma-separated YYYY-MM-DD list. Deletes AuditEvent rows for
+                           those days via ALTER ... DELETE (blocking mutation) and resets
+                           the state row to 'pending' so --resume will re-migrate it.
+                           Requires --yes confirmation.
+  --yes                    Confirm destructive operations (--delete-partitions).
+  --help, -h               Show this help
+`;
+
 /**
- * Builds the Online Archive MongoDB connection URL from environment variables.
- * Mirrors the pattern in src/config.js for AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL.
+ * Build the Online Archive MongoDB connection URL from environment variables.
+ * Mirrors src/config.js:71-79 for both `mongodb://` and `mongodb+srv://` forms.
  * @returns {{mongoUrl: string, dbName: string}}
  */
 function buildMongoUrl() {
@@ -69,17 +71,43 @@ function buildMongoUrl() {
         process.exit(1);
     }
 
-    if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
-        const username = encodeURIComponent(env.AUDIT_EVENT_MONGO_USERNAME);
-        const password = encodeURIComponent(env.AUDIT_EVENT_MONGO_PASSWORD);
-        mongoUrl = mongoUrl.replace(
-            'mongodb://',
-            `mongodb://${username}:${password}@`
-        );
+    const username = env.AUDIT_EVENT_MONGO_USERNAME;
+    const password = env.AUDIT_EVENT_MONGO_PASSWORD;
+    if (username !== undefined || password !== undefined) {
+        if (username === undefined || password === undefined) {
+            logError(
+                'AUDIT_EVENT_MONGO_USERNAME and AUDIT_EVENT_MONGO_PASSWORD must be set together'
+            );
+            process.exit(1);
+        }
+        const u = encodeURIComponent(username);
+        const p = encodeURIComponent(password);
+        mongoUrl = mongoUrl
+            .replace('mongodb://', `mongodb://${u}:${p}@`)
+            .replace('mongodb+srv://', `mongodb+srv://${u}:${p}@`);
     }
     const dbName = env.AUDIT_EVENT_MONGO_DB_NAME || 'fhir';
 
     return { mongoUrl, dbName };
+}
+
+/**
+ * Parse a positive integer CLI argument, exiting with a clear error on bad input.
+ * @param {string} flag - the flag name, for error messages
+ * @param {string|undefined} raw - the raw argv value
+ * @returns {number}
+ */
+function parsePositiveInt(flag, raw) {
+    if (raw === undefined || raw.startsWith('--')) {
+        logError(`${flag} requires a positive integer argument`);
+        process.exit(1);
+    }
+    const value = parseInt(raw, 10);
+    if (!Number.isInteger(value) || value <= 0) {
+        logError(`${flag} requires a positive integer, got: ${raw}`);
+        process.exit(1);
+    }
+    return value;
 }
 
 /**
@@ -98,7 +126,8 @@ function parseArgs() {
         verifyOnly: false,
         resume: false,
         showState: false,
-        deletePartitions: null // Array<string> of 'YYYY-MM-DD' once parsed
+        deletePartitions: null,
+        yes: false
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -113,10 +142,10 @@ function parseArgs() {
                 options.endDate = args[++i];
                 break;
             case '--batch-size':
-                options.batchSize = parseInt(args[++i]);
+                options.batchSize = parsePositiveInt('--batch-size', args[++i]);
                 break;
             case '--concurrency':
-                options.concurrency = parseInt(args[++i]);
+                options.concurrency = parsePositiveInt('--concurrency', args[++i]);
                 break;
             case '--dry-run':
                 options.dryRun = true;
@@ -136,32 +165,12 @@ function parseArgs() {
                     .map((d) => d.trim())
                     .filter(Boolean);
                 break;
+            case '--yes':
+                options.yes = true;
+                break;
             case '--help':
             case '-h':
-                logInfo(`
-Usage: node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
-
-Environment Variables (required):
-  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string
-  AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional)
-  AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (optional)
-  AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
-
-Options:
-  --collection <name>      Source collection (default: AuditEvent_4_0_0)
-  --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
-  --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
-  --batch-size <n>         Docs per batch (default: 50000)
-  --concurrency <n>        Concurrent workers (default: 3)
-  --dry-run                Seed state, count docs, don't insert
-  --verify-only            Run count verification only
-  --resume                 Resume incomplete partitions
-  --show-state             Print audit_event_migration_state rows (ClickHouse only, no archive needed)
-  --delete-partitions <days> Comma-separated YYYY-MM-DD list. Deletes AuditEvent rows for
-                           those days via ALTER ... DELETE (blocking mutation) and resets
-                           the state row to 'pending' so --resume will re-migrate it.
-  --help, -h               Show this help
-                `);
+                logInfo(USAGE);
                 process.exit(0);
         }
     }
@@ -184,7 +193,7 @@ function formatElapsed(ms) {
 /**
  * Run concurrent workers over a partition queue
  * @param {Object} params
- * @param {Array<{partition_day: string, last_mongo_id: string}>} params.partitions
+ * @param {Array<{partition_day: string, inserted_count?: number}>} params.partitions
  * @param {import('mongodb').Db} params.sourceDb
  * @param {string} params.collectionName
  * @param {ClickHouseClientManager} params.clickHouseClientManager
@@ -192,6 +201,7 @@ function formatElapsed(ms) {
  * @param {number} params.batchSize
  * @param {number} params.concurrency
  * @param {boolean} params.dryRun
+ * @param {{aborted: boolean}} params.abortFlag - set when SIGINT/SIGTERM arrives; workers drain
  * @returns {Promise<{totalInserted: number, totalSkipped: number, failures: string[]}>}
  */
 async function runWorkersAsync({
@@ -202,7 +212,8 @@ async function runWorkersAsync({
     stateManager,
     batchSize,
     concurrency,
-    dryRun
+    dryRun,
+    abortFlag
 }) {
     let queueIndex = 0;
     let totalInserted = 0;
@@ -211,21 +222,14 @@ async function runWorkersAsync({
     const startTime = Date.now();
     const totalPartitions = partitions.length;
 
-    /**
-     * Worker loop: grabs next partition from queue, processes it, repeats
-     * @param {number} workerId
-     */
     async function workerLoop(workerId) {
         while (queueIndex < partitions.length) {
+            if (abortFlag.aborted) return;
             const idx = queueIndex++;
             const partition = partitions[idx];
-            if (!partition) break;
 
-            const {
-                partition_day: day,
-                last_mongo_id: lastId,
-                last_recorded: lastRecorded
-            } = partition;
+            const day = partition.partition_day;
+            const priorInsertedCount = Number(partition.inserted_count) || 0;
 
             try {
                 const worker = new PartitionWorker({
@@ -239,8 +243,7 @@ async function runWorkersAsync({
 
                 const result = await worker.processAsync({
                     partitionDay: day,
-                    lastMongoId: lastId || '',
-                    lastRecorded: lastRecorded || ''
+                    priorInsertedCount
                 });
 
                 totalInserted += result.insertedCount;
@@ -254,6 +257,7 @@ async function runWorkersAsync({
                     partitionDay: day,
                     insertedCount: result.insertedCount,
                     sourceCount: result.sourceCount,
+                    skippedCount: result.skippedCount,
                     progress: `${completed}/${totalPartitions}`,
                     elapsed
                 });
@@ -264,7 +268,6 @@ async function runWorkersAsync({
         }
     }
 
-    // Launch concurrent workers
     const workers = [];
     for (let i = 0; i < concurrency; i++) {
         workers.push(workerLoop(i + 1));
@@ -277,10 +280,8 @@ async function runWorkersAsync({
 /**
  * Print the migration state table.
  *
- * Runs against ClickHouse only — does not require Online Archive credentials,
- * so an operator can check progress with just ClickHouse access. Filters by the
- * same --start-date / --end-date flags the migration modes use, so operators
- * get a consistent slice across runs.
+ * Runs against ClickHouse only — does not require Online Archive credentials.
+ * Filters by the same --start-date / --end-date flags the migration modes use.
  *
  * @param {Object} params
  * @param {MigrationStateManager} params.stateManager
@@ -307,8 +308,6 @@ async function showMigrationStateAsync({ stateManager, startDate, endDate }) {
             status: s.status,
             sourceCount: Number(s.source_count) || 0,
             insertedCount: Number(s.inserted_count) || 0,
-            lastMongoId: s.last_mongo_id || '',
-            lastRecorded: s.last_recorded || '',
             startedAt: s.started_at || null,
             completedAt: s.completed_at || null,
             errorMessage: s.error_message || ''
@@ -333,12 +332,11 @@ async function showMigrationStateAsync({ stateManager, startDate, endDate }) {
 }
 
 /**
- * Validates a YYYY-MM-DD string and normalizes it to canonical form.
- * Rejects malformed input — critical because this string interpolates into an
- * ALTER ... DELETE predicate (though we parameterize, we still want clean data).
+ * Validate a YYYY-MM-DD string and normalize it to canonical form.
+ * Rejects 2025-02-30 and similar: `toISOString().slice(0,10)` of the parsed Date
+ * won't match the input unless it's a real calendar date.
  * @param {string} day
- * @returns {string} canonical 'YYYY-MM-DD'
- * @throws {Error} if the date is malformed or invalid
+ * @returns {string}
  */
 function validatePartitionDay(day) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
@@ -359,8 +357,8 @@ function validatePartitionDay(day) {
  * mutations_sync = 2 so the call blocks until the mutation completes. On a
  * 55TB table this can take minutes per day.
  *
- * State rows are not DELETE-d; they're re-inserted as 'pending' so --resume
- * will re-migrate them. ReplacingMergeTree collapse does the rest.
+ * Days without an existing state row are refused (likely typos outside the
+ * seeded range) rather than silently creating a stray 'pending' row.
  *
  * @param {Object} params
  * @param {ClickHouseClientManager} params.clickHouseClientManager
@@ -371,9 +369,17 @@ function validatePartitionDay(day) {
 async function deletePartitionsAsync({ clickHouseClientManager, stateManager, days }) {
     const validated = days.map(validatePartitionDay);
 
-    // Preview what's about to get nuked
     const allStates = await stateManager.getAllStatesAsync();
     const stateByDay = new Map(allStates.map((s) => [s.partition_day, s]));
+
+    const missing = validated.filter((d) => !stateByDay.has(d));
+    if (missing.length > 0) {
+        logError(
+            'Refusing to delete: some days have no state row (likely typo or outside seeded range)',
+            { missing }
+        );
+        process.exit(1);
+    }
 
     logWarn('About to delete partitions', {
         table: 'fhir.AuditEvent_4_0_0',
@@ -384,17 +390,14 @@ async function deletePartitionsAsync({ clickHouseClientManager, stateManager, da
         const s = stateByDay.get(day);
         logWarn('Partition to delete', {
             partitionDay: day,
-            currentStatus: s?.status || '(no state row)',
-            currentInsertedCount: Number(s?.inserted_count) || 0,
-            currentSourceCount: Number(s?.source_count) || 0
+            currentStatus: s.status,
+            currentInsertedCount: Number(s.inserted_count) || 0,
+            currentSourceCount: Number(s.source_count) || 0
         });
     }
 
     for (const day of validated) {
         logInfo('Deleting AuditEvent rows', { partitionDay: day });
-        // mutations_sync = 2 blocks until the mutation finishes on all replicas.
-        // Without this, ALTER DELETE returns immediately and the caller can't
-        // tell whether the data is actually gone yet.
         await clickHouseClientManager.queryAsync({
             query: `ALTER TABLE fhir.AuditEvent_4_0_0
                     DELETE WHERE toDate(recorded) = {day:String}
@@ -412,51 +415,61 @@ async function deletePartitionsAsync({ clickHouseClientManager, stateManager, da
 }
 
 /**
- * Main migration function
+ * Main migration function. Returns an exit code; the outer IIFE is the sole
+ * caller of process.exit.
+ * @returns {Promise<number>}
  */
 async function main() {
     const options = parseArgs();
 
-    // --show-state and --delete-partitions run without archive credentials;
-    // handle before buildMongoUrl() which exits(1) when the archive URL is absent.
+    // Paths that don't need Online Archive creds. Handle before buildMongoUrl()
+    // (which exits when the archive URL is absent).
     if (options.showState) {
         const configManager = new ConfigManager();
         const clickHouseManager = new ClickHouseClientManager({ configManager });
-        await clickHouseManager.getClientAsync();
-        const stateManager = new MigrationStateManager({
-            clickHouseClientManager: clickHouseManager
-        });
-        await showMigrationStateAsync({
-            stateManager,
-            startDate: options.startDate,
-            endDate: options.endDate
-        });
-        await clickHouseManager.closeAsync();
-        return;
+        try {
+            await clickHouseManager.getClientAsync();
+            const stateManager = new MigrationStateManager({
+                clickHouseClientManager: clickHouseManager
+            });
+            await showMigrationStateAsync({
+                stateManager,
+                startDate: options.startDate,
+                endDate: options.endDate
+            });
+        } finally {
+            await clickHouseManager.closeAsync();
+        }
+        return 0;
     }
 
     if (options.deletePartitions) {
         if (options.deletePartitions.length === 0) {
             logError('--delete-partitions requires at least one YYYY-MM-DD day');
-            process.exit(1);
+            return 1;
         }
-        // Validate days up-front so we fail fast on malformed input — before
-        // opening a ClickHouse connection or printing a scary confirmation banner.
+        if (!options.yes) {
+            logError(
+                '--delete-partitions is destructive (ALTER ... DELETE on AuditEvent_4_0_0). ' +
+                'Pass --yes to confirm.'
+            );
+            return 1;
+        }
         let validatedDays;
         try {
             validatedDays = options.deletePartitions.map(validatePartitionDay);
         } catch (err) {
             logError(err.message);
-            process.exit(1);
+            return 1;
         }
 
         const configManager = new ConfigManager();
         const clickHouseManager = new ClickHouseClientManager({ configManager });
-        await clickHouseManager.getClientAsync();
-        const stateManager = new MigrationStateManager({
-            clickHouseClientManager: clickHouseManager
-        });
         try {
+            await clickHouseManager.getClientAsync();
+            const stateManager = new MigrationStateManager({
+                clickHouseClientManager: clickHouseManager
+            });
             await deletePartitionsAsync({
                 clickHouseClientManager: clickHouseManager,
                 stateManager,
@@ -465,7 +478,7 @@ async function main() {
         } finally {
             await clickHouseManager.closeAsync();
         }
-        return;
+        return 0;
     }
 
     const { mongoUrl, dbName } = buildMongoUrl();
@@ -486,151 +499,153 @@ async function main() {
         collection: `${dbName}.${options.collection}`
     });
 
-    // Initialize connections
     const configManager = new ConfigManager();
     const clickHouseManager = new ClickHouseClientManager({ configManager });
 
     logInfo('Connecting to Online Archive MongoDB');
     const mongoClient = await MongoClient.connect(mongoUrl);
-    const sourceDb = mongoClient.db(dbName);
-    logInfo('Connected to Online Archive MongoDB');
+    const abortFlag = { aborted: false };
 
-    logInfo('Connecting to ClickHouse');
-    await clickHouseManager.getClientAsync();
-    logInfo('Connected to ClickHouse');
+    try {
+        const sourceDb = mongoClient.db(dbName);
+        logInfo('Connected to Online Archive MongoDB');
 
-    const stateManager = new MigrationStateManager({ clickHouseClientManager: clickHouseManager });
+        logInfo('Connecting to ClickHouse');
+        await clickHouseManager.getClientAsync();
+        logInfo('Connected to ClickHouse');
 
-    // Generate daily partitions
-    const days = generateDailyPartitions(options.startDate, options.endDate);
-    logInfo('Daily partitions generated', { total: days.length });
-
-    // Seed state table
-    const seeded = await stateManager.seedPartitionsAsync(days);
-    if (seeded > 0) {
-        logInfo('Seeded new partitions in state table', { seeded });
-    }
-
-    // Show current state summary
-    const summary = await stateManager.getSummaryAsync();
-    logInfo('Current migration state', {
-        pending: summary.pending,
-        in_progress: summary.in_progress,
-        completed: summary.completed,
-        failed: summary.failed,
-        totalInserted: summary.totalInserted
-    });
-
-    // =====================
-    // Verify-only mode
-    // =====================
-    if (options.verifyOnly) {
-        logInfo('Starting verification mode');
-
-        const verifier = new MigrationVerifier({
-            sourceDb,
-            collectionName: options.collection,
-            clickHouseClientManager: clickHouseManager,
-            stateManager
+        const stateManager = new MigrationStateManager({
+            clickHouseClientManager: clickHouseManager
         });
 
-        const result = await verifier.verifyAllAsync({
-            concurrency: options.concurrency,
+        const days = generateDailyPartitions(options.startDate, options.endDate);
+        logInfo('Daily partitions generated', { total: days.length });
+
+        const seeded = await stateManager.seedPartitionsAsync(days);
+        if (seeded > 0) {
+            logInfo('Seeded new partitions in state table', { seeded });
+        }
+
+        const summary = await stateManager.getSummaryAsync();
+        logInfo('Current migration state', {
+            pending: summary.pending,
+            in_progress: summary.in_progress,
+            completed: summary.completed,
+            failed: summary.failed,
+            totalInserted: summary.totalInserted
+        });
+
+        if (options.verifyOnly) {
+            logInfo('Starting verification mode');
+
+            const verifier = new MigrationVerifier({
+                sourceDb,
+                collectionName: options.collection,
+                clickHouseClientManager: clickHouseManager,
+                stateManager
+            });
+
+            const result = await verifier.verifyAllAsync({
+                concurrency: options.concurrency,
+                startDate: options.startDate,
+                endDate: options.endDate
+            });
+
+            logInfo('Verification results', {
+                matched: result.matched,
+                mismatched: result.mismatched
+            });
+
+            if (result.mismatches.length > 0) {
+                for (const m of result.mismatches) {
+                    logWarn('Count mismatch', {
+                        day: m.day,
+                        sourceCount: m.sourceCount,
+                        chCount: m.chCount,
+                        diff: m.sourceCount - m.chCount
+                    });
+                }
+            }
+
+            return result.mismatched > 0 ? 1 : 0;
+        }
+
+        logInfo('Starting migration', { dryRun: options.dryRun });
+
+        // Single partition-selection path. getPendingPartitionsAsync returns
+        // pending + in_progress + failed rows, so resume/continue/first-run
+        // all behave identically — the worker handles prior-partial-write
+        // cleanup via priorInsertedCount.
+        const partitions = await stateManager.getPendingPartitionsAsync({
+            startDate: options.startDate,
+            endDate: options.endDate
+        });
+        logInfo('Partitions to process', {
+            partitionsToProcess: partitions.length,
             startDate: options.startDate,
             endDate: options.endDate
         });
 
-        logInfo('Verification results', { matched: result.matched, mismatched: result.mismatched });
-
-        if (result.mismatches.length > 0) {
-            for (const m of result.mismatches) {
-                logWarn('Count mismatch', {
-                    day: m.day,
-                    sourceCount: m.sourceCount,
-                    chCount: m.chCount,
-                    diff: m.sourceCount - m.chCount
-                });
-            }
+        if (partitions.length === 0) {
+            logInfo('All partitions completed. Run with --verify-only to verify counts.');
+            return 0;
         }
 
+        const onSignal = (signal) => {
+            if (abortFlag.aborted) return;
+            abortFlag.aborted = true;
+            logWarn('Received signal; finishing in-flight partitions then exiting', { signal });
+        };
+        process.on('SIGINT', onSignal);
+        process.on('SIGTERM', onSignal);
+
+        const migrationStart = Date.now();
+
+        const result = await runWorkersAsync({
+            partitions,
+            sourceDb,
+            collectionName: options.collection,
+            clickHouseClientManager: clickHouseManager,
+            stateManager,
+            batchSize: options.batchSize,
+            concurrency: options.concurrency,
+            dryRun: options.dryRun,
+            abortFlag
+        });
+
+        process.removeListener('SIGINT', onSignal);
+        process.removeListener('SIGTERM', onSignal);
+
+        const elapsed = formatElapsed(Date.now() - migrationStart);
+
+        const finalSummary = await stateManager.getSummaryAsync();
+        logInfo('Migration complete', {
+            elapsed,
+            insertedRows: result.totalInserted,
+            skippedMalformed: result.totalSkipped,
+            completedPartitions: `${finalSummary.completed}/${finalSummary.total}`,
+            failedPartitions: result.failures.length,
+            aborted: abortFlag.aborted
+        });
+
+        if (result.failures.length > 0) {
+            logWarn('Failed partitions (re-run with --resume)', { days: result.failures });
+        }
+
+        if (!options.dryRun && result.failures.length === 0 && !abortFlag.aborted) {
+            logInfo('All partitions completed. Run with --verify-only to verify counts.');
+        }
+
+        return result.failures.length > 0 || abortFlag.aborted ? 1 : 0;
+    } finally {
         await mongoClient.close();
         await clickHouseManager.closeAsync();
-        process.exit(result.mismatched > 0 ? 1 : 0);
     }
-
-    // =====================
-    // Migration mode
-    // =====================
-    logInfo('Starting migration', { dryRun: options.dryRun });
-
-    // Get partitions to process
-    const dateRange = { startDate: options.startDate, endDate: options.endDate };
-    let partitions;
-    if (options.resume) {
-        partitions = await stateManager.getPendingPartitionsAsync(dateRange);
-        logInfo('Resuming migration', { partitionsToProcess: partitions.length, ...dateRange });
-    } else if (summary.completed > 0 && !options.dryRun) {
-        partitions = await stateManager.getPendingPartitionsAsync(dateRange);
-        logInfo('Continuing migration', { partitionsRemaining: partitions.length, ...dateRange });
-    } else {
-        partitions = days.map((day) => ({
-            partition_day: day,
-            last_mongo_id: '',
-            last_recorded: ''
-        }));
-        logInfo('Processing all partitions', { total: partitions.length });
-    }
-
-    if (partitions.length === 0) {
-        logInfo('All partitions completed. Run with --verify-only to verify counts.');
-        await mongoClient.close();
-        await clickHouseManager.closeAsync();
-        return;
-    }
-
-    const migrationStart = Date.now();
-
-    const result = await runWorkersAsync({
-        partitions,
-        sourceDb,
-        collectionName: options.collection,
-        clickHouseClientManager: clickHouseManager,
-        stateManager,
-        batchSize: options.batchSize,
-        concurrency: options.concurrency,
-        dryRun: options.dryRun
-    });
-
-    const elapsed = formatElapsed(Date.now() - migrationStart);
-
-    // Final summary
-    const finalSummary = await stateManager.getSummaryAsync();
-    logInfo('Migration complete', {
-        elapsed,
-        insertedRows: result.totalInserted,
-        skippedMalformed: result.totalSkipped,
-        completedPartitions: `${finalSummary.completed}/${finalSummary.total}`,
-        failedPartitions: result.failures.length
-    });
-
-    if (result.failures.length > 0) {
-        logWarn('Failed partitions (re-run with --resume)', { days: result.failures });
-    }
-
-    if (!options.dryRun && result.failures.length === 0) {
-        logInfo('All partitions completed. Run with --verify-only to verify counts.');
-    }
-
-    await mongoClient.close();
-    await clickHouseManager.closeAsync();
-
-    process.exit(result.failures.length > 0 ? 1 : 0);
 }
 
-// Run
 main()
-    .then(() => {
-        process.exit(0);
+    .then((code) => {
+        process.exit(code);
     })
     .catch((error) => {
         logError('Fatal error', { error: error.message, stack: error.stack });

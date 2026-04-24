@@ -9,8 +9,6 @@ CREATE TABLE IF NOT EXISTS fhir.audit_event_migration_state (
     status            LowCardinality(String),
     source_count      UInt64 DEFAULT 0,
     inserted_count    UInt64 DEFAULT 0,
-    last_mongo_id     String DEFAULT '',
-    last_recorded     String DEFAULT '',
     started_at        Nullable(DateTime64(3, 'UTC')),
     completed_at      Nullable(DateTime64(3, 'UTC')),
     error_message     String DEFAULT '',
@@ -18,7 +16,7 @@ CREATE TABLE IF NOT EXISTS fhir.audit_event_migration_state (
 ) ENGINE = ReplacingMergeTree(updated_at)
 ORDER BY (partition_day);
 
--- For already-initialized deployments, add the column in place.
+-- Drop legacy per-batch checkpoint columns from already-initialized deployments.
 -- Safe to run repeatedly; no-op on fresh installs that hit the CREATE above.
-ALTER TABLE fhir.audit_event_migration_state
-    ADD COLUMN IF NOT EXISTS last_recorded String DEFAULT '' AFTER last_mongo_id;
+ALTER TABLE fhir.audit_event_migration_state DROP COLUMN IF EXISTS last_mongo_id;
+ALTER TABLE fhir.audit_event_migration_state DROP COLUMN IF EXISTS last_recorded;
