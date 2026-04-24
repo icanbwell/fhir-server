@@ -1,29 +1,19 @@
 /**
- * Processes a single daily partition: reads AuditEvent docs from Atlas Data Federation,
+ * Processes a single hourly partition: reads AuditEvent docs from Atlas Data Federation,
  * transforms them, and inserts into ClickHouse in batches.
  *
- * Resume-safe: if interrupted, resumes from last_mongo_id checkpoint.
+ * Retry semantics: partitions are atomic at the hour grain. If a prior attempt
+ * wrote any rows (inserted_count > 0) the worker DELETEs that hour from
+ * fhir.AuditEvent_4_0_0 and re-migrates from scratch — but only when
+ * rewriteExisting=true (orchestrator passes this from --resume). Without
+ * --resume the day is skipped with a warning so existing data isn't touched.
+ *
+ * Partition keys are 'YYYY-MM-DDTHH' in UTC.
  */
 
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
+const { hourKeyToDate } = require('./migrationStateManager');
 const { logInfo, logWarn } = require('../../operations/common/logging');
-
-/**
- * Normalize a `recorded` field value to an ISO-8601 string for checkpoint storage.
- * Online Archive may return either a Date (ISODate-backed docs) or a string
- * (legacy string-backed docs); both need to round-trip back through
- * `new Date(lastRecorded)` on resume.
- * @param {Date|string|null|undefined} value
- * @returns {string}
- */
-function toIsoString(value) {
-    if (!value) return '';
-    if (value instanceof Date) return value.toISOString();
-    // Already a string; trust it if it parses, otherwise store as-is so a human
-    // can investigate rather than silently losing the checkpoint.
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toISOString();
-}
 
 class PartitionWorker {
     /**
@@ -33,7 +23,10 @@ class PartitionWorker {
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
      * @param {import('./migrationStateManager').MigrationStateManager} params.stateManager
      * @param {number} params.batchSize
-     * @param {boolean} params.dryRun
+     * @param {boolean} [params.rewriteExisting] - When true and a partition has a prior
+     *   partial write (inserted_count > 0), DELETE those rows before re-migrating.
+     *   When false (default), skip the partition with a warning so existing data isn't
+     *   touched. Only --resume sets this true.
      */
     constructor({
         sourceDb,
@@ -41,176 +34,154 @@ class PartitionWorker {
         clickHouseClientManager,
         stateManager,
         batchSize,
-        dryRun
+        rewriteExisting = false
     }) {
         this.sourceDb = sourceDb;
         this.collectionName = collectionName;
         this.clickHouseClientManager = clickHouseClientManager;
         this.stateManager = stateManager;
         this.batchSize = batchSize;
-        this.dryRun = dryRun;
+        this.rewriteExisting = rewriteExisting;
         this.transformer = new AuditEventTransformer();
     }
 
     /**
-     * Process a single day partition
+     * Process a single hour partition.
+     *
      * @param {Object} params
-     * @param {string} params.partitionDay - 'YYYY-MM-DD'
-     * @param {string} params.lastMongoId - Resume point _id (empty string if fresh start)
-     * @param {string} params.lastRecorded - Resume point `recorded` ISO-8601 (empty string if fresh start)
-     * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number}>}
+     * @param {string} params.partitionHour - 'YYYY-MM-DDTHH'
+     * @param {number} [params.priorInsertedCount] - inserted_count from the state row.
+     *   With rewriteExisting=false (default), a prior insert (>0) causes the hour
+     *   to be skipped with a warning so existing data isn't touched.
+     *   With rewriteExisting=true (--resume), the worker unconditionally DELETEs
+     *   the hour before re-migrating, regardless of priorInsertedCount — the
+     *   operator has explicitly opted into the destructive path.
+     * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number, skippedReason?: string}>}
      */
-    async processAsync({ partitionDay, lastMongoId, lastRecorded }) {
-        const dayStart = new Date(partitionDay + 'T00:00:00.000Z');
-        const dayEnd = new Date(dayStart);
-        dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+    async processAsync({ partitionHour, priorInsertedCount = 0 }) {
+        const hourStart = hourKeyToDate(partitionHour);
+        const hourEnd = new Date(hourStart);
+        hourEnd.setUTCHours(hourEnd.getUTCHours() + 1);
 
         const collection = this.sourceDb.collection(this.collectionName);
 
-        // Build query: filter by recorded date range only. Sorting is done in Node
-        // after fetching, not by the Online Archive federation engine.
-        //
-        // When resuming, push the lower bound forward to `lastRecorded` so the
-        // archive-side scan prunes already-migrated S3 partitions. The exact
-        // (recorded, _id) tiebreak is applied in Node below.
-        const lastRecordedDate = lastRecorded ? new Date(lastRecorded) : null;
-        const lowerBound = lastRecordedDate || dayStart;
-        const query = { recorded: { $gte: lowerBound, $lt: dayEnd } };
+        if (this.rewriteExisting) {
+            logInfo('Deleting hour before re-migrating (--resume)', {
+                partitionHour,
+                priorInsertedCount
+            });
+            // mutations_sync = 2 blocks until the mutation finishes on all replicas
+            // so the subsequent insert can't race with tombstone propagation.
+            await this.clickHouseClientManager.queryAsync({
+                query: `ALTER TABLE fhir.AuditEvent_4_0_0
+                        DELETE WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
+                                 AND recorded < {hourEnd:DateTime64(3, 'UTC')}
+                        SETTINGS mutations_sync = 2`,
+                query_params: {
+                    hourStart: hourStart.toISOString(),
+                    hourEnd: hourEnd.toISOString()
+                }
+            });
+            await this.stateManager.clearInsertedCountAsync(partitionHour);
+        } else if (priorInsertedCount > 0) {
+            logWarn(
+                'Skipping partition with prior inserted rows (use --resume to rewrite)',
+                { partitionHour, priorInsertedCount }
+            );
+            return {
+                insertedCount: 0,
+                sourceCount: 0,
+                skippedCount: 0,
+                skippedReason: 'priorInsertedCount>0'
+            };
+        }
 
-        // Get source count for this day (for verification)
-        const sourceCountQuery = {
-            recorded: { $gte: dayStart, $lt: dayEnd }
-        };
+        const query = { recorded: { $gte: hourStart, $lt: hourEnd } };
+
         logInfo('MongoDB query', {
             operation: 'countDocuments',
             db: this.sourceDb.databaseName,
             collection: this.collectionName,
-            partitionDay,
-            query: sourceCountQuery
+            partitionHour,
+            query
         });
-        const sourceCount = await collection.countDocuments(sourceCountQuery);
-
-        if (this.dryRun) {
-            logInfo('Dry run partition count', {
-                partitionDay,
-                sourceCount
-            });
-        }
+        const sourceCount = await collection.countDocuments(query);
 
         if (sourceCount === 0) {
             await this.stateManager.markCompletedAsync({
-                partitionDay,
+                partitionHour,
                 insertedCount: 0,
                 sourceCount: 0
             });
             return { insertedCount: 0, sourceCount: 0, skippedCount: 0 };
         }
 
-        await this.stateManager.markInProgressAsync(partitionDay);
+        await this.stateManager.markInProgressAsync(partitionHour);
 
         logInfo('MongoDB query', {
             operation: 'find',
             db: this.sourceDb.databaseName,
             collection: this.collectionName,
-            partitionDay,
+            partitionHour,
             query,
             batchSize: this.batchSize
         });
         // No server-side sort: let the federation engine stream S3 objects in
-        // whatever order is fastest. The query's `recorded >= lastRecorded` lower
-        // bound already drops every pre-checkpoint doc; the only Node-side case
-        // left is the tie where `recorded == lastRecorded` and `_id` needs to be
-        // compared against the checkpoint.
+        // whatever order is fastest. Hour atomicity on retry means ordering
+        // doesn't matter for correctness.
         const cursor = collection.find(query).batchSize(this.batchSize);
 
-        const lastRecordedMs = lastRecordedDate ? lastRecordedDate.getTime() : null;
         let batch = [];
-        let insertedCount = lastMongoId
-            ? await this._getExistingInsertedCountAsync(partitionDay)
-            : 0;
+        let insertedCount = 0;
         let skippedCount = 0;
-        let lastId = lastMongoId;
-        let lastRecordedCheckpoint = lastRecorded || '';
 
         try {
             while (await cursor.hasNext()) {
                 const doc = await cursor.next();
-
-                // Tie-break: at the checkpoint boundary, skip docs whose _id
-                // was already migrated. `recorded` is always a Date.
-                if (
-                    lastRecordedMs !== null &&
-                    lastMongoId &&
-                    doc.recorded.getTime() === lastRecordedMs &&
-                    doc._id.toString() <= lastMongoId
-                ) {
-                    continue;
-                }
-
                 batch.push(doc);
 
                 if (batch.length >= this.batchSize) {
-                    logInfo('Batch insert starting', {
-                        partitionDay,
-                        batchSize: batch.length,
-                        firstId: batch[0]._id.toString(),
-                        firstRecorded: batch[0].recorded,
-                        lastId: batch[batch.length - 1]._id.toString(),
-                        lastRecorded: batch[batch.length - 1].recorded
-                    });
-
                     const result = await this._processBatchAsync(batch);
                     insertedCount += result.inserted;
                     skippedCount += result.skipped;
+                    batch = [];
 
-                    const tailDoc = batch[batch.length - 1];
-                    lastId = tailDoc._id.toString();
-                    lastRecordedCheckpoint = toIsoString(tailDoc.recorded);
-
-                    // Checkpoint after each batch
-                    await this.stateManager.updateCheckpointAsync({
-                        partitionDay,
-                        lastMongoId: lastId,
-                        lastRecorded: lastRecordedCheckpoint,
+                    await this.stateManager.updateProgressAsync({
+                        partitionHour,
                         insertedCount
                     });
-
-                    batch = [];
+                    logInfo('Batch inserted', {
+                        partitionHour,
+                        progress: `${insertedCount}/${sourceCount}`,
+                        batchInserted: result.inserted,
+                        batchSkipped: result.skipped
+                    });
                 }
             }
 
-            // Process remaining docs
             if (batch.length > 0) {
-                logInfo('Batch insert starting', {
-                    partitionDay,
-                    batchSize: batch.length,
-                    firstId: batch[0]._id.toString(),
-                    firstRecorded: batch[0].recorded,
-                    lastId: batch[batch.length - 1]._id.toString(),
-                    lastRecorded: batch[batch.length - 1].recorded
-                });
-
                 const result = await this._processBatchAsync(batch);
                 insertedCount += result.inserted;
                 skippedCount += result.skipped;
-                const tailDoc = batch[batch.length - 1];
-                lastId = tailDoc._id.toString();
-                lastRecordedCheckpoint = toIsoString(tailDoc.recorded);
+
+                logInfo('Batch inserted', {
+                    partitionHour,
+                    progress: `${insertedCount}/${sourceCount}`,
+                    batchInserted: result.inserted,
+                    batchSkipped: result.skipped
+                });
             }
 
-            // Mark completed
             await this.stateManager.markCompletedAsync({
-                partitionDay,
+                partitionHour,
                 insertedCount,
-                sourceCount,
-                lastMongoId: lastId,
-                lastRecorded: lastRecordedCheckpoint
+                sourceCount
             });
 
             return { insertedCount, sourceCount, skippedCount };
         } catch (error) {
             await this.stateManager.markFailedAsync({
-                partitionDay,
+                partitionHour,
                 errorMessage: error.message,
                 insertedCount
             });
@@ -229,7 +200,7 @@ class PartitionWorker {
     async _processBatchAsync(docs) {
         const { rows, skipped } = this.transformer.transformBatch(docs);
 
-        if (rows.length > 0 && !this.dryRun) {
+        if (rows.length > 0) {
             await this._insertWithRetryAsync(rows);
         }
 
@@ -298,17 +269,6 @@ class PartitionWorker {
                 }
             }
         }
-    }
-
-    /**
-     * Gets the current inserted count for a partition being resumed
-     * @private
-     * @param {string} partitionDay
-     * @returns {Promise<number>}
-     */
-    async _getExistingInsertedCountAsync(partitionDay) {
-        const state = await this.stateManager.getStateForDayAsync(partitionDay);
-        return Number(state?.inserted_count) || 0;
     }
 }
 

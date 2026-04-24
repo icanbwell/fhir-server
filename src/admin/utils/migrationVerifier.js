@@ -1,9 +1,10 @@
 /**
- * Per-day count verification between Atlas Data Federation and ClickHouse.
- * Compares source document counts with ClickHouse row counts per partition day.
+ * Per-hour count verification between Atlas Data Federation and ClickHouse.
+ * Compares source document counts with ClickHouse row counts per partition hour.
  */
 
-const { logInfo, logWarn } = require('../../operations/common/logging');
+const { hourKeyToDate } = require('./migrationStateManager');
+const { logInfo } = require('../../operations/common/logging');
 
 class MigrationVerifier {
     /**
@@ -23,20 +24,20 @@ class MigrationVerifier {
     /**
      * Verify counts for all completed partitions
      * @param {Object} [options]
-     * @param {number} [options.concurrency] - How many days to verify in parallel
-     * @param {string} [options.startDate] - Inclusive start date 'YYYY-MM-DD'
-     * @param {string} [options.endDate] - Exclusive end date 'YYYY-MM-DD'
-     * @returns {Promise<{matched: number, mismatched: number, mismatches: Array<{day: string, sourceCount: number, chCount: number}>}>}
+     * @param {number} [options.concurrency] - How many hours to verify in parallel
+     * @param {string} [options.startHour] - Inclusive start 'YYYY-MM-DDTHH'
+     * @param {string} [options.endHour] - Exclusive end 'YYYY-MM-DDTHH'
+     * @returns {Promise<{matched: number, mismatched: number, mismatches: Array<{hour: string, sourceCount: number, chCount: number}>}>}
      */
-    async verifyAllAsync({ concurrency = 10, startDate, endDate } = {}) {
+    async verifyAllAsync({ concurrency = 10, startHour, endHour } = {}) {
         const states = await this.stateManager.getAllStatesAsync();
         let completedStates = states.filter((s) => s.status === 'completed');
 
-        if (startDate) {
-            completedStates = completedStates.filter((s) => s.partition_day >= startDate);
+        if (startHour) {
+            completedStates = completedStates.filter((s) => s.partition_hour >= startHour);
         }
-        if (endDate) {
-            completedStates = completedStates.filter((s) => s.partition_day < endDate);
+        if (endHour) {
+            completedStates = completedStates.filter((s) => s.partition_hour < endHour);
         }
 
         logInfo('Starting verification', { partitions: completedStates.length });
@@ -45,16 +46,15 @@ class MigrationVerifier {
         let mismatched = 0;
         const mismatches = [];
 
-        // Process in batches for parallel verification
         for (let i = 0; i < completedStates.length; i += concurrency) {
             const batch = completedStates.slice(i, i + concurrency);
             const results = await Promise.all(
-                batch.map((state) => this._verifyDayAsync(state.partition_day))
+                batch.map((state) => this._verifyHourAsync(state.partition_hour))
             );
 
             for (const result of results) {
                 logInfo('Partition verified', {
-                    day: result.day,
+                    partitionHour: result.hour,
                     sourceCount: result.sourceCount,
                     clickHouseCount: result.chCount,
                     match: result.match
@@ -65,14 +65,13 @@ class MigrationVerifier {
                 } else {
                     mismatched++;
                     mismatches.push({
-                        day: result.day,
+                        hour: result.hour,
                         sourceCount: result.sourceCount,
                         chCount: result.chCount
                     });
                 }
             }
 
-            // Progress update every batch
             const processed = Math.min(i + concurrency, completedStates.length);
             logInfo('Verification progress', {
                 processed,
@@ -86,21 +85,20 @@ class MigrationVerifier {
     }
 
     /**
-     * Verify a single day
-     * @param {string} partitionDay - 'YYYY-MM-DD'
-     * @returns {Promise<{day: string, sourceCount: number, chCount: number, match: boolean}>}
+     * Verify a single hour
+     * @param {string} partitionHour - 'YYYY-MM-DDTHH'
+     * @returns {Promise<{hour: string, sourceCount: number, chCount: number, match: boolean}>}
      */
-    async _verifyDayAsync(partitionDay) {
+    async _verifyHourAsync(partitionHour) {
         const [sourceCount, chCount] = await Promise.all([
-            this._getSourceCountAsync(partitionDay),
-            this._getClickHouseCountAsync(partitionDay)
+            this._getSourceCountAsync(partitionHour),
+            this._getClickHouseCountAsync(partitionHour)
         ]);
 
-        // Update source_count in state table for the record
-        await this.stateManager.updateSourceCountAsync(partitionDay, sourceCount);
+        await this.stateManager.updateSourceCountAsync(partitionHour, sourceCount);
 
         return {
-            day: partitionDay,
+            hour: partitionHour,
             sourceCount,
             chCount,
             match: sourceCount === chCount
@@ -108,25 +106,25 @@ class MigrationVerifier {
     }
 
     /**
-     * Count documents in Atlas Data Federation for a given day
+     * Count documents in Atlas Data Federation for a given hour
      * @private
-     * @param {string} partitionDay
+     * @param {string} partitionHour
      * @returns {Promise<number>}
      */
-    async _getSourceCountAsync(partitionDay) {
-        const dayStart = new Date(partitionDay + 'T00:00:00.000Z');
-        const dayEnd = new Date(dayStart);
-        dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+    async _getSourceCountAsync(partitionHour) {
+        const hourStart = hourKeyToDate(partitionHour);
+        const hourEnd = new Date(hourStart);
+        hourEnd.setUTCHours(hourEnd.getUTCHours() + 1);
 
         const collection = this.sourceDb.collection(this.collectionName);
         const query = {
-            recorded: { $gte: dayStart, $lt: dayEnd }
+            recorded: { $gte: hourStart, $lt: hourEnd }
         };
         logInfo('MongoDB query', {
             operation: 'countDocuments',
             db: this.sourceDb.databaseName,
             collection: this.collectionName,
-            partitionDay,
+            partitionHour,
             query,
             context: 'verifier.getSourceCount'
         });
@@ -134,17 +132,25 @@ class MigrationVerifier {
     }
 
     /**
-     * Count rows in ClickHouse for a given day
+     * Count rows in ClickHouse for a given hour
      * @private
-     * @param {string} partitionDay
+     * @param {string} partitionHour
      * @returns {Promise<number>}
      */
-    async _getClickHouseCountAsync(partitionDay) {
+    async _getClickHouseCountAsync(partitionHour) {
+        const hourStart = hourKeyToDate(partitionHour);
+        const hourEnd = new Date(hourStart);
+        hourEnd.setUTCHours(hourEnd.getUTCHours() + 1);
+
         const result = await this.clickHouseClientManager.queryAsync({
             query: `SELECT count() as count
                     FROM fhir.AuditEvent_4_0_0
-                    WHERE toDate(recorded) = {day:String}`,
-            query_params: { day: partitionDay }
+                    WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
+                      AND recorded < {hourEnd:DateTime64(3, 'UTC')}`,
+            query_params: {
+                hourStart: hourStart.toISOString(),
+                hourEnd: hourEnd.toISOString()
+            }
         });
 
         return Number(result[0]?.count || 0);
