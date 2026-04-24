@@ -573,22 +573,14 @@ class ConfigManager {
     }
 
     /**
-     * whether to write AuditEvent to mongoDB
+     * whether audit event logging is enabled
      * @return {boolean}
      */
-    get enableAuditEventMongoDB() {
-        if (env.ENABLE_AUDIT_EVENT_MONGODB === null || env.ENABLE_AUDIT_EVENT_MONGODB === undefined) {
+    get enableAuditEvent() {
+        if (env.ENABLE_AUDIT_EVENT === null || env.ENABLE_AUDIT_EVENT === undefined) {
             return true;
         }
-        return isTrue(env.ENABLE_AUDIT_EVENT_MONGODB);
-    }
-
-    /**
-     * whether to write AuditEvent to ClickHouse
-     * @return {boolean}
-     */
-    get enableAuditEventClickHouse() {
-        return isTrue(env.ENABLE_AUDIT_EVENT_CLICKHOUSE) && this.enableClickHouse;
+        return isTrue(env.ENABLE_AUDIT_EVENT);
     }
 
     /**

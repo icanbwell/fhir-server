@@ -19,7 +19,6 @@ const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditE
 const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
 const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
-const { AuditEventClickHouseWriter } = require('./auditEventClickHouseWriter');
 const { ConfigManager } = require('./configManager');
 const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES } = require('../constants');
 const mutex = new Mutex();
@@ -32,7 +31,6 @@ class AuditLogger {
      * @property {DatabaseBulkInserter} databaseBulkInserter
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
-     * @property {AuditEventClickHouseWriter|null} auditEventClickHouseWriter
      * @property {string} base_version
      *
      * @param {params}
@@ -42,7 +40,6 @@ class AuditLogger {
                     databaseBulkInserter,
                     preSaveManager,
                     configManager,
-                    auditEventClickHouseWriter,
                     base_version = '4_0_0'
                 }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
@@ -66,10 +63,6 @@ class AuditLogger {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
         /**
-         * @type {AuditEventClickHouseWriter|null}
-         */
-        this.auditEventClickHouseWriter = auditEventClickHouseWriter || null;
-        /**
          * @type {{doc: import('../fhir/classes/4_0_0/resources/resource'), requestInfo: import('./fhirRequestInfo').FhirRequestInfo}[]}
          */
         this.queue = [];
@@ -77,12 +70,6 @@ class AuditLogger {
          * @type {string}
          */
         this.base_version = base_version;
-
-        /**
-         * @type {boolean}
-         */
-        this.isAuditEventEnabled = this.configManager.enableAuditEventMongoDB
-            || this.configManager.enableAuditEventClickHouse;
         /**
          * @type {number}
          */
@@ -248,8 +235,7 @@ class AuditLogger {
     async logAuditEntryAsync ({
         requestInfo, base_version, resourceType, operation, args, ids, maxNumberOfIds
     }) {
-        // don't create audit entries for AuditEvent or if disabled
-        if (!this.isAuditEventEnabled || resourceType === 'AuditEvent') {
+        if (!this.configManager.enableAuditEvent || resourceType === 'AuditEvent') {
             return;
         }
 
@@ -293,57 +279,40 @@ class AuditLogger {
             release();
         }
 
-        /**
-         * Audit entries are always of resource type AuditEvent
-         * @type {string}
-         */
         const resourceType = 'AuditEvent';
         let requestId;
 
-        /**
-         * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
-         */
         const operationsMap = new Map();
         operationsMap.set(resourceType, []);
-        const clickHouseAuditEvents = [];
 
         for (const { doc, requestInfo } of currentQueue) {
             assertTypeEquals(doc, AuditEvent);
             ({ requestId } = requestInfo);
 
-            if (this.configManager.enableAuditEventMongoDB) {
-                operationsMap.get(resourceType).push(
-                    this.databaseBulkInserter.getOperationForResourceAsync({
-                        requestId,
-                        resourceType,
-                        doc,
-                        operationType: 'insert',
-                        operation: {
-                            insertOne: {
-                                document: doc.toJSONInternal()
-                            }
+            operationsMap.get(resourceType).push(
+                this.databaseBulkInserter.getOperationForResourceAsync({
+                    requestId,
+                    resourceType,
+                    doc,
+                    operationType: 'insert',
+                    operation: {
+                        insertOne: {
+                            document: doc.toJSONInternal()
                         }
-                    })
-                );
-            }
-            if (this.configManager.enableAuditEventClickHouse) {
-                clickHouseAuditEvents.push(doc.toJSONInternal());
-            }
+                    }
+                })
+            );
         }
+
         if (operationsMap.get(resourceType).length > 0) {
             const requestInfo = currentQueue[0].requestInfo;
-            /**
-             * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
-             */
             const mergeResults = await this.databaseBulkInserter.executeAsync({
                 requestInfo,
                 base_version: this.base_version,
                 operationsMap,
                 maintainOrder: false
             });
-            /**
-             * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
-             */
+
             const mergeResultErrors = mergeResults.filter(m => m.issue);
             if (mergeResultErrors.length > 0) {
                 logError('Error creating audit entries', {
@@ -352,20 +321,6 @@ class AuditLogger {
                     args: {
                         request: { id: requestId },
                         errors: mergeResultErrors
-                    }
-                });
-            }
-        }
-        if (clickHouseAuditEvents.length > 0 && this.auditEventClickHouseWriter) {
-            try {
-                await this.auditEventClickHouseWriter.writeBatchAsync(clickHouseAuditEvents);
-            } catch (err) {
-                logError('ClickHouse AuditEvent batch write failed after retries', {
-                    error: err.message,
-                    source: 'AuditLogger.flushAsync',
-                    args: {
-                        count: clickHouseAuditEvents.length,
-                        request: { id: requestId }
                     }
                 });
             }
