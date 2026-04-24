@@ -18,19 +18,25 @@ class PartitionWorker {
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
      * @param {import('./migrationStateManager').MigrationStateManager} params.stateManager
      * @param {number} params.batchSize
+     * @param {boolean} [params.rewriteExisting] - When true and a day has a prior
+     *   partial write (inserted_count > 0), DELETE those rows before re-migrating.
+     *   When false (default), skip the day with a warning so existing data isn't
+     *   touched. Only --resume sets this true.
      */
     constructor({
         sourceDb,
         collectionName,
         clickHouseClientManager,
         stateManager,
-        batchSize
+        batchSize,
+        rewriteExisting = false
     }) {
         this.sourceDb = sourceDb;
         this.collectionName = collectionName;
         this.clickHouseClientManager = clickHouseClientManager;
         this.stateManager = stateManager;
         this.batchSize = batchSize;
+        this.rewriteExisting = rewriteExisting;
         this.transformer = new AuditEventTransformer();
     }
 
@@ -40,9 +46,10 @@ class PartitionWorker {
      * @param {Object} params
      * @param {string} params.partitionDay - 'YYYY-MM-DD'
      * @param {number} [params.priorInsertedCount] - inserted_count from the state row.
-     *   When > 0, the day was partially migrated by a prior attempt; the worker
-     *   DELETEs those rows before re-migrating.
-     * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number}>}
+     *   When > 0, the day was partially migrated by a prior attempt. With
+     *   rewriteExisting=true, the worker DELETEs those rows and re-migrates.
+     *   With rewriteExisting=false (default), the day is skipped.
+     * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number, skippedReason?: string}>}
      */
     async processAsync({ partitionDay, priorInsertedCount = 0 }) {
         const dayStart = new Date(partitionDay + 'T00:00:00.000Z');
@@ -51,10 +58,19 @@ class PartitionWorker {
 
         const collection = this.sourceDb.collection(this.collectionName);
 
-        // If a prior attempt left rows behind, wipe them before re-migrating so
-        // we don't duplicate. Skipped on fresh days (priorInsertedCount == 0) so
-        // the 1,553-partition baseline pays nothing.
         if (priorInsertedCount > 0) {
+            if (!this.rewriteExisting) {
+                logWarn(
+                    'Skipping partition with prior inserted rows (use --resume to rewrite)',
+                    { partitionDay, priorInsertedCount }
+                );
+                return {
+                    insertedCount: 0,
+                    sourceCount: 0,
+                    skippedCount: 0,
+                    skippedReason: 'priorInsertedCount>0'
+                };
+            }
             logInfo('Deleting prior partial write before retry', {
                 partitionDay,
                 priorInsertedCount
@@ -115,35 +131,35 @@ class PartitionWorker {
                 batch.push(doc);
 
                 if (batch.length >= this.batchSize) {
-                    logInfo('Batch insert starting', {
-                        partitionDay,
-                        batchSize: batch.length,
-                        firstId: batch[0]._id.toString(),
-                        firstRecorded: batch[0].recorded,
-                        lastId: batch[batch.length - 1]._id.toString(),
-                        lastRecorded: batch[batch.length - 1].recorded
-                    });
-
                     const result = await this._processBatchAsync(batch);
                     insertedCount += result.inserted;
                     skippedCount += result.skipped;
                     batch = [];
+
+                    await this.stateManager.updateProgressAsync({
+                        partitionDay,
+                        insertedCount
+                    });
+                    logInfo('Batch inserted', {
+                        partitionDay,
+                        progress: `${insertedCount}/${sourceCount}`,
+                        batchInserted: result.inserted,
+                        batchSkipped: result.skipped
+                    });
                 }
             }
 
             if (batch.length > 0) {
-                logInfo('Batch insert starting', {
-                    partitionDay,
-                    batchSize: batch.length,
-                    firstId: batch[0]._id.toString(),
-                    firstRecorded: batch[0].recorded,
-                    lastId: batch[batch.length - 1]._id.toString(),
-                    lastRecorded: batch[batch.length - 1].recorded
-                });
-
                 const result = await this._processBatchAsync(batch);
                 insertedCount += result.inserted;
                 skippedCount += result.skipped;
+
+                logInfo('Batch inserted', {
+                    partitionDay,
+                    progress: `${insertedCount}/${sourceCount}`,
+                    batchInserted: result.inserted,
+                    batchSkipped: result.skipped
+                });
             }
 
             await this.stateManager.markCompletedAsync({

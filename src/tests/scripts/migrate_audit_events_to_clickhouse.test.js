@@ -358,10 +358,9 @@ describe('AuditEvent Migration', () => {
     });
 
     describe('PartitionWorker.processAsync retry semantics', () => {
-        // Minimal fakes: the goal is to assert the DELETE + clearInsertedCount
-        // sequence fires ahead of any Mongo read when priorInsertedCount > 0.
         function makeFakes({ sourceDocs = [] } = {}) {
             const calls = [];
+            let cursorIdx = 0;
             const clickHouseClientManager = {
                 queryAsync: jest.fn(async ({ query }) => {
                     calls.push({ type: 'ch.query', query });
@@ -378,8 +377,11 @@ describe('AuditEvent Migration', () => {
                 markInProgressAsync: jest.fn(async () => {
                     calls.push({ type: 'state.inProgress' });
                 }),
-                markCompletedAsync: jest.fn(async () => {
-                    calls.push({ type: 'state.completed' });
+                updateProgressAsync: jest.fn(async ({ insertedCount }) => {
+                    calls.push({ type: 'state.progress', insertedCount });
+                }),
+                markCompletedAsync: jest.fn(async ({ insertedCount, sourceCount }) => {
+                    calls.push({ type: 'state.completed', insertedCount, sourceCount });
                 }),
                 markFailedAsync: jest.fn()
             };
@@ -392,8 +394,8 @@ describe('AuditEvent Migration', () => {
                     }),
                     find: jest.fn(() => ({
                         batchSize: () => ({
-                            hasNext: jest.fn(async () => false),
-                            next: jest.fn(),
+                            hasNext: jest.fn(async () => cursorIdx < sourceDocs.length),
+                            next: jest.fn(async () => sourceDocs[cursorIdx++]),
                             close: jest.fn(async () => {})
                         })
                     }))
@@ -402,7 +404,7 @@ describe('AuditEvent Migration', () => {
             return { calls, clickHouseClientManager, stateManager, sourceDb };
         }
 
-        test('when priorInsertedCount > 0, DELETEs before touching Mongo', async () => {
+        test('default (rewriteExisting=false) skips partition with prior inserts', async () => {
             const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
 
             const worker = new PartitionWorker({
@@ -413,9 +415,33 @@ describe('AuditEvent Migration', () => {
                 batchSize: 100
             });
 
+            const result = await worker.processAsync({
+                partitionDay: '2024-05-10',
+                priorInsertedCount: 42
+            });
+
+            expect(result.skippedReason).toBe('priorInsertedCount>0');
+            expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+            expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
+            expect(stateManager.markCompletedAsync).not.toHaveBeenCalled();
+            // No Mongo read either — skip must short-circuit the whole day.
+            expect(calls.every((c) => !c.type.startsWith('mongo'))).toBe(true);
+        });
+
+        test('rewriteExisting=true (--resume) DELETEs before touching Mongo', async () => {
+            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 100,
+                rewriteExisting: true
+            });
+
             await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 42 });
 
-            // DELETE must come before the first Mongo op.
             const firstMongo = calls.findIndex((c) => c.type.startsWith('mongo'));
             const firstDelete = calls.findIndex(
                 (c) => c.type === 'ch.query' && /ALTER TABLE fhir\.AuditEvent_4_0_0\s+DELETE/.test(c.query)
@@ -440,6 +466,39 @@ describe('AuditEvent Migration', () => {
 
             expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
             expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
+        });
+
+        test('updates state row after each batch with running insertedCount', async () => {
+            // 3 docs with _uuid + recorded so the transformer keeps them all, batch
+            // size 2 → first batch of 2 + final batch of 1 → two progress updates.
+            const sourceDocs = [
+                { _id: { toString: () => 'a' }, _uuid: 'u1', recorded: '2024-05-10T00:00:00.000Z' },
+                { _id: { toString: () => 'b' }, _uuid: 'u2', recorded: '2024-05-10T00:01:00.000Z' },
+                { _id: { toString: () => 'c' }, _uuid: 'u3', recorded: '2024-05-10T00:02:00.000Z' }
+            ];
+            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes({ sourceDocs });
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 2
+            });
+
+            const result = await worker.processAsync({
+                partitionDay: '2024-05-10',
+                priorInsertedCount: 0
+            });
+
+            expect(result.insertedCount).toBe(3);
+            const progressCalls = calls.filter((c) => c.type === 'state.progress');
+            expect(progressCalls).toHaveLength(1);
+            expect(progressCalls[0].insertedCount).toBe(2);
+            // Final count is persisted via markCompletedAsync, not updateProgress.
+            const completed = calls.find((c) => c.type === 'state.completed');
+            expect(completed.insertedCount).toBe(3);
+            expect(completed.sourceCount).toBe(3);
         });
     });
 });

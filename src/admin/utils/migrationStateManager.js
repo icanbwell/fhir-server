@@ -147,6 +147,38 @@ class MigrationStateManager {
     }
 
     /**
+     * Updates in-flight progress for a partition: bumps inserted_count and
+     * updated_at while keeping status='in_progress'. Called between batches
+     * so operators can watch progress via --show-state without waiting for
+     * the whole day to complete.
+     *
+     * @param {Object} params
+     * @param {string} params.partitionDay
+     * @param {number} params.insertedCount - cumulative for this day so far
+     * @returns {Promise<void>}
+     */
+    async updateProgressAsync({ partitionDay, insertedCount }) {
+        const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
+        const current = await this.getStateForDayAsync(partitionDay);
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_day: partitionDay,
+                    status: 'in_progress',
+                    source_count: Number(current?.source_count) || 0,
+                    inserted_count: insertedCount,
+                    started_at: current?.started_at || now,
+                    completed_at: null,
+                    error_message: '',
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
+        });
+    }
+
+    /**
      * Marks a partition as in_progress
      * @param {string} partitionDay
      * @returns {Promise<void>}

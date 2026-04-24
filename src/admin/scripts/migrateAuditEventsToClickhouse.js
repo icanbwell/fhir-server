@@ -50,8 +50,11 @@ Options:
                            have a state row are left alone. Must be run before the
                            first migration pass.
   --verify-only            Run count verification only
-  --resume                 Retry any pending/in_progress/failed partitions. Days with
-                           inserted_count > 0 are DELETEd before re-migration.
+  --resume                 Rewrite any partition with a prior partial write
+                           (inserted_count > 0) by DELETEing the day from
+                           fhir.AuditEvent_4_0_0 and re-migrating. Without
+                           --resume those partitions are skipped with a warning
+                           so existing data is never touched.
   --show-state             Print audit_event_migration_state rows (ClickHouse only)
   --delete-partitions <days> Comma-separated YYYY-MM-DD list. Deletes AuditEvent rows for
                            those days via ALTER ... DELETE (blocking mutation) and resets
@@ -226,8 +229,9 @@ function formatElapsed(ms) {
  * @param {MigrationStateManager} params.stateManager
  * @param {number} params.batchSize
  * @param {number} params.concurrency
+ * @param {boolean} params.rewriteExisting - forwarded to PartitionWorker
  * @param {{aborted: boolean}} params.abortFlag - set when SIGINT/SIGTERM arrives; workers drain
- * @returns {Promise<{totalInserted: number, totalSkipped: number, failures: string[]}>}
+ * @returns {Promise<{totalInserted: number, totalSkipped: number, failures: string[], skippedPartitions: string[]}>}
  */
 async function runWorkersAsync({
     partitions,
@@ -237,12 +241,14 @@ async function runWorkersAsync({
     stateManager,
     batchSize,
     concurrency,
+    rewriteExisting,
     abortFlag
 }) {
     let queueIndex = 0;
     let totalInserted = 0;
     let totalSkipped = 0;
     const failures = [];
+    const skippedPartitions = [];
     const startTime = Date.now();
     const totalPartitions = partitions.length;
 
@@ -261,13 +267,18 @@ async function runWorkersAsync({
                     collectionName,
                     clickHouseClientManager,
                     stateManager,
-                    batchSize
+                    batchSize,
+                    rewriteExisting
                 });
 
                 const result = await worker.processAsync({
                     partitionDay: day,
                     priorInsertedCount
                 });
+
+                if (result.skippedReason) {
+                    skippedPartitions.push(day);
+                }
 
                 totalInserted += result.insertedCount;
                 totalSkipped += result.skippedCount;
@@ -280,6 +291,7 @@ async function runWorkersAsync({
                     insertedCount: result.insertedCount,
                     sourceCount: result.sourceCount,
                     skippedCount: result.skippedCount,
+                    skippedReason: result.skippedReason,
                     progress: `${completed}/${totalPartitions}`,
                     elapsed
                 });
@@ -296,7 +308,7 @@ async function runWorkersAsync({
     }
     await Promise.all(workers);
 
-    return { totalInserted, totalSkipped, failures };
+    return { totalInserted, totalSkipped, failures, skippedPartitions };
 }
 
 /**
@@ -723,6 +735,7 @@ async function main() {
             stateManager,
             batchSize: options.batchSize,
             concurrency: options.concurrency,
+            rewriteExisting: options.resume,
             abortFlag
         });
 
@@ -738,6 +751,7 @@ async function main() {
             skippedMalformed: result.totalSkipped,
             completedPartitions: `${finalSummary.completed}/${finalSummary.total}`,
             failedPartitions: result.failures.length,
+            skippedPartitions: result.skippedPartitions.length,
             aborted: abortFlag.aborted
         });
 
@@ -745,7 +759,18 @@ async function main() {
             logWarn('Failed partitions (re-run with --resume)', { days: result.failures });
         }
 
-        if (result.failures.length === 0 && !abortFlag.aborted) {
+        if (result.skippedPartitions.length > 0) {
+            logWarn(
+                'Partitions skipped because inserted_count > 0 — use --resume to rewrite',
+                { days: result.skippedPartitions }
+            );
+        }
+
+        if (
+            result.failures.length === 0 &&
+            result.skippedPartitions.length === 0 &&
+            !abortFlag.aborted
+        ) {
             logInfo('All partitions completed. Run with --verify-only to verify counts.');
         }
 
