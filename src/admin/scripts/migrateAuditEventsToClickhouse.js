@@ -56,11 +56,13 @@ Options:
                            --resume those partitions are skipped with a warning
                            so existing data is never touched.
   --show-state             Print audit_event_migration_state rows (ClickHouse only)
-  --delete-partitions <days> Comma-separated YYYY-MM-DD list. Deletes AuditEvent rows for
-                           those days via ALTER ... DELETE (blocking mutation) and resets
-                           the state row to 'pending' so --resume will re-migrate it.
-                           Requires --yes confirmation.
-  --yes                    Confirm destructive operations (--delete-partitions).
+  --delete-partitions      Deletes AuditEvent rows for every day in the
+                           --start-date / --end-date range via ALTER ... DELETE
+                           (blocking mutation) and resets each state row to
+                           'pending' so --resume will re-migrate it. Both
+                           --start-date and --end-date MUST be passed
+                           explicitly — the sliding 13-month default is refused
+                           to avoid accidental mass deletion.
   --help, -h               Show this help
 `;
 
@@ -149,14 +151,17 @@ function parseArgs() {
         collection: 'AuditEvent_4_0_0',
         startDate,
         endDate,
+        // Track whether the user supplied these on argv so destructive modes
+        // can refuse to operate on the sliding default range.
+        startDateExplicit: false,
+        endDateExplicit: false,
         batchSize: 50000,
         concurrency: 3,
         init: false,
         verifyOnly: false,
         resume: false,
         showState: false,
-        deletePartitions: null,
-        yes: false
+        deletePartitions: false
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -166,9 +171,11 @@ function parseArgs() {
                 break;
             case '--start-date':
                 options.startDate = args[++i];
+                options.startDateExplicit = true;
                 break;
             case '--end-date':
                 options.endDate = args[++i];
+                options.endDateExplicit = true;
                 break;
             case '--batch-size':
                 options.batchSize = parsePositiveInt('--batch-size', args[++i]);
@@ -189,13 +196,7 @@ function parseArgs() {
                 options.showState = true;
                 break;
             case '--delete-partitions':
-                options.deletePartitions = args[++i]
-                    .split(',')
-                    .map((d) => d.trim())
-                    .filter(Boolean);
-                break;
-            case '--yes':
-                options.yes = true;
+                options.deletePartitions = true;
                 break;
             case '--help':
             case '-h':
@@ -391,36 +392,59 @@ function validatePartitionDay(day) {
  * mutations_sync = 2 so the call blocks until the mutation completes. On a
  * 55TB table this can take minutes per day.
  *
- * Days without an existing state row are refused (likely typos outside the
- * seeded range) rather than silently creating a stray 'pending' row.
+ * Days without an existing state row are skipped with a warning (likely
+ * outside the seeded range) rather than creating a stray 'pending' row.
  *
  * @param {Object} params
  * @param {ClickHouseClientManager} params.clickHouseClientManager
  * @param {MigrationStateManager} params.stateManager
- * @param {string[]} params.days - Array of YYYY-MM-DD strings
+ * @param {string} params.startDate - inclusive 'YYYY-MM-DD'
+ * @param {string} params.endDate - exclusive 'YYYY-MM-DD'
  * @returns {Promise<void>}
  */
-async function deletePartitionsAsync({ clickHouseClientManager, stateManager, days }) {
-    const validated = days.map(validatePartitionDay);
+async function deletePartitionsAsync({
+    clickHouseClientManager,
+    stateManager,
+    startDate,
+    endDate
+}) {
+    validatePartitionDay(startDate);
+    validatePartitionDay(endDate);
+    if (endDate <= startDate) {
+        throw new Error(
+            `--end-date (${endDate}) must be strictly after --start-date (${startDate})`
+        );
+    }
+
+    const days = generateDailyPartitions(startDate, endDate);
 
     const allStates = await stateManager.getAllStatesAsync();
     const stateByDay = new Map(allStates.map((s) => [s.partition_day, s]));
 
-    const missing = validated.filter((d) => !stateByDay.has(d));
+    const daysWithState = days.filter((d) => stateByDay.has(d));
+    const missing = days.filter((d) => !stateByDay.has(d));
     if (missing.length > 0) {
-        logError(
-            'Refusing to delete: some days have no state row (likely typo or outside seeded range)',
-            { missing }
-        );
-        process.exit(1);
+        logWarn('Skipping days with no state row (outside seeded range)', {
+            missingCount: missing.length,
+            firstMissing: missing[0],
+            lastMissing: missing[missing.length - 1]
+        });
+    }
+    if (daysWithState.length === 0) {
+        logError('Nothing to delete: no state rows in the requested range', {
+            startDate,
+            endDate
+        });
+        return;
     }
 
     logWarn('About to delete partitions', {
         table: 'fhir.AuditEvent_4_0_0',
-        days: validated,
-        count: validated.length
+        startDate,
+        endDate,
+        count: daysWithState.length
     });
-    for (const day of validated) {
+    for (const day of daysWithState) {
         const s = stateByDay.get(day);
         logWarn('Partition to delete', {
             partitionDay: day,
@@ -430,7 +454,7 @@ async function deletePartitionsAsync({ clickHouseClientManager, stateManager, da
         });
     }
 
-    for (const day of validated) {
+    for (const day of daysWithState) {
         logInfo('Deleting AuditEvent rows', { partitionDay: day });
         await clickHouseClientManager.queryAsync({
             query: `ALTER TABLE fhir.AuditEvent_4_0_0
@@ -445,7 +469,12 @@ async function deletePartitionsAsync({ clickHouseClientManager, stateManager, da
         logInfo('Partition deleted', { partitionDay: day });
     }
 
-    logInfo('Delete complete', { days: validated, count: validated.length });
+    logInfo('Delete complete', {
+        startDate,
+        endDate,
+        count: daysWithState.length,
+        skippedMissing: missing.length
+    });
 }
 
 /**
@@ -557,22 +586,11 @@ async function main() {
     }
 
     if (options.deletePartitions) {
-        if (options.deletePartitions.length === 0) {
-            logError('--delete-partitions requires at least one YYYY-MM-DD day');
-            return 1;
-        }
-        if (!options.yes) {
+        if (!options.startDateExplicit || !options.endDateExplicit) {
             logError(
-                '--delete-partitions is destructive (ALTER ... DELETE on AuditEvent_4_0_0). ' +
-                'Pass --yes to confirm.'
+                '--delete-partitions requires both --start-date and --end-date to be ' +
+                'passed explicitly (the sliding 13-month default is refused for destructive ops).'
             );
-            return 1;
-        }
-        let validatedDays;
-        try {
-            validatedDays = options.deletePartitions.map(validatePartitionDay);
-        } catch (err) {
-            logError(err.message);
             return 1;
         }
 
@@ -586,8 +604,12 @@ async function main() {
             await deletePartitionsAsync({
                 clickHouseClientManager: clickHouseManager,
                 stateManager,
-                days: validatedDays
+                startDate: options.startDate,
+                endDate: options.endDate
             });
+        } catch (err) {
+            logError(err.message);
+            return 1;
         } finally {
             await clickHouseManager.closeAsync();
         }
