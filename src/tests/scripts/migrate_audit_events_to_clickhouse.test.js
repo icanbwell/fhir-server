@@ -3,7 +3,8 @@ const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEvent
 const {
     generateHourlyPartitions,
     hourKeyFromDate,
-    hourKeyToDate
+    hourKeyToDate,
+    toClickHouseDateTime64
 } = require('../../admin/utils/migrationStateManager');
 const { PartitionWorker } = require('../../admin/utils/partitionWorker');
 const {
@@ -360,6 +361,17 @@ describe('AuditEvent Migration', () => {
             const d = hourKeyToDate('2024-05-10T15');
             expect(d.toISOString()).toBe('2024-05-10T15:00:00.000Z');
             expect(hourKeyFromDate(d)).toBe('2024-05-10T15');
+        });
+    });
+
+    describe('toClickHouseDateTime64', () => {
+        // ClickHouse DateTime64(3, 'UTC') parameter binder rejects the ISO-8601 'Z'
+        // suffix. Regression guard: stay on the space-separated, suffix-less form.
+        test('formats as YYYY-MM-DD HH:MM:SS.sss without T or Z', () => {
+            expect(toClickHouseDateTime64(new Date('2025-03-01T00:00:00.000Z')))
+                .toBe('2025-03-01 00:00:00.000');
+            expect(toClickHouseDateTime64(new Date('2024-05-10T15:30:45.123Z')))
+                .toBe('2024-05-10 15:30:45.123');
         });
     });
 

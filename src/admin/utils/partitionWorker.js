@@ -12,7 +12,7 @@
  */
 
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
-const { hourKeyToDate } = require('./migrationStateManager');
+const { hourKeyToDate, toClickHouseDateTime64 } = require('./migrationStateManager');
 const { logInfo, logWarn } = require('../../operations/common/logging');
 
 class PartitionWorker {
@@ -78,8 +78,8 @@ class PartitionWorker {
                                  AND recorded < {hourEnd:DateTime64(3, 'UTC')}
                         SETTINGS mutations_sync = 2`,
                 query_params: {
-                    hourStart: hourStart.toISOString(),
-                    hourEnd: hourEnd.toISOString()
+                    hourStart: toClickHouseDateTime64(hourStart),
+                    hourEnd: toClickHouseDateTime64(hourEnd)
                 }
             });
             await this.stateManager.clearInsertedCountAsync(partitionHour);

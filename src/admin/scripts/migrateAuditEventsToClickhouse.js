@@ -26,7 +26,8 @@ const { logInfo, logError, logWarn } = require('../../operations/common/logging'
 const {
     MigrationStateManager,
     generateHourlyPartitions,
-    hourKeyToDate
+    hourKeyToDate,
+    toClickHouseDateTime64
 } = require('../utils/migrationStateManager');
 const { PartitionWorker } = require('../utils/partitionWorker');
 const { MigrationVerifier } = require('../utils/migrationVerifier');
@@ -513,8 +514,8 @@ async function deletePartitionsAsync({
                              AND recorded < {hourEnd:DateTime64(3, 'UTC')}
                     SETTINGS mutations_sync = 2`,
             query_params: {
-                hourStart: hourStart.toISOString(),
-                hourEnd: hourEnd.toISOString()
+                hourStart: toClickHouseDateTime64(hourStart),
+                hourEnd: toClickHouseDateTime64(hourEnd)
             }
         });
 
