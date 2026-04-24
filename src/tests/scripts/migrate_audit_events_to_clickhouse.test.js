@@ -2,6 +2,7 @@ const { describe, test, expect, jest } = require('@jest/globals');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const { generateDailyPartitions } = require('../../admin/utils/migrationStateManager');
 const { PartitionWorker } = require('../../admin/utils/partitionWorker');
+const { defaultDateRange } = require('../../admin/scripts/migrateAuditEventsToClickhouse');
 const deepcopy = require('deepcopy');
 const auditEventSample = require('./fixtures/audit_event_sample.json');
 
@@ -331,6 +332,31 @@ describe('AuditEvent Migration', () => {
         });
     });
 
+    describe('defaultDateRange', () => {
+        test('spans 13 full months ending at the start of next month', () => {
+            // April 24 2026 → start = first day of March 2025 (13 months back),
+            // end exclusive = first day of May 2026.
+            const { startDate, endDate } = defaultDateRange(
+                new Date('2026-04-24T12:00:00.000Z')
+            );
+            expect(startDate).toBe('2025-03-01');
+            expect(endDate).toBe('2026-05-01');
+        });
+
+        test('handles year boundary when anchored in early January', () => {
+            const { startDate, endDate } = defaultDateRange(
+                new Date('2026-01-05T00:00:00.000Z')
+            );
+            expect(startDate).toBe('2024-12-01');
+            expect(endDate).toBe('2026-02-01');
+        });
+
+        test('start is always a real calendar first-of-month', () => {
+            const { startDate } = defaultDateRange(new Date('2026-03-31T23:00:00.000Z'));
+            expect(startDate).toMatch(/^\d{4}-\d{2}-01$/);
+        });
+    });
+
     describe('PartitionWorker.processAsync retry semantics', () => {
         // Minimal fakes: the goal is to assert the DELETE + clearInsertedCount
         // sequence fires ahead of any Mongo read when priorInsertedCount > 0.
@@ -384,8 +410,7 @@ describe('AuditEvent Migration', () => {
                 collectionName: 'AuditEvent_4_0_0',
                 clickHouseClientManager,
                 stateManager,
-                batchSize: 100,
-                dryRun: false
+                batchSize: 100
             });
 
             await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 42 });
@@ -408,29 +433,10 @@ describe('AuditEvent Migration', () => {
                 collectionName: 'AuditEvent_4_0_0',
                 clickHouseClientManager,
                 stateManager,
-                batchSize: 100,
-                dryRun: false
+                batchSize: 100
             });
 
             await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 0 });
-
-            expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
-            expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
-        });
-
-        test('dry-run suppresses DELETE even when priorInsertedCount > 0', async () => {
-            const { clickHouseClientManager, stateManager, sourceDb } = makeFakes();
-
-            const worker = new PartitionWorker({
-                sourceDb,
-                collectionName: 'AuditEvent_4_0_0',
-                clickHouseClientManager,
-                stateManager,
-                batchSize: 100,
-                dryRun: true
-            });
-
-            await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 42 });
 
             expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
             expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();

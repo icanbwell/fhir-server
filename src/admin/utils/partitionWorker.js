@@ -18,22 +18,19 @@ class PartitionWorker {
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
      * @param {import('./migrationStateManager').MigrationStateManager} params.stateManager
      * @param {number} params.batchSize
-     * @param {boolean} params.dryRun
      */
     constructor({
         sourceDb,
         collectionName,
         clickHouseClientManager,
         stateManager,
-        batchSize,
-        dryRun
+        batchSize
     }) {
         this.sourceDb = sourceDb;
         this.collectionName = collectionName;
         this.clickHouseClientManager = clickHouseClientManager;
         this.stateManager = stateManager;
         this.batchSize = batchSize;
-        this.dryRun = dryRun;
         this.transformer = new AuditEventTransformer();
     }
 
@@ -56,9 +53,8 @@ class PartitionWorker {
 
         // If a prior attempt left rows behind, wipe them before re-migrating so
         // we don't duplicate. Skipped on fresh days (priorInsertedCount == 0) so
-        // the 1,553-partition baseline pays nothing. Skipped in --dry-run because
-        // the point of dry-run is to avoid any writes to AuditEvent_4_0_0.
-        if (priorInsertedCount > 0 && !this.dryRun) {
+        // the 1,553-partition baseline pays nothing.
+        if (priorInsertedCount > 0) {
             logInfo('Deleting prior partial write before retry', {
                 partitionDay,
                 priorInsertedCount
@@ -84,13 +80,6 @@ class PartitionWorker {
             query
         });
         const sourceCount = await collection.countDocuments(query);
-
-        if (this.dryRun) {
-            logInfo('Dry run partition count', {
-                partitionDay,
-                sourceCount
-            });
-        }
 
         if (sourceCount === 0) {
             await this.stateManager.markCompletedAsync({
@@ -185,7 +174,7 @@ class PartitionWorker {
     async _processBatchAsync(docs) {
         const { rows, skipped } = this.transformer.transformBatch(docs);
 
-        if (rows.length > 0 && !this.dryRun) {
+        if (rows.length > 0) {
             await this._insertWithRetryAsync(rows);
         }
 

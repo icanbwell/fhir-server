@@ -40,11 +40,15 @@ Environment Variables:
 
 Options:
   --collection <name>      Source collection (default: AuditEvent_4_0_0)
-  --start-date <YYYY-MM-DD> Start date inclusive (default: 2022-01-01)
-  --end-date <YYYY-MM-DD>  End date exclusive (default: 2026-04-01)
+  --start-date <YYYY-MM-DD> Start date inclusive (default: first day of the month,
+                           13 months ago — matches the AuditEvent_4_0_0 TTL window)
+  --end-date <YYYY-MM-DD>  End date exclusive (default: first day of next month)
   --batch-size <n>         Docs per ClickHouse insert batch (default: 50000)
   --concurrency <n>        Concurrent day-workers (default: 3)
-  --dry-run                Seed state, count docs, don't insert into AuditEvent table
+  --init                   Count source docs per day and seed 'pending' state rows
+                           with source_count populated. Idempotent: days that already
+                           have a state row are left alone. Must be run before the
+                           first migration pass.
   --verify-only            Run count verification only
   --resume                 Retry any pending/in_progress/failed partitions. Days with
                            inserted_count > 0 are DELETEd before re-migration.
@@ -111,18 +115,40 @@ function parsePositiveInt(flag, raw) {
 }
 
 /**
+ * Default date range matches the AuditEvent_4_0_0 TTL
+ * (`recorded + INTERVAL 13 MONTH DELETE` in clickhouse-init/02-audit-event.sql).
+ * Anything older will be TTL-dropped shortly after insert anyway.
+ *
+ * Start = first day of the month 13 months ago (inclusive).
+ * End   = first day of next month (exclusive).
+ * Both anchored to UTC to match how dayStart / dayEnd are constructed elsewhere.
+ *
+ * @param {Date} [now] - override for tests
+ * @returns {{startDate: string, endDate: string}}
+ */
+function defaultDateRange(now = new Date()) {
+    const endExclusive = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+    const startInclusive = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 13, 1));
+    return {
+        startDate: startInclusive.toISOString().slice(0, 10),
+        endDate: endExclusive.toISOString().slice(0, 10)
+    };
+}
+
+/**
  * Parse command line arguments
  * @returns {Object}
  */
 function parseArgs() {
     const args = process.argv.slice(2);
+    const { startDate, endDate } = defaultDateRange();
     const options = {
         collection: 'AuditEvent_4_0_0',
-        startDate: '2022-01-01',
-        endDate: '2026-04-01',
+        startDate,
+        endDate,
         batchSize: 50000,
         concurrency: 3,
-        dryRun: false,
+        init: false,
         verifyOnly: false,
         resume: false,
         showState: false,
@@ -147,8 +173,8 @@ function parseArgs() {
             case '--concurrency':
                 options.concurrency = parsePositiveInt('--concurrency', args[++i]);
                 break;
-            case '--dry-run':
-                options.dryRun = true;
+            case '--init':
+                options.init = true;
                 break;
             case '--verify-only':
                 options.verifyOnly = true;
@@ -200,7 +226,6 @@ function formatElapsed(ms) {
  * @param {MigrationStateManager} params.stateManager
  * @param {number} params.batchSize
  * @param {number} params.concurrency
- * @param {boolean} params.dryRun
  * @param {{aborted: boolean}} params.abortFlag - set when SIGINT/SIGTERM arrives; workers drain
  * @returns {Promise<{totalInserted: number, totalSkipped: number, failures: string[]}>}
  */
@@ -212,7 +237,6 @@ async function runWorkersAsync({
     stateManager,
     batchSize,
     concurrency,
-    dryRun,
     abortFlag
 }) {
     let queueIndex = 0;
@@ -237,8 +261,7 @@ async function runWorkersAsync({
                     collectionName,
                     clickHouseClientManager,
                     stateManager,
-                    batchSize,
-                    dryRun
+                    batchSize
                 });
 
                 const result = await worker.processAsync({
@@ -252,7 +275,6 @@ async function runWorkersAsync({
                 const completed = idx + 1;
                 const elapsed = formatElapsed(Date.now() - startTime);
                 logInfo('Partition processed', {
-                    dryRun,
                     workerId,
                     partitionDay: day,
                     insertedCount: result.insertedCount,
@@ -415,6 +437,85 @@ async function deletePartitionsAsync({ clickHouseClientManager, stateManager, da
 }
 
 /**
+ * Count source documents per day in parallel, then seed state rows for days
+ * that don't yet have one. Idempotent: days with an existing state row keep
+ * whatever status they have (completed/in_progress/failed/pending) — this
+ * flow only creates the initial row, it never overwrites.
+ *
+ * @param {Object} params
+ * @param {import('mongodb').Db} params.sourceDb
+ * @param {string} params.collectionName
+ * @param {MigrationStateManager} params.stateManager
+ * @param {string[]} params.days - 'YYYY-MM-DD' list to initialize
+ * @param {number} params.concurrency - parallel countDocuments calls
+ * @returns {Promise<{seeded: number, skipped: number, totalSource: number}>}
+ */
+async function initPartitionsAsync({
+    sourceDb,
+    collectionName,
+    stateManager,
+    days,
+    concurrency
+}) {
+    const existing = await stateManager.getAllStatesAsync();
+    const existingDays = new Set(existing.map((s) => s.partition_day));
+    const toInit = days.filter((d) => !existingDays.has(d));
+    const skipped = days.length - toInit.length;
+
+    if (toInit.length === 0) {
+        logInfo('Init: all partitions already have state rows', { skipped });
+        return { seeded: 0, skipped, totalSource: 0 };
+    }
+
+    logInfo('Init: counting source docs per day', {
+        daysToInit: toInit.length,
+        daysAlreadyPresent: skipped,
+        concurrency
+    });
+
+    const collection = sourceDb.collection(collectionName);
+    const entries = new Array(toInit.length);
+    let queueIndex = 0;
+    let completed = 0;
+    const startTime = Date.now();
+
+    async function workerLoop() {
+        while (queueIndex < toInit.length) {
+            const idx = queueIndex++;
+            const day = toInit[idx];
+            const dayStart = new Date(day + 'T00:00:00.000Z');
+            const dayEnd = new Date(dayStart);
+            dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+            const sourceCount = await collection.countDocuments({
+                recorded: { $gte: dayStart, $lt: dayEnd }
+            });
+            entries[idx] = { day, sourceCount };
+
+            completed++;
+            if (completed % 50 === 0 || completed === toInit.length) {
+                logInfo('Init progress', {
+                    completed,
+                    total: toInit.length,
+                    elapsed: formatElapsed(Date.now() - startTime)
+                });
+            }
+        }
+    }
+
+    const workers = [];
+    for (let i = 0; i < concurrency; i++) {
+        workers.push(workerLoop());
+    }
+    await Promise.all(workers);
+
+    const seeded = await stateManager.seedPartitionsAsync(entries);
+    const totalSource = entries.reduce((acc, e) => acc + (Number(e.sourceCount) || 0), 0);
+
+    logInfo('Init complete', { seeded, skipped, totalSource });
+    return { seeded, skipped, totalSource };
+}
+
+/**
  * Main migration function. Returns an exit code; the outer IIFE is the sole
  * caller of process.exit.
  * @returns {Promise<number>}
@@ -483,8 +584,8 @@ async function main() {
 
     const { mongoUrl, dbName } = buildMongoUrl();
 
-    const mode = options.dryRun
-        ? 'DRY RUN'
+    const mode = options.init
+        ? 'INIT'
         : options.verifyOnly
           ? 'VERIFY ONLY'
           : options.resume
@@ -518,12 +619,17 @@ async function main() {
             clickHouseClientManager: clickHouseManager
         });
 
-        const days = generateDailyPartitions(options.startDate, options.endDate);
-        logInfo('Daily partitions generated', { total: days.length });
-
-        const seeded = await stateManager.seedPartitionsAsync(days);
-        if (seeded > 0) {
-            logInfo('Seeded new partitions in state table', { seeded });
+        if (options.init) {
+            const days = generateDailyPartitions(options.startDate, options.endDate);
+            logInfo('Daily partitions generated', { total: days.length });
+            await initPartitionsAsync({
+                sourceDb,
+                collectionName: options.collection,
+                stateManager,
+                days,
+                concurrency: options.concurrency
+            });
+            return 0;
         }
 
         const summary = await stateManager.getSummaryAsync();
@@ -534,6 +640,14 @@ async function main() {
             failed: summary.failed,
             totalInserted: summary.totalInserted
         });
+
+        if (summary.total === 0) {
+            logError(
+                'State table is empty for this date range. Run with --init first to seed ' +
+                'partition rows with source_count.'
+            );
+            return 1;
+        }
 
         if (options.verifyOnly) {
             logInfo('Starting verification mode');
@@ -570,7 +684,7 @@ async function main() {
             return result.mismatched > 0 ? 1 : 0;
         }
 
-        logInfo('Starting migration', { dryRun: options.dryRun });
+        logInfo('Starting migration');
 
         // Single partition-selection path. getPendingPartitionsAsync returns
         // pending + in_progress + failed rows, so resume/continue/first-run
@@ -609,7 +723,6 @@ async function main() {
             stateManager,
             batchSize: options.batchSize,
             concurrency: options.concurrency,
-            dryRun: options.dryRun,
             abortFlag
         });
 
@@ -632,7 +745,7 @@ async function main() {
             logWarn('Failed partitions (re-run with --resume)', { days: result.failures });
         }
 
-        if (!options.dryRun && result.failures.length === 0 && !abortFlag.aborted) {
+        if (result.failures.length === 0 && !abortFlag.aborted) {
             logInfo('All partitions completed. Run with --verify-only to verify counts.');
         }
 
@@ -643,11 +756,17 @@ async function main() {
     }
 }
 
-main()
-    .then((code) => {
-        process.exit(code);
-    })
-    .catch((error) => {
-        logError('Fatal error', { error: error.message, stack: error.stack });
-        process.exit(1);
-    });
+// Only auto-run when invoked as a CLI; when required from a test, just expose
+// the pure helpers below.
+if (require.main === module) {
+    main()
+        .then((code) => {
+            process.exit(code);
+        })
+        .catch((error) => {
+            logError('Fatal error', { error: error.message, stack: error.stack });
+            process.exit(1);
+        });
+}
+
+module.exports = { defaultDateRange };

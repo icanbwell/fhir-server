@@ -22,24 +22,28 @@ class MigrationStateManager {
     }
 
     /**
-     * Seeds all partition days as 'pending', skipping any that already exist
-     * @param {string[]} days - Array of 'YYYY-MM-DD' strings
+     * Seeds all partition days as 'pending', skipping any that already exist.
+     * Each row is written with its source_count populated — callers pass the
+     * count they obtained from the source collection so the state table is
+     * verifiable from the start.
+     *
+     * @param {Array<{day: string, sourceCount: number}>} entries
      * @returns {Promise<number>} Number of new partitions seeded
      */
-    async seedPartitionsAsync(days) {
+    async seedPartitionsAsync(entries) {
         const existing = await this.getAllStatesAsync();
         const existingDays = new Set(existing.map((s) => s.partition_day));
 
-        const newDays = days.filter((d) => !existingDays.has(d));
-        if (newDays.length === 0) {
+        const newEntries = entries.filter((e) => !existingDays.has(e.day));
+        if (newEntries.length === 0) {
             return 0;
         }
 
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        const rows = newDays.map((day) => ({
+        const rows = newEntries.map(({ day, sourceCount }) => ({
             partition_day: day,
             status: 'pending',
-            source_count: 0,
+            source_count: Number(sourceCount) || 0,
             inserted_count: 0,
             started_at: null,
             completed_at: null,
@@ -53,7 +57,7 @@ class MigrationStateManager {
             format: 'JSONEachRow'
         });
 
-        return newDays.length;
+        return newEntries.length;
     }
 
     /**
