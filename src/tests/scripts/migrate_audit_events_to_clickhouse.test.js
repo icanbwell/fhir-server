@@ -1,8 +1,16 @@
 const { describe, test, expect, jest } = require('@jest/globals');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
-const { generateDailyPartitions } = require('../../admin/utils/migrationStateManager');
+const {
+    generateHourlyPartitions,
+    hourKeyFromDate,
+    hourKeyToDate
+} = require('../../admin/utils/migrationStateManager');
 const { PartitionWorker } = require('../../admin/utils/partitionWorker');
-const { defaultDateRange } = require('../../admin/scripts/migrateAuditEventsToClickhouse');
+const {
+    defaultDateRange,
+    normalizeCliDateToHour,
+    hourBoundsFromCli
+} = require('../../admin/scripts/migrateAuditEventsToClickhouse');
 const deepcopy = require('deepcopy');
 const auditEventSample = require('./fixtures/audit_event_sample.json');
 
@@ -301,34 +309,115 @@ describe('AuditEvent Migration', () => {
         });
     });
 
-    describe('generateDailyPartitions', () => {
-        test('generates correct daily range', () => {
-            const days = generateDailyPartitions('2024-01-01', '2024-01-05');
-            expect(days).toEqual(['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04']);
+    describe('generateHourlyPartitions', () => {
+        test('generates correct hourly range within a single day', () => {
+            const hours = generateHourlyPartitions('2024-01-01T00', '2024-01-01T04');
+            expect(hours).toEqual([
+                '2024-01-01T00',
+                '2024-01-01T01',
+                '2024-01-01T02',
+                '2024-01-01T03'
+            ]);
         });
 
-        test('handles month boundary', () => {
-            const days = generateDailyPartitions('2024-01-30', '2024-02-02');
-            expect(days).toEqual(['2024-01-30', '2024-01-31', '2024-02-01']);
+        test('handles day boundary', () => {
+            const hours = generateHourlyPartitions('2024-01-01T22', '2024-01-02T02');
+            expect(hours).toEqual([
+                '2024-01-01T22',
+                '2024-01-01T23',
+                '2024-01-02T00',
+                '2024-01-02T01'
+            ]);
         });
 
         test('handles year boundary', () => {
-            const days = generateDailyPartitions('2023-12-30', '2024-01-02');
-            expect(days).toEqual(['2023-12-30', '2023-12-31', '2024-01-01']);
+            const hours = generateHourlyPartitions('2023-12-31T23', '2024-01-01T02');
+            expect(hours).toEqual([
+                '2023-12-31T23',
+                '2024-01-01T00',
+                '2024-01-01T01'
+            ]);
         });
 
         test('returns empty for same start and end', () => {
-            const days = generateDailyPartitions('2024-01-01', '2024-01-01');
-            expect(days).toEqual([]);
+            expect(generateHourlyPartitions('2024-01-01T00', '2024-01-01T00')).toEqual([]);
         });
 
-        test('generates correct count for full date range', () => {
-            const days = generateDailyPartitions('2022-01-01', '2026-04-01');
-            // Jan 2022 to Mar 2026 inclusive = 1552 days
-            expect(days.length).toBeGreaterThan(1500);
-            expect(days.length).toBeLessThan(1600);
-            expect(days[0]).toBe('2022-01-01');
-            expect(days[days.length - 1]).toBe('2026-03-31');
+        test('produces 24 hours per day', () => {
+            const hours = generateHourlyPartitions('2024-01-01T00', '2024-01-02T00');
+            expect(hours).toHaveLength(24);
+            expect(hours[0]).toBe('2024-01-01T00');
+            expect(hours[23]).toBe('2024-01-01T23');
+        });
+    });
+
+    describe('hourKey conversions', () => {
+        test('hourKeyFromDate zero-pads month/day/hour', () => {
+            expect(hourKeyFromDate(new Date('2024-05-03T07:00:00.000Z'))).toBe('2024-05-03T07');
+        });
+
+        test('hourKeyToDate round-trips through hourKeyFromDate', () => {
+            const d = hourKeyToDate('2024-05-10T15');
+            expect(d.toISOString()).toBe('2024-05-10T15:00:00.000Z');
+            expect(hourKeyFromDate(d)).toBe('2024-05-10T15');
+        });
+    });
+
+    describe('normalizeCliDateToHour', () => {
+        test('bare date with kind=start expands to T00', () => {
+            expect(normalizeCliDateToHour('2024-05-10', 'start')).toBe('2024-05-10T00');
+        });
+
+        test('bare date with kind=end advances one day (so the full last day is included)', () => {
+            expect(normalizeCliDateToHour('2024-05-10', 'end')).toBe('2024-05-11T00');
+        });
+
+        test('bare date with kind=end rolls over month boundary', () => {
+            expect(normalizeCliDateToHour('2024-01-31', 'end')).toBe('2024-02-01T00');
+        });
+
+        test('date+hour passes through unchanged', () => {
+            expect(normalizeCliDateToHour('2024-05-10T15', 'start')).toBe('2024-05-10T15');
+            expect(normalizeCliDateToHour('2024-05-10T15', 'end')).toBe('2024-05-10T15');
+        });
+
+        test('rejects malformed input', () => {
+            expect(() => normalizeCliDateToHour('2024/05/10', 'start')).toThrow(/expected/);
+        });
+
+        test('rejects non-calendar dates', () => {
+            expect(() => normalizeCliDateToHour('2025-02-30', 'start')).toThrow(/not a real calendar/);
+        });
+
+        test('rejects hour out of range', () => {
+            expect(() => normalizeCliDateToHour('2024-05-10T24', 'start')).toThrow(/hour must be 00-23/);
+        });
+    });
+
+    describe('hourBoundsFromCli', () => {
+        test('rejects when end <= start (after expansion)', () => {
+            // Hour-form equal endpoints never cover any range.
+            expect(() => hourBoundsFromCli('2024-05-10T05', '2024-05-10T05')).toThrow(
+                /must be strictly after/
+            );
+            // Start day strictly after end day also rejected.
+            expect(() => hourBoundsFromCli('2024-05-11', '2024-05-10')).toThrow(
+                /must be strictly after/
+            );
+        });
+
+        test('bare date pair covers full days inclusively', () => {
+            expect(hourBoundsFromCli('2024-05-10', '2024-05-11')).toEqual({
+                startHour: '2024-05-10T00',
+                endHour: '2024-05-12T00'
+            });
+        });
+
+        test('mixed date + hour works', () => {
+            expect(hourBoundsFromCli('2024-05-10', '2024-05-10T03')).toEqual({
+                startHour: '2024-05-10T00',
+                endHour: '2024-05-10T03'
+            });
         });
     });
 
@@ -416,7 +505,7 @@ describe('AuditEvent Migration', () => {
             });
 
             const result = await worker.processAsync({
-                partitionDay: '2024-05-10',
+                partitionHour: '2024-05-10T05',
                 priorInsertedCount: 42
             });
 
@@ -424,11 +513,11 @@ describe('AuditEvent Migration', () => {
             expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
             expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
             expect(stateManager.markCompletedAsync).not.toHaveBeenCalled();
-            // No Mongo read either — skip must short-circuit the whole day.
+            // No Mongo read either — skip must short-circuit the whole hour.
             expect(calls.every((c) => !c.type.startsWith('mongo'))).toBe(true);
         });
 
-        test('rewriteExisting=true (--resume) DELETEs before touching Mongo', async () => {
+        test('rewriteExisting=true (--resume) DELETEs before Mongo when priorInsertedCount>0', async () => {
             const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
 
             const worker = new PartitionWorker({
@@ -440,7 +529,7 @@ describe('AuditEvent Migration', () => {
                 rewriteExisting: true
             });
 
-            await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 42 });
+            await worker.processAsync({ partitionHour: '2024-05-10T05', priorInsertedCount: 42 });
 
             const firstMongo = calls.findIndex((c) => c.type.startsWith('mongo'));
             const firstDelete = calls.findIndex(
@@ -448,10 +537,34 @@ describe('AuditEvent Migration', () => {
             );
             expect(firstDelete).toBeGreaterThanOrEqual(0);
             expect(firstDelete).toBeLessThan(firstMongo);
-            expect(stateManager.clearInsertedCountAsync).toHaveBeenCalledWith('2024-05-10');
+            expect(stateManager.clearInsertedCountAsync).toHaveBeenCalledWith('2024-05-10T05');
         });
 
-        test('when priorInsertedCount is 0, no DELETE is issued', async () => {
+        test('rewriteExisting=true (--resume) DELETEs even when priorInsertedCount is 0', async () => {
+            // Covers the case where a prior crash landed rows in ClickHouse but
+            // never persisted inserted_count. The operator asked for the
+            // destructive path; we honor it regardless of the state counter.
+            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 100,
+                rewriteExisting: true
+            });
+
+            await worker.processAsync({ partitionHour: '2024-05-10T05', priorInsertedCount: 0 });
+
+            const deleteCall = calls.find(
+                (c) => c.type === 'ch.query' && /ALTER TABLE fhir\.AuditEvent_4_0_0\s+DELETE/.test(c.query)
+            );
+            expect(deleteCall).toBeDefined();
+            expect(stateManager.clearInsertedCountAsync).toHaveBeenCalledWith('2024-05-10T05');
+        });
+
+        test('default (rewriteExisting=false) + priorInsertedCount=0 → no DELETE', async () => {
             const { clickHouseClientManager, stateManager, sourceDb } = makeFakes();
 
             const worker = new PartitionWorker({
@@ -462,7 +575,7 @@ describe('AuditEvent Migration', () => {
                 batchSize: 100
             });
 
-            await worker.processAsync({ partitionDay: '2024-05-10', priorInsertedCount: 0 });
+            await worker.processAsync({ partitionHour: '2024-05-10T05', priorInsertedCount: 0 });
 
             expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
             expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
@@ -472,9 +585,9 @@ describe('AuditEvent Migration', () => {
             // 3 docs with _uuid + recorded so the transformer keeps them all, batch
             // size 2 → first batch of 2 + final batch of 1 → two progress updates.
             const sourceDocs = [
-                { _id: { toString: () => 'a' }, _uuid: 'u1', recorded: '2024-05-10T00:00:00.000Z' },
-                { _id: { toString: () => 'b' }, _uuid: 'u2', recorded: '2024-05-10T00:01:00.000Z' },
-                { _id: { toString: () => 'c' }, _uuid: 'u3', recorded: '2024-05-10T00:02:00.000Z' }
+                { _id: { toString: () => 'a' }, _uuid: 'u1', recorded: '2024-05-10T05:00:00.000Z' },
+                { _id: { toString: () => 'b' }, _uuid: 'u2', recorded: '2024-05-10T05:01:00.000Z' },
+                { _id: { toString: () => 'c' }, _uuid: 'u3', recorded: '2024-05-10T05:02:00.000Z' }
             ];
             const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes({ sourceDocs });
 
@@ -487,7 +600,7 @@ describe('AuditEvent Migration', () => {
             });
 
             const result = await worker.processAsync({
-                partitionDay: '2024-05-10',
+                partitionHour: '2024-05-10T05',
                 priorInsertedCount: 0
             });
 
@@ -495,7 +608,6 @@ describe('AuditEvent Migration', () => {
             const progressCalls = calls.filter((c) => c.type === 'state.progress');
             expect(progressCalls).toHaveLength(1);
             expect(progressCalls[0].insertedCount).toBe(2);
-            // Final count is persisted via markCompletedAsync, not updateProgress.
             const completed = calls.find((c) => c.type === 'state.completed');
             expect(completed.insertedCount).toBe(3);
             expect(completed.sourceCount).toBe(3);

@@ -1,13 +1,18 @@
 /**
- * Processes a single daily partition: reads AuditEvent docs from Atlas Data Federation,
+ * Processes a single hourly partition: reads AuditEvent docs from Atlas Data Federation,
  * transforms them, and inserts into ClickHouse in batches.
  *
- * Retry semantics: partitions are atomic at the day grain. If a prior attempt
- * wrote any rows (inserted_count > 0), the worker DELETEs the day from
- * fhir.AuditEvent_4_0_0 and re-migrates from scratch. No mid-day checkpoints.
+ * Retry semantics: partitions are atomic at the hour grain. If a prior attempt
+ * wrote any rows (inserted_count > 0) the worker DELETEs that hour from
+ * fhir.AuditEvent_4_0_0 and re-migrates from scratch — but only when
+ * rewriteExisting=true (orchestrator passes this from --resume). Without
+ * --resume the day is skipped with a warning so existing data isn't touched.
+ *
+ * Partition keys are 'YYYY-MM-DDTHH' in UTC.
  */
 
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
+const { hourKeyToDate } = require('./migrationStateManager');
 const { logInfo, logWarn } = require('../../operations/common/logging');
 
 class PartitionWorker {
@@ -18,9 +23,9 @@ class PartitionWorker {
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
      * @param {import('./migrationStateManager').MigrationStateManager} params.stateManager
      * @param {number} params.batchSize
-     * @param {boolean} [params.rewriteExisting] - When true and a day has a prior
+     * @param {boolean} [params.rewriteExisting] - When true and a partition has a prior
      *   partial write (inserted_count > 0), DELETE those rows before re-migrating.
-     *   When false (default), skip the day with a warning so existing data isn't
+     *   When false (default), skip the partition with a warning so existing data isn't
      *   touched. Only --resume sets this true.
      */
     constructor({
@@ -41,83 +46,88 @@ class PartitionWorker {
     }
 
     /**
-     * Process a single day partition.
+     * Process a single hour partition.
      *
      * @param {Object} params
-     * @param {string} params.partitionDay - 'YYYY-MM-DD'
+     * @param {string} params.partitionHour - 'YYYY-MM-DDTHH'
      * @param {number} [params.priorInsertedCount] - inserted_count from the state row.
-     *   When > 0, the day was partially migrated by a prior attempt. With
-     *   rewriteExisting=true, the worker DELETEs those rows and re-migrates.
-     *   With rewriteExisting=false (default), the day is skipped.
+     *   With rewriteExisting=false (default), a prior insert (>0) causes the hour
+     *   to be skipped with a warning so existing data isn't touched.
+     *   With rewriteExisting=true (--resume), the worker unconditionally DELETEs
+     *   the hour before re-migrating, regardless of priorInsertedCount — the
+     *   operator has explicitly opted into the destructive path.
      * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number, skippedReason?: string}>}
      */
-    async processAsync({ partitionDay, priorInsertedCount = 0 }) {
-        const dayStart = new Date(partitionDay + 'T00:00:00.000Z');
-        const dayEnd = new Date(dayStart);
-        dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+    async processAsync({ partitionHour, priorInsertedCount = 0 }) {
+        const hourStart = hourKeyToDate(partitionHour);
+        const hourEnd = new Date(hourStart);
+        hourEnd.setUTCHours(hourEnd.getUTCHours() + 1);
 
         const collection = this.sourceDb.collection(this.collectionName);
 
-        if (priorInsertedCount > 0) {
-            if (!this.rewriteExisting) {
-                logWarn(
-                    'Skipping partition with prior inserted rows (use --resume to rewrite)',
-                    { partitionDay, priorInsertedCount }
-                );
-                return {
-                    insertedCount: 0,
-                    sourceCount: 0,
-                    skippedCount: 0,
-                    skippedReason: 'priorInsertedCount>0'
-                };
-            }
-            logInfo('Deleting prior partial write before retry', {
-                partitionDay,
+        if (this.rewriteExisting) {
+            logInfo('Deleting hour before re-migrating (--resume)', {
+                partitionHour,
                 priorInsertedCount
             });
             // mutations_sync = 2 blocks until the mutation finishes on all replicas
             // so the subsequent insert can't race with tombstone propagation.
             await this.clickHouseClientManager.queryAsync({
                 query: `ALTER TABLE fhir.AuditEvent_4_0_0
-                        DELETE WHERE toDate(recorded) = {day:String}
+                        DELETE WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
+                                 AND recorded < {hourEnd:DateTime64(3, 'UTC')}
                         SETTINGS mutations_sync = 2`,
-                query_params: { day: partitionDay }
+                query_params: {
+                    hourStart: hourStart.toISOString(),
+                    hourEnd: hourEnd.toISOString()
+                }
             });
-            await this.stateManager.clearInsertedCountAsync(partitionDay);
+            await this.stateManager.clearInsertedCountAsync(partitionHour);
+        } else if (priorInsertedCount > 0) {
+            logWarn(
+                'Skipping partition with prior inserted rows (use --resume to rewrite)',
+                { partitionHour, priorInsertedCount }
+            );
+            return {
+                insertedCount: 0,
+                sourceCount: 0,
+                skippedCount: 0,
+                skippedReason: 'priorInsertedCount>0'
+            };
         }
 
-        const query = { recorded: { $gte: dayStart, $lt: dayEnd } };
+        const query = { recorded: { $gte: hourStart, $lt: hourEnd } };
 
         logInfo('MongoDB query', {
             operation: 'countDocuments',
             db: this.sourceDb.databaseName,
             collection: this.collectionName,
-            partitionDay,
+            partitionHour,
             query
         });
         const sourceCount = await collection.countDocuments(query);
 
         if (sourceCount === 0) {
             await this.stateManager.markCompletedAsync({
-                partitionDay,
+                partitionHour,
                 insertedCount: 0,
                 sourceCount: 0
             });
             return { insertedCount: 0, sourceCount: 0, skippedCount: 0 };
         }
 
-        await this.stateManager.markInProgressAsync(partitionDay);
+        await this.stateManager.markInProgressAsync(partitionHour);
 
         logInfo('MongoDB query', {
             operation: 'find',
             db: this.sourceDb.databaseName,
             collection: this.collectionName,
-            partitionDay,
+            partitionHour,
             query,
             batchSize: this.batchSize
         });
         // No server-side sort: let the federation engine stream S3 objects in
-        // whatever order is fastest. Day atomicity on retry means ordering
+        // whatever order is fastest. Hour atomicity on retry means ordering
         // doesn't matter for correctness.
         const cursor = collection.find(query).batchSize(this.batchSize);
 
@@ -137,11 +147,11 @@ class PartitionWorker {
                     batch = [];
 
                     await this.stateManager.updateProgressAsync({
-                        partitionDay,
+                        partitionHour,
                         insertedCount
                     });
                     logInfo('Batch inserted', {
-                        partitionDay,
+                        partitionHour,
                         progress: `${insertedCount}/${sourceCount}`,
                         batchInserted: result.inserted,
                         batchSkipped: result.skipped
@@ -155,7 +165,7 @@ class PartitionWorker {
                 skippedCount += result.skipped;
 
                 logInfo('Batch inserted', {
-                    partitionDay,
+                    partitionHour,
                     progress: `${insertedCount}/${sourceCount}`,
                     batchInserted: result.inserted,
                     batchSkipped: result.skipped
@@ -163,7 +173,7 @@ class PartitionWorker {
             }
 
             await this.stateManager.markCompletedAsync({
-                partitionDay,
+                partitionHour,
                 insertedCount,
                 sourceCount
             });
@@ -171,7 +181,7 @@ class PartitionWorker {
             return { insertedCount, sourceCount, skippedCount };
         } catch (error) {
             await this.stateManager.markFailedAsync({
-                partitionDay,
+                partitionHour,
                 errorMessage: error.message,
                 insertedCount
             });

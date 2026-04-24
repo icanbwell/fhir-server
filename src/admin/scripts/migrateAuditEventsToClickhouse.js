@@ -2,9 +2,10 @@
 /**
  * Migrate AuditEvent data from Atlas Online Archive (via Data Federation) to ClickHouse.
  *
- * Processes ~55TB of AuditEvent documents across ~1,553 daily partitions with
- * configurable concurrency. Partitions are atomic at the day grain: if a prior
- * attempt wrote any rows, the worker DELETEs the day before re-migrating.
+ * Processes AuditEvent documents across hourly partitions with configurable
+ * concurrency. Partitions are atomic at the hour grain: if a prior attempt
+ * wrote any rows, the worker (with --resume) DELETEs the hour before
+ * re-migrating. Partition keys are 'YYYY-MM-DDTHH' (UTC).
  *
  * Usage:
  *   node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
@@ -24,7 +25,8 @@ const { ConfigManager } = require('../../utils/configManager');
 const { logInfo, logError, logWarn } = require('../../operations/common/logging');
 const {
     MigrationStateManager,
-    generateDailyPartitions
+    generateHourlyPartitions,
+    hourKeyToDate
 } = require('../utils/migrationStateManager');
 const { PartitionWorker } = require('../utils/partitionWorker');
 const { MigrationVerifier } = require('../utils/migrationVerifier');
@@ -40,29 +42,31 @@ Environment Variables:
 
 Options:
   --collection <name>      Source collection (default: AuditEvent_4_0_0)
-  --start-date <YYYY-MM-DD> Start date inclusive (default: first day of the month,
-                           13 months ago — matches the AuditEvent_4_0_0 TTL window)
-  --end-date <YYYY-MM-DD>  End date exclusive (default: first day of next month)
+  --start-date <value>     Start bound inclusive. Accepts 'YYYY-MM-DD' (expands to THH=00)
+                           or 'YYYY-MM-DDTHH'. Default: first day of the month, 13 months
+                           ago — matches the AuditEvent_4_0_0 TTL window.
+  --end-date <value>       End bound exclusive. Accepts 'YYYY-MM-DD' (expands to the
+                           start of the next day, i.e. the full last day is included)
+                           or 'YYYY-MM-DDTHH'. Default: first day of next month.
   --batch-size <n>         Docs per ClickHouse insert batch (default: 50000)
-  --concurrency <n>        Concurrent day-workers (default: 3)
-  --init                   Count source docs per day and seed 'pending' state rows
-                           with source_count populated. Idempotent: days that already
+  --concurrency <n>        Concurrent hour-workers (default: 3)
+  --init                   Count source docs per hour and seed 'pending' state rows
+                           with source_count populated. Idempotent: hours that already
                            have a state row are left alone. Must be run before the
                            first migration pass.
   --verify-only            Run count verification only
   --resume                 Rewrite any partition with a prior partial write
-                           (inserted_count > 0) by DELETEing the day from
+                           (inserted_count > 0) by DELETEing the hour from
                            fhir.AuditEvent_4_0_0 and re-migrating. Without
                            --resume those partitions are skipped with a warning
                            so existing data is never touched.
   --show-state             Print audit_event_migration_state rows (ClickHouse only)
-  --delete-partitions      Deletes AuditEvent rows for every day in the
+  --delete-partitions      Deletes AuditEvent rows for every hour in the
                            --start-date / --end-date range via ALTER ... DELETE
                            (blocking mutation) and resets each state row to
                            'pending' so --resume will re-migrate it. Both
-                           --start-date and --end-date MUST be passed
-                           explicitly — the sliding 13-month default is refused
-                           to avoid accidental mass deletion.
+                           --start-date and --end-date MUST be passed explicitly
+                           — the sliding default is refused to avoid mass deletion.
   --help, -h               Show this help
 `;
 
@@ -126,7 +130,7 @@ function parsePositiveInt(flag, raw) {
  *
  * Start = first day of the month 13 months ago (inclusive).
  * End   = first day of next month (exclusive).
- * Both anchored to UTC to match how dayStart / dayEnd are constructed elsewhere.
+ * Both anchored to UTC.
  *
  * @param {Date} [now] - override for tests
  * @returns {{startDate: string, endDate: string}}
@@ -138,6 +142,85 @@ function defaultDateRange(now = new Date()) {
         startDate: startInclusive.toISOString().slice(0, 10),
         endDate: endExclusive.toISOString().slice(0, 10)
     };
+}
+
+/**
+ * Normalize a --start-date / --end-date CLI value to a canonical hour-partition
+ * key 'YYYY-MM-DDTHH'.
+ *
+ * Accepts:
+ *   - 'YYYY-MM-DD'      → for `start`, 'YYYY-MM-DDT00'
+ *                         for `end`,   start of the next day ('YYYY-(MM+1)-DDT00')
+ *                         so the full last day is included (exclusive end).
+ *   - 'YYYY-MM-DDTHH'   → unchanged (exclusive end works as-is).
+ *
+ * Rejects malformed input, non-calendar dates (e.g. 2025-02-30), and HH>23.
+ *
+ * @param {string} raw - CLI value
+ * @param {'start'|'end'} kind - how to expand a bare date
+ * @returns {string} canonical 'YYYY-MM-DDTHH'
+ */
+function normalizeCliDateToHour(raw, kind) {
+    if (typeof raw !== 'string') {
+        throw new Error(`Invalid --${kind}-date: expected string, got ${typeof raw}`);
+    }
+
+    const hourMatch = /^(\d{4})-(\d{2})-(\d{2})T(\d{2})$/.exec(raw);
+    if (hourMatch) {
+        const [, y, m, d, h] = hourMatch;
+        const hourNum = parseInt(h, 10);
+        if (hourNum > 23) {
+            throw new Error(`Invalid --${kind}-date '${raw}': hour must be 00-23`);
+        }
+        // Round-trip via Date to reject things like '2025-02-30T05'.
+        const iso = `${y}-${m}-${d}T${h}:00:00.000Z`;
+        const parsed = new Date(iso);
+        if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 13) !== `${y}-${m}-${d}T${h}`) {
+            throw new Error(`Invalid --${kind}-date '${raw}': not a real calendar hour`);
+        }
+        return raw;
+    }
+
+    const dayMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+    if (dayMatch) {
+        const [, y, m, d] = dayMatch;
+        const iso = `${y}-${m}-${d}T00:00:00.000Z`;
+        const parsed = new Date(iso);
+        if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== `${y}-${m}-${d}`) {
+            throw new Error(`Invalid --${kind}-date '${raw}': not a real calendar date`);
+        }
+        if (kind === 'start') {
+            return `${y}-${m}-${d}T00`;
+        }
+        // kind === 'end': advance by one day so the full YYYY-MM-DD is included.
+        parsed.setUTCDate(parsed.getUTCDate() + 1);
+        const nextY = parsed.getUTCFullYear();
+        const nextM = String(parsed.getUTCMonth() + 1).padStart(2, '0');
+        const nextD = String(parsed.getUTCDate()).padStart(2, '0');
+        return `${nextY}-${nextM}-${nextD}T00`;
+    }
+
+    throw new Error(
+        `Invalid --${kind}-date '${raw}': expected YYYY-MM-DD or YYYY-MM-DDTHH`
+    );
+}
+
+/**
+ * Resolve the CLI start/end pair to canonical inclusive-start, exclusive-end
+ * hour keys, throwing on invalid or empty ranges.
+ * @param {string} startRaw
+ * @param {string} endRaw
+ * @returns {{startHour: string, endHour: string}}
+ */
+function hourBoundsFromCli(startRaw, endRaw) {
+    const startHour = normalizeCliDateToHour(startRaw, 'start');
+    const endHour = normalizeCliDateToHour(endRaw, 'end');
+    if (hourKeyToDate(endHour) <= hourKeyToDate(startHour)) {
+        throw new Error(
+            `--end-date (${endRaw}) must be strictly after --start-date (${startRaw})`
+        );
+    }
+    return { startHour, endHour };
 }
 
 /**
@@ -223,7 +306,7 @@ function formatElapsed(ms) {
 /**
  * Run concurrent workers over a partition queue
  * @param {Object} params
- * @param {Array<{partition_day: string, inserted_count?: number}>} params.partitions
+ * @param {Array<{partition_hour: string, inserted_count?: number}>} params.partitions
  * @param {import('mongodb').Db} params.sourceDb
  * @param {string} params.collectionName
  * @param {ClickHouseClientManager} params.clickHouseClientManager
@@ -259,7 +342,7 @@ async function runWorkersAsync({
             const idx = queueIndex++;
             const partition = partitions[idx];
 
-            const day = partition.partition_day;
+            const hour = partition.partition_hour;
             const priorInsertedCount = Number(partition.inserted_count) || 0;
 
             try {
@@ -273,12 +356,12 @@ async function runWorkersAsync({
                 });
 
                 const result = await worker.processAsync({
-                    partitionDay: day,
+                    partitionHour: hour,
                     priorInsertedCount
                 });
 
                 if (result.skippedReason) {
-                    skippedPartitions.push(day);
+                    skippedPartitions.push(hour);
                 }
 
                 totalInserted += result.insertedCount;
@@ -288,7 +371,7 @@ async function runWorkersAsync({
                 const elapsed = formatElapsed(Date.now() - startTime);
                 logInfo('Partition processed', {
                     workerId,
-                    partitionDay: day,
+                    partitionHour: hour,
                     insertedCount: result.insertedCount,
                     sourceCount: result.sourceCount,
                     skippedCount: result.skippedCount,
@@ -297,8 +380,8 @@ async function runWorkersAsync({
                     elapsed
                 });
             } catch (error) {
-                failures.push(day);
-                logError('Partition failed', { workerId, partitionDay: day, error: error.message });
+                failures.push(hour);
+                logError('Partition failed', { workerId, partitionHour: hour, error: error.message });
             }
         }
     }
@@ -316,30 +399,30 @@ async function runWorkersAsync({
  * Print the migration state table.
  *
  * Runs against ClickHouse only — does not require Online Archive credentials.
- * Filters by the same --start-date / --end-date flags the migration modes use.
+ * Filters by the resolved --start-date / --end-date hour bounds.
  *
  * @param {Object} params
  * @param {MigrationStateManager} params.stateManager
- * @param {string} params.startDate - inclusive 'YYYY-MM-DD'
- * @param {string} params.endDate - exclusive 'YYYY-MM-DD'
+ * @param {string} params.startHour - inclusive 'YYYY-MM-DDTHH'
+ * @param {string} params.endHour - exclusive 'YYYY-MM-DDTHH'
  * @returns {Promise<void>}
  */
-async function showMigrationStateAsync({ stateManager, startDate, endDate }) {
+async function showMigrationStateAsync({ stateManager, startHour, endHour }) {
     const allStates = await stateManager.getAllStatesAsync();
     const states = allStates.filter(
-        (s) => s.partition_day >= startDate && s.partition_day < endDate
+        (s) => s.partition_hour >= startHour && s.partition_hour < endHour
     );
 
     logInfo('Migration state table', {
         table: 'fhir.audit_event_migration_state',
-        startDate,
-        endDate,
+        startHour,
+        endHour,
         rows: states.length
     });
 
     for (const s of states) {
         logInfo('Partition state', {
-            partitionDay: s.partition_day,
+            partitionHour: s.partition_hour,
             status: s.status,
             sourceCount: Number(s.source_count) || 0,
             insertedCount: Number(s.inserted_count) || 0,
@@ -367,119 +450,91 @@ async function showMigrationStateAsync({ stateManager, startDate, endDate }) {
 }
 
 /**
- * Validate a YYYY-MM-DD string and normalize it to canonical form.
- * Rejects 2025-02-30 and similar: `toISOString().slice(0,10)` of the parsed Date
- * won't match the input unless it's a real calendar date.
- * @param {string} day
- * @returns {string}
- */
-function validatePartitionDay(day) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
-        throw new Error(`Invalid partition day '${day}': expected YYYY-MM-DD`);
-    }
-    const parsed = new Date(day + 'T00:00:00.000Z');
-    if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== day) {
-        throw new Error(`Invalid partition day '${day}': not a real calendar date`);
-    }
-    return day;
-}
-
-/**
- * Delete AuditEvent rows for specified partition days and reset their state rows.
+ * Delete AuditEvent rows for every hour in the range and reset their state rows.
  *
  * AuditEvent_4_0_0 is PARTITION BY toYYYYMM(recorded) (monthly), so we can't
- * DROP PARTITION for a single day — we use ALTER TABLE ... DELETE with
- * mutations_sync = 2 so the call blocks until the mutation completes. On a
- * 55TB table this can take minutes per day.
+ * DROP PARTITION for a single hour — we use ALTER TABLE ... DELETE with
+ * mutations_sync = 2 so the call blocks until the mutation completes.
  *
- * Days without an existing state row are skipped with a warning (likely
- * outside the seeded range) rather than creating a stray 'pending' row.
+ * Hours without an existing state row are skipped with a warning (likely
+ * outside the seeded range) rather than creating stray 'pending' rows.
  *
  * @param {Object} params
  * @param {ClickHouseClientManager} params.clickHouseClientManager
  * @param {MigrationStateManager} params.stateManager
- * @param {string} params.startDate - inclusive 'YYYY-MM-DD'
- * @param {string} params.endDate - exclusive 'YYYY-MM-DD'
+ * @param {string} params.startHour - inclusive 'YYYY-MM-DDTHH'
+ * @param {string} params.endHour - exclusive 'YYYY-MM-DDTHH'
  * @returns {Promise<void>}
  */
 async function deletePartitionsAsync({
     clickHouseClientManager,
     stateManager,
-    startDate,
-    endDate
+    startHour,
+    endHour
 }) {
-    validatePartitionDay(startDate);
-    validatePartitionDay(endDate);
-    if (endDate <= startDate) {
-        throw new Error(
-            `--end-date (${endDate}) must be strictly after --start-date (${startDate})`
-        );
-    }
-
-    const days = generateDailyPartitions(startDate, endDate);
+    const hours = generateHourlyPartitions(startHour, endHour);
 
     const allStates = await stateManager.getAllStatesAsync();
-    const stateByDay = new Map(allStates.map((s) => [s.partition_day, s]));
+    const stateByHour = new Map(allStates.map((s) => [s.partition_hour, s]));
 
-    const daysWithState = days.filter((d) => stateByDay.has(d));
-    const missing = days.filter((d) => !stateByDay.has(d));
+    const hoursWithState = hours.filter((h) => stateByHour.has(h));
+    const missing = hours.filter((h) => !stateByHour.has(h));
     if (missing.length > 0) {
-        logWarn('Skipping days with no state row (outside seeded range)', {
+        logWarn('Skipping hours with no state row (outside seeded range)', {
             missingCount: missing.length,
             firstMissing: missing[0],
             lastMissing: missing[missing.length - 1]
         });
     }
-    if (daysWithState.length === 0) {
+    if (hoursWithState.length === 0) {
         logError('Nothing to delete: no state rows in the requested range', {
-            startDate,
-            endDate
+            startHour,
+            endHour
         });
         return;
     }
 
     logWarn('About to delete partitions', {
         table: 'fhir.AuditEvent_4_0_0',
-        startDate,
-        endDate,
-        count: daysWithState.length
+        startHour,
+        endHour,
+        count: hoursWithState.length
     });
-    for (const day of daysWithState) {
-        const s = stateByDay.get(day);
-        logWarn('Partition to delete', {
-            partitionDay: day,
-            currentStatus: s.status,
-            currentInsertedCount: Number(s.inserted_count) || 0,
-            currentSourceCount: Number(s.source_count) || 0
-        });
-    }
 
-    for (const day of daysWithState) {
-        logInfo('Deleting AuditEvent rows', { partitionDay: day });
+    for (const hour of hoursWithState) {
+        const hourStart = hourKeyToDate(hour);
+        const hourEnd = new Date(hourStart);
+        hourEnd.setUTCHours(hourEnd.getUTCHours() + 1);
+
+        logInfo('Deleting AuditEvent rows', { partitionHour: hour });
         await clickHouseClientManager.queryAsync({
             query: `ALTER TABLE fhir.AuditEvent_4_0_0
-                    DELETE WHERE toDate(recorded) = {day:String}
+                    DELETE WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
+                             AND recorded < {hourEnd:DateTime64(3, 'UTC')}
                     SETTINGS mutations_sync = 2`,
-            query_params: { day }
+            query_params: {
+                hourStart: hourStart.toISOString(),
+                hourEnd: hourEnd.toISOString()
+            }
         });
 
-        logInfo('Resetting migration state row', { partitionDay: day });
-        await stateManager.resetPartitionAsync(day);
+        logInfo('Resetting migration state row', { partitionHour: hour });
+        await stateManager.resetPartitionAsync(hour);
 
-        logInfo('Partition deleted', { partitionDay: day });
+        logInfo('Partition deleted', { partitionHour: hour });
     }
 
     logInfo('Delete complete', {
-        startDate,
-        endDate,
-        count: daysWithState.length,
+        startHour,
+        endHour,
+        count: hoursWithState.length,
         skippedMissing: missing.length
     });
 }
 
 /**
- * Count source documents per day in parallel, then seed state rows for days
- * that don't yet have one. Idempotent: days with an existing state row keep
+ * Count source documents per hour in parallel, then seed state rows for hours
+ * that don't yet have one. Idempotent: hours with an existing state row keep
  * whatever status they have (completed/in_progress/failed/pending) — this
  * flow only creates the initial row, it never overwrites.
  *
@@ -487,7 +542,7 @@ async function deletePartitionsAsync({
  * @param {import('mongodb').Db} params.sourceDb
  * @param {string} params.collectionName
  * @param {MigrationStateManager} params.stateManager
- * @param {string[]} params.days - 'YYYY-MM-DD' list to initialize
+ * @param {string[]} params.hours - 'YYYY-MM-DDTHH' list to initialize
  * @param {number} params.concurrency - parallel countDocuments calls
  * @returns {Promise<{seeded: number, skipped: number, totalSource: number}>}
  */
@@ -495,22 +550,22 @@ async function initPartitionsAsync({
     sourceDb,
     collectionName,
     stateManager,
-    days,
+    hours,
     concurrency
 }) {
     const existing = await stateManager.getAllStatesAsync();
-    const existingDays = new Set(existing.map((s) => s.partition_day));
-    const toInit = days.filter((d) => !existingDays.has(d));
-    const skipped = days.length - toInit.length;
+    const existingHours = new Set(existing.map((s) => s.partition_hour));
+    const toInit = hours.filter((h) => !existingHours.has(h));
+    const skipped = hours.length - toInit.length;
 
     if (toInit.length === 0) {
         logInfo('Init: all partitions already have state rows', { skipped });
         return { seeded: 0, skipped, totalSource: 0 };
     }
 
-    logInfo('Init: counting source docs per day', {
-        daysToInit: toInit.length,
-        daysAlreadyPresent: skipped,
+    logInfo('Init: counting source docs per hour', {
+        hoursToInit: toInit.length,
+        hoursAlreadyPresent: skipped,
         concurrency
     });
 
@@ -523,17 +578,18 @@ async function initPartitionsAsync({
     async function workerLoop() {
         while (queueIndex < toInit.length) {
             const idx = queueIndex++;
-            const day = toInit[idx];
-            const dayStart = new Date(day + 'T00:00:00.000Z');
-            const dayEnd = new Date(dayStart);
-            dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+            const hour = toInit[idx];
+            const hourStart = hourKeyToDate(hour);
+            const hourEnd = new Date(hourStart);
+            hourEnd.setUTCHours(hourEnd.getUTCHours() + 1);
             const sourceCount = await collection.countDocuments({
-                recorded: { $gte: dayStart, $lt: dayEnd }
+                recorded: { $gte: hourStart, $lt: hourEnd }
             });
-            entries[idx] = { day, sourceCount };
+            entries[idx] = { hour, sourceCount };
 
             completed++;
-            if (completed % 50 === 0 || completed === toInit.length) {
+            // 37k partitions over 13 months, so log every 500 to stay readable.
+            if (completed % 500 === 0 || completed === toInit.length) {
                 logInfo('Init progress', {
                     completed,
                     total: toInit.length,
@@ -564,6 +620,18 @@ async function initPartitionsAsync({
 async function main() {
     const options = parseArgs();
 
+    // Resolve the CLI start/end pair up-front so every downstream path sees
+    // canonical hour keys. Exits 1 on malformed input — no destructive work
+    // has happened yet.
+    let bounds;
+    try {
+        bounds = hourBoundsFromCli(options.startDate, options.endDate);
+    } catch (err) {
+        logError(err.message);
+        return 1;
+    }
+    const { startHour, endHour } = bounds;
+
     // Paths that don't need Online Archive creds. Handle before buildMongoUrl()
     // (which exits when the archive URL is absent).
     if (options.showState) {
@@ -574,11 +642,7 @@ async function main() {
             const stateManager = new MigrationStateManager({
                 clickHouseClientManager: clickHouseManager
             });
-            await showMigrationStateAsync({
-                stateManager,
-                startDate: options.startDate,
-                endDate: options.endDate
-            });
+            await showMigrationStateAsync({ stateManager, startHour, endHour });
         } finally {
             await clickHouseManager.closeAsync();
         }
@@ -589,7 +653,7 @@ async function main() {
         if (!options.startDateExplicit || !options.endDateExplicit) {
             logError(
                 '--delete-partitions requires both --start-date and --end-date to be ' +
-                'passed explicitly (the sliding 13-month default is refused for destructive ops).'
+                'passed explicitly (the sliding default is refused for destructive ops).'
             );
             return 1;
         }
@@ -604,8 +668,8 @@ async function main() {
             await deletePartitionsAsync({
                 clickHouseClientManager: clickHouseManager,
                 stateManager,
-                startDate: options.startDate,
-                endDate: options.endDate
+                startHour,
+                endHour
             });
         } catch (err) {
             logError(err.message);
@@ -627,8 +691,8 @@ async function main() {
             : 'FULL MIGRATION';
     logInfo('AuditEvent Migration: Atlas Archive -> ClickHouse', {
         mode,
-        startDate: options.startDate,
-        endDate: options.endDate,
+        startHour,
+        endHour,
         batchSize: options.batchSize,
         concurrency: options.concurrency,
         collection: `${dbName}.${options.collection}`
@@ -654,13 +718,13 @@ async function main() {
         });
 
         if (options.init) {
-            const days = generateDailyPartitions(options.startDate, options.endDate);
-            logInfo('Daily partitions generated', { total: days.length });
+            const hours = generateHourlyPartitions(startHour, endHour);
+            logInfo('Hourly partitions generated', { total: hours.length });
             await initPartitionsAsync({
                 sourceDb,
                 collectionName: options.collection,
                 stateManager,
-                days,
+                hours,
                 concurrency: options.concurrency
             });
             return 0;
@@ -677,7 +741,7 @@ async function main() {
 
         if (summary.total === 0) {
             logError(
-                'State table is empty for this date range. Run with --init first to seed ' +
+                'State table is empty for this range. Run with --init first to seed ' +
                 'partition rows with source_count.'
             );
             return 1;
@@ -695,8 +759,8 @@ async function main() {
 
             const result = await verifier.verifyAllAsync({
                 concurrency: options.concurrency,
-                startDate: options.startDate,
-                endDate: options.endDate
+                startHour,
+                endHour
             });
 
             logInfo('Verification results', {
@@ -707,7 +771,7 @@ async function main() {
             if (result.mismatches.length > 0) {
                 for (const m of result.mismatches) {
                     logWarn('Count mismatch', {
-                        day: m.day,
+                        hour: m.hour,
                         sourceCount: m.sourceCount,
                         chCount: m.chCount,
                         diff: m.sourceCount - m.chCount
@@ -720,18 +784,14 @@ async function main() {
 
         logInfo('Starting migration');
 
-        // Single partition-selection path. getPendingPartitionsAsync returns
-        // pending + in_progress + failed rows, so resume/continue/first-run
-        // all behave identically — the worker handles prior-partial-write
-        // cleanup via priorInsertedCount.
         const partitions = await stateManager.getPendingPartitionsAsync({
-            startDate: options.startDate,
-            endDate: options.endDate
+            startHour,
+            endHour
         });
         logInfo('Partitions to process', {
             partitionsToProcess: partitions.length,
-            startDate: options.startDate,
-            endDate: options.endDate
+            startHour,
+            endHour
         });
 
         if (partitions.length === 0) {
@@ -778,13 +838,13 @@ async function main() {
         });
 
         if (result.failures.length > 0) {
-            logWarn('Failed partitions (re-run with --resume)', { days: result.failures });
+            logWarn('Failed partitions (re-run with --resume)', { hours: result.failures });
         }
 
         if (result.skippedPartitions.length > 0) {
             logWarn(
                 'Partitions skipped because inserted_count > 0 — use --resume to rewrite',
-                { days: result.skippedPartitions }
+                { hours: result.skippedPartitions }
             );
         }
 
@@ -816,4 +876,4 @@ if (require.main === module) {
         });
 }
 
-module.exports = { defaultDateRange };
+module.exports = { defaultDateRange, normalizeCliDateToHour, hourBoundsFromCli };
