@@ -68,6 +68,12 @@ Options:
                            'pending' so --resume will re-migrate it. Both
                            --start-date and --end-date MUST be passed explicitly
                            — the sliding default is refused to avoid mass deletion.
+  --delete-month <YYYY-MM> Drops the ClickHouse partition for that month via
+                           ALTER TABLE ... DROP PARTITION (instant metadata op,
+                           no mutation scan) and resets the matching state rows
+                           to 'pending'. Prefer this over --delete-partitions
+                           when clearing a full month — dramatically faster on
+                           a large table. Example: --delete-month 2026-03
   --help, -h               Show this help
 `;
 
@@ -245,7 +251,8 @@ function parseArgs() {
         verifyOnly: false,
         resume: false,
         showState: false,
-        deletePartitions: false
+        deletePartitions: false,
+        deleteMonth: null  // 'YYYY-MM' when set
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -281,6 +288,9 @@ function parseArgs() {
                 break;
             case '--delete-partitions':
                 options.deletePartitions = true;
+                break;
+            case '--delete-month':
+                options.deleteMonth = args[++i];
                 break;
             case '--help':
             case '-h':
@@ -534,6 +544,101 @@ async function deletePartitionsAsync({
 }
 
 /**
+ * Parse and validate a 'YYYY-MM' month argument. Returns the ClickHouse
+ * PARTITION id (toYYYYMM integer) and the inclusive/exclusive hour keys that
+ * cover the full month.
+ *
+ * Rejects malformed input, non-calendar months, and MM>12.
+ *
+ * @param {string} raw
+ * @returns {{partitionId: number, startHour: string, endHour: string, yyyyMm: string}}
+ */
+function parseMonthArg(raw) {
+    if (typeof raw !== 'string') {
+        throw new Error(`--delete-month requires a YYYY-MM argument`);
+    }
+    const match = /^(\d{4})-(\d{2})$/.exec(raw);
+    if (!match) {
+        throw new Error(`Invalid --delete-month '${raw}': expected YYYY-MM`);
+    }
+    const [, yStr, mStr] = match;
+    const year = parseInt(yStr, 10);
+    const month = parseInt(mStr, 10);
+    if (month < 1 || month > 12) {
+        throw new Error(`Invalid --delete-month '${raw}': month must be 01-12`);
+    }
+    const partitionId = year * 100 + month;
+    const startHour = `${yStr}-${mStr}-01T00`;
+    // Next month, wrapping December → January of next year.
+    const nextYear = month === 12 ? year + 1 : year;
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const endHour = `${String(nextYear).padStart(4, '0')}-${String(nextMonth).padStart(2, '0')}-01T00`;
+    return { partitionId, startHour, endHour, yyyyMm: raw };
+}
+
+/**
+ * Drop the entire ClickHouse partition for a given month via
+ * ALTER TABLE ... DROP PARTITION.
+ *
+ * fhir.AuditEvent_4_0_0 is PARTITION BY toYYYYMM(recorded), so dropping a
+ * month is a metadata-only operation — no mutation scan, no tombstones,
+ * effectively instant even on multi-TB tables. Prefer this over
+ * --delete-partitions whenever the operator wants a full calendar month gone.
+ *
+ * After the drop, every state row in that month is reset to 'pending' so
+ * --resume will re-migrate. Hours without a state row are left alone.
+ *
+ * @param {Object} params
+ * @param {ClickHouseClientManager} params.clickHouseClientManager
+ * @param {MigrationStateManager} params.stateManager
+ * @param {string} params.yyyyMm - 'YYYY-MM'
+ * @param {number} params.partitionId - toYYYYMM integer (e.g. 202603)
+ * @param {string} params.startHour - inclusive 'YYYY-MM-DDTHH' of first hour in month
+ * @param {string} params.endHour - exclusive 'YYYY-MM-DDTHH' of first hour of next month
+ * @returns {Promise<void>}
+ */
+async function deleteMonthAsync({
+    clickHouseClientManager,
+    stateManager,
+    yyyyMm,
+    partitionId,
+    startHour,
+    endHour
+}) {
+    const allStates = await stateManager.getAllStatesAsync();
+    const hoursInMonth = allStates
+        .filter((s) => s.partition_hour >= startHour && s.partition_hour < endHour)
+        .map((s) => s.partition_hour);
+
+    logWarn('About to DROP PARTITION', {
+        table: 'fhir.AuditEvent_4_0_0',
+        partitionId,
+        yyyyMm,
+        stateRowsToReset: hoursInMonth.length
+    });
+
+    logInfo('Dropping partition', { partitionId });
+    // ClickHouse accepts an integer partition id; `PARTITION ID {id:String}`
+    // via parameterized binding is the safe form, matches the schema's
+    // `toYYYYMM(recorded)` key, and never produces a tombstone.
+    await clickHouseClientManager.queryAsync({
+        query: `ALTER TABLE fhir.AuditEvent_4_0_0 DROP PARTITION ID {id:String}`,
+        query_params: { id: String(partitionId) }
+    });
+    logInfo('Partition dropped', { partitionId });
+
+    for (const hour of hoursInMonth) {
+        await stateManager.resetPartitionAsync(hour);
+    }
+
+    logInfo('Drop-month complete', {
+        partitionId,
+        yyyyMm,
+        stateRowsReset: hoursInMonth.length
+    });
+}
+
+/**
  * Count source documents per hour in parallel, then seed state rows for hours
  * that don't yet have one. Idempotent: hours with an existing state row keep
  * whatever status they have (completed/in_progress/failed/pending) — this
@@ -671,6 +776,39 @@ async function main() {
                 stateManager,
                 startHour,
                 endHour
+            });
+        } catch (err) {
+            logError(err.message);
+            return 1;
+        } finally {
+            await clickHouseManager.closeAsync();
+        }
+        return 0;
+    }
+
+    if (options.deleteMonth) {
+        let monthSpec;
+        try {
+            monthSpec = parseMonthArg(options.deleteMonth);
+        } catch (err) {
+            logError(err.message);
+            return 1;
+        }
+
+        const configManager = new ConfigManager();
+        const clickHouseManager = new ClickHouseClientManager({ configManager });
+        try {
+            await clickHouseManager.getClientAsync();
+            const stateManager = new MigrationStateManager({
+                clickHouseClientManager: clickHouseManager
+            });
+            await deleteMonthAsync({
+                clickHouseClientManager: clickHouseManager,
+                stateManager,
+                yyyyMm: monthSpec.yyyyMm,
+                partitionId: monthSpec.partitionId,
+                startHour: monthSpec.startHour,
+                endHour: monthSpec.endHour
             });
         } catch (err) {
             logError(err.message);
@@ -877,4 +1015,9 @@ if (require.main === module) {
         });
 }
 
-module.exports = { defaultDateRange, normalizeCliDateToHour, hourBoundsFromCli };
+module.exports = {
+    defaultDateRange,
+    normalizeCliDateToHour,
+    hourBoundsFromCli,
+    parseMonthArg
+};

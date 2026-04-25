@@ -10,7 +10,8 @@ const { PartitionWorker } = require('../../admin/utils/partitionWorker');
 const {
     defaultDateRange,
     normalizeCliDateToHour,
-    hourBoundsFromCli
+    hourBoundsFromCli,
+    parseMonthArg
 } = require('../../admin/scripts/migrateAuditEventsToClickhouse');
 const deepcopy = require('deepcopy');
 const auditEventSample = require('./fixtures/audit_event_sample.json');
@@ -403,6 +404,36 @@ describe('AuditEvent Migration', () => {
 
         test('rejects hour out of range', () => {
             expect(() => normalizeCliDateToHour('2024-05-10T24', 'start')).toThrow(/hour must be 00-23/);
+        });
+    });
+
+    describe('parseMonthArg', () => {
+        test('mid-year month returns toYYYYMM partition id and full-month hour bounds', () => {
+            expect(parseMonthArg('2026-03')).toEqual({
+                partitionId: 202603,
+                startHour: '2026-03-01T00',
+                endHour: '2026-04-01T00',
+                yyyyMm: '2026-03'
+            });
+        });
+
+        test('December wraps to next year for endHour', () => {
+            expect(parseMonthArg('2025-12')).toEqual({
+                partitionId: 202512,
+                startHour: '2025-12-01T00',
+                endHour: '2026-01-01T00',
+                yyyyMm: '2025-12'
+            });
+        });
+
+        test('rejects malformed input', () => {
+            expect(() => parseMonthArg('2026/03')).toThrow(/expected YYYY-MM/);
+            expect(() => parseMonthArg('2026-3')).toThrow(/expected YYYY-MM/);
+        });
+
+        test('rejects invalid month', () => {
+            expect(() => parseMonthArg('2026-13')).toThrow(/month must be 01-12/);
+            expect(() => parseMonthArg('2026-00')).toThrow(/month must be 01-12/);
         });
     });
 
