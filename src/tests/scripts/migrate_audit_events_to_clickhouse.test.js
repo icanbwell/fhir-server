@@ -609,7 +609,7 @@ describe('AuditEvent Migration', () => {
             return { calls, clickHouseClientManager, stateManager, sourceDb };
         }
 
-        test('default (rewriteExisting=false) skips partition with prior inserts', async () => {
+        test('skips partition with prior inserts', async () => {
             const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
 
             const worker = new PartitionWorker({
@@ -627,60 +627,12 @@ describe('AuditEvent Migration', () => {
 
             expect(result.skippedReason).toBe('priorInsertedCount>0');
             expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
-            expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
             expect(stateManager.markCompletedAsync).not.toHaveBeenCalled();
             // No Mongo read either — skip must short-circuit the whole hour.
             expect(calls.every((c) => !c.type.startsWith('mongo'))).toBe(true);
         });
 
-        test('rewriteExisting=true (--resume) DELETEs before Mongo when priorInsertedCount>0', async () => {
-            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
-
-            const worker = new PartitionWorker({
-                sourceDb,
-                collectionName: 'AuditEvent_4_0_0',
-                clickHouseClientManager,
-                stateManager,
-                batchSize: 100,
-                rewriteExisting: true
-            });
-
-            await worker.processAsync({ partitionHour: '2024-05-10T05', priorInsertedCount: 42 });
-
-            const firstMongo = calls.findIndex((c) => c.type.startsWith('mongo'));
-            const firstDelete = calls.findIndex(
-                (c) => c.type === 'ch.query' && /ALTER TABLE fhir\.AuditEvent_4_0_0\s+DELETE/.test(c.query)
-            );
-            expect(firstDelete).toBeGreaterThanOrEqual(0);
-            expect(firstDelete).toBeLessThan(firstMongo);
-            expect(stateManager.clearInsertedCountAsync).toHaveBeenCalledWith('2024-05-10T05');
-        });
-
-        test('rewriteExisting=true (--resume) DELETEs even when priorInsertedCount is 0', async () => {
-            // Covers the case where a prior crash landed rows in ClickHouse but
-            // never persisted inserted_count. The operator asked for the
-            // destructive path; we honor it regardless of the state counter.
-            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
-
-            const worker = new PartitionWorker({
-                sourceDb,
-                collectionName: 'AuditEvent_4_0_0',
-                clickHouseClientManager,
-                stateManager,
-                batchSize: 100,
-                rewriteExisting: true
-            });
-
-            await worker.processAsync({ partitionHour: '2024-05-10T05', priorInsertedCount: 0 });
-
-            const deleteCall = calls.find(
-                (c) => c.type === 'ch.query' && /ALTER TABLE fhir\.AuditEvent_4_0_0\s+DELETE/.test(c.query)
-            );
-            expect(deleteCall).toBeDefined();
-            expect(stateManager.clearInsertedCountAsync).toHaveBeenCalledWith('2024-05-10T05');
-        });
-
-        test('default (rewriteExisting=false) + priorInsertedCount=0 → no DELETE', async () => {
+        test('priorInsertedCount=0 → proceeds without any CH DELETE', async () => {
             const { clickHouseClientManager, stateManager, sourceDb } = makeFakes();
 
             const worker = new PartitionWorker({
@@ -693,8 +645,9 @@ describe('AuditEvent Migration', () => {
 
             await worker.processAsync({ partitionHour: '2024-05-10T05', priorInsertedCount: 0 });
 
+            // No ALTER ... DELETE should ever be issued — that path was removed
+            // with --resume. The worker is read-insert-only against AuditEvent.
             expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
-            expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
         });
 
         test('deleteSource=true removes each batch from Mongo after CH insert', async () => {

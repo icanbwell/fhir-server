@@ -3,9 +3,12 @@
  * Migrate AuditEvent data from Atlas Online Archive (via Data Federation) to ClickHouse.
  *
  * Processes AuditEvent documents across hourly partitions with configurable
- * concurrency. Partitions are atomic at the hour grain: if a prior attempt
- * wrote any rows, the worker (with --resume) DELETEs the hour before
- * re-migrating. Partition keys are 'YYYY-MM-DDTHH' (UTC).
+ * concurrency. Partitions are atomic at the hour grain: a plain migrate skips
+ * any hour whose state row already has inserted_count > 0 (to avoid
+ * duplicates). To rewrite those hours, first either --delete-partitions /
+ * --delete-month (wipes ClickHouse rows for the range) or --reset-state
+ * (clears the counter without touching ClickHouse — duplicates possible),
+ * then re-run plain migrate. Partition keys are 'YYYY-MM-DDTHH' (UTC).
  *
  * Usage:
  *   node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
@@ -60,11 +63,6 @@ Options:
                            have a state row are left alone. Must be run before the
                            first migration pass.
   --verify-only            Run count verification only
-  --resume                 Rewrite any partition with a prior partial write
-                           (inserted_count > 0) by DELETEing the hour from
-                           fhir.AuditEvent_4_0_0 and re-migrating. Without
-                           --resume those partitions are skipped with a warning
-                           so existing data is never touched.
   --show-state             Print audit_event_migration_state rows (ClickHouse only)
   --delete-partitions      Deletes AuditEvent rows for every hour in the
                            --start-date / --end-date range via ALTER ... DELETE
@@ -277,7 +275,6 @@ function parseArgs() {
         concurrency: 3,
         init: false,
         verifyOnly: false,
-        resume: false,
         showState: false,
         deletePartitions: false,
         deleteMonth: null,  // 'YYYY-MM' when set
@@ -309,9 +306,6 @@ function parseArgs() {
                 break;
             case '--verify-only':
                 options.verifyOnly = true;
-                break;
-            case '--resume':
-                options.resume = true;
                 break;
             case '--show-state':
                 options.showState = true;
@@ -360,7 +354,6 @@ function formatElapsed(ms) {
  * @param {MigrationStateManager} params.stateManager
  * @param {number} params.batchSize
  * @param {number} params.concurrency
- * @param {boolean} params.rewriteExisting - forwarded to PartitionWorker
  * @param {boolean} params.deleteSource - forwarded to PartitionWorker; when true, each
  *   batch's docs are deleted from the source Mongo after the ClickHouse insert succeeds.
  * @param {{aborted: boolean}} params.abortFlag - set when SIGINT/SIGTERM arrives; workers drain
@@ -374,7 +367,6 @@ async function runWorkersAsync({
     stateManager,
     batchSize,
     concurrency,
-    rewriteExisting,
     deleteSource,
     abortFlag
 }) {
@@ -402,7 +394,6 @@ async function runWorkersAsync({
                     clickHouseClientManager,
                     stateManager,
                     batchSize,
-                    rewriteExisting,
                     deleteSource
                 });
 
@@ -945,9 +936,7 @@ async function main() {
         ? 'INIT'
         : options.verifyOnly
           ? 'VERIFY ONLY'
-          : options.resume
-            ? 'RESUME'
-            : 'FULL MIGRATION';
+          : 'FULL MIGRATION';
     logInfo('AuditEvent Migration: Atlas Archive -> ClickHouse', {
         mode,
         startHour,
@@ -1078,7 +1067,6 @@ async function main() {
             stateManager,
             batchSize: options.batchSize,
             concurrency: options.concurrency,
-            rewriteExisting: options.resume,
             deleteSource: options.deleteSource,
             abortFlag
         });
@@ -1100,12 +1088,16 @@ async function main() {
         });
 
         if (result.failures.length > 0) {
-            logWarn('Failed partitions (re-run with --resume)', { hours: result.failures });
+            logWarn(
+                'Failed partitions (use --delete-partitions or --reset-state then re-run)',
+                { hours: result.failures }
+            );
         }
 
         if (result.skippedPartitions.length > 0) {
             logWarn(
-                'Partitions skipped because inserted_count > 0 — use --resume to rewrite',
+                'Partitions skipped because inserted_count > 0 — use --delete-partitions ' +
+                'or --reset-state then re-run to rewrite',
                 { hours: result.skippedPartitions }
             );
         }

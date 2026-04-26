@@ -2,17 +2,18 @@
  * Processes a single hourly partition: reads AuditEvent docs from Atlas Data Federation,
  * transforms them, and inserts into ClickHouse in batches.
  *
- * Retry semantics: partitions are atomic at the hour grain. If a prior attempt
- * wrote any rows (inserted_count > 0) the worker DELETEs that hour from
- * fhir.AuditEvent_4_0_0 and re-migrates from scratch — but only when
- * rewriteExisting=true (orchestrator passes this from --resume). Without
- * --resume the day is skipped with a warning so existing data isn't touched.
+ * Retry semantics: partitions are atomic at the hour grain. If the state row
+ * already has inserted_count > 0, the worker skips the hour with a warning to
+ * avoid duplicates. To rewrite such an hour, operators must either clear
+ * ClickHouse via --delete-partitions/--delete-month and re-run plain migrate,
+ * or use --reset-state (accepting that duplicates are possible if CH rows
+ * still exist).
  *
  * Partition keys are 'YYYY-MM-DDTHH' in UTC.
  */
 
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
-const { hourKeyToDate, toClickHouseDateTime64 } = require('./migrationStateManager');
+const { hourKeyToDate } = require('./migrationStateManager');
 const { logInfo, logWarn } = require('../../operations/common/logging');
 
 class PartitionWorker {
@@ -23,10 +24,6 @@ class PartitionWorker {
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
      * @param {import('./migrationStateManager').MigrationStateManager} params.stateManager
      * @param {number} params.batchSize
-     * @param {boolean} [params.rewriteExisting] - When true and a partition has a prior
-     *   partial write (inserted_count > 0), DELETE those rows before re-migrating.
-     *   When false (default), skip the partition with a warning so existing data isn't
-     *   touched. Only --resume sets this true.
      * @param {boolean} [params.deleteSource] - When true, after each successful
      *   ClickHouse batch insert the worker deletes the batch's source docs from
      *   the Mongo source by _id. Requires sourceDb to be the live/primary cluster
@@ -38,7 +35,6 @@ class PartitionWorker {
         clickHouseClientManager,
         stateManager,
         batchSize,
-        rewriteExisting = false,
         deleteSource = false
     }) {
         this.sourceDb = sourceDb;
@@ -46,7 +42,6 @@ class PartitionWorker {
         this.clickHouseClientManager = clickHouseClientManager;
         this.stateManager = stateManager;
         this.batchSize = batchSize;
-        this.rewriteExisting = rewriteExisting;
         this.deleteSource = deleteSource;
         this.transformer = new AuditEventTransformer();
     }
@@ -57,11 +52,9 @@ class PartitionWorker {
      * @param {Object} params
      * @param {string} params.partitionHour - 'YYYY-MM-DDTHH'
      * @param {number} [params.priorInsertedCount] - inserted_count from the state row.
-     *   With rewriteExisting=false (default), a prior insert (>0) causes the hour
-     *   to be skipped with a warning so existing data isn't touched.
-     *   With rewriteExisting=true (--resume), the worker unconditionally DELETEs
-     *   the hour before re-migrating, regardless of priorInsertedCount — the
-     *   operator has explicitly opted into the destructive path.
+     *   A prior insert (>0) causes the hour to be skipped with a warning so
+     *   existing data isn't touched. To rewrite, clear CH first via
+     *   --delete-partitions / --delete-month or --reset-state.
      * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number, skippedReason?: string}>}
      */
     async processAsync({ partitionHour, priorInsertedCount = 0 }) {
@@ -71,28 +64,10 @@ class PartitionWorker {
 
         const collection = this.sourceDb.collection(this.collectionName);
 
-        if (this.rewriteExisting) {
-            logInfo('Deleting hour before re-migrating (--resume)', {
-                partitionHour,
-                priorInsertedCount
-            });
-            // ALTER ... DELETE is async: returns once queued, not when the
-            // mutation finishes on replicas. The follow-up INSERT may race with
-            // tombstone propagation — use --verify-only after the run to
-            // confirm counts.
-            await this.clickHouseClientManager.queryAsync({
-                query: `ALTER TABLE fhir.AuditEvent_4_0_0
-                        DELETE WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
-                                 AND recorded < {hourEnd:DateTime64(3, 'UTC')}`,
-                query_params: {
-                    hourStart: toClickHouseDateTime64(hourStart),
-                    hourEnd: toClickHouseDateTime64(hourEnd)
-                }
-            });
-            await this.stateManager.clearInsertedCountAsync(partitionHour);
-        } else if (priorInsertedCount > 0) {
+        if (priorInsertedCount > 0) {
             logWarn(
-                'Skipping partition with prior inserted rows (use --resume to rewrite)',
+                'Skipping partition with prior inserted rows ' +
+                '(clear CH via --delete-partitions or --reset-state to rewrite)',
                 { partitionHour, priorInsertedCount }
             );
             return {
