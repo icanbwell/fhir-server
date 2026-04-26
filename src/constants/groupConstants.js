@@ -66,7 +66,7 @@ const DEFAULT_CLICKHOUSE = {
     DATABASE: 'fhir',
     USERNAME: 'default',
     PASSWORD: '',
-    REQUEST_TIMEOUT_MS: 900000, // 15 minutes
+    REQUEST_TIMEOUT_MS: 180000, // 3 minutes
     MAX_CONNECTIONS: 100 // Matches MongoDB pattern; see CONNECTION POOL SIZING above
 };
 

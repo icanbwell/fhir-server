@@ -598,7 +598,12 @@ describe('AuditEvent Migration', () => {
                             next: jest.fn(async () => sourceDocs[cursorIdx++]),
                             close: jest.fn(async () => {})
                         })
-                    }))
+                    })),
+                    deleteMany: jest.fn(async (filter) => {
+                        const ids = filter._id.$in;
+                        calls.push({ type: 'mongo.delete', ids });
+                        return { deletedCount: ids.length };
+                    })
                 })
             };
             return { calls, clickHouseClientManager, stateManager, sourceDb };
@@ -690,6 +695,63 @@ describe('AuditEvent Migration', () => {
 
             expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
             expect(stateManager.clearInsertedCountAsync).not.toHaveBeenCalled();
+        });
+
+        test('deleteSource=true removes each batch from Mongo after CH insert', async () => {
+            // 4 docs, batch size 2 → 2 full batches → 2 deleteMany calls,
+            // each receiving the _ids of the just-inserted batch.
+            const makeDoc = (id, minute) => ({
+                _id: id,
+                _uuid: `u-${id}`,
+                recorded: `2025-11-15T12:${String(minute).padStart(2, '0')}:00.000Z`
+            });
+            const sourceDocs = [makeDoc('a', 0), makeDoc('b', 1), makeDoc('c', 2), makeDoc('d', 3)];
+            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes({ sourceDocs });
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 2,
+                deleteSource: true
+            });
+
+            await worker.processAsync({ partitionHour: '2025-11-15T12', priorInsertedCount: 0 });
+
+            const deletes = calls.filter((c) => c.type === 'mongo.delete');
+            expect(deletes).toHaveLength(2);
+            expect(deletes[0].ids).toEqual(['a', 'b']);
+            expect(deletes[1].ids).toEqual(['c', 'd']);
+
+            // Each delete must come AFTER its batch's ClickHouse insert — the
+            // fake pushes ch.insert inside insertAsync, so we can enforce ordering.
+            for (const del of deletes) {
+                const delIdx = calls.indexOf(del);
+                const priorInsert = calls
+                    .slice(0, delIdx)
+                    .filter((c) => c.type === 'ch.insert');
+                expect(priorInsert.length).toBeGreaterThan(0);
+            }
+        });
+
+        test('deleteSource=false does not call deleteMany', async () => {
+            const sourceDocs = [
+                { _id: 'a', _uuid: 'u1', recorded: '2025-11-15T12:00:00.000Z' }
+            ];
+            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes({ sourceDocs });
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 100
+            });
+
+            await worker.processAsync({ partitionHour: '2025-11-15T12', priorInsertedCount: 0 });
+
+            expect(calls.every((c) => c.type !== 'mongo.delete')).toBe(true);
         });
 
         test('updates state row after each batch with running insertedCount', async () => {

@@ -27,6 +27,10 @@ class PartitionWorker {
      *   partial write (inserted_count > 0), DELETE those rows before re-migrating.
      *   When false (default), skip the partition with a warning so existing data isn't
      *   touched. Only --resume sets this true.
+     * @param {boolean} [params.deleteSource] - When true, after each successful
+     *   ClickHouse batch insert the worker deletes the batch's source docs from
+     *   the Mongo source by _id. Requires sourceDb to be the live/primary cluster
+     *   (Online Archive federation does not support deletes).
      */
     constructor({
         sourceDb,
@@ -34,7 +38,8 @@ class PartitionWorker {
         clickHouseClientManager,
         stateManager,
         batchSize,
-        rewriteExisting = false
+        rewriteExisting = false,
+        deleteSource = false
     }) {
         this.sourceDb = sourceDb;
         this.collectionName = collectionName;
@@ -42,6 +47,7 @@ class PartitionWorker {
         this.stateManager = stateManager;
         this.batchSize = batchSize;
         this.rewriteExisting = rewriteExisting;
+        this.deleteSource = deleteSource;
         this.transformer = new AuditEventTransformer();
     }
 
@@ -70,13 +76,14 @@ class PartitionWorker {
                 partitionHour,
                 priorInsertedCount
             });
-            // mutations_sync = 2 blocks until the mutation finishes on all replicas
-            // so the subsequent insert can't race with tombstone propagation.
+            // ALTER ... DELETE is async: returns once queued, not when the
+            // mutation finishes on replicas. The follow-up INSERT may race with
+            // tombstone propagation — use --verify-only after the run to
+            // confirm counts.
             await this.clickHouseClientManager.queryAsync({
                 query: `ALTER TABLE fhir.AuditEvent_4_0_0
                         DELETE WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
-                                 AND recorded < {hourEnd:DateTime64(3, 'UTC')}
-                        SETTINGS mutations_sync = 2`,
+                                 AND recorded < {hourEnd:DateTime64(3, 'UTC')}`,
                 query_params: {
                     hourStart: toClickHouseDateTime64(hourStart),
                     hourEnd: toClickHouseDateTime64(hourEnd)
@@ -144,18 +151,22 @@ class PartitionWorker {
                     const result = await this._processBatchAsync(batch);
                     insertedCount += result.inserted;
                     skippedCount += result.skipped;
-                    batch = [];
 
                     await this.stateManager.updateProgressAsync({
                         partitionHour,
                         insertedCount
                     });
+                    if (this.deleteSource) {
+                        await this._deleteSourceBatchAsync({ collection, batch, partitionHour });
+                    }
                     logInfo('Batch inserted', {
                         partitionHour,
                         progress: `${insertedCount}/${sourceCount}`,
                         batchInserted: result.inserted,
-                        batchSkipped: result.skipped
+                        batchSkipped: result.skipped,
+                        sourceDeleted: this.deleteSource ? batch.length : undefined
                     });
+                    batch = [];
                 }
             }
 
@@ -164,11 +175,15 @@ class PartitionWorker {
                 insertedCount += result.inserted;
                 skippedCount += result.skipped;
 
+                if (this.deleteSource) {
+                    await this._deleteSourceBatchAsync({ collection, batch, partitionHour });
+                }
                 logInfo('Batch inserted', {
                     partitionHour,
                     progress: `${insertedCount}/${sourceCount}`,
                     batchInserted: result.inserted,
-                    batchSkipped: result.skipped
+                    batchSkipped: result.skipped,
+                    sourceDeleted: this.deleteSource ? batch.length : undefined
                 });
             }
 
@@ -205,6 +220,35 @@ class PartitionWorker {
         }
 
         return { inserted: rows.length, skipped };
+    }
+
+    /**
+     * Delete the batch's docs from the source Mongo collection by _id. Called
+     * only when --delete-source is set AND the live/primary cluster is the
+     * source (Online Archive federation does not support deletes).
+     *
+     * Runs AFTER a successful ClickHouse insert for the same batch, so a crash
+     * between the insert and the delete leaves those docs in Mongo for a later
+     * --resume to pick up again (which would re-DELETE them from ClickHouse
+     * and re-migrate them, including re-delete from Mongo).
+     *
+     * @private
+     * @param {Object} params
+     * @param {import('mongodb').Collection} params.collection
+     * @param {Object[]} params.batch - raw source docs (with _id)
+     * @param {string} params.partitionHour
+     */
+    async _deleteSourceBatchAsync({ collection, batch, partitionHour }) {
+        if (batch.length === 0) return;
+        const ids = batch.map((doc) => doc._id);
+        const result = await collection.deleteMany({ _id: { $in: ids } });
+        if (result.deletedCount !== ids.length) {
+            logWarn('Source deleteMany returned fewer deletions than requested', {
+                partitionHour,
+                requested: ids.length,
+                deleted: result.deletedCount
+            });
+        }
     }
 
     /**

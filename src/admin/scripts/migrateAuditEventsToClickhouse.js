@@ -36,7 +36,11 @@ const USAGE = `
 Usage: node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
 
 Environment Variables:
-  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string (required for migration/verify)
+  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string
+                                                (required unless --delete-source is set)
+  AUDIT_EVENT_MONGO_URL        Live/primary MongoDB connection string
+                               (required when --delete-source is set; the script
+                               reads from AND deletes from this cluster)
   AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional)
   AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (required when username is set)
   AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
@@ -82,20 +86,36 @@ Options:
                            sets inserted_count=0, so use --resume if you want
                            to rewrite. Requires both --start-date and
                            --end-date to be passed explicitly.
+  --delete-source          Read from AUDIT_EVENT_MONGO_URL (the live cluster,
+                           not the Online Archive) and delete each batch's
+                           source documents by _id immediately after the
+                           ClickHouse insert succeeds. Destructive — requires
+                           --start-date and --end-date to be passed explicitly.
   --help, -h               Show this help
 `;
 
 /**
- * Build the Online Archive MongoDB connection URL from environment variables.
+ * Build a MongoDB connection URL from environment variables. When
+ * `useLiveSource` is true, reads from AUDIT_EVENT_MONGO_URL (the live/primary
+ * cluster the FHIR server writes to) instead of AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL
+ * (the read-only Online Archive federation endpoint). --delete-source requires
+ * the live cluster because Online Archive federation does not support deletes.
+ *
  * Mirrors src/config.js:71-79 for both `mongodb://` and `mongodb+srv://` forms.
+ *
+ * @param {Object} [options]
+ * @param {boolean} [options.useLiveSource]
  * @returns {{mongoUrl: string, dbName: string}}
  */
-function buildMongoUrl() {
+function buildMongoUrl({ useLiveSource = false } = {}) {
     const env = process.env;
-    let mongoUrl = env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL || '';
+    const envVarName = useLiveSource
+        ? 'AUDIT_EVENT_MONGO_URL'
+        : 'AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL';
+    let mongoUrl = env[envVarName] || '';
 
     if (!mongoUrl) {
-        logError('AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL environment variable is required');
+        logError(`${envVarName} environment variable is required`);
         process.exit(1);
     }
 
@@ -261,7 +281,8 @@ function parseArgs() {
         showState: false,
         deletePartitions: false,
         deleteMonth: null,  // 'YYYY-MM' when set
-        resetState: false
+        resetState: false,
+        deleteSource: false
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -304,6 +325,9 @@ function parseArgs() {
             case '--reset-state':
                 options.resetState = true;
                 break;
+            case '--delete-source':
+                options.deleteSource = true;
+                break;
             case '--help':
             case '-h':
                 logInfo(USAGE);
@@ -337,6 +361,8 @@ function formatElapsed(ms) {
  * @param {number} params.batchSize
  * @param {number} params.concurrency
  * @param {boolean} params.rewriteExisting - forwarded to PartitionWorker
+ * @param {boolean} params.deleteSource - forwarded to PartitionWorker; when true, each
+ *   batch's docs are deleted from the source Mongo after the ClickHouse insert succeeds.
  * @param {{aborted: boolean}} params.abortFlag - set when SIGINT/SIGTERM arrives; workers drain
  * @returns {Promise<{totalInserted: number, totalSkipped: number, failures: string[], skippedPartitions: string[]}>}
  */
@@ -349,6 +375,7 @@ async function runWorkersAsync({
     batchSize,
     concurrency,
     rewriteExisting,
+    deleteSource,
     abortFlag
 }) {
     let queueIndex = 0;
@@ -375,7 +402,8 @@ async function runWorkersAsync({
                     clickHouseClientManager,
                     stateManager,
                     batchSize,
-                    rewriteExisting
+                    rewriteExisting,
+                    deleteSource
                 });
 
                 const result = await worker.processAsync({
@@ -476,8 +504,9 @@ async function showMigrationStateAsync({ stateManager, startHour, endHour }) {
  * Delete AuditEvent rows for every hour in the range and reset their state rows.
  *
  * AuditEvent_4_0_0 is PARTITION BY toYYYYMM(recorded) (monthly), so we can't
- * DROP PARTITION for a single hour — we use ALTER TABLE ... DELETE with
- * mutations_sync = 2 so the call blocks until the mutation completes.
+ * DROP PARTITION for a single hour — we use ALTER TABLE ... DELETE which
+ * queues asynchronously (returns before the mutation completes on replicas).
+ * Use --verify-only afterwards to confirm counts.
  *
  * Hours without an existing state row are skipped with a warning (likely
  * outside the seeded range) rather than creating stray 'pending' rows.
@@ -533,8 +562,7 @@ async function deletePartitionsAsync({
         await clickHouseClientManager.queryAsync({
             query: `ALTER TABLE fhir.AuditEvent_4_0_0
                     DELETE WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
-                             AND recorded < {hourEnd:DateTime64(3, 'UTC')}
-                    SETTINGS mutations_sync = 2`,
+                             AND recorded < {hourEnd:DateTime64(3, 'UTC')}`,
             query_params: {
                 hourStart: toClickHouseDateTime64(hourStart),
                 hourEnd: toClickHouseDateTime64(hourEnd)
@@ -903,7 +931,15 @@ async function main() {
         return 0;
     }
 
-    const { mongoUrl, dbName } = buildMongoUrl();
+    if (options.deleteSource && (!options.startDateExplicit || !options.endDateExplicit)) {
+        logError(
+            '--delete-source requires both --start-date and --end-date to be ' +
+            'passed explicitly (the sliding default is refused for destructive ops).'
+        );
+        return 1;
+    }
+
+    const { mongoUrl, dbName } = buildMongoUrl({ useLiveSource: options.deleteSource });
 
     const mode = options.init
         ? 'INIT'
@@ -918,6 +954,8 @@ async function main() {
         endHour,
         batchSize: options.batchSize,
         concurrency: options.concurrency,
+        deleteSource: options.deleteSource,
+        sourceType: options.deleteSource ? 'live' : 'archive',
         collection: `${dbName}.${options.collection}`
     });
 
@@ -1041,6 +1079,7 @@ async function main() {
             batchSize: options.batchSize,
             concurrency: options.concurrency,
             rewriteExisting: options.resume,
+            deleteSource: options.deleteSource,
             abortFlag
         });
 
