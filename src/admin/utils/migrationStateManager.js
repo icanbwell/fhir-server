@@ -88,16 +88,17 @@ class MigrationStateManager {
 
     /**
      * Gets partitions that need processing (pending, in_progress, or failed).
-     * Returns `inserted_count` so the worker can detect a prior partial write
-     * and DELETE it before retrying.
+     * Returns `inserted_count` (so the worker can detect a prior partial write)
+     * and `source_count` (so the worker can trust the --init-populated count
+     * instead of re-querying Mongo).
      *
      * @param {Object} [options]
      * @param {string} [options.startHour] - Inclusive start 'YYYY-MM-DDTHH'
      * @param {string} [options.endHour] - Exclusive end 'YYYY-MM-DDTHH'
-     * @returns {Promise<Array<{partition_hour: string, status: string, inserted_count: number}>>}
+     * @returns {Promise<Array<{partition_hour: string, status: string, inserted_count: number, source_count: number}>>}
      */
     async getPendingPartitionsAsync({ startHour, endHour } = {}) {
-        let query = `SELECT partition_hour, status, inserted_count
+        let query = `SELECT partition_hour, status, inserted_count, source_count
                     FROM ${this.table} FINAL
                     WHERE status IN ('pending', 'in_progress', 'failed')`;
         const query_params = {};

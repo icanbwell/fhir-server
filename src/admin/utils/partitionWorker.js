@@ -55,9 +55,13 @@ class PartitionWorker {
      *   A prior insert (>0) causes the hour to be skipped with a warning so
      *   existing data isn't touched. To rewrite, clear CH first via
      *   --delete-partitions / --delete-month or --reset-state.
+     * @param {number} [params.priorSourceCount] - source_count from the state row.
+     *   Populated by --init; the worker trusts this value instead of re-querying
+     *   Mongo. If 0, the hour is treated as empty and marked completed without
+     *   scanning Mongo.
      * @returns {Promise<{insertedCount: number, sourceCount: number, skippedCount: number, skippedReason?: string}>}
      */
-    async processAsync({ partitionHour, priorInsertedCount = 0 }) {
+    async processAsync({ partitionHour, priorInsertedCount = 0, priorSourceCount = 0 }) {
         const hourStart = hourKeyToDate(partitionHour);
         const hourEnd = new Date(hourStart);
         hourEnd.setUTCHours(hourEnd.getUTCHours() + 1);
@@ -72,22 +76,14 @@ class PartitionWorker {
             );
             return {
                 insertedCount: 0,
-                sourceCount: 0,
+                sourceCount: priorSourceCount,
                 skippedCount: 0,
                 skippedReason: 'priorInsertedCount>0'
             };
         }
 
+        const sourceCount = priorSourceCount;
         const query = { recorded: { $gte: hourStart, $lt: hourEnd } };
-
-        logInfo('MongoDB query', {
-            operation: 'countDocuments',
-            db: this.sourceDb.databaseName,
-            collection: this.collectionName,
-            partitionHour,
-            query
-        });
-        const sourceCount = await collection.countDocuments(query);
 
         if (sourceCount === 0) {
             await this.stateManager.markCompletedAsync({

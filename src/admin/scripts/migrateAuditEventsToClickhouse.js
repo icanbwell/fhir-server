@@ -386,6 +386,7 @@ async function runWorkersAsync({
 
             const hour = partition.partition_hour;
             const priorInsertedCount = Number(partition.inserted_count) || 0;
+            const priorSourceCount = Number(partition.source_count) || 0;
 
             try {
                 const worker = new PartitionWorker({
@@ -399,7 +400,8 @@ async function runWorkersAsync({
 
                 const result = await worker.processAsync({
                     partitionHour: hour,
-                    priorInsertedCount
+                    priorInsertedCount,
+                    priorSourceCount
                 });
 
                 if (result.skippedReason) {

@@ -576,10 +576,9 @@ describe('AuditEvent Migration', () => {
             const sourceDb = {
                 databaseName: 'fhir',
                 collection: () => ({
-                    countDocuments: jest.fn(async () => {
-                        calls.push({ type: 'mongo.count' });
-                        return sourceDocs.length;
-                    }),
+                    // countDocuments intentionally not provided — the worker
+                    // trusts priorSourceCount from the state row instead of
+                    // re-querying Mongo, so any call here is a regression.
                     find: jest.fn(() => ({
                         batchSize: () => ({
                             hasNext: jest.fn(async () => cursorIdx < sourceDocs.length),
@@ -631,11 +630,71 @@ describe('AuditEvent Migration', () => {
                 batchSize: 100
             });
 
-            await worker.processAsync({ partitionHour: '2024-05-10T05', priorInsertedCount: 0 });
+            await worker.processAsync({
+                partitionHour: '2024-05-10T05',
+                priorInsertedCount: 0,
+                priorSourceCount: 0
+            });
 
             // No ALTER ... DELETE should ever be issued — that path was removed
             // with --resume. The worker is read-insert-only against AuditEvent.
             expect(clickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+        });
+
+        test('trusts priorSourceCount instead of calling Mongo countDocuments', async () => {
+            // If the worker ever calls countDocuments (which the fake doesn't
+            // provide), this test throws. The test passes only when the worker
+            // reads source_count purely from the state-row-passed value.
+            const sourceDocs = [
+                { _id: 'a', _uuid: 'u1', recorded: '2024-05-10T05:00:00.000Z' }
+            ];
+            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes({ sourceDocs });
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 100
+            });
+
+            const result = await worker.processAsync({
+                partitionHour: '2024-05-10T05',
+                priorInsertedCount: 0,
+                priorSourceCount: 1
+            });
+
+            expect(result.sourceCount).toBe(1);
+            expect(result.insertedCount).toBe(1);
+            const completed = calls.find((c) => c.type === 'state.completed');
+            expect(completed.sourceCount).toBe(1);
+        });
+
+        test('priorSourceCount=0 → short-circuits to completed without touching Mongo', async () => {
+            const { calls, clickHouseClientManager, stateManager, sourceDb } = makeFakes();
+
+            const worker = new PartitionWorker({
+                sourceDb,
+                collectionName: 'AuditEvent_4_0_0',
+                clickHouseClientManager,
+                stateManager,
+                batchSize: 100
+            });
+
+            const result = await worker.processAsync({
+                partitionHour: '2024-05-10T05',
+                priorInsertedCount: 0,
+                priorSourceCount: 0
+            });
+
+            expect(result).toEqual({ insertedCount: 0, sourceCount: 0, skippedCount: 0 });
+            expect(stateManager.markCompletedAsync).toHaveBeenCalledWith({
+                partitionHour: '2024-05-10T05',
+                insertedCount: 0,
+                sourceCount: 0
+            });
+            // Worker must not open a cursor or anything else on the source.
+            expect(calls.every((c) => !c.type.startsWith('mongo'))).toBe(true);
         });
 
         test('deleteSource=true removes each batch from Mongo after CH insert', async () => {
@@ -658,7 +717,11 @@ describe('AuditEvent Migration', () => {
                 deleteSource: true
             });
 
-            await worker.processAsync({ partitionHour: '2025-11-15T12', priorInsertedCount: 0 });
+            await worker.processAsync({
+                partitionHour: '2025-11-15T12',
+                priorInsertedCount: 0,
+                priorSourceCount: 4
+            });
 
             const deletes = calls.filter((c) => c.type === 'mongo.delete');
             expect(deletes).toHaveLength(2);
@@ -690,7 +753,11 @@ describe('AuditEvent Migration', () => {
                 batchSize: 100
             });
 
-            await worker.processAsync({ partitionHour: '2025-11-15T12', priorInsertedCount: 0 });
+            await worker.processAsync({
+                partitionHour: '2025-11-15T12',
+                priorInsertedCount: 0,
+                priorSourceCount: 1
+            });
 
             expect(calls.every((c) => c.type !== 'mongo.delete')).toBe(true);
         });
@@ -715,7 +782,8 @@ describe('AuditEvent Migration', () => {
 
             const result = await worker.processAsync({
                 partitionHour: '2024-05-10T05',
-                priorInsertedCount: 0
+                priorInsertedCount: 0,
+                priorSourceCount: 3
             });
 
             expect(result.insertedCount).toBe(3);
