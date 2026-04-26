@@ -407,6 +407,74 @@ describe('AuditEvent Migration', () => {
         });
     });
 
+    describe('MigrationStateManager.resetStatusesAsync', () => {
+        const { MigrationStateManager } = require('../../admin/utils/migrationStateManager');
+
+        function makeFakeCh(states) {
+            const inserts = [];
+            return {
+                inserts,
+                clickHouseClientManager: {
+                    queryAsync: jest.fn(async () => states),
+                    insertAsync: jest.fn(async ({ values }) => {
+                        inserts.push(values);
+                    })
+                }
+            };
+        }
+
+        test('only resets rows whose status matches within the range', async () => {
+            const states = [
+                { partition_hour: '2025-11-15T11', status: 'in_progress', source_count: 100, inserted_count: 50 },
+                { partition_hour: '2025-11-15T12', status: 'failed',      source_count: 200, inserted_count: 0 },
+                { partition_hour: '2025-11-15T13', status: 'completed',   source_count: 300, inserted_count: 300 },
+                { partition_hour: '2025-11-15T14', status: 'pending',     source_count: 0,   inserted_count: 0 },
+                { partition_hour: '2025-11-16T00', status: 'failed',      source_count: 999, inserted_count: 0 }  // outside range
+            ];
+            const { inserts, clickHouseClientManager } = makeFakeCh(states);
+            const mgr = new MigrationStateManager({ clickHouseClientManager });
+
+            const reset = await mgr.resetStatusesAsync({
+                startHour: '2025-11-15T00',
+                endHour: '2025-11-16T00',
+                statuses: ['failed', 'in_progress']
+            });
+
+            expect(reset).toEqual(['2025-11-15T11', '2025-11-15T12']);
+            // One insert call with both rows.
+            expect(inserts).toHaveLength(1);
+            expect(inserts[0]).toHaveLength(2);
+            for (const row of inserts[0]) {
+                expect(row.status).toBe('pending');
+                expect(row.inserted_count).toBe(0);
+                expect(row.started_at).toBeNull();
+                expect(row.completed_at).toBeNull();
+                expect(row.error_message).toBe('');
+            }
+            // source_count preserved from the originals.
+            expect(inserts[0].find((r) => r.partition_hour === '2025-11-15T11').source_count).toBe(100);
+            expect(inserts[0].find((r) => r.partition_hour === '2025-11-15T12').source_count).toBe(200);
+        });
+
+        test('returns empty array and issues no insert when no rows match', async () => {
+            const states = [
+                { partition_hour: '2025-11-15T13', status: 'completed', source_count: 10, inserted_count: 10 },
+                { partition_hour: '2025-11-15T14', status: 'pending',   source_count: 0,  inserted_count: 0 }
+            ];
+            const { inserts, clickHouseClientManager } = makeFakeCh(states);
+            const mgr = new MigrationStateManager({ clickHouseClientManager });
+
+            const reset = await mgr.resetStatusesAsync({
+                startHour: '2025-11-15T00',
+                endHour: '2025-11-16T00',
+                statuses: ['failed', 'in_progress']
+            });
+
+            expect(reset).toEqual([]);
+            expect(inserts).toHaveLength(0);
+        });
+    });
+
     describe('parseMonthArg', () => {
         test('mid-year month returns toYYYYMM partition id and full-month hour bounds', () => {
             expect(parseMonthArg('2026-03')).toEqual({

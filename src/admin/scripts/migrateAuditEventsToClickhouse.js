@@ -74,6 +74,14 @@ Options:
                            to 'pending'. Prefer this over --delete-partitions
                            when clearing a full month — dramatically faster on
                            a large table. Example: --delete-month 2026-03
+  --reset-state            Resets 'failed' and 'in_progress' state rows in the
+                           --start-date / --end-date range back to 'pending'
+                           (preserving source_count). Does NOT touch
+                           fhir.AuditEvent_4_0_0 — if rows were inserted they
+                           stay; a plain migrate will skip because the reset
+                           sets inserted_count=0, so use --resume if you want
+                           to rewrite. Requires both --start-date and
+                           --end-date to be passed explicitly.
   --help, -h               Show this help
 `;
 
@@ -252,7 +260,8 @@ function parseArgs() {
         resume: false,
         showState: false,
         deletePartitions: false,
-        deleteMonth: null  // 'YYYY-MM' when set
+        deleteMonth: null,  // 'YYYY-MM' when set
+        resetState: false
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -291,6 +300,9 @@ function parseArgs() {
                 break;
             case '--delete-month':
                 options.deleteMonth = args[++i];
+                break;
+            case '--reset-state':
+                options.resetState = true;
                 break;
             case '--help':
             case '-h':
@@ -639,6 +651,52 @@ async function deleteMonthAsync({
 }
 
 /**
+ * Reset 'failed' and 'in_progress' state rows to 'pending' within a range.
+ * Does NOT touch fhir.AuditEvent_4_0_0 — callers must reason about whether
+ * the underlying rows need to be dropped too.
+ *
+ * @param {Object} params
+ * @param {MigrationStateManager} params.stateManager
+ * @param {string} params.startHour - inclusive 'YYYY-MM-DDTHH'
+ * @param {string} params.endHour - exclusive 'YYYY-MM-DDTHH'
+ * @returns {Promise<void>}
+ */
+async function resetStateAsync({ stateManager, startHour, endHour }) {
+    const statuses = ['failed', 'in_progress'];
+    logWarn('About to reset state rows (fhir.AuditEvent_4_0_0 untouched)', {
+        startHour,
+        endHour,
+        statuses
+    });
+
+    const reset = await stateManager.resetStatusesAsync({
+        startHour,
+        endHour,
+        statuses
+    });
+
+    if (reset.length === 0) {
+        logInfo('Reset complete: no failed/in_progress state rows in range', {
+            startHour,
+            endHour
+        });
+        return;
+    }
+
+    for (const hour of reset) {
+        logInfo('State row reset to pending', { partitionHour: hour });
+    }
+    logInfo('Reset complete', {
+        startHour,
+        endHour,
+        count: reset.length,
+        note:
+            'AuditEvent rows were NOT dropped. If the hours already have data ' +
+            'in fhir.AuditEvent_4_0_0, use --resume to DELETE-and-re-migrate.'
+    });
+}
+
+/**
  * Count source documents per hour in parallel, then seed state rows for hours
  * that don't yet have one. Idempotent: hours with an existing state row keep
  * whatever status they have (completed/in_progress/failed/pending) — this
@@ -777,6 +835,32 @@ async function main() {
                 startHour,
                 endHour
             });
+        } catch (err) {
+            logError(err.message);
+            return 1;
+        } finally {
+            await clickHouseManager.closeAsync();
+        }
+        return 0;
+    }
+
+    if (options.resetState) {
+        if (!options.startDateExplicit || !options.endDateExplicit) {
+            logError(
+                '--reset-state requires both --start-date and --end-date to be ' +
+                'passed explicitly (the sliding default is refused for state-mutating ops).'
+            );
+            return 1;
+        }
+
+        const configManager = new ConfigManager();
+        const clickHouseManager = new ClickHouseClientManager({ configManager });
+        try {
+            await clickHouseManager.getClientAsync();
+            const stateManager = new MigrationStateManager({
+                clickHouseClientManager: clickHouseManager
+            });
+            await resetStateAsync({ stateManager, startHour, endHour });
         } catch (err) {
             logError(err.message);
             return 1;
