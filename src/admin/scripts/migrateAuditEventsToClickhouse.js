@@ -29,9 +29,9 @@ const { logInfo, logError, logWarn } = require('../../operations/common/logging'
 const {
     MigrationStateManager,
     generateHourlyPartitions,
-    hourKeyToDate,
-    toClickHouseDateTime64
+    hourKeyToDate
 } = require('../utils/migrationStateManager');
+const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 const { PartitionWorker } = require('../utils/partitionWorker');
 const { MigrationVerifier } = require('../utils/migrationVerifier');
 
@@ -555,8 +555,8 @@ async function deletePartitionsAsync({
                     DELETE WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
                              AND recorded < {hourEnd:DateTime64(3, 'UTC')}`,
             query_params: {
-                hourStart: toClickHouseDateTime64(hourStart),
-                hourEnd: toClickHouseDateTime64(hourEnd)
+                hourStart: DateTimeFormatter.toClickHouseDateTime(hourStart.toISOString()),
+                hourEnd: DateTimeFormatter.toClickHouseDateTime(hourEnd.toISOString())
             }
         });
 

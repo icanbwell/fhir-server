@@ -3,7 +3,8 @@
  * Compares source document counts with ClickHouse row counts per partition hour.
  */
 
-const { hourKeyToDate, toClickHouseDateTime64 } = require('./migrationStateManager');
+const { hourKeyToDate } = require('./migrationStateManager');
+const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 const { logInfo } = require('../../operations/common/logging');
 
 class MigrationVerifier {
@@ -148,8 +149,8 @@ class MigrationVerifier {
                     WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
                       AND recorded < {hourEnd:DateTime64(3, 'UTC')}`,
             query_params: {
-                hourStart: toClickHouseDateTime64(hourStart),
-                hourEnd: toClickHouseDateTime64(hourEnd)
+                hourStart: DateTimeFormatter.toClickHouseDateTime(hourStart.toISOString()),
+                hourEnd: DateTimeFormatter.toClickHouseDateTime(hourEnd.toISOString())
             }
         });
 

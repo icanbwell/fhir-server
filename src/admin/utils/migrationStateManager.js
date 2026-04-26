@@ -443,24 +443,9 @@ function hourKeyToDate(hourKey) {
     return new Date(hourKey + ':00:00.000Z');
 }
 
-/**
- * Format a Date as a ClickHouse DateTime64(3, 'UTC') literal:
- * 'YYYY-MM-DD HH:MM:SS.sss' (no 'T', no trailing 'Z'). The official
- * @clickhouse/client parameter binder rejects the ISO-8601 'Z' suffix
- * ("only 23 of 24 bytes was parsed"), so every DateTime64 parameter must
- * be stringified this way before being passed as query_params.
- *
- * @param {Date} d
- * @returns {string}
- */
-function toClickHouseDateTime64(d) {
-    return d.toISOString().replace('T', ' ').replace('Z', '');
-}
-
 module.exports = {
     MigrationStateManager,
     generateHourlyPartitions,
     hourKeyFromDate,
-    hourKeyToDate,
-    toClickHouseDateTime64
+    hourKeyToDate
 };
