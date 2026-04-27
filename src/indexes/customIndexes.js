@@ -9,20 +9,6 @@ module.exports = {
         '*': [
             {
                 keys: {
-                    id: 1
-                },
-                options: {
-                    // unique: true,
-                    name: 'id_1'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0',
-                    'Practitioner_4_0_0',
-                    ACCESS_LOGS_COLLECTION_NAME
-                ]
-            },
-            {
-                keys: {
                     'meta.source': 1,
                     _uuid: 1
                 },
@@ -43,10 +29,7 @@ module.exports = {
                 options: {
                     name: 'security.system_code_1'
                 },
-                exclude: [
-                    'AuditEvent_4_0_0',
-                    ACCESS_LOGS_COLLECTION_NAME
-                ]
+                include: ['Person_4_0_0']
             },
             ...(
                     (
@@ -64,6 +47,7 @@ module.exports = {
                     exclude: [
                         'AuditEvent_4_0_0',
                         'Organization_4_0_0',
+                        'Person_4_0_0',
                         'Practitioner_4_0_0',
                         ACCESS_LOGS_COLLECTION_NAME
                     ]
@@ -302,30 +286,6 @@ module.exports = {
                 }
             }
         ],
-        ChargeItem_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
-        CodeSystem_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
         Communication_4_0_0: [
             {
                 keys: {
@@ -337,18 +297,6 @@ module.exports = {
                 },
                 options: {
                     name: 'health_notifications'
-                }
-            }
-        ],
-        Condition_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -399,28 +347,6 @@ module.exports = {
                 options: {
                     name: 'helix_coverage_uuid'
                 }
-            },
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
-        DocumentReference_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
             }
         ],
         Encounter_4_0_0: [
@@ -439,17 +365,7 @@ module.exports = {
                     options: {
                         name: `_access_${client}_1.meta_source_1._uuid_1.meta_lastUpdated_1`
                     }
-            })),
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
+            }))
         ],
         EnrollmentRequest_4_0_0: [
             {
@@ -546,18 +462,6 @@ module.exports = {
                 }
             }
         ],
-        Library_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
         Location_4_0_0: [
             {
                 keys: {
@@ -588,54 +492,6 @@ module.exports = {
                 }
             }
         ],
-        Measure_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
-        MeasureReport_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
-        MedicationDispense_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
-        MedicationRequest_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
         Observation_4_0_0: [
             {
                 keys: {
@@ -655,16 +511,6 @@ module.exports = {
                 },
                 options: {
                     name: 'subject__uuid._uuid.effectiveDateTime-1'
-                }
-            },
-            {
-                keys: {
-                    '_access.bwell': 1,
-                    _uuid: -1,
-                    'meta.lastUpdated': 1
-                },
-                options: {
-                    name: 'access_bwell.uuid.meta_lastUpdated'
                 }
             },
             {
@@ -760,16 +606,6 @@ module.exports = {
                 },
                 options: {
                     name: 'name.given_1'
-                }
-            },
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             },
             {
@@ -934,18 +770,23 @@ module.exports = {
                 options: {
                     name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
-            }
+            },
+            ...(
+                    (
+                        process.env.ACCESS_TAGS_INDEXED_PERSON &&
+                        process.env.ACCESS_TAGS_INDEXED_PERSON.split(',').map((item) => item.trim())
+                    ) || []
+                ).map(client => ({
+                    keys: {
+                        [`_access.${client}`]: 1,
+                        _uuid: 1
+                    },
+                    options: {
+                        name: `_access_${client}_1._uuid_1`
+                    }
+            }))
         ],
         Practitioner_4_0_0: [
-            {
-                keys: {
-                    id: 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'id_uuid'
-                }
-            },
             {
                 keys: {
                     'name.family': 1,
@@ -1058,18 +899,6 @@ module.exports = {
                     }
             }))
         ],
-        Procedure_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
         Provenance_4_0_0: [
             {
                 keys: {
@@ -1087,18 +916,6 @@ module.exports = {
                 },
                 options: {
                     name: 'targetSourceid_uuid'
-                }
-            }
-        ],
-        Questionaire_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -1125,16 +942,6 @@ module.exports = {
                 },
                 options: {
                     name: 'consent_graphql_sourceId'
-                }
-            },
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -1274,16 +1081,6 @@ module.exports = {
             },
             {
                 keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            },
-            {
-                keys: {
                     'identifier.system': 1,
                     'identifier.value': 1,
                     _uuid: 1
@@ -1311,18 +1108,6 @@ module.exports = {
                 }
             }
        ],
-        ValueSet_4_0_0: [
-            {
-                keys: {
-                    'meta.lastUpdated': 1,
-                    '_access.bwell': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
-                }
-            }
-        ],
         Vitals_4_0_0: [
             {
                 keys: {
