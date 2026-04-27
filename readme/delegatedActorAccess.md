@@ -190,23 +190,18 @@ The generated token will contain:
 
 ## Composition Sensitive Section Filtering
 
-When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled and the user is a `delegatedUser`, the server **recursively removes any section** whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`.
+When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled and the user is a `delegatedUser`, the server removes Composition sections whose sensitivity codes are **denied by the actor's Consent**.
+
+The denied categories come from the Consent's nested `deny` provisions (`securityLabel` entries), pre-loaded onto `actor._filteringRules.deniedSensitiveCategories` by `DataSharingManager`.
 
 **Behavior:**
-- **All** sections matching the sensitive category system are removed, regardless of the specific category code
-- Filtering is recursive — nested sections (`section.section`) are also checked
-- If a parent section is non-sensitive but a child section is sensitive, only the child is removed
+- Only sections with sensitivity codes in the Consent's denied list are removed
+- If a section has multiple `code.coding` entries and **any** matches a denied code, the section is removed
+- Filtering is recursive — nested sections (`section.section`) are checked at every level
 - If a parent section itself is sensitive, the entire section (including all children) is removed
-- Non-Composition resources are unaffected
+- If actor has no `_filteringRules`, sections are returned unchanged
 
 Filtering happens at the **enrichment level** via `EnrichmentManager`, across all read paths (search, searchById, searchByVersionId, history, everything, graph).
-
-## Consent-Based Composition Section Filtering (Upcoming)
-
-Phase 2 refines section filtering: instead of removing **all** sensitive sections, only sections whose sensitivity codes are **denied for the actor** via the Consent are removed.
-
-- If a section has multiple `code.coding` entries and **any** matches a denied code, the section is removed
-- If there is no `denied` category, sections are returned unchanged
 
 ## Config
 
