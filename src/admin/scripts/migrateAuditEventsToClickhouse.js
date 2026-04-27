@@ -3,9 +3,12 @@
  * Migrate AuditEvent data from Atlas Online Archive (via Data Federation) to ClickHouse.
  *
  * Processes AuditEvent documents across hourly partitions with configurable
- * concurrency. Partitions are atomic at the hour grain: if a prior attempt
- * wrote any rows, the worker (with --resume) DELETEs the hour before
- * re-migrating. Partition keys are 'YYYY-MM-DDTHH' (UTC).
+ * concurrency. Partitions are atomic at the hour grain: a plain migrate skips
+ * any hour whose state row already has inserted_count > 0 (to avoid
+ * duplicates). To rewrite those hours, first either --delete-partitions /
+ * --delete-month (wipes ClickHouse rows for the range) or --reset-state
+ * (clears the counter without touching ClickHouse — duplicates possible),
+ * then re-run plain migrate. Partition keys are 'YYYY-MM-DDTHH' (UTC).
  *
  * Usage:
  *   node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
@@ -28,6 +31,7 @@ const {
     generateHourlyPartitions,
     hourKeyToDate
 } = require('../utils/migrationStateManager');
+const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 const { PartitionWorker } = require('../utils/partitionWorker');
 const { MigrationVerifier } = require('../utils/migrationVerifier');
 
@@ -35,7 +39,11 @@ const USAGE = `
 Usage: node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
 
 Environment Variables:
-  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string (required for migration/verify)
+  AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL  Online Archive connection string
+                                                (required unless --delete-source is set)
+  AUDIT_EVENT_MONGO_URL        Live/primary MongoDB connection string
+                               (required when --delete-source is set; the script
+                               reads from AND deletes from this cluster)
   AUDIT_EVENT_MONGO_USERNAME  MongoDB username (optional)
   AUDIT_EVENT_MONGO_PASSWORD  MongoDB password (required when username is set)
   AUDIT_EVENT_MONGO_DB_NAME   Source database name (default: fhir)
@@ -55,11 +63,6 @@ Options:
                            have a state row are left alone. Must be run before the
                            first migration pass.
   --verify-only            Run count verification only
-  --resume                 Rewrite any partition with a prior partial write
-                           (inserted_count > 0) by DELETEing the hour from
-                           fhir.AuditEvent_4_0_0 and re-migrating. Without
-                           --resume those partitions are skipped with a warning
-                           so existing data is never touched.
   --show-state             Print audit_event_migration_state rows (ClickHouse only)
   --delete-partitions      Deletes AuditEvent rows for every hour in the
                            --start-date / --end-date range via ALTER ... DELETE
@@ -67,20 +70,50 @@ Options:
                            'pending' so --resume will re-migrate it. Both
                            --start-date and --end-date MUST be passed explicitly
                            — the sliding default is refused to avoid mass deletion.
+  --delete-month <YYYY-MM> Drops the ClickHouse partition for that month via
+                           ALTER TABLE ... DROP PARTITION (instant metadata op,
+                           no mutation scan) and resets the matching state rows
+                           to 'pending'. Prefer this over --delete-partitions
+                           when clearing a full month — dramatically faster on
+                           a large table. Example: --delete-month 2026-03
+  --reset-state            Resets 'failed' and 'in_progress' state rows in the
+                           --start-date / --end-date range back to 'pending'
+                           (preserving source_count). Does NOT touch
+                           fhir.AuditEvent_4_0_0 — if rows were inserted they
+                           stay; a plain migrate will skip because the reset
+                           sets inserted_count=0, so use --resume if you want
+                           to rewrite. Requires both --start-date and
+                           --end-date to be passed explicitly.
+  --delete-source          Read from AUDIT_EVENT_MONGO_URL (the live cluster,
+                           not the Online Archive) and delete each batch's
+                           source documents by _id immediately after the
+                           ClickHouse insert succeeds. Destructive — requires
+                           --start-date and --end-date to be passed explicitly.
   --help, -h               Show this help
 `;
 
 /**
- * Build the Online Archive MongoDB connection URL from environment variables.
+ * Build a MongoDB connection URL from environment variables. When
+ * `useLiveSource` is true, reads from AUDIT_EVENT_MONGO_URL (the live/primary
+ * cluster the FHIR server writes to) instead of AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL
+ * (the read-only Online Archive federation endpoint). --delete-source requires
+ * the live cluster because Online Archive federation does not support deletes.
+ *
  * Mirrors src/config.js:71-79 for both `mongodb://` and `mongodb+srv://` forms.
+ *
+ * @param {Object} [options]
+ * @param {boolean} [options.useLiveSource]
  * @returns {{mongoUrl: string, dbName: string}}
  */
-function buildMongoUrl() {
+function buildMongoUrl({ useLiveSource = false } = {}) {
     const env = process.env;
-    let mongoUrl = env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL || '';
+    const envVarName = useLiveSource
+        ? 'AUDIT_EVENT_MONGO_URL'
+        : 'AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL';
+    let mongoUrl = env[envVarName] || '';
 
     if (!mongoUrl) {
-        logError('AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL environment variable is required');
+        logError(`${envVarName} environment variable is required`);
         process.exit(1);
     }
 
@@ -242,9 +275,11 @@ function parseArgs() {
         concurrency: 3,
         init: false,
         verifyOnly: false,
-        resume: false,
         showState: false,
-        deletePartitions: false
+        deletePartitions: false,
+        deleteMonth: null,  // 'YYYY-MM' when set
+        resetState: false,
+        deleteSource: false
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -272,14 +307,20 @@ function parseArgs() {
             case '--verify-only':
                 options.verifyOnly = true;
                 break;
-            case '--resume':
-                options.resume = true;
-                break;
             case '--show-state':
                 options.showState = true;
                 break;
             case '--delete-partitions':
                 options.deletePartitions = true;
+                break;
+            case '--delete-month':
+                options.deleteMonth = args[++i];
+                break;
+            case '--reset-state':
+                options.resetState = true;
+                break;
+            case '--delete-source':
+                options.deleteSource = true;
                 break;
             case '--help':
             case '-h':
@@ -313,7 +354,8 @@ function formatElapsed(ms) {
  * @param {MigrationStateManager} params.stateManager
  * @param {number} params.batchSize
  * @param {number} params.concurrency
- * @param {boolean} params.rewriteExisting - forwarded to PartitionWorker
+ * @param {boolean} params.deleteSource - forwarded to PartitionWorker; when true, each
+ *   batch's docs are deleted from the source Mongo after the ClickHouse insert succeeds.
  * @param {{aborted: boolean}} params.abortFlag - set when SIGINT/SIGTERM arrives; workers drain
  * @returns {Promise<{totalInserted: number, totalSkipped: number, failures: string[], skippedPartitions: string[]}>}
  */
@@ -325,7 +367,7 @@ async function runWorkersAsync({
     stateManager,
     batchSize,
     concurrency,
-    rewriteExisting,
+    deleteSource,
     abortFlag
 }) {
     let queueIndex = 0;
@@ -344,6 +386,7 @@ async function runWorkersAsync({
 
             const hour = partition.partition_hour;
             const priorInsertedCount = Number(partition.inserted_count) || 0;
+            const priorSourceCount = Number(partition.source_count) || 0;
 
             try {
                 const worker = new PartitionWorker({
@@ -352,12 +395,13 @@ async function runWorkersAsync({
                     clickHouseClientManager,
                     stateManager,
                     batchSize,
-                    rewriteExisting
+                    deleteSource
                 });
 
                 const result = await worker.processAsync({
                     partitionHour: hour,
-                    priorInsertedCount
+                    priorInsertedCount,
+                    priorSourceCount
                 });
 
                 if (result.skippedReason) {
@@ -453,8 +497,9 @@ async function showMigrationStateAsync({ stateManager, startHour, endHour }) {
  * Delete AuditEvent rows for every hour in the range and reset their state rows.
  *
  * AuditEvent_4_0_0 is PARTITION BY toYYYYMM(recorded) (monthly), so we can't
- * DROP PARTITION for a single hour — we use ALTER TABLE ... DELETE with
- * mutations_sync = 2 so the call blocks until the mutation completes.
+ * DROP PARTITION for a single hour — we use ALTER TABLE ... DELETE which
+ * queues asynchronously (returns before the mutation completes on replicas).
+ * Use --verify-only afterwards to confirm counts.
  *
  * Hours without an existing state row are skipped with a warning (likely
  * outside the seeded range) rather than creating stray 'pending' rows.
@@ -510,11 +555,10 @@ async function deletePartitionsAsync({
         await clickHouseClientManager.queryAsync({
             query: `ALTER TABLE fhir.AuditEvent_4_0_0
                     DELETE WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
-                             AND recorded < {hourEnd:DateTime64(3, 'UTC')}
-                    SETTINGS mutations_sync = 2`,
+                             AND recorded < {hourEnd:DateTime64(3, 'UTC')}`,
             query_params: {
-                hourStart: hourStart.toISOString(),
-                hourEnd: hourEnd.toISOString()
+                hourStart: DateTimeFormatter.toClickHouseDateTime(hourStart.toISOString()),
+                hourEnd: DateTimeFormatter.toClickHouseDateTime(hourEnd.toISOString())
             }
         });
 
@@ -529,6 +573,147 @@ async function deletePartitionsAsync({
         endHour,
         count: hoursWithState.length,
         skippedMissing: missing.length
+    });
+}
+
+/**
+ * Parse and validate a 'YYYY-MM' month argument. Returns the ClickHouse
+ * PARTITION id (toYYYYMM integer) and the inclusive/exclusive hour keys that
+ * cover the full month.
+ *
+ * Rejects malformed input, non-calendar months, and MM>12.
+ *
+ * @param {string} raw
+ * @returns {{partitionId: number, startHour: string, endHour: string, yyyyMm: string}}
+ */
+function parseMonthArg(raw) {
+    if (typeof raw !== 'string') {
+        throw new Error(`--delete-month requires a YYYY-MM argument`);
+    }
+    const match = /^(\d{4})-(\d{2})$/.exec(raw);
+    if (!match) {
+        throw new Error(`Invalid --delete-month '${raw}': expected YYYY-MM`);
+    }
+    const [, yStr, mStr] = match;
+    const year = parseInt(yStr, 10);
+    const month = parseInt(mStr, 10);
+    if (month < 1 || month > 12) {
+        throw new Error(`Invalid --delete-month '${raw}': month must be 01-12`);
+    }
+    const partitionId = year * 100 + month;
+    const startHour = `${yStr}-${mStr}-01T00`;
+    // Next month, wrapping December → January of next year.
+    const nextYear = month === 12 ? year + 1 : year;
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const endHour = `${String(nextYear).padStart(4, '0')}-${String(nextMonth).padStart(2, '0')}-01T00`;
+    return { partitionId, startHour, endHour, yyyyMm: raw };
+}
+
+/**
+ * Drop the entire ClickHouse partition for a given month via
+ * ALTER TABLE ... DROP PARTITION.
+ *
+ * fhir.AuditEvent_4_0_0 is PARTITION BY toYYYYMM(recorded), so dropping a
+ * month is a metadata-only operation — no mutation scan, no tombstones,
+ * effectively instant even on multi-TB tables. Prefer this over
+ * --delete-partitions whenever the operator wants a full calendar month gone.
+ *
+ * After the drop, every state row in that month is reset to 'pending' so
+ * --resume will re-migrate. Hours without a state row are left alone.
+ *
+ * @param {Object} params
+ * @param {ClickHouseClientManager} params.clickHouseClientManager
+ * @param {MigrationStateManager} params.stateManager
+ * @param {string} params.yyyyMm - 'YYYY-MM'
+ * @param {number} params.partitionId - toYYYYMM integer (e.g. 202603)
+ * @param {string} params.startHour - inclusive 'YYYY-MM-DDTHH' of first hour in month
+ * @param {string} params.endHour - exclusive 'YYYY-MM-DDTHH' of first hour of next month
+ * @returns {Promise<void>}
+ */
+async function deleteMonthAsync({
+    clickHouseClientManager,
+    stateManager,
+    yyyyMm,
+    partitionId,
+    startHour,
+    endHour
+}) {
+    const allStates = await stateManager.getAllStatesAsync();
+    const hoursInMonth = allStates
+        .filter((s) => s.partition_hour >= startHour && s.partition_hour < endHour)
+        .map((s) => s.partition_hour);
+
+    logWarn('About to DROP PARTITION', {
+        table: 'fhir.AuditEvent_4_0_0',
+        partitionId,
+        yyyyMm,
+        stateRowsToReset: hoursInMonth.length
+    });
+
+    logInfo('Dropping partition', { partitionId });
+    // ClickHouse accepts an integer partition id; `PARTITION ID {id:String}`
+    // via parameterized binding is the safe form, matches the schema's
+    // `toYYYYMM(recorded)` key, and never produces a tombstone.
+    await clickHouseClientManager.queryAsync({
+        query: `ALTER TABLE fhir.AuditEvent_4_0_0 DROP PARTITION ID {id:String}`,
+        query_params: { id: String(partitionId) }
+    });
+    logInfo('Partition dropped', { partitionId });
+
+    for (const hour of hoursInMonth) {
+        await stateManager.resetPartitionAsync(hour);
+    }
+
+    logInfo('Drop-month complete', {
+        partitionId,
+        yyyyMm,
+        stateRowsReset: hoursInMonth.length
+    });
+}
+
+/**
+ * Reset 'failed' and 'in_progress' state rows to 'pending' within a range.
+ * Does NOT touch fhir.AuditEvent_4_0_0 — callers must reason about whether
+ * the underlying rows need to be dropped too.
+ *
+ * @param {Object} params
+ * @param {MigrationStateManager} params.stateManager
+ * @param {string} params.startHour - inclusive 'YYYY-MM-DDTHH'
+ * @param {string} params.endHour - exclusive 'YYYY-MM-DDTHH'
+ * @returns {Promise<void>}
+ */
+async function resetStateAsync({ stateManager, startHour, endHour }) {
+    const statuses = ['failed', 'in_progress'];
+    logWarn('About to reset state rows (fhir.AuditEvent_4_0_0 untouched)', {
+        startHour,
+        endHour,
+        statuses
+    });
+
+    const reset = await stateManager.resetStatusesAsync({
+        startHour,
+        endHour,
+        statuses
+    });
+
+    if (reset.length === 0) {
+        logInfo('Reset complete: no failed/in_progress state rows in range', {
+            startHour,
+            endHour
+        });
+        return;
+    }
+
+    for (const hour of reset) {
+        logInfo('State row reset to pending', { partitionHour: hour });
+    }
+    logInfo('Reset complete', {
+        startHour,
+        endHour,
+        count: reset.length,
+        note:
+            'AuditEvent rows were NOT dropped. If the hours already have data ' +
+            'in fhir.AuditEvent_4_0_0, use --resume to DELETE-and-re-migrate.'
     });
 }
 
@@ -680,21 +865,88 @@ async function main() {
         return 0;
     }
 
-    const { mongoUrl, dbName } = buildMongoUrl();
+    if (options.resetState) {
+        if (!options.startDateExplicit || !options.endDateExplicit) {
+            logError(
+                '--reset-state requires both --start-date and --end-date to be ' +
+                'passed explicitly (the sliding default is refused for state-mutating ops).'
+            );
+            return 1;
+        }
+
+        const configManager = new ConfigManager();
+        const clickHouseManager = new ClickHouseClientManager({ configManager });
+        try {
+            await clickHouseManager.getClientAsync();
+            const stateManager = new MigrationStateManager({
+                clickHouseClientManager: clickHouseManager
+            });
+            await resetStateAsync({ stateManager, startHour, endHour });
+        } catch (err) {
+            logError(err.message);
+            return 1;
+        } finally {
+            await clickHouseManager.closeAsync();
+        }
+        return 0;
+    }
+
+    if (options.deleteMonth) {
+        let monthSpec;
+        try {
+            monthSpec = parseMonthArg(options.deleteMonth);
+        } catch (err) {
+            logError(err.message);
+            return 1;
+        }
+
+        const configManager = new ConfigManager();
+        const clickHouseManager = new ClickHouseClientManager({ configManager });
+        try {
+            await clickHouseManager.getClientAsync();
+            const stateManager = new MigrationStateManager({
+                clickHouseClientManager: clickHouseManager
+            });
+            await deleteMonthAsync({
+                clickHouseClientManager: clickHouseManager,
+                stateManager,
+                yyyyMm: monthSpec.yyyyMm,
+                partitionId: monthSpec.partitionId,
+                startHour: monthSpec.startHour,
+                endHour: monthSpec.endHour
+            });
+        } catch (err) {
+            logError(err.message);
+            return 1;
+        } finally {
+            await clickHouseManager.closeAsync();
+        }
+        return 0;
+    }
+
+    if (options.deleteSource && (!options.startDateExplicit || !options.endDateExplicit)) {
+        logError(
+            '--delete-source requires both --start-date and --end-date to be ' +
+            'passed explicitly (the sliding default is refused for destructive ops).'
+        );
+        return 1;
+    }
+
+    const { mongoUrl, dbName } = buildMongoUrl({ useLiveSource: options.deleteSource });
 
     const mode = options.init
         ? 'INIT'
         : options.verifyOnly
           ? 'VERIFY ONLY'
-          : options.resume
-            ? 'RESUME'
-            : 'FULL MIGRATION';
+          : 'FULL MIGRATION';
     logInfo('AuditEvent Migration: Atlas Archive -> ClickHouse', {
         mode,
         startHour,
         endHour,
         batchSize: options.batchSize,
         concurrency: options.concurrency,
+        deleteSource: options.deleteSource,
+        sourceType: options.deleteSource ? 'live' : 'archive',
         collection: `${dbName}.${options.collection}`
     });
 
@@ -817,7 +1069,7 @@ async function main() {
             stateManager,
             batchSize: options.batchSize,
             concurrency: options.concurrency,
-            rewriteExisting: options.resume,
+            deleteSource: options.deleteSource,
             abortFlag
         });
 
@@ -838,12 +1090,16 @@ async function main() {
         });
 
         if (result.failures.length > 0) {
-            logWarn('Failed partitions (re-run with --resume)', { hours: result.failures });
+            logWarn(
+                'Failed partitions (use --delete-partitions or --reset-state then re-run)',
+                { hours: result.failures }
+            );
         }
 
         if (result.skippedPartitions.length > 0) {
             logWarn(
-                'Partitions skipped because inserted_count > 0 — use --resume to rewrite',
+                'Partitions skipped because inserted_count > 0 — use --delete-partitions ' +
+                'or --reset-state then re-run to rewrite',
                 { hours: result.skippedPartitions }
             );
         }
@@ -876,4 +1132,9 @@ if (require.main === module) {
         });
 }
 
-module.exports = { defaultDateRange, normalizeCliDateToHour, hourBoundsFromCli };
+module.exports = {
+    defaultDateRange,
+    normalizeCliDateToHour,
+    hourBoundsFromCli,
+    parseMonthArg
+};

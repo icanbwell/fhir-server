@@ -4,6 +4,7 @@
  */
 
 const { hourKeyToDate } = require('./migrationStateManager');
+const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 const { logInfo } = require('../../operations/common/logging');
 
 class MigrationVerifier {
@@ -148,8 +149,8 @@ class MigrationVerifier {
                     WHERE recorded >= {hourStart:DateTime64(3, 'UTC')}
                       AND recorded < {hourEnd:DateTime64(3, 'UTC')}`,
             query_params: {
-                hourStart: hourStart.toISOString(),
-                hourEnd: hourEnd.toISOString()
+                hourStart: DateTimeFormatter.toClickHouseDateTime(hourStart.toISOString()),
+                hourEnd: DateTimeFormatter.toClickHouseDateTime(hourEnd.toISOString())
             }
         });
 

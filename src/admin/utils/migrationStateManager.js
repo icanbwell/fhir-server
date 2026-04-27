@@ -88,16 +88,17 @@ class MigrationStateManager {
 
     /**
      * Gets partitions that need processing (pending, in_progress, or failed).
-     * Returns `inserted_count` so the worker can detect a prior partial write
-     * and DELETE it before retrying.
+     * Returns `inserted_count` (so the worker can detect a prior partial write)
+     * and `source_count` (so the worker can trust the --init-populated count
+     * instead of re-querying Mongo).
      *
      * @param {Object} [options]
      * @param {string} [options.startHour] - Inclusive start 'YYYY-MM-DDTHH'
      * @param {string} [options.endHour] - Exclusive end 'YYYY-MM-DDTHH'
-     * @returns {Promise<Array<{partition_hour: string, status: string, inserted_count: number}>>}
+     * @returns {Promise<Array<{partition_hour: string, status: string, inserted_count: number, source_count: number}>>}
      */
     async getPendingPartitionsAsync({ startHour, endHour } = {}) {
-        let query = `SELECT partition_hour, status, inserted_count
+        let query = `SELECT partition_hour, status, inserted_count, source_count
                     FROM ${this.table} FINAL
                     WHERE status IN ('pending', 'in_progress', 'failed')`;
         const query_params = {};
@@ -322,6 +323,56 @@ class MigrationStateManager {
             ],
             format: 'JSONEachRow'
         });
+    }
+
+    /**
+     * Resets every row whose status is in `statuses` and whose partition_hour
+     * falls within [startHour, endHour) back to 'pending', preserving
+     * source_count. Leaves `fhir.AuditEvent_4_0_0` untouched — callers that
+     * need to drop the underlying data must do so separately.
+     *
+     * Used by --reset-state for surgical recovery: when state rows are stuck
+     * on 'failed' / 'in_progress' but the operator knows the ClickHouse side
+     * is fine (or wants a clean slate that doesn't rewrite data).
+     *
+     * @param {Object} params
+     * @param {string} params.startHour - inclusive 'YYYY-MM-DDTHH'
+     * @param {string} params.endHour - exclusive 'YYYY-MM-DDTHH'
+     * @param {string[]} params.statuses - e.g. ['failed','in_progress']
+     * @returns {Promise<string[]>} partition_hour keys that were reset
+     */
+    async resetStatusesAsync({ startHour, endHour, statuses }) {
+        const allStates = await this.getAllStatesAsync();
+        const matching = allStates.filter(
+            (s) =>
+                s.partition_hour >= startHour &&
+                s.partition_hour < endHour &&
+                statuses.includes(s.status)
+        );
+
+        if (matching.length === 0) {
+            return [];
+        }
+
+        const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
+        const rows = matching.map((s) => ({
+            partition_hour: s.partition_hour,
+            status: 'pending',
+            source_count: Number(s.source_count) || 0,
+            inserted_count: 0,
+            started_at: null,
+            completed_at: null,
+            error_message: '',
+            updated_at: now
+        }));
+
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: rows,
+            format: 'JSONEachRow'
+        });
+
+        return matching.map((s) => s.partition_hour);
     }
 
     /**
