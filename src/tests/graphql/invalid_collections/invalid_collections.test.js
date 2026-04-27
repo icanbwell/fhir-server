@@ -70,7 +70,7 @@ describe('No invalid collections made through GraphQL Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({});
 
             // Check that after the above requests, only person & person history collection is made in db.
             collections = await db.listCollections().toArray();
