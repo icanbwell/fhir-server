@@ -123,8 +123,8 @@
     "**/graphql-config/minimatch": "^9.0.7",
     "**/glob/minimatch": "^3.1.4",
     "**/test-exclude/minimatch": "^3.1.4",
-    "**/aws-sdk/xml-builder/fast-xml-parser": "^5.7.0",
-    "**/jest-runtime/cjs-module-lexer": "^2.2.0"
+    "**/jest-runtime/cjs-module-lexer": "^2.2.0",
+    "uuid": "^14.0.0"
   },
   "dependencies": {
     "@apollo/server": "5.5.0",
