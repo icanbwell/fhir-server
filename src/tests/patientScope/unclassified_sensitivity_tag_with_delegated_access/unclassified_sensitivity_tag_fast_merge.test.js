@@ -400,6 +400,190 @@ describe('Unclassified Sensitivity Tag (Fast Merge Serializer)', () => {
         )).toBeDefined();
     });
 
+    test('$merge should add unclassified tag to previously suppressed resource when suppress header is not set', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+
+        await seedBaseFixtures(request);
+
+        let resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeUndefined();
+
+        const observationWithTag = deepcopy(observation1Resource);
+        observationWithTag.meta.security.push({
+            system: SENSITIVE_CATEGORY.SYSTEM,
+            code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE,
+            id: "2a642de9-eaea-53d5-a5d5-277d9d46ac1e"
+        });
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observationWithTag)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ updated: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+        expect(resp.body.meta.versionId).toBe('2');
+    });
+
+    test('put should add unclassified tag to previously suppressed resource when suppress header is not set and unclassified is passed', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+
+        await seedBaseFixtures(request);
+
+        let resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeUndefined();
+
+        const serverResource = resp.body;
+
+        // PUT the server response back with unclassified tag added — should update
+        const observationWithTag = deepcopy(serverResource);
+        observationWithTag.meta.security.push({
+            id: '2a642de9-eaea-53d5-a5d5-277d9d46ac1e',
+            system: SENSITIVE_CATEGORY.SYSTEM,
+            code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        });
+
+        resp = await request
+            .put('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .send(observationWithTag)
+            .set(getHeaders());
+        expect(resp.status).toBe(200);
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+        expect(resp.body.meta.versionId).toBe('2');
+    });
+
+     test('patch should add unclassified tag to previously suppressed resource when suppress header is not set and unclassified is passed', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+
+        await seedBaseFixtures(request);
+
+        let resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeUndefined();
+
+        const patchOps = [
+            { op: 'add', path: '/meta/security/-', value: {
+                system: SENSITIVE_CATEGORY.SYSTEM,
+                code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE,
+                id: "2a642de9-eaea-53d5-a5d5-277d9d46ac1e"
+            }}
+        ];
+
+        resp = await request
+            .patch('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .send(patchOps)
+            .set(getHeadersJsonPatch());
+        expect(resp.status).toBe(200);
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+        expect(resp.body.meta.versionId).toBe('2');
+    });
+
+    test('$merge with smartMerge adds unclassified tag to previously suppressed resource', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+
+        await seedBaseFixtures(request);
+
+        let resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true')
+            .send(observation1Resource)
+            .set({ ...getHeaders(), [SENSITIVE_CATEGORY.SUPPRESS_HEADER]: 'true' });
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeUndefined();
+
+        const observationWithTag = deepcopy(observation1Resource);
+        observationWithTag.meta.security.push({
+            system: SENSITIVE_CATEGORY.SYSTEM,
+            code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE,
+            id: '2a642de9-eaea-53d5-a5d5-277d9d46ac1e'
+        });
+
+        resp = await request
+            .post('/4_0_0/Observation/1/$merge?validate=true&smartMerge=1')
+            .send(observationWithTag)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ updated: true });
+
+        resp = await request
+            .get('/4_0_0/Observation/b7d5e8a1-3c2f-4d9e-a1b6-8f7c3e2d1a0b')
+            .set(getHeaders());
+        expect(resp).toHaveStatusOk();
+        expect(resp.body.meta.security.find(
+            s => s.system === SENSITIVE_CATEGORY.SYSTEM && s.code === SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
+        )).toBeDefined();
+        expect(resp.body.meta.versionId).toBe('2');
+    });
+
     test('suppress header on PATCH preserves existing unclassified tag', async () => {
         const request = await createTestRequest((c) => {
             c.register('configManager', () => new MockConfigManager());
