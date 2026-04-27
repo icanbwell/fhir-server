@@ -58,7 +58,7 @@ describe('AuditLogger', () => {
         mockPreSaveManager.preSaveAsync = jest.fn().mockResolvedValue(undefined);
 
         mockConfigManager = Object.create(ConfigManager.prototype);
-        Object.defineProperty(mockConfigManager, 'enableAuditEvent', { get: () => true });
+        Object.defineProperty(mockConfigManager, 'enableAccessAuditEvent', { get: () => true });
         Object.defineProperty(mockConfigManager, 'maxIdsPerAuditEvent', { get: () => 50 });
     });
 
@@ -108,9 +108,9 @@ describe('AuditLogger', () => {
         expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
     });
 
-    test('does not create audit entries when enableAuditEvent is false', async () => {
+    test('does not create audit entries when enableAccessAuditEvent is false', async () => {
         const disabledConfig = Object.create(ConfigManager.prototype);
-        Object.defineProperty(disabledConfig, 'enableAuditEvent', { get: () => false });
+        Object.defineProperty(disabledConfig, 'enableAccessAuditEvent', { get: () => false });
         Object.defineProperty(disabledConfig, 'maxIdsPerAuditEvent', { get: () => 50 });
 
         const logger = createAuditLogger({ configManager: disabledConfig });
