@@ -1079,7 +1079,7 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
-    test('should resolve userType as cmsPartnerUser when user_type claim is cms-partner', async () => {
+    test('should resolve userType as cms-partner when user_type claim is cms-partner', async () => {
         const mockJwks = {
             keys: [
                 await createJwksKeyAsync({

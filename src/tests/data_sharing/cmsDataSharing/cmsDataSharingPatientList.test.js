@@ -77,7 +77,7 @@ const getInvalidCmsHeaders = (personId) => {
     };
 };
 
-describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
+describe('CMS Data Sharing - Patient List with cms-partner', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
