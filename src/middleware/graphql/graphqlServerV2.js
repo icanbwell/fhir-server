@@ -124,7 +124,11 @@ const graphqlV2 = async (fnGetContainer) => {
                     }).toJSON();
                 }
 
-                // Otherwise return the formatted error.
+                // Strip internal details from the error before returning.
+                if (formattedError.extensions) {
+                    delete formattedError.extensions.stacktrace;
+                    delete formattedError.extensions.exception;
+                }
                 return formattedError;
             },
             stringifyResult: (value) => {

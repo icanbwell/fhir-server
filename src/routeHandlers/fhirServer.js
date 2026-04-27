@@ -318,15 +318,17 @@ class MyFHIRServer {
                         isValidBaseVersion ? base : VERSIONS['4_0_1'],
                         'operationoutcome'
                     );
-                    res1.status(500).json(new OperationOutcome({
-                        issue: [
-                            {
-                                severity: 'error',
-                                code: 'exception',
-                                diagnostics: e.toString() + ' | ' + e.stack
-                            }
-                        ]
-                    }));
+                    res1.status(500).json(
+                        new OperationOutcome({
+                            issue: [
+                                {
+                                    severity: 'error',
+                                    code: 'exception',
+                                    diagnostics: 'Internal Server Error'
+                                }
+                            ]
+                        })
+                    );
                 }
             }
         );
