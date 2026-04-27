@@ -190,7 +190,7 @@ The generated token will contain:
 
 ## Composition Sensitive Section Filtering
 
-When `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` is enabled and the user is a `delegatedUser`, the server **recursively removes any section** whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`.
+When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled and the user is a `delegatedUser`, the server **recursively removes any section** whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`.
 
 **Behavior:**
 - **All** sections matching the sensitive category system are removed, regardless of the specific category code
@@ -210,5 +210,4 @@ Phase 2 refines section filtering: instead of removing **all** sensitive section
 
 ## Config
 
-- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules, and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
-- `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING`: true/false — **gates Composition section-level filtering**. Requires `ENABLE_DELEGATED_ACCESS_DETECTION` to also be enabled. When both are enabled and the user is a delegated user, Composition sections tagged with denied sensitivity categories from the Consent are recursively stripped at enrichment time. Sections with non-denied sensitivity codes are kept.
+- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
