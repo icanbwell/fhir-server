@@ -943,7 +943,12 @@ class EverythingHelper {
                 entries = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries,
                     parsedArgs,
-                    enrichmentContext: { userType: requestInfo.userType }
+                    enrichmentContext: {
+                        userType: requestInfo.userType,
+                        actor: requestInfo.actor,
+                        personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                        base_version
+                    }
                 });
             }
 
@@ -1696,7 +1701,12 @@ class EverythingHelper {
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                                     entries: [current_entity],
                                     parsedArgs: parentParsedArgs,
-                                    enrichmentContext: { userType: requestInfo.userType }
+                                    enrichmentContext: {
+                                        userType: requestInfo.userType,
+                                        actor: requestInfo.actor,
+                                        personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                                        base_version: parentParsedArgs.base_version
+                                    }
                                 });
 
                                 await responseStreamer.writeBundleEntryAsync({

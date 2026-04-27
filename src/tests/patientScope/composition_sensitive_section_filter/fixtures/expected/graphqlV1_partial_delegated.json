@@ -25,6 +25,18 @@
                     ]
                 },
                 "section": null
+            },
+            {
+                "title": "Family Planning",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "https://www.icanbwell.com/sensitivity-category",
+                            "code": "reproductive-health"
+                        }
+                    ]
+                },
+                "section": null
             }
         ]
     }

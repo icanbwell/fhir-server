@@ -25,6 +25,7 @@
     "id": "comp-nested-sensitive",
     "meta": {
         "versionId": "1",
+        "lastUpdated": "2025-12-24T20:00:00.000Z",
         "source": "https://www.icanbwell.com/test",
         "security": [
             {
@@ -146,6 +147,19 @@
                 ]
             },
             "section": [
+                {
+                    "id": "p3-child-sensitive",
+                    "title": "Condition Notes",
+                    "code": {
+                        "coding": [
+                            {
+                                "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                "system": "https://www.icanbwell.com/sensitivity-category",
+                                "code": "reproductive-health"
+                            }
+                        ]
+                    }
+                },
                 {
                     "id": "p3-child-2",
                     "title": "Active Problems",

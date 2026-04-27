@@ -237,7 +237,7 @@ class SearchByIdOperation {
                 resource = (await this.enrichmentManager.enrichAsync({
                             resources: [resource],
                             parsedArgs,
-                            enrichmentContext: { userType }
+                            enrichmentContext: { userType, actor, personIdFromJwtToken, base_version }
                         }
                     )
                 )[0];

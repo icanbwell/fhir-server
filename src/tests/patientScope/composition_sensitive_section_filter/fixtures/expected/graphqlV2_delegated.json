@@ -96,6 +96,19 @@
                 },
                 "section": [
                     {
+                        "id": "p3-child-sensitive",
+                        "title": "Condition Notes",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
+                                }
+                            ]
+                        },
+                        "section": null
+                    },
+                    {
                         "id": "p3-child-2",
                         "title": "Active Problems",
                         "code": {
@@ -275,6 +288,19 @@
                         {
                             "system": "http://loinc.org",
                             "code": "10160-0"
+                        }
+                    ]
+                },
+                "section": null
+            },
+            {
+                "id": "sensitive-3",
+                "title": "Family Planning",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "https://www.icanbwell.com/sensitivity-category",
+                            "code": "reproductive-health"
                         }
                     ]
                 },

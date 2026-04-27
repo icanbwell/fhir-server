@@ -28,6 +28,7 @@
                 "id": "comp-nested-sensitive",
                 "meta": {
                     "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
                     "source": "https://www.icanbwell.com/test",
                     "security": [
                         {
@@ -92,6 +93,19 @@
                                         }
                                     ]
                                 }
+                            },
+                            {
+                                "id": "p1-child-sensitive",
+                                "title": "Allergy Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "SUBSTANCE_ABUSE"
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     },
@@ -117,6 +131,19 @@
                                             "id": "60b6e5ee-7ee4-54c3-a4fc-4891dae6eeec",
                                             "system": "http://loinc.org",
                                             "code": "10160-0-1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p2-child-sensitive",
+                                "title": "Medication Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }
@@ -149,6 +176,19 @@
                             ]
                         },
                         "section": [
+                            {
+                                "id": "p3-child-sensitive",
+                                "title": "Condition Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "reproductive-health"
+                                        }
+                                    ]
+                                }
+                            },
                             {
                                 "id": "p3-child-2",
                                 "title": "Active Problems",
@@ -215,6 +255,19 @@
                                         }
                                     ]
                                 }
+                            },
+                            {
+                                "id": "p4-child-sensitive",
+                                "title": "Immunization Records",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "SUBSTANCE_ABUSE"
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     },
@@ -240,6 +293,19 @@
                                             "id": "5cd9ca63-555c-57db-b3cc-ab99095e69a7",
                                             "system": "http://loinc.org",
                                             "code": "8716-3-1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p5-child-sensitive",
+                                "title": "Heart Rate Trends",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }
@@ -322,6 +388,7 @@
                 "id": "comp-no-sensitive",
                 "meta": {
                     "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
                     "source": "https://www.icanbwell.com/test",
                     "security": [
                         {
@@ -450,6 +517,7 @@
                 "id": "comp-top-level-sensitive",
                 "meta": {
                     "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
                     "source": "https://www.icanbwell.com/test",
                     "security": [
                         {
@@ -490,6 +558,19 @@
                         }
                     },
                     {
+                        "id": "sensitive-1",
+                        "title": "Treatment History",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "SUBSTANCE_ABUSE"
+                                }
+                            ]
+                        }
+                    },
+                    {
                         "id": "normal-2",
                         "title": "Medications",
                         "code": {
@@ -498,6 +579,32 @@
                                     "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
                                     "system": "http://loinc.org",
                                     "code": "10160-0"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-2",
+                        "title": "Behavioral Health Notes",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "MENTAL_HEALTH"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-3",
+                        "title": "Family Planning",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
                                 }
                             ]
                         }
@@ -565,6 +672,7 @@
                 "id": "comp-deep-sensitive",
                 "meta": {
                     "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
                     "source": "https://www.icanbwell.com/test",
                     "security": [
                         {
@@ -629,6 +737,19 @@
                                                 }
                                             ]
                                         }
+                                    },
+                                    {
+                                        "id": "level3-a1-sensitive",
+                                        "title": "Diagnosis Notes",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                                    "code": "SUBSTANCE_ABUSE"
+                                                }
+                                            ]
+                                        }
                                     }
                                 ]
                             },
@@ -645,6 +766,19 @@
                                     ]
                                 },
                                 "section": [
+                                    {
+                                        "id": "level3-a2-sensitive",
+                                        "title": "Procedure Notes",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                                    "code": "MENTAL_HEALTH"
+                                                }
+                                            ]
+                                        }
+                                    },
                                     {
                                         "id": "level3-a2-normal",
                                         "title": "Routine Procedures",
@@ -746,14 +880,14 @@
     "link": [
         {
             "relation": "self",
-            "url": "http://127.0.0.1:53758/4_0_0/Composition/"
+            "url": "http://127.0.0.1:50292/4_0_0/Composition/"
         },
         {
             "relation": "next",
-            "url": "http://127.0.0.1:53758/4_0_0/Composition/?id%3Aabove=f9fd075a-e8b3-5ffe-97a5-a4f0b498ecb1"
+            "url": "http://127.0.0.1:50292/4_0_0/Composition/?id%3Aabove=f9fd075a-e8b3-5ffe-97a5-a4f0b498ecb1"
         }
     ],
     "resourceType": "Bundle",
     "total": 0,
-    "id": "e4f79fd1-e989-4c9c-9acc-eee04be79655"
+    "id": "a6f6be5d-16df-4e81-8339-93bdd16eb950"
 }

@@ -1556,7 +1556,12 @@ class GraphHelper {
                     {
                         entries: bundleEntriesForTopLevelResource,
                         parsedArgs,
-                        enrichmentContext: { userType: requestInfo.userType }
+                        enrichmentContext: {
+                            userType: requestInfo.userType,
+                            actor: requestInfo.actor,
+                            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                            base_version: parsedArgs.base_version
+                        }
                     }
                 );
                 // /**

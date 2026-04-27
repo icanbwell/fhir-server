@@ -1,12 +1,22 @@
 const { SENSITIVE_CATEGORY } = require('../constants');
 
-function filterSections(sections) {
-    const result = sections.filter(
-        (s) => !Array.isArray(s.code?.coding) || !s.code.coding.some((c) => c.system === SENSITIVE_CATEGORY.SYSTEM)
+function shouldRemoveSection({ section, deniedSensitiveCategorySet }) {
+    if (!Array.isArray(section?.code?.coding)) {
+        return false;
+    }
+    return section.code.coding.some(
+        (c) => c?.system === SENSITIVE_CATEGORY.SYSTEM && deniedSensitiveCategorySet.has(c?.code)
     );
+}
+
+function filterSections({ sections, deniedSensitiveCategorySet }) {
+    const result = sections.filter((section) => !shouldRemoveSection({ section, deniedSensitiveCategorySet }));
     for (const section of result) {
         if (section.section) {
-            section.section = filterSections(section.section);
+            section.section = filterSections({
+                sections: section.section,
+                deniedSensitiveCategorySet
+            });
             if (!section.section.length) {
                 delete section.section;
             }
@@ -17,13 +27,17 @@ function filterSections(sections) {
 
 /**
  * Strips sensitive sections from a Composition resource in place.
- * Callers are responsible for gating on config flags and userType.
+ * @param {Object} resource
+ * @param {Set<string>} deniedSensitiveCategorySet
  */
-function filterCompositionSensitiveSections(resource) {
+function filterCompositionSensitiveSections(resource, deniedSensitiveCategorySet) {
     if (!resource?.section) {
         return;
     }
-    resource.section = filterSections(resource.section);
+    resource.section = filterSections({
+        sections: resource.section,
+        deniedSensitiveCategorySet
+    });
     if (!resource.section.length) {
         delete resource.section;
     }

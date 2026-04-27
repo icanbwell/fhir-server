@@ -65,10 +65,6 @@ class MockConfigManager extends ConfigManager {
     get enableDelegatedAccessDetection () {
         return true;
     }
-
-    get enableCompositionSensitiveSectionFiltering () {
-        return true;
-    }
 }
 
 const delegatedPayload = {

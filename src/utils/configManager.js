@@ -1238,12 +1238,6 @@ class ConfigManager {
         return servicesConfig;
     }
 
-    /**
-     * @returns {boolean}
-     */
-    get enableCompositionSensitiveSectionFiltering() {
-        return this.enableDelegatedAccessDetection && isTrue(env.ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING);
-    }
 }
 
 module.exports = {

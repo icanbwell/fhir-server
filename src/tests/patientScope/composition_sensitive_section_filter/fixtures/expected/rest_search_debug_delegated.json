@@ -93,6 +93,19 @@
                                         }
                                     ]
                                 }
+                            },
+                            {
+                                "id": "p1-child-sensitive",
+                                "title": "Allergy Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "SUBSTANCE_ABUSE"
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     },
@@ -118,6 +131,19 @@
                                             "id": "60b6e5ee-7ee4-54c3-a4fc-4891dae6eeec",
                                             "system": "http://loinc.org",
                                             "code": "10160-0-1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p2-child-sensitive",
+                                "title": "Medication Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }
@@ -150,6 +176,19 @@
                             ]
                         },
                         "section": [
+                            {
+                                "id": "p3-child-sensitive",
+                                "title": "Condition Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "reproductive-health"
+                                        }
+                                    ]
+                                }
+                            },
                             {
                                 "id": "p3-child-2",
                                 "title": "Active Problems",
@@ -216,6 +255,19 @@
                                         }
                                     ]
                                 }
+                            },
+                            {
+                                "id": "p4-child-sensitive",
+                                "title": "Immunization Records",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "SUBSTANCE_ABUSE"
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     },
@@ -241,6 +293,19 @@
                                             "id": "5cd9ca63-555c-57db-b3cc-ab99095e69a7",
                                             "system": "http://loinc.org",
                                             "code": "8716-3-1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "p5-child-sensitive",
+                                "title": "Heart Rate Trends",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }
@@ -493,6 +558,19 @@
                         }
                     },
                     {
+                        "id": "sensitive-1",
+                        "title": "Treatment History",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "SUBSTANCE_ABUSE"
+                                }
+                            ]
+                        }
+                    },
+                    {
                         "id": "normal-2",
                         "title": "Medications",
                         "code": {
@@ -501,6 +579,32 @@
                                     "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
                                     "system": "http://loinc.org",
                                     "code": "10160-0"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-2",
+                        "title": "Behavioral Health Notes",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "MENTAL_HEALTH"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-3",
+                        "title": "Family Planning",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
                                 }
                             ]
                         }
@@ -633,6 +737,19 @@
                                                 }
                                             ]
                                         }
+                                    },
+                                    {
+                                        "id": "level3-a1-sensitive",
+                                        "title": "Diagnosis Notes",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
+                                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                                    "code": "SUBSTANCE_ABUSE"
+                                                }
+                                            ]
+                                        }
                                     }
                                 ]
                             },
@@ -649,6 +766,19 @@
                                     ]
                                 },
                                 "section": [
+                                    {
+                                        "id": "level3-a2-sensitive",
+                                        "title": "Procedure Notes",
+                                        "code": {
+                                            "coding": [
+                                                {
+                                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
+                                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                                    "code": "MENTAL_HEALTH"
+                                                }
+                                            ]
+                                        }
+                                    },
                                     {
                                         "id": "level3-a2-normal",
                                         "title": "Routine Procedures",
@@ -750,16 +880,16 @@
     "link": [
         {
             "relation": "self",
-            "url": "http://127.0.0.1:57855/4_0_0/Composition/?_debug=1"
+            "url": "http://127.0.0.1:50502/4_0_0/Composition/?_debug=1"
         },
         {
             "relation": "next",
-            "url": "http://127.0.0.1:57855/4_0_0/Composition/?_debug=1&id%3Aabove=f9fd075a-e8b3-5ffe-97a5-a4f0b498ecb1"
+            "url": "http://127.0.0.1:50502/4_0_0/Composition/?_debug=1&id%3Aabove=f9fd075a-e8b3-5ffe-97a5-a4f0b498ecb1"
         }
     ],
     "resourceType": "Bundle",
     "total": 0,
-    "id": "9dfa5e09-e49b-4e4c-b751-cda2e830ce63",
+    "id": "4bc518f3-e42b-4ee4-82bc-c1d558289f47",
     "meta": {
         "tag": [
             {
@@ -792,7 +922,7 @@
             },
             {
                 "system": "https://www.icanbwell.com/queryExplain",
-                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Composition_4_0_0\",\"parsedQuery\":{\"$and\":[{\"subject._uuid\":{\"$in\":[\"Patient/24a5930e-11b4-5525-b482-669174917044\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"system\":{\"$eq\":\"https://www.icanbwell.com/sensitivity-category\"}},{\"code\":{\"$in\":[\"MENTAL_HEALTH\",\"SUBSTANCE_ABUSE\",\"unclassified\"]}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"indexFilterSet\":false,\"queryHash\":\"0B063659\",\"planCacheShapeHash\":\"0B063659\",\"planCacheKey\":\"EE5B8DCB\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$in\":[\"Patient/24a5930e-11b4-5525-b482-669174917044\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"system\":{\"$eq\":\"https://www.icanbwell.com/sensitivity-category\"}},{\"code\":{\"$in\":[\"MENTAL_HEALTH\",\"SUBSTANCE_ABUSE\",\"unclassified\"]}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":4,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":4,\"executionStages\":{\"isCached\":false,\"stage\":\"SORT\",\"nReturned\":4,\"executionTimeMillisEstimate\":0,\"works\":10,\"advanced\":4,\"needTime\":5,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":13710,\"usedDisk\":false,\"spills\":0,\"spilledDataStorageSize\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$in\":[\"Patient/24a5930e-11b4-5525-b482-669174917044\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"system\":{\"$eq\":\"https://www.icanbwell.com/sensitivity-category\"}},{\"code\":{\"$in\":[\"MENTAL_HEALTH\",\"SUBSTANCE_ABUSE\",\"unclassified\"]}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":4,\"executionTimeMillisEstimate\":0,\"works\":5,\"advanced\":4,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":4}},\"allPlansExecution\":[]},\"queryShapeHash\":\"54F721E5FA4D2D59A76E4F98F469A9BCC2A928B70B37AD0D644FE5F36F5EEF8C\",\"command\":{\"find\":\"Composition_4_0_0\",\"filter\":{\"$and\":[{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://www.icanbwell.com/sensitivity-category\",\"code\":{\"$in\":[\"SUBSTANCE_ABUSE\",\"MENTAL_HEALTH\",\"unclassified\"]}}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},{\"subject._uuid\":{\"$in\":[\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\",\"Patient/24a5930e-11b4-5525-b482-669174917044\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"system\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\",\"code\":\"R\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Nirbhay-NachiketaMacBook-Air\",\"port\":57693,\"version\":\"8.0.20\",\"gitVersion\":\"28927c60881a488fcbc5fd4d925b410f33258827\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7628595257591988248\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7628595257591988248\"}}]"
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Composition_4_0_0\",\"parsedQuery\":{\"$and\":[{\"subject._uuid\":{\"$in\":[\"Patient/24a5930e-11b4-5525-b482-669174917044\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"system\":{\"$eq\":\"https://www.icanbwell.com/sensitivity-category\"}},{\"code\":{\"$in\":[\"MENTAL_HEALTH\",\"SUBSTANCE_ABUSE\",\"unclassified\"]}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"indexFilterSet\":false,\"queryHash\":\"0B063659\",\"planCacheShapeHash\":\"0B063659\",\"planCacheKey\":\"EE5B8DCB\",\"optimizationTimeMillis\":0,\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"prunedSimilarIndexes\":false,\"winningPlan\":{\"isCached\":false,\"stage\":\"SORT\",\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$in\":[\"Patient/24a5930e-11b4-5525-b482-669174917044\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"system\":{\"$eq\":\"https://www.icanbwell.com/sensitivity-category\"}},{\"code\":{\"$in\":[\"MENTAL_HEALTH\",\"SUBSTANCE_ABUSE\",\"unclassified\"]}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"direction\":\"forward\"}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":4,\"executionTimeMillis\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":4,\"executionStages\":{\"isCached\":false,\"stage\":\"SORT\",\"nReturned\":4,\"executionTimeMillisEstimate\":0,\"works\":10,\"advanced\":4,\"needTime\":5,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"_uuid\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":13632,\"usedDisk\":false,\"spills\":0,\"spilledDataStorageSize\":0,\"inputStage\":{\"stage\":\"COLLSCAN\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$in\":[\"Patient/24a5930e-11b4-5525-b482-669174917044\",\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"R\"}},{\"system\":{\"$eq\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\"}}]}}}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"system\":{\"$eq\":\"https://www.icanbwell.com/sensitivity-category\"}},{\"code\":{\"$in\":[\"MENTAL_HEALTH\",\"SUBSTANCE_ABUSE\",\"unclassified\"]}}]}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"hidden\"}},{\"system\":{\"$eq\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\"}}]}}}}]},\"nReturned\":4,\"executionTimeMillisEstimate\":0,\"works\":5,\"advanced\":4,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"direction\":\"forward\",\"docsExamined\":4}},\"allPlansExecution\":[]},\"queryShapeHash\":\"54F721E5FA4D2D59A76E4F98F469A9BCC2A928B70B37AD0D644FE5F36F5EEF8C\",\"command\":{\"find\":\"Composition_4_0_0\",\"filter\":{\"$and\":[{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://www.icanbwell.com/sensitivity-category\",\"code\":{\"$in\":[\"SUBSTANCE_ABUSE\",\"MENTAL_HEALTH\",\"unclassified\"]}}}}},{\"meta.tag\":{\"$not\":{\"$elemMatch\":{\"system\":\"https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior\",\"code\":\"hidden\"}}}},{\"subject._uuid\":{\"$in\":[\"Patient/person.7b99904f-2f85-51a3-9398-e2eed6854639\",\"Patient/24a5930e-11b4-5525-b482-669174917044\"]}},{\"meta.security\":{\"$not\":{\"$elemMatch\":{\"system\":\"http://terminology.hl7.org/CodeSystem/v3-Confidentiality\",\"code\":\"R\"}}}}]},\"sort\":{\"_uuid\":1},\"limit\":100,\"maxTimeMS\":120000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Nirbhay-NachiketaMacBook-Air\",\"port\":50262,\"version\":\"8.0.20\",\"gitVersion\":\"28927c60881a488fcbc5fd4d925b410f33258827\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600,\"internalQueryFrameworkControl\":\"trySbeRestricted\",\"internalQueryPlannerIgnoreIndexWithCollationForRegex\":1},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7631069296193437729\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7631069296193437729\"}}]"
             },
             {
                 "system": "https://www.icanbwell.com/queryExplainSimple",

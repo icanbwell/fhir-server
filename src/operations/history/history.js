@@ -425,7 +425,7 @@ class BaseHistoryOperationProcessor {
         resultBundle.entry = await this.compositionSectionFilterEnrichmentProvider.enrichBundleEntriesAsync({
             entries: resultBundle.entry,
             parsedArgs,
-            enrichmentContext: { userType }
+            enrichmentContext: { userType, actor, personIdFromJwtToken, base_version }
         });
         FhirResourceSerializer.serializeByResourceType(resultBundle, 'Bundle');
 
