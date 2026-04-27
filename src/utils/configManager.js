@@ -576,11 +576,11 @@ class ConfigManager {
      * whether audit event logging is enabled
      * @return {boolean}
      */
-    get enableAuditEvent() {
-        if (env.ENABLE_AUDIT_EVENT === null || env.ENABLE_AUDIT_EVENT === undefined) {
+    get enableAccessAuditEvent() {
+        if (env.ENABLE_ACCESS_AUDIT_EVENT === null || env.ENABLE_ACCESS_AUDIT_EVENT === undefined) {
             return true;
         }
-        return isTrue(env.ENABLE_AUDIT_EVENT);
+        return isTrue(env.ENABLE_ACCESS_AUDIT_EVENT);
     }
 
     /**

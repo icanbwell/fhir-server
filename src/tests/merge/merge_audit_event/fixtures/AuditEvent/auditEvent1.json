@@ -1,0 +1,50 @@
+{
+  "resourceType": "AuditEvent",
+  "id": "113aeb5b-e939-43d3-816d-b902168d9d22",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      }
+    ]
+  },
+  "type": {
+    "system": "http://dicom.nema.org/resources/ontology/DCM",
+    "code": "110112",
+    "display": "Query"
+  },
+  "action": "C",
+  "recorded": "2024-05-01T12:49:55.000Z",
+  "agent": [
+    {
+      "who": {
+        "reference": "Person/test"
+      },
+      "altId": "test",
+      "requestor": true,
+      "network": {
+        "type": "2"
+      }
+    }
+  ],
+  "source": {
+    "observer": {
+      "reference": "Person/test"
+    }
+  },
+  "entity": [
+    {
+      "what": {
+        "reference": "Observation/c4171fee-aaa6-4526-a377-ea39860a5c76"
+      },
+      "detail": [
+        {
+          "type": "base_version",
+          "valueString": "4_0_0"
+        }
+      ]
+    }
+  ]
+}

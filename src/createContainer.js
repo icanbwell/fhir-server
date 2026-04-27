@@ -93,6 +93,7 @@ const {CmsConsentManager} = require('./operations/search/cmsConsentManager');
 const {CMSManager} = require('./utils/cmsManager');
 const {DelegatedAccessManager} = require('./utils/delegatedAccessManager');
 const {OperationAccessManager} = require('./utils/operationAccessManager');
+const {ResourceOperationAccessProvider} = require('./utils/resourceOperationAccessProvider');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -318,10 +319,12 @@ const createContainer = function () {
     }));
     container.register('cmsManager', () => new CMSManager());
     container.register('delegatedAccessManager', () => new DelegatedAccessManager());
+    container.register('resourceOperationAccessProvider', () => new ResourceOperationAccessProvider());
     container.register('accessManager', (c) => new OperationAccessManager({
         accessProviders: [
             c.cmsManager,
-            c.delegatedAccessManager
+            c.delegatedAccessManager,
+            c.resourceOperationAccessProvider
         ]
     }));
     container.register('dataSharingManager', (c) => new DataSharingManager({

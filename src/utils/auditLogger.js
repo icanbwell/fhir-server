@@ -235,7 +235,7 @@ class AuditLogger {
     async logAuditEntryAsync ({
         requestInfo, base_version, resourceType, operation, args, ids, maxNumberOfIds
     }) {
-        if (!this.configManager.enableAuditEvent || resourceType === 'AuditEvent') {
+        if (!this.configManager.enableAccessAuditEvent || resourceType === 'AuditEvent') {
             return;
         }
 
