@@ -92,7 +92,7 @@ describe('Error Sanitization Integration Tests', () => {
                 .get('/admin/indexes')
                 .set(getJsonHeadersWithAdminToken());
 
-            // handleAdminGet outer catch uses res.end(JSON.stringify(...)) without setting status
+            expect(resp.status).toBe(500);
             const body = resp.text;
             expect(body).not.toContain(sensitiveMessage);
             expect(body).not.toContain('ECONNREFUSED');
@@ -142,7 +142,7 @@ describe('Error Sanitization Integration Tests', () => {
                 .delete('/admin/deletePerson?personId=person-1')
                 .set(getJsonHeadersWithAdminToken());
 
-            // handleAdminDelete outer catch uses res.end(JSON.stringify(...)) without setting status
+            expect(resp.status).toBe(500);
             const body = resp.text;
             expect(body).not.toContain(sensitiveMessage);
             expect(body).not.toContain('ECONNREFUSED');
