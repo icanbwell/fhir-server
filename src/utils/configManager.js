@@ -126,6 +126,14 @@ class ConfigManager {
                     ) || []
                 );
                 break;
+            case 'Person':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_PERSON && env.ACCESS_TAGS_INDEXED_PERSON.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
             case 'Practitioner':
                 indexList = indexList.concat(
                     (
