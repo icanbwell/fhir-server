@@ -34,6 +34,10 @@ class MockConfigManager extends ConfigManager {
     get resourceTypesForUnclassifiedTagging () {
         return new Set(['Observation', 'CareTeam']);
     }
+
+    get enableMergeFastSerializer() {
+        return false;
+    }
 }
 
 async function seedBaseFixtures (request) {

@@ -158,8 +158,12 @@ class FastMergeManager {
         assertIsValid(uuid, `No uuid found for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         // found an existing resource
+        const existingResourcePreSaveOptions = new PreSaveOptions({
+            ...preSaveOptions,
+            suppressUnclassifiedTag: true
+        });
         currentResource = await this.preSaveManager.preSaveAsync({
-            resource: currentResource, options: preSaveOptions
+            resource: currentResource, options: existingResourcePreSaveOptions
         });
 
         /**
