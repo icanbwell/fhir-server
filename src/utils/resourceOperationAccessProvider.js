@@ -1,8 +1,8 @@
 const { MethodNotAllowedError } = require('./httpErrors');
 
-const RESTRICTED_OPERATIONS = new Map([
-    ['AuditEvent', new Set(['update', 'patch', 'remove', 'remove_by_query'])]
-]);
+const RESTRICTED_OPERATIONS = {
+    AuditEvent: ['update', 'patch', 'remove', 'remove_by_query']
+};
 
 class ResourceOperationAccessProvider {
     /**
@@ -12,8 +12,8 @@ class ResourceOperationAccessProvider {
      * @param {string} operation
      */
     verifyAccess ({ requestInfo, resourceType, operation }) {
-        const blockedOps = RESTRICTED_OPERATIONS.get(resourceType);
-        if (blockedOps && blockedOps.has(operation)) {
+        const blockedOps = RESTRICTED_OPERATIONS[resourceType];
+        if (blockedOps && blockedOps.includes(operation)) {
             throw new MethodNotAllowedError(
                 `This operation is not allowed on ${resourceType} resources`
             );
