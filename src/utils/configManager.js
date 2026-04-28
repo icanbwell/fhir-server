@@ -604,7 +604,7 @@ class ConfigManager {
      * @returns {number}
      */
     get maxIdsPerAuditEvent() {
-        return env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
+        return env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 1000;
     }
 
     /**
