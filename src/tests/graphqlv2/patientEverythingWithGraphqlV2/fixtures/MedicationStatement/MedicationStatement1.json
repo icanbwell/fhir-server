@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "active",
-  "medicationCodeableConcept": {},
+  "medicationCodeableConcept": {
+    "text": "Medication Statement Resource"
+  },
   "medicationReference": {
     "reference": "Medication/1"
   },

@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "completed",
-  "medicationCodeableConcept": {},
+  "medicationCodeableConcept": {
+    "text": "Medication Dispense Resource"
+  },
   "medicationReference": {
     "reference": "Medication/1"
   },

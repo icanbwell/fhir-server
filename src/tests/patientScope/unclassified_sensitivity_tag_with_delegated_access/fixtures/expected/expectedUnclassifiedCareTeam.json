@@ -1,5 +1,4 @@
 {
-    "encounter": {},
     "id": "ct-team-1",
     "meta": {
         "versionId": "1",
@@ -54,8 +53,7 @@
                         "valueString": "client"
                     }
                 ]
-            },
-            "onBehalfOf": {}
+            }
         }
     ],
     "resourceType": "CareTeam",

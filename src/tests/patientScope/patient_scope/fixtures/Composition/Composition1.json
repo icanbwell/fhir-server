@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "final",
-  "type": {},
+  "type": {
+      "text": "Composition Resource"
+  },
   "date": "2023-11-11T10:30:10.000Z",
   "author": [{
     "reference": "Patient/1"

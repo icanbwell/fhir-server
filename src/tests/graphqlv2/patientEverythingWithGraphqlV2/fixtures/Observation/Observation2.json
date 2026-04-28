@@ -6,7 +6,9 @@
         "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
     },
     "status": "final",
-    "code": "1-8",
+    "code": {
+        "text": "Observation Resource"
+    },
     "subject": {
         "reference": "Patient/2"
     }
