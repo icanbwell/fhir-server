@@ -133,6 +133,7 @@ describe('ClickHouseDatabaseCursor', () => {
             const doc = await cursor.next();
             expect(doc.id).toBe('obs-1');
             expect(doc.resourceType).toBe('Observation');
+            expect(doc.extra).toBeUndefined();
         });
     });
 

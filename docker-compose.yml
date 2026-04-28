@@ -48,7 +48,6 @@ services:
       ENABLE_MERGE_FAST_SERIALIZER: '1'
       ENABLE_PERSON_PATIENT_MANUAL_LINKING_KAFKA_EVENTS: 1
       ENABLE_KAFKA_HEALTHCHECK: '1'
-      ENABLE_ACCESS_LOGS_KAFKA_EVENTS: '1'
       ENABLE_PATIENT_DATA_CHANGE_EVENTS: '1'
       ENABLE_PERSON_DATA_CHANGE_EVENTS: '1'
       KAFKA_CLIENT_ID: 'fhir-server'
@@ -103,6 +102,9 @@ services:
       ENABLE_REDIS_CACHE_WRITE_FOR_SUMMARY_OPERATION: 1
       ENABLE_REDIS_CACHE_READ_FOR_SUMMARY_OPERATION: 1
       SUMMARY_CACHE_TTL_SECONDS: 300
+      ENABLE_DELEGATED_ACCESS_DETECTION: 'true'
+      ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING: 'true'
+      UNCLASSIFIED_TAGGING_RESOURCES: 'AllergyIntolerance,Appointment,CarePlan,ChargeItem,Claim,ClaimResponse,ClinicalImpression,Condition,DeviceRequest,DiagnosticReport,DocumentReference,Encounter,ExplanationOfBenefit,FamilyMemberHistory,Goal,ImagingStudy,Immunization,Invoice,MeasureReport,MedicationAdministration,MedicationDispense,MedicationRequest,MedicationStatement,Observation,Procedure,QuestionnaireResponse,RiskAssessment,ServiceRequest,Specimen'
       # ClickHouse configuration
       ENABLE_CLICKHOUSE: '1'
       CLICKHOUSE_HOST: 'http://clickhouse'
@@ -111,10 +113,10 @@ services:
       CLICKHOUSE_USERNAME: 'default'
       CLICKHOUSE_PASSWORD: ''
       MONGO_WITH_CLICKHOUSE_RESOURCES: 'Group'
-      ENABLE_AUDIT_EVENT_CLICKHOUSE: '1'
-      ENABLE_DELEGATED_ACCESS_DETECTION: 'true'
-      ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING: 'true'
-
+      ENABLE_ACCESS_AUDIT_EVENT: '1'
+      CLICKHOUSE_ONLY_RESOURCES: 'AuditEvent'
+      ENABLE_ACCESS_LOGS_CLICKHOUSE: '1'
+      ENABLE_ACCESS_LOGS_MONGODB: '0'
     ports:
       - '3000:3000'
     volumes:
@@ -231,7 +233,7 @@ services:
       start_period: 30s
 
   clickhouse:
-    image: clickhouse/clickhouse-server:24.8
+    image: clickhouse/clickhouse-server:25.12.1
     container_name: fhir-clickhouse
     ports:
       - '8123:8123'   # HTTP interface

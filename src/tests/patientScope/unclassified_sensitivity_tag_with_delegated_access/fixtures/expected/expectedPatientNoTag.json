@@ -1,0 +1,70 @@
+{
+    "resourceType": "Patient",
+    "id": "gql-patient-1",
+    "meta": {
+        "versionId": "2",
+        "source": "http://clienthealth.org/provider",
+        "security": [
+            {
+                "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            },
+            {
+                "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client"
+            }
+        ]
+    },
+    "name": [
+        {
+            "use": "usual",
+            "family": "GRAPHQL",
+            "given": [
+                "TEST"
+            ]
+        }
+    ],
+    "gender": "male",
+    "birthDate": "2000-01-01",
+    "generalPractitioner": [
+        {
+            "reference": "Practitioner/gql-pract-1",
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Practitioner/gql-pract-1"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Practitioner/80ceaf7c-1fda-563b-9df8-606db2cde3b0"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "client"
+                }
+            ]
+        }
+    ],
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "gql-patient-1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "4fc99c16-dccf-5e9b-998b-ef76a308a2ed"
+        }
+    ]
+}

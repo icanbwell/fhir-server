@@ -126,6 +126,14 @@ class ConfigManager {
                     ) || []
                 );
                 break;
+            case 'Person':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_PERSON && env.ACCESS_TAGS_INDEXED_PERSON.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
             case 'Practitioner':
                 indexList = indexList.concat(
                     (
@@ -558,44 +566,37 @@ class ConfigManager {
     }
 
     /**
-     * whether to write access logs from middleware
-     */
-    get enableAccessLogsMiddleware() {
-        if (env.ENABLE_ACCESS_LOGS_MIDDLEWARE === null || env.ENABLE_ACCESS_LOGS_MIDDLEWARE === undefined) {
-            return true;
-        }
-        return isTrue(env.ENABLE_ACCESS_LOGS_MIDDLEWARE);
-    }
-
-    /**
-     * whether to send access-log events to kafka
+     * whether to write access logs to MongoDB
      * @return {boolean}
      */
-    get kafkaEnableAccessLogsEvent() {
-        return isTrue(env.ENABLE_ACCESS_LOGS_KAFKA_EVENTS);
+    get enableAccessLogsMongoDB() {
+        if (env.ENABLE_ACCESS_LOGS_MONGODB === null || env.ENABLE_ACCESS_LOGS_MONGODB === undefined) {
+            return true;
+        }
+        return isTrue(env.ENABLE_ACCESS_LOGS_MONGODB);
     }
 
     get enableAccessLogs() {
-        return this.enableAccessLogsMiddleware || this.kafkaEnableAccessLogsEvent;
+        return this.enableAccessLogsMongoDB || this.enableAccessLogsClickHouse;
     }
 
     /**
-     * whether to write AuditEvent to mongoDB
+     * whether audit event logging is enabled
      * @return {boolean}
      */
-    get enableAuditEventMongoDB() {
-        if (env.ENABLE_AUDIT_EVENT_MONGODB === null || env.ENABLE_AUDIT_EVENT_MONGODB === undefined) {
+    get enableAccessAuditEvent() {
+        if (env.ENABLE_ACCESS_AUDIT_EVENT === null || env.ENABLE_ACCESS_AUDIT_EVENT === undefined) {
             return true;
         }
-        return isTrue(env.ENABLE_AUDIT_EVENT_MONGODB);
+        return isTrue(env.ENABLE_ACCESS_AUDIT_EVENT);
     }
 
     /**
-     * whether to write AuditEvent to ClickHouse
+     * whether to write access logs to ClickHouse
      * @return {boolean}
      */
-    get enableAuditEventClickHouse() {
-        return isTrue(env.ENABLE_AUDIT_EVENT_CLICKHOUSE) && this.enableClickHouse;
+    get enableAccessLogsClickHouse() {
+        return isTrue(env.ENABLE_ACCESS_LOGS_CLICKHOUSE) && this.enableClickHouse;
     }
 
     /**
@@ -807,6 +808,15 @@ class ConfigManager {
                 env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES.split(',').map((col) => col.trim())) ||
             []
         );
+    }
+
+    /**
+     * Resource types that receive the unclassified sensitivity tag on write.
+     * Empty Set disables the feature.
+     * @returns {Set<string>}
+     */
+    get resourceTypesForUnclassifiedTagging() {
+        return new Set(this._parseCommaSeparatedList(env.UNCLASSIFIED_TAGGING_RESOURCES, []));
     }
 
     /**

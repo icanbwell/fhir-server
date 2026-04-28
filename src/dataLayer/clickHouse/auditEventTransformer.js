@@ -1,3 +1,5 @@
+const { SECURITY_TAG_SYSTEMS } = require('../../constants/securityTagSystems');
+
 /**
  * Transforms MongoDB AuditEvent documents into ClickHouse rows matching the
  * lean RFC schema (see clickhouse-init/02-audit-event.sql).
@@ -129,6 +131,7 @@ class AuditEventTransformer {
             agent_requestor_who: this.extractRequestorWho(agents),
             purpose_of_event: this.extractPurposeOfEvent(doc.purposeOfEvent),
             meta_security: this.extractMetaSecurity(doc.meta?.security),
+            access_tags: (doc.meta?.security || []).filter(s => s.system === SECURITY_TAG_SYSTEMS.ACCESS).map(s => s.code),
             _sourceAssigningAuthority: doc._sourceAssigningAuthority || '',
             _sourceId: doc._sourceId || '',
             resource: doc

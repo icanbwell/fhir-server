@@ -20,6 +20,7 @@ const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backboneElements/bundleEntry.js');
 
@@ -351,7 +352,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 doc.meta.versionId = '1';
             }
             // Run preSave handlers FIRST (includes invariant validation)
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
@@ -392,26 +394,42 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     }
                 });
 
-                this.addOperationForResourceType({
-                    requestId,
-                    resourceType,
-                    resource: doc,
-                    operation: {
-                        // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
-                        updateOne: {
-                            filter: {
-                                _uuid: doc._uuid
-                            },
-                            update: {
-                                $setOnInsert: doc
-                            },
-                            upsert: true
-                        }
-                    },
-                    operationType: 'insertUniqueId',
-                    patches: null,
-                    contextData
-                });
+                if (resourceType === 'AuditEvent') {
+                    this.addOperationForResourceType({
+                        requestId,
+                        resourceType,
+                        resource: doc,
+                        operation: {
+                            insertOne: {
+                                document: doc
+                            }
+                        },
+                        operationType: 'insert',
+                        patches: null,
+                        contextData
+                    });
+                } else {
+                    this.addOperationForResourceType({
+                        requestId,
+                        resourceType,
+                        resource: doc,
+                        operation: {
+                            // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
+                            updateOne: {
+                                filter: {
+                                    _uuid: doc._uuid
+                                },
+                                update: {
+                                    $setOnInsert: doc
+                                },
+                                upsert: true
+                            }
+                        },
+                        operationType: 'insertUniqueId',
+                        patches: null,
+                        contextData
+                    });
+                }
             }
             if (doc._id) {
                 logInfo('_id still present', {
@@ -517,7 +535,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
         const lastVersionId = previousVersionId;
         try {
             // Run preSave handlers FIRST (includes invariant validation)
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             handleClickHouseGroupPreSave(doc, contextData, this.configManager);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);

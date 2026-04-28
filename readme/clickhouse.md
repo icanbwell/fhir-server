@@ -56,7 +56,7 @@ ClickHouse is included in `docker-compose.yml`:
 
 ```yaml
 clickhouse:
-  image: clickhouse/clickhouse-server:24.8
+  image: clickhouse/clickhouse-server:25.12.1
   ports:
     - '8123:8123'   # HTTP
     - '9000:9000'   # Native TCP

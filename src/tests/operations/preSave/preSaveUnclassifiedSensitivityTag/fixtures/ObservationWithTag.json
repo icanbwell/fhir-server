@@ -1,0 +1,41 @@
+{
+    "resourceType": "Observation",
+    "id": "obs-unclassified-test-2",
+    "meta": {
+        "source": "http://healthsystem1.org/provider",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "healthsystem1"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "healthsystem1"
+            },
+            {
+                "system": "https://www.icanbwell.com/sensitivity-category",
+                "code": "unclassified"
+            }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "system": "http://loinc.org",
+                "code": "2093-3",
+                "display": "Cholesterol [Mass/volume] in Serum or Plasma"
+            }
+        ]
+    },
+    "subject": {
+        "reference": "Patient/patient-1"
+    },
+    "effectiveDateTime": "2021-06-15T10:00:00.000Z",
+    "valueQuantity": {
+        "value": 195,
+        "unit": "mg/dL",
+        "system": "http://unitsofmeasure.org",
+        "code": "mg/dL"
+    }
+}

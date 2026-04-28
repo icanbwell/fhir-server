@@ -29,8 +29,7 @@ const createTestContainer = function (fnUpdateContainer) {
             scopesManager: c.scopesManager,
             fhirOperationsManager: c.fhirOperationsManager,
             configManager: c.configManager,
-            databaseBulkInserter: c.databaseBulkInserter,
-            accessLogsEventProducer: c.accessLogsEventProducer
+            databaseBulkInserter: c.databaseBulkInserter
         }));
     container.register('cronTasksProcessor', (c) => new MockCronTasksProcessor(
         {
@@ -44,8 +43,7 @@ const createTestContainer = function (fnUpdateContainer) {
             postRequestProcessor: c.postRequestProcessor,
             databaseBulkInserter: c.databaseBulkInserter,
             preSaveManager: c.preSaveManager,
-            configManager: c.configManager,
-            auditEventClickHouseWriter: c.auditEventClickHouseWriter
+            configManager: c.configManager
         }));
     container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({
         configManager: c.configManager

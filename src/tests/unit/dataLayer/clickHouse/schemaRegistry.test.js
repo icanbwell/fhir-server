@@ -28,7 +28,6 @@ describe('ClickHouseSchemaRegistry', () => {
             },
             securityMappings: {
                 accessTags: 'access_tags',
-                ownerTags: 'owner_tags',
                 sourceAssigningAuthority: 'source_assigning_authority'
             },
             requiredFilters: ['recorded'],
@@ -96,7 +95,7 @@ describe('ClickHouseSchemaRegistry', () => {
             ['fhirResourceColumn injection', { fhirResourceColumn: 'col; DROP' }, 'fhirResourceColumn must be a valid column name'],
             ['fhirResourceColumnType invalid', { fhirResourceColumnType: 'binary' }, 'fhirResourceColumnType must be one of'],
             ['securityMappings missing accessTags', {
-                securityMappings: { ownerTags: 'o', sourceAssigningAuthority: 's' }
+                securityMappings: { sourceAssigningAuthority: 's' }
             }, 'securityMappings must have accessTags'],
             ['securityMappings null', { securityMappings: null }, 'securityMappings must have accessTags'],
             ['fieldMappings null', { fieldMappings: null }, 'fieldMappings must be an object'],
@@ -172,6 +171,70 @@ describe('ClickHouseSchemaRegistry', () => {
         test('accepts schema with json fhirResourceColumnType', () => {
             const schema = { ...validSchema, fhirResourceColumnType: RESOURCE_COLUMN_TYPES.JSON };
             expect(() => registry.registerSchema('JsonCol', schema)).not.toThrow();
+        });
+
+        test('accepts securityMappings with access tags and sourceAssigningAuthority', () => {
+            const schema = {
+                ...validSchema,
+                securityMappings: {
+                    accessTags: 'access_tags',
+                    sourceAssigningAuthority: 'source_assigning_authority'
+                }
+            };
+            expect(() => registry.registerSchema('FlatSecurity', schema)).not.toThrow();
+        });
+
+        test('accepts fieldMappings with jsonPath columns', () => {
+            const schema = {
+                ...validSchema,
+                fieldMappings: {
+                    ...validSchema.fieldMappings,
+                    'agent.who._sourceId': { column: 'resource.agent[].who._sourceId', type: 'array<string>', jsonPath: true }
+                }
+            };
+            expect(() => registry.registerSchema('JsonPath', schema)).not.toThrow();
+        });
+
+        test('rejects jsonPath column with invalid characters', () => {
+            const schema = {
+                ...validSchema,
+                fieldMappings: {
+                    ...validSchema.fieldMappings,
+                    bad: { column: 'resource.agent; DROP TABLE', type: 'array<string>', jsonPath: true }
+                }
+            };
+            expect(() => registry.registerSchema('Bad', schema)).toThrow('valid JSON path');
+        });
+    });
+
+    describe('AuditEvent schema registration', () => {
+        test('AuditEvent schema passes validation', () => {
+            const { getAuditEventClickHouseSchema } = require('../../../../dataLayer/clickHouse/auditEventClickHouseSchema');
+            const auditSchema = getAuditEventClickHouseSchema();
+            expect(() => registry.registerSchema('AuditEvent', auditSchema)).not.toThrow();
+            expect(registry.hasSchema('AuditEvent')).toBe(true);
+        });
+
+        test('AuditEvent schema has expected field mappings', () => {
+            const { getAuditEventClickHouseSchema } = require('../../../../dataLayer/clickHouse/auditEventClickHouseSchema');
+            const auditSchema = getAuditEventClickHouseSchema();
+            registry.registerSchema('AuditEvent', auditSchema);
+            const schema = registry.getSchema('AuditEvent');
+
+            expect(schema.fieldMappings['recorded'].column).toBe('recorded');
+            expect(schema.fieldMappings['agent.who._uuid'].column).toBe('agent_who');
+            expect(schema.fieldMappings['agent.who._sourceId'].jsonPath).toBe(true);
+            expect(schema.fieldMappings['entity.what._uuid'].column).toBe('entity_what');
+            expect(schema.fieldMappings['entity.what._sourceId'].jsonPath).toBe(true);
+        });
+
+        test('AuditEvent schema has flat security tag columns', () => {
+            const { getAuditEventClickHouseSchema } = require('../../../../dataLayer/clickHouse/auditEventClickHouseSchema');
+            const auditSchema = getAuditEventClickHouseSchema();
+            registry.registerSchema('AuditEvent', auditSchema);
+            const schema = registry.getSchema('AuditEvent');
+
+            expect(schema.securityMappings.accessTags).toBe('access_tags');
         });
     });
 });

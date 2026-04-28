@@ -284,6 +284,15 @@ describe('Person Tests', () => {
             ]));
         });
 
+        test('PATCH on AuditEvent returns 405 Method Not Allowed', async () => {
+            const request = await createTestRequest();
+            await request
+                .patch('/4_0_0/AuditEvent/1')
+                .send(patch1)
+                .set(getHeadersJsonPatch())
+                .expect(405);
+        });
+
         test('Patch response works if identifier system is updated except source id and uuid', async () => {
             const request = await createTestRequest();
             const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/client.*');

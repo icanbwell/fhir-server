@@ -6,6 +6,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {PatientScopeManager} = require('./patientScopeManager');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const {PreSaveOptions} = require('../../preSaveHandlers/preSaveOptions');
 const {RESOURCE_RESTRICTION_TAG, AUTH_USER_TYPES} = require('../../constants');
 const {DelegatedAccessScopeManager} = require('./delegatedAccessScopeManager');
 
@@ -304,7 +305,8 @@ class ScopesValidator {
         // eslint-disable-next-line no-useless-catch
         try {
             // Run preSave to generate _uuid values for references and resource
-            resource = await this.preSaveManager.preSaveAsync({resource});
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            resource = await this.preSaveManager.preSaveAsync({resource, options: preSaveOptions});
             // validate access scopes for resource
             this.isAccessToResourceAllowedByAccessScopes({requestInfo, resource, accessRequested});
             // validate if resource being accessed is restricted for patient

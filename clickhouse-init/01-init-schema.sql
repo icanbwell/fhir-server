@@ -4,11 +4,6 @@
 
 CREATE DATABASE IF NOT EXISTS fhir;
 
--- Note: SET commands are session-scoped. This script must be executed
--- with clickhouse-client --multiquery to apply these limits to subsequent statements.
-SET max_ast_depth = 10000;
-SET max_expanded_ast_elements = 500000;
-
 -- ===========================================================================
 -- Table: fhir.Group_4_0_0_MemberEvents (Event Log - Append Only)
 -- ===========================================================================

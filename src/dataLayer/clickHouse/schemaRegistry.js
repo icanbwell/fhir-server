@@ -131,13 +131,11 @@ class ClickHouseSchemaRegistry {
             errors.push(`fhirResourceColumnType must be one of: ${validColumnTypes.join(', ')}`);
         }
 
-        // securityMappings: mandatory with all three keys, valid column names
+        // securityMappings: accessTags is mandatory; other keys are optional
         if (!schema.securityMappings ||
             typeof schema.securityMappings !== 'object' ||
-            !schema.securityMappings.accessTags ||
-            !schema.securityMappings.ownerTags ||
-            !schema.securityMappings.sourceAssigningAuthority) {
-            errors.push('securityMappings must have accessTags, ownerTags, and sourceAssigningAuthority');
+            !schema.securityMappings.accessTags) {
+            errors.push('securityMappings must have accessTags');
         } else {
             for (const [key, col] of Object.entries(schema.securityMappings)) {
                 if (!COLUMN_NAME_PATTERN.test(col)) {
@@ -147,12 +145,21 @@ class ClickHouseSchemaRegistry {
         }
 
         // fieldMappings: must be an object with valid column names
+        // JSON path expressions (mapping.jsonPath === true) use dot/bracket notation
+        // (e.g., resource.agent[].who._sourceId) instead of plain column names.
+        const JSON_PATH_PATTERN = /^[a-zA-Z_][\w.[\]]*$/;
         if (!schema.fieldMappings || typeof schema.fieldMappings !== 'object') {
             errors.push('fieldMappings must be an object');
         } else {
             for (const [path, mapping] of Object.entries(schema.fieldMappings)) {
-                if (!mapping.column || !COLUMN_NAME_PATTERN.test(mapping.column)) {
-                    errors.push(`fieldMappings['${path}'].column must be alphanumeric/underscore only`);
+                if (mapping.jsonPath) {
+                    if (!mapping.column || !JSON_PATH_PATTERN.test(mapping.column)) {
+                        errors.push(`fieldMappings['${path}'].column must be a valid JSON path (alphanumeric, dots, brackets)`);
+                    }
+                } else {
+                    if (!mapping.column || !COLUMN_NAME_PATTERN.test(mapping.column)) {
+                        errors.push(`fieldMappings['${path}'].column must be alphanumeric/underscore only`);
+                    }
                 }
             }
         }

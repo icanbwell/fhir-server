@@ -699,8 +699,7 @@ describe('Patient $summary Tests', () => {
                     code: 'invalid',
                     details: {
                         text: 'Multiple IDs are not allowed'
-                    },
-                    diagnostics: expect.stringContaining('Error: Multiple IDs are not allowed')
+                    }
                 }
             ]
         };

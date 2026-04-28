@@ -65,6 +65,7 @@ const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientP
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
 const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
 const {GroupInvariantHandler} = require('./preSaveHandlers/handlers/groupInvariantHandler');
+const {UnclassifiedSensitivityTagHandler} = require('./preSaveHandlers/handlers/unclassifiedSensitivityTagHandler');
 const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
@@ -92,6 +93,7 @@ const {CmsConsentManager} = require('./operations/search/cmsConsentManager');
 const {CMSManager} = require('./utils/cmsManager');
 const {DelegatedAccessManager} = require('./utils/delegatedAccessManager');
 const {OperationAccessManager} = require('./utils/operationAccessManager');
+const {ResourceOperationAccessProvider} = require('./utils/resourceOperationAccessProvider');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -132,7 +134,6 @@ const { RemoveHelper } = require('./operations/remove/removeHelper');
 const { FhirOperationUsageEventProducer } = require('./utils/fhirOperationUsageEventProducer');
 const { PatientPersonManualLinkingEventProducer } = require('./utils/patientPersonManualLinkingEventProducer');
 const { CronTasksProcessor } = require('./utils/cronTasksProcessor');
-const { AccessLogsEventProducer } = require('./utils/accessLogsEventProducer');
 const { PatientPersonDataChangeEventProducer } = require('./utils/patientPersonDataChangeEventProducer');
 const { RedisClient } = require('./utils/redisClient');
 const { RedisStreamManager } = require('./utils/redisStreamManager');
@@ -218,6 +219,7 @@ const createContainer = function () {
             new AccessColumnHandler(),
             new OwnerColumnHandler(),
             c.sourceAssigningAuthorityColumnHandler,
+            new UnclassifiedSensitivityTagHandler({ configManager: c.configManager }),
             new CodeableConceptIdHandler({
                 configManager: c.configManager
             }),
@@ -317,10 +319,12 @@ const createContainer = function () {
     }));
     container.register('cmsManager', () => new CMSManager());
     container.register('delegatedAccessManager', () => new DelegatedAccessManager());
+    container.register('resourceOperationAccessProvider', () => new ResourceOperationAccessProvider());
     container.register('accessManager', (c) => new OperationAccessManager({
         accessProviders: [
             c.cmsManager,
-            c.delegatedAccessManager
+            c.delegatedAccessManager,
+            c.resourceOperationAccessProvider
         ]
     }));
     container.register('dataSharingManager', (c) => new DataSharingManager({
@@ -350,24 +354,24 @@ const createContainer = function () {
         }
         return null;
     });
-    // Register AuditEvent ClickHouse repository (if enabled)
-    container.register('auditEventClickHouseRepository', (c) => {
-        if (c.configManager.enableAuditEventClickHouse && c.clickHouseClientManager) {
-            const { AuditEventClickHouseRepository } = require('./dataLayer/repositories/auditEventClickHouseRepository');
-            return new AuditEventClickHouseRepository({
+    // Register AccessLog ClickHouse repository (if enabled)
+    container.register('accessLogClickHouseRepository', (c) => {
+        if (c.configManager.enableAccessLogsClickHouse && c.clickHouseClientManager) {
+            const { AccessLogClickHouseRepository } = require('./dataLayer/repositories/accessLogClickHouseRepository');
+            return new AccessLogClickHouseRepository({
                 clickHouseClientManager: c.clickHouseClientManager
             });
         }
         return null;
     });
-    // Register AuditEvent ClickHouse writer (if repository available)
-    container.register('auditEventClickHouseWriter', (c) => {
-        if (c.auditEventClickHouseRepository) {
-            const { AuditEventClickHouseWriter } = require('./utils/auditEventClickHouseWriter');
-            const { AuditEventTransformer } = require('./admin/utils/auditEventTransformer');
-            return new AuditEventClickHouseWriter({
-                auditEventClickHouseRepository: c.auditEventClickHouseRepository,
-                auditEventTransformer: new AuditEventTransformer()
+    // Register AccessLog ClickHouse writer (if repository available)
+    container.register('accessLogClickHouseWriter', (c) => {
+        if (c.accessLogClickHouseRepository) {
+            const { AccessLogClickHouseWriter } = require('./utils/accessLogClickHouseWriter');
+            const { AccessLogTransformer } = require('./dataLayer/clickHouse/accessLogTransformer');
+            return new AccessLogClickHouseWriter({
+                accessLogClickHouseRepository: c.accessLogClickHouseRepository,
+                accessLogTransformer: new AccessLogTransformer()
             });
         }
         return null;
@@ -545,13 +549,17 @@ const createContainer = function () {
     // ClickHouse-only resource infrastructure
     container.register('clickHouseSchemaRegistry', (c) => {
         const registry = new ClickHouseSchemaRegistry();
+        if (c.configManager.clickHouseOnlyResources.includes('AuditEvent')) {
+            const { getAuditEventClickHouseSchema } = require('./dataLayer/clickHouse/auditEventClickHouseSchema');
+            registry.registerSchema('AuditEvent', getAuditEventClickHouseSchema());
+        }
         if (c.configManager.clickHouseOnlyResources.includes('Observation')) {
             const { getObservationSchema } = require('./dataLayer/clickHouse/schemas/observationSchema');
             registry.registerSchema('Observation', getObservationSchema());
         }
         // Validate known resources have schemas. Unknown resources (e.g., test-only
         // resources) may register schemas outside the container and are not validated here.
-        const knownClickHouseResources = ['Observation'];
+        const knownClickHouseResources = ['AuditEvent', 'Observation'];
         for (const resourceType of c.configManager.clickHouseOnlyResources) {
             if (knownClickHouseResources.includes(resourceType) && !registry.hasSchema(resourceType)) {
                 throw new Error(
@@ -579,7 +587,8 @@ const createContainer = function () {
         return new ClickHouseBulkWriteExecutor({
             genericClickHouseRepository: c.genericClickHouseRepository,
             schemaRegistry: c.clickHouseSchemaRegistry,
-            postSaveProcessor: c.postSaveProcessor
+            postSaveProcessor: c.postSaveProcessor,
+            fallbackExecutor: c.mongoBulkWriteExecutor
         });
     });
 
@@ -651,8 +660,7 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.databaseBulkInserter,
                 preSaveManager: c.preSaveManager,
-                configManager: c.configManager,
-                auditEventClickHouseWriter: c.auditEventClickHouseWriter
+                configManager: c.configManager
             }
         )
     );
@@ -663,14 +671,7 @@ const createContainer = function () {
                 imageVersion: getImageVersion(),
                 configManager: c.configManager,
                 databaseBulkInserter: c.databaseBulkInserter,
-                accessLogsEventProducer: c.accessLogsEventProducer
-            }
-        )
-    );
-    container.register('accessLogsEventProducer', (c) => new AccessLogsEventProducer(
-            {
-                kafkaClient: c.kafkaClient,
-                accessLogsEventTopic: process.env.KAFKA_ACCESS_LOGS_TOPIC || 'fhir.access-logs.events'
+                accessLogClickHouseWriter: c.accessLogClickHouseWriter
             }
         )
     );
@@ -1052,6 +1053,16 @@ const createContainer = function () {
             accessIndexManager: c.accessIndexManager,
             r4ArgsParser: c.r4ArgsParser
         }));
+
+    container.register('adminAccessLogClickHouseManager', (c) => {
+        if (c.configManager.enableAccessLogsClickHouse && c.clickHouseClientManager) {
+            const { AdminAccessLogClickHouseManager } = require('./admin/adminAccessLogClickHouseManager');
+            return new AdminAccessLogClickHouseManager({
+                clickHouseClientManager: c.clickHouseClientManager
+            });
+        }
+        return null;
+    });
 
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,

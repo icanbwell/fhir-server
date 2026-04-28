@@ -122,6 +122,10 @@ async function handleAdminGet (
                                 message: 'Invalid id parameter'
                             });
                         }
+                        if (container.configManager.enableAccessLogsClickHouse) {
+                            const json = await container.adminAccessLogClickHouseManager.getLogAsync(id);
+                            return res.json(json);
+                        }
                         const adminLogManager = new AdminLogManager({ mongoDatabaseManager: container.mongoDatabaseManager });
                         const json = await adminLogManager.getLogAsync(id);
                         return res.json(json);
@@ -220,18 +224,17 @@ async function handleAdminGet (
                             return res.json(result);
                         } catch (error) {
                             logError(`Error retrieving cache for ${resourceType}/${resourceId}`, error);
+                            const statusCode = error.statusCode || 500;
                             const operationOutcome = new OperationOutcome({
                                 issue: [
-                                    new OperationOutcomeIssue(
-                                        {
-                                            severity: 'error',
-                                            code: 'exception',
-                                            diagnostics: error.message
-                                        }
-                                    )
+                                    new OperationOutcomeIssue({
+                                        severity: 'error',
+                                        code: 'exception',
+                                        diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
+                                    })
                                 ]
                             });
-                            return res.status(error.statusCode || 500).json(operationOutcome);
+                            return res.status(statusCode).json(operationOutcome);
                         }
                     }
                     return res.json({
@@ -278,18 +281,17 @@ async function handleAdminGet (
             stack: error.stack,
             source: 'handleAdminGet'
         });
+        const statusCode = error.statusCode || 500;
         const operationOutcome = new OperationOutcome({
             issue: [
-                new OperationOutcomeIssue(
-                    {
-                        severity: 'error',
-                        code: 'exception',
-                        diagnostics: error.message
-                    }
-                )
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'exception',
+                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
+                })
             ]
         });
-        return res.end(JSON.stringify(operationOutcome));
+        return res.status(statusCode).json(operationOutcome);
     }
 }
 
@@ -472,19 +474,29 @@ async function handleAdminPost (
                         }
                     } catch (error) {
                         logError(`Error invalidating cache`, error);
+                        const statusCode = error.statusCode || 500;
                         const operationOutcome = new OperationOutcome({
                             issue: [
-                                new OperationOutcomeIssue(
-                                    {
-                                        severity: 'error',
-                                        code: 'exception',
-                                        diagnostics: error.message
-                                    }
-                                )
+                                new OperationOutcomeIssue({
+                                    severity: 'error',
+                                    code: 'exception',
+                                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
+                                })
                             ]
                         });
-                        return res.status(error.statusCode || 500).json(operationOutcome);
+                        return res.status(statusCode).json(operationOutcome);
                     }
+                }
+
+                case 'runMatchWithPayload': {
+                    logInfo('', { operation: 'runMatchWithPayload' });
+                    const parameters = req.body;
+                    const personMatchManager = container.personMatchManager;
+                    assertIsValid(personMatchManager);
+                    const json = await personMatchManager.runMatchWithPayloadAsync({
+                        parameters
+                    });
+                    return res.json(json);
                 }
                 default: {
                     return res.json({ message: 'Invalid Path' });
@@ -501,18 +513,17 @@ async function handleAdminPost (
             stack: error.stack,
             source: 'handleAdminPost'
         });
+        const statusCode = error.statusCode || 500;
         const operationOutcome = new OperationOutcome({
             issue: [
-                new OperationOutcomeIssue(
-                    {
-                        severity: 'error',
-                        code: 'exception',
-                        diagnostics: error.message
-                    }
-                )
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'exception',
+                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
+                })
             ]
         });
-        return res.status(error.statusCode || 500).json(operationOutcome);
+        return res.status(statusCode).json(operationOutcome);
     }
 }
 
@@ -581,20 +592,17 @@ async function handleAdminPut(
             stack: error.stack,
             source: 'handleAdminPut'
         });
+        const statusCode = error.statusCode || 500;
         const operationOutcome = new OperationOutcome({
             issue: [
-                new OperationOutcomeIssue(
-                    {
-                        severity: 'error',
-                        code: 'exception',
-                        diagnostics: error.message
-                    }
-                )
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'exception',
+                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
+                })
             ]
         });
-
-        return res.status(error.statusCode || 500).json(operationOutcome);
-
+        return res.status(statusCode).json(operationOutcome);
     }
 }
 
@@ -796,18 +804,17 @@ async function handleAdminDelete (
             stack: error.stack,
             source: 'handleAdminDelete'
         });
+        const statusCode = error.statusCode || 500;
         const operationOutcome = new OperationOutcome({
             issue: [
-                new OperationOutcomeIssue(
-                    {
-                        severity: 'error',
-                        code: 'exception',
-                        diagnostics: error.message
-                    }
-                )
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'exception',
+                    diagnostics: statusCode >= 500 ? 'Internal Server Error' : error.message
+                })
             ]
         });
-        return res.end(JSON.stringify(operationOutcome));
+        return res.status(statusCode).json(operationOutcome);
     }
 }
 

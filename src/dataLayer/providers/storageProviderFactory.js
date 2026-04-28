@@ -16,7 +16,7 @@ const { logInfo, logDebug } = require('../../operations/common/logging');
  * Configuration via environment variables:
  * - CLICKHOUSE_ENABLED=true
  * - MONGO_WITH_CLICKHOUSE_RESOURCES=Group (comma-separated list)
- * - CLICKHOUSE_ONLY_RESOURCES=AuditEvent (comma-separated list, not yet implemented)
+ * - CLICKHOUSE_ONLY_RESOURCES=AuditEvent (comma-separated list)
  */
 class StorageProviderFactory {
     /**

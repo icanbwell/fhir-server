@@ -1,10 +1,16 @@
 /**
  * Manages migration state in ClickHouse table fhir.audit_event_migration_state.
- * Tracks per-day partition progress for resume-safe bulk migration.
+ * Tracks per-hour partition progress for resume-safe bulk migration.
  *
  * Table uses ReplacingMergeTree(updated_at) — all state updates are INSERTs
  * (not ALTER TABLE UPDATE mutations). Query with FINAL to get latest state.
  * DDL: clickhouse-init/03-audit-event-migration-state.sql
+ *
+ * State grain is per-hour (pending | in_progress | completed | failed). There are
+ * no mid-hour checkpoints: on retry, PartitionWorker DELETEs any rows written by
+ * a prior attempt and re-migrates the whole hour.
+ *
+ * Partition keys are 'YYYY-MM-DDTHH' (UTC), e.g. '2024-05-10T15'.
  */
 
 class MigrationStateManager {
@@ -18,26 +24,29 @@ class MigrationStateManager {
     }
 
     /**
-     * Seeds all partition days as 'pending', skipping any that already exist
-     * @param {string[]} days - Array of 'YYYY-MM-DD' strings
+     * Seeds all partition hours as 'pending', skipping any that already exist.
+     * Each row is written with its source_count populated — callers pass the
+     * count they obtained from the source collection so the state table is
+     * verifiable from the start.
+     *
+     * @param {Array<{hour: string, sourceCount: number}>} entries
      * @returns {Promise<number>} Number of new partitions seeded
      */
-    async seedPartitionsAsync(days) {
+    async seedPartitionsAsync(entries) {
         const existing = await this.getAllStatesAsync();
-        const existingDays = new Set(existing.map((s) => s.partition_day));
+        const existingHours = new Set(existing.map((s) => s.partition_hour));
 
-        const newDays = days.filter((d) => !existingDays.has(d));
-        if (newDays.length === 0) {
+        const newEntries = entries.filter((e) => !existingHours.has(e.hour));
+        if (newEntries.length === 0) {
             return 0;
         }
 
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        const rows = newDays.map((day) => ({
-            partition_day: day,
+        const rows = newEntries.map(({ hour, sourceCount }) => ({
+            partition_hour: hour,
             status: 'pending',
-            source_count: 0,
+            source_count: Number(sourceCount) || 0,
             inserted_count: 0,
-            last_mongo_id: '',
             started_at: null,
             completed_at: null,
             error_message: '',
@@ -50,7 +59,7 @@ class MigrationStateManager {
             format: 'JSONEachRow'
         });
 
-        return newDays.length;
+        return newEntries.length;
     }
 
     /**
@@ -59,69 +68,79 @@ class MigrationStateManager {
      */
     async getAllStatesAsync() {
         return this.clickHouseClientManager.queryAsync({
-            query: `SELECT * FROM ${this.table} FINAL ORDER BY partition_day`
+            query: `SELECT * FROM ${this.table} FINAL ORDER BY partition_hour`
         });
     }
 
     /**
-     * Gets state for a single partition day
-     * @param {string} partitionDay
+     * Gets state for a single partition hour
+     * @param {string} partitionHour - 'YYYY-MM-DDTHH'
      * @returns {Promise<Object|undefined>}
      */
-    async getStateForDayAsync(partitionDay) {
+    async getStateForHourAsync(partitionHour) {
         const results = await this.clickHouseClientManager.queryAsync({
             query: `SELECT * FROM ${this.table} FINAL
-                    WHERE partition_day = {day:String}`,
-            query_params: { day: partitionDay }
+                    WHERE partition_hour = {hour:String}`,
+            query_params: { hour: partitionHour }
         });
         return results[0];
     }
 
     /**
-     * Gets partitions that need processing (pending, in_progress, or failed)
+     * Gets partitions that need processing (pending, in_progress, or failed).
+     * Returns `inserted_count` (so the worker can detect a prior partial write)
+     * and `source_count` (so the worker can trust the --init-populated count
+     * instead of re-querying Mongo).
+     *
      * @param {Object} [options]
-     * @param {string} [options.startDate] - Inclusive start date 'YYYY-MM-DD'
-     * @param {string} [options.endDate] - Exclusive end date 'YYYY-MM-DD'
-     * @returns {Promise<Array<{partition_day: string, status: string, last_mongo_id: string}>>}
+     * @param {string} [options.startHour] - Inclusive start 'YYYY-MM-DDTHH'
+     * @param {string} [options.endHour] - Exclusive end 'YYYY-MM-DDTHH'
+     * @returns {Promise<Array<{partition_hour: string, status: string, inserted_count: number, source_count: number}>>}
      */
-    async getPendingPartitionsAsync({ startDate, endDate } = {}) {
-        let query = `SELECT partition_day, status, last_mongo_id
+    async getPendingPartitionsAsync({ startHour, endHour } = {}) {
+        let query = `SELECT partition_hour, status, inserted_count, source_count
                     FROM ${this.table} FINAL
                     WHERE status IN ('pending', 'in_progress', 'failed')`;
         const query_params = {};
 
-        if (startDate) {
-            query += ` AND partition_day >= {startDate:String}`;
-            query_params.startDate = startDate;
+        if (startHour) {
+            query += ` AND partition_hour >= {startHour:String}`;
+            query_params.startHour = startHour;
         }
-        if (endDate) {
-            query += ` AND partition_day < {endDate:String}`;
-            query_params.endDate = endDate;
+        if (endHour) {
+            query += ` AND partition_hour < {endHour:String}`;
+            query_params.endHour = endHour;
         }
 
-        query += ` ORDER BY partition_day`;
+        query += ` ORDER BY partition_hour`;
 
         return this.clickHouseClientManager.queryAsync({ query, query_params });
     }
 
     /**
-     * Marks a partition as in_progress
-     * @param {string} partitionDay
+     * Resets counts and clears error on a partition before a retry attempt.
+     * Called by PartitionWorker after it has DELETEd the hour's prior rows from
+     * fhir.AuditEvent_4_0_0 — this brings the state row back to a clean slate
+     * so downstream `markInProgressAsync` / `markCompletedAsync` start from zero.
+     *
+     * Leaves `status` alone; the caller's subsequent `markInProgressAsync` is
+     * what flips it to 'in_progress'.
+     *
+     * @param {string} partitionHour
      * @returns {Promise<void>}
      */
-    async markInProgressAsync(partitionDay) {
+    async clearInsertedCountAsync(partitionHour) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        const current = await this.getStateForDayAsync(partitionDay);
+        const current = await this.getStateForHourAsync(partitionHour);
         await this.clickHouseClientManager.insertAsync({
             table: this.table,
             values: [
                 {
-                    partition_day: partitionDay,
-                    status: 'in_progress',
+                    partition_hour: partitionHour,
+                    status: current?.status || 'pending',
                     source_count: Number(current?.source_count) || 0,
-                    inserted_count: Number(current?.inserted_count) || 0,
-                    last_mongo_id: current?.last_mongo_id || '',
-                    started_at: now,
+                    inserted_count: 0,
+                    started_at: current?.started_at || null,
                     completed_at: null,
                     error_message: '',
                     updated_at: now
@@ -132,26 +151,54 @@ class MigrationStateManager {
     }
 
     /**
-     * Updates checkpoint within an in_progress partition
+     * Updates in-flight progress for a partition: bumps inserted_count and
+     * updated_at while keeping status='in_progress'. Called between batches
+     * so operators can watch progress via --show-state without waiting for
+     * the whole hour to complete.
+     *
      * @param {Object} params
-     * @param {string} params.partitionDay
-     * @param {string} params.lastMongoId
-     * @param {number} params.insertedCount
+     * @param {string} params.partitionHour
+     * @param {number} params.insertedCount - cumulative for this hour so far
      * @returns {Promise<void>}
      */
-    async updateCheckpointAsync({ partitionDay, lastMongoId, insertedCount }) {
+    async updateProgressAsync({ partitionHour, insertedCount }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        const current = await this.getStateForDayAsync(partitionDay);
+        const current = await this.getStateForHourAsync(partitionHour);
         await this.clickHouseClientManager.insertAsync({
             table: this.table,
             values: [
                 {
-                    partition_day: partitionDay,
+                    partition_hour: partitionHour,
                     status: 'in_progress',
                     source_count: Number(current?.source_count) || 0,
                     inserted_count: insertedCount,
-                    last_mongo_id: lastMongoId,
-                    started_at: current?.started_at || null,
+                    started_at: current?.started_at || now,
+                    completed_at: null,
+                    error_message: '',
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
+        });
+    }
+
+    /**
+     * Marks a partition as in_progress
+     * @param {string} partitionHour
+     * @returns {Promise<void>}
+     */
+    async markInProgressAsync(partitionHour) {
+        const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
+        const current = await this.getStateForHourAsync(partitionHour);
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_hour: partitionHour,
+                    status: 'in_progress',
+                    source_count: Number(current?.source_count) || 0,
+                    inserted_count: Number(current?.inserted_count) || 0,
+                    started_at: now,
                     completed_at: null,
                     error_message: '',
                     updated_at: now
@@ -164,24 +211,22 @@ class MigrationStateManager {
     /**
      * Marks a partition as completed
      * @param {Object} params
-     * @param {string} params.partitionDay
+     * @param {string} params.partitionHour
      * @param {number} params.insertedCount
      * @param {number} params.sourceCount
-     * @param {string} [params.lastMongoId] - Final mongo _id processed
      * @returns {Promise<void>}
      */
-    async markCompletedAsync({ partitionDay, insertedCount, sourceCount, lastMongoId }) {
+    async markCompletedAsync({ partitionHour, insertedCount, sourceCount }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        const current = await this.getStateForDayAsync(partitionDay);
+        const current = await this.getStateForHourAsync(partitionHour);
         await this.clickHouseClientManager.insertAsync({
             table: this.table,
             values: [
                 {
-                    partition_day: partitionDay,
+                    partition_hour: partitionHour,
                     status: 'completed',
                     source_count: sourceCount,
                     inserted_count: insertedCount,
-                    last_mongo_id: lastMongoId || current?.last_mongo_id || '',
                     started_at: current?.started_at || null,
                     completed_at: now,
                     error_message: '',
@@ -195,23 +240,22 @@ class MigrationStateManager {
     /**
      * Marks a partition as failed
      * @param {Object} params
-     * @param {string} params.partitionDay
+     * @param {string} params.partitionHour
      * @param {string} params.errorMessage
      * @param {number} params.insertedCount
      * @returns {Promise<void>}
      */
-    async markFailedAsync({ partitionDay, errorMessage, insertedCount }) {
+    async markFailedAsync({ partitionHour, errorMessage, insertedCount }) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        const current = await this.getStateForDayAsync(partitionDay);
+        const current = await this.getStateForHourAsync(partitionHour);
         await this.clickHouseClientManager.insertAsync({
             table: this.table,
             values: [
                 {
-                    partition_day: partitionDay,
+                    partition_hour: partitionHour,
                     status: 'failed',
                     source_count: Number(current?.source_count) || 0,
                     inserted_count: insertedCount,
-                    last_mongo_id: current?.last_mongo_id || '',
                     started_at: current?.started_at || null,
                     completed_at: null,
                     error_message: errorMessage.substring(0, 1000),
@@ -224,22 +268,21 @@ class MigrationStateManager {
 
     /**
      * Updates source_count for verification
-     * @param {string} partitionDay
+     * @param {string} partitionHour
      * @param {number} sourceCount
      * @returns {Promise<void>}
      */
-    async updateSourceCountAsync(partitionDay, sourceCount) {
+    async updateSourceCountAsync(partitionHour, sourceCount) {
         const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        const current = await this.getStateForDayAsync(partitionDay);
+        const current = await this.getStateForHourAsync(partitionHour);
         await this.clickHouseClientManager.insertAsync({
             table: this.table,
             values: [
                 {
-                    partition_day: partitionDay,
+                    partition_hour: partitionHour,
                     status: current?.status || 'completed',
                     source_count: sourceCount,
                     inserted_count: Number(current?.inserted_count) || 0,
-                    last_mongo_id: current?.last_mongo_id || '',
                     started_at: current?.started_at || null,
                     completed_at: current?.completed_at || null,
                     error_message: current?.error_message || '',
@@ -248,6 +291,88 @@ class MigrationStateManager {
             ],
             format: 'JSONEachRow'
         });
+    }
+
+    /**
+     * Resets a partition back to 'pending'. Used by the --delete-partitions flow
+     * after the AuditEvent rows for this hour are deleted.
+     *
+     * We write a fresh row rather than DELETE-ing the existing one: the state table is
+     * ReplacingMergeTree(updated_at) ORDER BY (partition_hour), so a later-updated_at
+     * row naturally supersedes earlier ones on merge, and --resume picks up 'pending'
+     * partitions via getPendingPartitionsAsync.
+     *
+     * @param {string} partitionHour
+     * @returns {Promise<void>}
+     */
+    async resetPartitionAsync(partitionHour) {
+        const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: [
+                {
+                    partition_hour: partitionHour,
+                    status: 'pending',
+                    source_count: 0,
+                    inserted_count: 0,
+                    started_at: null,
+                    completed_at: null,
+                    error_message: '',
+                    updated_at: now
+                }
+            ],
+            format: 'JSONEachRow'
+        });
+    }
+
+    /**
+     * Resets every row whose status is in `statuses` and whose partition_hour
+     * falls within [startHour, endHour) back to 'pending', preserving
+     * source_count. Leaves `fhir.AuditEvent_4_0_0` untouched — callers that
+     * need to drop the underlying data must do so separately.
+     *
+     * Used by --reset-state for surgical recovery: when state rows are stuck
+     * on 'failed' / 'in_progress' but the operator knows the ClickHouse side
+     * is fine (or wants a clean slate that doesn't rewrite data).
+     *
+     * @param {Object} params
+     * @param {string} params.startHour - inclusive 'YYYY-MM-DDTHH'
+     * @param {string} params.endHour - exclusive 'YYYY-MM-DDTHH'
+     * @param {string[]} params.statuses - e.g. ['failed','in_progress']
+     * @returns {Promise<string[]>} partition_hour keys that were reset
+     */
+    async resetStatusesAsync({ startHour, endHour, statuses }) {
+        const allStates = await this.getAllStatesAsync();
+        const matching = allStates.filter(
+            (s) =>
+                s.partition_hour >= startHour &&
+                s.partition_hour < endHour &&
+                statuses.includes(s.status)
+        );
+
+        if (matching.length === 0) {
+            return [];
+        }
+
+        const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
+        const rows = matching.map((s) => ({
+            partition_hour: s.partition_hour,
+            status: 'pending',
+            source_count: Number(s.source_count) || 0,
+            inserted_count: 0,
+            started_at: null,
+            completed_at: null,
+            error_message: '',
+            updated_at: now
+        }));
+
+        await this.clickHouseClientManager.insertAsync({
+            table: this.table,
+            values: rows,
+            format: 'JSONEachRow'
+        });
+
+        return matching.map((s) => s.partition_hour);
     }
 
     /**
@@ -275,22 +400,53 @@ class MigrationStateManager {
 }
 
 /**
- * Generates array of 'YYYY-MM-DD' strings between start and end (inclusive of start, exclusive of end)
- * @param {string} startDate - 'YYYY-MM-DD'
- * @param {string} endDate - 'YYYY-MM-DD'
+ * Generates array of 'YYYY-MM-DDTHH' strings between start and end
+ * (inclusive of start, exclusive of end). Both endpoints must be UTC
+ * 'YYYY-MM-DDTHH' keys — callers normalize bare dates to the full-day range
+ * via `hourBoundsFromCli` in the orchestrator.
+ *
+ * @param {string} startHour - 'YYYY-MM-DDTHH'
+ * @param {string} endHour - 'YYYY-MM-DDTHH'
  * @returns {string[]}
  */
-function generateDailyPartitions(startDate, endDate) {
-    const days = [];
-    const current = new Date(startDate + 'T00:00:00.000Z');
-    const end = new Date(endDate + 'T00:00:00.000Z');
+function generateHourlyPartitions(startHour, endHour) {
+    const hours = [];
+    const current = new Date(startHour + ':00:00.000Z');
+    const end = new Date(endHour + ':00:00.000Z');
 
     while (current < end) {
-        days.push(current.toISOString().split('T')[0]);
-        current.setUTCDate(current.getUTCDate() + 1);
+        hours.push(hourKeyFromDate(current));
+        current.setUTCHours(current.getUTCHours() + 1);
     }
 
-    return days;
+    return hours;
 }
 
-module.exports = { MigrationStateManager, generateDailyPartitions };
+/**
+ * Format a Date (UTC) as a partition-hour key 'YYYY-MM-DDTHH'.
+ * @param {Date} d
+ * @returns {string}
+ */
+function hourKeyFromDate(d) {
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const h = String(d.getUTCHours()).padStart(2, '0');
+    return `${y}-${m}-${day}T${h}`;
+}
+
+/**
+ * Convert a partition-hour key 'YYYY-MM-DDTHH' to its UTC Date.
+ * @param {string} hourKey
+ * @returns {Date}
+ */
+function hourKeyToDate(hourKey) {
+    return new Date(hourKey + ':00:00.000Z');
+}
+
+module.exports = {
+    MigrationStateManager,
+    generateHourlyPartitions,
+    hourKeyFromDate,
+    hourKeyToDate
+};

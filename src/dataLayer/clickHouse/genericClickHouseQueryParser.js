@@ -20,7 +20,7 @@ class GenericClickHouseQueryParser {
      *
      * @typedef {Object} ParsedQuery
      * @property {FieldCondition[]} fieldConditions
-     * @property {{accessTags: string[], ownerTags: string[]}} securityConditions
+     * @property {{accessTags: string[]}} securityConditions
      * @property {string|null} paginationCursor - _uuid.$gt cursor value
      * @property {number} skip - offset from options
      */
@@ -28,14 +28,15 @@ class GenericClickHouseQueryParser {
         const fieldConditions = [];
         const securityConditions = this._extractSecurityTags(mongoQuery);
         const paginationCursor = this._extractPaginationCursor(mongoQuery);
+        const uuidFilters = this._extractUuidFilter(mongoQuery);
         const cleanedQuery = this._cleanPaginationFromQuery(mongoQuery);
 
         this._extractFieldConditions(cleanedQuery, schema.fieldMappings, fieldConditions);
+        fieldConditions.push(...uuidFilters);
 
         logDebug('GenericClickHouseQueryParser: parsed query', {
             fieldConditionCount: fieldConditions.length,
             accessTagCount: securityConditions.accessTags.length,
-            ownerTagCount: securityConditions.ownerTags.length,
             hasCursor: !!paginationCursor
         });
 
@@ -244,11 +245,11 @@ class GenericClickHouseQueryParser {
      * Reuses the proven pattern from the Group QueryParser.
      *
      * @param {Object} query
-     * @returns {{accessTags: string[], ownerTags: string[]}}
+     * @returns {{accessTags: string[]}}
      * @private
      */
     _extractSecurityTags (query) {
-        const result = { accessTags: [], ownerTags: [] };
+        const result = { accessTags: [] };
 
         const extractRecursive = (obj) => {
             if (!obj || typeof obj !== 'object') return;
@@ -258,8 +259,6 @@ class GenericClickHouseQueryParser {
                 const codes = this._extractCodesFromElemMatch(elemMatch);
                 if (elemMatch.system === SECURITY_TAG_SYSTEMS.ACCESS) {
                     result.accessTags.push(...codes);
-                } else if (elemMatch.system === SECURITY_TAG_SYSTEMS.OWNER) {
-                    result.ownerTags.push(...codes);
                 }
             }
 
@@ -276,7 +275,6 @@ class GenericClickHouseQueryParser {
 
         extractRecursive(query);
         result.accessTags = [...new Set(result.accessTags)];
-        result.ownerTags = [...new Set(result.ownerTags)];
         return result;
     }
 
@@ -306,6 +304,53 @@ class GenericClickHouseQueryParser {
             }
         }
         return null;
+    }
+
+    /**
+     * Extracts non-pagination _uuid filters (e.g. $in, $eq) into field conditions.
+     * These map directly to the _uuid column in ClickHouse.
+     *
+     * @param {Object} query
+     * @returns {FieldCondition[]}
+     * @private
+     */
+    _extractUuidFilter (query) {
+        const results = [];
+        const extract = (obj) => {
+            if (!obj || typeof obj !== 'object') return;
+            if (obj._uuid) {
+                const uuidVal = obj._uuid;
+                if (typeof uuidVal === 'string') {
+                    results.push({
+                        fieldPath: '_uuid',
+                        column: '_uuid',
+                        type: 'string',
+                        operator: '$eq',
+                        value: uuidVal
+                    });
+                } else if (typeof uuidVal === 'object' && !Array.isArray(uuidVal)) {
+                    for (const [op, opValue] of Object.entries(uuidVal)) {
+                        if (op === '$gt') continue;
+                        if (op.startsWith('$')) {
+                            results.push({
+                                fieldPath: '_uuid',
+                                column: '_uuid',
+                                type: 'string',
+                                operator: op,
+                                value: opValue
+                            });
+                        }
+                    }
+                }
+            }
+            if (obj.$and && Array.isArray(obj.$and)) {
+                for (const condition of obj.$and) {
+                    extract(condition);
+                }
+            }
+        };
+        extract(query);
+        return results;
     }
 
     /**

@@ -128,13 +128,6 @@ describe('GenericClickHouseQueryParser', () => {
             expect(result.securityConditions.accessTags).toEqual(['client-a']);
         });
 
-        test('extracts owner tags from $elemMatch', () => {
-            const result = parser.parse({
-                'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/owner', code: 'org-1' } }
-            }, schema);
-            expect(result.securityConditions.ownerTags).toEqual(['org-1']);
-        });
-
         test('extracts multiple tags from $in', () => {
             const result = parser.parse({
                 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: { $in: ['a', 'b'] } } }
@@ -150,7 +143,6 @@ describe('GenericClickHouseQueryParser', () => {
                 ]
             }, schema);
             expect(result.securityConditions.accessTags).toEqual(['client-a']);
-            expect(result.securityConditions.ownerTags).toEqual(['org-1']);
         });
 
         test('extracts _access.* index fields', () => {
@@ -196,11 +188,76 @@ describe('GenericClickHouseQueryParser', () => {
         });
     });
 
+    describe('_uuid filter extraction', () => {
+        test('$in on _uuid produces field condition', () => {
+            const result = parser.parse({
+                _uuid: { $in: ['uuid-1', 'uuid-2'] }
+            }, schema);
+            expect(result.fieldConditions).toEqual([
+                { fieldPath: '_uuid', column: '_uuid', type: 'string', operator: '$in', value: ['uuid-1', 'uuid-2'] }
+            ]);
+            expect(result.paginationCursor).toBeNull();
+        });
+
+        test('$eq on _uuid produces field condition', () => {
+            const result = parser.parse({
+                _uuid: { $eq: 'uuid-1' }
+            }, schema);
+            expect(result.fieldConditions).toEqual([
+                { fieldPath: '_uuid', column: '_uuid', type: 'string', operator: '$eq', value: 'uuid-1' }
+            ]);
+        });
+
+        test('direct string _uuid produces $eq condition', () => {
+            const result = parser.parse({
+                _uuid: 'uuid-1'
+            }, schema);
+            expect(result.fieldConditions).toEqual([
+                { fieldPath: '_uuid', column: '_uuid', type: 'string', operator: '$eq', value: 'uuid-1' }
+            ]);
+        });
+
+        test('$in on _uuid inside $and', () => {
+            const result = parser.parse({
+                $and: [
+                    { _uuid: { $in: ['uuid-1', 'uuid-2'] } },
+                    { status: 'final' }
+                ]
+            }, schema);
+            expect(result.fieldConditions).toHaveLength(2);
+            expect(result.fieldConditions[0].fieldPath).toBe('status');
+            expect(result.fieldConditions[1]).toEqual(
+                { fieldPath: '_uuid', column: '_uuid', type: 'string', operator: '$in', value: ['uuid-1', 'uuid-2'] }
+            );
+        });
+
+        test('$gt on _uuid is extracted as cursor, not as field condition', () => {
+            const result = parser.parse({
+                _uuid: { $gt: 'cursor-id' }
+            }, schema);
+            expect(result.paginationCursor).toBe('cursor-id');
+            expect(result.fieldConditions).toHaveLength(0);
+        });
+
+        test('mixed $gt and $in on _uuid: $gt as cursor, $in as field condition', () => {
+            const result = parser.parse({
+                $and: [
+                    { _uuid: { $gt: 'cursor-id' } },
+                    { _uuid: { $in: ['uuid-1', 'uuid-2'] } }
+                ]
+            }, schema);
+            expect(result.paginationCursor).toBe('cursor-id');
+            expect(result.fieldConditions).toEqual([
+                { fieldPath: '_uuid', column: '_uuid', type: 'string', operator: '$in', value: ['uuid-1', 'uuid-2'] }
+            ]);
+        });
+    });
+
     describe('empty/null inputs', () => {
         test('empty query returns empty results', () => {
             const result = parser.parse({}, schema);
             expect(result.fieldConditions).toEqual([]);
-            expect(result.securityConditions).toEqual({ accessTags: [], ownerTags: [] });
+            expect(result.securityConditions).toEqual({ accessTags: [] });
             expect(result.paginationCursor).toBeNull();
         });
     });

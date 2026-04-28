@@ -4,6 +4,7 @@ const { compare, applyPatch } = require('fast-json-patch');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { getFirstElementOrNull } = require('../../utils/list.util');
 const { mergeObject } = require('../../utils/mergeHelper');
@@ -391,9 +392,10 @@ class ResourceMerger {
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
+        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
         // confirm the resource has been run through preSave
         if (!resourceToMerge._uuid) {
-            resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
+            resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
         }
         assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
         /**
@@ -404,7 +406,7 @@ class ResourceMerger {
         // overwrite fields that should not be changed once resource is created
         resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
-        resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
+        resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
@@ -511,9 +513,10 @@ class ResourceMerger {
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
+        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
         // confirm the resource has been run through preSave
         if (!resourceToMerge._uuid) {
-            resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
+            resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
         }
         assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
         /**
@@ -524,7 +527,7 @@ class ResourceMerger {
         // overwrite fields that should not be changed once resource is created
         resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
-        resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge });
+        resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource, resourceToMerge) === true) {

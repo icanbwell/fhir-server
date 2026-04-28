@@ -34,8 +34,7 @@ describe('AccessLogs Tests', () => {
                             scopesManager: c.scopesManager,
                             fhirOperationsManager: c.fhirOperationsManager,
                             configManager: c.configManager,
-                            databaseBulkInserter: c.databaseBulkInserter,
-                            accessLogsEventProducer: c.accessLogsEventProducer
+                            databaseBulkInserter: c.databaseBulkInserter
                         })
                 );
                 return container;
@@ -92,8 +91,7 @@ describe('AccessLogs Tests', () => {
                         scopesManager: c.scopesManager,
                         fhirOperationsManager: c.fhirOperationsManager,
                         configManager: c.configManager,
-                        databaseBulkInserter: c.databaseBulkInserter,
-                        accessLogsEventProducer: c.accessLogsEventProducer
+                        databaseBulkInserter: c.databaseBulkInserter
                     })
             );
             return container;

@@ -7,6 +7,7 @@ const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const { ReadPreference } = require('mongodb');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
@@ -79,12 +80,15 @@ class FastDatabaseUpdateManager {
 
     /**
      * Inserts a resource into the database
-     * @param {Object} doc
+     * @param {Object} params
+     * @param {Object} params.doc
+     * @param {FhirRequestInfo} [params.requestInfo]
      * @return {Promise<Object>}
      */
-    async insertOneAsync({ doc }) {
+    async insertOneAsync({ doc, requestInfo }) {
         try {
-            doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+            const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+            doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
             const collection = await this.resourceLocator.getCollectionForResourceAsync(doc);
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
@@ -110,7 +114,8 @@ class FastDatabaseUpdateManager {
     async replaceOneAsync({ base_version, requestInfo, doc, smartMerge = true }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const originalDoc = deepcopy(doc);
-        doc = await this.preSaveManager.preSaveAsync({ resource: doc });
+        const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
+        doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
         /**
          * @type {Object[]}
          */
@@ -150,7 +155,7 @@ class FastDatabaseUpdateManager {
                 }
             });
             if (!resourceInDatabase) {
-                return { savedResource: await this.insertOneAsync({ doc }), patches: null };
+                return { savedResource: await this.insertOneAsync({ doc, requestInfo }), patches: null };
             }
             /**
              * @type {Object|null}
@@ -172,7 +177,7 @@ class FastDatabaseUpdateManager {
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (runsLeft > 0) {
-                const updatedDoc = await this.preSaveManager.preSaveAsync({ resource: deepcopy(doc) });
+                const updatedDoc = await this.preSaveManager.preSaveAsync({ resource: deepcopy(doc), options: preSaveOptions });
                 const previousVersionId = parseInt(updatedDoc.meta.versionId) - 1;
                 const filter =
                     previousVersionId > 0

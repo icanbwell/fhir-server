@@ -2,8 +2,6 @@
 -- Lean schema: dedicated columns for frequently-queried fields,
 -- full FHIR JSON in Native JSON `resource` column for all other queries.
 
-SET allow_experimental_json_type = 1;
-
 CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
     -- Resource identifiers
     id                           String,
@@ -36,6 +34,9 @@ CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
                                      code LowCardinality(String)
                                  )),
 
+    -- Flat security tag array for generic hasAny() queries
+    access_tags                  Array(String),
+
     -- b.well internal columns
     _sourceAssigningAuthority    LowCardinality(String),
     _sourceId                    String,
@@ -45,9 +46,11 @@ CREATE TABLE IF NOT EXISTS fhir.AuditEvent_4_0_0 (
     resource                     JSON(max_dynamic_paths=256),
 
     -- Skip indexes for array search columns
+    INDEX idx_access_tags   access_tags   TYPE bloom_filter(0.01) GRANULARITY 4,
     INDEX idx_entity_what   entity_what   TYPE bloom_filter(0.01) GRANULARITY 4,
     INDEX idx_agent_who     agent_who     TYPE bloom_filter(0.01) GRANULARITY 4
 )
 ENGINE = MergeTree()
 ORDER BY (recorded, _uuid)
-PARTITION BY toYYYYMM(recorded);
+PARTITION BY toYYYYMM(recorded)
+TTL recorded + INTERVAL 13 MONTH DELETE;

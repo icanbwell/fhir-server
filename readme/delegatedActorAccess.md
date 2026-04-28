@@ -188,9 +188,9 @@ The generated token will contain:
 }
 ```
 
-## Composition Sensitive Section Filtering (Upcoming)
+## Composition Sensitive Section Filtering
 
-When `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` is enabled and the user is a `delegatedUser`, the server **recursively removes any section** whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`.
+When `ENABLE_DELEGATED_ACCESS_DETECTION` is enabled and the user is a `delegatedUser`, the server **recursively removes any section** whose `code.coding[].system` matches `https://www.icanbwell.com/sensitivity-category`.
 
 **Behavior:**
 - **All** sections matching the sensitive category system are removed, regardless of the specific category code
@@ -199,9 +199,15 @@ When `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING` is enabled and the user is
 - If a parent section itself is sensitive, the entire section (including all children) is removed
 - Non-Composition resources are unaffected
 
-Filtering happens at the **operation level**, right after database fetch, across all read paths (search, searchById, searchByVersionId, history, everything, graph).
+Filtering happens at the **enrichment level** via `EnrichmentManager`, across all read paths (search, searchById, searchByVersionId, history, everything, graph).
+
+## Consent-Based Composition Section Filtering (Upcoming)
+
+Phase 2 refines section filtering: instead of removing **all** sensitive sections, only sections whose sensitivity codes are **denied for the actor** via the Consent are removed.
+
+- If a section has multiple `code.coding` entries and **any** matches a denied code, the section is removed
+- If there is no `denied` category, sections are returned unchanged
 
 ## Config
 
-- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules, and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
-- `ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING`: true/false — **gates Composition section-level filtering**. Requires `ENABLE_DELEGATED_ACCESS_DETECTION` to also be enabled. When both are enabled and the user is a delegated user, sensitive sections are recursively stripped from Composition resources at the operation level.
+- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
