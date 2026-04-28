@@ -66,6 +66,7 @@ class AuthService {
         this.optionalJWTFields = {
             managingOrganization: 'managingOrganization'
         };
+        this.allowedJWTUserTypes = [AUTH_USER_TYPES.cmsPartnerUser];
         this.cacheOptions = {
             max: DEFAULT_CACHE_MAX_COUNT,
             ttl: DEFAULT_CACHE_EXPIRY_TIME
@@ -230,9 +231,9 @@ class AuthService {
                     context.userType = AUTH_USER_TYPES.delegatedUser;
                 }
             }
-            // if userType is not already set through delegated access detection
-            // set userType using the jwt claim if available
-            if (!context.userType && jwt_payload.user_type) {
+            // if userType is not already set through delegated access detection,
+            // accept user_type claim only when it is one of the allowed values
+            if (!context.userType && this.allowedJWTUserTypes.includes(jwt_payload.user_type)) {
                 context.userType = jwt_payload.user_type;
             }
         }
