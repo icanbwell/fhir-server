@@ -945,9 +945,7 @@ class EverythingHelper {
                     parsedArgs,
                     enrichmentContext: {
                         userType: requestInfo.userType,
-                        actor: requestInfo.actor,
-                        personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                        base_version
+                        actor: requestInfo.actor
                     }
                 });
             }
@@ -1703,9 +1701,7 @@ class EverythingHelper {
                                     parsedArgs: parentParsedArgs,
                                     enrichmentContext: {
                                         userType: requestInfo.userType,
-                                        actor: requestInfo.actor,
-                                        personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                                        base_version: parentParsedArgs.base_version
+                                        actor: requestInfo.actor
                                     }
                                 });
 

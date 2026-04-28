@@ -314,9 +314,7 @@ class SearchBundleOperation {
                         resourceType,
                         enrichmentContext: {
                             userType,
-                            actor: requestInfo.actor,
-                            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                            base_version
+                            actor: requestInfo.actor
                         }
                     }
                 );

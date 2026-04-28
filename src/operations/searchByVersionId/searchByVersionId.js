@@ -243,7 +243,7 @@ class SearchByVersionIdOperation {
                 historyResource = (await this.enrichmentManager.enrichAsync({
                             resources: [historyResource],
                             parsedArgs,
-                            enrichmentContext: { userType, actor, personIdFromJwtToken, base_version }
+                            enrichmentContext: { userType, actor }
                         }
                     )
                 )[0];

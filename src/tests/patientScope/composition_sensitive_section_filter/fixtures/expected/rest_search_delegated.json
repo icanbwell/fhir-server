@@ -93,19 +93,6 @@
                                         }
                                     ]
                                 }
-                            },
-                            {
-                                "id": "p1-child-sensitive",
-                                "title": "Allergy Notes",
-                                "code": {
-                                    "coding": [
-                                        {
-                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
-                                            "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "SUBSTANCE_ABUSE"
-                                        }
-                                    ]
-                                }
                             }
                         ]
                     },
@@ -131,19 +118,6 @@
                                             "id": "60b6e5ee-7ee4-54c3-a4fc-4891dae6eeec",
                                             "system": "http://loinc.org",
                                             "code": "10160-0-1"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "p2-child-sensitive",
-                                "title": "Medication Notes",
-                                "code": {
-                                    "coding": [
-                                        {
-                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
-                                            "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }
@@ -255,19 +229,6 @@
                                         }
                                     ]
                                 }
-                            },
-                            {
-                                "id": "p4-child-sensitive",
-                                "title": "Immunization Records",
-                                "code": {
-                                    "coding": [
-                                        {
-                                            "id": "e709c991-b189-5002-9343-5384aa6330fa",
-                                            "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "SUBSTANCE_ABUSE"
-                                        }
-                                    ]
-                                }
                             }
                         ]
                     },
@@ -293,19 +254,6 @@
                                             "id": "5cd9ca63-555c-57db-b3cc-ab99095e69a7",
                                             "system": "http://loinc.org",
                                             "code": "8716-3-1"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "p5-child-sensitive",
-                                "title": "Heart Rate Trends",
-                                "code": {
-                                    "coding": [
-                                        {
-                                            "id": "0f0b851e-a022-56c1-b669-e651d222635d",
-                                            "system": "https://www.icanbwell.com/sensitivity-category",
-                                            "code": "MENTAL_HEALTH"
                                         }
                                     ]
                                 }
@@ -558,19 +506,6 @@
                         }
                     },
                     {
-                        "id": "sensitive-1",
-                        "title": "Treatment History",
-                        "code": {
-                            "coding": [
-                                {
-                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
-                                    "system": "https://www.icanbwell.com/sensitivity-category",
-                                    "code": "SUBSTANCE_ABUSE"
-                                }
-                            ]
-                        }
-                    },
-                    {
                         "id": "normal-2",
                         "title": "Medications",
                         "code": {
@@ -579,19 +514,6 @@
                                     "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
                                     "system": "http://loinc.org",
                                     "code": "10160-0"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "id": "sensitive-2",
-                        "title": "Behavioral Health Notes",
-                        "code": {
-                            "coding": [
-                                {
-                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
-                                    "system": "https://www.icanbwell.com/sensitivity-category",
-                                    "code": "MENTAL_HEALTH"
                                 }
                             ]
                         }
@@ -737,19 +659,6 @@
                                                 }
                                             ]
                                         }
-                                    },
-                                    {
-                                        "id": "level3-a1-sensitive",
-                                        "title": "Diagnosis Notes",
-                                        "code": {
-                                            "coding": [
-                                                {
-                                                    "id": "e709c991-b189-5002-9343-5384aa6330fa",
-                                                    "system": "https://www.icanbwell.com/sensitivity-category",
-                                                    "code": "SUBSTANCE_ABUSE"
-                                                }
-                                            ]
-                                        }
                                     }
                                 ]
                             },
@@ -766,19 +675,6 @@
                                     ]
                                 },
                                 "section": [
-                                    {
-                                        "id": "level3-a2-sensitive",
-                                        "title": "Procedure Notes",
-                                        "code": {
-                                            "coding": [
-                                                {
-                                                    "id": "0f0b851e-a022-56c1-b669-e651d222635d",
-                                                    "system": "https://www.icanbwell.com/sensitivity-category",
-                                                    "code": "MENTAL_HEALTH"
-                                                }
-                                            ]
-                                        }
-                                    },
                                     {
                                         "id": "level3-a2-normal",
                                         "title": "Routine Procedures",

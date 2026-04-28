@@ -1558,9 +1558,7 @@ class GraphHelper {
                         parsedArgs,
                         enrichmentContext: {
                             userType: requestInfo.userType,
-                            actor: requestInfo.actor,
-                            personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                            base_version: parsedArgs.base_version
+                            actor: requestInfo.actor
                         }
                     }
                 );
