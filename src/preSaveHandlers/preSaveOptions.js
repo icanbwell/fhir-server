@@ -7,11 +7,14 @@ const { SENSITIVE_CATEGORY } = require('../constants');
 class PreSaveOptions {
     /**
      * @param {Object} [params]
-     * @param {boolean} [params.suppressUnclassifiedTag]
+     * @param {boolean} [params.suppressUnclassifiedTag] Suprress adding unclassified tag if missing
+     * @param {boolean} [params.skipUnclassifiedTagging] Skips the unclassified tagging flow. This can be used to prevent side effects of mutating the existing resource.
      */
-    constructor ({ suppressUnclassifiedTag } = {}) {
+    constructor ({ suppressUnclassifiedTag, skipUnclassifiedTagging } = {}) {
         /** @type {boolean} */
         this.suppressUnclassifiedTag = suppressUnclassifiedTag;
+        /** @type {boolean} */
+        this.skipUnclassifiedTagging = skipUnclassifiedTagging;
     }
 
     /**

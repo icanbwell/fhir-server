@@ -23,7 +23,7 @@ class UnclassifiedSensitivityTagHandler extends PreSaveHandler {
      * @returns {Promise<import('../../fhir/classes/4_0_0/resources/resource')>}
      */
     async preSaveAsync ({ resource, options }) {
-        if (!this.configManager.resourceTypesForUnclassifiedTagging.has(resource.resourceType)) {
+        if (!this.configManager.resourceTypesForUnclassifiedTagging.has(resource.resourceType) || options?.skipUnclassifiedTagging) {
             return resource;
         }
         if (!resource.meta || !resource.meta.security) {
@@ -34,7 +34,7 @@ class UnclassifiedSensitivityTagHandler extends PreSaveHandler {
         const unclassifiedTags = resource.meta.security.filter(isUnclassified);
         const tagLength = unclassifiedTags.length;
 
-        // remove any duplicate unclassified tag
+        // dedup and normalize existing tags
         if (tagLength > 0) {
             const firstUnclassifiedTag = unclassifiedTags[0];
             firstUnclassifiedTag.id = generateUUIDv5(`${SENSITIVE_CATEGORY.SYSTEM}|${SENSITIVE_CATEGORY.UNCLASSIFIED_CODE}`);

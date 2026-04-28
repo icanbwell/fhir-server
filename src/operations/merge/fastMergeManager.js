@@ -160,7 +160,7 @@ class FastMergeManager {
         // found an existing resource
         const existingResourcePreSaveOptions = new PreSaveOptions({
             ...preSaveOptions,
-            suppressUnclassifiedTag: true
+            skipUnclassifiedTagging: true
         });
         currentResource = await this.preSaveManager.preSaveAsync({
             resource: currentResource, options: existingResourcePreSaveOptions

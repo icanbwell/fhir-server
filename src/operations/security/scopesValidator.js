@@ -306,9 +306,7 @@ class ScopesValidator {
         try {
             // Run preSave to generate _uuid values for references and resource
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
-            // supress unclassified tag addition during access check preSave
-            // since it mutates resource and can cause sideeffects
-            preSaveOptions.suppressUnclassifiedTag = true;
+            preSaveOptions.skipUnclassifiedTagging = true;
             resource = await this.preSaveManager.preSaveAsync({resource, options: preSaveOptions});
             // validate access scopes for resource
             this.isAccessToResourceAllowedByAccessScopes({requestInfo, resource, accessRequested});
