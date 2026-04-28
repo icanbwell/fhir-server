@@ -21,16 +21,18 @@ const expectedPersonOwnerDisplayMerge2 = require('./fixtures/expected/expected_p
 const expectedPersonOwnerDisplayMerge3 = require('./fixtures/expected/expected_person_owner_display_merge3.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll, jest } = require('@jest/globals');
-const { BaseSerializer } = require('../../../fhir/writeSerializers/4_0_0/customSerializers');
+const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
 describe('Merge Meta Tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
     beforeEach(async () => {
@@ -43,8 +45,6 @@ describe('Merge Meta Tests', () => {
 
     describe('Merge meta update Tests', () => {
         test('meta update doesn\'t work with different owner and sourceAssingingAuthority tags', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
-
             const request = await createTestRequest();
             // create the resource
             let resp = await request
@@ -71,13 +71,9 @@ describe('Merge Meta Tests', () => {
                 .expect(200);
 
             expect(resp).toHaveResponse(expectedActivityDefinitionResources);
-
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('merge validation for meta security elements', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
-
             const request = await createTestRequest();
             // Creating resource with multiple owner tags
             let resp = await request
@@ -249,13 +245,9 @@ describe('Merge Meta Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: false, updated: false });
-
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Merge the display field in the owner security tag if does not exist', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
-
             const request = await createTestRequest();
             // ARRANGE & ACT
             // Create a valid resource
@@ -279,13 +271,9 @@ describe('Merge Meta Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonOwnerDisplayMerge1);
-
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Merge the display field in the owner security tag if already exist', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
-
             const request = await createTestRequest();
             // ARRANGE & ACT
             // Create a valid resource
@@ -309,13 +297,9 @@ describe('Merge Meta Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonOwnerDisplayMerge2);
-
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Merge the code and display field in the owner security tag if display does not exist', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
-
             const request = await createTestRequest();
             // ARRANGE & ACT
             // Create a valid resource
@@ -339,8 +323,6 @@ describe('Merge Meta Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonOwnerDisplayMerge3);
-
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
     });
 });

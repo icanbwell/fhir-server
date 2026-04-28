@@ -8,16 +8,18 @@ const {
     createTestRequest
 } = require('../../common');
 
-const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll, jest } = require('@jest/globals');
-const { BaseSerializer } = require('../../../fhir/writeSerializers/4_0_0/customSerializers');
+const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
-describe('Invalid Resource Tests (Fast Merge Serializer)', () => {
+describe('Invalid Resource Tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
     beforeEach(async () => {
@@ -30,8 +32,6 @@ describe('Invalid Resource Tests (Fast Merge Serializer)', () => {
 
     describe('Invalid Resource Merge Tests', () => {
         test('Merge throws 400 status code', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
-
             const request = await createTestRequest();
             // Case when meta.source doesn't exist
             const resp = await request
@@ -44,8 +44,6 @@ describe('Invalid Resource Tests (Fast Merge Serializer)', () => {
             ).toStrictEqual(
                 'Unable to create/update resource. Missing either metadata or metadata source.'
             );
-            // validations are run before serialization
-            expect(writeSerializerSpy).not.toHaveBeenCalled();
         });
     });
 });

@@ -9,7 +9,7 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-describe('Patient Tests', () => {
+describe('Patient Tests (Fast Merge Serializer)', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

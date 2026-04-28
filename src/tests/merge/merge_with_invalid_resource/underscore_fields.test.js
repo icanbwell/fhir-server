@@ -10,21 +10,11 @@ const {
     mockHttpContext
 } = require('../../common');
 
-const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 
-describe('Underscore Fields Merge Tests (Fast Merge Serializer)', () => {
+describe('Underscore Fields Merge Tests', () => {
     let requestId;
-    let originalEnv;
-    beforeAll(() => {
-        originalEnv = process.env.ENABLE_MERGE_FAST_SERIALIZER;
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
-    });
-
-    afterAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalEnv;
-    });
-
     beforeEach(async () => {
         await commonBeforeEach();
         requestId = mockHttpContext();

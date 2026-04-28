@@ -2,7 +2,7 @@
 const observationResource = require('./fixtures/observation.json');
 // expected
 const accessLogs2 = require('./fixtures/access-logs2.json');
-const accessLogs3 = require('./fixtures/access-logs3-fastMerge.json');
+const accessLogs3 = require('./fixtures/access-logs3.json');
 
 const {
     commonBeforeEach,
@@ -17,12 +17,15 @@ const deepcopy = require('deepcopy');
 const { AccessLogger } = require('../../utils/accessLogger');
 
 describe('AccessLogs Tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
     beforeEach(async () => {
@@ -93,7 +96,7 @@ describe('AccessLogs Tests', () => {
 
             let payload = deepcopy(observationResource);
             delete payload.meta;
-            let resp = await request
+            await request
                 .post('/4_0_0/Observation/$merge')
                 .send([payload])
                 .set({ ...getHeaders(), 'Origin-Service': 'test-server', 'x-request-id': 'test-request-id' })
@@ -106,7 +109,7 @@ describe('AccessLogs Tests', () => {
             const accessLogger = container.accessLogger;
             await accessLogger.flushAsync();
 
-            resp = await request
+            const resp = await request
                 .get('/admin/searchLogResults?id=test-request-id')
                 .set(getJsonHeadersWithAdminToken());
 

@@ -1,5 +1,4 @@
 // test file
-const { BaseSerializer } = require('../../../fhir/writeSerializers/4_0_0/customSerializers');
 const person1Resource = require('./fixtures/Person/person1.json');
 const personMergeResource = require('./fixtures/Person/person2.json');
 const person3Resource = require('./fixtures/Person/person3.json');
@@ -8,18 +7,21 @@ const person3Resource = require('./fixtures/Person/person3.json');
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect, jest, beforeAll, afterAll } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
-describe('Person Tests (Fast Merge Serializer)', () => {
-    let requestId;
+describe('Person Tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
         requestId = mockHttpContext();
@@ -31,7 +33,6 @@ describe('Person Tests (Fast Merge Serializer)', () => {
 
     describe('Person merge_with_multiple_updates_to_same_resource Tests', () => {
         test('merge_with_multiple_updates_to_same_resource works', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -64,11 +65,9 @@ describe('Person Tests (Fast Merge Serializer)', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('merge_with_multiple_updates_to_same_resource to same field works', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -103,11 +102,9 @@ describe('Person Tests (Fast Merge Serializer)', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('merge_with_multiple_updates_to_same_resource to same field with bundle works', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -145,7 +142,6 @@ describe('Person Tests (Fast Merge Serializer)', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
     });
 });

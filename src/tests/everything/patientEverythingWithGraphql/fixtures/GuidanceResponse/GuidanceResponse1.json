@@ -7,7 +7,9 @@
   },
   "moduleUri": "",
   "moduleCanonical": "",
-  "moduleCodeableConcept": {},
+  "moduleCodeableConcept": {
+    "text": "Guidance Response Resource"  
+  },
   "status": "success",
   "subject": {
     "reference": "Patient/1"

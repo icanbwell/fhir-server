@@ -1,4 +1,5 @@
 // test file
+const { BaseSerializer } = require('../../../fhir/writeSerializers/4_0_0/customSerializers');
 const person1Resource = require('./fixtures/Person/person1.json');
 const personMergeResource = require('./fixtures/Person/person2.json');
 const person3Resource = require('./fixtures/Person/person3.json');
@@ -7,9 +8,9 @@ const person3Resource = require('./fixtures/Person/person3.json');
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
-describe('Person Tests', () => {
+describe('Person Tests (Fast Merge Serializer)', () => {
     let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
@@ -22,6 +23,7 @@ describe('Person Tests', () => {
 
     describe('Person merge_with_multiple_updates_to_same_resource Tests', () => {
         test('merge_with_multiple_updates_to_same_resource works', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -54,9 +56,11 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('merge_with_multiple_updates_to_same_resource to same field works', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -91,9 +95,11 @@ describe('Person Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('merge_with_multiple_updates_to_same_resource to same field with bundle works', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -131,6 +137,7 @@ describe('Person Tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
     });
 });

@@ -2,7 +2,7 @@
 const observationResource = require('./fixtures/observation.json');
 // expected
 const accessLogs2 = require('./fixtures/access-logs2.json');
-const accessLogs3 = require('./fixtures/access-logs3.json');
+const accessLogs3 = require('./fixtures/access-logs3-fastMerge.json');
 
 const {
     commonBeforeEach,
@@ -85,7 +85,7 @@ describe('AccessLogs Tests', () => {
 
             let payload = deepcopy(observationResource);
             delete payload.meta;
-            await request
+            let resp = await request
                 .post('/4_0_0/Observation/$merge')
                 .send([payload])
                 .set({ ...getHeaders(), 'Origin-Service': 'test-server', 'x-request-id': 'test-request-id' })
@@ -98,7 +98,7 @@ describe('AccessLogs Tests', () => {
             const accessLogger = container.accessLogger;
             await accessLogger.flushAsync();
 
-            const resp = await request
+            resp = await request
                 .get('/admin/searchLogResults?id=test-request-id')
                 .set(getJsonHeadersWithAdminToken());
 

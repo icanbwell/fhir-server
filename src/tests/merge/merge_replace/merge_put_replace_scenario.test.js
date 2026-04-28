@@ -1,4 +1,5 @@
 // test file
+const { BaseSerializer } = require('../../../fhir/writeSerializers/4_0_0/customSerializers');
 const person1Resource = require('./fixtures/Person/person1.json');
 const person1DuplicatePhoneNumber = require('./fixtures/Person/person1_duplicate_phone.json');
 const person1UpdateIdentifier = require('./fixtures/Person/person1_update_identifier.json');
@@ -18,7 +19,7 @@ const {
     createTestRequest,
     mockHttpContext
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
@@ -34,6 +35,7 @@ describe('Person Tests', () => {
     });
 
     test('bulk replace with smartMerge=false simulates bulk PUT', async () => {
+        const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
         const request = await createTestRequest();
 
         person1Resource[0].meta.source = 'bwell';
@@ -78,10 +80,11 @@ describe('Person Tests', () => {
         const resp5 = await request.get('/4_0_0/Person/?_bundle=1').set(getHeaders());
         // noinspection JSUnresolvedFunction
         expect(resp5).toHaveResponse(expectedReplacedPersonResources);
-
+        expect(writeSerializerSpy).toHaveBeenCalled();
     });
 
     test('Merge updates all the identifier values except the sourceId and uuid', async () => {
+        const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
         const request = await createTestRequest();
 
         // Create the resource
@@ -109,9 +112,11 @@ describe('Person Tests', () => {
             .expect(200);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPerson1MergedIdentifier);
+        expect(writeSerializerSpy).toHaveBeenCalled();
     });
 
     test('Merge with no identifiers in the update request retains existing sourceId and uuid identifiers', async () => {
+        const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
         const request = await createTestRequest();
 
         // Create the resource
@@ -142,9 +147,11 @@ describe('Person Tests', () => {
             .expect(200);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPerson2MergedIdentifier);
+        expect(writeSerializerSpy).toHaveBeenCalled();
     });
 
     test('Merge with only uuid as identifier retains existing sourceId identifier', async () => {
+        const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
         const request = await createTestRequest();
 
         // Create the resource
@@ -177,9 +184,11 @@ describe('Person Tests', () => {
             .expect(200);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPerson2MergedIdentifier);
+        expect(writeSerializerSpy).toHaveBeenCalled();
     });
 
     test('Merge with only sourceId as identifier retains existing uuid identifier', async () => {
+        const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
         const request = await createTestRequest();
 
         // Create the resource
@@ -211,9 +220,11 @@ describe('Person Tests', () => {
             .expect(200);
         // noinspection JSUnresolvedFunction
         expect(resp).toHaveResponse(expectedPerson2MergedIdentifier);
+        expect(writeSerializerSpy).toHaveBeenCalled();
     });
 
     test('Merge different resources with same uuid should return the correct merge result entries', async () => {
+        const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
         const request = await createTestRequest();
 
         // Create resources
@@ -265,6 +276,7 @@ describe('Person Tests', () => {
                 updated: false
             }
         ]);
+        expect(writeSerializerSpy).toHaveBeenCalled();
     });
 
 });
