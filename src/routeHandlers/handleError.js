@@ -24,7 +24,7 @@ const handleServerError = (
         /**
          * @type {OperationOutcome}
          */
-        const operationOutcome = convertErrorToOperationOutcome({ error: err });
+        const operationOutcome = convertErrorToOperationOutcome({ error: err, internalError: status >= 500 });
         return res.status(status).json(operationOutcome);
     } else {
         return next();

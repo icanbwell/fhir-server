@@ -328,7 +328,7 @@ class MergeManager {
 
             let validationError;
             // check if resource was found in database or not
-            if (currentResource && currentResource.meta) {
+            if (currentResource && currentResource.meta && resourceToMerge.resourceType !== 'AuditEvent') {
                 validationError = await this.mergeExistingAsync({
                     resourceToMerge, currentResource, requestInfo, base_version, smartMerge
                 });

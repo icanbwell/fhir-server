@@ -11,9 +11,6 @@ class BadRequestError extends ServerError {
             code: 'invalid',
             details: { text: error.message }
         };
-        if (Object.hasOwn(error, 'stack')) {
-            operationOutcomeIssue.diagnostics = error.stack;
-        }
         super(error.message, {
             // Set this to make the HTTP status code 409
             statusCode: 400,
@@ -238,6 +235,30 @@ class PreconditionFailedError extends ServerError {
     }
 }
 
+class MethodNotAllowedError extends ServerError {
+    constructor (message, options = {}) {
+        super(message, {
+            statusCode: 405,
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'not-supported',
+                    details: { text: message }
+                }
+            ]
+        });
+        this.logLevel = 'info';
+
+        for (const [key, value] of Object.entries(options)) {
+            this[`${key}`] = value;
+        }
+    }
+
+    get statusCode () {
+        return 405;
+    }
+}
+
 module.exports = {
     BadRequestError,
     NotFoundError,
@@ -246,5 +267,6 @@ module.exports = {
     UnauthorizedError,
     ForbiddenError,
     ExternalTimeoutError,
-    PreconditionFailedError
+    PreconditionFailedError,
+    MethodNotAllowedError
 };

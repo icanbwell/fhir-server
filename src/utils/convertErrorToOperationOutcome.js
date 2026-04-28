@@ -16,9 +16,6 @@ function createOperationOutcomeIssue ({ error, internalError }) {
             text: internalError ? 'Internal Server Error' : `Unexpected Error: ${error.message}`
         })
     });
-    if (Object.hasOwn(error, 'stack') && !internalError) {
-        operationOutcomeIssue.diagnostics = error.stack;
-    }
     return operationOutcomeIssue;
 }
 

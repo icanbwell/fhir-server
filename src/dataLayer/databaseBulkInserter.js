@@ -384,26 +384,42 @@ class DatabaseBulkInserter extends EventEmitter {
                         }
                 });
 
-                this.addOperationForResourceType({
-                    requestId,
-                    resourceType,
-                    resource: doc,
-                    operation: {
-                        // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
-                        updateOne: {
-                            filter: {
-                                _uuid: doc._uuid
-                            },
-                            update: {
-                                $setOnInsert: doc.toJSONInternal()
-                            },
-                            upsert: true
-                        }
-                    },
-                    operationType: 'insertUniqueId',
-                    patches: null,
-                    contextData
-                });
+                if (resourceType === 'AuditEvent') {
+                    this.addOperationForResourceType({
+                        requestId,
+                        resourceType,
+                        resource: doc,
+                        operation: {
+                            insertOne: {
+                                document: doc.toJSONInternal()
+                            }
+                        },
+                        operationType: 'insert',
+                        patches: null,
+                        contextData
+                    });
+                } else {
+                    this.addOperationForResourceType({
+                        requestId,
+                        resourceType,
+                        resource: doc,
+                        operation: {
+                            // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
+                            updateOne: {
+                                filter: {
+                                    _uuid: doc._uuid
+                                },
+                                update: {
+                                    $setOnInsert: doc.toJSONInternal()
+                                },
+                                upsert: true
+                            }
+                        },
+                        operationType: 'insertUniqueId',
+                        patches: null,
+                        contextData
+                    });
+                }
             }
             if (doc._id) {
                 logInfo('_id still present', {

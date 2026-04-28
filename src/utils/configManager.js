@@ -126,6 +126,14 @@ class ConfigManager {
                     ) || []
                 );
                 break;
+            case 'Person':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_PERSON && env.ACCESS_TAGS_INDEXED_PERSON.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
             case 'Practitioner':
                 indexList = indexList.concat(
                     (
@@ -576,11 +584,11 @@ class ConfigManager {
      * whether audit event logging is enabled
      * @return {boolean}
      */
-    get enableAuditEvent() {
-        if (env.ENABLE_AUDIT_EVENT === null || env.ENABLE_AUDIT_EVENT === undefined) {
+    get enableAccessAuditEvent() {
+        if (env.ENABLE_ACCESS_AUDIT_EVENT === null || env.ENABLE_ACCESS_AUDIT_EVENT === undefined) {
             return true;
         }
-        return isTrue(env.ENABLE_AUDIT_EVENT);
+        return isTrue(env.ENABLE_ACCESS_AUDIT_EVENT);
     }
 
     /**
