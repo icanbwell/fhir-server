@@ -230,6 +230,8 @@ class AuthService {
                     context.userType = AUTH_USER_TYPES.delegatedUser;
                 }
             }
+            // if userType is not already set through delegated access detection
+            // set userType using the jwt claim if available
             if (!context.userType && jwt_payload.user_type) {
                 context.userType = jwt_payload.user_type;
             }
