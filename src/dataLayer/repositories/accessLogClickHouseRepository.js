@@ -1,6 +1,7 @@
 const { TABLES, QUERY_FORMAT } = require('../../constants/clickHouseConstants');
 const { RethrownError } = require('../../utils/rethrownError');
 const { logWarn } = require('../../operations/common/logging');
+const { retryWithBackoff } = require('../../utils/retryWithBackoff');
 
 /**
  * Repository for AccessLog ClickHouse data access.
@@ -46,30 +47,26 @@ class AccessLogClickHouseRepository {
             }
         };
 
-        let delay = this.initialRetryDelayMs;
-        for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
-            try {
-                if (attempt > 0) {
+        try {
+            await retryWithBackoff({
+                fn: () => this.clickHouseClientManager.insertAsync(insertParams),
+                maxRetries: this.maxRetries,
+                initialDelayMs: this.initialRetryDelayMs,
+                onRetry: ({ attempt, delay }) => {
                     logWarn('ClickHouse AccessLog insert failed, retrying', {
                         attempt,
                         maxRetries: this.maxRetries,
                         batchSize: rows.length,
                         delay
                     });
-                    await new Promise((resolve) => setTimeout(resolve, delay));
-                    delay *= 2;
                 }
-                await this.clickHouseClientManager.insertAsync(insertParams);
-                return;
-            } catch (error) {
-                if (attempt === this.maxRetries) {
-                    throw new RethrownError({
-                        message: `ClickHouse AccessLog insert failed after ${this.maxRetries} retries (batch size ${rows.length})`,
-                        error,
-                        args: { batchSize: rows.length }
-                    });
-                }
-            }
+            });
+        } catch (error) {
+            throw new RethrownError({
+                message: `ClickHouse AccessLog insert failed after ${this.maxRetries} retries (batch size ${rows.length})`,
+                error,
+                args: { batchSize: rows.length }
+            });
         }
     }
 }

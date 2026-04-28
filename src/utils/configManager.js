@@ -126,6 +126,14 @@ class ConfigManager {
                     ) || []
                 );
                 break;
+            case 'Person':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_PERSON && env.ACCESS_TAGS_INDEXED_PERSON.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
             case 'Practitioner':
                 indexList = indexList.concat(
                     (
@@ -573,22 +581,14 @@ class ConfigManager {
     }
 
     /**
-     * whether to write AuditEvent to mongoDB
+     * whether audit event logging is enabled
      * @return {boolean}
      */
-    get enableAuditEventMongoDB() {
-        if (env.ENABLE_AUDIT_EVENT_MONGODB === null || env.ENABLE_AUDIT_EVENT_MONGODB === undefined) {
+    get enableAccessAuditEvent() {
+        if (env.ENABLE_ACCESS_AUDIT_EVENT === null || env.ENABLE_ACCESS_AUDIT_EVENT === undefined) {
             return true;
         }
-        return isTrue(env.ENABLE_AUDIT_EVENT_MONGODB);
-    }
-
-    /**
-     * whether to write AuditEvent to ClickHouse
-     * @return {boolean}
-     */
-    get enableAuditEventClickHouse() {
-        return isTrue(env.ENABLE_AUDIT_EVENT_CLICKHOUSE) && this.enableClickHouse;
+        return isTrue(env.ENABLE_ACCESS_AUDIT_EVENT);
     }
 
     /**
@@ -808,6 +808,15 @@ class ConfigManager {
                 env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES.split(',').map((col) => col.trim())) ||
             []
         );
+    }
+
+    /**
+     * Resource types that receive the unclassified sensitivity tag on write.
+     * Empty Set disables the feature.
+     * @returns {Set<string>}
+     */
+    get resourceTypesForUnclassifiedTagging() {
+        return new Set(this._parseCommaSeparatedList(env.UNCLASSIFIED_TAGGING_RESOURCES, []));
     }
 
     /**

@@ -65,6 +65,7 @@ const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientP
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
 const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
 const {GroupInvariantHandler} = require('./preSaveHandlers/handlers/groupInvariantHandler');
+const {UnclassifiedSensitivityTagHandler} = require('./preSaveHandlers/handlers/unclassifiedSensitivityTagHandler');
 const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
@@ -92,6 +93,7 @@ const {CmsConsentManager} = require('./operations/search/cmsConsentManager');
 const {CMSManager} = require('./utils/cmsManager');
 const {DelegatedAccessManager} = require('./utils/delegatedAccessManager');
 const {OperationAccessManager} = require('./utils/operationAccessManager');
+const {ResourceOperationAccessProvider} = require('./utils/resourceOperationAccessProvider');
 const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -217,6 +219,7 @@ const createContainer = function () {
             new AccessColumnHandler(),
             new OwnerColumnHandler(),
             c.sourceAssigningAuthorityColumnHandler,
+            new UnclassifiedSensitivityTagHandler({ configManager: c.configManager }),
             new CodeableConceptIdHandler({
                 configManager: c.configManager
             }),
@@ -316,10 +319,12 @@ const createContainer = function () {
     }));
     container.register('cmsManager', () => new CMSManager());
     container.register('delegatedAccessManager', () => new DelegatedAccessManager());
+    container.register('resourceOperationAccessProvider', () => new ResourceOperationAccessProvider());
     container.register('accessManager', (c) => new OperationAccessManager({
         accessProviders: [
             c.cmsManager,
-            c.delegatedAccessManager
+            c.delegatedAccessManager,
+            c.resourceOperationAccessProvider
         ]
     }));
     container.register('dataSharingManager', (c) => new DataSharingManager({
@@ -345,28 +350,6 @@ const createContainer = function () {
             const { ClickHouseClientManager } = require('./utils/clickHouseClientManager');
             return new ClickHouseClientManager({
                 configManager: c.configManager
-            });
-        }
-        return null;
-    });
-    // Register AuditEvent ClickHouse repository (if enabled)
-    container.register('auditEventClickHouseRepository', (c) => {
-        if (c.configManager.enableAuditEventClickHouse && c.clickHouseClientManager) {
-            const { AuditEventClickHouseRepository } = require('./dataLayer/repositories/auditEventClickHouseRepository');
-            return new AuditEventClickHouseRepository({
-                clickHouseClientManager: c.clickHouseClientManager
-            });
-        }
-        return null;
-    });
-    // Register AuditEvent ClickHouse writer (if repository available)
-    container.register('auditEventClickHouseWriter', (c) => {
-        if (c.auditEventClickHouseRepository) {
-            const { AuditEventClickHouseWriter } = require('./utils/auditEventClickHouseWriter');
-            const { AuditEventTransformer } = require('./dataLayer/clickHouse/auditEventTransformer');
-            return new AuditEventClickHouseWriter({
-                auditEventClickHouseRepository: c.auditEventClickHouseRepository,
-                auditEventTransformer: new AuditEventTransformer()
             });
         }
         return null;
@@ -589,7 +572,8 @@ const createContainer = function () {
         return new ClickHouseBulkWriteExecutor({
             genericClickHouseRepository: c.genericClickHouseRepository,
             schemaRegistry: c.clickHouseSchemaRegistry,
-            postSaveProcessor: c.postSaveProcessor
+            postSaveProcessor: c.postSaveProcessor,
+            fallbackExecutor: c.mongoBulkWriteExecutor
         });
     });
 
@@ -661,8 +645,7 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 databaseBulkInserter: c.databaseBulkInserter,
                 preSaveManager: c.preSaveManager,
-                configManager: c.configManager,
-                auditEventClickHouseWriter: c.auditEventClickHouseWriter
+                configManager: c.configManager
             }
         )
     );

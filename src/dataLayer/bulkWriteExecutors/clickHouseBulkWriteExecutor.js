@@ -1,12 +1,13 @@
 'use strict';
 
-const { logDebug, logError } = require('../../operations/common/logging');
+const { logDebug, logError, logWarn } = require('../../operations/common/logging');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { MergeResultEntry } = require('../../operations/common/mergeResultEntry');
 const { BulkWriteExecutor } = require('./bulkWriteExecutor');
 const { WRITE_STRATEGIES } = require('../../constants/clickHouseConstants');
-const { assertIsValid } = require('../../utils/assertType');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { retryWithBackoff } = require('../../utils/retryWithBackoff');
 
 /**
  * Executes bulk write operations against ClickHouse for ClickHouse-only resources.
@@ -22,11 +23,17 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
      * @param {import('../repositories/genericClickHouseRepository').GenericClickHouseRepository} params.genericClickHouseRepository
      * @param {import('../clickHouse/schemaRegistry').ClickHouseSchemaRegistry} params.schemaRegistry
      * @param {import('../postSaveProcessor').PostSaveProcessor} params.postSaveProcessor
+     * @param {import('./bulkWriteExecutor').BulkWriteExecutor|null} [params.fallbackExecutor] - Executor to use if ClickHouse write fails
+     * @param {number} [params.maxRetries=3] - Maximum retry attempts before fallback
+     * @param {number} [params.initialRetryDelayMs=2000] - Initial delay in ms (doubles each retry)
      */
     constructor ({
         genericClickHouseRepository,
         schemaRegistry,
-        postSaveProcessor
+        postSaveProcessor,
+        fallbackExecutor = null,
+        maxRetries = 3,
+        initialRetryDelayMs = 2000
     }) {
         super();
         this.repository = genericClickHouseRepository;
@@ -35,6 +42,14 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
         assertIsValid(schemaRegistry, 'schemaRegistry is required');
         this.postSaveProcessor = postSaveProcessor;
         assertIsValid(postSaveProcessor, 'postSaveProcessor is required');
+        this.fallbackExecutor = fallbackExecutor;
+        if (fallbackExecutor) {
+            assertTypeEquals(fallbackExecutor, BulkWriteExecutor, 'fallbackExecutor must be a BulkWriteExecutor');
+        }
+        this.maxRetries = maxRetries;
+        assertIsValid(maxRetries != null, 'maxRetries is required');
+        this.initialRetryDelayMs = initialRetryDelayMs;
+        assertIsValid(initialRetryDelayMs != null, 'initialRetryDelayMs is required');
     }
 
     /**
@@ -91,9 +106,20 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
                 requestId: requestInfo.requestId
             });
 
-            await this.repository.insertAsync({
-                resourceType,
-                resources
+            await retryWithBackoff({
+                fn: () => this.repository.insertAsync({ resourceType, resources }),
+                maxRetries: this.maxRetries,
+                initialDelayMs: this.initialRetryDelayMs,
+                onRetry: ({ attempt, delay }) => {
+                    logWarn('ClickHouseBulkWriteExecutor: retrying insert', {
+                        attempt,
+                        maxRetries: this.maxRetries,
+                        resourceType,
+                        count: resources.length,
+                        requestId: requestInfo.requestId,
+                        delay
+                    });
+                }
             });
 
             for (const entry of operations) {
@@ -107,14 +133,33 @@ class ClickHouseBulkWriteExecutor extends BulkWriteExecutor {
                 }));
             }
         } catch (err) {
-            bulkError = err;
-            logError('ClickHouseBulkWriteExecutor: insert failed', {
+            logError('ClickHouseBulkWriteExecutor: insert failed after retries', {
                 error: err.message,
                 resourceType,
                 count: operations.length,
-                requestId: requestInfo.requestId
+                requestId: requestInfo.requestId,
+                maxRetries: this.maxRetries
             });
 
+            if (this.fallbackExecutor) {
+                logWarn('ClickHouseBulkWriteExecutor: falling back to secondary storage', {
+                    resourceType,
+                    count: operations.length,
+                    requestId: requestInfo.requestId
+                });
+                return this.fallbackExecutor.executeBulkAsync({
+                    resourceType,
+                    operations,
+                    requestInfo,
+                    base_version,
+                    useHistoryCollection,
+                    maintainOrder,
+                    isAccessLogOperation,
+                    insertOneHistoryFn
+                });
+            }
+
+            bulkError = err;
             for (const entry of operations) {
                 mergeResultEntries.push(new MergeResultEntry({
                     id: entry.id,

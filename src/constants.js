@@ -274,7 +274,8 @@ module.exports = {
     },
     SENSITIVE_CATEGORY: {
         SYSTEM: "https://www.icanbwell.com/sensitivity-category",
-        UNCLASSIFIED_CODE: "unclassified"
+        UNCLASSIFIED_CODE: "unclassified",
+        SUPPRESS_HEADER: 'x-suppress-unclassified-tag'
     },
     MONGO_ERROR: {
         RESOURCE_SIZE_EXCEEDS: 'Document is larger than the maximum size 16777216'

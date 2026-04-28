@@ -1,7 +1,7 @@
 const { MongoMemoryReplSet } = require('mongodb-memory-server-core');
 
 /**
- * @type {import('mongodb-memory-server').MongoMemoryReplSet|undefined|null}
+ * @type {import('mongodb-memory-server-core').MongoMemoryReplSet|undefined|null}
  */
 let mongoRepl;
 
