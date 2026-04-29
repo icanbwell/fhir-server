@@ -289,7 +289,7 @@ module.exports = {
         MISS: 'Miss'
     },
     AUTH_USER_TYPES: {
-        cmsPartnerUser: 'cmsPartnerUser',
+        cmsPartnerUser: 'cms-partner',
         delegatedUser: 'delegatedUser'
     },
     EXTERNAL_SERVICE_REQUEST_CONFIG: {

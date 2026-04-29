@@ -27,7 +27,6 @@ const organizationRegular = require('./fixtures/clinical/organization_regular.js
 const account1 = require('./fixtures/non_uscdi_v3/account_1.json');
 const orgNonUscdiV3Ref = require('./fixtures/non_uscdi_v3/organization_non_uscdi_ref.json');
 
-const expectedOrganizationNotFound = require('./fixtures/errors/expected_organization_not_found.json');
 const expectedEverythingDebugResponse = require('./fixtures/expected/expectedEverythingDebugResponse.json');
 const expectedEverythingDebugIgnoredResponse = require('./fixtures/expected/expectedEverythingDebugIgnoredResponse.json');
 const expectedSourceIdPatientResponse = require('./fixtures/expected/expectedSourceIdPatientResponse.json');
@@ -52,7 +51,8 @@ const PATIENT_ID = 'a25d86d2-5d31-4e9c-8a01-a3899426fac0';
 
 const getCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'cmsPartnerUser patient/*.read user/*.read access/*.read',
+        scope: 'patient/*.read user/*.read access/*.read',
+        user_type: 'cms-partner',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
@@ -70,7 +70,8 @@ const getCmsHeaders = (personId) => {
 
 const getInvalidCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'user/*.read cmsPartnerUser',
+        scope: 'user/*.read',
+        user_type: 'cms-partner',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId
@@ -113,12 +114,10 @@ describe('CMS Partner User - Patient $everything', () => {
 
     beforeEach(async () => {
         cursorSpy.mockReturnThis();
-        process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION = 'true';
         await commonBeforeEach();
     });
 
     afterEach(async () => {
-        delete process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION;
         await commonAfterEach();
     });
 
@@ -504,38 +503,6 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(returnedTypes.has('Account')).toBe(true);
     });
 
-    test('Organization not found returns 500', async () => {
-        const request = await createTestRequest();
-
-        let resp = await request
-            .post('/4_0_0/Person/1/$merge')
-            .send([...baseResources, consent1])
-            .set(getHeaders());
-        expect(resp).toHaveMergeResponse({ created: true });
-
-        const tokenWithBadOrg = getTokenWithCustomPayload({
-            scope: 'patient/*.read user/*.read access/*.read',
-            username: CMS_PERSON_ID,
-            clientFhirPersonId: CMS_PERSON_ID,
-            bwellFhirPersonId: CMS_PERSON_ID,
-            clientFhirPatientId: `person.${CMS_PERSON_ID}`,
-            bwellFhirPatientId: `person.${CMS_PERSON_ID}`,
-            managingOrganization: 'non-existent-org-id'
-        });
-
-        resp = await request
-            .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
-            .set({
-                'Content-Type': 'application/fhir+json',
-                Accept: 'application/fhir+json',
-                Authorization: `Bearer ${tokenWithBadOrg}`,
-                Host: 'localhost:3000'
-            });
-
-        expect(resp).toHaveStatusCode(500);
-        expect(resp.body).toEqual(expectedOrganizationNotFound);
-    });
-
     test('Organization exists but has different type: not treated as CMS user', async () => {
         const request = await createTestRequest();
 
@@ -559,9 +526,7 @@ describe('CMS Partner User - Patient $everything', () => {
         expect(returnedTypes.has('Account')).toBe(true);
     });
 
-    test('Feature flag disabled: CMS org not resolved, no USCDI filtering applied', async () => {
-        delete process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION;
-
+    test('Without user_type claim: user is not treated as CMS, no USCDI filtering applied', async () => {
         const request = await createTestRequest();
 
         let resp = await request
@@ -570,16 +535,30 @@ describe('CMS Partner User - Patient $everything', () => {
             .set(getHeaders());
         expect(resp).toHaveMergeResponse({ created: true });
 
+        const tokenWithoutUserType = getTokenWithCustomPayload({
+            scope: 'patient/*.read user/*.read access/*.read',
+            username: CMS_PERSON_ID,
+            clientFhirPersonId: CMS_PERSON_ID,
+            bwellFhirPersonId: CMS_PERSON_ID,
+            clientFhirPatientId: `person.${CMS_PERSON_ID}`,
+            bwellFhirPatientId: `person.${CMS_PERSON_ID}`,
+            managingOrganization: organization1.id
+        });
+
         resp = await request
             .get(`/4_0_0/Patient/${PATIENT_ID}/$everything`)
-            .set(getCmsHeaders(CMS_PERSON_ID));
+            .set({
+                'Content-Type': 'application/fhir+json',
+                Accept: 'application/fhir+json',
+                Authorization: `Bearer ${tokenWithoutUserType}`,
+                Host: 'localhost:3000'
+            });
 
         expect(resp).toHaveStatusCode(200);
         const entries = resp.body.entry || [];
         const returnedTypes = new Set(entries.map((e) => e.resource.resourceType));
 
-        // With flag disabled, Organization-based detection is skipped
-        // so user is not treated as CMS - Account should be present
+        // No user_type claim means CMS detection is skipped — Account should be present
         expect(entries.length).toBeGreaterThan(0);
         expect(returnedTypes.has('Account')).toBe(true);
     });
