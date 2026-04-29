@@ -77,7 +77,6 @@ services:
       KAFKAJS_NO_PARTITIONER_WARNING: '1'
       ENABLE_BULK_EXPORT: '1'
       ENABLE_MEMORY_CHECK: '1'
-      ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION: '1'
       CONTAINER_MEM_REQUEST: 1000000000
       NO_OF_REQUESTS_PER_POD: 10
       ENABLE_VULCAN_IG_QUERY: 'true'
@@ -171,7 +170,7 @@ services:
       # This is the user and password that will be created in the realm for CMS scope token
       CMS_USER_NAME: cmsUser
       CMS_USER_PASSWORD: password
-      CMS_USER_SCOPE: cmsPartnerUser patient/*.read user/*.read access/*.read
+      CMS_USER_SCOPE: patient/*.read user/*.read access/*.read
       CMS_USER_TOKEN_USERNAME: cmsUser
       CMS_USER_CLIENT_PERSON_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed023
       CMS_USER_CLIENT_PATIENT_ID: 49a49d6c-4987-4177-b0ff-24aa2a16ed024
