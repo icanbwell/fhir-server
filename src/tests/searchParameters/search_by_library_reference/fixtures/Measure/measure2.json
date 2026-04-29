@@ -33,6 +33,6 @@
   "effectivePeriod": {
     "start": "2022-01-01T00:00:00.000Z"
   },
-  "library": "https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN2",
-  "definition": "Description provided by Clinical Team"
+  "library": ["https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN2"],
+  "definition": ["Description provided by Clinical Team"]
 }

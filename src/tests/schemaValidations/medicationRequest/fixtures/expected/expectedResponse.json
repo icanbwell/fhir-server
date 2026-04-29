@@ -24,13 +24,6 @@
             "text": "/4_0_0/MedicationRequest/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"proposal\",\"plan\",\"order\",\"original-order\",\"reflex-order\",\"filler-order\",\"instance-order\",\"option\"]}: at position .intent"
           },
           "severity": "error"
-        },
-        {
-          "code": "invalid",
-          "details": {
-            "text": "/4_0_0/MedicationRequest/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
-          },
-          "severity": "error"
         }
       ],
       "resourceType": "OperationOutcome"

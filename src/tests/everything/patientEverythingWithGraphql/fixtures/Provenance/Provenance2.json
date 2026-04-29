@@ -6,9 +6,9 @@
         "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
     },
     "recorded": "2015-02-07T13:28:17.239+02:00",
-    "target": {
+    "target": [{
         "reference": "Patient/2"
-    },
+    }],
     "agent": [
         {
             "who": {

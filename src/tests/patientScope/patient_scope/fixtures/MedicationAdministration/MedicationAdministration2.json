@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "completed",
-  "medicationCodeableConcept": {},
+  "medicationCodeableConcept": {
+    "text": "Medication Administration Resource"
+  },
   "medicationReference": {
     "reference": "Medication/2"
   },
@@ -14,5 +16,8 @@
     "reference": "Patient/2"
   },
   "effectiveDateTime": "2023-10-10T10:10:10.000Z",
-  "effectivePeriod": {}
+  "effectivePeriod": {
+    "start": "2023-10-10T10:10:10.000Z",
+    "end": "2023-10-10T11:10:10.000Z"
+  }
 }

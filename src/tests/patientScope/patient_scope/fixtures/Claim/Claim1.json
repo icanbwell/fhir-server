@@ -6,8 +6,12 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "active",
-  "type": {},
-  "priority": {},
+  "type": {
+    "text": "Claim Resource"
+  },
+  "priority": {
+    "text": "Normal"
+  },
   "use": "claim",
   "created": "2023-11-11T10:30:00.000Z",
   "patient": {

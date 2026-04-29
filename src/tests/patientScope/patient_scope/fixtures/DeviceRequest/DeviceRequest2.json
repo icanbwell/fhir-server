@@ -12,5 +12,7 @@
   "codeReference": {
     "reference": "Device/2"
   },
-  "codeCodeableConcept": {}
+  "codeCodeableConcept": {
+    "text": "Device Request Resource"
+  }
 }

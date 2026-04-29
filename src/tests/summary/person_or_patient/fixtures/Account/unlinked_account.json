@@ -51,20 +51,5 @@
     "owner": {
         "reference": "Organization/hl7"
     },
-    "description": "Hospital charges",
-    "relatedAccount": [
-        {
-            "relationship": {
-                "coding": [
-                    {
-                        "system": "http://hl7.org/fhir/account-relationship",
-                        "code": "guarantor"
-                    }
-                ]
-            },
-            "account": {
-                "reference": "Account/ewg"
-            }
-        }
-    ]
+    "description": "Hospital charges"
 }

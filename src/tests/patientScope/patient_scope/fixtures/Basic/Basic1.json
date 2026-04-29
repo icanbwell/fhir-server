@@ -5,7 +5,9 @@
     "source": "test",
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
-  "code": {},
+  "code": {
+    "text": "Basic Resource"
+  },
   "subject": {
     "reference": "Patient/1"
   }

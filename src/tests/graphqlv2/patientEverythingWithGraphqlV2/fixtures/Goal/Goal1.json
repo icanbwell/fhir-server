@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "lifecycleStatus": "active",
-  "description": {},
+  "description": {
+    "text": "Goal Resource"
+  },
   "subject": {
     "reference": "Patient/1"
   }

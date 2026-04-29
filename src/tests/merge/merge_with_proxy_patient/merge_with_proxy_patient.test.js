@@ -27,7 +27,7 @@ const {
 
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-describe('Merge with Proxy Patient', () => {
+describe('Merge with Proxy Patient (Fast Merge Serializer)', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

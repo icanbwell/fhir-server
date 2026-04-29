@@ -9,5 +9,7 @@
   "subject": {
     "reference": "Patient/2"
   },
-  "code": {}
+  "code": {
+    "text": "Diagnostic Report Resource"
+  }
 }

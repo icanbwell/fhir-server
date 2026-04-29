@@ -15,7 +15,21 @@
         }
       ]
     },
-    "address": "101 Gentle Lane",
+    "address": [
+      {
+        "city": "Austin",
+        "country": "Some country",
+        "id": "2011-10-05T14:48:00.000Z",
+        "line": [
+          "301 W, in a yellow submarine"
+        ],
+        "period": {
+          "id": "2011-10-05T14:48:00.000Z"
+        },
+        "postalCode": "78701",
+        "state": "Texas"
+      }
+    ],
     "birthDate": "2017-01-01",
     "gender": "female",
     "name": [

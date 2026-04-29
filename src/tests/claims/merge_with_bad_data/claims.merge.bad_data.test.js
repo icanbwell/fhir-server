@@ -1,6 +1,6 @@
 const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_benefits/explanation_of_benefits.json');
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected/expected_explanation_of_benefits.json');
-const expectedMergeResponse = require('./fixtures/expected/expected_merge_response.json');
+const expectedMergeResponse = require('./fixtures/expected/expected_merge_response-fastMerge.json');
 
 const {
     commonBeforeEach,

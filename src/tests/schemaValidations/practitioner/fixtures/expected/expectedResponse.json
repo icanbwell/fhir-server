@@ -17,13 +17,6 @@
             "text": "/4_0_0/Practitioner/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"male\",\"female\",\"other\",\"unknown\"]}: at position .gender"
           },
           "severity": "error"
-        },
-        {
-          "code": "invalid",
-          "details": {
-            "text": "/4_0_0/Practitioner/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
-          },
-          "severity": "error"
         }
       ],
       "resourceType": "OperationOutcome"

@@ -2,9 +2,20 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { createTestContainer } = require('../../createTestContainer');
 const patientPersonData = require('./fixtures/patient/patient_person_data.json');
 
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
 describe('GridFS everything tests', () => {
+    let originalMergeFastSerializerValue;
+
+    beforeAll(() => {
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
+    });
+
+    afterAll(() => {
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
+    });
+
     beforeEach(async () => {
         await commonBeforeEach();
     });

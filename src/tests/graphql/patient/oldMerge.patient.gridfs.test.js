@@ -11,10 +11,22 @@ const {
     getGraphQLHeaders,
     createTestRequest
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { logError } = require('../../../operations/common/logging');
+const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 const { createTestContainer } = require('../../createTestContainer');
 
 describe('GraphQL Patient Update Care Team Tests', () => {
+    let originalMergeFastSerializerValue;
+
+    beforeAll(() => {
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
+    });
+
+    afterAll(() => {
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
+    });
+
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -67,7 +79,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
             expect(patient[0].photo[0]._file_id).toBeDefined();
 
             resp = await request
-                .post('/4_0_0/$graphqlv2')
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -78,10 +90,11 @@ describe('GraphQL Patient Update Care Team Tests', () => {
 
             const body = resp.body;
             if (body.errors) {
+                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
 
-            const patients = body.data.patients.entry;
+            const patients = body.data.patient.entry;
 
             expect(patients[0].resource.photo.length).toEqual(1);
 

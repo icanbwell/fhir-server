@@ -17,13 +17,6 @@
             "text": "/4_0_0/Procedure/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"preparation\",\"in-progress\",\"not-done\",\"on-hold\",\"stopped\",\"completed\",\"entered-in-error\",\"unknown\"]}: at position .status"
           },
           "severity": "error"
-        },
-        {
-          "code": "invalid",
-          "details": {
-            "text": "/4_0_0/Procedure/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
-          },
-          "severity": "error"
         }
       ],
       "resourceType": "OperationOutcome"
