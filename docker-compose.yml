@@ -116,14 +116,13 @@ services:
       CLICKHOUSE_ONLY_RESOURCES: 'AuditEvent'
       ENABLE_ACCESS_LOGS_CLICKHOUSE: '1'
       ENABLE_ACCESS_LOGS_MONGODB: '0'
-
     ports:
       - '3000:3000'
     volumes:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
       - ./yarn.lock:/srv/src/yarn.lock
-    command: yarn run dev_debug
+    command: yarn run dev
     healthcheck:
       test: [ 'CMD-SHELL', 'wget --spider --quiet localhost:3000/health || exit 1' ]
 
