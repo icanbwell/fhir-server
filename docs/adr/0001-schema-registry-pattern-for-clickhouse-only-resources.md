@@ -5,7 +5,7 @@
 Implemented
 
 **Scope notes:**
-- Scaffolding implements MergeTree engine only. ReplacingMergeTree support (needed by Observation for at-least-once delivery dedup) ships with the Observation PR.
+- Scaffolding supports both MergeTree and ReplacingMergeTree engines. Observation uses ReplacingMergeTree for at-least-once delivery dedup.
 - `writeStrategy` names a capability, not an implementation. Concrete implementations live in the executor layer and are selected by DI container wiring.
 - A bespoke AuditEvent ClickHouse write path exists separately. A follow-on ticket tracks migrating it to the generic scaffolding.
 
@@ -202,10 +202,50 @@ CREATE TABLE fhir.fhir_resources (
 - Existing Group ClickHouse Integration: `src/dataLayer/postSaveHandlers/clickHouseGroupHandler.js`
 - MongoDB Generic Pattern: `src/dataLayer/databaseQueryFactory.js`
 
+## ReplacingMergeTree and Observation
+
+### Engine choice
+
+Observation uses `ReplacingMergeTree(meta_version_id)` because wearable device telemetry has at-least-once delivery semantics. Duplicate readings with the same logical identity (subject, code, effective datetime) are collapsed at query time using the highest `meta_version_id`.
+
+### LIMIT 1 BY, not FINAL
+
+Read-path dedup uses `LIMIT 1 BY` on the schema's dedupKey, not `FINAL`:
+
+- **FINAL** merges parts at query time. Cost scales with part count and insert burst patterns. Wearable telemetry has sync-after-offline bursts that spike part counts, causing latency to jump by an order of magnitude during exactly the times the read path needs to be fast.
+- **LIMIT 1 BY** makes dedup explicit in the SQL. It is debuggable, forces the dedupKey to be correct, and is the standard ClickHouse pattern for reading from ReplacingMergeTree without FINAL's cost.
+
+The query builder wraps ReplacingMergeTree search/count queries in a subquery:
+
+```sql
+SELECT _fhir_resource
+FROM (
+    SELECT *
+    FROM fhir.Observation_4_0_0
+    WHERE <filters> AND <security>
+    ORDER BY subject_reference, code_code, effective_datetime, meta_version_id DESC
+    LIMIT 1 BY subject_reference, code_code, effective_datetime
+)
+WHERE <seek-pagination-clause>
+ORDER BY subject_reference, code_code, effective_datetime, id
+LIMIT {_limit:UInt32}
+```
+
+`findById` uses `ORDER BY meta_version_id DESC LIMIT 1` directly (no subquery needed since id uniquely identifies a logical row).
+
+MergeTree queries are unchanged — no subquery, no LIMIT 1 BY.
+
+### meta.versionId contract
+
+`meta_version_id` (UInt64) is parsed from `meta.versionId`. The FHIR server always sets `meta.versionId` on create and update. If absent, defaults to 0 — two version-less inserts collapse arbitrarily, which is correct for identical readings. `meta.versionId` should be deterministic per logical reading and not increment on retry.
+
+### FHIR resource storage
+
+Observation stores `_fhir_resource` as a `String CODEC(ZSTD(3))` column, not native ClickHouse JSON. Dedicated search columns (code_code, subject_reference, effective_datetime, etc.) handle filtering. The full FHIR resource is only deserialized for response reconstruction. ZSTD-compressed strings provide better compression for heterogeneous FHIR payloads than ClickHouse's native JSON type.
+
 ## Related Decisions
 
 - Migration of AuditEvent from bespoke ClickHouse path to generic scaffolding
-- ReplacingMergeTree support for Observation (deterministic IDs + dedup)
 - ClickHouse cluster configuration and high availability
 - TTL policies for audit log retention
 

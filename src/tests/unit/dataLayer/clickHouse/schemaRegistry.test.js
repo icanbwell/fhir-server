@@ -107,9 +107,54 @@ describe('ClickHouseSchemaRegistry', () => {
             expect(() => registry.registerSchema('Bad', badSchema)).toThrow(expectedMsg);
         });
 
-        test('rejects ReplacingMergeTree (not yet supported)', () => {
-            const schema = { ...validSchema, engine: ENGINE_TYPES.REPLACING_MERGE_TREE };
-            expect(() => registry.registerSchema('Bad', schema)).toThrow('not yet supported');
+        test('accepts ReplacingMergeTree with valid versionColumn and dedupKey', () => {
+            const schema = {
+                ...validSchema,
+                engine: ENGINE_TYPES.REPLACING_MERGE_TREE,
+                versionColumn: 'meta_version_id',
+                dedupKey: ['subject_reference', 'code_code', 'effective_datetime']
+            };
+            expect(() => registry.registerSchema('RMT', schema)).not.toThrow();
+        });
+
+        test('rejects ReplacingMergeTree without versionColumn', () => {
+            const schema = {
+                ...validSchema,
+                engine: ENGINE_TYPES.REPLACING_MERGE_TREE,
+                versionColumn: null,
+                dedupKey: ['col_a']
+            };
+            expect(() => registry.registerSchema('Bad', schema)).toThrow('versionColumn');
+        });
+
+        test('rejects ReplacingMergeTree without dedupKey', () => {
+            const schema = {
+                ...validSchema,
+                engine: ENGINE_TYPES.REPLACING_MERGE_TREE,
+                versionColumn: 'version',
+                dedupKey: null
+            };
+            expect(() => registry.registerSchema('Bad', schema)).toThrow('dedupKey');
+        });
+
+        test('rejects ReplacingMergeTree with empty dedupKey', () => {
+            const schema = {
+                ...validSchema,
+                engine: ENGINE_TYPES.REPLACING_MERGE_TREE,
+                versionColumn: 'version',
+                dedupKey: []
+            };
+            expect(() => registry.registerSchema('Bad', schema)).toThrow('dedupKey');
+        });
+
+        test('rejects MergeTree with non-null versionColumn', () => {
+            const schema = { ...validSchema, versionColumn: 'version' };
+            expect(() => registry.registerSchema('Bad', schema)).toThrow('does not use versionColumn');
+        });
+
+        test('rejects MergeTree with non-null dedupKey', () => {
+            const schema = { ...validSchema, dedupKey: ['col_a'] };
+            expect(() => registry.registerSchema('Bad', schema)).toThrow('does not use dedupKey');
         });
 
         test('rejects requiredFilter not in fieldMappings', () => {

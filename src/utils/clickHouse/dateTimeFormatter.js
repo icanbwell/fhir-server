@@ -22,7 +22,22 @@ class DateTimeFormatter {
             return null;
         }
 
-        let result = isoDate;
+        // Normalize to ISO 8601 UTC string: handles Date objects, timezone offsets (+00:00),
+        // and plain ISO strings. R4SearchQueryCreator may produce '2024-06-01T00:00:00+00:00'.
+        let result;
+        if (isoDate instanceof Date) {
+            result = isNaN(isoDate.getTime()) ? String(isoDate) : isoDate.toISOString();
+        } else {
+            const str = String(isoDate);
+            // If the string has a timezone offset (e.g., +00:00, -05:00), parse and normalize
+            if (/[+-]\d{2}:\d{2}$/.test(str)) {
+                const parsed = new Date(str);
+                result = isNaN(parsed.getTime()) ? str : parsed.toISOString();
+            } else {
+                result = str;
+            }
+        }
+
         for (const { from, to } of DATETIME_CONVERSION.ISO_TO_CLICKHOUSE_REPLACEMENTS) {
             result = result.replace(from, to);
         }

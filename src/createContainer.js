@@ -553,6 +553,21 @@ const createContainer = function () {
             const { getAuditEventClickHouseSchema } = require('./dataLayer/clickHouse/auditEventClickHouseSchema');
             registry.registerSchema('AuditEvent', getAuditEventClickHouseSchema());
         }
+        if (c.configManager.clickHouseOnlyResources.includes('Observation')) {
+            const { getObservationSchema } = require('./dataLayer/clickHouse/schemas/observationSchema');
+            registry.registerSchema('Observation', getObservationSchema());
+        }
+        // Validate known resources have schemas. Unknown resources (e.g., test-only
+        // resources) may register schemas outside the container and are not validated here.
+        const knownClickHouseResources = ['AuditEvent', 'Observation'];
+        for (const resourceType of c.configManager.clickHouseOnlyResources) {
+            if (knownClickHouseResources.includes(resourceType) && !registry.hasSchema(resourceType)) {
+                throw new Error(
+                    `CLICKHOUSE_ONLY_RESOURCES includes '${resourceType}' but no schema is registered. ` +
+                    `Check that ENABLE_CLICKHOUSE=true and the schema module is available.`
+                );
+            }
+        }
         return registry;
     });
     container.register('genericClickHouseQueryParser', () => new GenericClickHouseQueryParser());

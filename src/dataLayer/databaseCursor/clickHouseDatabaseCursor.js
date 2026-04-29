@@ -77,6 +77,7 @@ class ClickHouseDatabaseCursor {
 
     /**
      * Returns the next row as a FHIR document.
+     * Extracts the FHIR resource from the _fhir_resource column.
      * @returns {Promise<Object|null>}
      */
     async next () {
@@ -91,9 +92,9 @@ class ClickHouseDatabaseCursor {
      * @returns {Promise<Resource|null>}
      */
     async nextObject () {
-        const row = await this.next();
-        if (!row) return null;
-        const doc = this._extractFhirDocument(row);
+        const doc = await this.next();
+        if (!doc) return null;
+        // next() already extracts the FHIR document — just map to Resource object
         return FhirResourceCreator.mapDocumentToResourceObject(doc, this.resourceType);
     }
 
