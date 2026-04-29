@@ -285,7 +285,7 @@ class EverythingHelper {
      * @returns {Promise<string|undefined>}
      */
     async getCacheKey(parsedArgs, requestInfo, resourceType, base_version) {
-        if (!requestInfo.personIdFromJwtToken || requestInfo.userType === AUTH_USER_TYPES.delegatedUser) {
+        if (!requestInfo.personIdFromJwtToken || requestInfo.userType) {
             return undefined;
         }
         const keyGenerator = new PatientEverythingCacheKeyGenerator();

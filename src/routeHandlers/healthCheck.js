@@ -18,8 +18,7 @@ module.exports.handleHealthCheck = async (fnGetContainer, req, res) => {
     const authService = new AuthService(
         {
             configManager: configManager,
-            wellKnownConfigurationManager: container.wellKnownConfigurationManager,
-            userTypeManager: container.userTypeManager
+            wellKnownConfigurationManager: container.wellKnownConfigurationManager
         }
     );
     await authService.getJwksByUrlAsync(configManager.authJwksUrl);
