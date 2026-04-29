@@ -16,7 +16,7 @@ function filterSections({ sections, deniedSensitiveCategorySet, compositionUuid,
         const section = sections[i];
         const currentPath = `${path}section[${i}]`;
         if (shouldRemoveSection({ section, deniedSensitiveCategorySet })) {
-            logInfo(`Dropping section ${section?.id} from Composition/${compositionUuid} at ${currentPath}`, {});
+            logInfo(`Dropping section ${section?.id} from Composition/${compositionUuid} at ${currentPath}`);
             continue;
         }
         if (section.section) {
