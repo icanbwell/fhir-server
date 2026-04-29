@@ -304,9 +304,9 @@ describe('DelegatedAccessRulesManager Tests', () => {
                 consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
                 consentVersion: '1',
                 provisionPeriodStart: '2025-12-23T20:00:00.000Z',
-                provisionPeriodEnd: '2026-01-01T00:00:00.000Z',
-                deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
+                provisionPeriodEnd: '2026-01-01T00:00:00.000Z'
             });
+            expect(result.filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
         });
 
         test('should return only active consent when multiple consents with different statuses exist', async () => {
@@ -332,9 +332,9 @@ describe('DelegatedAccessRulesManager Tests', () => {
                 consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
                 consentVersion: '1',
                 provisionPeriodStart: '2025-12-23T20:00:00.000Z',
-                provisionPeriodEnd: '2026-01-01T00:00:00.000Z',
-                deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
+                provisionPeriodEnd: '2026-01-01T00:00:00.000Z'
             });
+            expect(result.filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
         });
 
         test('should throw ForbiddenError when multiple active consents found', async () => {
@@ -386,9 +386,11 @@ describe('DelegatedAccessRulesManager Tests', () => {
                 consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
                 consentVersion: '1',
                 provisionPeriodStart: '2025-12-23T20:00:00.000Z',
-                provisionPeriodEnd: '2026-01-01T00:00:00.000Z',
-                deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
+                provisionPeriodEnd: '2026-01-01T00:00:00.000Z'
             });
+            expect(filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
+            expect(Object.keys(filteringRules)).not.toContain('deniedSensitiveCategories');
+            expect(JSON.parse(JSON.stringify(filteringRules))).not.toHaveProperty('deniedSensitiveCategories');
         });
 
         test('should handle consent without nested provisions', async () => {
@@ -409,9 +411,9 @@ describe('DelegatedAccessRulesManager Tests', () => {
                 consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
                 consentVersion: '1',
                 provisionPeriodStart: '2025-12-23T20:00:00.000Z',
-                provisionPeriodEnd: '2026-01-01T00:00:00.000Z',
-                deniedSensitiveCategories: []
+                provisionPeriodEnd: '2026-01-01T00:00:00.000Z'
             });
+            expect(filteringRules.deniedSensitiveCategories).toStrictEqual([]);
         });
 
         test('should return null for period dates when not present', async () => {
@@ -429,9 +431,9 @@ describe('DelegatedAccessRulesManager Tests', () => {
                 consentId: '6db13a4f-fee5-485a-b245-18881c0232ac',
                 consentVersion: '1',
                 provisionPeriodStart: undefined,
-                provisionPeriodEnd: undefined,
-                deniedSensitiveCategories: ['MENTAL_HEALTH', 'HIV_AIDS']
+                provisionPeriodEnd: undefined
             });
+            expect(filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
         });
     });
 
