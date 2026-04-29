@@ -490,7 +490,21 @@ module.exports = {
                 options: {
                     name: 'managingOrganization.reference_uuid'
                 }
-            }
+            },
+            ...(
+                    (
+                        process.env.ACCESS_TAGS_INDEXED_LOCATION &&
+                        process.env.ACCESS_TAGS_INDEXED_LOCATION.split(',').map((item) => item.trim())
+                    ) || []
+                ).map(client => ({
+                    keys: {
+                        [`_access.${client}`]: 1,
+                        _uuid: 1
+                    },
+                    options: {
+                        name: `_access_${client}_1._uuid_1`
+                    }
+            }))
         ],
         Observation_4_0_0: [
             {

@@ -118,6 +118,14 @@ class ConfigManager {
                     ) || []
                 );
                 break;
+            case 'Location':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_LOCATION && env.ACCESS_TAGS_INDEXED_LOCATION.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
             case 'Organization':
                 indexList = indexList.concat(
                     (
