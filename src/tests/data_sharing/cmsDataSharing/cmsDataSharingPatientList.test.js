@@ -43,8 +43,7 @@ const PATIENT_ID_3 = '08f1b73a-e27c-456d-8a61-277f164a9a57-3';
 // Helper to create CMS partner user headers with patient scope
 const getCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'patient/*.read user/*.read access/*.read',
-        user_type: 'cms-partner',
+        scope: 'cmsPartnerUser patient/*.read user/*.read access/*.read',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
@@ -60,11 +59,10 @@ const getCmsHeaders = (personId) => {
     };
 };
 
-// Helper to create invalid scope headers (CMS partner without patient scope)
+// Helper to create invalid scope headers (cmsPartnerUser without patient scope)
 const getInvalidCmsHeaders = (personId) => {
     const token = getTokenWithCustomPayload({
-        scope: 'user/*.read',
-        user_type: 'cms-partner',
+        scope: 'user/*.read cmsPartnerUser',
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId
@@ -77,15 +75,17 @@ const getInvalidCmsHeaders = (personId) => {
     };
 };
 
-describe('CMS Data Sharing - Patient List with cms-partner', () => {
+describe('CMS Data Sharing - Patient List with cmsPartnerUser', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
         cursorSpy.mockReturnThis();
+        process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION = 'true';
         await commonBeforeEach();
     });
 
     afterEach(async () => {
+        delete process.env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION;
         await commonAfterEach();
     });
 
