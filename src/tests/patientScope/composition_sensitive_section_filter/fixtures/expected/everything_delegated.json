@@ -263,6 +263,19 @@
                                 }
                             ]
                         }
+                    },
+                    {
+                        "id": "sensitive-3",
+                        "title": "Family Planning",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
+                                }
+                            ]
+                        }
                     }
                 ],
                 "status": "final",
@@ -450,6 +463,19 @@
                             ]
                         },
                         "section": [
+                            {
+                                "id": "p3-child-sensitive",
+                                "title": "Condition Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "reproductive-health"
+                                        }
+                                    ]
+                                }
+                            },
                             {
                                 "id": "p3-child-2",
                                 "title": "Active Problems",
@@ -805,5 +831,5 @@
     "timestamp": "2025-12-24T08:00:00.000Z",
     "resourceType": "Bundle",
     "total": 5,
-    "id": "784a7312-f747-4855-b3ae-829509eb6ad0"
+    "id": "5ccd3fb2-a856-4568-b157-8508f1036387"
 }

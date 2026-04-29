@@ -1,6 +1,7 @@
 /**
  * @typedef {Object} EnrichmentContext
  * @property {string|undefined} userType
+ * @property {import('../../utils/fhirRequestInfo').JwtActor|undefined|null} actor
  */
 
 /**

@@ -29,6 +29,19 @@
                                 }
                             ]
                         }
+                    },
+                    {
+                        "id": "sensitive-3",
+                        "title": "Family Planning",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
+                                }
+                            ]
+                        }
                     }
                 ],
                 "resourceType": "Composition"
@@ -40,14 +53,14 @@
     "link": [
         {
             "relation": "self",
-            "url": "http://127.0.0.1:64525/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id,section"
+            "url": "http://127.0.0.1:50468/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id,section"
         },
         {
             "relation": "next",
-            "url": "http://127.0.0.1:64525/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id%2Csection&id%3Aabove=c72fbe51-7a3d-5835-a645-fd241d3b711d"
+            "url": "http://127.0.0.1:50468/4_0_0/Composition?_id=comp-top-level-sensitive&_elements=id%2Csection&id%3Aabove=c72fbe51-7a3d-5835-a645-fd241d3b711d"
         }
     ],
     "resourceType": "Bundle",
     "total": 0,
-    "id": "b9b59012-acdc-4a78-9f92-6b7ae5b6b07b"
+    "id": "5dc990f7-a199-4b5b-90bb-8217d60d9fdc"
 }

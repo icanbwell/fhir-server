@@ -943,7 +943,10 @@ class EverythingHelper {
                 entries = await this.enrichmentManager.enrichBundleEntriesAsync({
                     entries,
                     parsedArgs,
-                    enrichmentContext: { userType: requestInfo.userType }
+                    enrichmentContext: {
+                        userType: requestInfo.userType,
+                        actor: requestInfo.actor
+                    }
                 });
             }
 
@@ -1696,7 +1699,10 @@ class EverythingHelper {
                                 [current_entity] = await this.enrichmentManager.enrichBundleEntriesAsync({
                                     entries: [current_entity],
                                     parsedArgs: parentParsedArgs,
-                                    enrichmentContext: { userType: requestInfo.userType }
+                                    enrichmentContext: {
+                                        userType: requestInfo.userType,
+                                        actor: requestInfo.actor
+                                    }
                                 });
 
                                 await responseStreamer.writeBundleEntryAsync({

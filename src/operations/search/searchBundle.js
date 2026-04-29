@@ -312,7 +312,10 @@ class SearchBundleOperation {
                         user,
                         parsedArgs,
                         resourceType,
-                        userType
+                        enrichmentContext: {
+                            userType,
+                            actor: requestInfo.actor
+                        }
                     }
                 );
 

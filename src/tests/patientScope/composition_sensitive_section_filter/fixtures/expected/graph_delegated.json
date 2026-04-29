@@ -263,6 +263,19 @@
                                 }
                             ]
                         }
+                    },
+                    {
+                        "id": "sensitive-3",
+                        "title": "Family Planning",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
+                                }
+                            ]
+                        }
                     }
                 ],
                 "status": "final",
@@ -450,6 +463,19 @@
                             ]
                         },
                         "section": [
+                            {
+                                "id": "p3-child-sensitive",
+                                "title": "Condition Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "reproductive-health"
+                                        }
+                                    ]
+                                }
+                            },
                             {
                                 "id": "p3-child-2",
                                 "title": "Active Problems",
@@ -806,10 +832,10 @@
     "link": [
         {
             "relation": "self",
-            "url": "http://127.0.0.1:57787/4_0_0/Patient/$graph?id=patient1"
+            "url": "http://127.0.0.1:50672/4_0_0/Patient/$graph?id=patient1"
         }
     ],
     "resourceType": "Bundle",
     "total": 5,
-    "id": "9c9c3cdf-d15f-4475-bc2b-e3ec03f23d97"
+    "id": "5a81d42b-819d-496f-97a7-8ba624c22aae"
 }
