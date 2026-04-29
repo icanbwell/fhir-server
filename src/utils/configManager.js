@@ -1212,6 +1212,15 @@ class ConfigManager {
         );
     }
 
+
+
+    /**
+     * Whether to enable user type resolution using organization type.
+     */
+    get enableUserTypeResolutionFromOrganization() {
+        return isTrue(env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION);
+    }
+
     /**
      * returns list of external services where restriction needs to be applied to request
      * @return {Object.<string, string | null>}

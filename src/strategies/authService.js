@@ -1,5 +1,6 @@
 const async = require('async');
 const superagent = require('superagent');
+const Sentry = require('@sentry/node');
 const {LRUCache} = require('lru-cache');
 const {
     EXTERNAL_REQUEST_RETRY_COUNT,
@@ -12,6 +13,7 @@ const {logDebug, logError, logInfo} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const {UserTypeManager} = require("../utils/userTypeManager");
 
 /**
  * @typedef {Object} UserInfo
@@ -39,10 +41,12 @@ class AuthService {
      * Constructor for the AuthService
      * @param {ConfigManager} configManager
      * @param {WellKnownConfigurationManager} wellKnownConfigurationManager
+     * @param {UserTypeManager} userTypeManager
      */
     constructor({
                     configManager,
-                    wellKnownConfigurationManager
+                    wellKnownConfigurationManager,
+                    userTypeManager
                 }) {
         /**
          * @type {ConfigManager}
@@ -56,17 +60,20 @@ class AuthService {
         this.wellKnownConfigurationManager = wellKnownConfigurationManager;
         assertTypeEquals(wellKnownConfigurationManager, WellKnownConfigurationManager);
 
+        /**
+         * @type {UserTypeManager}
+         */
+        this.userTypeManager = userTypeManager;
+        assertTypeEquals(userTypeManager, UserTypeManager);
+
         this.requestTimeout = (this.configManager.externalRequestTimeoutSec || 30) * 1000;
         this.requiredJWTFields = {
             clientFhirPersonId: 'clientFhirPersonId',
             clientFhirPatientId: 'clientFhirPatientId',
             bwellFhirPersonId: 'bwellFhirPersonId',
-            bwellFhirPatientId: 'bwellFhirPatientId'
-        };
-        this.optionalJWTFields = {
+            bwellFhirPatientId: 'bwellFhirPatientId',
             managingOrganization: 'managingOrganization'
         };
-        this.allowedJWTUserTypes = [AUTH_USER_TYPES.cmsPartnerUser];
         this.cacheOptions = {
             max: DEFAULT_CACHE_MAX_COUNT,
             ttl: DEFAULT_CACHE_EXPIRY_TIME
@@ -217,7 +224,7 @@ class AuthService {
             }
             context.personIdFromJwtToken = jwt_payload[this.requiredJWTFields.clientFhirPersonId];
             context.masterPersonIdFromJwtToken = jwt_payload[this.requiredJWTFields.bwellFhirPersonId];
-            context.managingOrganizationId = jwt_payload[this.optionalJWTFields.managingOrganization];
+            context.managingOrganizationId = jwt_payload[this.requiredJWTFields.managingOrganization];
 
             context.subject = jwt_payload['sub'];
             context.username = context.personIdFromJwtToken;
@@ -231,10 +238,22 @@ class AuthService {
                     context.userType = AUTH_USER_TYPES.delegatedUser;
                 }
             }
-            // if userType is not already set through delegated access detection,
-            // accept user_type claim only when it is one of the allowed values
-            if (!context.userType && this.allowedJWTUserTypes.includes(jwt_payload.user_type)) {
-                context.userType = jwt_payload.user_type;
+            if (this.configManager.enableUserTypeResolutionFromOrganization) {
+                this.userTypeManager.resolveUserTypeAsync({
+                    managingOrganizationId: jwt_payload[this.requiredJWTFields.managingOrganization]
+                }).then((resolvedUserType) => {
+                    if (resolvedUserType) {
+                        context.userType = resolvedUserType;
+                    }
+                    logDebug(`JWT payload`, {user: '', args: {jwt_payload}});
+                    const effectiveUsername = context.username || username;
+                    done(null, {id: client_id, isUser, name: effectiveUsername, username: effectiveUsername}, {scope, context});
+                }).catch((error) => {
+                    logError(`Error resolving user type: ${error.message}`, {error: error});
+                    Sentry.captureException(error);
+                    done(error);
+                });
+                return;
             }
         }
         if (context.userType) {
