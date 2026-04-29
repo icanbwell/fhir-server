@@ -389,6 +389,8 @@ describe('DelegatedAccessRulesManager Tests', () => {
                 provisionPeriodEnd: '2026-01-01T00:00:00.000Z'
             });
             expect(filteringRules.deniedSensitiveCategories).toStrictEqual(['MENTAL_HEALTH', 'HIV_AIDS']);
+            expect(Object.keys(filteringRules)).not.toContain('deniedSensitiveCategories');
+            expect(JSON.parse(JSON.stringify(filteringRules))).not.toHaveProperty('deniedSensitiveCategories');
         });
 
         test('should handle consent without nested provisions', async () => {
