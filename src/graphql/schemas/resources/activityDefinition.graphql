@@ -30,7 +30,7 @@ union ActivityDefinitionProductReference = Medication | Substance | Ingredient
 
 """
 ActivityDefinition
-    This resource allow for the definition of some activity to be performed,
+    This resource allows for the definition of some activity to be performed,
     independent of a particular patient, practitioner, or other performance
     context.
     If the element is present, it must have either a @value, an @id, or extensions
