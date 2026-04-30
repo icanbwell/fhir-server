@@ -17,3 +17,4 @@ src/tests
 *.md
 src/app.test.js
 generatorScripts
+generated.sdl
