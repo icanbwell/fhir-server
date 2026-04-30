@@ -192,6 +192,16 @@ graphqlv2:
 	graphql-schema-linter src/graphqlv2/**/*.graphql && \
 	eslint --fix "src/graphqlv2/**/*.js"
 
+.PHONY:graphql-sdl
+graphql-sdl:
+	. ${NVM_DIR}/nvm.sh && nvm use && \
+	node generatorScripts/generateGraphqlSdl.js
+
+.PHONY:check-graphql-sdl
+check-graphql-sdl:
+	. ${NVM_DIR}/nvm.sh && nvm use && \
+	node generatorScripts/generateGraphqlSdl.js --check
+
 .PHONY:classes
 classes:
 	. ${NVM_DIR}/nvm.sh && nvm use && \
