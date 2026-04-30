@@ -520,9 +520,9 @@ class EverythingHelper {
                 }
             );
 
-            // Log audit events for resources accessed per resource type
-            // Works for both streaming and non-streaming modes
-            const resourcesToAudit = streamedResources;
+            const resourcesToAudit = responseStreamer
+                ? streamedResources
+                : resources.map((r) => ({ _uuid: r._uuid, resourceType: r.resourceType }));
 
             if (resourcesToAudit.length > 0 && resourceType !== 'AuditEvent') {
                 const requestId = requestInfo.requestId;
