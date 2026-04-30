@@ -105,6 +105,13 @@ describe('AuditLog Chunking Tests', () => {
                 log.entity.map((e) => e.what.reference)
             );
             expect(allReferences.filter((r) => r.startsWith('Observation/')).length).toBe(3);
+
+            // verify audit references use _uuid, not sourceId
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+            allReferences.forEach((ref) => {
+                const id = ref.split('/')[1];
+                expect(id).toMatch(uuidRegex);
+            });
         });
 
         test('2 IDs exactly at limit creates single audit event with 2 entities', async () => {
@@ -188,6 +195,13 @@ describe('AuditLog Chunking Tests', () => {
 
             expect(observationRefs.length).toBe(3);
             expect(new Set(observationRefs).size).toBe(3);
+
+            // verify audit references use _uuid, not sourceId
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+            observationRefs.forEach((ref) => {
+                const id = ref.split('/')[1];
+                expect(id).toMatch(uuidRegex);
+            });
         });
     });
 
@@ -265,6 +279,13 @@ describe('AuditLog Chunking Tests', () => {
             expect(observationAuditLogs.length).toBe(2);
             const obsEntityCounts = observationAuditLogs.map((log) => log.entity.length).sort();
             expect(obsEntityCounts).toEqual([1, 2]);
+
+            // verify all audit references use _uuid, not sourceId
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+            allReferences.forEach((ref) => {
+                const id = ref.split('/')[1];
+                expect(id).toMatch(uuidRegex);
+            });
         });
 
         test('$everything captures all resource IDs without dropping any', async () => {
@@ -315,6 +336,121 @@ describe('AuditLog Chunking Tests', () => {
             expect(patientRefs.length).toBe(1);
             expect(observationRefs.length).toBe(3);
             expect(new Set(observationRefs).size).toBe(3);
+        });
+    });
+
+    describe('Audit entity references use _uuid', () => {
+        test('searchById audit event references use _uuid not sourceId', async () => {
+            let resp = await request
+                .post('/4_0_0/Observation/2354-InAgeCohort/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+            await auditEventCollection.deleteMany({});
+
+            resp = await request.get('/4_0_0/Observation/2354-InAgeCohort').set(getHeaders());
+            expect(resp).toHaveStatusCode(200);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+
+            const auditLogs = await auditEventCollection.find({}).toArray();
+            const readAuditLogs = auditLogs.filter((log) => log.action === 'R');
+            expect(readAuditLogs.length).toBe(1);
+
+            const reference = readAuditLogs[0].entity[0].what.reference;
+            expect(reference).toMatch(/^Observation\//);
+            const id = reference.split('/')[1];
+            expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+            expect(id).not.toBe('2354-InAgeCohort');
+        });
+
+        test('search audit event references use _uuid not sourceId', async () => {
+            let resp = await request
+                .post('/4_0_0/Observation/2354-InAgeCohort/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+            await auditEventCollection.deleteMany({});
+
+            resp = await request.get('/4_0_0/Observation').set(getHeaders());
+            expect(resp).toHaveResourceCount(1);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+
+            const auditLogs = await auditEventCollection.find({}).toArray();
+            const readAuditLogs = auditLogs.filter((log) => log.action === 'R');
+            expect(readAuditLogs.length).toBe(1);
+
+            const reference = readAuditLogs[0].entity[0].what.reference;
+            expect(reference).toMatch(/^Observation\//);
+            const id = reference.split('/')[1];
+            expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+            expect(id).not.toBe('2354-InAgeCohort');
+        });
+
+        test('search with _elements audit event references use _uuid', async () => {
+            let resp = await request
+                .post('/4_0_0/Observation/2354-InAgeCohort/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+            await auditEventCollection.deleteMany({});
+
+            resp = await request.get('/4_0_0/Observation?_elements=status').set(getHeaders());
+            expect(resp).toHaveResourceCount(1);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+
+            const auditLogs = await auditEventCollection.find({}).toArray();
+            const readAuditLogs = auditLogs.filter((log) => log.action === 'R');
+            expect(readAuditLogs.length).toBe(1);
+
+            const reference = readAuditLogs[0].entity[0].what.reference;
+            expect(reference).toMatch(/^Observation\//);
+            const id = reference.split('/')[1];
+            expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+            expect(id).not.toBe('2354-InAgeCohort');
+        });
+
+        test('create audit event references use _uuid not sourceId', async () => {
+            await auditEventCollection.deleteMany({});
+
+            const resp = await request
+                .post('/4_0_0/Observation')
+                .send(observation1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveStatusCode(201);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+
+            const auditLogs = await auditEventCollection.find({}).toArray();
+            const createAuditLogs = auditLogs.filter((log) => log.action === 'C');
+            expect(createAuditLogs.length).toBe(1);
+
+            const reference = createAuditLogs[0].entity[0].what.reference;
+            expect(reference).toMatch(/^Observation\//);
+            const id = reference.split('/')[1];
+            expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
         });
     });
 });

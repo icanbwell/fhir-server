@@ -147,6 +147,7 @@ class ExportOperation {
             await this.exportManager.triggerExportJob({ exportStatusResource, requestId });
 
             // Logic to add auditEvent
+            const exportStatusUuid = exportStatusResource._uuid;
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
@@ -156,7 +157,7 @@ class ExportOperation {
                         resourceType: 'ExportStatus',
                         operation: currentOperationName,
                         args,
-                        ids: [exportStatusResource.id]
+                        ids: [exportStatusUuid]
                     });
                 }
             });

@@ -214,24 +214,6 @@ class CreateOperation {
             let doc = resource;
             Object.assign(doc, { id: resource_incoming.id });
 
-            if (resourceType !== 'AuditEvent') {
-                // log access to audit logs
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
-                        await this.auditLogger.logAuditEntryAsync(
-                            {
-                                requestInfo,
-                                base_version,
-                                resourceType,
-                                operation: currentOperationName,
-                                args: parsedArgs.getRawArgs(),
-                                ids: [resource.id]
-                            }
-                        );
-                    }
-                });
-            }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
             // noinspection JSValidateTypes
@@ -264,6 +246,25 @@ class CreateOperation {
                         : 'No merge result'
                     )
                 );
+            }
+
+            if (resourceType !== 'AuditEvent') {
+                const resourceUuid = doc._uuid;
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync(
+                            {
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                operation: currentOperationName,
+                                args: parsedArgs.getRawArgs(),
+                                ids: [resourceUuid]
+                            }
+                        );
+                    }
+                });
             }
 
             // log operation
