@@ -84,14 +84,12 @@ class AuditLogger {
      * @param {string} params.operation
      * @param {Object} params.cleanedArgs
      * @param {string[]} params.ids
-     * @param {number} [params.maxNumberOfIds] - Optional max number of IDs to include in audit entry
      * @returns {AuditEvent}
      */
     createAuditEntry (
         {
             requestInfo, operation,
-            ids, resourceType, cleanedArgs,
-            maxNumberOfIds
+            ids, resourceType, cleanedArgs
         }
     ) {
         const operationCodeMapping = {
@@ -101,9 +99,6 @@ class AuditLogger {
             delete: 'D',
             execute: 'E'
         };
-
-        // Get current record
-        const maxIds = maxNumberOfIds !== undefined ? maxNumberOfIds : this.maxIdsPerAuditEvent;
 
         const isUser = Boolean(requestInfo?.isUser);
 
@@ -202,7 +197,7 @@ class AuditLogger {
                 )
             }),
             action: operationCodeMapping[`${operation}`],
-            entity: ids.slice(0, maxIds).map((resourceId, index) => {
+            entity: ids.map((resourceId, index) => {
                 return new AuditEventEntity({
                     what: new Reference({
                         reference: `${resourceType}/${resourceId}`
@@ -229,11 +224,10 @@ class AuditLogger {
      * @param {string} operation
      * @param {Object} args
      * @param {string[]} ids
-     * @param {number} [maxNumberOfIds] - Optional max number of IDs to include in audit entry
      * @return {Promise<void>}
      */
     async logAuditEntryAsync ({
-        requestInfo, base_version, resourceType, operation, args, ids, maxNumberOfIds
+        requestInfo, base_version, resourceType, operation, args, ids
     }) {
         if (!this.configManager.enableAccessAuditEvent || resourceType === 'AuditEvent') {
             return;
@@ -250,17 +244,21 @@ class AuditLogger {
         if (cleanedArgs._source) {
             delete cleanedArgs._source;
         }
-        /**
-         * @type {Resource}
-         */
-        const doc = this.createAuditEntry(
-            {
-                base_version, requestInfo, operation, ids, resourceType, cleanedArgs, maxNumberOfIds
-            }
-        );
 
-        await this.preSaveManager.preSaveAsync({ resource: doc });
-        this.queue.push({ doc, requestInfo });
+        for (let i = 0; i < ids.length; i += this.maxIdsPerAuditEvent) {
+            const idChunk = ids.slice(i, i + this.maxIdsPerAuditEvent);
+            /**
+             * @type {Resource}
+             */
+            const doc = this.createAuditEntry(
+                {
+                    base_version, requestInfo, operation, ids: idChunk, resourceType, cleanedArgs
+                }
+            );
+
+            await this.preSaveManager.preSaveAsync({ resource: doc });
+            this.queue.push({ doc, requestInfo });
+        }
     }
 
     /**

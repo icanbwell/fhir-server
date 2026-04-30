@@ -520,13 +520,12 @@ class EverythingHelper {
                 }
             );
 
-            // Log audit events for resources accessed (max 1000 per audit event per resource type)
+            // Log audit events for resources accessed per resource type
             // Works for both streaming and non-streaming modes
             const resourcesToAudit = responseStreamer ? streamedResources : resources.map((r) => ({ id: r.id, resourceType: r.resourceType }));
 
             if (resourcesToAudit.length > 0 && resourceType !== 'AuditEvent') {
                 const requestId = requestInfo.requestId;
-                const maxResourcesPerAudit = 1000;
 
                 // Group resources by type for proper audit logging
                 const resourcesByType = new Map();
@@ -542,29 +541,23 @@ class EverythingHelper {
 
                 // Create audit events for each resource type
                 for (const [type, ids] of resourcesByType.entries()) {
-                    // Split resource IDs into chunks of 1000
-                    for (let i = 0; i < ids.length; i += maxResourcesPerAudit) {
-                        const resourceIdChunk = ids.slice(i, i + maxResourcesPerAudit);
-
-                        this.postRequestProcessor.add({
-                            requestId,
-                            fnTask: async () => {
-                                // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
-                                // calling in setImmediate to process it in next iteration of event loop
-                                setImmediate(async () => {
-                                    await this.auditLogger.logAuditEntryAsync({
-                                        requestInfo,
-                                        base_version,
-                                        resourceType: type,
-                                        operation: 'read',
-                                        args: parsedArgs.getRawArgs(),
-                                        ids: resourceIdChunk,
-                                        maxNumberOfIds: maxResourcesPerAudit
-                                    });
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop#partitioning
+                            // calling in setImmediate to process it in next iteration of event loop
+                            setImmediate(async () => {
+                                await this.auditLogger.logAuditEntryAsync({
+                                    requestInfo,
+                                    base_version,
+                                    resourceType: type,
+                                    operation: 'read',
+                                    args: parsedArgs.getRawArgs(),
+                                    ids
                                 });
-                            }
-                        });
-                    }
+                            });
+                        }
+                    });
                 }
             }
 
