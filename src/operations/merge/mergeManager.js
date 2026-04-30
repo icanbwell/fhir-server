@@ -951,7 +951,7 @@ class MergeManager {
                                     resourceType,
                                     operation: 'create',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: createdItems.map((r) => r.id)
+                                    ids: createdItems.map((r) => r._uuid)
                                 });
                             }
                             if (updatedItems && updatedItems.length > 0) {
@@ -961,7 +961,7 @@ class MergeManager {
                                     resourceType,
                                     operation: 'update',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: updatedItems.map((r) => r.id)
+                                    ids: updatedItems.map((r) => r._uuid)
                                 });
                             }
                         }

@@ -70,10 +70,10 @@
     "entity": [
         {
             "what": {
-                "reference": "Observation/2354-InAgeCohort",
+                "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
                 "_sourceAssigningAuthority": "bwell",
-                "_uuid": "Observation/bad1a7ed-b88a-530c-bbdf-3a36e5887a96",
-                "_sourceId": "Observation/2354-InAgeCohort"
+                "_uuid": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
+                "_sourceId": "Observation/61886699-c643-5e3b-a074-569e4c43bddf"
             },
             "detail": [
                 {

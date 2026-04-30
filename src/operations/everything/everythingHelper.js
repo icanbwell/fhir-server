@@ -398,7 +398,7 @@ class EverythingHelper {
              */
             let bundleEntryIdsProcessedTracker = new ResourceProccessedTracker();
             /**
-             * @type {{id: string, resourceType: string}[]} - Track resource IDs with types for audit logging
+             * @type {{_uuid: string, resourceType: string}[]} - Track resource IDs with types for audit logging
              */
             let streamedResources = [];
             const writeCache = this.configManager.writeToCacheForEverythingOperation;
@@ -520,9 +520,9 @@ class EverythingHelper {
                 }
             );
 
-            // Log audit events for resources accessed per resource type
-            // Works for both streaming and non-streaming modes
-            const resourcesToAudit = responseStreamer ? streamedResources : resources.map((r) => ({ id: r.id, resourceType: r.resourceType }));
+            const resourcesToAudit = responseStreamer
+                ? streamedResources
+                : resources.map((r) => ({ _uuid: r._uuid, resourceType: r.resourceType }));
 
             if (resourcesToAudit.length > 0 && resourceType !== 'AuditEvent') {
                 const requestId = requestInfo.requestId;
@@ -536,7 +536,7 @@ class EverythingHelper {
                     if (!resourcesByType.has(type)) {
                         resourcesByType.set(type, []);
                     }
-                    resourcesByType.get(type).push(resource.id);
+                    resourcesByType.get(type).push(resource._uuid);
                 });
 
                 // Create audit events for each resource type
@@ -672,7 +672,7 @@ class EverythingHelper {
              */
             let resourceMapper = new ResourceMapper();
             /**
-             * @type {{id: string, resourceType: string}[]} - Track resource IDs with types for audit logging
+             * @type {{_uuid: string, resourceType: string}[]} - Track resource IDs with types for audit logging
              */
             let streamedResources = [];
 
@@ -1024,7 +1024,7 @@ class EverythingHelper {
          */
         let explanations = [];
         /**
-         * @type {{id: string, resourceType: string}[]} - Track resources with types for audit logging
+         * @type {{_uuid: string, resourceType: string}[]} - Track resources with types for audit logging
          */
         let streamedResources = [];
 
@@ -1157,12 +1157,12 @@ class EverythingHelper {
      * @property {EverythingRelatedResourceManager} everythingRelatedResourceManager
      * @property {Boolean} useUuidProjection
      * @property {{string: string[]}} resourceToExcludeIdsMap
-     * @property {{id: string, resourceType: string}[]} streamedResources
+     * @property {{_uuid: string, resourceType: string}[]} streamedResources
      * @property {ResourceMapper} resourceMapper
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
-     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {id: string, resourceType: string}[]}>}
+     * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
     async retriveveRelatedResourcesParallelyAsync({
         requestInfo,
@@ -1201,7 +1201,7 @@ class EverythingHelper {
          */
         const bundleEntries = [];
         /**
-         * @type {{id: string, resourceType: string}[]} - Collect streamed resources with types
+         * @type {{_uuid: string, resourceType: string}[]} - Collect streamed resources with types
          */
         const streamedResources = [];
 
@@ -1507,7 +1507,7 @@ class EverythingHelper {
      *  resourceMapper?: ResourceMapper,
      *  cachedStreamer?: CachedFhirResponseStreamer|null,
      * }} options
-     * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {id: string, resourceType: string}[]}>}
+     * @return {Promise<{ bundleEntries: BundleEntry[], streamedResources: {_uuid: string, resourceType: string}[]}>}
      */
     async processCursorAsync({
         cursor,
@@ -1531,7 +1531,7 @@ class EverythingHelper {
          */
         const bundleEntries = [];
         /**
-         * @type {{id: string, resourceType: string}[]} - Track resources with types for audit logging
+         * @type {{_uuid: string, resourceType: string}[]} - Track resources with types for audit logging
          */
         const streamedResources = [];
         while (await cursor.hasNext()) {
@@ -1679,6 +1679,9 @@ class EverythingHelper {
                                 current_entity.resource.meta = null; // remove meta to avoid sending lastUpdated
                             }
 
+                            const entryUuid = startResource._uuid;
+                            const entryResourceType = startResource.resourceType;
+
                             // Apply resource mapper transformation
                             current_entity.resource = resourceMapper.map(current_entity.resource);
 
@@ -1703,12 +1706,16 @@ class EverythingHelper {
                                 });
                                 // Track resource ID and type for audit logging
                                 streamedResources.push({
-                                    id: current_entity.resource.id,
-                                    resourceType: current_entity.resource.resourceType
+                                    _uuid: entryUuid,
+                                    resourceType: entryResourceType
                                 });
                                 // else push it to the bundle entries
                             } else {
                                 bundleEntries.push(current_entity);
+                                streamedResources.push({
+                                    _uuid: entryUuid,
+                                    resourceType: entryResourceType
+                                });
                             }
                         }
                         bundleEntryIdsProcessedTracker.add(resourceIdentifier);
