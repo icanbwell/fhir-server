@@ -1,0 +1,16 @@
+name: Cleanup Ephemeral Environment
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+jobs:
+  cleanup-ephemeral-environment:
+    uses: icanbwell/actions/.github/workflows/destroy-ephemeral-environment.yml@main
+    with:
+      organization: ${{ github.event.organization.login }}
+      repository: ${{ github.event.repository.name }}
+      pr-number: ${{ github.event.pull_request.number }}
