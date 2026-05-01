@@ -10,22 +10,12 @@ on:
       - synchronize
       - labeled
 
-permissions:
-  contents: read
-  id-token: write
-  pull-requests: read
-
 jobs:
   build-ephemeral-image:
     if:
       ${{ contains(github.event.pull_request.labels.*.name,
       'ephemeral-environment') }}
-    uses: icanbwell/up-github-actions/.github/workflows/centralized-docker-publish.yml@main
-    with:
-      service-name: fhir-server
-      tag: ${{ github.event.pull_request.head.sha }}
-      ref: ${{ github.event.pull_request.head.sha }}
-      env: dev
+    uses: ./.github/workflows/build-ephemeral-image.yml
     secrets: inherit
 
   deploy-ephemeral-environment:
@@ -36,6 +26,4 @@ jobs:
       organization: ${{ github.event.organization.login }}
       repository: ${{ github.event.repository.name }}
       pr-number: ${{ github.event.pull_request.number }}
-      image-uri:
-        856965016623.dkr.ecr.us-east-1.amazonaws.com/fhir-server:${{
-        github.event.pull_request.head.sha }}
+      image-uri: ${{ needs.build-ephemeral-image.outputs.image-uri }}

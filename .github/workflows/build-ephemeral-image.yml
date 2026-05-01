@@ -1,0 +1,44 @@
+name: Build ephemeral image
+on:
+  workflow_call:
+    outputs:
+      image-uri:
+        description: Full URI for ECR image including tag
+        value: ${{ jobs.push.outputs.image-uri }}
+
+env:
+  IMAGE_NAME: fhir-server
+  IMAGE_REPOSITORY: 856965016623.dkr.ecr.us-east-1.amazonaws.com
+
+jobs:
+  push:
+    runs-on: main
+    outputs:
+      image-uri: ${{ steps.build-and-push.outputs.image-uri }}
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-and-push
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          DOCKER_BUILDKIT: 1
+        run: |
+          IMAGE_TAG=$(git rev-parse HEAD)
+          docker build -t ${IMAGE_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG} \
+            -f Dockerfile .
+          docker push ${IMAGE_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}
+          echo "image-uri=${IMAGE_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
