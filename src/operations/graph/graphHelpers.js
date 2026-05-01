@@ -42,6 +42,8 @@ const {isValidResource} = require('../../utils/validResourceCheck');
 const {SearchParametersManager} = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { RemoveHelper } = require('../remove/removeHelper');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 /**
  * This class helps with creating graph responses
@@ -58,6 +60,8 @@ class GraphHelper {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchParametersManager} searchParametersManager
      * @param {RemoveHelper} removeHelper
+     * @param {AuditLogger} auditLogger
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor({
                     databaseQueryFactory,
@@ -69,7 +73,9 @@ class GraphHelper {
                     r4ArgsParser,
                     databaseAttachmentManager,
                     searchParametersManager,
-                    removeHelper
+                    removeHelper,
+                    auditLogger,
+                    postRequestProcessor
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -130,6 +136,18 @@ class GraphHelper {
          */
         this.removeHelper = removeHelper;
         assertTypeEquals(removeHelper, RemoveHelper);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -1872,6 +1890,10 @@ class GraphHelper {
              * @type {BundleEntry[]}
              */
             const deleteOperationBundleEntries = [];
+            /**
+             * @type {Map<string, string[]>}
+             */
+            const deletedResourcesByType = new Map();
             for (const entry of (bundle.entry || [])) {
                 /**
                  * Raw Resource
@@ -1898,6 +1920,13 @@ class GraphHelper {
                     base_version,
                     resourceType: resultResourceType
                 });
+
+                if (resultResourceType !== 'AuditEvent') {
+                    if (!deletedResourcesByType.has(resultResourceType)) {
+                        deletedResourcesByType.set(resultResourceType, []);
+                    }
+                    deletedResourcesByType.get(resultResourceType).push(resource._uuid);
+                }
 
                 // for testing with delay
                 // await new Promise(r => setTimeout(r, 10000));
@@ -1929,6 +1958,23 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
+
+            for (const [type, ids] of deletedResourcesByType.entries()) {
+                this.postRequestProcessor.add({
+                    requestId: requestInfo.requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version,
+                            resourceType: type,
+                            operation: 'delete',
+                            args: parsedArgs.getRawArgs(),
+                            ids
+                        });
+                    }
+                });
+            }
+
             if (responseStreamer) {
                 responseStreamer.setBundle({bundle: deleteOperationBundle});
             }

@@ -680,7 +680,9 @@ const createContainer = function () {
                 r4ArgsParser: c.r4ArgsParser,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 searchParametersManager: c.searchParametersManager,
-                removeHelper: c.removeHelper
+                removeHelper: c.removeHelper,
+                auditLogger: c.auditLogger,
+                postRequestProcessor: c.postRequestProcessor
             }
         )
     );
