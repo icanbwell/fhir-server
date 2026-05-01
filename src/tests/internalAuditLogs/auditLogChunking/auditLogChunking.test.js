@@ -452,5 +452,39 @@ describe('AuditLog Chunking Tests', () => {
             const id = reference.split('/')[1];
             expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
         });
+
+        test('audit event entity.what uses _uuid while agent.who uses person reference from JWT', async () => {
+            let resp = await request
+                .post('/4_0_0/Observation/2354-InAgeCohort/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+            await auditEventCollection.deleteMany({});
+
+            resp = await request.get('/4_0_0/Observation/2354-InAgeCohort').set(getHeaders());
+            expect(resp).toHaveStatusCode(200);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await waitForSetImmediate();
+            await auditLogger.flushAsync();
+
+            const auditLogs = await auditEventCollection.find({}).toArray();
+            const readAuditLogs = auditLogs.filter((log) => log.action === 'R');
+            expect(readAuditLogs.length).toBe(1);
+
+            const auditLog = readAuditLogs[0];
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+            // entity.what should reference the resource by _uuid
+            const whatRef = auditLog.entity[0].what.reference;
+            expect(whatRef).toMatch(/^Observation\//);
+            const whatId = whatRef.split('/')[1];
+            expect(whatId).toMatch(uuidRegex);
+            expect(whatId).not.toBe('2354-InAgeCohort');
+        });
     });
 });

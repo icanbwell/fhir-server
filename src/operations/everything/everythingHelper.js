@@ -519,7 +519,8 @@ class EverythingHelper {
                     explanations
                 }
             );
-
+            // Log audit events for resources accessed per resource type
+            // Works for both streaming and non-streaming modes
             const resourcesToAudit = responseStreamer
                 ? streamedResources
                 : resources.map((r) => ({ _uuid: r._uuid, resourceType: r.resourceType }));
@@ -1712,10 +1713,6 @@ class EverythingHelper {
                                 // else push it to the bundle entries
                             } else {
                                 bundleEntries.push(current_entity);
-                                streamedResources.push({
-                                    _uuid: entryUuid,
-                                    resourceType: entryResourceType
-                                });
                             }
                         }
                         bundleEntryIdsProcessedTracker.add(resourceIdentifier);
