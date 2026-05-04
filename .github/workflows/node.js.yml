@@ -15,7 +15,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    name: lint
+    name: lint & graphql sdl check
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
@@ -28,6 +28,9 @@ jobs:
       - name: lint
         run: |
           npm run lint
+      - name: Check GraphQL SDL snapshots
+        run: |
+          node generatorScripts/generateGraphqlSdl.js --check
   build:
     runs-on: ubuntu-latest
     name: test (chunk ${{ matrix.chunk }})
