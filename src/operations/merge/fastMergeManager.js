@@ -354,6 +354,18 @@ class FastMergeManager {
             }
 
             if (validationError) {
+                if (this.configManager.logUpdatedMergeValidations) {
+                    // general logger for validations error which include updated reference validations
+                    logError('merge validation failed for resource', {
+                        originService: requestInfo.headers['origin-service'] || 'unknown',
+                        resourceType: resourceToMerge.resourceType,
+                        id: resourceToMerge.id,
+                        uuid: resourceToMerge._uuid,
+                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                        operationOutcome: validationError
+                    });
+                }
+
                 return new MergeResultEntry({
                     id: resourceToMerge.id,
                     uuid: resourceToMerge._uuid,
