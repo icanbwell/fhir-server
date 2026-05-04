@@ -86,10 +86,9 @@ function fastValidateReferences (resourceObj, path) {
                 if (err) {
                     errors.push(err);
                 }
-            } else {
-                const objErrors = fastValidateReferences(value, newPath);
-                errors.push(...objErrors);
             }
+            const objErrors = fastValidateReferences(value, newPath);
+            errors.push(...objErrors);
         }
     }
 
