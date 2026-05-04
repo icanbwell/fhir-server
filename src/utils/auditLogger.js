@@ -119,6 +119,10 @@ class AuditLogger {
 
         const hasDelegatedActor = requestInfo.userType === AUTH_USER_TYPES.delegatedUser;
 
+        const whoReference = isUser
+            ? new Reference({ reference: patientOrPersonReference })
+            : undefined;
+
         /**
          * @type {AuditEventAgent[]}
          */
@@ -128,9 +132,7 @@ class AuditLogger {
             const consentPolicy = requestInfo.actor.consentPolicy;
             agents = [
                 new AuditEventAgent({
-                    who: new Reference({
-                        reference: patientOrPersonReference
-                    }),
+                    who: whoReference,
                     altId: alternateId,
                     requestor: false,
                     network: new AuditEventNetwork({
@@ -153,9 +155,7 @@ class AuditLogger {
         } else {
             agents = [
                 new AuditEventAgent({
-                    who: new Reference({
-                        reference: patientOrPersonReference
-                    }),
+                    who: whoReference,
                     altId: alternateId,
                     requestor: true,
                     network: new AuditEventNetwork({
@@ -189,12 +189,9 @@ class AuditLogger {
                 display: 'Query'
             }),
             agent: agents,
+            // TODO: Observer Will be set as Bwell org under Ticket DCON-3483
             source: new AuditEventSource({
-                observer: new Reference(
-                    {
-                        reference: patientOrPersonReference
-                    }
-                )
+                observer: whoReference
             }),
             action: operationCodeMapping[`${operation}`],
             entity: ids.map((resourceId, index) => {
