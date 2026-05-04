@@ -301,15 +301,20 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
             if (this.configManager.verifyResourceBeforeWrite) {
                 // This check needs to be removed after fast serializer write operation is verified
-                const serializedDoc = FhirResourceWriteSerializer.serialize({ obj: deepcopy(doc) });
-                if (!deepEqual(serializedDoc, doc)) {
+                let resourceCopy = deepcopy(doc);
+
+                // to convert date time object to string for comparision
+                resourceCopy = JSON.parse(JSON.stringify(resourceCopy));
+
+                const serializedCopy = FhirResourceWriteSerializer.serialize({ obj: deepcopy(resourceCopy) });
+                if (!deepEqual(serializedCopy, resourceCopy)) {
                     logError('Serialized doc differ from original while writing resource', {
                         args: {
                             source: 'DatabaseBulkInserter.getOperationForResourceAsync',
-                            resourceUuid: doc._uuid
+                            resourceUuid: resourceCopy._uuid,
+                            resourceType: resourceCopy.resourceType
                         }
                     });
-                    doc = serializedDoc;
                 }
             }
 
