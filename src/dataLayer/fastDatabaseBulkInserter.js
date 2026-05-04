@@ -301,10 +301,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
 
             if (this.configManager.verifyResourceBeforeWrite) {
                 // This check needs to be removed after fast serializer write operation is verified
-                let resourceCopy = deepcopy(doc);
-
-                // to convert date time object to string for comparision
-                resourceCopy = JSON.parse(JSON.stringify(resourceCopy));
+                // JSON.stringify to convert date time object to string for comparision
+                let resourceCopy = JSON.parse(JSON.stringify(doc));
 
                 const serializedCopy = FhirResourceWriteSerializer.serialize({ obj: deepcopy(resourceCopy) });
                 if (!deepEqual(serializedCopy, resourceCopy)) {
