@@ -666,6 +666,8 @@ class SearchManager {
                 projection.id = 1;
                 projection.url = 1;
             }
+            // always include _uuid for audit logging
+            projection._uuid = 1;
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection._id = 0;
             if (

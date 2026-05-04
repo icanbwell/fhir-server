@@ -142,6 +142,34 @@ describe('AuditLogger', () => {
         expect(logger.queue).toHaveLength(0);
     });
 
+    test('entity references use passed UUIDs not sourceIds', async () => {
+        const logger = createAuditLogger();
+        const uuids = [
+            '00000000-0000-4000-8000-000000000001',
+            '00000000-0000-4000-8000-000000000002'
+        ];
+
+        await logger.logAuditEntryAsync({
+            requestInfo: { requestId: 'req-uuid', user: 'test-user' },
+            base_version: '4_0_0',
+            resourceType: 'Observation',
+            operation: 'read',
+            args: {},
+            ids: uuids
+        });
+
+        expect(logger.queue).toHaveLength(1);
+        const auditEvent = logger.queue[0].doc;
+        expect(auditEvent.entity).toHaveLength(2);
+
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+        auditEvent.entity.forEach((e, i) => {
+            expect(e.what.reference).toBe(`Observation/${uuids[`${i}`]}`);
+            const id = e.what.reference.split('/')[1];
+            expect(id).toMatch(uuidRegex);
+        });
+    });
+
     test('logs errors from executeAsync but does not throw', async () => {
         mockDatabaseBulkInserter.executeAsync.mockResolvedValue([
             { issue: { severity: 'error', code: 'exception' } }

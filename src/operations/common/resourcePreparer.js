@@ -86,6 +86,10 @@ class ResourcePreparer {
                 return acc;
             }, {});
 
+        if (element._uuid) {
+            element_to_return._uuid = element._uuid;
+        }
+
         // this is a hack for the CQL Evaluator since it does not request these fields but expects them
         if (resourceType === 'Library') {
             element_to_return.id = element.id;

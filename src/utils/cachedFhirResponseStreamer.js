@@ -67,11 +67,9 @@ class CachedFhirResponseStreamer {
             });
         }
         for (const bundleEntry of entries) {
+            const { _uuid, resourceType } = bundleEntry.resource;
             await this.responseStreamer.writeBundleEntryAsync({ bundleEntry });
-            streamedResources.push({
-                id: bundleEntry.resource.id,
-                resourceType: bundleEntry.resource.resourceType
-            });
+            streamedResources.push({ _uuid, resourceType });
         }
     }
 
