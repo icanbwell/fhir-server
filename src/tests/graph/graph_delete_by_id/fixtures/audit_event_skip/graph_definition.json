@@ -1,0 +1,13 @@
+{
+    "resourceType": "GraphDefinition",
+    "id": "task-audit-graph",
+    "name": "task_audit_event_references",
+    "status": "active",
+    "start": "Task",
+    "link": [
+        {
+            "path": "relevantHistory",
+            "target": [{ "type": "AuditEvent" }]
+        }
+    ]
+}

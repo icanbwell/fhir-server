@@ -1,0 +1,25 @@
+{
+    "resourceType": "Task",
+    "id": "test-task-1",
+    "meta": {
+        "versionId": "1",
+        "source": "client",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
+    },
+    "status": "completed",
+    "intent": "order",
+    "relevantHistory": [
+        {
+            "reference": "AuditEvent/test-audit-event-1"
+        }
+    ]
+}

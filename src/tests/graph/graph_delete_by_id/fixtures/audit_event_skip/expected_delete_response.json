@@ -1,0 +1,18 @@
+{
+    "entry": [
+        {
+            "id": "test-task-1",
+            "request": {
+                "method": "DELETE",
+                "url": "/4_0_0/Task/test-task-1"
+            },
+            "resource": {
+                "id": "test-task-1",
+                "resourceType": "Task"
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "total": 1,
+    "type": "batch-response"
+}

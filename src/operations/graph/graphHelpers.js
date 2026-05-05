@@ -24,7 +24,7 @@ const {ProcessMultipleIdsAsyncResult} = require('../common/processMultipleIdsAsy
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
-const {logError} = require('../common/logging');
+const {logError, logInfo} = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
@@ -1902,6 +1902,13 @@ class GraphHelper {
                 const resultResourceType = resource.resourceType;
 
                 if (resultResourceType === 'AuditEvent') {
+                    logInfo('Skipping deletion of AuditEvent resource in $graph', {
+                        source: 'GraphHelpers.deleteGraphAsync',
+                        args: {
+                            id: resource._uuid,
+                            resourceType: resultResourceType
+                        }
+                    });
                     continue;
                 }
 
