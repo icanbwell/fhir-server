@@ -103,24 +103,14 @@ class AuditLogger {
         const isUser = Boolean(requestInfo?.isUser);
 
         /**
-         * @type {string}
-         */
-        let patientOrPersonReference;
-        /**
          * @type {string|null}
          */
         const alternateId = requestInfo.alternateUserId;
 
-        if (isUser) {
-            patientOrPersonReference = `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}`;
-        } else {
-            patientOrPersonReference = `Person/${requestInfo.user}`;
-        }
-
         const hasDelegatedActor = requestInfo.userType === AUTH_USER_TYPES.delegatedUser;
 
         const whoReference = isUser
-            ? new Reference({ reference: patientOrPersonReference })
+            ? new Reference({ reference: `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}` })
             : undefined;
 
         /**
@@ -190,9 +180,9 @@ class AuditLogger {
             }),
             agent: agents,
             // TODO: Observer Will be set as Bwell org under Ticket DCON-3483
-            source: new AuditEventSource({
-                observer: whoReference
-            }),
+            source: whoReference
+                ? new AuditEventSource({ observer: whoReference })
+                : undefined,
             action: operationCodeMapping[`${operation}`],
             entity: ids.map((resourceId, index) => {
                 return new AuditEventEntity({

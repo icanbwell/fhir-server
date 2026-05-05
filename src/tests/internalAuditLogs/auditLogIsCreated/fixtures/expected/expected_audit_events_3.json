@@ -56,7 +56,6 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
-    "source": {},
     "type": {
       "code": "110112",
       "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",
@@ -117,7 +116,6 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
-    "source": {},
     "type": {
       "code": "110112",
       "display": "Query",
@@ -178,7 +176,6 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
-    "source": {},
     "type": {
       "code": "110112",
       "id": "e896a34e-1806-5b5a-9b10-3ca6e97d6ccf",
