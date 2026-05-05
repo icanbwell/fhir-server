@@ -20,6 +20,19 @@ class CompositionSectionFilterEnrichmentProvider extends EnrichmentProvider {
     }
 
     /**
+     * Reads the denied sensitive categories Set from the actor's pre-loaded filtering rules.
+     * @param {EnrichmentContext|undefined} enrichmentContext
+     * @returns {Set<string>|null}
+     */
+    getDeniedSensitiveCategorySet(enrichmentContext) {
+        const filteringRules = enrichmentContext?.actor?._filteringRules;
+        if (!filteringRules) {
+            return null;
+        }
+        return new Set(filteringRules.deniedSensitiveCategories || []);
+    }
+
+    /**
      * Filter sensitive sections from Composition resources
      * @param {Object} params
      * @param {Resource[]} params.resources
@@ -29,14 +42,19 @@ class CompositionSectionFilterEnrichmentProvider extends EnrichmentProvider {
      */
     async enrichAsync({ resources, parsedArgs, enrichmentContext }) {
         if (
-            !this.configManager.enableCompositionSensitiveSectionFiltering ||
+            !this.configManager.enableDelegatedAccessDetection ||
             enrichmentContext?.userType !== AUTH_USER_TYPES.delegatedUser
         ) {
             return resources;
         }
+
+        const deniedSensitiveCategorySet = this.getDeniedSensitiveCategorySet(enrichmentContext);
+        if (!deniedSensitiveCategorySet) {
+            return resources;
+        }
         for (const resource of resources) {
             if (resource?.resourceType === 'Composition') {
-                filterCompositionSensitiveSections(resource);
+                filterCompositionSensitiveSections(resource, deniedSensitiveCategorySet);
             }
             if (resource?.contained?.length) {
                 resource.contained = await this.enrichAsync({

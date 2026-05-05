@@ -666,6 +666,8 @@ class SearchManager {
                 projection.id = 1;
                 projection.url = 1;
             }
+            // always include _uuid for audit logging
+            projection._uuid = 1;
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection._id = 0;
             if (
@@ -831,12 +833,12 @@ class SearchManager {
      * @param {string | null} user
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
-     * @param {string|undefined} userType
+     * @param {EnrichmentContext|undefined} enrichmentContext
      * @returns {Promise<Resource[]>}
      */
     async readResourcesFromCursorAsync (
         {
-            cursor, user, parsedArgs, resourceType, userType
+            cursor, user, parsedArgs, resourceType, enrichmentContext
         }
     ) {
         /**
@@ -875,7 +877,7 @@ class SearchManager {
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark,
                         configManager: this.configManager,
-                        enrichmentContext: { userType }
+                        enrichmentContext
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -992,7 +994,7 @@ class SearchManager {
      * @param {string[]|null} accepts
      * @param {string} defaultSortId
      * @param {Object} params
-     * @param {string|undefined} userType
+     * @param {EnrichmentContext|undefined} enrichmentContext
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync (
@@ -1008,7 +1010,7 @@ class SearchManager {
             accepts,
             defaultSortId,
             params,
-            userType
+            enrichmentContext
         }
     ) {
         assertIsValid(requestId);
@@ -1081,7 +1083,7 @@ class SearchManager {
                 highWaterMark,
                 configManager: this.configManager,
                 response: res,
-                enrichmentContext: { userType }
+                enrichmentContext
             }
         );
         /**

@@ -16,7 +16,9 @@
   },
   "lensSpecification": [
     {
-      "product": {},
+      "product": {
+        "text": "Vision Prescription Lens Product"
+      },
       "eye": "right",
       "prism": [
         {

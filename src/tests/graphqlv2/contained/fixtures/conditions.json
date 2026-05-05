@@ -22,7 +22,7 @@
                 "resourceType": "Organization",
                 "id": "org1",
                 "name": "Primary Care Clinic",
-                "type": {
+                "type": [{
                     "coding": [
                         {
                             "system": "http://terminology.hl7.org/CodeSystem/organization-type",
@@ -30,7 +30,7 @@
                             "display": "Healthcare Provider"
                         }
                     ]
-                },
+                }],
                 "telecom": [
                     {
                         "system": "phone",

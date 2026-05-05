@@ -28,6 +28,7 @@
                 "id": "comp-nested-sensitive",
                 "meta": {
                     "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
                     "source": "https://www.icanbwell.com/test",
                     "security": [
                         {
@@ -149,6 +150,19 @@
                             ]
                         },
                         "section": [
+                            {
+                                "id": "p3-child-sensitive",
+                                "title": "Condition Notes",
+                                "code": {
+                                    "coding": [
+                                        {
+                                            "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                            "system": "https://www.icanbwell.com/sensitivity-category",
+                                            "code": "reproductive-health"
+                                        }
+                                    ]
+                                }
+                            },
                             {
                                 "id": "p3-child-2",
                                 "title": "Active Problems",
@@ -322,6 +336,7 @@
                 "id": "comp-no-sensitive",
                 "meta": {
                     "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
                     "source": "https://www.icanbwell.com/test",
                     "security": [
                         {
@@ -450,6 +465,7 @@
                 "id": "comp-top-level-sensitive",
                 "meta": {
                     "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
                     "source": "https://www.icanbwell.com/test",
                     "security": [
                         {
@@ -498,6 +514,19 @@
                                     "id": "1dd6b16e-2338-5866-8bcb-ce7af73e0e96",
                                     "system": "http://loinc.org",
                                     "code": "10160-0"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sensitive-3",
+                        "title": "Family Planning",
+                        "code": {
+                            "coding": [
+                                {
+                                    "id": "6ec74490-0a45-503d-83f3-d8c2e76179dd",
+                                    "system": "https://www.icanbwell.com/sensitivity-category",
+                                    "code": "reproductive-health"
                                 }
                             ]
                         }
@@ -565,6 +594,7 @@
                 "id": "comp-deep-sensitive",
                 "meta": {
                     "versionId": "1",
+                    "lastUpdated": "2025-12-24T20:00:00.000Z",
                     "source": "https://www.icanbwell.com/test",
                     "security": [
                         {
@@ -746,14 +776,14 @@
     "link": [
         {
             "relation": "self",
-            "url": "http://127.0.0.1:53758/4_0_0/Composition/"
+            "url": "http://127.0.0.1:50292/4_0_0/Composition/"
         },
         {
             "relation": "next",
-            "url": "http://127.0.0.1:53758/4_0_0/Composition/?id%3Aabove=f9fd075a-e8b3-5ffe-97a5-a4f0b498ecb1"
+            "url": "http://127.0.0.1:50292/4_0_0/Composition/?id%3Aabove=f9fd075a-e8b3-5ffe-97a5-a4f0b498ecb1"
         }
     ],
     "resourceType": "Bundle",
     "total": 0,
-    "id": "e4f79fd1-e989-4c9c-9acc-eee04be79655"
+    "id": "a6f6be5d-16df-4e81-8339-93bdd16eb950"
 }

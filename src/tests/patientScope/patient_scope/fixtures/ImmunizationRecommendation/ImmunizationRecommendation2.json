@@ -11,7 +11,9 @@
   },
   "recommendation": [
     {
-      "forecastStatus": {}
+      "forecastStatus": {
+        "text": "Immunization Recommendation Resource"
+      }
     }
   ]
 }

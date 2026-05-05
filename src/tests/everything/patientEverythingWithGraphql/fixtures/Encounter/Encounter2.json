@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "planned",
-  "class": {},
+  "class": {
+    "display": "Encounter Resource"
+  },
   "subject": {
     "reference": "Patient/2"
   }

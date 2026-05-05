@@ -24,13 +24,6 @@
             "text": "/4_0_0/ExplanationOfBenefit/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"queued\",\"complete\",\"error\",\"partial\"]}: at position .outcome"
           },
           "severity": "error"
-        },
-        {
-          "code": "invalid",
-          "details": {
-            "text": "/4_0_0/ExplanationOfBenefit/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
-          },
-          "severity": "error"
         }
       ],
       "resourceType": "OperationOutcome"

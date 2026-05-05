@@ -41,10 +41,10 @@
       {
         "id": "Patient/b4fa6c01-9fb5-5ef7-83e2-071e32a28ca1",
         "role": {
-          "coding": {
+          "coding": [{
             "system": "http://www.icanbwell.com/proa",
             "code": "dependents"
-          }
+          }]
         },
         "reference": {
           "reference": "Patient/b4fa6c01-9fb5-5ef7-83e2-071e32a28ca1"

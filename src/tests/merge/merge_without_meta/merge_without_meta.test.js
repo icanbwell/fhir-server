@@ -13,7 +13,7 @@ const procedure1WithoutRequiredFields = require('./fixtures/Procedure/procedure1
 const expectedPerson1BeforeUpdate = require('./fixtures/expected/expectedPerson1BeforeUpdate.json');
 const expectedPerson1AfterUpdate = require('./fixtures/expected/expectedPerson1AfterUpdate.json');
 const expectedPerson1AfterReferenceUpdate = require('./fixtures/expected/expectedPerson1AfterReferenceUpdate.json');
-const expectedResponseOnError = require('./fixtures/expected/responseOnError.json');
+const expectedResponseOnError = require('./fixtures/expected/responseOnError-fastMerge.json');
 const expectedResponseOnUpdate = require('./fixtures/expected/responseOnUpdate.json');
 const expectedPerson2Response = require('./fixtures/expected/expectedPerson2Response.json');
 
@@ -24,7 +24,8 @@ const {
     createTestRequest
 } = require('../../common');
 
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
+const { BaseSerializer } = require('../../../fhir/writeSerializers/4_0_0/customSerializers');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -37,6 +38,8 @@ describe('Person Tests', () => {
 
     describe('Person update Tests', () => {
         test('Person update with id doesn\'t work', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
+
             const request = await createTestRequest();
             // Case when meta.source doesn't exist
             let resp = await request
@@ -62,9 +65,13 @@ describe('Person Tests', () => {
 
             delete resp.body.meta.lastUpdated;
             expect(resp.body).toEqual(expectedPerson1BeforeUpdate);
+
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Person update with uuid works', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
+
             const request = await createTestRequest();
             // Case when meta.source doesn't exist
             let resp = await request
@@ -90,9 +97,13 @@ describe('Person Tests', () => {
 
             delete resp.body.meta.lastUpdated;
             expect(resp.body).toEqual(expectedPerson1AfterUpdate);
+
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Person update with sourceAssigningAuthority works', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
+
             const request = await createTestRequest();
             // Case when meta.source doesn't exist
             let resp = await request
@@ -118,9 +129,12 @@ describe('Person Tests', () => {
 
             delete resp.body.meta.lastUpdated;
             expect(resp.body).toEqual(expectedPerson1AfterUpdate);
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Person update with owner tag works', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
+
             const request = await createTestRequest();
             // Case when meta.source doesn't exist
             let resp = await request
@@ -146,9 +160,13 @@ describe('Person Tests', () => {
 
             delete resp.body.meta.lastUpdated;
             expect(resp.body).toEqual(expectedPerson1AfterReferenceUpdate);
+
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Person update without required fields doesn\'t work', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
+
             const request = await createTestRequest();
 
             let resp = await request
@@ -166,9 +184,13 @@ describe('Person Tests', () => {
                 .expect(200);
 
             expect(resp).toHaveResponse(expectedPerson2Response);
+
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Person create without required fields doesn\'t work', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
+
             const request = await createTestRequest();
 
             const resp = await request
@@ -178,9 +200,13 @@ describe('Person Tests', () => {
                 .expect(200);
 
             expect(resp).toHaveResponse(expectedPerson2Response);
+
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('Procedure update without required fields work', async () => {
+            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
+
             const request = await createTestRequest();
 
             let resp = await request
@@ -198,6 +224,8 @@ describe('Person Tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse({ updated: true });
+
+            expect(writeSerializerSpy).toHaveBeenCalled();
         });
     });
 });

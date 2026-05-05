@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "completed",
-  "vaccineCode": {},
+  "vaccineCode": {
+    "text": "Immunization Resource"
+  },
   "patient": {
     "reference": "Patient/2"
   },

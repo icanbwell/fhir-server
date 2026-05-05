@@ -312,11 +312,16 @@ class SearchBundleOperation {
                         user,
                         parsedArgs,
                         resourceType,
-                        userType
+                        enrichmentContext: {
+                            userType,
+                            actor: requestInfo.actor
+                        }
                     }
                 );
 
                 if (resources.length > 0 && resourceType !== 'AuditEvent') {
+                    // capture UUIDs eagerly before serialization can mutate plain objects
+                    const resourceUuids = resources.map((r) => r._uuid);
                     this.postRequestProcessor.add({
                         requestId,
                         fnTask: async () => {
@@ -331,7 +336,7 @@ class SearchBundleOperation {
                                     resourceType,
                                     operation: 'read',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: resources.map((r) => r.id)
+                                    ids: resourceUuids
                                 });
                             });
                         }

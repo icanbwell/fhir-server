@@ -2,6 +2,7 @@ const { RemoveOperation } = require('../../../operations/remove/remove');
 const { MergeOperation } = require('../../../operations/merge/merge');
 const { assertTypeEquals, assertIsValid } = require('../../../utils/assertType');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
+const { DateColumnHandler } = require('../../../preSaveHandlers/handlers/dateColumnHandler');
 
 /**
  method to match general practitioners to an id and remove from the provided list
@@ -1370,7 +1371,7 @@ module.exports = {
                 if (patients && patients.length === 0) {
                     throw new Error(`Patient not found ${args.patientId}`);
                 }
-                const patientToChange = patients[0];
+                let patientToChange = patients[0];
                 /**
                  * @type {FhirRequestInfo}
                  */
@@ -1423,6 +1424,13 @@ module.exports = {
                         { reference: `Practitioner/${practitioners[0].id}` }
                     ];
                 }
+
+                if (container.configManager.enableMergeFastSerializer) {
+                    const dateColumnHandler = new DateColumnHandler();
+                    dateColumnHandler.setFlag(true);
+                    patientToChange = await dateColumnHandler.preSaveAsync({ resource: patientToChange });
+                }
+
                 requestInfo.body = [patientToChange];
 
                 /**

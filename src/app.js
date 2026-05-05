@@ -154,6 +154,7 @@ function createApp({fnGetContainer}) {
                 userAgent: req.headers['user-agent'],
                 originService: req.headers['origin-service'],
                 scope: req.authInfo?.scope,
+                userType: req.authInfo?.context?.userType,
                 altId: username,
                 actor: actor,
                 requestCount: getRequestCount()

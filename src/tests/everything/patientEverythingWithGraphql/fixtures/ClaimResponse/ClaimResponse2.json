@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "active",
-  "type": {},
+  "type": {
+    "text": "Claim Resource"
+  },
   "use": "claim",
   "patient": {
     "reference": "Patient/2"

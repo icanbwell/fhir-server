@@ -369,7 +369,10 @@ class SearchStreamingOperation {
                         defaultSortId,
                         accepts: requestInfo.accept,
                         params,
-                        userType: requestInfo.userType
+                        enrichmentContext: {
+                            userType: requestInfo.userType,
+                            actor: requestInfo.actor
+                        }
                     });
 
                 if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {

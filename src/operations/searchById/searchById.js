@@ -230,6 +230,7 @@ class SearchByIdOperation {
             resource = getFirstResourceOrNull(resources);
 
             if (resource) {
+                const resourceUuid = resource._uuid;
                 // remove any nulls or empty objects or arrays
                 resource = removeNull(resource);
 
@@ -237,7 +238,7 @@ class SearchByIdOperation {
                 resource = (await this.enrichmentManager.enrichAsync({
                             resources: [resource],
                             parsedArgs,
-                            enrichmentContext: { userType }
+                            enrichmentContext: { userType, actor }
                         }
                     )
                 )[0];
@@ -256,7 +257,7 @@ class SearchByIdOperation {
                                     resourceType,
                                     operation: 'read',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: [resource.id]
+                                    ids: [resourceUuid]
                                 }
                             );
                         }

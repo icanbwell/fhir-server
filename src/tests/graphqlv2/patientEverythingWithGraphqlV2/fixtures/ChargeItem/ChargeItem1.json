@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "billed",
-  "code": {},
+  "code": {
+    "text": "Charge Item Resource"
+  },
   "subject": {
     "reference": "Patient/1"
   }

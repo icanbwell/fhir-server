@@ -72,13 +72,6 @@
             "text": "/4_0_0/CarePlan/$merge should be equal to one of the allowed values :{\"allowedValues\":[\"Appointment\",\"CommunicationRequest\",\"DeviceRequest\",\"MedicationRequest\",\"NutritionOrder\",\"Task\",\"ServiceRequest\",\"VisionPrescription\"]}: at position .activity[0].detail.kind"
           },
           "severity": "error"
-        },
-        {
-          "code": "invalid",
-          "details": {
-            "text": "/4_0_0/CarePlan/$merge should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
-          },
-          "severity": "error"
         }
       ],
       "resourceType": "OperationOutcome"

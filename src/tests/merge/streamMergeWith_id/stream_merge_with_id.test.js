@@ -1,5 +1,5 @@
 // test file
-const person1Resource = require('./fixtures/Person/person1.json');
+const person1Resource = require('./fixtures/Person/person1-fastMerge.json');
 const threePersonResource = require('./fixtures/Person/3_person_request_stream.json');
 
 // expected
@@ -16,7 +16,7 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-describe('Streaming Merge Tests', () => {
+describe('Streaming Merge Tests (Fast Merge Serializer)', () => {
     let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
@@ -40,7 +40,6 @@ describe('Streaming Merge Tests', () => {
                 ...getHeaders(),
                 'Content-Type': 'application/fhir+ndjson',
                 Accept: 'application/fhir+ndjson'
-                // 'x-no-compression': true
             });
 
         // Read NDJSON stream response body

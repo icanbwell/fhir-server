@@ -1,8 +1,8 @@
 // test file
-const taskResources = require('./fixtures/task/task.json');
+const taskResources = require('./fixtures/task/task-fastMerge.json');
 
 // expected
-const expectedResponse = require('./fixtures/expected/expectedResponse.json');
+const expectedResponse = require('./fixtures/expected/expectedResponse-fastMerge.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');

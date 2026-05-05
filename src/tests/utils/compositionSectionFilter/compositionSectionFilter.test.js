@@ -28,41 +28,116 @@ function makeComposition(sections) {
 }
 
 describe('filterCompositionSensitiveSections', () => {
-    test('removes sections with sensitive system in code.coding', () => {
+    const ALL_DENIED = new Set(['SUBSTANCE_ABUSE', 'MENTAL_HEALTH', 'reproductive-health']);
+
+    test('removes sections with denied sensitivity code', () => {
         const resource = makeComposition([
             makeSection('Normal', 'http://loinc.org', '12345-6'),
             makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, ALL_DENIED);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('Normal');
     });
 
-    test('recursively filters nested sections (parent stays, sensitive child removed)', () => {
+    test('keeps sections with sensitivity codes NOT in denied set', () => {
+        const denied = new Set(['SUBSTANCE_ABUSE']);
+        const resource = makeComposition([
+            makeSection('Normal', 'http://loinc.org', '12345-6'),
+            makeSection('Kept', SENSITIVE_SYSTEM, 'MENTAL_HEALTH'),
+            makeSection('Removed', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
+        ]);
+
+        filterCompositionSensitiveSections(resource, denied);
+
+        expect(resource.section).toHaveLength(2);
+        expect(resource.section[0].title).toBe('Normal');
+        expect(resource.section[1].title).toBe('Kept');
+    });
+
+    test('multi-coded section removed if ANY code is in denied set', () => {
+        const denied = new Set(['SUBSTANCE_ABUSE']);
+        const resource = makeComposition([
+            {
+                title: 'MultiCoded',
+                code: {
+                    coding: [
+                        { system: 'http://loinc.org', code: '12345-6' },
+                        { system: SENSITIVE_SYSTEM, code: 'reproductive-health' },
+                        { system: SENSITIVE_SYSTEM, code: 'SUBSTANCE_ABUSE' }
+                    ]
+                }
+            }
+        ]);
+
+        filterCompositionSensitiveSections(resource, denied);
+
+        expect(resource.section).toBeUndefined();
+    });
+
+    test('multi-coded section kept when none of its codes are denied', () => {
+        const denied = new Set(['SUBSTANCE_ABUSE']);
+        const resource = makeComposition([
+            {
+                title: 'MultiCoded',
+                code: {
+                    coding: [
+                        { system: 'http://loinc.org', code: '12345-6' },
+                        { system: SENSITIVE_SYSTEM, code: 'reproductive-health' },
+                        { system: SENSITIVE_SYSTEM, code: 'MENTAL_HEALTH' }
+                    ]
+                }
+            }
+        ]);
+
+        filterCompositionSensitiveSections(resource, denied);
+
+        expect(resource.section).toHaveLength(1);
+        expect(resource.section[0].title).toBe('MultiCoded');
+    });
+
+    test('empty denied set keeps ALL sections including sensitive ones', () => {
+        const denied = new Set();
+        const resource = makeComposition([
+            makeSection('Normal', 'http://loinc.org', '12345-6'),
+            makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE'),
+            makeSection('AlsoSensitive', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
+        ]);
+
+        filterCompositionSensitiveSections(resource, denied);
+
+        expect(resource.section).toHaveLength(3);
+    });
+
+    test('recursively filters nested sections matching denied codes', () => {
+        const denied = new Set(['MENTAL_HEALTH']);
         const resource = makeComposition([
             makeSection('Parent', 'http://loinc.org', '12345-6', [
                 makeSection('SafeChild', 'http://loinc.org', '11111-1'),
-                makeSection('SensitiveChild', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
+                makeSection('SensitiveChild', SENSITIVE_SYSTEM, 'MENTAL_HEALTH'),
+                makeSection('NonDeniedSensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
             ])
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, denied);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('Parent');
-        expect(resource.section[0].section).toHaveLength(1);
+        expect(resource.section[0].section).toHaveLength(2);
         expect(resource.section[0].section[0].title).toBe('SafeChild');
+        expect(resource.section[0].section[1].title).toBe('NonDeniedSensitive');
     });
 
-    test('returns sections unchanged when none are sensitive', () => {
+    test('returns sections unchanged when none match denied set', () => {
+        const denied = new Set(['SUBSTANCE_ABUSE']);
         const resource = makeComposition([
             makeSection('A', 'http://loinc.org', '1'),
             makeSection('B', 'http://loinc.org', '2')
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, denied);
 
         expect(resource.section).toHaveLength(2);
         expect(resource.section[0].title).toBe('A');
@@ -75,7 +150,7 @@ describe('filterCompositionSensitiveSections', () => {
             makeSection('Sensitive', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE')
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, ALL_DENIED);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('NoCode');
@@ -87,28 +162,10 @@ describe('filterCompositionSensitiveSections', () => {
             makeSection('Sensitive', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, ALL_DENIED);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('NoCoding');
-    });
-
-    test('removes section when sensitive system is one of multiple codings', () => {
-        const resource = makeComposition([
-            {
-                title: 'MultiCoded',
-                code: {
-                    coding: [
-                        { system: 'http://loinc.org', code: '12345-6' },
-                        { system: SENSITIVE_SYSTEM, code: 'SUBSTANCE_ABUSE' }
-                    ]
-                }
-            }
-        ]);
-
-        filterCompositionSensitiveSections(resource);
-
-        expect(resource.section).toBeUndefined();
     });
 
     test('handles deeply nested sections (3 levels deep)', () => {
@@ -121,7 +178,7 @@ describe('filterCompositionSensitiveSections', () => {
             ])
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, ALL_DENIED);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].section).toHaveLength(1);
@@ -137,7 +194,7 @@ describe('filterCompositionSensitiveSections', () => {
             }
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, ALL_DENIED);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('EmptySystem');
@@ -151,19 +208,19 @@ describe('filterCompositionSensitiveSections', () => {
             }
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, ALL_DENIED);
 
         expect(resource.section).toHaveLength(1);
         expect(resource.section[0].title).toBe('NoSystemProp');
     });
 
-    test('removes all sections when all are sensitive (deletes section property)', () => {
+    test('removes all sections when all match denied set (deletes section property)', () => {
         const resource = makeComposition([
             makeSection('S1', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE'),
             makeSection('S2', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
         ]);
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, ALL_DENIED);
 
         expect(resource.section).toBeUndefined();
     });
@@ -171,10 +228,24 @@ describe('filterCompositionSensitiveSections', () => {
     test('no-ops when resource has no section', () => {
         const resource = { resourceType: 'Composition' };
 
-        filterCompositionSensitiveSections(resource);
+        filterCompositionSensitiveSections(resource, ALL_DENIED);
 
         expect(resource.section).toBeUndefined();
     });
+
+    test('deletes nested section array when all children match denied set', () => {
+        const denied = new Set(['SUBSTANCE_ABUSE', 'MENTAL_HEALTH']);
+        const resource = makeComposition([
+            makeSection('Parent', 'http://loinc.org', '1', [
+                makeSection('Child1', SENSITIVE_SYSTEM, 'SUBSTANCE_ABUSE'),
+                makeSection('Child2', SENSITIVE_SYSTEM, 'MENTAL_HEALTH')
+            ])
+        ]);
+
+        filterCompositionSensitiveSections(resource, denied);
+
+        expect(resource.section).toHaveLength(1);
+        expect(resource.section[0].title).toBe('Parent');
+        expect(resource.section[0].section).toBeUndefined();
+    });
 });
-
-

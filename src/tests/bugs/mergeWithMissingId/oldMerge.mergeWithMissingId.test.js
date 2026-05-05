@@ -3,18 +3,21 @@ const auditevent1Resource = require('./fixtures/AuditEvent/auditevent1.json');
 
 // expected
 const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
-const expectedMergeResponse = require('./fixtures/expected/expectedMergeResponse-fastMerge.json');
+const expectedMergeResponse = require('./fixtures/expected/expectedMergeResponse.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
 describe('AuditEvent Tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
     beforeEach(async () => {

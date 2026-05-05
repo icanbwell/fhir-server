@@ -3,6 +3,7 @@ const { MergeOperation } = require('../../../operations/merge/merge');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { SimpleContainer } = require('../../../utils/simpleContainer');
 const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
+const { DateColumnHandler } = require('../../../preSaveHandlers/handlers/dateColumnHandler');
 
 function mapParticipants (members) {
     const result = [];
@@ -93,10 +94,17 @@ module.exports = {
                 }
                 const patientToChange = patients[0];
                 // create care team
-                const careTeam = mapCareTeam(args.team);
+                let careTeam = mapCareTeam(args.team);
                 if (!careTeam.id) {
                     careTeam.id = getHash(careTeam);
                 }
+
+                if (container.configManager.enableMergeFastSerializer) {
+                    const dateColumnHandler = new DateColumnHandler();
+                    dateColumnHandler.setFlag(true);
+                    careTeam = await dateColumnHandler.preSaveAsync({ resource: careTeam });
+                }
+
                 /**
                  * @type {FhirRequestInfo}
                  */

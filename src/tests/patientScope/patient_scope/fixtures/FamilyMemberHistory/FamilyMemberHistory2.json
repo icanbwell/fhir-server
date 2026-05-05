@@ -9,5 +9,7 @@
   "patient": {
     "reference": "Patient/2"
   },
-  "relationship": {}
+  "relationship": {
+    "text": "Family Member History Resource"
+  }
 }

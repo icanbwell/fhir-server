@@ -118,6 +118,14 @@ class ConfigManager {
                     ) || []
                 );
                 break;
+            case 'Location':
+                indexList = indexList.concat(
+                    (
+                        env.ACCESS_TAGS_INDEXED_LOCATION && env.ACCESS_TAGS_INDEXED_LOCATION.split(',')
+                            .map((col) => col.trim())
+                    ) || []
+                );
+                break;
             case 'Organization':
                 indexList = indexList.concat(
                     (
@@ -604,7 +612,7 @@ class ConfigManager {
      * @returns {number}
      */
     get maxIdsPerAuditEvent() {
-        return env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
+        return env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 1000;
     }
 
     /**
@@ -1212,15 +1220,6 @@ class ConfigManager {
         );
     }
 
-
-
-    /**
-     * Whether to enable user type resolution using organization type.
-     */
-    get enableUserTypeResolutionFromOrganization() {
-        return isTrue(env.ENABLE_USER_TYPE_RESOLUTION_FROM_ORGANIZATION);
-    }
-
     /**
      * returns list of external services where restriction needs to be applied to request
      * @return {Object.<string, string | null>}
@@ -1238,12 +1237,6 @@ class ConfigManager {
         return servicesConfig;
     }
 
-    /**
-     * @returns {boolean}
-     */
-    get enableCompositionSensitiveSectionFiltering() {
-        return this.enableDelegatedAccessDetection && isTrue(env.ENABLE_COMPOSITION_SENSITIVE_SECTION_FILTERING);
-    }
 }
 
 module.exports = {

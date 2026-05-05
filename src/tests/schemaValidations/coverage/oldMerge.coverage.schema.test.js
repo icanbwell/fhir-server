@@ -1,19 +1,22 @@
 // test file
-const taskResources = require('./fixtures/task/task-fastMerge.json');
+const coverageResources = require('./fixtures/coverage/coverage.json');
 
 // expected
-const expectedResponse = require('./fixtures/expected/expectedResponse-fastMerge.json');
+const expectedResponse = require('./fixtures/expected/expectedResponse.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
-describe('Task Validation Tests', () => {
+describe('Coverage Validation Tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
     beforeEach(async () => {
@@ -24,13 +27,13 @@ describe('Task Validation Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Task Tests', () => {
-        test('Task validations', async () => {
+    describe('Coverage Tests', () => {
+        test('Coverage validations', async () => {
             const request = await createTestRequest();
 
             const resp = await request
-                .post('/4_0_0/Task/$merge')
-                .send(taskResources)
+                .post('/4_0_0/Coverage/$merge')
+                .send(coverageResources)
                 .set(getHeaders())
                 .expect(200);
 

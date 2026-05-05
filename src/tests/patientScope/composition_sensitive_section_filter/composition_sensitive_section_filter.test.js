@@ -16,6 +16,7 @@ const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 const person1Resource = require('./fixtures/Person/person1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const activeConsent = require('./fixtures/Consent/activeConsent.json');
+const activeConsentNoDeniedCategories = require('./fixtures/Consent/activeConsentNoDeniedCategories.json');
 const compositionNoSensitive = require('./fixtures/Composition/compositionNoSensitive.json');
 const compositionTopLevelSensitive = require('./fixtures/Composition/compositionTopLevelSensitive.json');
 const compositionNestedSensitive = require('./fixtures/Composition/compositionNestedSensitive.json');
@@ -63,10 +64,6 @@ class MockConfigManager extends ConfigManager {
     }
 
     get enableDelegatedAccessDetection () {
-        return true;
-    }
-
-    get enableCompositionSensitiveSectionFiltering () {
         return true;
     }
 }
@@ -118,12 +115,12 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
         await resetTimerAfterEach();
     });
 
-    const seedData = async (request) => {
+    const seedData = async (request, { consent = activeConsent } = {}) => {
         const fixtures = [
             { url: '/4_0_0/Person/1/$merge?validate=true', body: topLevelPersonResource },
             { url: '/4_0_0/Person/1/$merge?validate=true', body: person1Resource },
             { url: '/4_0_0/Patient/1/$merge?validate=true', body: patient1Resource },
-            { url: '/4_0_0/Consent/$merge?validate=true', body: activeConsent },
+            { url: '/4_0_0/Consent/$merge?validate=true', body: consent },
             { url: '/4_0_0/Composition/1/$merge?validate=true', body: compositionNoSensitive },
             { url: '/4_0_0/Composition/1/$merge?validate=true', body: compositionTopLevelSensitive },
             { url: '/4_0_0/Composition/1/$merge?validate=true', body: compositionNestedSensitive },
@@ -162,6 +159,20 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
         const resp = await request
             .get('/4_0_0/Composition/')
             .set(getHeadersWithCustomPayload(nonDelegatedPayload));
+
+        expect(resp).toHaveResponse(expectedRestSearchNonDelegated);
+    });
+
+    test('REST search: delegated user with no denied categories sees all sections unfiltered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request, { consent: activeConsentNoDeniedCategories });
+
+        const resp = await request
+            .get('/4_0_0/Composition/')
+            .set(getHeadersWithCustomPayload(delegatedPayload));
 
         expect(resp).toHaveResponse(expectedRestSearchNonDelegated);
     });
@@ -259,6 +270,20 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
         expect(resp).toHaveResponse(expectedSearchByIdNonDelegatedTopLevel);
     });
 
+    test('REST searchById: delegated user with no denied categories sees all sections unfiltered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request, { consent: activeConsentNoDeniedCategories });
+
+        const resp = await request
+            .get('/4_0_0/Composition/comp-top-level-sensitive')
+            .set(getHeadersWithCustomPayload(delegatedPayload));
+
+        expect(resp).toHaveResponse(expectedSearchByIdNonDelegatedTopLevel);
+    });
+
     // ─── GRAPHQL V1 ──────────────────────────────────────────────────
 
     const graphqlV1Query = `{
@@ -319,6 +344,21 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
         expect(resp).toHaveGraphQLResponse(expectedGraphqlV1NonDelegated, 'composition');
     });
 
+    test('GraphQL v1: delegated user with no denied categories sees all sections unfiltered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request, { consent: activeConsentNoDeniedCategories });
+
+        const resp = await request
+            .post('/$graphql')
+            .send({ operationName: null, variables: {}, query: graphqlV1Query })
+            .set(getCustomGraphQLHeaders(delegatedPayload));
+
+        expect(resp).toHaveGraphQLResponse(expectedGraphqlV1NonDelegated, 'composition');
+    });
+
     // ─── GRAPHQL V2 ──────────────────────────────────────────────────
 
     const graphqlV2Query = `{
@@ -375,6 +415,21 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .post('/4_0_0/$graphqlv2')
             .send({ operationName: null, variables: {}, query: graphqlV2Query })
             .set(getCustomGraphQLHeaders(nonDelegatedPayload));
+
+        expect(resp).toHaveGraphQLResponse(expectedGraphqlV2NonDelegated, 'compositions');
+    });
+
+    test('GraphQL v2: delegated user with no denied categories sees all sections unfiltered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request, { consent: activeConsentNoDeniedCategories });
+
+        const resp = await request
+            .post('/4_0_0/$graphqlv2')
+            .send({ operationName: null, variables: {}, query: graphqlV2Query })
+            .set(getCustomGraphQLHeaders(delegatedPayload));
 
         expect(resp).toHaveGraphQLResponse(expectedGraphqlV2NonDelegated, 'compositions');
     });
@@ -476,6 +531,20 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
         expect(resp).toHaveResponse(expectedEverythingNonDelegated);
     });
 
+    test('$everything: delegated user with no denied categories sees all sections unfiltered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request, { consent: activeConsentNoDeniedCategories });
+
+        const resp = await request
+            .get('/4_0_0/Patient/patient1/$everything')
+            .set(getHeadersWithCustomPayload(delegatedPayload));
+
+        expect(resp).toHaveResponse(expectedEverythingNonDelegated);
+    });
+
     // ─── $graph ──────────────────────────────────────────────────────
 
     test('$graph: delegated user sees sensitive sections filtered across all compositions', async () => {
@@ -506,6 +575,22 @@ describe('Composition Sensitive Section Filter E2E Tests', () => {
             .post('/4_0_0/Patient/$graph?id=patient1')
             .send(graphDef)
             .set(getHeadersWithCustomPayload(nonDelegatedPayload));
+
+        expect(resp).toHaveResponse(expectedGraphNonDelegated);
+    });
+
+    test('$graph: delegated user with no denied categories sees all sections unfiltered', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('configManager', () => new MockConfigManager());
+            return c;
+        });
+        await seedData(request, { consent: activeConsentNoDeniedCategories });
+
+        const graphDef = require('./fixtures/GraphDefinition/patientCompositionGraph.json');
+        const resp = await request
+            .post('/4_0_0/Patient/$graph?id=patient1')
+            .send(graphDef)
+            .set(getHeadersWithCustomPayload(delegatedPayload));
 
         expect(resp).toHaveResponse(expectedGraphNonDelegated);
     });

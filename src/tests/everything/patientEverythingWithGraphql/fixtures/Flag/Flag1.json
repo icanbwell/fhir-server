@@ -6,7 +6,9 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "active",
-  "code": {},
+  "code": {
+    "text": "Flag Resource"
+  },
   "subject": {
     "reference": "Patient/1"
   }

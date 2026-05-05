@@ -9,8 +9,12 @@
   "patient": {
     "reference": "Patient/2"
   },
-  "targetDisease": {},
-  "doseStatus": {},
+  "targetDisease": {
+    "text": "Disease Resource"
+  },
+  "doseStatus": {
+    "text": "Dose Status Resource"
+  },
   "immunizationEvent": {
     "reference": "Immunization/2"
   }

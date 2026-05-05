@@ -25,9 +25,6 @@
           ]
         },
         "status": "active",
-        "topic": {
-          "reference": "https://www.icanbwell.com/Topic/123"
-        },
         "channel": {
           "type": "rest-hook",
           "endpoint": "https://www.icanbwell.com/Subscription/123"

@@ -229,6 +229,8 @@ class PersonMatchManager {
             Accept: 'application/json',
             Authorization: `Bearer ${accessToken}`
         };
+        const sourceUuid = source[0]._uuid;
+        const targetUuid = target[0]._uuid;
         const requestId = requestInfo ? requestInfo.requestId : undefined;
         try {
             /**
@@ -251,7 +253,7 @@ class PersonMatchManager {
                             resourceType: sourceType,
                             operation: 'read',
                             args: {},
-                            ids: [sourceId]
+                            ids: [sourceUuid]
                         });
                         await this.auditLogger.logAuditEntryAsync({
                             requestInfo,
@@ -259,7 +261,7 @@ class PersonMatchManager {
                             resourceType: targetType,
                             operation: 'read',
                             args: {},
-                            ids: [targetId]
+                            ids: [targetUuid]
                         });
                     }
                 });
@@ -395,6 +397,7 @@ class PersonMatchManager {
             }).toJSON();
         }
 
+        const resourceUuid = resources[0]._uuid;
         const demographicResource = this._extractDemographics(resources[0]);
         demographicResource.id = generateUUID();
         demographicResource.resourceType = matchResourceType || resourceType;
@@ -440,7 +443,7 @@ class PersonMatchManager {
                             resourceType,
                             operation: 'read',
                             args: {},
-                            ids: [id]
+                            ids: [resourceUuid]
                         });
                     }
                 });

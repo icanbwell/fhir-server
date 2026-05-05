@@ -449,6 +449,7 @@ class UpdateOperation {
                 }
 
                 if (resourceType !== 'AuditEvent') {
+                    const resourceUuid = doc._uuid;
                     this.postRequestProcessor.add({
                         requestId,
                         fnTask: async () => {
@@ -460,7 +461,7 @@ class UpdateOperation {
                                     resourceType,
                                     operation: currentOperationName,
                                     args: parsedArgs.getRawArgs(),
-                                    ids: [resource_incoming.id]
+                                    ids: [resourceUuid]
                                 }
                             );
                         }

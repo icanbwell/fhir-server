@@ -41,7 +41,6 @@
     "subject": {
       "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
     },
-    "requester": "invalid reference field",
     "authoredOn": "2022-07-01",
     "dosageInstruction": [
       {

@@ -9,13 +9,16 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
-describe('Patient Tests (Fast Merge Serializer)', () => {
+describe('Patient Tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
     beforeEach(async () => {

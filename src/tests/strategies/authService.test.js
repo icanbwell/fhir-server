@@ -3,10 +3,6 @@ const nock = require('nock');
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const {AuthService} = require("../../strategies/authService");
 const {ConfigManager} = require("../../utils/configManager");
-const {createTestContainer} = require("../createTestContainer");
-
-const testUserTypeManager = createTestContainer().userTypeManager;
-
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -38,8 +34,7 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                ),
-                userTypeManager: testUserTypeManager
+                )
             }
         );
 
@@ -74,8 +69,7 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                ),
-                userTypeManager: testUserTypeManager
+                )
             }
         );
         authService.clearAuthCache();
@@ -109,8 +103,7 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager
                     }
-                ),
-                userTypeManager: testUserTypeManager
+                )
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -144,8 +137,7 @@ describe('JWT Bearer Strategy', () => {
                     {
                         configManager: configManager
                     }
-                ),
-                userTypeManager: testUserTypeManager
+                )
             }
         );
         const result = await authService.getExternalJwksAsync();
@@ -196,8 +188,7 @@ describe('JWT Bearer Strategy', () => {
         const authService = new AuthService(
             {
                 configManager: configManager,
-                wellKnownConfigurationManager: wellKnownManager,
-                userTypeManager: testUserTypeManager
+                wellKnownConfigurationManager: wellKnownManager
             }
         );
         const userInfoResponse = await authService.getExternalJwksAsync();

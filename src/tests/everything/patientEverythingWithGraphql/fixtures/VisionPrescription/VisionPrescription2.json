@@ -14,12 +14,14 @@
     "prescriber": {
         "reference": "Practitioner/2"
     },
-    "lensSpecification": {
-        "product": {},
+    "lensSpecification": [{
+        "product": {
+            "text": "Vision Prescription Resource"
+        },
         "eye": "right",
-        "prism": {
+        "prism": [{
             "amount": 2.0,
             "base": "up"
-        }
-    }
+        }]
+    }]
 }

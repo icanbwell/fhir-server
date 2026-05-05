@@ -6,8 +6,12 @@
     "security": [{ "system": "https://www.icanbwell.com/owner", "code": "client" }]
   },
   "status": "draft",
-  "scope": {},
-  "category": [{}],
+  "scope": {
+    "text": "Patient Consent"
+  },
+  "category": [{
+    "text": "Consent Resource"
+  }],
   "patient": {
     "reference": "Patient/2"
   }

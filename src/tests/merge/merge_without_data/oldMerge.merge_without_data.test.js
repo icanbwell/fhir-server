@@ -7,13 +7,16 @@ const {
 
 const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
-describe('Person Tests (Fast Merge Serializer)', () => {
+describe('Person Tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
     beforeEach(async () => {
@@ -28,37 +31,11 @@ describe('Person Tests (Fast Merge Serializer)', () => {
         test('merge without data', async () => {
             const request = await createTestRequest();
 
-            const resp = await request
+            await request
                 .post('/4_0_0/Person/$merge')
                 .send({})
                 .set(getHeaders())
-                .expect(200);
-
-            expect(resp.body).toEqual({
-                operationOutcome: {
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        {
-                            severity: 'error',
-                            code: 'exception',
-                            details: {
-                                text: 'Error merging: {}'
-                            },
-                            diagnostics: 'resource is missing id'
-                        }
-                    ]
-                },
-                issue: {
-                    severity: 'error',
-                    code: 'exception',
-                    details: {
-                        text: 'Error merging: {}'
-                    },
-                    diagnostics: 'resource is missing id'
-                },
-                created: false,
-                updated: false
-            });
+                .expect(400);
         });
 
         test('should return empty array when bundle entry is empty array', async () => {

@@ -167,13 +167,18 @@ class DelegatedAccessRulesManager {
             }
         }
 
-        return {
+        const rules = {
             consentId: consent._uuid,
             consentVersion: consent.meta?.versionId,
             provisionPeriodStart: consent.provision?.period?.start,
-            provisionPeriodEnd: consent.provision?.period?.end,
-            deniedSensitiveCategories
+            provisionPeriodEnd: consent.provision?.period?.end
         };
+        // Store it as non-enumerable to avoid logging
+        Object.defineProperty(rules, 'deniedSensitiveCategories', {
+            value: deniedSensitiveCategories,
+            enumerable: false
+        });
+        return rules;
     }
 
     /**

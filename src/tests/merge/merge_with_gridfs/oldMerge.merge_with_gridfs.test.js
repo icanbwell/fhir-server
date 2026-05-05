@@ -1,4 +1,3 @@
-const { BaseSerializer } = require('../../../fhir/writeSerializers/4_0_0/customSerializers');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 
@@ -8,15 +7,18 @@ const updatedDocumentReferenceData = require('./fixtures/document_reference/upda
 const expectedCreateResponse = require('./fixtures/expected/create_response.json');
 const expectedUpdateResponse = require('./fixtures/expected/update_response.json');
 
-const { describe, beforeEach, afterEach, test, expect, jest, beforeAll, afterAll } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, beforeAll, afterAll } = require('@jest/globals');
 
-describe('GridFS merge tests (Fast Merge Serializer)', () => {
+describe('GridFS merge tests', () => {
+    let originalMergeFastSerializerValue;
+
     beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
+        originalMergeFastSerializerValue = process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = '0';
     });
 
     afterAll(() => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
+        process.env.ENABLE_MERGE_FAST_SERIALIZER = originalMergeFastSerializerValue;
     });
 
     beforeEach(async () => {
@@ -29,7 +31,6 @@ describe('GridFS merge tests (Fast Merge Serializer)', () => {
 
     describe('GridFS creation tests', () => {
         test('_file_id stored in db works', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const base_version = '4_0_0';
             const request = await createTestRequest();
             // add the resources to FHIR server
@@ -65,11 +66,9 @@ describe('GridFS merge tests (Fast Merge Serializer)', () => {
             expect(documentReference[0].content[0].attachment.data).toBeUndefined();
 
             expect(documentReference[0].content[0].attachment._file_id).toBeDefined();
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('_file_id not stored in db works', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const base_version = '4_0_0';
             const request = await createTestRequest();
             // add the resources to FHIR server
@@ -105,11 +104,9 @@ describe('GridFS merge tests (Fast Merge Serializer)', () => {
             expect(documentReference[0].content[0].attachment.data).toBeUndefined();
 
             expect(documentReference[0].content[0].attachment._file_id).toBeUndefined();
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('same data update doesn\'t work', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const base_version = '4_0_0';
             const request = await createTestRequest();
             // add the resources to FHIR server
@@ -153,11 +150,9 @@ describe('GridFS merge tests (Fast Merge Serializer)', () => {
             expect(documentReference[0].content[0].attachment.data).toBeUndefined();
 
             expect(documentReference[0].content[0].attachment._file_id).toBeDefined();
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
 
         test('different data update work', async () => {
-            const writeSerializerSpy = jest.spyOn(BaseSerializer.prototype, 'writeSerialize');
             const base_version = '4_0_0';
             const request = await createTestRequest();
             // add the resources to FHIR server
@@ -205,7 +200,6 @@ describe('GridFS merge tests (Fast Merge Serializer)', () => {
             expect(documentReference[0].content[1].attachment.data).toBeUndefined();
 
             expect(documentReference[0].content[1].attachment._file_id).toBeDefined();
-            expect(writeSerializerSpy).toHaveBeenCalled();
         });
     });
 });
