@@ -272,7 +272,8 @@ class SearchManager {
                         query = await this.dataSharingManager.updateQueryConsideringCmsDataSharing({
                             patientIds: allPatientIdsFromJwtToken,
                             resourceType,
-                            query
+                            query,
+                            actor
                         });
                     }
                 }

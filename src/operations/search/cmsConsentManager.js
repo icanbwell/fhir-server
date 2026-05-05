@@ -53,8 +53,11 @@ class CmsConsentManager {
             options: {
                 projection: {
                     _uuid: 1,
-                    patient: 1
-                }
+                    patient: 1,
+                    'meta.versionId': 1,
+                    'meta.lastUpdated': 1
+                },
+                sort: { 'meta.lastUpdated': -1 }
             }
         });
         const consentResources = await cursor
@@ -100,6 +103,11 @@ class CmsConsentManager {
          */
         const allowedPatientIds = new Set();
 
+        /**
+         * @type {{ _uuid: string, versionId: string } | null}
+         */
+        let latestConsent = null;
+
         for (const consent of consentResources) {
             const proxyPatientRef = consent.patient?._uuid;
             if (!proxyPatientRef) {
@@ -112,10 +120,16 @@ class CmsConsentManager {
 
             if (patientIds) {
                 patientIds.forEach((patientId) => allowedPatientIds.add(patientId));
+                if (!latestConsent && consent._uuid && consent.meta?.versionId) {
+                    latestConsent = {
+                        _uuid: consent._uuid,
+                        versionId: consent.meta.versionId
+                    };
+                }
             }
         }
 
-        return allowedPatientIds;
+        return { allowedPatientIds, latestConsent };
     }
 }
 

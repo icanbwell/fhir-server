@@ -270,11 +270,12 @@ class DataSharingManager {
      * @property {string} resourceType Resource type
      * @property {string[]} patientIds Set of patient ids from JWT token
      * @property {object} query Query object
+     * @property {import('../../utils/fhirRequestInfo').JwtActor | null} [actor] actor token
      *
      * @param {UpdateQueryConsideringCmsDataSharing} param
      * @returns {Promise<object>} Updated query object considering CMS data sharing
      */
-    async updateQueryConsideringCmsDataSharing({ resourceType, patientIds, query }) {
+    async updateQueryConsideringCmsDataSharing({ resourceType, patientIds, query, actor }) {
         // CMS data sharing is only applicable for Patient resource type as of now.
         if (resourceType !== 'Patient') {
             return query;
@@ -289,13 +290,19 @@ class DataSharingManager {
                 }))
         });
 
-        const consentedPatientIds = await this.cmsConsentManager.getPatientIdsWithConsent(patientReferenceToPersonUuid);
+        const { allowedPatientIds, latestConsent } = await this.cmsConsentManager.getPatientIdsWithConsent(
+            patientReferenceToPersonUuid
+        );
 
-        if (consentedPatientIds.size === 0) {
+        if (latestConsent && actor) {
+            actor.consentPolicy = `Consent/${latestConsent._uuid}?version=${latestConsent.versionId}`;
+        }
+
+        if (allowedPatientIds.size === 0) {
             return { id: '__invalid__' };
         }
 
-        const uuidFilter = { _uuid: { $in: Array.from(consentedPatientIds) } };
+        const uuidFilter = { _uuid: { $in: Array.from(allowedPatientIds) } };
 
         if (query.$and && query.$and.length > 0) {
             query.$and.push(uuidFilter);
