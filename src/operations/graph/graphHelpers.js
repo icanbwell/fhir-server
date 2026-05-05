@@ -1901,6 +1901,10 @@ class GraphHelper {
                  */
                 const resultResourceType = resource.resourceType;
 
+                if (resultResourceType === 'AuditEvent') {
+                    continue;
+                }
+
                 await this.scopesValidator.verifyHasValidScopesAsync({
                     requestInfo,
                     parsedArgs,
