@@ -1890,10 +1890,6 @@ class GraphHelper {
              * @type {BundleEntry[]}
              */
             const deleteOperationBundleEntries = [];
-            /**
-             * @type {Map<string, string[]>}
-             */
-            const deletedResourcesByType = new Map();
             for (const entry of (bundle.entry || [])) {
                 /**
                  * Raw Resource
@@ -1922,10 +1918,19 @@ class GraphHelper {
                 });
 
                 if (resultResourceType !== 'AuditEvent') {
-                    if (!deletedResourcesByType.has(resultResourceType)) {
-                        deletedResourcesByType.set(resultResourceType, []);
-                    }
-                    deletedResourcesByType.get(resultResourceType).push(resource._uuid);
+                    this.postRequestProcessor.add({
+                        requestId: requestInfo.requestId,
+                        fnTask: async () => {
+                            await this.auditLogger.logAuditEntryAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType: resultResourceType,
+                                operation: 'delete',
+                                args: parsedArgs.getRawArgs(),
+                                ids: [resource._uuid]
+                            });
+                        }
+                    });
                 }
 
                 // for testing with delay
@@ -1958,22 +1963,6 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
-
-            for (const [type, ids] of deletedResourcesByType.entries()) {
-                this.postRequestProcessor.add({
-                    requestId: requestInfo.requestId,
-                    fnTask: async () => {
-                        await this.auditLogger.logAuditEntryAsync({
-                            requestInfo,
-                            base_version,
-                            resourceType: type,
-                            operation: 'delete',
-                            args: parsedArgs.getRawArgs(),
-                            ids
-                        });
-                    }
-                });
-            }
 
             if (responseStreamer) {
                 responseStreamer.setBundle({bundle: deleteOperationBundle});
