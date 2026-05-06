@@ -24,7 +24,7 @@ const {ProcessMultipleIdsAsyncResult} = require('../common/processMultipleIdsAsy
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
-const {logError} = require('../common/logging');
+const {logError, logInfo} = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
@@ -42,6 +42,8 @@ const {isValidResource} = require('../../utils/validResourceCheck');
 const {SearchParametersManager} = require('../../searchParameters/searchParametersManager');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { RemoveHelper } = require('../remove/removeHelper');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 /**
  * This class helps with creating graph responses
@@ -58,6 +60,8 @@ class GraphHelper {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SearchParametersManager} searchParametersManager
      * @param {RemoveHelper} removeHelper
+     * @param {AuditLogger} auditLogger
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor({
                     databaseQueryFactory,
@@ -69,7 +73,9 @@ class GraphHelper {
                     r4ArgsParser,
                     databaseAttachmentManager,
                     searchParametersManager,
-                    removeHelper
+                    removeHelper,
+                    auditLogger,
+                    postRequestProcessor
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -130,6 +136,18 @@ class GraphHelper {
          */
         this.removeHelper = removeHelper;
         assertTypeEquals(removeHelper, RemoveHelper);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -1883,6 +1901,17 @@ class GraphHelper {
                  */
                 const resultResourceType = resource.resourceType;
 
+                if (resultResourceType === 'AuditEvent') {
+                    logInfo('Skipping deletion of AuditEvent resource in $graph', {
+                        source: 'GraphHelpers.deleteGraphAsync',
+                        args: {
+                            id: resource._uuid,
+                            resourceType: resultResourceType
+                        }
+                    });
+                    continue;
+                }
+
                 await this.scopesValidator.verifyHasValidScopesAsync({
                     requestInfo,
                     parsedArgs,
@@ -1898,6 +1927,22 @@ class GraphHelper {
                     base_version,
                     resourceType: resultResourceType
                 });
+
+                if (resultResourceType !== 'AuditEvent') {
+                    this.postRequestProcessor.add({
+                        requestId: requestInfo.requestId,
+                        fnTask: async () => {
+                            await this.auditLogger.logAuditEntryAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType: resultResourceType,
+                                operation: 'delete',
+                                args: parsedArgs.getRawArgs(),
+                                ids: [resource._uuid]
+                            });
+                        }
+                    });
+                }
 
                 // for testing with delay
                 // await new Promise(r => setTimeout(r, 10000));
@@ -1929,6 +1974,7 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
+
             if (responseStreamer) {
                 responseStreamer.setBundle({bundle: deleteOperationBundle});
             }

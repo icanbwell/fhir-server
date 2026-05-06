@@ -1,0 +1,34 @@
+{
+    "resourceType": "AuditEvent",
+    "id": "test-audit-event-1",
+    "meta": {
+        "versionId": "1",
+        "source": "client",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
+    },
+    "type": {
+        "system": "http://dicom.nema.org/resources/ontology/DCM",
+        "code": "110112",
+        "display": "Query"
+    },
+    "recorded": "2024-01-01T00:00:00Z",
+    "source": {
+        "observer": {
+            "reference": "Organization/bwell"
+        }
+    },
+    "agent": [
+        {
+            "requestor": true
+        }
+    ]
+}
