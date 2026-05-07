@@ -50,24 +50,24 @@ describe('AuditEventTransformer', () => {
             expect(row.resource.id).toBe('audit-001');
         });
 
-        test('returns null for document missing _uuid', () => {
+        test('emits an empty _uuid for a doc missing _uuid (CH insert will reject)', () => {
             const transformer = new AuditEventTransformer();
             const doc = deepcopy(auditEventSample);
             doc._id = { toString: () => 'abc123' };
             delete doc._uuid;
 
             const row = transformer.transformDocument(doc);
-            expect(row).toBeNull();
+            expect(row).not.toBeNull();
+            expect(row._uuid).toBeUndefined();
         });
 
-        test('returns null for document missing recorded', () => {
+        test('throws when recorded is missing (toClickHouseDateTime cannot format)', () => {
             const transformer = new AuditEventTransformer();
             const doc = deepcopy(auditEventSample);
             doc._id = { toString: () => 'abc123' };
             delete doc.recorded;
 
-            const row = transformer.transformDocument(doc);
-            expect(row).toBeNull();
+            expect(() => transformer.transformDocument(doc)).toThrow();
         });
 
         test('handles missing optional fields with defaults', () => {
@@ -256,16 +256,27 @@ describe('AuditEventTransformer', () => {
     });
 
     describe('transformBatch', () => {
-        test('transforms array and tracks skipped docs', () => {
+        test('transforms every valid doc and reports skipped=0', () => {
+            const transformer = new AuditEventTransformer();
+            const a = deepcopy(auditEventSample);
+            a._id = { toString: () => 'aaa' };
+            const b = deepcopy(auditEventSample);
+            b._id = { toString: () => 'bbb' };
+            b._uuid = 'audit-uuid-002';
+
+            const { rows, skipped } = transformer.transformBatch([a, b]);
+            expect(rows).toHaveLength(2);
+            expect(skipped).toBe(0);
+            expect(rows[0]._uuid).toBe('audit-uuid-001');
+            expect(rows[1]._uuid).toBe('audit-uuid-002');
+        });
+
+        test('propagates the underlying error when a doc is missing recorded', () => {
             const transformer = new AuditEventTransformer();
             const valid = deepcopy(auditEventSample);
-            valid._id = { toString: () => 'aaa' };
-            const invalid = { _id: { toString: () => 'bbb' } };
+            const invalid = { _id: { toString: () => 'bbb' }, _uuid: 'u' };
 
-            const { rows, skipped } = transformer.transformBatch([valid, invalid]);
-            expect(rows).toHaveLength(1);
-            expect(skipped).toBe(1);
-            expect(rows[0]._uuid).toBe('audit-uuid-001');
+            expect(() => transformer.transformBatch([valid, invalid])).toThrow();
         });
     });
 

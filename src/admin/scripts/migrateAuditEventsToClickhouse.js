@@ -161,18 +161,20 @@ async function insertWithRetryAsync(clickHouseClientManager, rows) {
 }
 
 /**
- * Transform docs, insert surviving rows into ClickHouse, then delete every doc
- * in the batch (including transform-skipped ones) from Mongo by _id.
+ * Transform docs, insert the rows into ClickHouse, then delete the batch's
+ * source docs from Mongo by _id. A malformed source doc (missing `_uuid` or
+ * `recorded`) causes the ClickHouse insert to fail, which aborts the whole
+ * run — no Mongo delete runs for a batch that didn't land.
  *
  * @param {Object} params
  * @param {Object[]} params.docs
  * @param {import('mongodb').Collection} params.collection
  * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
  * @param {AuditEventTransformer} params.transformer
- * @returns {Promise<{inserted: number, skipped: number, deleted: number}>}
+ * @returns {Promise<{inserted: number, deleted: number}>}
  */
 async function processBatchAsync({ docs, collection, clickHouseClientManager, transformer }) {
-    const { rows, skipped } = transformer.transformBatch(docs);
+    const { rows } = transformer.transformBatch(docs);
 
     if (rows.length > 0) {
         await insertWithRetryAsync(clickHouseClientManager, rows);
@@ -187,7 +189,7 @@ async function processBatchAsync({ docs, collection, clickHouseClientManager, tr
         });
     }
 
-    return { inserted: rows.length, skipped, deleted: deleteResult.deletedCount };
+    return { inserted: rows.length, deleted: deleteResult.deletedCount };
 }
 
 /**
@@ -218,7 +220,6 @@ async function main() {
 
     const startTime = Date.now();
     let totalInserted = 0;
-    let totalSkipped = 0;
     let totalDeleted = 0;
     let batchNo = 0;
 
@@ -240,53 +241,53 @@ async function main() {
             .sort({ recorded: 1, _id: 1 })
             .batchSize(options.batchSize);
 
+        const runBatch = async (docs) => {
+            batchNo++;
+            try {
+                const result = await processBatchAsync({
+                    docs,
+                    collection,
+                    clickHouseClientManager,
+                    transformer
+                });
+                totalInserted += result.inserted;
+                totalDeleted += result.deleted;
+                logInfo('Batch copied', {
+                    batchNo,
+                    inserted: result.inserted,
+                    deleted: result.deleted,
+                    cumulativeInserted: totalInserted,
+                    elapsed: formatElapsed(Date.now() - startTime)
+                });
+            } catch (error) {
+                // Log batch context before the error unwinds so operators know
+                // exactly where the run stopped. Then re-throw to halt the
+                // migration — no Mongo source docs are deleted for this batch.
+                logError('Batch failed; aborting migration', {
+                    batchNo,
+                    batchSize: docs.length,
+                    cumulativeInserted: totalInserted,
+                    cumulativeDeleted: totalDeleted,
+                    elapsed: formatElapsed(Date.now() - startTime),
+                    error: error.message
+                });
+                throw error;
+            }
+        };
+
         try {
             let batch = [];
             while (await cursor.hasNext()) {
                 if (abortFlag.aborted) break;
                 batch.push(await cursor.next());
                 if (batch.length >= options.batchSize) {
-                    batchNo++;
-                    const result = await processBatchAsync({
-                        docs: batch,
-                        collection,
-                        clickHouseClientManager,
-                        transformer
-                    });
-                    totalInserted += result.inserted;
-                    totalSkipped += result.skipped;
-                    totalDeleted += result.deleted;
-                    logInfo('Batch copied', {
-                        batchNo,
-                        inserted: result.inserted,
-                        skipped: result.skipped,
-                        deleted: result.deleted,
-                        cumulativeInserted: totalInserted,
-                        elapsed: formatElapsed(Date.now() - startTime)
-                    });
+                    await runBatch(batch);
                     batch = [];
                 }
             }
 
             if (batch.length > 0) {
-                batchNo++;
-                const result = await processBatchAsync({
-                    docs: batch,
-                    collection,
-                    clickHouseClientManager,
-                    transformer
-                });
-                totalInserted += result.inserted;
-                totalSkipped += result.skipped;
-                totalDeleted += result.deleted;
-                logInfo('Batch copied', {
-                    batchNo,
-                    inserted: result.inserted,
-                    skipped: result.skipped,
-                    deleted: result.deleted,
-                    cumulativeInserted: totalInserted,
-                    elapsed: formatElapsed(Date.now() - startTime)
-                });
+                await runBatch(batch);
             }
         } finally {
             await cursor.close();
@@ -295,7 +296,6 @@ async function main() {
         logInfo('Migration complete', {
             totalBatches: batchNo,
             totalInserted,
-            totalSkipped,
             totalDeleted,
             elapsed: formatElapsed(Date.now() - startTime),
             aborted: abortFlag.aborted
