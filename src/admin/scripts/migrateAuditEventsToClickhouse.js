@@ -8,69 +8,32 @@
  * the Mongo delete leaves at most one batch of duplicates in ClickHouse on
  * re-run; this is accepted.
  *
+ * MongoDB and ClickHouse connections are obtained from the shared IoC container
+ * (`createContainer`), so this script honours the same environment variables the
+ * rest of the FHIR server uses — including `AUDIT_EVENT_MONGO_URL` when audit
+ * events live on a dedicated cluster.
+ *
  * Usage:
  *   node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
- *
- * Environment Variables:
- *   MONGO_URL       MongoDB connection string (required)
- *   MONGO_USERNAME  Optional — injected into the URL if set
- *   MONGO_PASSWORD  Required when MONGO_USERNAME is set
- *   MONGO_DB_NAME   Source database (default: fhir)
  */
 
-const { MongoClient } = require('mongodb');
-const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
-const { ConfigManager } = require('../../utils/configManager');
+const { createContainer } = require('../../createContainer');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 const { logInfo, logError, logWarn } = require('../../operations/common/logging');
 
 const USAGE = `
 Usage: node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
 
-Environment Variables:
-  MONGO_URL       MongoDB connection string (required)
-  MONGO_USERNAME  Optional — injected into the URL if set
-  MONGO_PASSWORD  Required when MONGO_USERNAME is set
-  MONGO_DB_NAME   Source database (default: fhir)
+MongoDB and ClickHouse connections are read from the standard FHIR server
+environment (see src/config.js). Ensure ENABLE_CLICKHOUSE=1 and the
+appropriate MONGO_*/AUDIT_EVENT_MONGO_*/CLICKHOUSE_* variables are set for
+the target environment.
 
 Options:
   --collection <name>  Source collection (default: AuditEvent_4_0_0)
   --batch-size <n>     Docs per ClickHouse insert + Mongo delete (default: 10000)
   --help, -h           Show this help
 `;
-
-/**
- * Build a MongoDB connection URL from the standard MONGO_* environment variables.
- * Mirrors the URL-injection shape in src/config.js:9-21.
- *
- * @returns {{mongoUrl: string, dbName: string}}
- */
-function buildMongoUrl() {
-    const env = process.env;
-    let mongoUrl = env.MONGO_URL || '';
-
-    if (!mongoUrl) {
-        logError('MONGO_URL environment variable is required');
-        process.exit(1);
-    }
-
-    const username = env.MONGO_USERNAME;
-    const password = env.MONGO_PASSWORD;
-    if (username !== undefined || password !== undefined) {
-        if (username === undefined || password === undefined) {
-            logError('MONGO_USERNAME and MONGO_PASSWORD must be set together');
-            process.exit(1);
-        }
-        const u = encodeURIComponent(username);
-        const p = encodeURIComponent(password);
-        mongoUrl = mongoUrl
-            .replace('mongodb://', `mongodb://${u}:${p}@`)
-            .replace('mongodb+srv://', `mongodb+srv://${u}:${p}@`);
-    }
-    const dbName = env.MONGO_DB_NAME || 'fhir';
-
-    return { mongoUrl, dbName };
-}
 
 /**
  * Parse a positive integer CLI argument, exiting with a clear error on bad input.
@@ -136,7 +99,7 @@ function formatElapsed(ms) {
  * splits the batch in half; on other failures, retries with exponential backoff
  * up to maxRetries.
  *
- * @param {ClickHouseClientManager} clickHouseClientManager
+ * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} clickHouseClientManager
  * @param {Object[]} rows
  * @returns {Promise<void>}
  */
@@ -204,7 +167,7 @@ async function insertWithRetryAsync(clickHouseClientManager, rows) {
  * @param {Object} params
  * @param {Object[]} params.docs
  * @param {import('mongodb').Collection} params.collection
- * @param {ClickHouseClientManager} params.clickHouseClientManager
+ * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
  * @param {AuditEventTransformer} params.transformer
  * @returns {Promise<{inserted: number, skipped: number, deleted: number}>}
  */
@@ -233,21 +196,18 @@ async function processBatchAsync({ docs, collection, clickHouseClientManager, tr
  */
 async function main() {
     const options = parseArgs();
-    const { mongoUrl, dbName } = buildMongoUrl();
 
     logInfo('AuditEvent Migration: MongoDB -> ClickHouse', {
-        collection: `${dbName}.${options.collection}`,
+        collection: options.collection,
         batchSize: options.batchSize
     });
 
-    const configManager = new ConfigManager();
-    const clickHouseClientManager = new ClickHouseClientManager({ configManager });
+    const container = createContainer();
+    const mongoDatabaseManager = container.mongoDatabaseManager;
+    const clickHouseClientManager = container.clickHouseClientManager;
     const transformer = new AuditEventTransformer();
 
-    logInfo('Connecting to MongoDB');
-    const mongoClient = await MongoClient.connect(mongoUrl);
     const abortFlag = { aborted: false };
-
     const onSignal = (signal) => {
         if (abortFlag.aborted) return;
         abortFlag.aborted = true;
@@ -263,14 +223,15 @@ async function main() {
     let batchNo = 0;
 
     try {
-        const db = mongoClient.db(dbName);
-        logInfo('Connected to MongoDB');
+        logInfo('Connecting to MongoDB (audit event config)');
+        const auditDb = await mongoDatabaseManager.getAuditDbAsync();
+        logInfo('Connected to MongoDB', { db: auditDb.databaseName });
 
         logInfo('Connecting to ClickHouse');
         await clickHouseClientManager.getClientAsync();
         logInfo('Connected to ClickHouse');
 
-        const collection = db.collection(options.collection);
+        const collection = auditDb.collection(options.collection);
         // Sort ascending on `recorded` (with `_id` as a stable tiebreaker for ties)
         // so the oldest events are evacuated first. Re-runs after a crash pick up
         // from wherever the collection currently starts.
@@ -344,7 +305,7 @@ async function main() {
     } finally {
         process.removeListener('SIGINT', onSignal);
         process.removeListener('SIGTERM', onSignal);
-        await mongoClient.close();
+        await mongoDatabaseManager.disconnectAsync();
         await clickHouseClientManager.closeAsync();
     }
 }
@@ -361,7 +322,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-    buildMongoUrl,
     parsePositiveInt,
     formatElapsed,
     insertWithRetryAsync,
