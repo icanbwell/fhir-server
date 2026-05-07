@@ -104,19 +104,15 @@ class AuditEventTransformer {
     }
 
     /**
-     * Transforms a single MongoDB AuditEvent document to a ClickHouse row
+     * Transforms a single MongoDB AuditEvent document to a ClickHouse row.
+     * `_uuid` and `recorded` are required invariants enforced by
+     * clickhouse-init/02-audit-event.sql; this function does not pre-validate
+     * them — any absent value propagates and the downstream ClickHouse insert
+     * fails the batch loudly.
      * @param {Object} doc - MongoDB AuditEvent document
-     * @returns {Object|null} ClickHouse row or null if malformed
+     * @returns {Object} ClickHouse row
      */
     transformDocument(doc) {
-        if (!doc._uuid) {
-            return null;
-        }
-
-        if (!doc.recorded) {
-            return null;
-        }
-
         const agents = doc.agent || [];
         const entities = doc.entity || [];
 
@@ -139,22 +135,15 @@ class AuditEventTransformer {
     }
 
     /**
-     * Transforms a batch of documents, skipping malformed ones
+     * Transforms a batch of documents. `skipped` is retained for backwards
+     * compatibility with existing callers but is always 0 — malformed docs no
+     * longer silently short-circuit; see `transformDocument`.
      * @param {Object[]} docs
      * @returns {{rows: Object[], skipped: number}}
      */
     transformBatch(docs) {
-        const rows = [];
-        let skipped = 0;
-        for (const doc of docs) {
-            const row = this.transformDocument(doc);
-            if (row) {
-                rows.push(row);
-            } else {
-                skipped++;
-            }
-        }
-        return { rows, skipped };
+        const rows = docs.map((doc) => this.transformDocument(doc));
+        return { rows, skipped: 0 };
     }
 }
 
