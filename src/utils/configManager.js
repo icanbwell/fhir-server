@@ -991,6 +991,19 @@ class ConfigManager {
     }
 
     /**
+     * Allowlisted entitlement codes (PoU) parsed from CMS_ALLOWED_ENTITLEMENTS env var.
+     * Returns an empty Set when unset or empty — which is interpreted as
+     * fail-closed by CMSManager (every code fails membership check).
+     * Re-reads env each call so config changes take effect on next request.
+     * @returns {Set<string>}
+     */
+    get cmsAllowedEntitlements() {
+        const raw = env.CMS_ALLOWED_ENTITLEMENTS;
+        if (!raw) return new Set();
+        return new Set(raw.split(',').map(s => s.trim()).filter(Boolean));
+    }
+
+    /**
      * return CACHE_EXPIRY_TIME
      * @returns {number}
      */

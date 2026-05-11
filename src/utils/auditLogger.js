@@ -13,6 +13,7 @@ const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
+const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEventAgent');
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditEventEntity');
@@ -20,7 +21,7 @@ const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/audit
 const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { ConfigManager } = require('./configManager');
-const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES } = require('../constants');
+const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES, ENTITLEMENT_CODE_SYSTEM } = require('../constants');
 const mutex = new Mutex();
 
 class AuditLogger {
@@ -166,6 +167,12 @@ class AuditLogger {
             ];
         }
 
+        const purposeOfEvent = requestInfo.purposeOfEvent?.length
+            ? requestInfo.purposeOfEvent.map(code => new CodeableConcept({
+                coding: [new Coding({ system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code })]
+            }))
+            : undefined;
+
         const resource = new AuditEvent({
             id: generateUUID(),
             meta: new Meta({
@@ -210,7 +217,8 @@ class AuditLogger {
                             };
                         }) : null
                 });
-            })
+            }),
+            purposeOfEvent
         });
 
         return resource;

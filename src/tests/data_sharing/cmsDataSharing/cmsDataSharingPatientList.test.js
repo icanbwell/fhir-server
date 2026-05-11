@@ -50,7 +50,8 @@ const getCmsHeaders = (personId) => {
         bwellFhirPersonId: personId,
         clientFhirPatientId: `person.${personId}`,
         bwellFhirPatientId: `person.${personId}`,
-        managingOrganization: organizationCms.id
+        managingOrganization: organizationCms.id,
+        entitlements: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -67,7 +68,8 @@ const getInvalidCmsHeaders = (personId) => {
         user_type: 'cms-partner',
         username: personId,
         clientFhirPersonId: personId,
-        bwellFhirPersonId: personId
+        bwellFhirPersonId: personId,
+        entitlements: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -79,14 +81,21 @@ const getInvalidCmsHeaders = (personId) => {
 
 describe('CMS Data Sharing - Patient List with cms-partner', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
+    const originalAllowedEntitlements = process.env.CMS_ALLOWED_ENTITLEMENTS;
 
     beforeEach(async () => {
+        process.env.CMS_ALLOWED_ENTITLEMENTS = 'TREAT,HPAYMT';
         cursorSpy.mockReturnThis();
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         await commonAfterEach();
+        if (originalAllowedEntitlements === undefined) {
+            delete process.env.CMS_ALLOWED_ENTITLEMENTS;
+        } else {
+            process.env.CMS_ALLOWED_ENTITLEMENTS = originalAllowedEntitlements;
+        }
     });
 
     test('Without patient scope: treated as regular user, not CMS', async () => {

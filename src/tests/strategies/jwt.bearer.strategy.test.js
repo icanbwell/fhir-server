@@ -1316,3 +1316,80 @@ describe('JWT Bearer Strategy', () => {
     });
 
 });
+
+describe('AuthService.processUserInfo - entitlements claim parsing', () => {
+    const makeAuthService = () => new AuthService({
+        configManager: new ConfigManager(),
+        wellKnownConfigurationManager: new WellKnownConfigurationManager({
+            configManager: new ConfigManager()
+        })
+    });
+
+    const basePayload = () => ({
+        sub: 'user-123',
+        clientFhirPersonId: 'person-1',
+        clientFhirPatientId: 'patient-1',
+        bwellFhirPersonId: 'person-1',
+        bwellFhirPatientId: 'patient-1'
+    });
+
+    test('sets purposeOfEvent when entitlements is an array of strings', (done) => {
+        const authService = makeAuthService();
+        const jwt_payload = { ...basePayload(), entitlements: ['TREAT', 'HPAYMT'] };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfEvent).toEqual(['TREAT', 'HPAYMT']);
+                done();
+            }
+        });
+    });
+
+    test('filters non-string items out of entitlements', (done) => {
+        const authService = makeAuthService();
+        const jwt_payload = { ...basePayload(), entitlements: ['TREAT', 42, null, 'HPAYMT'] };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfEvent).toEqual(['TREAT', 'HPAYMT']);
+                done();
+            }
+        });
+    });
+
+    test('leaves purposeOfEvent unset when entitlements claim is absent', (done) => {
+        const authService = makeAuthService();
+        const jwt_payload = basePayload();
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfEvent).toBeUndefined();
+                done();
+            }
+        });
+    });
+
+    test('leaves purposeOfEvent unset when entitlements is a string', (done) => {
+        const authService = makeAuthService();
+        const jwt_payload = { ...basePayload(), entitlements: 'TREAT' };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfEvent).toBeUndefined();
+                done();
+            }
+        });
+    });
+});
