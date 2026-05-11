@@ -1335,7 +1335,7 @@ describe('AuthService.processUserInfo - entitlements claim parsing', () => {
 
     test('sets purposeOfEvent when entitlements is an array of strings', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), entitlements: ['TREAT', 'HPAYMT'] };
+        const jwt_payload = { ...basePayload(),user_type: 'cms-partner', entitlements: ['TREAT', 'HPAYMT'] };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
@@ -1350,7 +1350,7 @@ describe('AuthService.processUserInfo - entitlements claim parsing', () => {
 
     test('filters non-string items out of entitlements', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), entitlements: ['TREAT', 42, null, 'HPAYMT'] };
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: ['TREAT', 42, null, 'HPAYMT'] };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
@@ -1369,7 +1369,7 @@ describe('AuthService.processUserInfo - entitlements claim parsing', () => {
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
-            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            jwt_payload, client_id: 'c', user_type: 'cms-partner', scope: 'patient/*.read',
             done: (err, user, info) => {
                 expect(err).toBeNull();
                 expect(info.context.purposeOfEvent).toBeUndefined();
@@ -1384,7 +1384,7 @@ describe('AuthService.processUserInfo - entitlements claim parsing', () => {
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
-            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            jwt_payload, client_id: 'c', user_type: 'cms-partner', scope: 'patient/*.read',
             done: (err, user, info) => {
                 expect(err).toBeNull();
                 expect(info.context.purposeOfEvent).toBeUndefined();
