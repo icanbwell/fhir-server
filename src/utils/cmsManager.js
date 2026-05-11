@@ -48,7 +48,7 @@ class CMSManager {
             requestId: requestInfo.requestId,
             args: { entitlements: claim }
         });
-        throw new ForbiddenError('Access denied');
+        throw new ForbiddenError('User does not have valid permission');
     }
 
     /**

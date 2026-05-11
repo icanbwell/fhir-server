@@ -160,7 +160,8 @@
         "managingOrganization": "${CMS_USER_MANAGING_ORGANIZATION}",
         "token_use": "access",
         "username": "${CMS_USER_TOKEN_USERNAME}",
-        "user_type": "cms-partner"
+        "user_type": "cms-partner",
+        "entitlements": ["${CMS_USER_ENTITLEMENTS}"]
       }
     },
     {
@@ -447,6 +448,21 @@
             "access.token.claim": "true",
             "userinfo.token.claim": "true"
           }
+        },
+        {
+          "name": "entitlements-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "entitlements",
+            "claim.name": "entitlements",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
         }
       ]
     },
@@ -648,6 +664,21 @@
             "user.attribute": "user_type",
             "claim.name": "user_type",
             "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "entitlements-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "entitlements",
+            "claim.name": "entitlements",
+            "jsonType.label": "String",
+            "multivalued": "true",
             "id.token.claim": "true",
             "access.token.claim": "true",
             "userinfo.token.claim": "true"

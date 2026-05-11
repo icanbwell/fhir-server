@@ -147,7 +147,7 @@ describe('CMS partner user — entitlements allowlist enforcement', () => {
         expect(resp).toHaveStatusCode(200);
     });
 
-    test('returns generic "Access denied" message for all entitlement rejections', async () => {
+    test('returns generic "User does not have valid permission" message for all entitlement rejections', async () => {
         process.env.CMS_ALLOWED_ENTITLEMENTS = 'TREAT';
         const request = await createTestRequest();
         await seed(request);
@@ -158,6 +158,6 @@ describe('CMS partner user — entitlements allowlist enforcement', () => {
         expect(resp).toHaveStatusCode(403);
         const bodyString = JSON.stringify(resp.body);
         expect(bodyString).not.toContain('HRESCH');
-        expect(bodyString).toContain('Access denied');
+        expect(bodyString).toContain('User does not have valid permission');
     });
 });
