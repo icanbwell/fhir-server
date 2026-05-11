@@ -51,7 +51,7 @@ const getCmsHeaders = (personId) => {
         clientFhirPatientId: `person.${personId}`,
         bwellFhirPatientId: `person.${personId}`,
         managingOrganization: organizationCms.id,
-        purposeOfUse: ['TREAT']
+        entitlements: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -69,7 +69,7 @@ const getInvalidCmsHeaders = (personId) => {
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
-        purposeOfUse: ['TREAT']
+        entitlements: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',

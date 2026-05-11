@@ -235,8 +235,8 @@ class AuthService {
             // accept user_type claim only when it is one of the allowed values
             if (!context.userType && this.allowedJWTUserTypes.includes(jwt_payload.user_type)) {
                 context.userType = jwt_payload.user_type;
-                if (Array.isArray(jwt_payload.purposeOfUse)) {
-                    context.purposeOfUse = jwt_payload.purposeOfUse.filter(c => typeof c === 'string');
+                if (Array.isArray(jwt_payload.entitlements)) {
+                    context.purposeOfUse = jwt_payload.entitlements.filter(c => typeof c === 'string');
                 }
             }
         }

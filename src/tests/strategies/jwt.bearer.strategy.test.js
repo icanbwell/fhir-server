@@ -1335,7 +1335,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
 
     test('sets purposeOfUse when claim is an array of strings', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', purposeOfUse: ['TREAT', 'HPAYMT'] };
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: ['TREAT', 'HPAYMT'] };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
@@ -1350,7 +1350,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
 
     test('filters non-string items out of purposeOfUse', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', purposeOfUse: ['TREAT', 42, null, 'HPAYMT'] };
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: ['TREAT', 42, null, 'HPAYMT'] };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
@@ -1380,7 +1380,7 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
 
     test('leaves purposeOfUse unset when claim is a string', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', purposeOfUse: 'TREAT' };
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: 'TREAT' };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,

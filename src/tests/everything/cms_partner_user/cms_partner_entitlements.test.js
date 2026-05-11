@@ -25,7 +25,7 @@ const buildCmsHeaders = ({ purposeOfUse } = {}) => {
         managingOrganization: 'bwell'
     };
     if (purposeOfUse !== undefined) {
-        payload.purposeOfUse = purposeOfUse;
+        payload.entitlements = purposeOfUse;
     }
     return {
         'Content-Type': 'application/fhir+json',
