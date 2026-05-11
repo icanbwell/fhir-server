@@ -1,10 +1,13 @@
 const person1Resource = require('./fixtures/person/person_1.json');
 const person2Resource = require('./fixtures/person/person_2.json');
+const person5Resource = require('./fixtures/person/person_5.json');
 
 const patient1Resource = require('./fixtures/patient/patient_1.json');
 const patient2Resource = require('./fixtures/patient/patient_2.json');
+const patient5Resource = require('./fixtures/patient/patient_5.json');
 
 const consent2Resource = require('./fixtures/consent/consent_2.json');
+const consent5Resource = require('./fixtures/consent/consent_5.json');
 
 const organizationCms = require('./fixtures/organization/organization_cms.json');
 
@@ -229,5 +232,71 @@ describe('CMS Data Sharing - consent reference on AuditEvent.agent.policy', () =
         const existingIds = new Set(auditLogsBeforeQuery.map((l) => l.id));
         const newLogs = (await getAuditEvents({ request })).filter((l) => !existingIds.has(l.id));
         expect(newLogs.length).toBe(0);
+    });
+
+    test('Patient search with multiple matching consents: audit agent[0].policy carries exactly one (latest) consent reference', async () => {
+        const request = await createTestRequest(registerRealAuditLogger);
+        const container = getTestContainer();
+        /** @type {PostRequestProcessor} */
+        const postRequestProcessor = container.postRequestProcessor;
+        /** @type {import('../../../utils/auditLogger').AuditLogger} */
+        const auditLogger = container.auditLogger;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send([
+                person1Resource,
+                person2Resource,
+                person5Resource,
+                patient1Resource,
+                patient2Resource,
+                patient5Resource,
+                consent2Resource,
+                consent5Resource,
+                organizationCms
+            ])
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        await postRequestProcessor.waitTillDoneAsync({ requestId });
+        await auditLogger.flushAsync();
+
+        const auditLogsBeforeQuery = await getAuditEvents({ request, action: 'R' });
+
+        resp = await request
+            .get('/4_0_0/Patient?_bundle=1&_count=100')
+            .set(getCmsHeaders(PERSON_ID_1));
+        expect(resp).toHaveStatusCode(200);
+
+        const returnedPatientIds = (resp.body.entry || [])
+            .map((e) => e.resource && e.resource.id)
+            .filter(Boolean);
+        expect(returnedPatientIds).toEqual(
+            expect.arrayContaining([
+                '08f1b73a-e27c-456d-8a61-277f164a9a57-2',
+                '08f1b73a-e27c-456d-8a61-277f164a9a57-5'
+            ])
+        );
+
+        await postRequestProcessor.waitTillDoneAsync({ requestId });
+        await auditLogger.flushAsync();
+
+        const existingIds = new Set(auditLogsBeforeQuery.map((l) => l.id));
+        const readLogs = (await getAuditEvents({ request, action: 'R' })).filter(
+            (l) => !existingIds.has(l.id)
+        );
+        expect(readLogs.length).toBeGreaterThanOrEqual(1);
+
+        const policies = new Set();
+        for (const log of readLogs) {
+            expect(Array.isArray(log.agent)).toBe(true);
+            expect(log.agent).toHaveLength(1);
+            expect(Array.isArray(log.agent[0].policy)).toBe(true);
+            expect(log.agent[0].policy).toHaveLength(1);
+            expect(log.agent[0].policy[0]).toMatch(CONSENT_POLICY_REGEX);
+            policies.add(log.agent[0].policy[0]);
+        }
+
+        expect(policies.size).toBe(1);
     });
 });
