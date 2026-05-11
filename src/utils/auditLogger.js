@@ -21,7 +21,7 @@ const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/audit
 const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { ConfigManager } = require('./configManager');
-const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES, ENTITLEMENT_CODE_SYSTEM } = require('../constants');
+const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES } = require('../constants');
 const mutex = new Mutex();
 
 class AuditLogger {
@@ -167,8 +167,8 @@ class AuditLogger {
             ];
         }
 
-        const purposeOfEvent = requestInfo.purposeOfEvent?.length
-            ? requestInfo.purposeOfEvent.map(code => new CodeableConcept({
+        const purposeOfEvent = requestInfo.purposeOfUse?.length
+            ? requestInfo.purposeOfUse.map(code => new CodeableConcept({
                 coding: [new Coding({ system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code })]
             }))
             : undefined;

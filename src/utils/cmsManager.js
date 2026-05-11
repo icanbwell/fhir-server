@@ -26,14 +26,14 @@ class CMSManager {
     }
 
     /**
-     * Validates CMS partner user's JWT entitlements claim against the env allowlist.
+     * Validates CMS partner user's JWT enititlements claim against the env allowlist.
      * Throws ForbiddenError on any failure; external message is uniform.
      * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
      * @private
      */
-    _verifyEntitlements(requestInfo) {
-        const allowed = this.configManager.cmsAllowedEntitlements;
-        const claim = requestInfo.purposeOfEvent;
+    _verifyPurposeOfUse(requestInfo) {
+        const allowed = this.configManager.cmsAllowedPurposeOfUse;
+        const claim = requestInfo.purposeOfUse;
 
         const rejected =
             allowed.size === 0 ||
@@ -43,10 +43,10 @@ class CMSManager {
 
         if (!rejected) return;
 
-        logWarn('CMS partner user entitlement rejected', {
+        logWarn('CMS partner user purposeOfUse rejected', {
             user: requestInfo.user,
             requestId: requestInfo.requestId,
-            args: { entitlements: claim }
+            args: { purposeOfUse: claim }
         });
         throw new ForbiddenError('User does not have valid permission');
     }
@@ -63,7 +63,7 @@ class CMSManager {
             return;
         }
 
-        this._verifyEntitlements(requestInfo);
+        this._verifyPurposeOfUse(requestInfo);
 
         const method = requestInfo.method?.toLowerCase();
         if (method && !CMS_PARTNER_ACCESS.ALLOWED_METHODS.includes(method)) {

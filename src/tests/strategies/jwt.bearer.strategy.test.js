@@ -1317,7 +1317,7 @@ describe('JWT Bearer Strategy', () => {
 
 });
 
-describe('AuthService.processUserInfo - entitlements claim parsing', () => {
+describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
     const makeAuthService = () => new AuthService({
         configManager: new ConfigManager(),
         wellKnownConfigurationManager: new WellKnownConfigurationManager({
@@ -1333,61 +1333,61 @@ describe('AuthService.processUserInfo - entitlements claim parsing', () => {
         bwellFhirPatientId: 'patient-1'
     });
 
-    test('sets purposeOfEvent when entitlements is an array of strings', (done) => {
+    test('sets purposeOfUse when claim is an array of strings', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(),user_type: 'cms-partner', entitlements: ['TREAT', 'HPAYMT'] };
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', purposeOfUse: ['TREAT', 'HPAYMT'] };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
             jwt_payload, client_id: 'c', scope: 'patient/*.read',
             done: (err, user, info) => {
                 expect(err).toBeNull();
-                expect(info.context.purposeOfEvent).toEqual(['TREAT', 'HPAYMT']);
+                expect(info.context.purposeOfUse).toEqual(['TREAT', 'HPAYMT']);
                 done();
             }
         });
     });
 
-    test('filters non-string items out of entitlements', (done) => {
+    test('filters non-string items out of purposeOfUse', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: ['TREAT', 42, null, 'HPAYMT'] };
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', purposeOfUse: ['TREAT', 42, null, 'HPAYMT'] };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
             jwt_payload, client_id: 'c', scope: 'patient/*.read',
             done: (err, user, info) => {
                 expect(err).toBeNull();
-                expect(info.context.purposeOfEvent).toEqual(['TREAT', 'HPAYMT']);
+                expect(info.context.purposeOfUse).toEqual(['TREAT', 'HPAYMT']);
                 done();
             }
         });
     });
 
-    test('leaves purposeOfEvent unset when entitlements claim is absent', (done) => {
+    test('leaves purposeOfUse unset when claim is absent', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = basePayload();
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner' };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
-            jwt_payload, client_id: 'c', user_type: 'cms-partner', scope: 'patient/*.read',
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
             done: (err, user, info) => {
                 expect(err).toBeNull();
-                expect(info.context.purposeOfEvent).toBeUndefined();
+                expect(info.context.purposeOfUse).toBeUndefined();
                 done();
             }
         });
     });
 
-    test('leaves purposeOfEvent unset when entitlements is a string', (done) => {
+    test('leaves purposeOfUse unset when claim is a string', (done) => {
         const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), entitlements: 'TREAT' };
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', purposeOfUse: 'TREAT' };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
-            jwt_payload, client_id: 'c', user_type: 'cms-partner', scope: 'patient/*.read',
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
             done: (err, user, info) => {
                 expect(err).toBeNull();
-                expect(info.context.purposeOfEvent).toBeUndefined();
+                expect(info.context.purposeOfUse).toBeUndefined();
                 done();
             }
         });

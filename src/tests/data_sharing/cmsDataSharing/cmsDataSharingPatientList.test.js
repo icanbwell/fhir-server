@@ -51,7 +51,7 @@ const getCmsHeaders = (personId) => {
         clientFhirPatientId: `person.${personId}`,
         bwellFhirPatientId: `person.${personId}`,
         managingOrganization: organizationCms.id,
-        entitlements: ['TREAT']
+        purposeOfUse: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -69,7 +69,7 @@ const getInvalidCmsHeaders = (personId) => {
         username: personId,
         clientFhirPersonId: personId,
         bwellFhirPersonId: personId,
-        entitlements: ['TREAT']
+        purposeOfUse: ['TREAT']
     });
     return {
         'Content-Type': 'application/fhir+json',
@@ -81,20 +81,20 @@ const getInvalidCmsHeaders = (personId) => {
 
 describe('CMS Data Sharing - Patient List with cms-partner', () => {
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
-    const originalAllowedEntitlements = process.env.CMS_ALLOWED_ENTITLEMENTS;
+    const originalAllowedPurposeOfUse = process.env.CMS_ALLOWED_PURPOSE_OF_USE;
 
     beforeEach(async () => {
-        process.env.CMS_ALLOWED_ENTITLEMENTS = 'TREAT,HPAYMT';
+        process.env.CMS_ALLOWED_PURPOSE_OF_USE = 'TREAT,HPAYMT';
         cursorSpy.mockReturnThis();
         await commonBeforeEach();
     });
 
     afterEach(async () => {
         await commonAfterEach();
-        if (originalAllowedEntitlements === undefined) {
-            delete process.env.CMS_ALLOWED_ENTITLEMENTS;
+        if (originalAllowedPurposeOfUse === undefined) {
+            delete process.env.CMS_ALLOWED_PURPOSE_OF_USE;
         } else {
-            process.env.CMS_ALLOWED_ENTITLEMENTS = originalAllowedEntitlements;
+            process.env.CMS_ALLOWED_PURPOSE_OF_USE = originalAllowedPurposeOfUse;
         }
     });
 
