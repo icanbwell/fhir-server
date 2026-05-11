@@ -41,7 +41,7 @@ const {incrementRequestCount, decrementRequestCount, getRequestCount} = require(
 
 function createAuthMiddleware(strategyName) {
     return (req, res, next) => {
-        passport.authenticate(strategyName, {session: false}, (err, user) => {
+        passport.authenticate(strategyName, {session: false}, (err, user, info) => {
             if (err || !user) {
                 return res.status(401).json({
                     resourceType: 'OperationOutcome',
@@ -52,8 +52,11 @@ function createAuthMiddleware(strategyName) {
                     }]
                 });
             }
-            req.user = user;
-            next();
+            req.logIn(user, {session: false}, (loginErr) => {
+                if (loginErr) { return next(loginErr); }
+                req.authInfo = info;
+                next();
+            });
         })(req, res, next);
     };
 }
