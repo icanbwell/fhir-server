@@ -27,6 +27,9 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 process.on('warning', (warning) => {
+    if (warning.code === 'DEP0040') {
+        return;
+    }
     logInfo(warning.message, {
         method: 'errorHandler.warning',
         name: warning.name,
