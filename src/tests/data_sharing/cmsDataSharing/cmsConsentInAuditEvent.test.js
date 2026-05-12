@@ -38,7 +38,8 @@ const getCmsHeaders = (personId) => {
         bwellFhirPersonId: personId,
         clientFhirPatientId: `person.${personId}`,
         bwellFhirPatientId: `person.${personId}`,
-        managingOrganization: organizationCms.id
+        managingOrganization: organizationCms.id,
+        entitlements: ["PATRQT"]
     });
     return {
         'Content-Type': 'application/fhir+json',

@@ -1396,3 +1396,50 @@ describe('JWT Bearer Strategy', () => {
     });
 
 });
+
+describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
+    const makeAuthService = () => new AuthService({
+        configManager: new ConfigManager(),
+        wellKnownConfigurationManager: new WellKnownConfigurationManager({
+            configManager: new ConfigManager()
+        })
+    });
+
+    const basePayload = () => ({
+        sub: 'user-123',
+        clientFhirPersonId: 'person-1',
+        clientFhirPatientId: 'patient-1',
+        bwellFhirPersonId: 'person-1',
+        bwellFhirPatientId: 'patient-1'
+    });
+
+    test('sets purposeOfUse when claim is an array of strings', (done) => {
+        const authService = makeAuthService();
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: ['TREAT', 'HPAYMT'] };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfUse).toEqual(['TREAT', 'HPAYMT']);
+                done();
+            }
+        });
+    });
+
+    test('leaves purposeOfUse unset when claim is absent', (done) => {
+        const authService = makeAuthService();
+        const jwt_payload = { ...basePayload(), user_type: 'cms-partner' };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.purposeOfUse).toBeUndefined();
+                done();
+            }
+        });
+    });
+});

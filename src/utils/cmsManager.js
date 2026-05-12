@@ -2,8 +2,20 @@ const { ForbiddenError, BadRequestError } = require('./httpErrors');
 const { AUTH_USER_TYPES, CMS_PARTNER_ACCESS, PERSON_PROXY_PREFIX } = require('../constants');
 const { ParsedArgs } = require('../operations/query/parsedArgs');
 const { FhirRequestInfo } = require('./fhirRequestInfo');
+const { logWarn } = require('../operations/common/logging');
 
 class CMSManager {
+    /**
+     * @param {Object} params
+     * @param {import('./configManager').ConfigManager} params.configManager
+     */
+    constructor({ configManager } = {}) {
+        /**
+         * @type {import('./configManager').ConfigManager}
+         */
+        this.configManager = configManager;
+    }
+
     /**
      * Returns whether the given request is from a CMS partner user
      * @param {FhirRequestInfo} requestInfo
@@ -11,6 +23,32 @@ class CMSManager {
      */
     isCmsPartnerUser(requestInfo) {
         return requestInfo?.userType === AUTH_USER_TYPES.cmsPartnerUser;
+    }
+
+    /**
+     * Validates CMS partner user's JWT enititlements claim against the env allowlist.
+     * Throws ForbiddenError on any failure; external message is uniform.
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @private
+     */
+    _verifyPurposeOfUse(requestInfo) {
+        const allowed = this.configManager.cmsAllowedPurposeOfUse;
+        const claim = requestInfo.purposeOfUse;
+
+        const rejected =
+            allowed.size === 0 ||
+            !Array.isArray(claim) ||
+            claim.length === 0 ||
+            claim.some(code => !allowed.has(code));
+
+        if (!rejected) return;
+
+        logWarn('CMS partner user purposeOfUse rejected', {
+            user: requestInfo.user,
+            requestId: requestInfo.requestId,
+            args: { purposeOfUse: claim }
+        });
+        throw new ForbiddenError('User does not have valid permission');
     }
 
     /**
@@ -24,6 +62,8 @@ class CMSManager {
         if (!this.isCmsPartnerUser(requestInfo)) {
             return;
         }
+
+        this._verifyPurposeOfUse(requestInfo);
 
         const method = requestInfo.method?.toLowerCase();
         if (method && !CMS_PARTNER_ACCESS.ALLOWED_METHODS.includes(method)) {

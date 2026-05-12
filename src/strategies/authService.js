@@ -237,6 +237,9 @@ class AuthService {
                 context.userType = jwt_payload.user_type;
                 // Initialized empty object to attach the consent policy
                 context.actor = {};
+                if (Array.isArray(jwt_payload.entitlements)) {
+                    context.purposeOfUse = jwt_payload.entitlements;
+                }
             }
         }
         if (context.userType) {

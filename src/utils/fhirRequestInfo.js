@@ -37,6 +37,7 @@ class FhirRequestInfo {
      * @param {string} params.method
      * @param {import('content-type').ContentType|null} params.contentTypeFromHeader
      * @param {JwtActor|null} [params.actor]
+     * @param {string[]|null} [params.purposeOfUse]
      */
     constructor (
         {
@@ -60,7 +61,8 @@ class FhirRequestInfo {
             method,
             contentTypeFromHeader,
             alternateUserId,
-            actor
+            actor,
+            purposeOfUse
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -150,6 +152,11 @@ class FhirRequestInfo {
          * @type {JwtActor|null}
          */
         this.actor = actor;
+
+        /**
+         * @type {string[]|null}
+         */
+        this.purposeOfUse = purposeOfUse ?? null;
 
         /**
          * whether the client wants to use global ids

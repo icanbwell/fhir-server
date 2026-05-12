@@ -999,6 +999,16 @@ class ConfigManager {
     }
 
     /**
+     * Allowlisted purposeOfUse codes parsed from CMS_ALLOWED_PURPOSE_OF_USE env var.
+     * @returns {Set<string>}
+     */
+    get cmsAllowedPurposeOfUse() {
+        return new Set(
+            this._parseCommaSeparatedList(env.CMS_ALLOWED_PURPOSE_OF_USE)
+        );
+    }
+
+    /**
      * return CACHE_EXPIRY_TIME
      * @returns {number}
      */

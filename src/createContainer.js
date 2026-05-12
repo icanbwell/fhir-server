@@ -316,7 +316,9 @@ const createContainer = function () {
     container.register('cmsConsentManager', (c) => new CmsConsentManager({
         databaseQueryFactory: c.databaseQueryFactory
     }));
-    container.register('cmsManager', () => new CMSManager());
+    container.register('cmsManager', (c) => new CMSManager({
+        configManager: c.configManager
+    }));
     container.register('delegatedAccessManager', () => new DelegatedAccessManager());
     container.register('resourceOperationAccessProvider', () => new ResourceOperationAccessProvider());
     container.register('accessManager', (c) => new OperationAccessManager({
