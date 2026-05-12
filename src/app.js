@@ -192,8 +192,8 @@ function createApp({fnGetContainer}) {
                     }).then(() => auditLogger.flushAsync()).catch((e) => {
                         logError('Error logging 401 audit event', { error: e.message });
                     });
-                } catch (_) {
-                    // must not disrupt the response lifecycle
+                } catch (e) {
+                    logError('Error building 401 audit event', { error: e.message });
                 }
             }
 

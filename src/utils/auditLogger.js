@@ -315,9 +315,11 @@ class AuditLogger {
             outcome,
             outcomeDesc: errorMessage,
             agent: agents,
-            source: whoReference
-                ? new AuditEventSource({ observer: whoReference })
-                : undefined,
+            source: new AuditEventSource({
+                observer: new Reference({
+                    reference: `Organization/${this.configManager.auditEventObserverOrganizationId}`
+                })
+            }),
             entity
         });
     }

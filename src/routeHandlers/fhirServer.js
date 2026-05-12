@@ -390,11 +390,15 @@ class MyFHIRServer {
             const auditLogger = this.container.auditLogger;
             const resourceType = req.resourceType || (req.url.split('/')[2])?.split('?')[0];
             const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
+            const errorMessage = err.message
+                || err.issue?.[0]?.diagnostics
+                || err.issue?.[0]?.details?.text
+                || 'Internal Server Error';
             auditLogger.logErrorAuditEntryAsync({
                 requestInfo,
                 resourceType: resourceType || null,
                 errorCode: status,
-                errorMessage: err.message || 'Internal Server Error'
+                errorMessage
             }).then(() => auditLogger.flushAsync()).catch((e) => {
                 logError('Error logging error audit event', { error: e.message });
             });
