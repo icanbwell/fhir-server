@@ -43,6 +43,9 @@ class DateTimeFormatter {
         if (!clickHouseDate) {
             return null;
         }
+        if (clickHouseDate.includes('T') && clickHouseDate.endsWith('Z')) {
+            return clickHouseDate;
+        }
         return clickHouseDate.replace(' ', 'T') + 'Z';
     }
 }
