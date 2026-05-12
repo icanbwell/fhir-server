@@ -12,13 +12,7 @@
           "type": "2",
           "address": "::ffff:127.0.0.1"
         },
-        "requestor": true,
-        "who": {
-          "_sourceAssigningAuthority": "bwell",
-          "_sourceId": "Person/imran",
-          "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-          "reference": "Person/imran"
-        }
+        "requestor": true
       }
     ],
     "entity": [
@@ -64,10 +58,10 @@
     "resourceType": "AuditEvent",
     "source": {
       "observer": {
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
         "_sourceAssigningAuthority": "bwell",
-        "_sourceId": "Person/imran",
-        "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-        "reference": "Person/imran"
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
       }
     },
     "type": {
@@ -90,13 +84,7 @@
           "type": "2",
           "address": "::ffff:127.0.0.1"
         },
-        "requestor": true,
-        "who": {
-          "_sourceAssigningAuthority": "bwell",
-          "_sourceId": "Person/imran",
-          "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-          "reference": "Person/imran"
-        }
+        "requestor": true
       }
     ],
     "entity": [
@@ -138,10 +126,10 @@
     "resourceType": "AuditEvent",
     "source": {
       "observer": {
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
         "_sourceAssigningAuthority": "bwell",
-        "_sourceId": "Person/imran",
-        "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-        "reference": "Person/imran"
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
       }
     },
     "type": {
@@ -164,13 +152,7 @@
           "type": "2",
           "address": "::ffff:127.0.0.1"
         },
-        "requestor": true,
-        "who": {
-          "_sourceAssigningAuthority": "bwell",
-          "_sourceId": "Person/imran",
-          "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-          "reference": "Person/imran"
-        }
+        "requestor": true
       }
     ],
     "entity": [
@@ -212,10 +194,10 @@
     "resourceType": "AuditEvent",
     "source": {
       "observer": {
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
         "_sourceAssigningAuthority": "bwell",
-        "_sourceId": "Person/imran",
-        "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
-        "reference": "Person/imran"
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
       }
     },
     "type": {

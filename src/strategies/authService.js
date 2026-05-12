@@ -235,6 +235,8 @@ class AuthService {
             // accept user_type claim only when it is one of the allowed values
             if (!context.userType && this.allowedJWTUserTypes.includes(jwt_payload.user_type)) {
                 context.userType = jwt_payload.user_type;
+                // Initialized empty object to attach the consent policy
+                context.actor = {};
                 if (Array.isArray(jwt_payload.entitlements)) {
                     context.purposeOfUse = jwt_payload.entitlements;
                 }

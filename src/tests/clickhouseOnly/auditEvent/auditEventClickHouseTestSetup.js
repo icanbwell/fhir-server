@@ -155,6 +155,7 @@ function makeAuditEvent (overrides = {}) {
     const entityWhatSourceId = overrides.entity_what_sourceId || entityWhat;
     const accessTags = overrides.access_tags || ['client-a'];
     const outcome = overrides.outcome || '0';
+    const lastUpdated = overrides.lastUpdated || undefined;
 
     return {
         id,
@@ -207,6 +208,7 @@ function makeAuditEvent (overrides = {}) {
                 observer: { reference: 'Organization/TestOrg' }
             },
             meta: {
+                ...(lastUpdated && { lastUpdated }),
                 security: [
                     { system: 'https://www.icanbwell.com/access', code: accessTags[0] || 'client-a' },
                     { system: 'https://www.icanbwell.com/owner', code: ownerCode }
@@ -222,7 +224,10 @@ async function insertRows (rows) {
     await sharedClickHouseManager.insertAsync({
         table: 'fhir.AuditEvent_4_0_0',
         values: rows,
-        format: 'JSONEachRow'
+        format: 'JSONEachRow',
+        clickhouse_settings: {
+            date_time_input_format: 'best_effort'
+        }
     });
 }
 

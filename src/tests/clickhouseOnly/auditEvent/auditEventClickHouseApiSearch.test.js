@@ -6,6 +6,7 @@ const {
     teardownAuditEventClickHouseTests,
     cleanupBetweenTests,
     getSharedRequest,
+    getClickHouseManager,
     getTestHeaders,
     getTestHeadersWithCustomPayload,
     makeAuditEvent,
@@ -542,6 +543,29 @@ describe('AuditEvent ClickHouse API search integration', () => {
 
             expect(resp).toHaveStatusCode(200);
             expect(resp).toHaveResourceCount(0);
+        });
+    });
+
+    describe('datetime output format', () => {
+        test('ClickHouse returns instant in ISO 8601 format', async () => {
+            const request = getSharedRequest();
+            await insertRows([
+                makeAuditEvent({
+                    id: 'ae-lastupdated-iso',
+                    recorded: `${YM}-15 10:30:45.123`,
+                    recordedISO: `${YM}-15T10:30:45.123Z`,
+                    lastUpdated: `${YM}-15T10:30:45.123Z`
+                })
+            ]);
+
+            const resp = await request
+                .get(`/4_0_0/AuditEvent/ae-lastupdated-iso/?date=gt${YM}-01&date=lt${YM}-28`)
+                .set(getTestHeaders());
+
+            expect(resp).toHaveStatusCode(200);
+            expect(resp.body.recorded).toBe(`${YM}-15T10:30:45.123000000Z`)
+            expect(resp.body.meta).toBeDefined();
+            expect(resp.body.meta.lastUpdated).toBe(`${YM}-15T10:30:45.123000000Z`);
         });
     });
 

@@ -6,7 +6,6 @@ const CLICKHOUSE_IMAGE = 'clickhouse/clickhouse-server:25.12.1';
 const SCHEMA_FILES = [
     '01-init-schema.sql',
     '02-audit-event.sql',
-    '03-audit-event-migration-state.sql',
     '04-access-log.sql'
 ];
 

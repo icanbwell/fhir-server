@@ -37,18 +37,13 @@ describe('AuditEventClickHouseWriter', () => {
         expect(insertedRows[1]._uuid).toBe('audit-uuid-002');
     });
 
-    test('skips malformed documents and inserts valid ones', async () => {
+    test('surfaces transformer failure for a batch containing a malformed doc', async () => {
         const validDoc = deepcopy(auditEventSample);
         const malformedDoc = deepcopy(auditEventSample);
-        delete malformedDoc._uuid; // transformer returns null for missing _uuid
+        delete malformedDoc.recorded; // toClickHouseDateTime will throw
 
-        const result = await writer.writeBatchAsync([malformedDoc, validDoc]);
-
-        expect(result.inserted).toBe(1);
-        expect(result.skipped).toBe(1);
-        expect(mockRepository.insertBatchAsync).toHaveBeenCalledTimes(1);
-        const insertedRows = mockRepository.insertBatchAsync.mock.calls[0][0];
-        expect(insertedRows).toHaveLength(1);
+        await expect(writer.writeBatchAsync([malformedDoc, validDoc])).rejects.toThrow();
+        expect(mockRepository.insertBatchAsync).not.toHaveBeenCalled();
     });
 
     test('returns zeros for empty input', async () => {
@@ -67,16 +62,13 @@ describe('AuditEventClickHouseWriter', () => {
         expect(mockRepository.insertBatchAsync).not.toHaveBeenCalled();
     });
 
-    test('returns zeros when all documents are malformed', async () => {
+    test('throws when every document in the batch is malformed', async () => {
         const doc1 = deepcopy(auditEventSample);
         const doc2 = deepcopy(auditEventSample);
-        delete doc1._uuid;
-        delete doc2._uuid;
+        delete doc1.recorded;
+        delete doc2.recorded;
 
-        const result = await writer.writeBatchAsync([doc1, doc2]);
-
-        expect(result.inserted).toBe(0);
-        expect(result.skipped).toBe(2);
+        await expect(writer.writeBatchAsync([doc1, doc2])).rejects.toThrow();
         expect(mockRepository.insertBatchAsync).not.toHaveBeenCalled();
     });
 

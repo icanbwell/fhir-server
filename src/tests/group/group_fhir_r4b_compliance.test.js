@@ -124,9 +124,8 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         });
 
         expect(events.length).toBeGreaterThan(0);
-        // ClickHouse returns dates in format "YYYY-MM-DD HH:MM:SS.mmm" not ISO 8601
-        expect(events[0].period_start).toBe('2024-01-01 00:00:00.000');
-        expect(events[0].period_end).toBe('2024-12-31 23:59:59.000');
+        expect(events[0].period_start).toBe('2024-01-01T00:00:00.000Z');
+        expect(events[0].period_end).toBe('2024-12-31T23:59:59.000Z');
 
         // Note: With ClickHouse storage, GET strips member array from response
         // Primary verification is ClickHouse data above

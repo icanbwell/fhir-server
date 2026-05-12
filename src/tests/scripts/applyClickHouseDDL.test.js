@@ -20,7 +20,6 @@ const EXPECTED_TABLES = [
     'Group_4_0_0_MemberCurrent',
     'Group_4_0_0_MemberCurrentByEntity',
     'AuditEvent_4_0_0',
-    'audit_event_migration_state',
     'AccessLog'
 ];
 
@@ -114,11 +113,11 @@ describe('applyClickHouseDDL admin runner', () => {
             const runner = makeRunner({
                 clickHouseClientManager: freshManager,
                 mongoDatabaseManager,
-                file: path.join(DDL_DIR, '03-audit-event-migration-state.sql')
+                file: path.join(DDL_DIR, '04-access-log.sql')
             });
             await runner.processAsync();
 
-            expect(await freshManager.tableExistsAsync('audit_event_migration_state')).toBe(true);
+            expect(await freshManager.tableExistsAsync('AccessLog')).toBe(true);
             expect(await freshManager.tableExistsAsync('Group_4_0_0_MemberEvents')).toBe(false);
             expect(await freshManager.tableExistsAsync('AuditEvent_4_0_0')).toBe(false);
         } finally {

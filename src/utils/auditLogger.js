@@ -104,21 +104,15 @@ class AuditLogger {
         const isUser = Boolean(requestInfo?.isUser);
 
         /**
-         * @type {string}
-         */
-        let patientOrPersonReference;
-        /**
          * @type {string|null}
          */
         const alternateId = requestInfo.alternateUserId;
 
-        if (isUser) {
-            patientOrPersonReference = `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}`;
-        } else {
-            patientOrPersonReference = `Person/${requestInfo.user}`;
-        }
-
         const hasDelegatedActor = requestInfo.userType === AUTH_USER_TYPES.delegatedUser;
+
+        const whoReference = isUser
+            ? new Reference({ reference: `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}` })
+            : undefined;
 
         /**
          * @type {AuditEventAgent[]}
@@ -129,9 +123,7 @@ class AuditLogger {
             const consentPolicy = requestInfo.actor.consentPolicy;
             agents = [
                 new AuditEventAgent({
-                    who: new Reference({
-                        reference: patientOrPersonReference
-                    }),
+                    who: whoReference,
                     altId: alternateId,
                     requestor: false,
                     network: new AuditEventNetwork({
@@ -152,13 +144,13 @@ class AuditLogger {
                 })
             ];
         } else {
+            const consentPolicy = requestInfo.actor?.consentPolicy;
             agents = [
                 new AuditEventAgent({
-                    who: new Reference({
-                        reference: patientOrPersonReference
-                    }),
+                    who: whoReference,
                     altId: alternateId,
                     requestor: true,
+                    policy: consentPolicy ? [consentPolicy] : undefined,
                     network: new AuditEventNetwork({
                         address: requestInfo.remoteIpAddress,
                         type: '2'
@@ -197,12 +189,10 @@ class AuditLogger {
             }),
             agent: agents,
             source: new AuditEventSource({
-                observer: new Reference(
-                    {
-                        reference: patientOrPersonReference
-                    }
-                )
-            }),
+                    observer: new Reference({
+                        reference: `Organization/${this.configManager.auditEventObserverOrganizationId}`
+                    })
+                }),
             action: operationCodeMapping[`${operation}`],
             entity: ids.map((resourceId, index) => {
                 return new AuditEventEntity({
