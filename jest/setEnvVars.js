@@ -30,6 +30,7 @@ process.env.LOGLEVEL = 'SILENT';
 process.env.GRIDFS_RESOURCES = 'DocumentReference';
 process.env.REQUIRED_AUDIT_EVENT_FILTERS = 'date';
 process.env.AUDIT_EVENT_MAX_RANGE_PERIOD = '240';
+process.env.AUDIT_EVENT_OBSERVER_ORGANIZATION_ID = 'a9d49577-939a-47ec-be51-e9bb214d4a48';
 process.env.KAFKA_SASL_USERNAME = 'msk_user_dev_ue1';
 process.env.KAFKA_SASL_PASSWORD = 'foo;ar';
 process.env.KAFKA_MAX_RETRY = '3';

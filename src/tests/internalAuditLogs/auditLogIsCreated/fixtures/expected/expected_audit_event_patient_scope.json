@@ -45,10 +45,10 @@
     ],
     "source": {
         "observer": {
-            "reference": "Patient/person.person1",
+            "reference": "Organization/a9d49577-939a-47ec-be51-e9bb214d4a48",
             "_sourceAssigningAuthority": "bwell",
-            "_uuid": "Patient/fa7cb5b3-b6fd-5996-9674-5291f076dca5",
-            "_sourceId": "Patient/person.person1"
+            "_uuid": "Organization/a9d49577-939a-47ec-be51-e9bb214d4a48",
+            "_sourceId": "Organization/a9d49577-939a-47ec-be51-e9bb214d4a48"
         }
     },
     "entity": [

@@ -179,9 +179,12 @@ class AuditLogger {
                 display: 'Query'
             }),
             agent: agents,
-            // TODO: Observer Will be set as Bwell org under Ticket DCON-3483
-            source: whoReference
-                ? new AuditEventSource({ observer: whoReference })
+            source: this.configManager.auditEventObserverOrganizationId
+                ? new AuditEventSource({
+                    observer: new Reference({
+                        reference: `Organization/${this.configManager.auditEventObserverOrganizationId}`
+                    })
+                })
                 : undefined,
             action: operationCodeMapping[`${operation}`],
             entity: ids.map((resourceId, index) => {
