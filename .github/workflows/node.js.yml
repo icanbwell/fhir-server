@@ -22,15 +22,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24.14.0
+      - name: Enable Corepack
+        run: corepack enable
       - run: | # retry since mongo memory server fails to download sometimes
           yarn install || yarn install
-      - run: npm run build --if-present
       - name: lint
         run: |
-          npm run lint
+          yarn run lint
       - name: Check GraphQL SDL snapshots
         run: |
-          node generatorScripts/generateGraphqlSdl.js --check
+          yarn node generatorScripts/generateGraphqlSdl.js --check
   build:
     runs-on: ubuntu-latest
     name: test (chunk ${{ matrix.chunk }})
@@ -44,12 +45,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24.14.0
+      - name: Enable Corepack
+        run: corepack enable
       - run: | # retry since mongo memory server fails to download sometimes
           yarn install || yarn install
-      - run: npm run build --if-present
       - name: jest
         run: |
-          export NODE_OPTIONS="--max-old-space-size=8192"
-          NODE_OPTIONS=--max-old-space-size=8192 node --max-old-space-size=8192 ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          yarn jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           NODE_OPTIONS: "--max-old-space-size=10240"

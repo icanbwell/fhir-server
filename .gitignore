@@ -1,6 +1,16 @@
 # Dependencies
 node_modules
 
+# Yarn 4 PnP
+.yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
 # Generated files
 *.log
 .DS_Store

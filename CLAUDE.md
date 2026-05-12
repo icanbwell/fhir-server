@@ -9,26 +9,26 @@ R4-compliant FHIR server built with Express.js, MongoDB, and an IoC container pa
 ## Essential Commands
 
 ```bash
-# Install dependencies (uses Yarn)
-nvm use && yarn install
+# Install dependencies (Yarn 4 with PnP — no node_modules)
+nvm use && corepack enable && yarn install
 
 # Run all tests (lint + jest)
 make tests
 
 # Run a single test file
-nvm use && node node_modules/.bin/jest path/to/test.js
+nvm use && yarn jest path/to/test.js
 
 # Run a specific test by name
-nvm use && node node_modules/.bin/jest path/to/test.js -t "test name"
+nvm use && yarn jest path/to/test.js -t "test name"
 
 # Lint
 make lint
 
 # Fix lint
-npm run fix_lint
+yarn run fix_lint
 
 # Format code
-npm run prettier-fix
+yarn run prettier-fix
 
 # Bring up full local stack (MongoDB, Keycloak, Redis, Kafka, ClickHouse)
 make up
@@ -95,5 +95,7 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 - Logging via Winston: use `logInfo`, `logDebug`, `logError`, `logWarn` from `src/operations/common/logging.js`
 
 ## Package Management
+
+Uses Yarn 4 with Plug'n'Play (PnP). There is no `node_modules/` directory — packages are resolved from zip archives via `.pnp.cjs`. All `require()`d packages must be explicit in `package.json` (no phantom dependencies from hoisting).
 
 Edit `package.json` then run `make update` to regenerate `yarn.lock`. Some packages (Sentry, OpenTelemetry) are version-locked due to compatibility issues -- test thoroughly before updating.

@@ -100,18 +100,18 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --startFromCollection Person_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --collections=all --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --useTransaction
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --preLoadCollections=Patient_4_0_0 --batchSize=10000 --useTransaction
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --useTransaction --startFromId=123
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --useTransaction --skip 200000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --limit 10
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --after 2021-12-31
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --before 2021-12-31
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --oldSourceAssigningAuthority=client --newSourceAssigningAuthority=new_client
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --startFromCollection Person_4_0_0
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --collections=all --batchSize=10000
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --useTransaction
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --preLoadCollections=Patient_4_0_0 --batchSize=10000 --useTransaction
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --useTransaction --startFromId=123
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --useTransaction --skip 200000
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --limit 10
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --after 2021-12-31
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --before 2021-12-31
+ * yarn node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --oldSourceAssigningAuthority=client --newSourceAssigningAuthority=new_client
  */
 main().catch(reason => {
     console.error(reason);

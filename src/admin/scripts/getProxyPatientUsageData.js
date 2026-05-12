@@ -57,10 +57,10 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/getProxyPatientUsageData.js
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --csvFileName proxyPatientUsage.csv
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --collections Observation_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --batchSize 1000
+ * yarn node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js
+ * yarn node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --csvFileName proxyPatientUsage.csv
+ * yarn node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --collections Observation_4_0_0
+ * yarn node --max-old-space-size=8192 src/admin/scripts/getProxyPatientUsageData.js --batchSize 1000
  */
 main().catch(reason => {
     console.error(reason);

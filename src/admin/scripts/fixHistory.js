@@ -66,9 +66,9 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/fixHistory.js --collections=Practitioner_4_0_0_History --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixHistory.js --collections=all --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixHistory.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixHistory.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0 --skipIfResourcePresent
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixHistory.js --collections=all --batchSize=10000
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixHistory.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixHistory.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0 --skipIfResourcePresent
  * node src/admin/scripts/fixHistory.js --collections=Account_4_0_0_History --batchSize=10000
  */
 main().catch(reason => {
