@@ -58,10 +58,10 @@
     "resourceType": "AuditEvent",
     "source": {
       "observer": {
-        "reference": "Organization/a9d49577-939a-47ec-be51-e9bb214d4a48",
+        "reference": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
         "_sourceAssigningAuthority": "bwell",
-        "_uuid": "Organization/a9d49577-939a-47ec-be51-e9bb214d4a48",
-        "_sourceId": "Organization/a9d49577-939a-47ec-be51-e9bb214d4a48"
+        "_uuid": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661",
+        "_sourceId": "Organization/ecce70a8-f5ff-5562-b28f-dbbc0f543661"
       }
     },
     "type": {

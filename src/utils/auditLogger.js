@@ -179,13 +179,11 @@ class AuditLogger {
                 display: 'Query'
             }),
             agent: agents,
-            source: this.configManager.auditEventObserverOrganizationId
-                ? new AuditEventSource({
+            source: new AuditEventSource({
                     observer: new Reference({
                         reference: `Organization/${this.configManager.auditEventObserverOrganizationId}`
                     })
-                })
-                : undefined,
+                }),
             action: operationCodeMapping[`${operation}`],
             entity: ids.map((resourceId, index) => {
                 return new AuditEventEntity({
