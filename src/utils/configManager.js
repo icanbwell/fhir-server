@@ -616,6 +616,14 @@ class ConfigManager {
     }
 
     /**
+     * returns the UUID of the organization used for AuditEvent.source.observer
+     * @returns {string}
+     */
+    get auditEventObserverOrganizationId() {
+        return env.AUDIT_EVENT_OBSERVER_ORGANIZATION_ID || "ecce70a8-f5ff-5562-b28f-dbbc0f543661";
+    }
+
+    /**
      * whether to rewrite patient references to proxy-patient reference
      */
     get rewritePatientReference() {
