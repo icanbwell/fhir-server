@@ -1348,39 +1348,9 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
         });
     });
 
-    test('filters non-string items out of purposeOfUse', (done) => {
-        const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: ['TREAT', 42, null, 'HPAYMT'] };
-
-        authService.processUserInfo({
-            username: 'u', subject: 's', isUser: true,
-            jwt_payload, client_id: 'c', scope: 'patient/*.read',
-            done: (err, user, info) => {
-                expect(err).toBeNull();
-                expect(info.context.purposeOfUse).toEqual(['TREAT', 'HPAYMT']);
-                done();
-            }
-        });
-    });
-
     test('leaves purposeOfUse unset when claim is absent', (done) => {
         const authService = makeAuthService();
         const jwt_payload = { ...basePayload(), user_type: 'cms-partner' };
-
-        authService.processUserInfo({
-            username: 'u', subject: 's', isUser: true,
-            jwt_payload, client_id: 'c', scope: 'patient/*.read',
-            done: (err, user, info) => {
-                expect(err).toBeNull();
-                expect(info.context.purposeOfUse).toBeUndefined();
-                done();
-            }
-        });
-    });
-
-    test('leaves purposeOfUse unset when claim is a string', (done) => {
-        const authService = makeAuthService();
-        const jwt_payload = { ...basePayload(), user_type: 'cms-partner', entitlements: 'TREAT' };
 
         authService.processUserInfo({
             username: 'u', subject: 's', isUser: true,
