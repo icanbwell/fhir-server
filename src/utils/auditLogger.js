@@ -143,11 +143,13 @@ class AuditLogger {
                 })
             ];
         } else {
+            const consentPolicy = requestInfo.actor?.consentPolicy;
             agents = [
                 new AuditEventAgent({
                     who: whoReference,
                     altId: alternateId,
                     requestor: true,
+                    policy: consentPolicy ? [consentPolicy] : undefined,
                     network: new AuditEventNetwork({
                         address: requestInfo.remoteIpAddress,
                         type: '2'
