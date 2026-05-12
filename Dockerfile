@@ -35,9 +35,9 @@ COPY --chown=node:node package.json yarn.lock .yarnrc.yml ./
 COPY --chown=node:node k8s-start.sh /srv/src/k8s-start.sh
 
 # Copy PnP artifacts from multi-stage build
-COPY --from=build /srv/src/.pnp.cjs /srv/src/.pnp.cjs
-COPY --from=build /srv/src/.pnp.loader.mjs /srv/src/.pnp.loader.mjs
-COPY --from=build /srv/src/.yarn /srv/src/.yarn
+COPY --from=build --chown=node:node /srv/src/.pnp.cjs /srv/src/.pnp.cjs
+COPY --from=build --chown=node:node /srv/src/.pnp.loader.mjs /srv/src/.pnp.loader.mjs
+COPY --from=build --chown=node:node /srv/src/.yarn /srv/src/.yarn
 
 # Copy the remaining application code.
 COPY --chown=node:node . /srv/src

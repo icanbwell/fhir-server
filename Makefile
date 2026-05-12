@@ -1,3 +1,5 @@
+ACTIVATE_NODE = . ${NVM_DIR}/nvm.sh && nvm use && corepack enable
+
 .PHONY:build
 build:
 	docker buildx build -t imranq2/node-fhir-server-mongo:local .
@@ -88,70 +90,69 @@ init:
 
 .PHONY:update
 update:down
-	. ${NVM_DIR}/nvm.sh && nvm use && \
-	corepack enable && \
+	$(ACTIVATE_NODE) && \
 	yarn install
 
 # https://www.npmjs.com/package/npm-check-updates
 .PHONY:upgrade_packages
 upgrade_packages:down
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn install && \
 	yarn dlx npm-check-updates -u --reject @sentry/node
 
 .PHONY:tests
 tests:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run test
 
 .PHONY:test_shards
 test_shards:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run test_shards
 
 .PHONY:coverage
 coverage:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run coverage
 
 .PHONY:failed_tests
 failed_tests:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run test:failed
 
 .PHONY:specific_tests
 specific_tests:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run test:specific
 
 .PHONY:tests_integration
 tests_integration:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run test:integration
 
 .PHONY:tests_everything
 tests_everything:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run test:everything
 
 .PHONY:tests_graphql
 tests_graphql:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run test:graphql
 
 .PHONY:tests_search
 tests_search:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run test:search
 
 .PHONY:lint
 lint:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run lint
 
 .PHONY:fix-lint
 fix-lint:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn run fix_lint && \
 	yarn run lint
 
@@ -179,31 +180,31 @@ run-pre-commit: setup-pre-commit
 
 .PHONY:graphql
 graphql:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/graphql/generate_graphql_classes.py" && \
 	yarn graphql-schema-linter src/graphql/**/*.graphql && \
 	yarn eslint --fix "src/graphql/**/*.js"
 
 .PHONY:graphqlv2
 graphqlv2:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/graphqlv2/generate_graphqlv2_classes.py" && \
 	yarn graphql-schema-linter src/graphqlv2/**/*.graphql && \
 	yarn eslint --fix "src/graphqlv2/**/*.js"
 
 .PHONY:graphql-sdl
 graphql-sdl:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn node generatorScripts/generateGraphqlSdl.js
 
 .PHONY:check-graphql-sdl
 check-graphql-sdl:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	yarn node generatorScripts/generateGraphqlSdl.js --check
 
 .PHONY:classes
 classes:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/classes/generate_classes.py && python3 generatorScripts/classes/generate_classes_index.py" && \
 	yarn eslint --fix "src/fhir/classes/**/*.js"
 
@@ -215,24 +216,24 @@ searchParameters:
 
 .PHONY:fastSerializers
 fastSerializers:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/fastSerializers/generate_serializers.py && python3 generatorScripts/fastSerializers/generate_classes_serializer_index.py" && \
 	yarn eslint --fix "src/fhir/serializers/4_0_0/**/*.js"
 
 .PHONY:attachmentFields
 attachmentFields:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/generate_attachment_fields.py"
 
 .PHONY:serializers
 serializers:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+	$(ACTIVATE_NODE) && \
 	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/,target=/app python:3.12-alpine sh -c "pip install lxml jinja2 && cd app && python3 generatorScripts/serializers/generate_fast_serializers.py" && \
 	yarn eslint --fix "src/fhir/writeSerializers/4_0_0/**/*.js"
 
-.PHONY:audit_fix
-audit_fix:
-	. ${NVM_DIR}/nvm.sh && nvm use && \
+.PHONY:audit
+audit:
+	$(ACTIVATE_NODE) && \
 	yarn npm audit
 
 .PHONY:qodana

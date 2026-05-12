@@ -54,15 +54,18 @@ This project uses **Yarn 4** with [Plug'n'Play (PnP)](https://yarnpkg.com/featur
 
 PnP requires editor configuration for Go to Definition, IntelliSense, and linting to work with packages stored in zip archives.
 
-1. **Install the [ZipFS extension](https://marketplace.visualstudio.com/items?itemName=arcanis.vscode-zipfs)** — allows VS Code to open source files inside zip archives (this is recommended in `.vscode/extensions.json` and VS Code will prompt on first open)
+1. **Install the [ZipFS extension](https://marketplace.visualstudio.com/items?itemName=arcanis.vscode-zipfs)** — allows VS Code to open source files inside zip archives
 
-2. **Select the workspace TypeScript version:**
+2. **Generate the editor SDK** (one-time setup):
+   ```bash
+   yarn dlx @yarnpkg/sdks vscode
+   ```
+
+3. **Select the workspace TypeScript version:**
    - Open any `.js` or `.ts` file
    - `Cmd+Shift+P` → "TypeScript: Select TypeScript Version" → "Use Workspace Version"
 
-3. **Reload the window:** `Cmd+Shift+P` → "Developer: Reload Window"
-
-The SDK configuration in `.yarn/sdks/` and `.vscode/settings.json` is already committed — no additional manual configuration beyond the above steps.
+4. **Reload the window:** `Cmd+Shift+P` → "Developer: Reload Window"
 
 #### Other Editors
 
