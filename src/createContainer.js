@@ -1234,7 +1234,10 @@ const createContainer = function () {
         return new MyJwtStrategy(
             {
                 authService: c.authService,
-                configManager: c.configManager
+                configManager: c.configManager,
+                options: {
+                    clockTolerance: 10
+                }
             }
         );
     });
