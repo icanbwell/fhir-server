@@ -118,10 +118,6 @@ const buildConsentFixture = ({
 });
 
 describe('DataSharingManager.updateQueryConsideringCmsDataSharing — actor.consentPolicy stamping', () => {
-    // The in-memory mongo does not have CONSENT_OF_LINKED_PERSON_INDEX defined,
-    // so the .hint(...) call the consent manager makes would otherwise throw.
-    // Mirrors the pattern used in cmsDataSharingPatientList.test.js and
-    // cmsConsentManager.test.js.
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
     beforeEach(async () => {
@@ -181,7 +177,6 @@ describe('DataSharingManager.updateQueryConsideringCmsDataSharing — actor.cons
         });
 
         expect(actor.consentPolicy).toBeUndefined();
-        // Regression guard: no consent -> short-circuit query.
         expect(resultQuery).toEqual({ id: '__invalid__' });
     });
 
