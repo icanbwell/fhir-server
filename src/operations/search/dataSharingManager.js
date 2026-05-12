@@ -290,19 +290,21 @@ class DataSharingManager {
                 }))
         });
 
-        const { allowedPatientIds, latestConsent } = await this.cmsConsentManager.getPatientIdsWithConsent(
+        const patientIdsWithConsent = await this.cmsConsentManager.getPatientIdsWithConsent(
             patientReferenceToPersonUuid
         );
 
-        if (latestConsent && actor) {
-            actor.consentPolicy = `Consent/${latestConsent._uuid}?version=${latestConsent.versionId}`;
-        }
-
-        if (allowedPatientIds.size === 0) {
+        if (patientIdsWithConsent.size === 0) {
             return { id: '__invalid__' };
         }
 
-        const uuidFilter = { _uuid: { $in: Array.from(allowedPatientIds) } };
+        if (actor) {
+            const [latestConsent] = Array.from(patientIdsWithConsent.values())
+                .sort((a, b) => b.updatedAt - a.updatedAt);
+            actor.consentPolicy = `Consent/${latestConsent._uuid}?version=${latestConsent.versionId}`;
+        }
+
+        const uuidFilter = { _uuid: { $in: Array.from(patientIdsWithConsent.keys()) } };
 
         if (query.$and && query.$and.length > 0) {
             query.$and.push(uuidFilter);

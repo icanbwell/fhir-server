@@ -70,8 +70,9 @@ class CmsConsentManager {
     }
 
     /**
-     * Filter patients having consent.
+     * For each patient that has consent, return the latest consent covering that patient.
      * @param {{[key: string]: string[]}} patientIdToImmediatePersonUuid patient id to immediate person map
+     * @returns {Promise<Map<string, { _uuid: string, versionId: string, updatedAt: number }>>} patient id -> latest consent
      */
     async getPatientIdsWithConsent(patientIdToImmediatePersonUuid) {
         /**
@@ -97,23 +98,15 @@ class CmsConsentManager {
         const consentResources = await this.getConsentResources(proxyPatientRefs);
 
         /**
-         * Patient IDs that have consent to cms data sharing
-         * @type {Set<string>}
+         * Patient UUID -> latest consent pointer for that patient.
+         * `updatedAt` is stored on the same entry so "is this newer?" can be answered without a parallel map.
+         * @type {Map<string, { _uuid: string, versionId: string, updatedAt: number }>}
          */
-        const allowedPatientIds = new Set();
-
-        /**
-         * @type {{ _uuid: string, versionId: string } | null}
-         */
-        let latestConsent = null;
-        /**
-         * @type {number | null}
-         */
-        let latestConsentUpdatedAt = null;
+        const patientIdToLatestConsent = new Map();
 
         for (const consent of consentResources) {
             const proxyPatientRef = consent.patient?._uuid;
-            if (!proxyPatientRef) {
+            if (!proxyPatientRef || !consent._uuid || !consent.meta?.versionId) {
                 continue;
             }
 
@@ -121,22 +114,24 @@ class CmsConsentManager {
             const personUuid = proxyPatientId.replace(PERSON_PROXY_PREFIX, '');
             const patientIds = personToPatientIds.get(personUuid);
 
-            if (patientIds) {
-                patientIds.forEach((patientId) => allowedPatientIds.add(patientId));
-                if (consent._uuid && consent.meta?.versionId) {
-                    const updatedAt = new Date(consent.meta.lastUpdated).getTime();
-                    if (latestConsentUpdatedAt === null || updatedAt > latestConsentUpdatedAt) {
-                        latestConsent = {
-                            _uuid: consent._uuid,
-                            versionId: consent.meta.versionId
-                        };
-                        latestConsentUpdatedAt = updatedAt;
-                    }
+            if (!patientIds) {
+                continue;
+            }
+
+            const updatedAt = new Date(consent.meta.lastUpdated).getTime();
+            for (const patientId of patientIds) {
+                const previous = patientIdToLatestConsent.get(patientId);
+                if (!previous || updatedAt > previous.updatedAt) {
+                    patientIdToLatestConsent.set(patientId, {
+                        _uuid: consent._uuid,
+                        versionId: consent.meta.versionId,
+                        updatedAt
+                    });
                 }
             }
         }
 
-        return { allowedPatientIds, latestConsent };
+        return patientIdToLatestConsent;
     }
 }
 
