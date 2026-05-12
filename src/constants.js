@@ -216,6 +216,7 @@ module.exports = {
         SYSTEM: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
         CODE: 'R'
     },
+    PURPOSE_OF_USE_SYSTEM: 'http://terminology.hl7.org/CodeSystem/v3-ActReason',
     RESOURCE_HIDDEN_TAG: {
         SYSTEM: 'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior',
         CODE: 'hidden'

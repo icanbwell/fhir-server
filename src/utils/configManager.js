@@ -996,7 +996,7 @@ class ConfigManager {
      */
     get cmsAllowedPurposeOfUse() {
         return new Set(
-            this._parseCommaSeparatedList(env.CMS_ALLOWED_PURPOSE_OF_USE).filter(Boolean)
+            this._parseCommaSeparatedList(env.CMS_ALLOWED_PURPOSE_OF_USE)
         );
     }
 
