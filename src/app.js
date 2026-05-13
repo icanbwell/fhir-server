@@ -39,28 +39,6 @@ const {shouldReturnHtml} = require('./utils/requestHelpers.js');
 const {generateLogDetail} = require('./utils/requestCompletionLogData.js');
 const {incrementRequestCount, decrementRequestCount, getRequestCount} = require('./utils/requestCounter');
 
-function createAuthMiddleware(strategyName) {
-    return (req, res, next) => {
-        passport.authenticate(strategyName, {session: false}, (err, user, info) => {
-            if (err || !user) {
-                return res.status(401).json({
-                    resourceType: 'OperationOutcome',
-                    issue: [{
-                        severity: 'error',
-                        code: 'security',
-                        diagnostics: 'Authentication failed'
-                    }]
-                });
-            }
-            req.logIn(user, {session: false}, (loginErr) => {
-                if (loginErr) { return next(loginErr); }
-                req.authInfo = info;
-                next();
-            });
-        })(req, res, next);
-    };
-}
-
 /**
  * Creates the FHIR app
  * @param {function (): SimpleContainer} fnGetContainer
@@ -371,7 +349,7 @@ function createApp({fnGetContainer}) {
     const adminRouter = express.Router({mergeParams: true});
     // Add authentication
     adminRouter.use(passport.initialize());
-    adminRouter.use(createAuthMiddleware('adminStrategy'));
+    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
     adminRouter.get('{/:op}{/:id}', (req, res) => handleAdminGet(fnGetContainer, req, res));
@@ -401,7 +379,7 @@ function createApp({fnGetContainer}) {
 
         const router = express.Router();
         router.use(passport.initialize());
-        router.use(createAuthMiddleware('graphqlStrategy'));
+        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
         router.use(forbidRestrictedUserTypes);
         router.use(cors(fhirServerConfig.server.corsOptions));
         router.use(express.json());
@@ -435,7 +413,7 @@ function createApp({fnGetContainer}) {
 
         const routerv2 = express.Router();
         routerv2.use(passport.initialize());
-        routerv2.use(createAuthMiddleware('graphqlStrategy'));
+        routerv2.use(passport.authenticate('graphqlStrategy', {session: false}, null));
         routerv2.use(forbidRestrictedUserTypes);
         routerv2.use(cors(fhirServerConfig.server.corsOptions));
         routerv2.use(express.json());
