@@ -16,6 +16,7 @@ const passport = require('passport');
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
 const validateContentTypeMiddleware = require('./middleware/contentType-validation.middleware.js')
+const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.middleware.js');
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {AUTH_USER_TYPES} = require('./constants');
 const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
@@ -349,7 +350,7 @@ function createApp({fnGetContainer}) {
     const adminRouter = express.Router({mergeParams: true});
     // Add authentication
     adminRouter.use(passport.initialize());
-    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    adminRouter.use(authenticateWithJsonFailure('adminStrategy', {session: false}));
     // Add admin routes with json body parser
     const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
     adminRouter.get('{/:op}{/:id}', (req, res) => handleAdminGet(fnGetContainer, req, res));
@@ -379,7 +380,7 @@ function createApp({fnGetContainer}) {
 
         const router = express.Router();
         router.use(passport.initialize());
-        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+        router.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         router.use(forbidRestrictedUserTypes);
         router.use(cors(fhirServerConfig.server.corsOptions));
         router.use(express.json());
@@ -413,7 +414,7 @@ function createApp({fnGetContainer}) {
 
         const routerv2 = express.Router();
         routerv2.use(passport.initialize());
-        routerv2.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+        routerv2.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         routerv2.use(forbidRestrictedUserTypes);
         routerv2.use(cors(fhirServerConfig.server.corsOptions));
         routerv2.use(express.json());
