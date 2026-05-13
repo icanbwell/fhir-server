@@ -169,6 +169,41 @@ describe('AuditLogger Error Audit', () => {
             expect(detail.find(d => d.type === 'requestId').valueString).toBe('req-123');
         });
 
+        test('includes extraParams in entity detail', () => {
+            const logger = createAuditLogger();
+            const extraParams = [
+                { type: 'jwtPayload', valueString: JSON.stringify({ sub: 'user-1', iss: 'https://auth.test', scope: 'patient/*.read' }) }
+            ];
+            const result = logger.createErrorAuditEntry({
+                requestInfo: createMockRequestInfo(),
+                resourceType: 'Patient',
+                errorCode: 401,
+                errorMessage: 'Invalid token',
+                extraParams
+            });
+
+            const detail = result.entity[0].detail;
+            const jwtEntry = detail.find(d => d.type === 'jwtPayload');
+            expect(jwtEntry).toBeDefined();
+            const parsed = JSON.parse(jwtEntry.valueString);
+            expect(parsed.sub).toBe('user-1');
+            expect(parsed.iss).toBe('https://auth.test');
+            expect(parsed.scope).toBe('patient/*.read');
+        });
+
+        test('does not include extraParams when not provided (backward compat)', () => {
+            const logger = createAuditLogger();
+            const result = logger.createErrorAuditEntry({
+                requestInfo: createMockRequestInfo(),
+                resourceType: 'Patient',
+                errorCode: 404,
+                errorMessage: 'Not found'
+            });
+
+            const detail = result.entity[0].detail;
+            expect(detail.find(d => d.type === 'jwtPayload')).toBeUndefined();
+        });
+
     });
 
     describe('logErrorAuditEntryAsync', () => {
@@ -224,6 +259,42 @@ describe('AuditLogger Error Audit', () => {
             const detail = logger.queue[0].doc.entity[0].detail;
             expect(detail.find(d => d.type === 'requestUrl').valueString).toBe('/4_0_0/Patient/123');
             expect(detail.find(d => d.type === 'requestId').valueString).toBe('req-123');
+        });
+
+        test('passes jwtPayload as extraParams for invalid_token', async () => {
+            const logger = createAuditLogger();
+            const extraParams = [
+                { type: 'jwtPayload', valueString: JSON.stringify({ sub: 'user-1', iss: 'https://auth.test', exp: 1715500800 }) }
+            ];
+            await logger.logErrorAuditEntryAsync({
+                requestInfo: createMockRequestInfo(),
+                resourceType: 'Patient',
+                errorCode: 401,
+                errorMessage: 'Invalid token',
+                extraParams
+            });
+
+            expect(logger.queue.length).toBe(1);
+            const detail = logger.queue[0].doc.entity[0].detail;
+            const jwtEntry = detail.find(d => d.type === 'jwtPayload');
+            const parsed = JSON.parse(jwtEntry.valueString);
+            expect(parsed.sub).toBe('user-1');
+            expect(parsed.exp).toBe(1715500800);
+        });
+
+        test('no extraParams for no_token scenario, outcomeDesc reflects reason', async () => {
+            const logger = createAuditLogger();
+            await logger.logErrorAuditEntryAsync({
+                requestInfo: createMockRequestInfo(),
+                resourceType: 'Patient',
+                errorCode: 401,
+                errorMessage: 'No token available'
+            });
+
+            expect(logger.queue.length).toBe(1);
+            expect(logger.queue[0].doc.outcomeDesc).toBe('No token available');
+            const detail = logger.queue[0].doc.entity[0].detail;
+            expect(detail.find(d => d.type === 'jwtPayload')).toBeUndefined();
         });
 
         test('queues merge error with per-item failure message', async () => {

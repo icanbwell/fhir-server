@@ -20,6 +20,7 @@ const sendUnauthorizedJson = (res) => {
 /**
  * Wraps passport.authenticate with a custom callback so that auth failures
  * return a JSON OperationOutcome instead of Passport's default plain-text body.
+ * Also captures failure details on req for audit logging.
  * @param {string} strategy
  * @param {object} [options]
  * @returns {import('express').RequestHandler}
@@ -31,6 +32,27 @@ const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
                 return next(err);
             }
             if (!user) {
+                // Classify the failure for audit logging
+                if (info && info.message === 'No auth token') {
+                    req.authFailureDetail = 'No token available';
+                } else if (req.jwtPayload) {
+                    // Verify callback ran (signature valid) but validation failed
+                    req.authFailureDetail = 'Invalid token';
+                } else {
+                    // Signature verification or JWKS failed — decode payload without verification for audit
+                    req.authFailureDetail = 'Invalid signature';
+                    try {
+                        const authHeader = req.headers && req.headers.authorization;
+                        if (authHeader && authHeader.startsWith('Bearer ')) {
+                            const parts = authHeader.slice(7).split('.');
+                            if (parts.length === 3) {
+                                req.jwtPayload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+                            }
+                        }
+                    } catch (_) {
+                        req.authFailureDetail = 'Malformed Token';
+                    }
+                }
                 return sendUnauthorizedJson(res);
             }
             // Supplying a callback disables Passport's default req.logIn/authInfo
@@ -52,7 +74,8 @@ const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
 };
 
 /**
- * @description Middleware for doing authentication, simople wrapper around passport
+ * @description Middleware for doing authentication, wrapper around passport.
+ * Uses a custom callback to capture failure details on req for audit logging.
  * @param {Object} config - Configurations for the application
  * @return {function} valid express middleware
  */

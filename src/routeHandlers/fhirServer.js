@@ -394,12 +394,17 @@ class MyFHIRServer {
                 || err.issue?.[0]?.diagnostics
                 || err.issue?.[0]?.details?.text
                 || 'Internal Server Error';
+            let extraParams;
+            if (status === 403 && req.authInfo?.scope) {
+                extraParams = [{ type: 'scope', valueString: req.authInfo.scope }];
+            }
             auditLogger.logErrorAuditEntryAsync({
                 requestInfo,
                 resourceType: resourceType || null,
                 errorCode: status,
-                errorMessage
-            }).then(() => auditLogger.flushAsync()).catch((e) => {
+                errorMessage,
+                extraParams
+            }).catch((e) => {
                 logError('Error logging error audit event', { error: e.message });
             });
         } catch (e) {

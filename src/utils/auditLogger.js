@@ -197,17 +197,19 @@ class AuditLogger {
                 }),
             action: operationCodeMapping[`${operation}`],
             entity: ids.map((resourceId, index) => {
+                const detail = index === 0
+                    ? [
+                        ...(requestInfo.originalUrl ? [{ type: 'requestUrl', valueString: requestInfo.originalUrl }] : []),
+                        ...(requestInfo.requestId ? [{ type: 'requestId', valueString: requestInfo.requestId }] : []),
+                        ...Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value]) => {
+                            return { type: key, valueString: value };
+                        })
+                    ] : null;
                 return new AuditEventEntity({
                     what: new Reference({
                         reference: `${resourceType}/${resourceId}`
                     }),
-                    detail: index === 0
-                        ? Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
-                            return {
-                                type: key,
-                                valueString: value
-                            };
-                        }) : null
+                    detail
                 });
             }),
             purposeOfEvent
@@ -268,9 +270,10 @@ class AuditLogger {
      * @param {string|null} params.resourceType
      * @param {number} params.errorCode - HTTP status code (401, 403, 404, 500) or 0 for abort
      * @param {string} params.errorMessage
+     * @param {{type: string, valueString: string}[]} [params.extraParams]
      * @returns {AuditEvent}
      */
-    createErrorAuditEntry ({ requestInfo, resourceType, errorCode, errorMessage }) {
+    createErrorAuditEntry ({ requestInfo, resourceType, errorCode, errorMessage, extraParams }) {
         const originalUrl = requestInfo.originalUrl;
         const requestId = requestInfo.requestId;
         const securityAlertType = new Coding({
@@ -293,7 +296,8 @@ class AuditLogger {
 
         const detail = [
             ...(originalUrl ? [{ type: 'requestUrl', valueString: originalUrl }] : []),
-            ...(requestId ? [{ type: 'requestId', valueString: requestId }] : [])
+            ...(requestId ? [{ type: 'requestId', valueString: requestId }] : []),
+            ...(extraParams || [])
         ];
         const entity = detail.length > 0 ? [
             new AuditEventEntity({ detail })
@@ -332,18 +336,19 @@ class AuditLogger {
      * @param {string|null} params.resourceType
      * @param {number} params.errorCode
      * @param {string} params.errorMessage
+     * @param {{type: string, valueString: string}[]} [params.extraParams]
      * @return {Promise<void>}
      */
     async logErrorAuditEntryAsync ({
         requestInfo, resourceType,
-        errorCode, errorMessage
+        errorCode, errorMessage, extraParams
     }) {
         if (!this.configManager.enableAccessAuditEvent) {
             return;
         }
 
         const doc = this.createErrorAuditEntry({
-            requestInfo, resourceType, errorCode, errorMessage
+            requestInfo, resourceType, errorCode, errorMessage, extraParams
         });
 
         await this.preSaveManager.preSaveAsync({ resource: doc });

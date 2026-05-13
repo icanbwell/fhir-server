@@ -177,19 +177,24 @@ function createApp({fnGetContainer}) {
                 }
             }
 
-            if (res.statusCode === 401 && reqPath.match(/^\/4_0_0\/[A-Z]/) && configManager.enableAccessAuditEvent) {
+            if (res.statusCode === 401 && configManager.enableAccessAuditEvent) {
                 try {
                     const auditLogger = container.auditLogger;
                     const resourceType = (reqPath.split('/')[2])?.split('?')[0];
                     const requestInfo = new FhirRequestInfoBuilder(req).build({
                         requestId: req.uniqueRequestId
                     });
+                    const errorMessage = req.authFailureDetail || 'Authentication Failed';
+                    const extraParams = req.jwtPayload
+                        ? [{ type: 'jwtPayload', valueString: JSON.stringify(req.jwtPayload) }]
+                        : undefined;
                     auditLogger.logErrorAuditEntryAsync({
                         requestInfo,
                         resourceType,
                         errorCode: 401,
-                        errorMessage: 'Authentication Failed'
-                    }).then(() => auditLogger.flushAsync()).catch((e) => {
+                        errorMessage,
+                        extraParams
+                    }).catch((e) => {
                         logError('Error logging 401 audit event', { error: e.message });
                     });
                 } catch (e) {
@@ -224,7 +229,7 @@ function createApp({fnGetContainer}) {
                     requestCount: getRequestCount()
                 });
 
-                if (reqPath.match(/^\/4_0_0\/[A-Z]/) && configManager.enableAccessAuditEvent) {
+                if (configManager.enableAccessAuditEvent) {
                     try {
                         const resourceType = (reqPath.split('/')[2])?.split('?')[0];
                         const auditLogger = container.auditLogger;
@@ -236,7 +241,7 @@ function createApp({fnGetContainer}) {
                             resourceType,
                             errorCode: 0,
                             errorMessage: 'Request Aborted by Client'
-                        }).then(() => auditLogger.flushAsync()).catch((e) => {
+                        }).catch((e) => {
                             logError('Error logging abort audit event', { error: e.message });
                         });
                     } catch (e) {
