@@ -243,26 +243,5 @@ describe('Practitioner Tests', () => {
             expect(resp).toHaveResourceCount(1);
             process.env.REQUIRED_AUDIT_EVENT_FILTERS = envValue;
         });
-        test('Resource is not validated without VALIDATE_SCHEMA env and _validate flag', async () => {
-            const envValue = process.env.VALIDATE_SCHEMA;
-            process.env.VALIDATE_SCHEMA = '0';
-
-            const request = await createTestRequest();
-            // Create api hit with valid resource
-            await request
-                .post('/4_0_0/Observation/')
-                .send(observation1Resource)
-                .set(getHeaders())
-                .expect(201);
-
-            process.env.VALIDATE_SCHEMA = '1';
-            await request
-                .post('/4_0_0/Observation/')
-                .send(observation1Resource)
-                .set(getHeaders())
-                .expect(400);
-
-            process.env.VALIDATE_SCHEMA = envValue;
-        });
     });
 });

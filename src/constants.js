@@ -160,7 +160,7 @@ module.exports = {
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
     SPECIFIED_QUERY_PARAMS: [
-        '_explain', '_debug', '_validate', 'contained', '_hash_references', 'base_version', '_elements',
+        '_explain', '_debug', 'contained', '_hash_references', 'base_version', '_elements',
         '_useAccessIndex', 'active', '_source', '_id', 'onset-date', '_lastUpdated',
         'source', 'id', 'onset_date', '_bundle', '_sort', '_count', '_useTwoStepOptimization', 'extension',
         '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset', 'resource', '_streamResponse', 'remove',

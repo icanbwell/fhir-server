@@ -486,14 +486,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to validate schemas
-     * @returns {boolean}
-     */
-    get validateSchema() {
-        return isTrue(env.VALIDATE_SCHEMA);
-    }
-
-    /**
      * returns the size of payload that should be acceptable
      * @returns {string}
      */

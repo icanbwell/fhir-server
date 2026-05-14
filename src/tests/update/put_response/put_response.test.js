@@ -66,7 +66,7 @@ describe('ActivityDefinition Tests', () => {
             );
         });
 
-        test('put works when resource is without id and _validate is true', async () => {
+        test('put works when resource is without id', async () => {
             const request = await createTestRequest();
 
             activitydefinition1Resource.meta.source = 'bwell';
@@ -78,7 +78,7 @@ describe('ActivityDefinition Tests', () => {
 
             delete activitydefinition1Resource.id;
             resp = await request
-                .put('/4_0_0/ActivityDefinition/ab2d17e3-3996-487c-bf81-cbe31abde0be?_validate=true')
+                .put('/4_0_0/ActivityDefinition/ab2d17e3-3996-487c-bf81-cbe31abde0be')
                 .send(activitydefinition1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -139,27 +139,6 @@ describe('ActivityDefinition Tests', () => {
                 .send(auditEvent1Resource)
                 .set(getHeaders())
                 .expect(405);
-        });
-        test('Resource is not validated without VALIDATE_SCHEMA env and _validate flag', async () => {
-            const envValue = process.env.VALIDATE_SCHEMA;
-            process.env.VALIDATE_SCHEMA = '0';
-
-            const request = await createTestRequest();
-            // Create api hit with valid resource
-            await request
-                .put('/4_0_0/Observation/1')
-                .send(observation1Resource)
-                .set(getHeaders())
-                .expect(201);
-
-            process.env.VALIDATE_SCHEMA = '1';
-            await request
-                .put('/4_0_0/Observation/1')
-                .send(observation1Resource)
-                .set(getHeaders())
-                .expect(400);
-
-            process.env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

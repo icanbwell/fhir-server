@@ -200,7 +200,10 @@ function createApp({fnGetContainer}) {
                     requestUrl: reqPath,
                     method: reqMethod,
                     request: {id: req.id, systemGeneratedRequestId: req.uniqueRequestId},
-                    requestCount: getRequestCount()
+                    requestCount: getRequestCount(),
+                    originService: req.headers['origin-service'] || 'unknown',
+                    altId: req.authInfo?.context?.username || req.authInfo?.context?.subject || ((!req.user || typeof req.user === 'string') ? req.user : req.user?.name || req.user?.id),
+                    scope: req.authInfo?.scope
                 });
             }
         });
