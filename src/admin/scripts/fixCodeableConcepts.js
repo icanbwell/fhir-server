@@ -130,20 +130,20 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/fixCodeableConcepts.js --collections=Practitioner_4_0_0 --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000 --dotenv
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --promiseConcurrency 10
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --updateResources
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --oidToStandardUrlMap '{key:value}'
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link --startFromId=123
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --limit 10
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties link
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000 --after 2021-12-31
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000 --before 2021-12-31
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000 --dotenv
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --promiseConcurrency 10
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --updateResources
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --oidToStandardUrlMap '{key:value}'
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link --startFromId=123
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --limit 10
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties link
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000 --after 2021-12-31
+ * yarn node --max-old-space-size=8192 src/admin/scripts/fixCodeableConcepts.js --collections=all --batchSize=10000 --before 2021-12-31
  * node src/admin/scripts/fixCodeableConcepts.js --collections=Account_4_0_0 --batchSize=10000
  */
 main().catch(reason => {

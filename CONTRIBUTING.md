@@ -1,36 +1,95 @@
 # Contributing
 
-You will need:
+## Prerequisites
 
 1. Docker Desktop: https://docs.docker.com/desktop/mac/install/
-2. Node.js 24.14.0: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
+2. Node.js >= 24.14.0 (see `.nvmrc`)
+3. [Corepack](https://nodejs.org/api/corepack.html) (ships with Node 16+)
 
-On Macs:
-1. Install brew (https://brew.sh/) if not already installed: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-2. `brew install nvm`
-3. Add the content into ~/.zshrc as suggested by above
-4. Close shell window and open again
-5. `nvm install`
-6. `nvm use`
-7. `npm install -g yarn`
-8. `yarn install`
+## Local Development Setup
 
+### macOS
 
-## Common developer processes
+1. Install [Homebrew](https://brew.sh/) if not already installed:
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+2. Install nvm:
+   ```bash
+   brew install nvm
+   ```
+3. Add the nvm shell integration into `~/.zshrc` as suggested by the install output, then restart your terminal
+4. Install and use the correct Node version:
+   ```bash
+   nvm install
+   nvm use
+   ```
+5. Enable Corepack (this activates the correct Yarn version from `packageManager` in package.json):
+   ```bash
+   corepack enable
+   ```
+6. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+### Package Management (Yarn 4 PnP)
+
+This project uses **Yarn 4** with [Plug'n'Play (PnP)](https://yarnpkg.com/features/pnp). There is no `node_modules/` directory — packages are stored as zip archives in Yarn's global cache and resolved at runtime via `.pnp.cjs`.
+
+| Task | Command |
+|------|---------|
+| Add a dependency | `yarn add <package>` |
+| Add a dev dependency | `yarn add -D <package>` |
+| Remove a dependency | `yarn remove <package>` |
+| Upgrade all packages | `make upgrade_packages` |
+| Regenerate lockfile | `make update` |
+| Run a binary | `yarn <binary>` (e.g., `yarn jest`, `yarn eslint`) |
+
+> **Important:** All packages you `require()` must be explicitly listed in `package.json`. PnP enforces strict dependency resolution — packages cannot rely on hoisting from transitive dependencies. If you see a "Cannot find module" error at runtime, add the missing package as a direct dependency.
+
+### Editor Setup
+
+#### VS Code (recommended)
+
+PnP requires editor configuration for Go to Definition, IntelliSense, and linting to work with packages stored in zip archives.
+
+1. **Install the [ZipFS extension](https://marketplace.visualstudio.com/items?itemName=arcanis.vscode-zipfs)** — allows VS Code to open source files inside zip archives
+
+2. **Generate the editor SDK** (one-time setup):
+   ```bash
+   yarn dlx @yarnpkg/sdks vscode
+   ```
+
+3. **Select the workspace TypeScript version:**
+   - Open any `.js` or `.ts` file
+   - `Cmd+Shift+P` → "TypeScript: Select TypeScript Version" → "Use Workspace Version"
+
+4. **Reload the window:** `Cmd+Shift+P` → "Developer: Reload Window"
+
+#### Other Editors
+
+For WebStorm, Vim, Neovim, Emacs, etc., see the [Yarn Editor SDKs documentation](https://yarnpkg.com/getting-started/editor-sdks).
+
+## Common Developer Processes
 
 ### Run lint
 
-Run `make lint` to do lint checking
+Run `make lint` to do lint checking.
 
 ### Run unit tests
 
 Run `make tests` to run all the tests locally. Or click a test in PyCharm and choose "Run test".
 
 ##### Running Specific test cases
-1. To run a specific test file, update `filePath` in the below command with path to the file
-`nvm use && node node_modules/.bin/jest filePath`
-2. To run a specific test from a test file, update `filePath` and `testName` in the below command with path to the file and the test description for the testcase to run
-`nvm use && node node_modules/.bin/jest filePath -t "testName"`
+1. To run a specific test file:
+   ```bash
+   nvm use && yarn jest path/to/test.js
+   ```
+2. To run a specific test by name:
+   ```bash
+   nvm use && yarn jest path/to/test.js -t "test name"
+   ```
 
 Note: Logs are set to `SILENT` for unit tests in `jest/setEnvVars.js` file. If you want to enable logging for testcases you can change the `LOGLEVEL` env variable to `DEBUG` and for getting all the logs that might help tracing db calls you can change the `LOGLEVEL` env variable to `SILLY`.
 
@@ -45,7 +104,7 @@ Note: Logs are set to `SILENT` for unit tests in `jest/setEnvVars.js` file. If y
 
 ### Update packages
 
-To add a new package or update version of a package, edit package.json and then run `make update` to regenerate `yarn.lock` file.
+To add a new package or update version of a package, edit `package.json` and then run `make update` to regenerate `yarn.lock`.
 
 ### Bring up FHIR server locally for manual testing
 
@@ -114,9 +173,9 @@ This id done only once and in case this needs to be run again `make create_all_c
 
 [jest/setEnvVars.js](jest/setEnvVars.js): Environment variables used when running tests
 
-[package.json](package.json): Specifies the npm packages to use and commands for running tests
+[package.json](package.json): Specifies dependencies, scripts, and Yarn 4 packageManager version
 
-[yarn.lock](yarn.lock): Generated from package.json
+[yarn.lock](yarn.lock): Generated by Yarn from package.json (do not edit manually)
 
 ## Indexing
 The process for adding/updating an index:
@@ -174,7 +233,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 ```shell
 nvm install
 nvm use
-npm install -g npm@latest
+corepack enable
 ```
 
 #### 5. Get code
@@ -183,9 +242,9 @@ git clone https://github.com/icanbwell/fhir-server.git
 cd fhir-server
 ```
 
-#### 6. install npm packages
+#### 6. install packages
 ```shell
-npm install
+yarn install
 ```
 
 #### 7. set up credentials to connect to mongo
@@ -196,7 +255,7 @@ nano src/admin/scripts/.env
 
 #### 8. Run the admin script e.g.,
 ```shell
-NODE_OPTIONS=--max_old_space_size=1609600 node --max-old-space-size=1609600 src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000
+yarn node --max-old-space-size=1609600 src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000
 ```
 
 ### Getting latest from Github

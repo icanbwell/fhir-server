@@ -8,6 +8,10 @@
 tmp
 .vscode
 node_modules
+.yarn/cache
+.yarn/unplugged
+.yarn/install-state.gz
+.pnp.*
 npm-debug.log
 Dockerfile
 src/admin/scripts/.env*

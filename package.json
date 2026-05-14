@@ -9,43 +9,40 @@
     "node": ">=24.14.0"
   },
   "scripts": {
-    "start": "NODE_ENV=production node src/index.js",
+    "start": "NODE_ENV=production node --disable-warning=DEP0040 src/index.js",
     "dev": "NODE_ENV=development node --require=./src/otel_instrumentation.js --watch src/index.js;",
     "dev_debug": "NODE_ENV=development DEBUG=express:router node src/index.js;",
-    "test": "NODE_ENV=test npm run lint && npm run test:jest",
-    "test:mem_leak": "NODE_ENV=test node --inspect-brk --expose-gc ./node_modules/.bin/jest --runInBand --logHeapUsage -i src/tests/performance/search_by_id_many/search_by_id_many.csv.test.js",
-    "test:functional": "NODE_ENV=test npm run lint && npm run test:jest_functional",
-    "test:performance": "NODE_ENV=test NODE_OPTIONS=--max-old-space-size=40960 node --max-old-space-size=40960 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --testPathIgnorePatterns='/node_modules/' --testTimeout=600000 src/tests/performance",
-    "coverage": "NODE_ENV=test npm run lint && npm run test:jest_coverage",
-    "test_shards": "NODE_ENV=test npm run lint && npm run test:jest_cleanCache && npm run test:jest_shard1 && npm run test:jest_shard2 && npm run test:jest_shard3 && npm run test:jest_shard4 && npm run test:jest_shard5",
-    "lint": "NODE_ENV=test npm run test:lint",
-    "test:failed": "NODE_ENV=test npm run test:lint && npm run test:jest --onlyFailures",
-    "test:lint": "NODE_OPTIONS=--max-old-space-size=8096 eslint \"src/**/*.js\"",
-    "test:jest_cleanCache": "NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --clearCache --runInBand --forceExit.",
-    "test:jest_shard1": "NODE_OPTIONS=--max-old-space-size=20240 node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=1/5 .",
-    "test:jest_shard2": "NODE_OPTIONS=--max-old-space-size=20240 node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=2/5 .",
-    "test:jest_shard3": "NODE_OPTIONS=--max-old-space-size=20240 node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=3/5 .",
-    "test:jest_shard4": "NODE_OPTIONS=--max-old-space-size=20240 node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=4/5 .",
-    "test:jest_shard5": "NODE_OPTIONS=--max-old-space-size=20240 node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=5/5 .",
-    "test:jest": "NODE_OPTIONS=--max-old-space-size=20240 node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit .",
-    "test:jest_functional": "NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --testPathIgnorePatterns='<rootDir>/src/tests/performance/' .",
-    "test:jest_coverage": "NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --clearCache --runInBand --forceExit --coverage --testPathIgnorePatterns='<rootDir>/src/tests/performance/' .",
-    "test:jestInspect": "NODE_ENV=test NODE_OPTIONS=--max-old-space-size=12328 node --max-old-space-size=12328 --inspect-brk --expose-gc ./node_modules/.bin/jest --no-watchman --silent --useStderr --logHeapUsage --detectOpenHandles -i src/tests/practitioner/complex_merge src/tests/patient/search_with_patient_filtering/search_with_patient_filtering.test.js",
+    "test": "NODE_ENV=test yarn run lint && yarn run test:jest",
+    "test:mem_leak": "NODE_ENV=test yarn node --inspect-brk --expose-gc $(yarn bin jest) --runInBand --logHeapUsage -i src/tests/performance/search_by_id_many/search_by_id_many.csv.test.js",
+    "test:functional": "NODE_ENV=test yarn run lint && yarn run test:jest_functional",
+    "test:performance": "NODE_ENV=test yarn node --max-old-space-size=40960 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --runInBand --forceExit --testTimeout=600000 src/tests/performance",
+    "coverage": "NODE_ENV=test yarn run lint && yarn run test:jest_coverage",
+    "test_shards": "NODE_ENV=test yarn run lint && yarn run test:jest_cleanCache && yarn run test:jest_shard1 && yarn run test:jest_shard2 && yarn run test:jest_shard3 && yarn run test:jest_shard4 && yarn run test:jest_shard5",
+    "lint": "NODE_ENV=test yarn run test:lint",
+    "test:failed": "NODE_ENV=test yarn run test:lint && yarn run test:jest --onlyFailures",
+    "test:lint": "NODE_OPTIONS=\"${NODE_OPTIONS:-} --max-old-space-size=8096\" eslint \"src/**/*.js\"",
+    "test:jest_cleanCache": "yarn node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --clearCache --runInBand --forceExit .",
+    "test:jest_shard1": "yarn node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=1/5 .",
+    "test:jest_shard2": "yarn node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=2/5 .",
+    "test:jest_shard3": "yarn node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=3/5 .",
+    "test:jest_shard4": "yarn node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=4/5 .",
+    "test:jest_shard5": "yarn node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=5/5 .",
+    "test:jest": "yarn node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --runInBand --forceExit .",
+    "test:jest_functional": "yarn node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --runInBand --forceExit --testPathIgnorePatterns='<rootDir>/src/tests/performance/' .",
+    "test:jest_coverage": "yarn node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --silent --logHeapUsage --clearCache --runInBand --forceExit --coverage --testPathIgnorePatterns='<rootDir>/src/tests/performance/' .",
+    "test:jestInspect": "NODE_ENV=test yarn node --max-old-space-size=12328 --inspect-brk --expose-gc $(yarn bin jest) --no-watchman --silent --useStderr --logHeapUsage --detectOpenHandles -i src/tests/practitioner/complex_merge src/tests/patient/search_by_id/search_by_id.test.js",
     "test:integration": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/complex_merge",
-    "test:specific": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/patient/search_with_patient_filtering/search_with_patient_filtering.test.js",
+    "test:specific": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/patient/search_by_id/search_by_id.test.js",
     "test:everything": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/everything",
     "test:graphql": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/graphql",
     "test:merge": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/practitioner.merge.test.js",
     "test:search": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/searchParameters/search_by* src/tests/patient/search_by* src/tests/operations/query/r4/r4.test.js",
-    "test:perf:clickhouse": "RUN_CLICKHOUSE_PERF=1 NODE_ENV=test NODE_OPTIONS=--max-old-space-size=20240 node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --logHeapUsage --runInBand --forceExit src/tests/group/group_clickhouse_performance.test.js",
+    "test:perf:clickhouse": "RUN_CLICKHOUSE_PERF=1 NODE_ENV=test yarn node --max-old-space-size=20240 --optimize_for_size --gc_interval=100 $(yarn bin jest) --no-watchman --logHeapUsage --runInBand --forceExit src/tests/group/group_clickhouse_performance.test.js",
     "prepare": "",
     "prettier-check": "prettier --check \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",
     "prettier-fix": "prettier --write \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",
     "fix_lint": "eslint --fix \"src/**/*.js\""
   },
-  "pre-commit": [
-    "lint"
-  ],
   "jest": {
     "watchman": false,
     "watchPathIgnorePatterns": [
@@ -70,8 +67,8 @@
       "^.+\\.js$": "babel-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!@kubernetes/client-node)/",
-      "/node_modules/express-useragent/"
+      "node_modules/(?!@kubernetes/client-node)/",
+      "node_modules/express-useragent/"
     ],
     "coveragePathIgnorePatterns": [
       "<rootDir>/src/testutils/",
@@ -84,7 +81,6 @@
       "<rootDir>/src/graphqlv2/resolvers"
     ],
     "testPathIgnorePatterns": [
-      "<rootDir>/node_modules/",
       "<rootDir>/src/tests/performance/"
     ],
     "setupFiles": [
@@ -118,12 +114,12 @@
   "resolutions": {
     "cross-spawn": "^7.0.0",
     "@asymmetrik/fhir-json-schema-validator/ajv": "^6.14.0",
-    "**/eslint/minimatch": "^10.2.3",
-    "**/@eslint/config-array/minimatch": "^10.2.3",
-    "**/graphql-config/minimatch": "^9.0.7",
-    "**/glob/minimatch": "^3.1.4",
-    "**/test-exclude/minimatch": "^3.1.4",
-    "**/jest-runtime/cjs-module-lexer": "^2.2.0",
+    "eslint/minimatch": "^10.2.3",
+    "@eslint/config-array/minimatch": "^10.2.3",
+    "graphql-config/minimatch": "^9.0.7",
+    "glob/minimatch": "^3.1.4",
+    "test-exclude/minimatch": "^3.1.4",
+    "jest-runtime/cjs-module-lexer": "^2.2.0",
     "uuid": "^14.0.0",
     "@opentelemetry/instrumentation-router": "0.57.0"
   },
@@ -147,6 +143,7 @@
     "@mongodb-js/zstd": "^2.0.1",
     "@opentelemetry/api": "1.9.1",
     "@opentelemetry/auto-instrumentations-node": "0.73.0",
+    "@opentelemetry/core": "2.7.0",
     "@opentelemetry/exporter-metrics-otlp-grpc": "0.215.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "0.215.0",
     "@opentelemetry/instrumentation-dataloader": "0.32.0",
@@ -188,9 +185,10 @@
     "jwks-rsa": "^3.2.0",
     "kafkajs": "^2.2.4",
     "lru-cache": "^11.1.0",
+    "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
     "mongodb": "6.17.0",
-    "object-hash": "^2.2.0, <3",
+    "object-hash": ">=2.2.0 <3.0.0",
     "object-sizeof": "^2.6.5",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -211,6 +209,7 @@
     "@eslint/js": "^9.28.0",
     "@graphql-eslint/eslint-plugin": "^4.4.0",
     "@jest/globals": "^29.7.0",
+    "@testcontainers/clickhouse": "^11.14.0",
     "csv42": "^5.0.3",
     "dotenv": "^16.5.0",
     "eslint": "^10.1.0",
@@ -228,12 +227,10 @@
     "ndjson-to-json-text": "^1.0.2",
     "nock": "^14.0.5",
     "npm-check-updates": "^21.0.1",
-    "pre-commit": "^1.2.2",
     "prettier": "^3.5.3",
     "supertest": "^7.1.1",
-    "@testcontainers/clickhouse": "^11.14.0",
-    "testcontainers": "^11.14.0"
+    "testcontainers": "^11.14.0",
+    "typescript": "^6.0.3"
   },
-  "private": false,
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "yarn@4.14.1+sha512.64df448055b2d37ba269d7db535a469b8da93f8ef1140c25fd7a83c00a8fbaacb214ca0e02553b92a2c54cef78bb67d0b4817fab02001df0e24fac0faccc3b42"
 }
