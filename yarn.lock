@@ -6198,6 +6198,7 @@ __metadata:
     "@opentelemetry/core": "npm:2.7.0"
     "@opentelemetry/exporter-metrics-otlp-grpc": "npm:0.215.0"
     "@opentelemetry/exporter-trace-otlp-grpc": "npm:0.215.0"
+    "@opentelemetry/instrumentation": "npm:0.215.0"
     "@opentelemetry/instrumentation-dataloader": "npm:0.32.0"
     "@opentelemetry/instrumentation-express": "npm:0.63.0"
     "@opentelemetry/instrumentation-graphql": "npm:0.63.0"
