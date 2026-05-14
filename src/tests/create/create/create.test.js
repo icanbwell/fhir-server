@@ -8,8 +8,6 @@ const practitioner6Resource = require('./fixtures/Practitioner/practitioner6.jso
 const practitioner7Resource = require('./fixtures/Practitioner/practitioner7.json');
 const practitioner8Resource = require('./fixtures/Practitioner/practitioner8.json');
 
-const observation1Resource = require('./fixtures/Observation/observation1.json');
-
 const auditEvent1Resource = require('./fixtures/AuditEvent/auditEvent1.json');
 
 // expected

@@ -2,7 +2,6 @@
 const activitydefinition1Resource = require('./fixtures/ActivityDefinition/activitydefinition1.json');
 const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activitydefinition2.json');
 
-const observation1Resource = require('./fixtures/Observation/observation1.json');
 const auditEvent1Resource = require('./fixtures/AuditEvent/auditEvent1.json');
 
 // expected
