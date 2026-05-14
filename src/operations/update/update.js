@@ -268,34 +268,32 @@ class UpdateOperation {
              * @type {Resource | null}
              */
             const data = resources[0];
-            if (this.configManager.validateSchema || parsedArgs._validate) {
-                /**
-                 * @type {OperationOutcome|null}
-                 */
-                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                    base_version,
-                    requestInfo,
-                    id: resource_incoming_json.id,
-                    resourceType,
-                    resourceToValidate: resource_incoming_json,
-                    path,
-                    resourceObj: resource_incoming,
-                    currentResource: data
+            /**
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: resource_incoming_json.id,
+                resourceType,
+                resourceToValidate: resource_incoming_json,
+                path,
+                resourceObj: resource_incoming,
+                currentResource: data
+            });
+            if (validationOperationOutcome) {
+                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                    operationResult: [{
+                        id: resource_incoming_json.id,
+                        uuid: data ? data._uuid : resource_incoming_json._uuid,
+                        sourceAssigningAuthority: data ? data._sourceAssigningAuthority : resource_incoming_json._sourceAssigningAuthority,
+                        resourceType: resource_incoming_json.resourceType,
+                        operationOutcome: validationOperationOutcome,
+                        created: false,
+                        updated: false
+                    }]
                 });
-                if (validationOperationOutcome) {
-                    httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                        operationResult: [{
-                            id: resource_incoming_json.id,
-                            uuid: data ? data._uuid : resource_incoming_json._uuid,
-                            sourceAssigningAuthority: data ? data._sourceAssigningAuthority : resource_incoming_json._sourceAssigningAuthority,
-                            resourceType: resource_incoming_json.resourceType,
-                            operationOutcome: validationOperationOutcome,
-                            created: false,
-                            updated: false
-                        }]
-                    });
-                    throw new NotValidatedError(validationOperationOutcome);
-                }
+                throw new NotValidatedError(validationOperationOutcome);
             }
             /**
              * @type {Resource|null}

@@ -191,9 +191,6 @@ describe('Condition Tests', () => {
                 .expect(200);
         });
         test('Non patient resources can not be accessed with patient scopes', async () => {
-            const envValue = process.env.VALIDATE_SCHEMA;
-            process.env.VALIDATE_SCHEMA = '0';
-
             const request = await createTestRequest();
             const container = getTestContainer();
             /**
@@ -214,7 +211,6 @@ describe('Condition Tests', () => {
 
                 expect(resp).toHaveStatusCode(403);
             }
-            process.env.VALIDATE_SCHEMA = envValue;
         });
     });
 });

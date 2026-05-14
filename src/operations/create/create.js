@@ -155,48 +155,46 @@ class CreateOperation {
          */
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
-        if (this.configManager.validateSchema || parsedArgs._validate) {
-            let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
-                resource_incoming
-            );
-            if (!validationOperationOutcome) {
-                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                    base_version,
-                    requestInfo,
-                    id: resource_incoming.id,
-                    resourceType,
-                    resourceToValidate: body,
-                    path,
-                    resourceObj: resource
-                });
-            }
-            if (validationOperationOutcome) {
-                httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
-                    operationResult: [{
-                        id: resource.id,
-                        uuid: resource.id,
-                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                        resourceType: resource.resourceType,
-                        operationOutcome: validationOperationOutcome,
-                        created: false,
-                        updated: false
-                    }]
-                });
-                // noinspection JSValidateTypes
-                /**
-                 * @type {Error}
-                 */
-                const notValidatedError = new NotValidatedError(validationOperationOutcome);
-                await this.fhirLoggingManager.logOperationFailureAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: notValidatedError
-                });
-                throw notValidatedError;
-            }
+        let validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
+            resource_incoming
+        );
+        if (!validationOperationOutcome) {
+            validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: resource_incoming.id,
+                resourceType,
+                resourceToValidate: body,
+                path,
+                resourceObj: resource
+            });
+        }
+        if (validationOperationOutcome) {
+            httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
+                operationResult: [{
+                    id: resource.id,
+                    uuid: resource.id,
+                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    resourceType: resource.resourceType,
+                    operationOutcome: validationOperationOutcome,
+                    created: false,
+                    updated: false
+                }]
+            });
+            // noinspection JSValidateTypes
+            /**
+             * @type {Error}
+             */
+            const notValidatedError = new NotValidatedError(validationOperationOutcome);
+            await this.fhirLoggingManager.logOperationFailureAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                error: notValidatedError
+            });
+            throw notValidatedError;
         }
 
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
