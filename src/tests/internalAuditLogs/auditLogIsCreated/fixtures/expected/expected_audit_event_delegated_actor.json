@@ -77,6 +77,14 @@
             },
             "detail": [
                 {
+                    "type": "requestUrl",
+                    "valueString": "/4_0_0/Observation/2354-InAgeCohort"
+                },
+                {
+                    "type": "requestId",
+                    "valueString": "12345678"
+                },
+                {
                     "type": "base_version",
                     "valueString": "4_0_0"
                 }
