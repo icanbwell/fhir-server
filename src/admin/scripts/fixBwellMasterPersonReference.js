@@ -93,18 +93,18 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --collections=Person_4_0_0 --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --startFromCollection Person_4_0_0
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --collections=all --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --logUnresolvedReferencesToFile
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --preLoadCollections=Patient_4_0_0 --batchSize=10000 --useTransaction
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction --startFromId=123
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction --skip 200000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --limit 10
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --after 2021-12-31
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --before 2021-12-31
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --collections=Person_4_0_0 --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --startFromCollection Person_4_0_0
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --collections=all --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --logUnresolvedReferencesToFile
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --preLoadCollections=Patient_4_0_0 --batchSize=10000 --useTransaction
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction --startFromId=123
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction --skip 200000
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --limit 10
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --after 2021-12-31
+ * node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --before 2021-12-31
  */
 main().catch(reason => {
     console.error(reason);

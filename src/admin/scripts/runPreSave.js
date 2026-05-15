@@ -77,13 +77,13 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/runPreSave.js --collections=Practitioner_4_0_0 --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=all --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0
- * yarn node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0 --limit 10
- * yarn node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=all --batchSize=10000 --includeHistoryCollections
+ * node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=all --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0
+ * node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0 --limit 10
+ * node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=all --batchSize=10000 --includeHistoryCollections
  * node src/admin/scripts/runPreSave.js --collections=Account_4_0_0 --batchSize=10000
  * src/admin/scripts/runPreSave.js --collections=all --audit --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0_2023_02 --audit --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0_2023_02 --audit --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000 --before 2021-12-31
  * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000 --after 2021-12-31

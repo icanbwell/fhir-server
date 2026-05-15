@@ -56,7 +56,7 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/fixComposition.js --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixComposition.js
+ * node --max-old-space-size=8192 src/admin/scripts/fixComposition.js
  */
 main().catch((reason) => {
     console.error(reason);

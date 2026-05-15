@@ -21,7 +21,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.14.0
+          node-version-file: '.nvmrc'
       - name: Enable Corepack
         run: corepack enable
       - run: | # retry since mongo memory server fails to download sometimes
@@ -31,7 +31,7 @@ jobs:
           yarn run lint
       - name: Check GraphQL SDL snapshots
         run: |
-          yarn node generatorScripts/generateGraphqlSdl.js --check
+          node generatorScripts/generateGraphqlSdl.js --check
   build:
     runs-on: ubuntu-latest
     name: test (chunk ${{ matrix.chunk }})
@@ -44,13 +44,13 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.14.0
+          node-version-file: '.nvmrc'
       - name: Enable Corepack
         run: corepack enable
       - run: | # retry since mongo memory server fails to download sometimes
           yarn install || yarn install
       - name: jest
         run: |
-          yarn jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
-          NODE_OPTIONS: "--max-old-space-size=10240 --disable-warning=DEP0040"
+          NODE_OPTIONS: "--max-old-space-size=10240"

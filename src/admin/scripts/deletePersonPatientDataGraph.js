@@ -82,10 +82,10 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
- * yarn node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
- * yarn node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dryRun false
- * yarn node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dotenv
- * yarn node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dotenv --concurrencyBatchSize=10
+ * node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
+ * node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dryRun false
+ * node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dotenv
+ * node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dotenv --concurrencyBatchSize=10
  * node src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
  */
 main().catch((reason) => {

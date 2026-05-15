@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:24.14.0-alpine AS build
+FROM public.ecr.aws/docker/library/node:24.14-alpine AS build
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
@@ -13,7 +13,7 @@ COPY package.json yarn.lock .yarnrc.yml ./
 RUN echo "$NODE_ENV"
 RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && yarn install; else echo 'building production' && yarn workspaces focus --production; fi
 
-FROM public.ecr.aws/docker/library/node:24.14.0-alpine
+FROM public.ecr.aws/docker/library/node:24.14-alpine
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
@@ -37,10 +37,8 @@ COPY --chown=node:node k8s-start.sh /srv/src/k8s-start.sh
 # install yarn
 RUN corepack install
 
-# Copy PnP artifacts from multi-stage build
-COPY --from=build --chown=node:node /srv/src/.pnp.cjs /srv/src/.pnp.cjs
-COPY --from=build --chown=node:node /srv/src/.pnp.loader.mjs /srv/src/.pnp.loader.mjs
-COPY --from=build --chown=node:node /srv/src/.yarn /srv/src/.yarn
+# Copy node_modules from build stage
+COPY --from=build --chown=node:node /srv/src/node_modules /srv/src/node_modules
 
 # Copy the remaining application code.
 COPY --chown=node:node . /srv/src

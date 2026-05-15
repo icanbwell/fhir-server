@@ -43,7 +43,7 @@ up:
 
 .PHONY: create_all_collections
 create_all_collections:
-	docker exec -t fhir-dev-fhir-1 sh -c "cd /srv/src && yarn node src/admin/scripts/createCollections.js"
+	docker exec -t fhir-dev-fhir-1 sh -c "cd /srv/src && node src/admin/scripts/createCollections.js"
 	echo "\nAll collections and indexes created successfully."
 
 .PHONY:up-offline
@@ -195,12 +195,12 @@ graphqlv2:
 .PHONY:graphql-sdl
 graphql-sdl:
 	$(ACTIVATE_NODE) && \
-	yarn node generatorScripts/generateGraphqlSdl.js
+	node generatorScripts/generateGraphqlSdl.js
 
 .PHONY:check-graphql-sdl
 check-graphql-sdl:
 	$(ACTIVATE_NODE) && \
-	yarn node generatorScripts/generateGraphqlSdl.js --check
+	node generatorScripts/generateGraphqlSdl.js --check
 
 .PHONY:classes
 classes:
