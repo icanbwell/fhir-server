@@ -1,0 +1,17 @@
+{
+    "resourceType": "GraphDefinition",
+    "id": "patient-to-observation-graph",
+    "name": "patient_to_observation",
+    "status": "active",
+    "start": "Patient",
+    "link": [
+        {
+            "target": [
+                {
+                    "type": "Observation",
+                    "params": "patient={ref}"
+                }
+            ]
+        }
+    ]
+}

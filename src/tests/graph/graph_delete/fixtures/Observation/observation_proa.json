@@ -1,0 +1,33 @@
+{
+    "resourceType": "Observation",
+    "id": "observation-proa",
+    "meta": {
+        "source": "test",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "PROA"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "PROA"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "PROA"
+            }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "system": "http://loinc.org",
+                "code": "29463-7"
+            }
+        ]
+    },
+    "subject": {
+        "reference": "Patient/patient-proa|PROA"
+    }
+}
