@@ -1,0 +1,35 @@
+{
+    "resourceType": "Person",
+    "id": "person-anchor",
+    "meta": {
+        "source": "test",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client-p1"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client-p1"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client-p1"
+            }
+        ]
+    },
+    "link": [
+        {
+            "id": "p1",
+            "target": {
+                "reference": "Patient/patient-clientp1|client-p1"
+            }
+        },
+        {
+            "id": "proa",
+            "target": {
+                "reference": "Patient/patient-proa|PROA"
+            }
+        }
+    ]
+}
