@@ -130,7 +130,7 @@ class ExportManager {
         }, {}) || {};
 
         let scriptCommand =
-            'node /srv/src/src/operations/export/script/bulkDataExport.js ' +
+            'yarn node /srv/src/src/operations/export/script/bulkDataExport.js ' +
             `--exportStatusId ${exportStatusResource._uuid} ` +
             `--bulkExportS3BucketName ${this.configManager.bulkExportS3BucketName} ` +
             `--requestId ${requestId} ` +

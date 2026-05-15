@@ -44,8 +44,8 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/operations/export/script/cronJob.js
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/operations/export/script/cronJob.js
+ * yarn node src/operations/export/script/cronJob.js
+ * NODE_OPTIONS=--max_old_space_size=8192 yarn node --max-old-space-size=8192 src/operations/export/script/cronJob.js
  */
 main().catch((reason) => {
     logError(reason);

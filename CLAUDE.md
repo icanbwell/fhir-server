@@ -90,7 +90,7 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 
 - Prettier: 100 char width, semicolons, single quotes, 4-space indent, ES5 trailing commas
 - Pre-commit hook runs lint
-- Node >= 24.14.0 (see `.nvmrc`)
+- Node >= 24.14 (see `.nvmrc`)
 - CommonJS modules (`require`/`module.exports`)
 - Logging via Winston: use `logInfo`, `logDebug`, `logError`, `logWarn` from `src/operations/common/logging.js`
 

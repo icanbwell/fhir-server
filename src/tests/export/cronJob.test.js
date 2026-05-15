@@ -126,7 +126,7 @@ describe('Cron Job Tests', () => {
             expect(mockK8sCreateJob).toHaveBeenCalledWith({
                 context: {},
                 scriptCommand:
-                    'node /srv/src/src/operations/history/script/migrateToCloudStorage.js --collection=Binary_4_0_0_History --limit=100000'
+                    'yarn node /srv/src/src/operations/history/script/migrateToCloudStorage.js --collection=Binary_4_0_0_History --limit=100000'
             });
         });
     });

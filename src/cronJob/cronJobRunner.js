@@ -98,7 +98,7 @@ class CronJobRunner {
     async triggerHistoryMigrationJob() {
         for (const collection of this.configManager.cloudStorageHistoryResources) {
             let scriptCommand =
-            'node /srv/src/src/operations/history/script/migrateToCloudStorage.js ' +
+            'yarn node /srv/src/src/operations/history/script/migrateToCloudStorage.js ' +
             `--collection=${collection}_4_0_0_History ` +
             `--limit=${this.configManager.historyResourceCronJobMigrationLimit}`;
 

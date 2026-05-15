@@ -3,7 +3,7 @@
 ## Prerequisites
 
 1. Docker Desktop: https://docs.docker.com/desktop/mac/install/
-2. Node.js >= 24.14.0 (see `.nvmrc`)
+2. Node.js >= 24.14 (see `.nvmrc`)
 3. [Corepack](https://nodejs.org/api/corepack.html) (ships with Node 16+)
 
 ## Local Development Setup
