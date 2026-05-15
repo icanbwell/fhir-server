@@ -24,7 +24,7 @@ const {ProcessMultipleIdsAsyncResult} = require('../common/processMultipleIdsAsy
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
-const {logError, logInfo, logDebug} = require('../common/logging');
+const {logError, logInfo, logWarn} = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
@@ -1926,7 +1926,7 @@ class GraphHelper {
                         requestInfo, resource, base_version
                     });
                 } catch (err) {
-                    logDebug(
+                    logWarn(
                         `Skipping deletion of ${resultResourceType}/${resource.id} in graph delete: ` +
                         `user lacks write access to resource security tags`,
                         {source: 'GraphHelpers.deleteGraphAsync'}
