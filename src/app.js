@@ -233,9 +233,12 @@ function createApp({fnGetContainer}) {
                     try {
                         const resourceType = (reqPath.split('/')[2])?.split('?')[0];
                         const auditLogger = container.auditLogger;
-                        const requestInfo = new FhirRequestInfoBuilder(req).build({
-                            requestId: req.uniqueRequestId
-                        });
+                        const overrides = { requestId: req.uniqueRequestId };
+                        if (!req.authInfo && req.jwtPayload) {
+                            overrides.user = req.jwtPayload.sub || req.jwtPayload.username;
+                            overrides.alternateUserId = req.jwtPayload.sub || req.jwtPayload.username;
+                        }
+                        const requestInfo = new FhirRequestInfoBuilder(req).build(overrides);
                         auditLogger.logErrorAuditEntryAsync({
                             requestInfo,
                             resourceType,
