@@ -53,4 +53,4 @@ jobs:
         run: |
           ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
-          NODE_OPTIONS: "--max-old-space-size=10240 --disable-warning=DEP0040"
+          NODE_OPTIONS: "--max-old-space-size=10240"
