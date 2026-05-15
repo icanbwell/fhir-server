@@ -50,7 +50,7 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/getMultipleOwnerDataCsv.js
- * yarn node --max-old-space-size=8192 src/admin/scripts/getMultipleOwnerDataCsv.js
+ * node --max-old-space-size=8192 src/admin/scripts/getMultipleOwnerDataCsv.js
  */
 main().catch(reason => {
     console.error(reason);

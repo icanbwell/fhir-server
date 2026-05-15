@@ -58,10 +58,10 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/proaPatientLinkCsv.js
- * yarn node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js
- * yarn node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --clientSourceAssigningAuthorities client
- * yarn node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --skipAlreadyLinked
- * yarn node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --getProaPatientClientPersonMatching
+ * node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js
+ * node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --clientSourceAssigningAuthorities client
+ * node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --skipAlreadyLinked
+ * node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --getProaPatientClientPersonMatching
  */
 main().catch(reason => {
     console.error(reason);

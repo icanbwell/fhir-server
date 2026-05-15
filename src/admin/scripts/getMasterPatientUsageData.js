@@ -57,10 +57,10 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/getMasterPatientUsageData.js
- * yarn node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js
- * yarn node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --csvFileName masterPatientUsage.csv
- * yarn node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --collections Observation_4_0_0
- * yarn node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --batchSize 1000
+ * node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js
+ * node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --csvFileName masterPatientUsage.csv
+ * node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --collections Observation_4_0_0
+ * node --max-old-space-size=8192 src/admin/scripts/getMasterPatientUsageData.js --batchSize 1000
  */
 main().catch(reason => {
     console.error(reason);

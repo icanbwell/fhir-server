@@ -112,17 +112,17 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/fixReferenceId.js --collections=Practitioner_4_0_0 --batchSize=10000 --referenceBatchSize=50 --collectionConcurrency=3
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0 --useTransaction
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link --startFromId=123
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --limit 10
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties link
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --after 2021-12-31
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --before 2021-12-31
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0 --useTransaction
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link --startFromId=123
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --limit 10
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties link
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --after 2021-12-31
+ * node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --before 2021-12-31
  * node src/admin/scripts/fixReferenceId.js --collections=Account_4_0_0 --batchSize=10000
  */
 main().catch(reason => {

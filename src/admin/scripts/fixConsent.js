@@ -83,9 +83,9 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/fixConsent.js --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --dotenv
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --before 2023-10-28 --dotenv
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --after 2023-10-28 --dotenv
+ * node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --dotenv
+ * node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --before 2023-10-28 --dotenv
+ * node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --after 2023-10-28 --dotenv
  */
 console.log('Running main');
 main().catch((reason) => {

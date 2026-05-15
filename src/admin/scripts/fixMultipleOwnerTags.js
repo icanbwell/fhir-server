@@ -68,15 +68,15 @@ async function main () {
  * To run this:
  * nvm use
  * node src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --collections=Person_4_0_0 --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --startFromCollection Person_4_0_0
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --collections=all --batchSize=10000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --useTransaction
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --preLoadCollections=Patient_4_0_0 --batchSize=10000 --useTransaction
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --useTransaction --startFromId=123
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --useTransaction --skip 200000
- * yarn node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --limit 10
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --collections=Person_4_0_0 --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --startFromCollection Person_4_0_0
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --collections=all --batchSize=10000
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --useTransaction
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --preLoadCollections=Patient_4_0_0 --batchSize=10000 --useTransaction
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --useTransaction --startFromId=123
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --useTransaction --skip 200000
+ * node --max-old-space-size=8192 src/admin/scripts/fixMultipleOwnerTags.js --batchSize=10000 --limit 10
  */
 main().catch(reason => {
     console.error(reason);
