@@ -31,7 +31,7 @@ jobs:
           yarn run lint
       - name: Check GraphQL SDL snapshots
         run: |
-          yarn node generatorScripts/generateGraphqlSdl.js --check
+          node generatorScripts/generateGraphqlSdl.js --check
   build:
     runs-on: ubuntu-latest
     name: test (chunk ${{ matrix.chunk }})
@@ -51,6 +51,6 @@ jobs:
           yarn install || yarn install
       - name: jest
         run: |
-          yarn jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           NODE_OPTIONS: "--max-old-space-size=10240 --disable-warning=DEP0040"
