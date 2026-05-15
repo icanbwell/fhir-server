@@ -9,7 +9,7 @@ R4-compliant FHIR server built with Express.js, MongoDB, and an IoC container pa
 ## Essential Commands
 
 ```bash
-# Install dependencies (Yarn 4 with PnP — no node_modules)
+# Install dependencies (Yarn 4 with node_modules)
 nvm use && corepack enable && yarn install
 
 # Run all tests (lint + jest)
@@ -96,6 +96,6 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 
 ## Package Management
 
-Uses Yarn 4 with `nodeLinker: node-modules`. Dependencies are installed into a standard `node_modules/` directory. All `require()`d packages must be explicit in `package.json` (no phantom dependencies from hoisting).
+Uses Yarn 4 with `nodeLinker: node-modules`. Dependencies are installed into a standard `node_modules/` directory. All `require()`d packages must be explicit in `package.json`.
 
 Edit `package.json` then run `make update` to regenerate `yarn.lock`. Some packages (Sentry, OpenTelemetry) are version-locked due to compatibility issues -- test thoroughly before updating.
