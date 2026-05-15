@@ -78,6 +78,64 @@ class AuditLogger {
     }
 
     /**
+     * Builds agent array and source from requestInfo
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @returns {{agents: AuditEventAgent[], whoReference: Reference|undefined}}
+     */
+    buildAgents (requestInfo) {
+        const isUser = Boolean(requestInfo?.isUser);
+        const whoReference = isUser
+            ? new Reference({ reference: `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}` })
+            : undefined;
+
+        const hasDelegatedActor = requestInfo?.userType === AUTH_USER_TYPES.delegatedUser;
+        const alternateId = requestInfo?.alternateUserId;
+
+        let agents;
+        if (hasDelegatedActor) {
+            const consentPolicy = requestInfo.actor.consentPolicy;
+            agents = [
+                new AuditEventAgent({
+                    who: whoReference,
+                    altId: alternateId,
+                    requestor: false,
+                    network: new AuditEventNetwork({
+                        type: '2'
+                    })
+                }),
+                new AuditEventAgent({
+                    who: new Reference({
+                        reference: requestInfo.actor?.reference
+                    }),
+                    policy: consentPolicy ? [consentPolicy] : undefined,
+                    altId: requestInfo.actor?.sub,
+                    requestor: true,
+                    network: new AuditEventNetwork({
+                        address: requestInfo?.remoteIpAddress,
+                        type: '2'
+                    })
+                })
+            ];
+        } else {
+            const consentPolicy = requestInfo.actor?.consentPolicy;
+            agents = [
+                new AuditEventAgent({
+                    who: whoReference,
+                    altId: alternateId,
+                    requestor: true,
+                    policy: consentPolicy ? [consentPolicy] : undefined,
+                    network: new AuditEventNetwork({
+                        address: requestInfo?.remoteIpAddress,
+                        type: '2'
+                    })
+                })
+            ];
+        }
+
+        return { agents, whoReference };
+    }
+
+    /**
      * Create an AuditEntry resource
      * @param {Object} params
      * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
@@ -101,63 +159,7 @@ class AuditLogger {
             execute: 'E'
         };
 
-        const isUser = Boolean(requestInfo?.isUser);
-
-        /**
-         * @type {string|null}
-         */
-        const alternateId = requestInfo.alternateUserId;
-
-        const hasDelegatedActor = requestInfo.userType === AUTH_USER_TYPES.delegatedUser;
-
-        const whoReference = isUser
-            ? new Reference({ reference: `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}` })
-            : undefined;
-
-        /**
-         * @type {AuditEventAgent[]}
-         */
-        let agents;
-
-        if (hasDelegatedActor) {
-            const consentPolicy = requestInfo.actor.consentPolicy;
-            agents = [
-                new AuditEventAgent({
-                    who: whoReference,
-                    altId: alternateId,
-                    requestor: false,
-                    network: new AuditEventNetwork({
-                        type: '2'
-                    })
-                }),
-                new AuditEventAgent({
-                    who: new Reference({
-                        reference: requestInfo.actor?.reference
-                    }),
-                    policy: consentPolicy ? [consentPolicy] : undefined,
-                    altId: requestInfo.actor?.sub,
-                    requestor: true,
-                    network: new AuditEventNetwork({
-                        address: requestInfo.remoteIpAddress,
-                        type: '2'
-                    })
-                })
-            ];
-        } else {
-            const consentPolicy = requestInfo.actor?.consentPolicy;
-            agents = [
-                new AuditEventAgent({
-                    who: whoReference,
-                    altId: alternateId,
-                    requestor: true,
-                    policy: consentPolicy ? [consentPolicy] : undefined,
-                    network: new AuditEventNetwork({
-                        address: requestInfo.remoteIpAddress,
-                        type: '2'
-                    })
-                })
-            ];
-        }
+        const { agents, whoReference } = this.buildAgents(requestInfo);
 
         const purposeOfEvent = requestInfo.purposeOfUse?.length
             ? requestInfo.purposeOfUse.map(code => new CodeableConcept({
@@ -195,17 +197,19 @@ class AuditLogger {
                 }),
             action: operationCodeMapping[`${operation}`],
             entity: ids.map((resourceId, index) => {
+                const detail = index === 0
+                    ? [
+                        ...(requestInfo.originalUrl ? [{ type: 'requestUrl', valueString: requestInfo.originalUrl }] : []),
+                        ...(requestInfo.requestId ? [{ type: 'requestId', valueString: requestInfo.requestId }] : []),
+                        ...Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value]) => {
+                            return { type: key, valueString: value };
+                        })
+                    ] : null;
                 return new AuditEventEntity({
                     what: new Reference({
                         reference: `${resourceType}/${resourceId}`
                     }),
-                    detail: index === 0
-                        ? Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
-                            return {
-                                type: key,
-                                valueString: value
-                            };
-                        }) : null
+                    detail
                 });
             }),
             purposeOfEvent
@@ -257,6 +261,99 @@ class AuditLogger {
             await this.preSaveManager.preSaveAsync({ resource: doc });
             this.queue.push({ doc, requestInfo });
         }
+    }
+
+    /**
+     * Creates an AuditEvent for an error response
+     * @param {Object} params
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {string|null} params.resourceType
+     * @param {number} params.errorCode - HTTP status code (401, 403, 404, 500) or 0 for abort
+     * @param {string} params.errorMessage
+     * @param {{type: string, valueString: string}[]} [params.extraParams]
+     * @returns {AuditEvent}
+     */
+    createErrorAuditEntry ({ requestInfo, resourceType, errorCode, errorMessage, extraParams }) {
+        const originalUrl = requestInfo.originalUrl;
+        const requestId = requestInfo.requestId;
+        const securityAlertType = new Coding({
+            system: 'http://dicom.nema.org/resources/ontology/DCM',
+            code: '110113',
+            display: 'Security Alert'
+        });
+
+        const restType = new Coding({
+            system: 'http://terminology.hl7.org/CodeSystem/audit-event-type',
+            code: 'rest',
+            display: 'RESTful Operation'
+        });
+
+        const isSecurityError = errorCode === 401 || errorCode === 403;
+        const type = isSecurityError ? securityAlertType : restType;
+        const outcome = errorCode >= 500 ? '8' : '4';
+
+        const { agents, whoReference } = this.buildAgents(requestInfo);
+
+        const detail = [
+            ...(originalUrl ? [{ type: 'requestUrl', valueString: originalUrl }] : []),
+            ...(requestId ? [{ type: 'requestId', valueString: requestId }] : []),
+            ...(extraParams || [])
+        ];
+        const entity = detail.length > 0 ? [
+            new AuditEventEntity({ detail })
+        ] : undefined;
+
+        return new AuditEvent({
+            id: generateUUID(),
+            meta: new Meta({
+                versionId: '1',
+                lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+                security: [
+                    new Coding({ system: SecurityTagSystem.owner, code: 'bwell' }),
+                    new Coding({ system: SecurityTagSystem.access, code: 'bwell' })
+                ]
+            }),
+            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+            type,
+            action: 'E',
+            outcome,
+            outcomeDesc: errorMessage,
+            agent: agents,
+            source: new AuditEventSource({
+                observer: new Reference({
+                    reference: `Organization/${this.configManager.auditEventObserverOrganizationId}`
+                })
+            }),
+            entity
+        });
+    }
+
+
+    /**
+     * Logs an error audit entry
+     * @param {Object} params
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {string|null} params.resourceType
+     * @param {number} params.errorCode
+     * @param {string} params.errorMessage
+     * @param {{type: string, valueString: string}[]} [params.extraParams]
+     * @return {Promise<void>}
+     */
+    async logErrorAuditEntryAsync ({
+        requestInfo, resourceType,
+        errorCode, errorMessage, extraParams
+    }) {
+        if (!this.configManager.enableAccessAuditEvent) {
+            return;
+        }
+
+        const doc = this.createErrorAuditEntry({
+            requestInfo, resourceType, errorCode, errorMessage, extraParams
+        });
+
+        await this.preSaveManager.preSaveAsync({ resource: doc });
+
+        this.queue.push({ doc, requestInfo });
     }
 
     /**

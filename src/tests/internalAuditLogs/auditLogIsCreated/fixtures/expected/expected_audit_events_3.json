@@ -19,6 +19,14 @@
       {
         "detail": [
           {
+            "type": "requestUrl",
+            "valueString": "/4_0_0/Practitioner/1679033641/$merge?validate=true"
+          },
+          {
+            "type": "requestId",
+            "valueString": "12345678"
+          },
+          {
             "type": "base_version",
             "valueString": "4_0_0"
           },
@@ -91,6 +99,14 @@
       {
         "detail": [
           {
+            "type": "requestUrl",
+            "valueString": "/4_0_0/Practitioner/0/$merge"
+          },
+          {
+            "type": "requestId",
+            "valueString": "12345678"
+          },
+          {
             "type": "base_version",
             "valueString": "4_0_0"
           }
@@ -158,6 +174,14 @@
     "entity": [
       {
         "detail": [
+          {
+            "type": "requestUrl",
+            "valueString": "/4_0_0/Practitioner/0"
+          },
+          {
+            "type": "requestId",
+            "valueString": "12345678"
+          },
           {
             "type": "base_version",
             "valueString": "4_0_0"

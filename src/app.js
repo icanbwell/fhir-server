@@ -33,12 +33,13 @@ const {handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut} = req
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
-const {logInfo, logDebug} = require('./operations/common/logging');
+const {logInfo, logDebug, logError} = require('./operations/common/logging');
 const {generateNonce} = require('./utils/nonce');
 const {handleServerError} = require('./routeHandlers/handleError');
 const {shouldReturnHtml} = require('./utils/requestHelpers.js');
 const {generateLogDetail} = require('./utils/requestCompletionLogData.js');
 const {incrementRequestCount, decrementRequestCount, getRequestCount} = require('./utils/requestCounter');
+const {FhirRequestInfoBuilder} = require('./utils/fhirRequestInfoBuilder');
 
 /**
  * Creates the FHIR app
@@ -176,6 +177,31 @@ function createApp({fnGetContainer}) {
                 }
             }
 
+            if (res.statusCode === 401 && configManager.enableAccessAuditEvent) {
+                try {
+                    const auditLogger = container.auditLogger;
+                    const resourceType = (reqPath.split('/')[2])?.split('?')[0];
+                    const requestInfo = new FhirRequestInfoBuilder(req).build({
+                        requestId: req.uniqueRequestId
+                    });
+                    const errorMessage = req.authFailureDetail || 'Authentication Failed';
+                    const extraParams = req.jwtPayload
+                        ? [{ type: 'jwtPayload', valueString: JSON.stringify(req.jwtPayload) }]
+                        : undefined;
+                    auditLogger.logErrorAuditEntryAsync({
+                        requestInfo,
+                        resourceType,
+                        errorCode: 401,
+                        errorMessage,
+                        extraParams
+                    }).catch((e) => {
+                        logError('Error logging 401 audit event', { error: e.message });
+                    });
+                } catch (e) {
+                    logError('Error building 401 audit event', { error: e.message });
+                }
+            }
+
             if (
                 (configManager.enableAccessLogs) &&
                 (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body)
@@ -205,6 +231,26 @@ function createApp({fnGetContainer}) {
                     altId: req.authInfo?.context?.username || req.authInfo?.context?.subject || ((!req.user || typeof req.user === 'string') ? req.user : req.user?.name || req.user?.id),
                     scope: req.authInfo?.scope
                 });
+
+                if (configManager.enableAccessAuditEvent) {
+                    try {
+                        const resourceType = (reqPath.split('/')[2])?.split('?')[0];
+                        const auditLogger = container.auditLogger;
+                        const requestInfo = new FhirRequestInfoBuilder(req).build({
+                            requestId: req.uniqueRequestId
+                        });
+                        auditLogger.logErrorAuditEntryAsync({
+                            requestInfo,
+                            resourceType,
+                            errorCode: 0,
+                            errorMessage: 'Request Aborted by Client'
+                        }).catch((e) => {
+                            logError('Error logging abort audit event', { error: e.message });
+                        });
+                    } catch (e) {
+                        logError('Error building abort audit event', { error: e.message });
+                    }
+                }
             }
         });
         next();

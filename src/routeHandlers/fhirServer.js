@@ -19,6 +19,8 @@ const httpContext = require('express-http-context');
 const { REQUEST_ID_TYPE } = require('../constants');
 const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
 const { ConfigManager } = require('../utils/configManager');
+const { FhirRequestInfoBuilder } = require('../utils/fhirRequestInfoBuilder');
+const { logError } = require('../operations/common/logging');
 
 class MyFHIRServer {
     /**
@@ -296,6 +298,9 @@ class MyFHIRServer {
                             if (status === 500) {
                                 errorToSend = convertErrorToOperationOutcome({ error: err, internalError: true });
                             }
+                            if (status >= 400) {
+                                this.logErrorAuditEvent(req, status, err);
+                            }
                             res1.status(status).json(errorToSend);
                         } else if (err) {
                             const status = err.statusCode || 500;
@@ -306,6 +311,9 @@ class MyFHIRServer {
                                 error: err,
                                 internalError: status === 500
                             });
+                            if (status >= 400) {
+                                this.logErrorAuditEvent(req, status, err);
+                            }
                             res1.status(status).json(operationOutcome);
                         } else {
                             next();
@@ -366,6 +374,42 @@ class MyFHIRServer {
 
         // return self for chaining
         return this;
+    }
+
+    /**
+     * Logs an error audit event for 400+ errors
+     * @param {import('express').Request} req
+     * @param {number} status
+     * @param {Error} err
+     */
+    logErrorAuditEvent (req, status, err) {
+        try {
+            if (!this.configManager.enableAccessAuditEvent) {
+                return;
+            }
+            const auditLogger = this.container.auditLogger;
+            const resourceType = req.resourceType || (req.url.split('/')[2])?.split('?')[0];
+            const requestInfo = FhirRequestInfoBuilder.fromRequest(req);
+            const errorMessage = err.message
+                || err.issue?.[0]?.diagnostics
+                || err.issue?.[0]?.details?.text
+                || 'Internal Server Error';
+            let extraParams;
+            if (status === 403 && req.authInfo?.scope) {
+                extraParams = [{ type: 'scope', valueString: req.authInfo.scope }];
+            }
+            auditLogger.logErrorAuditEntryAsync({
+                requestInfo,
+                resourceType: resourceType || null,
+                errorCode: status,
+                errorMessage,
+                extraParams
+            }).catch((e) => {
+                logError('Error logging error audit event', { error: e.message });
+            });
+        } catch (e) {
+            logError('Error building error audit event', { error: e.message });
+        }
     }
 
     /**

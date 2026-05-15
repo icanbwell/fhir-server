@@ -882,6 +882,12 @@ class FastMergeManager {
                             const updatedItems = mergeResultsForResourceType.filter(
                                 (r) => r.updated === true
                             );
+                            /**
+                             * @type {MergeResultEntry[]}
+                             */
+                            const failedItems = mergeResultsForResourceType.filter(
+                                (r) => r.issue
+                            );
                             if (createdItems && createdItems.length > 0) {
                                 await this.auditLogger.logAuditEntryAsync({
                                     requestInfo,
@@ -901,6 +907,17 @@ class FastMergeManager {
                                     args: parsedArgs.getRawArgs(),
                                     ids: updatedItems.map((r) => r._uuid)
                                 });
+                            }
+                            if (failedItems && failedItems.length > 0) {
+                                for (const entry of failedItems) {
+                                    const errorDetail = entry.issue?.details?.text || entry.issue?.diagnostics || 'Merge failed';
+                                    await this.auditLogger.logErrorAuditEntryAsync({
+                                        requestInfo,
+                                        resourceType,
+                                        errorCode: 400,
+                                        errorMessage: `${resourceType}/${entry.id}: ${errorDetail}`
+                                    });
+                                }
                             }
                         }
                     }
