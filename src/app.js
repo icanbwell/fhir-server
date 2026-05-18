@@ -235,8 +235,9 @@ function createApp({fnGetContainer}) {
                         const auditLogger = container.auditLogger;
                         const overrides = { requestId: req.uniqueRequestId };
                         if (!req.authInfo && req.jwtPayload) {
-                            overrides.user = req.jwtPayload.sub || req.jwtPayload.username;
-                            overrides.alternateUserId = req.jwtPayload.sub || req.jwtPayload.username;
+                            const { username, subject } = container.authService.getFieldsFromToken(req.jwtPayload);
+                            overrides.user = username || subject;
+                            overrides.alternateUserId = username || subject;
                         }
                         const requestInfo = new FhirRequestInfoBuilder(req).build(overrides);
                         auditLogger.logErrorAuditEntryAsync({

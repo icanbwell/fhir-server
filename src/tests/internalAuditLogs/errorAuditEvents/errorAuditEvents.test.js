@@ -332,6 +332,8 @@ describe('Error Audit Events Integration Tests', () => {
                 expect(abortLog.outcome).toBe('4');
                 expect(abortLog.outcomeDesc).toBe('Request Aborted by Client');
                 expect(abortLog.entity[0].detail.find(d => d.type === 'requestUrl')).toBeDefined();
+                // Verify agent identity is captured (either from req.authInfo or JWT fallback)
+                expect(abortLog.agent[0].altId).toBe('imran');
             }
             // Note: abort detection depends on timing; if the response completes before
             // the abort fires, no abort audit event is created (correct behavior)
