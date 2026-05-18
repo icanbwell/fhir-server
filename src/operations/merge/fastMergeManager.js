@@ -23,6 +23,7 @@ const { logDebug, logError, logWarn } = require('../common/logging');
 const { groupByLambda } = require('../../utils/list.util');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { mergeObject } = require('../../utils/mergeHelper');
+const { ReadPreference } = require('mongodb');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const deepcopy = require('deepcopy');
@@ -327,7 +328,8 @@ class FastMergeManager {
                 );
 
                 currentResource = await databaseQueryManager.fastFindOneAsync({
-                    query: { _uuid: uuid.toString() }
+                    query: { _uuid: uuid.toString() },
+                    options: { readPreference: ReadPreference.PRIMARY }
                 });
             }
 
