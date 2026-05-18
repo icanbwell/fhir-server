@@ -5,11 +5,16 @@ const patchInternalUuid = require('./fixtures/patches/patch_internal_uuid.json')
 const patchInternalAccess = require('./fixtures/patches/patch_internal_access.json');
 const patchNestedReferenceInternal = require('./fixtures/patches/patch_nested_reference_internal.json');
 const patchMixedValidAndInternal = require('./fixtures/patches/patch_mixed_valid_and_internal.json');
+const patchMoveFromInternal = require('./fixtures/patches/patch_move_from_internal.json');
+const patchCopyFromInternal = require('./fixtures/patches/patch_copy_from_internal.json');
+const patchMoveToInternal = require('./fixtures/patches/patch_move_to_internal.json');
 
 const expectedErrorSourceAssigningAuthority = require('./fixtures/expected/expected_error_source_assigning_authority.json');
 const expectedErrorUuid = require('./fixtures/expected/expected_error_uuid.json');
 const expectedErrorAccess = require('./fixtures/expected/expected_error_access.json');
 const expectedErrorNestedSourceAssigningAuthority = require('./fixtures/expected/expected_error_nested_source_assigning_authority.json');
+const expectedErrorMoveFromInternal = require('./fixtures/expected/expected_error_move_from_internal.json');
+const expectedErrorCopyFromInternal = require('./fixtures/expected/expected_error_copy_from_internal.json');
 
 const {
     commonBeforeEach,
@@ -126,6 +131,60 @@ describe('Patch Internal Fields Security Tests', () => {
             resp = await request.get('/4_0_0/Person/a1b2c3d4-e5f6-7890-abcd-ef1234567890').set(getHeaders());
             expect(resp.body.gender).toBe('male');
             expect(resp.body.active).toBe(true);
+        });
+
+        test('patch rejects move from internal field', async () => {
+            const request = await createTestRequest();
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .patch('/4_0_0/Person/a1b2c3d4-e5f6-7890-abcd-ef1234567890')
+                .send(patchMoveFromInternal)
+                .set(getHeadersJsonPatch());
+
+            expect(resp.status).toBe(400);
+            expect(resp.body).toStrictEqual(expectedErrorMoveFromInternal);
+        });
+
+        test('patch rejects copy from internal field', async () => {
+            const request = await createTestRequest();
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .patch('/4_0_0/Person/a1b2c3d4-e5f6-7890-abcd-ef1234567890')
+                .send(patchCopyFromInternal)
+                .set(getHeadersJsonPatch());
+
+            expect(resp.status).toBe(400);
+            expect(resp.body).toStrictEqual(expectedErrorCopyFromInternal);
+        });
+
+        test('patch rejects move to internal field path', async () => {
+            const request = await createTestRequest();
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .patch('/4_0_0/Person/a1b2c3d4-e5f6-7890-abcd-ef1234567890')
+                .send(patchMoveToInternal)
+                .set(getHeadersJsonPatch());
+
+            expect(resp.status).toBe(400);
+            expect(resp.body).toStrictEqual(expectedErrorSourceAssigningAuthority);
         });
 
         test('patch allows legitimate field modifications', async () => {

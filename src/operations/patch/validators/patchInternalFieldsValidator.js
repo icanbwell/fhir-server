@@ -4,7 +4,7 @@ const { BadRequestError } = require('../../../utils/httpErrors');
  * @param {string} segment
  * @returns {boolean}
  */
-function isInternalField (segment) {
+function isInternalField(segment) {
     return segment.startsWith('_');
 }
 
@@ -14,7 +14,7 @@ function isInternalField (segment) {
  * @param {string} path
  * @returns {string|null} The offending field name, or null if path is clean
  */
-function findInternalFieldInPath (path) {
+function findInternalFieldInPath(path) {
     const segments = path.split('/');
     for (const segment of segments) {
         if (isInternalField(segment)) {
@@ -30,7 +30,7 @@ function findInternalFieldInPath (path) {
  * @param {*} value
  * @returns {string|null} The offending field name, or null if value is clean
  */
-function findInternalFieldInValue (value) {
+function findInternalFieldInValue(value) {
     if (value === null || value === undefined || typeof value !== 'object') {
         return null;
     }
@@ -73,6 +73,18 @@ function validatePatchDoesNotTargetInternalFields(patchContent) {
                         'Internal fields prefixed with _ cannot be modified via PATCH.'
                 )
             );
+        }
+
+        if ((operation.op === 'move' || operation.op === 'copy') && operation.from) {
+            const fieldInFrom = findInternalFieldInPath(operation.from);
+            if (fieldInFrom) {
+                throw new BadRequestError(
+                    new Error(
+                        `Patch operation referencing internal field '${fieldInFrom}' in 'from' is not allowed. ` +
+                            'Internal fields prefixed with _ cannot be accessed via PATCH.'
+                    )
+                );
+            }
         }
 
         if (operation.value !== undefined) {
