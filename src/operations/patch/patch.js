@@ -31,6 +31,7 @@ const { GroupMemberPatchStrategy } = require('./strategies/groupMemberPatchStrat
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
 
 class PatchOperation {
     /**
@@ -208,6 +209,9 @@ class PatchOperation {
                 }
             );
         }
+
+        // Reject any patch operations targeting internal _ fields before any DB work
+        validatePatchDoesNotTargetInternalFields(patchContent);
 
         /**
          * @type {number}
