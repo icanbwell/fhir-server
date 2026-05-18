@@ -6,6 +6,7 @@ const { RethrownError } = require('../utils/rethrownError');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
+const { ReadPreference } = require('mongodb');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -239,7 +240,7 @@ class DatabaseQueryManager {
             const query = {
                 _uuid: { $in: resources.map((r) => r._uuid) }
             };
-            const options = {};
+            const options = { readPreference: ReadPreference.PRIMARY };
             const cursor = collection.find(query, options);
             return new DatabaseCursor({
                 base_version: this._base_version,

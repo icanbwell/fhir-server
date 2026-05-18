@@ -17,6 +17,7 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { isTrue } = require('../../utils/isTrue');
+const { ReadPreference } = require('mongodb');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
 const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
@@ -285,7 +286,7 @@ class PatchOperation {
                 { resourceType, base_version }
             );
 
-            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query, options: { readPreference: ReadPreference.PRIMARY }, extraInfo });
             /**
              * @type {[Resource] | null}
              */
