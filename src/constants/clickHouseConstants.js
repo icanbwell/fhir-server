@@ -12,6 +12,7 @@ module.exports = {
         GROUP_MEMBER_CURRENT: 'fhir.Group_4_0_0_MemberCurrent',
         GROUP_MEMBER_CURRENT_BY_ENTITY: 'fhir.Group_4_0_0_MemberCurrentByEntity',
         AUDIT_EVENT: 'fhir.AuditEvent_4_0_0',
+        AUDIT_ACCESS_AGG: 'fhir.AUDIT_ACCESS_AGG',
         ACCESS_LOG: 'fhir.AccessLog'
     },
 
