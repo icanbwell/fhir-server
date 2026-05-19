@@ -8,21 +8,7 @@ const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = req
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
 
-class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
-    get enableTwoStepOptimization () {
-        return true;
-    }
-
-    get streamResponse () {
-        return false;
-    }
-}
-
-class MockConfigManagerWithTwoStepOptimizationStreaming extends ConfigManager {
-    get enableTwoStepOptimization () {
-        return true;
-    }
-
+class MockConfigManagerWithStreaming extends ConfigManager {
     get streamResponse () {
         return true;
     }
@@ -40,7 +26,7 @@ describe('Person Tests', () => {
     describe('Person test_resource_not_found Tests', () => {
         test('test_resource_not_found works with bundle', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithTwoStepOptimizationBundle());
+                c.register('configManager', () => new MockConfigManagerWithStreaming());
                 return c;
             });
             // ARRANGE
@@ -62,7 +48,7 @@ describe('Person Tests', () => {
         });
         test('test_resource_not_found works with streaming', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithTwoStepOptimizationStreaming());
+                c.register('configManager', () => new MockConfigManagerWithStreaming());
                 return c;
             });
             // ARRANGE

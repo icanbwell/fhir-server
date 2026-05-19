@@ -4,7 +4,6 @@ class GetCursorResult {
      * @param {number | null} cursorBatchSize
      * @param {DatabaseCursor|null} cursor
      * @param {string | null} indexHint
-     * @param {boolean} useTwoStepSearchOptimization
      * @param {Set} columns
      * @param {number | null} total_count
      * @param {import('mongodb').Document} query
@@ -18,7 +17,6 @@ class GetCursorResult {
             cursorBatchSize,
             cursor,
             indexHint,
-            useTwoStepSearchOptimization,
             columns,
             total_count,
             query,
@@ -40,10 +38,6 @@ class GetCursorResult {
          * @type {string|null}
          */
         this.indexHint = indexHint;
-        /**
-         * @type {boolean}
-         */
-        this.useTwoStepSearchOptimization = useTwoStepSearchOptimization;
         /**
          * @type {Set}
          */
