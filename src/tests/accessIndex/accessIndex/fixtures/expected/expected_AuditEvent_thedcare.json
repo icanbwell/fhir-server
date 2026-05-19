@@ -22,10 +22,6 @@
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "display": "{'useTwoStepSearchOptimization':undefined}",
-        "system": "https://www.icanbwell.com/queryOptimization"
-      },
-      {
         "code": "audit-event",
         "system": "https://www.icanbwell.com/queryDatabase"
       },

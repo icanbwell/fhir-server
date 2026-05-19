@@ -108,23 +108,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -309,23 +309,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/insurance",
               "versionId": "1"
             },
@@ -532,23 +532,23 @@
               "reference": "Organization/myhealthsystem-Alias-GP6-GGIM"
             },
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider_appointment_type",
               "versionId": "1"
             },
@@ -767,23 +767,23 @@
               "reference": "Organization/myhealthsystem-Alias-GP6-GGIM"
             },
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider_appointment_type",
               "versionId": "1"
             },
@@ -912,23 +912,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1056,23 +1056,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1237,23 +1237,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1421,23 +1421,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1543,23 +1543,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/insurance",
               "versionId": "1"
             },
@@ -1666,23 +1666,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1979,10 +1979,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "display": "{'useTwoStepSearchOptimization':undefined}",
-        "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"

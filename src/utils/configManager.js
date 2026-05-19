@@ -48,14 +48,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to enable two step optimization
-     * @return {boolean}
-     */
-    get enableTwoStepOptimization() {
-        return isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION);
-    }
-
-    /**
      * whether to stream the response
      * @return {boolean}
      */

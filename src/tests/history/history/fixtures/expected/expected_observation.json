@@ -14,11 +14,12 @@
         "system": "https://www.icanbwell.com/queryOptions",
         "display": "{'sort':{'resource.meta.lastUpdated':-1}}"
       },
-      { "system": "https://www.icanbwell.com/queryFields" },
-      { "system": "https://www.icanbwell.com/queryTime", "display": "0.041" },
       {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime",
+        "display": "0.041"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain",
@@ -33,7 +34,10 @@
   "type": "history",
   "total": 2,
   "link": [
-    { "relation": "self", "url": "http://localhost:3000/4_0_0/Observation/_history?_debug=1" }
+    {
+      "relation": "self",
+      "url": "http://localhost:3000/4_0_0/Observation/_history?_debug=1"
+    }
   ],
   "entry": [
     {
@@ -46,8 +50,14 @@
           "lastUpdated": "2023-02-16T01:12:00.000Z",
           "source": "http://www.icanbwell.com/cql",
           "security": [
-            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
-            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell"
+            },
             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
               "code": "bwell"
@@ -55,7 +65,10 @@
           ]
         },
         "extension": [
-          { "url": "https://www.icanbwell.com/sourceType", "valueString": "cql-engine" }
+          {
+            "url": "https://www.icanbwell.com/sourceType",
+            "valueString": "cql-engine"
+          }
         ],
         "identifier": [
           {
@@ -74,15 +87,22 @@
         "status": "final",
         "code": {
           "coding": [
-            { "system": "http://www.icanbwell.com/cql/library", "code": "Rx" },
-            { "system": "http://www.icanbwell.com/cql/libraryVersion" },
+            {
+              "system": "http://www.icanbwell.com/cql/library",
+              "code": "Rx"
+            },
+            {
+              "system": "http://www.icanbwell.com/cql/libraryVersion"
+            },
             {
               "system": "http://www.icanbwell.com/cql/rule",
               "code": "NoRx_ind_Output_Obs"
             }
           ]
         },
-        "subject": { "reference": "Patient/person.14aacd66e74844e48d97571e85009508" },
+        "subject": {
+          "reference": "Patient/person.14aacd66e74844e48d97571e85009508"
+        },
         "effectiveDateTime": "2023-02-10T08:34:04+00:00",
         "valueBoolean": true
       },
@@ -102,8 +122,14 @@
           "lastUpdated": "2023-02-16T01:12:00.000Z",
           "source": "http://www.icanbwell.com/cql",
           "security": [
-            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
-            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell"
+            },
             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
               "code": "bwell"
@@ -119,7 +145,10 @@
           ]
         },
         "extension": [
-          { "url": "https://www.icanbwell.com/sourceType", "valueString": "cql-engine" }
+          {
+            "url": "https://www.icanbwell.com/sourceType",
+            "valueString": "cql-engine"
+          }
         ],
         "identifier": [
           {
@@ -138,15 +167,22 @@
         "status": "final",
         "code": {
           "coding": [
-            { "system": "http://www.icanbwell.com/cql/library", "code": "Rx" },
-            { "system": "http://www.icanbwell.com/cql/libraryVersion" },
+            {
+              "system": "http://www.icanbwell.com/cql/library",
+              "code": "Rx"
+            },
+            {
+              "system": "http://www.icanbwell.com/cql/libraryVersion"
+            },
             {
               "system": "http://www.icanbwell.com/cql/rule",
               "code": "NoRx_ind_Output_Obs"
             }
           ]
         },
-        "subject": { "reference": "Patient/person.14aacd66e74844e48d97571e85009508" },
+        "subject": {
+          "reference": "Patient/person.14aacd66e74844e48d97571e85009508"
+        },
         "effectiveDateTime": "2023-02-10T08:34:04+00:00",
         "valueBoolean": true
       }
