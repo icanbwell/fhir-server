@@ -6,6 +6,7 @@ const { RethrownError } = require('../utils/rethrownError');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { ConfigManager } = require('../utils/configManager');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
+const { ReadPreference } = require('mongodb');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -119,7 +120,7 @@ class DatabaseBulkLoader {
              * cursor
              * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
              */
-            const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources });
+            const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources, options: { readPreference: ReadPreference.PRIMARY } });
 
             /**
              * @type {Resource[]|Object[]}
