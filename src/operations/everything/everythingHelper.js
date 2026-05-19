@@ -39,7 +39,6 @@ const { SearchParametersManager } = require('../../searchParameters/searchParame
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { EverythingRelatedResourcesMapper } = require('./everythingRelatedResourcesMapper');
 const { ProcessMultipleIdsAsyncResult } = require('../common/processMultipleIdsAsyncResult');
-const { ReadPreference } = require('mongodb');
 const { QueryItem } = require('../graph/queryItem');
 const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTracker');
 const { NonClinicalReferencesExtractor } = require('./nonClinicalResourceExtractor');
@@ -268,9 +267,6 @@ class EverythingHelper {
                 _id: 0
             }
         };
-        if (requestInfo.method.toLowerCase() === 'delete') {
-            options.readPreference = ReadPreference.PRIMARY;
-        }
         let cursor = await databaseQueryManager.findAsync({ query, options });
         let ids = [];
         while (await cursor.hasNext()) {
@@ -1060,9 +1056,6 @@ class EverythingHelper {
 
 
             const options = {};
-            if (requestInfo.method.toLowerCase() === 'delete') {
-                options.readPreference = ReadPreference.PRIMARY;
-            }
             let projection = {};
             if (useUuidProjection) {
                 projection = deepcopy(this.uuidProjection);
@@ -1405,9 +1398,6 @@ class EverythingHelper {
             }
 
             const options = {};
-            if (requestInfo.method.toLowerCase() === 'delete') {
-                options.readPreference = ReadPreference.PRIMARY;
-            }
             let projection = {}
             if (useUuidProjection) {
                 projection = deepcopy(this.uuidProjection);
