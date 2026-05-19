@@ -141,7 +141,9 @@
           {
             "use": "official",
             "family": "Irving",
-            "given": ["Lloyd"]
+            "given": [
+              "Lloyd"
+            ]
           }
         ],
         "resourceType": "Person"
@@ -282,7 +284,9 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT1",
-            "given": ["SHYLA"]
+            "given": [
+              "SHYLA"
+            ]
           }
         ],
         "resourceType": "Patient"
@@ -461,10 +465,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"

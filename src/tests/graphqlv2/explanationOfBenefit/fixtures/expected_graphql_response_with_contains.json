@@ -312,10 +312,6 @@
             "system": "https://www.icanbwell.com/queryTime"
           },
           {
-            "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
-            "system": "https://www.icanbwell.com/queryOptimization"
-          },
-          {
             "system": "https://www.icanbwell.com/queryExplain"
           },
           {
