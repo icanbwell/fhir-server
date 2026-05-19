@@ -6,7 +6,9 @@
         "address": {
           "use": "work",
           "type": "physical",
-          "line": ["1940 Elmer J Bissell Rd"],
+          "line": [
+            "1940 Elmer J Bissell Rd"
+          ],
           "city": "Birmingham",
           "state": "AL",
           "postalCode": "35243"
@@ -67,12 +69,25 @@
           ]
         },
         "name": "Elise D. Agostinelli, OD",
-        "position": { "longitude": -86.76238, "latitude": 33.41329 },
+        "position": {
+          "longitude": -86.76238,
+          "latitude": 33.41329
+        },
         "resourceType": "Location",
         "status": "active",
         "telecom": [
-          { "system": "phone", "value": "2056384938", "use": "work", "rank": 1 },
-          { "system": "fax", "value": "2056385899", "use": "work", "rank": 2 }
+          {
+            "system": "phone",
+            "value": "2056384938",
+            "use": "work",
+            "rank": 1
+          },
+          {
+            "system": "fax",
+            "value": "2056385899",
+            "use": "work",
+            "rank": 2
+          }
         ]
       }
     }
@@ -102,11 +117,13 @@
         "system": "https://www.icanbwell.com/queryOptions",
         "display": "[{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}}]"
       },
-      { "system": "https://www.icanbwell.com/queryFields", "display": "[]" },
-      { "system": "https://www.icanbwell.com/queryTime", "display": "0.066" },
       {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "[]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime",
+        "display": "0.066"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"

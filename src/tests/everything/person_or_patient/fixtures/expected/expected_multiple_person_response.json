@@ -7,7 +7,9 @@
         "address": [
           {
             "id": "2011-10-05T14:48:00.000Z",
-            "line": ["301 W, in a yellow submarine"],
+            "line": [
+              "301 W, in a yellow submarine"
+            ],
             "city": "Austin",
             "state": "Texas",
             "postalCode": "78701",
@@ -111,7 +113,9 @@
           {
             "use": "nickname",
             "family": "Azamar",
-            "given": ["Daniel"]
+            "given": [
+              "Daniel"
+            ]
           }
         ],
         "resourceType": "Person",
@@ -169,7 +173,9 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT1",
-            "given": ["SHYLA"]
+            "given": [
+              "SHYLA"
+            ]
           }
         ],
         "resourceType": "Patient"
@@ -571,7 +577,9 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT1",
-            "given": ["SHYLA"]
+            "given": [
+              "SHYLA"
+            ]
           }
         ],
         "resourceType": "Patient"
@@ -647,7 +655,9 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT2",
-            "given": ["OTHER"]
+            "given": [
+              "OTHER"
+            ]
           }
         ],
         "resourceType": "Person"
@@ -660,7 +670,9 @@
         "address": [
           {
             "id": "2011-10-05T14:48:00.000Z",
-            "line": ["301 W, in a yellow submarine"],
+            "line": [
+              "301 W, in a yellow submarine"
+            ],
             "city": "Austin",
             "state": "Texas",
             "postalCode": "78701",
@@ -764,7 +776,9 @@
           {
             "use": "nickname",
             "family": "Azamar",
-            "given": ["Daniel"]
+            "given": [
+              "Daniel"
+            ]
           }
         ],
         "resourceType": "Person",
@@ -1004,10 +1018,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"

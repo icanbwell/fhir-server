@@ -2985,10 +2985,6 @@ describe('graphHelper Tests', () => {
                             system: 'https://www.icanbwell.com/queryTime'
                         },
                         {
-                            display: '{\'useTwoStepSearchOptimization\':undefined}',
-                            system: 'https://www.icanbwell.com/queryOptimization'
-                        },
-                        {
                             system: 'https://www.icanbwell.com/queryExplain'
                         },
                         {
@@ -3179,10 +3175,6 @@ describe('graphHelper Tests', () => {
                         },
                         {
                             system: 'https://www.icanbwell.com/queryTime'
-                        },
-                        {
-                            system: 'https://www.icanbwell.com/queryOptimization',
-                            display: '{\'useTwoStepSearchOptimization\':undefined}'
                         },
                         {
                             system: 'https://www.icanbwell.com/queryExplain'

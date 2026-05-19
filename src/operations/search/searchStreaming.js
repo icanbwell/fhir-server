@@ -255,10 +255,6 @@ class SearchStreamingOperation {
              */
             const originalOptions = __ret.originalOptions;
             /**
-             * @type {boolean}
-             */
-            const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
-            /**
              * @type {Resource[]}
              */
             const resources = __ret.resources;
@@ -311,7 +307,7 @@ class SearchStreamingOperation {
              */
             const allCollectionsToSearch = cursor ? [cursor.getCollection()] : [];
 
-            if (cursor !== null) { // usually means the two-step optimization found no results
+            if (cursor !== null) {
                 /**
                  * @type {Resource[]}
                  */
@@ -346,7 +342,6 @@ class SearchStreamingOperation {
                         columns,
                         stopTime: stopTime1,
                         startTime,
-                        useTwoStepSearchOptimization,
                         indexHint,
                         cursorBatchSize,
                         user,
@@ -424,7 +419,6 @@ class SearchStreamingOperation {
                                 columns,
                                 stopTime,
                                 startTime,
-                                useTwoStepSearchOptimization,
                                 indexHint,
                                 cursorBatchSize,
                                 user,

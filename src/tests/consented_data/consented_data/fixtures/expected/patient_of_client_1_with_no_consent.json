@@ -76,10 +76,6 @@
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':false}"
-      },
-      {
         "system": "https://www.icanbwell.com/queryDatabase",
         "code": "fhir"
       },

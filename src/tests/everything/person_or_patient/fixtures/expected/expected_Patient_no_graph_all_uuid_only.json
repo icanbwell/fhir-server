@@ -105,10 +105,6 @@
         "display": "0.067"
       },
       {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
-      },
-      {
         "system": "https://www.icanbwell.com/queryExplain"
       },
       {

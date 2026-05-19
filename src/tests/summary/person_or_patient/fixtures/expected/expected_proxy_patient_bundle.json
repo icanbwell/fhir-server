@@ -43,13 +43,17 @@
             "use": "usual",
             "text": "patient1",
             "family": "PATIENT1",
-            "given": ["SHYLA"]
+            "given": [
+              "SHYLA"
+            ]
           },
           {
             "use": "usual",
             "text": "patient2",
             "family": "PATIENT2",
-            "given": ["SHYLA"]
+            "given": [
+              "SHYLA"
+            ]
           }
         ],
         "resourceType": "Patient",
@@ -174,7 +178,6 @@
         }
       }
     },
-
     {
       "resource": {
         "category": [
@@ -391,7 +394,9 @@
             "use": "usual",
             "text": "patient2",
             "family": "PATIENT2",
-            "given": ["SHYLA"]
+            "given": [
+              "SHYLA"
+            ]
           }
         ],
         "resourceType": "Patient"
@@ -404,7 +409,7 @@
     "system": "urn:ietf:rfc:3986",
     "value": "urn:uuid:4dcfd353-49fd-4ab0-b521-c8d57ced74d6"
   },
-    "meta": {
+  "meta": {
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
@@ -424,10 +429,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"
