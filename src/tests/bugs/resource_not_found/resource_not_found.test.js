@@ -14,6 +14,13 @@ class MockConfigManagerWithStreaming extends ConfigManager {
     }
 }
 
+class MockConfigManagerWithoutStreaming extends ConfigManager {
+    get streamResponse () {
+        return false;
+    }
+}
+
+
 describe('Person Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -26,7 +33,7 @@ describe('Person Tests', () => {
     describe('Person test_resource_not_found Tests', () => {
         test('test_resource_not_found works with bundle', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithStreaming());
+                c.register('configManager', () => new MockConfigManagerWithoutStreaming());
                 return c;
             });
             // ARRANGE
