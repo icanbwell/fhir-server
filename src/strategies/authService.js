@@ -30,6 +30,12 @@ class AuthService {
     static jwksCache;
 
     /**
+     * Last successfully fetched JWKS response per URL, used as fallback when live fetch fails.
+     * @type {Map<string, {keys: Object[]}>}
+     */
+    static jwksFallbackCache = new Map();
+
+    /**
      * Cache for user info data.
      * @type {LRUCache<{}, {}, any>}
      */
@@ -108,10 +114,12 @@ class AuthService {
         if (AuthService.userInfoCache) {
             AuthService.userInfoCache.clear();
         }
+        AuthService.jwksFallbackCache.clear();
     }
 
     /**
      * Fetches JWKS from a given URL and caches the result.
+     * Falls back to last known good keys when the live fetch fails.
      * @param {string} jwksUrl
      * @returns {Promise<{keys: Object[]}>}
      */
@@ -127,11 +135,21 @@ class AuthService {
                 .timeout(this.requestTimeout);
             const jsonResponse = JSON.parse(res.text);
             AuthService.jwksCache.set(jwksUrl, jsonResponse);
+            AuthService.jwksFallbackCache.set(jwksUrl, jsonResponse);
             return jsonResponse;
         } catch (error) {
-            logError(`Error while fetching keys from external jwk url: ${jwksUrl}: ${error.message}`, {
+            const fallback = AuthService.jwksFallbackCache.get(jwksUrl);
+            if (fallback) {
+                logError(`Error fetching JWKS from ${jwksUrl}, using fallback keys: ${error.message}`, {
+                    error: error,
+                    args: {jwksUrl, fallbackKeyCount: fallback.keys.length}
+                });
+                AuthService.jwksCache.set(jwksUrl, fallback);
+                return fallback;
+            }
+            logError(`Error fetching JWKS from ${jwksUrl}, no fallback available: ${error.message}`, {
                 error: error,
-                args: {jwksUrl: jwksUrl}
+                args: {jwksUrl}
             });
             return {keys: []};
         }

@@ -4,7 +4,7 @@
 const {ExtractJwt, Strategy: JwtStrategy} = require('passport-jwt');
 const jwksRsa = require('jwks-rsa');
 const {AuthService} = require('./authService');
-const {logDebug} = require("../operations/common/logging");
+const {logError} = require("../operations/common/logging");
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
 
@@ -28,7 +28,7 @@ class MyJwtStrategy extends JwtStrategy {
                 secretOrKeyProvider: jwksRsa.passportJwtSecret({
                     cache: true,
                     rateLimit: true,
-                    jwksRequestsPerMinute: 5,
+                    jwksRequestsPerMinute: configManager.jwksRequestsPerMinute,
                     jwksUri: configManager.authJwksUrl,
                     cacheMaxAge: configManager.cacheExpiryTime,
                     fetcher: (jwksUrl) => authService.getJwksByUrlAsync(jwksUrl),
@@ -37,9 +37,16 @@ class MyJwtStrategy extends JwtStrategy {
                     },
                     handleSigningKeyError: (err, cb) => {
                         if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                            logDebug('No Signing Key found!', {user: ''});
+                            logError('JWKS signing key not found', {
+                                user: '',
+                                args: {error: err.message}
+                            });
                             return cb(new Error('No Signing Key found!'));
                         }
+                        logError('JWKS signing key error', {
+                            user: '',
+                            args: {error: err.message, type: err.name}
+                        });
                         return cb(err);
                     }
                 }),
