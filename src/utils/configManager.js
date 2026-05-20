@@ -1017,6 +1017,14 @@ class ConfigManager {
     }
 
     /**
+     * return JWKS_REQUESTS_PER_MINUTE
+     * @returns {number}
+     */
+    get jwksRequestsPerMinute() {
+        return env.JWKS_REQUESTS_PER_MINUTE ? parseInt(env.JWKS_REQUESTS_PER_MINUTE) : 60;
+    }
+
+    /**
      * returns the server time zone
      * @returns {string}
      */
