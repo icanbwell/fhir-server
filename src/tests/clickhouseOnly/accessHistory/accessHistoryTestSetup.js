@@ -4,15 +4,11 @@ const path = require('path');
 const fs = require('fs');
 
 process.env.ENABLE_CLICKHOUSE = '1';
-process.env.CLICKHOUSE_HOST = process.env.CLICKHOUSE_HOST || 'http://localhost';
-process.env.CLICKHOUSE_PORT = process.env.CLICKHOUSE_PORT || '8123';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
-process.env.LOGLEVEL = 'SILENT';
-process.env.STREAM_RESPONSE = '0';
 
-const { commonBeforeEach, commonAfterEach } = require('../../common');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
+const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 const { TABLES } = require('../../../constants/clickHouseConstants');
 
 const ACCESS_HISTORY_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/05-audit-access-mv.sql');
@@ -20,6 +16,8 @@ const ACCESS_HISTORY_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-
 let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
+let clickHouseTestContainer = null;
+let savedContainerEnvVars = null;
 
 async function waitForClickHouse(manager, maxWaitMs = 30000) {
     const startTime = Date.now();
@@ -60,7 +58,11 @@ async function setupAccessHistoryTests() {
 
     setupPromise = (async () => {
         try {
-            await commonBeforeEach();
+            if (!clickHouseTestContainer) {
+                clickHouseTestContainer = new ClickHouseTestContainer();
+                await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
+                savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
+            }
 
             const configManager = new ConfigManager();
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
@@ -87,7 +89,15 @@ async function teardownAccessHistoryTests() {
             sharedClickHouseManager = null;
         }
 
-        await commonAfterEach();
+        if (clickHouseTestContainer) {
+            if (savedContainerEnvVars) {
+                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
+                savedContainerEnvVars = null;
+            }
+            await clickHouseTestContainer.stop();
+            clickHouseTestContainer = null;
+        }
+
         isSetupComplete = false;
         setupPromise = null;
     } catch (error) {
@@ -97,7 +107,6 @@ async function teardownAccessHistoryTests() {
 }
 
 async function cleanupBetweenTests() {
-    await commonBeforeEach();
     if (sharedClickHouseManager) {
         try {
             await sharedClickHouseManager.queryAsync({
