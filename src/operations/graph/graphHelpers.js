@@ -44,6 +44,7 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { RemoveHelper } = require('../remove/removeHelper');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { ReadPreference } = require('mongodb');
 
 /**
  * This class helps with creating graph responses
@@ -307,6 +308,9 @@ class GraphHelper {
             // remove duplicates to speed up data access
             relatedReferenceIds = Array.from(new Set(relatedReferenceIds));
             const options = {};
+            if (requestInfo.method.toLowerCase() === 'delete') {
+                options.readPreference = ReadPreference.PRIMARY;
+            }
             const projection = {};
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection._id = 0;
@@ -637,6 +641,9 @@ class GraphHelper {
             );
 
             const options = {};
+            if (requestInfo.method.toLowerCase() === 'delete') {
+                options.readPreference = ReadPreference.PRIMARY;
+            }
             const projection = {};
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection._id = 0;
@@ -1425,6 +1432,9 @@ class GraphHelper {
              * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
              */
             const options = {};
+            if (requestInfo.method.toLowerCase() === 'delete') {
+                options.readPreference = ReadPreference.PRIMARY;
+            }
             const projection = {};
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection._id = 0;

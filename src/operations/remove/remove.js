@@ -12,6 +12,7 @@ const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {SearchManager} = require('../search/searchManager');
 const {OPERATIONS: {DELETE}} = require('../../constants');
 const {logInfo, logWarn} = require('../common/logging');
+const { ReadPreference } = require('mongodb');
 const { RemoveHelper } = require('./removeHelper');
 
 class RemoveOperation {
@@ -178,7 +179,7 @@ class RemoveOperation {
                 {resourceType, base_version}
             );
 
-            const cursor = await databaseQueryManager.findAsync({query});
+            const cursor = await databaseQueryManager.findAsync({query, options: { readPreference: ReadPreference.PRIMARY }});
             /**
              * @type {string[]}
              */
