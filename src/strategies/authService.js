@@ -29,6 +29,7 @@ class AuthService {
      */
     static jwksCache;
 
+
     /**
      * Cache for user info data.
      * @type {LRUCache<{}, {}, any>}
@@ -129,9 +130,9 @@ class AuthService {
             AuthService.jwksCache.set(jwksUrl, jsonResponse);
             return jsonResponse;
         } catch (error) {
-            logError(`Error while fetching keys from external jwk url: ${jwksUrl}: ${error.message}`, {
+            logError(`Error fetching JWKS from ${jwksUrl}: ${error.message}`, {
                 error: error,
-                args: {jwksUrl: jwksUrl}
+                args: {jwksUrl}
             });
             return {keys: []};
         }
