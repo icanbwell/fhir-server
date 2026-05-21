@@ -1316,6 +1316,166 @@ describe('JWT Bearer Strategy', () => {
         });
     });
 
+    test('should accept a token expired within clockTolerance window', async () => {
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        const payload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId',
+            scope: 'patient/*.read access/*.read',
+            username: 'testUser',
+            sub: 'jwt-subject',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            iat: nowInSeconds - 60,
+            exp: nowInSeconds - 5
+        };
+
+        const slightlyExpiredToken = jwt.sign(payload, privateKey, {
+            algorithm: 'RS256',
+            keyid: '123',
+            noTimestamp: true
+        });
+
+        const req = {
+            headers: {authorization: `Bearer ${slightlyExpiredToken}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toBeTruthy();
+                    expect(user.id).toBe('testClientId');
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
+    test('should reject a token expired beyond clockTolerance window', async () => {
+        const mockJwks = {
+            keys: [
+                await createJwksKeyAsync({
+                    pub: publicKey,
+                    kid: '123'
+                })
+            ]
+        };
+
+        nock('https://example.com')
+            .get('/jwks')
+            .reply(200, mockJwks);
+
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        const payload = {
+            iss: 'https://example.com',
+            client_id: 'testClientId',
+            scope: 'patient/*.read access/*.read',
+            username: 'testUser',
+            sub: 'jwt-subject',
+            clientFhirPersonId: 'clientFhirPerson',
+            clientFhirPatientId: 'clientFhirPatient',
+            bwellFhirPersonId: 'bwellFhirPerson',
+            bwellFhirPatientId: 'bwellFhirPatient',
+            iat: nowInSeconds - 120,
+            exp: nowInSeconds - 35
+        };
+
+        const expiredToken = jwt.sign(payload, privateKey, {
+            algorithm: 'RS256',
+            keyid: '123',
+            noTimestamp: true
+        });
+
+        const req = {
+            headers: {authorization: `Bearer ${expiredToken}`}
+        };
+
+        class MockConfigManager extends ConfigManager {
+            get authJwksUrl() {
+                return 'https://example.com/jwks';
+            }
+
+            get externalAuthJwksUrls() {
+                return ['https://example.com/jwks'];
+            }
+
+            get externalAuthWellKnownUrls() {
+                return [];
+            }
+        }
+
+        const configManager = new MockConfigManager();
+        const strategy = new MyJwtStrategy({
+            authService: new AuthService({
+                configManager: configManager,
+                wellKnownConfigurationManager: new WellKnownConfigurationManager({
+                    configManager: configManager
+                })
+            }),
+            configManager: configManager
+        });
+
+        passport.use(strategy);
+
+        return new Promise((resolve, reject) => {
+            passport.authenticate('jwt', {}, (error, user, info) => {
+                try {
+                    expect(error).toBeNull();
+                    expect(user).toBeFalsy();
+                    expect(info.name).toBe('TokenExpiredError');
+                    resolve();
+                } catch (assertionError) {
+                    reject(assertionError);
+                }
+            })(req);
+        });
+    });
+
     test('should leave userType unset when user_type claim is not in the allowed list', async () => {
         const mockJwks = {
             keys: [

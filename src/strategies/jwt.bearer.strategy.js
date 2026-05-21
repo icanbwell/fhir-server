@@ -7,6 +7,7 @@ const {AuthService} = require('./authService');
 const {logError} = require("../operations/common/logging");
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
+const { JWKS_REQUESTS_PER_MINUTE, JWT_EXPIRY_CLOCK_TOLERANCE } = require('../constants');
 
 class MyJwtStrategy extends JwtStrategy {
     /**
@@ -25,10 +26,13 @@ class MyJwtStrategy extends JwtStrategy {
         super(
             {
                 ...options,
+                jsonWebTokenOptions: {
+                    clockTolerance: JWT_EXPIRY_CLOCK_TOLERANCE
+                },
                 secretOrKeyProvider: jwksRsa.passportJwtSecret({
                     cache: true,
                     rateLimit: true,
-                    jwksRequestsPerMinute: configManager.jwksRequestsPerMinute,
+                    jwksRequestsPerMinute: JWKS_REQUESTS_PER_MINUTE,
                     jwksUri: configManager.authJwksUrl,
                     cacheMaxAge: configManager.cacheExpiryTime,
                     fetcher: (jwksUrl) => authService.getJwksByUrlAsync(jwksUrl),
