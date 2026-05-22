@@ -5,6 +5,7 @@ const fs = require('fs');
 
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
+process.env.CLICKHOUSE_ONLY_RESOURCES = 'AuditEvent';
 
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -38,8 +39,8 @@ async function waitForClickHouse(manager, maxWaitMs = 30000) {
     throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
 }
 
-async function loadSchemaFromFile(manager, filePath) {
-    const schemaSQL = fs.readFileSync(filePath, 'utf8');
+async function loadSchemaAlways(manager, schemaPath) {
+    const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
     const statements = schemaSQL
         .split(';')
         .map(s => s.replace(/--.*$/gm, '').trim())
@@ -47,18 +48,6 @@ async function loadSchemaFromFile(manager, filePath) {
 
     for (const stmt of statements) {
         await manager.queryAsync({ query: stmt });
-    }
-}
-
-async function loadAccessHistorySchema(manager) {
-    const sourceTableExists = await manager.tableExistsAsync('AuditEvent_4_0_0');
-    if (!sourceTableExists) {
-        await loadSchemaFromFile(manager, AUDIT_EVENT_SCHEMA_PATH);
-    }
-
-    const aggTableExists = await manager.tableExistsAsync('AUDIT_ACCESS_AGG');
-    if (!aggTableExists) {
-        await loadSchemaFromFile(manager, ACCESS_HISTORY_SCHEMA_PATH);
     }
 }
 
@@ -78,7 +67,9 @@ async function setupAccessHistoryTests() {
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
             await waitForClickHouse(sharedClickHouseManager, 30000);
 
-            await loadAccessHistorySchema(sharedClickHouseManager);
+            // Always load schemas with IF NOT EXISTS — safe to re-run
+            await loadSchemaAlways(sharedClickHouseManager, AUDIT_EVENT_SCHEMA_PATH);
+            await loadSchemaAlways(sharedClickHouseManager, ACCESS_HISTORY_SCHEMA_PATH);
 
             isSetupComplete = true;
         } catch (error) {
@@ -120,10 +111,10 @@ async function cleanupBetweenTests() {
     if (sharedClickHouseManager) {
         try {
             await sharedClickHouseManager.queryAsync({
-                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_ACCESS_AGG}`
+                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_EVENT}`
             });
             await sharedClickHouseManager.queryAsync({
-                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_EVENT}`
+                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_ACCESS_AGG}`
             });
         } catch (e) {
             // ignore
