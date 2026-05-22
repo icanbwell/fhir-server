@@ -16,6 +16,8 @@ Each index supports:
 - `include` — only apply to these collections (for `*` indexes)
 - `exclude` — skip these collections (for `*` indexes)
 
+**Note:** Access tag indexes (`_access.*`) in `*` or `*_History` are not used for access index query optimization. Define them under the specific resource collection (e.g., `Patient_4_0_0`) for the query rewriter to recognize them.
+
 ### Example
 
 ```json
