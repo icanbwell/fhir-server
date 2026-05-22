@@ -261,16 +261,18 @@ To optimize this, the FHIR server stores an extra field called `_access` with ea
 
 Note that for smaller tables the improvement is negligible so this technique is most beneficial for huge tables.
 
-First set this environment variable to enable using access indexes in an environment:
+Set this environment variable to enable using access indexes:
 ```USE_ACCESS_INDEX: 1```
 
-To specify that the access index should be used for a collection, you add the resource type to the environment variable:
-```COLLECTIONS_ACCESS_INDEX: "AuditEvent"```
+Access indexes are configured per-resource via the index configuration. You can either:
+1. Use the default `customIndexes.js` with `ACCESS_TAGS_INDEXED` and per-resource env vars (`ACCESS_TAGS_INDEXED_PERSON`, etc.)
+2. Provide a complete external JSON index file via `CUSTOM_INDEXES_FILE_PATH` (see [docs/customIndexes.md](docs/customIndexes.md))
 
-You can specify "all" if you want to apply this to all.  See [src/admin/scripts/createAccessIndexField.js](src/admin/scripts/createAccessIndexField.js) admin script to create the _access fields in old data.
+When using the external JSON file, access codes are derived directly from the index definitions — no separate env vars needed.
 
+See [src/admin/scripts/createAccessIndexField.js](src/admin/scripts/createAccessIndexField.js) admin script to create the _access fields in old data.
 
-Now the FHIR server will automatically rewrite the query for https://fhir.staging.icanbwell.com/4_0_0/AuditEvent?_elements=id&_security=https://www.icanbwell.com/access%7Cmyhealth from:
+The FHIR server will automatically rewrite the query for https://fhir.staging.icanbwell.com/4_0_0/AuditEvent?_elements=id&_security=https://www.icanbwell.com/access%7Cmyhealth from:
 ```javascript
 db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
 ```
@@ -294,7 +296,7 @@ Here you can enter the X-Request_Id the FHIR server returns and be able to see t
 ### Index Management UI
 Here you can see:
 1. What the current indexes are
-2. Which indexes are mismatched between the config [src/indexes/customIndexes.js](src/indexes/customIndexes.js) and the underlying databases.
+2. Which indexes are mismatched between the config ([src/indexes/customIndexes.js](src/indexes/customIndexes.js) or external JSON via `CUSTOM_INDEXES_FILE_PATH`) and the underlying databases.
 3. Synchronize the indexes between the config and the databases by creating any missing indexes and removing any extraneous indexes.
 
 ## Logging
