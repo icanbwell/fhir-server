@@ -48,7 +48,6 @@ class IndexProvider {
 
     _buildAccessCodesMap () {
         const indexes = this.getIndexes();
-        const globalIndexes = indexes['*'] || [];
         const map = {};
 
         for (const [collectionName, resourceIndexes] of Object.entries(indexes)) {
@@ -56,9 +55,8 @@ class IndexProvider {
                 continue;
             }
             const resourceType = collectionName.replace('_4_0_0', '');
-            const allIndexes = [...globalIndexes, ...resourceIndexes];
             const codes = [];
-            for (const index of allIndexes) {
+            for (const index of resourceIndexes) {
                 for (const key of Object.keys(index.keys || {})) {
                     if (key.startsWith('_access.')) {
                         codes.push(key.replace('_access.', ''));
