@@ -9892,7 +9892,8 @@ const profiles = {
         {
           name: 'access-history',
           route: '/:id/$access-history',
-          method: 'GET'
+          method: 'GET',
+          reference: '/OperationDefinition/access-history'
         }
       ]
     },
