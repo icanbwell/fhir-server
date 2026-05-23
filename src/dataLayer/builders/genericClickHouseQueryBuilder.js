@@ -2,6 +2,7 @@
 
 const { logDebug } = require('../../operations/common/logging');
 const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
+const { ENGINE_TYPES } = require('../../constants/clickHouseConstants');
 
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -63,32 +64,68 @@ class GenericClickHouseQueryBuilder {
         const limit = options.limit || DEFAULT_LIMIT;
         const skip = options.skip || 0;
         const { whereClauses, params } = this._buildWhereClauses(parsedQuery, schema);
-
-        this._addSeekClause(parsedQuery.paginationCursor, schema, whereClauses, params);
+        const isReplacing = schema.engine === ENGINE_TYPES.REPLACING_MERGE_TREE;
 
         params[RESERVED_PARAMS.LIMIT] = limit;
         if (skip > 0) {
             params[RESERVED_PARAMS.SKIP] = skip;
         }
 
-        const parts = [
-            this._selectClause(schema.fhirResourceColumn),
-            this._fromClause(schema.tableName),
-            this._whereClause(whereClauses),
-            this._orderByClause(schema.seekKey),
-            `LIMIT {${RESERVED_PARAMS.LIMIT}:UInt32}`
-        ];
+        let query;
+        if (isReplacing) {
+            // Subquery deduplicates via LIMIT 1 BY dedupKey.
+            // Filters AND security tags go in the inner query for:
+            //   1. Partition pruning (datetime filters in inner query)
+            //   2. Tenant isolation (security tags filter before dedup)
+            // The outer query only applies seek pagination — its data source
+            // is the already-filtered, already-deduplicated inner result.
+            const seekClauses = [];
+            this._addSeekClause(parsedQuery.paginationCursor, schema, seekClauses, params);
 
-        if (skip > 0) {
-            parts.push(`OFFSET {${RESERVED_PARAMS.SKIP}:UInt32}`);
+            const innerParts = [
+                'SELECT *',
+                this._fromClause(schema.tableName),
+                this._whereClause(whereClauses),
+                this._orderByClause([...schema.dedupKey, `${schema.versionColumn} DESC`]),
+                this._limitByClause(schema.dedupKey)
+            ];
+
+            const outerParts = [
+                this._selectClause(schema.fhirResourceColumn),
+                `FROM (${innerParts.filter(Boolean).join('\n')})`,
+                this._whereClause(seekClauses),
+                this._orderByClause(schema.seekKey),
+                `LIMIT {${RESERVED_PARAMS.LIMIT}:UInt32}`
+            ];
+
+            if (skip > 0) {
+                outerParts.push(`OFFSET {${RESERVED_PARAMS.SKIP}:UInt32}`);
+            }
+
+            query = outerParts.filter(Boolean).join('\n');
+        } else {
+            this._addSeekClause(parsedQuery.paginationCursor, schema, whereClauses, params);
+
+            const parts = [
+                this._selectClause(schema.fhirResourceColumn),
+                this._fromClause(schema.tableName),
+                this._whereClause(whereClauses),
+                this._orderByClause(schema.seekKey),
+                `LIMIT {${RESERVED_PARAMS.LIMIT}:UInt32}`
+            ];
+
+            if (skip > 0) {
+                parts.push(`OFFSET {${RESERVED_PARAMS.SKIP}:UInt32}`);
+            }
+
+            query = parts.filter(Boolean).join('\n');
         }
-
-        const query = parts.filter(Boolean).join('\n');
 
         logDebug('GenericClickHouseQueryBuilder: buildSearchQuery', {
             table: schema.tableName,
             whereCount: whereClauses.length,
-            limit
+            limit,
+            engine: schema.engine
         });
 
         return { query, query_params: params };
@@ -101,14 +138,31 @@ class GenericClickHouseQueryBuilder {
      */
     buildCountQuery (parsedQuery, schema) {
         const { whereClauses, params } = this._buildWhereClauses(parsedQuery, schema);
+        const isReplacing = schema.engine === ENGINE_TYPES.REPLACING_MERGE_TREE;
 
-        const parts = [
-            'SELECT count() AS cnt',
-            this._fromClause(schema.tableName),
-            this._whereClause(whereClauses)
-        ];
+        let query;
+        if (isReplacing) {
+            const innerParts = [
+                'SELECT 1',
+                this._fromClause(schema.tableName),
+                this._whereClause(whereClauses),
+                this._orderByClause([...schema.dedupKey, `${schema.versionColumn} DESC`]),
+                this._limitByClause(schema.dedupKey)
+            ];
 
-        const query = parts.filter(Boolean).join('\n');
+            query = [
+                'SELECT count() AS cnt',
+                `FROM (${innerParts.filter(Boolean).join('\n')})`
+            ].join('\n');
+        } else {
+            const parts = [
+                'SELECT count() AS cnt',
+                this._fromClause(schema.tableName),
+                this._whereClause(whereClauses)
+            ];
+
+            query = parts.filter(Boolean).join('\n');
+        }
         return { query, query_params: params };
     }
 
@@ -122,20 +176,32 @@ class GenericClickHouseQueryBuilder {
         const params = { [RESERVED_PARAMS.ID]: id };
         const whereClauses = [`id = {${RESERVED_PARAMS.ID}:String}`];
 
-        // Security filtering mandatory — same as search queries
-        const securityClauses = this._buildSecurityClauses(
-            securityConditions || { accessTags: [] },
-            schema.securityMappings,
-            params
-        );
-        whereClauses.push(...securityClauses);
+        // Security filtering when security conditions are provided.
+        // Null securityConditions = wildcard access (access/*.*), skip enforcement.
+        // _buildSecurityClauses handles empty accessTags gracefully (returns empty array).
+        if (securityConditions) {
+            const securityClauses = this._buildSecurityClauses(
+                securityConditions,
+                schema.securityMappings,
+                params
+            );
+            whereClauses.push(...securityClauses);
+        }
+
+        const isReplacing = schema.engine === ENGINE_TYPES.REPLACING_MERGE_TREE;
 
         const parts = [
             this._selectClause(schema.fhirResourceColumn),
             this._fromClause(schema.tableName),
-            this._whereClause(whereClauses),
-            'LIMIT 1'
+            this._whereClause(whereClauses)
         ];
+
+        if (isReplacing) {
+            // For ReplacingMergeTree, ORDER BY versionColumn DESC picks the latest version
+            parts.push(`ORDER BY ${schema.versionColumn} DESC`);
+        }
+
+        parts.push('LIMIT 1');
 
         const query = parts.filter(Boolean).join('\n');
         return { query, query_params: params };
@@ -151,6 +217,11 @@ class GenericClickHouseQueryBuilder {
     /** @private */
     _fromClause (tableName) {
         return `FROM ${tableName}`;
+    }
+
+    /** @private */
+    _limitByClause (dedupKey) {
+        return `LIMIT 1 BY ${dedupKey.join(', ')}`;
     }
 
     /** @private */
@@ -173,13 +244,12 @@ class GenericClickHouseQueryBuilder {
      * @throws {Error}
      */
     validateRequiredFilters (parsedQuery, schema) {
-        // Check required filters are present
+        // Check required filters are present.
+        // Collect fieldPaths recursively — R4SearchQueryCreator wraps
+        // date conditions inside $or with multiple effective[x] variants.
         if (schema.requiredFilters && schema.requiredFilters.length > 0) {
-            const presentFields = new Set(
-                parsedQuery.fieldConditions
-                    .filter(c => c.fieldPath)
-                    .map(c => c.fieldPath)
-            );
+            const presentFields = new Set();
+            this._collectFieldPaths(parsedQuery.fieldConditions, presentFields);
 
             for (const required of schema.requiredFilters) {
                 if (!presentFields.has(required)) {
@@ -199,14 +269,18 @@ class GenericClickHouseQueryBuilder {
 
     /** @private */
     _validateDateRange (fieldConditions, schema) {
+        // Flatten all leaf conditions from the tree (including inside $or/$and)
+        const allLeaves = [];
+        this._collectLeafConditions(fieldConditions, allLeaves);
+
         // Check all datetime fields, not just required ones
         for (const [fieldPath, mapping] of Object.entries(schema.fieldMappings)) {
             if (mapping.type !== 'datetime') continue;
 
-            const gteCondition = fieldConditions.find(
+            const gteCondition = allLeaves.find(
                 c => c.fieldPath === fieldPath && (c.operator === '$gte' || c.operator === '$gt')
             );
-            const ltCondition = fieldConditions.find(
+            const ltCondition = allLeaves.find(
                 c => c.fieldPath === fieldPath && (c.operator === '$lt' || c.operator === '$lte')
             );
 
@@ -221,6 +295,41 @@ class GenericClickHouseQueryBuilder {
                         `(requested: ${Math.ceil(rangeDays)} days)`
                     );
                 }
+            }
+        }
+    }
+
+    /**
+     * Recursively collects leaf conditions (those with fieldPath) from a condition tree.
+     * @param {Array} conditions
+     * @param {Array} leaves - accumulator
+     * @private
+     */
+    _collectLeafConditions (conditions, leaves) {
+        for (const condition of conditions) {
+            if (condition.fieldPath) {
+                leaves.push(condition);
+            }
+            if (condition.conditions && Array.isArray(condition.conditions)) {
+                this._collectLeafConditions(condition.conditions, leaves);
+            }
+        }
+    }
+
+    /**
+     * Recursively collects all fieldPaths from a condition tree.
+     * Handles leaf conditions, $or nodes, and $and nodes.
+     * @param {Array} conditions
+     * @param {Set<string>} fieldPaths - accumulator
+     * @private
+     */
+    _collectFieldPaths (conditions, fieldPaths) {
+        for (const condition of conditions) {
+            if (condition.fieldPath) {
+                fieldPaths.add(condition.fieldPath);
+            }
+            if (condition.conditions && Array.isArray(condition.conditions)) {
+                this._collectFieldPaths(condition.conditions, fieldPaths);
             }
         }
     }
@@ -249,9 +358,19 @@ class GenericClickHouseQueryBuilder {
             condition => this._conditionTreeToSql(condition, params, context)
         ).filter(Boolean);
 
-        const securityClauses = this._buildSecurityClauses(
-            parsedQuery.securityConditions, schema.securityMappings, params
-        );
+        // Security filtering: skip when caller has wildcard access (empty accessTags).
+        // Wildcard access (access/*.*) passes no security tags — authorization
+        // was already verified at the operation/JWT level.
+        // Gate on accessTags only — _buildSecurityClauses requires non-empty accessTags,
+        // and ownerTags alone is not a complete security context.
+        const { accessTags } = parsedQuery.securityConditions;
+        const hasSecurityContext = accessTags && accessTags.length > 0;
+
+        const securityClauses = hasSecurityContext
+            ? this._buildSecurityClauses(
+                parsedQuery.securityConditions, schema.securityMappings, params
+            )
+            : [];
 
         return {
             whereClauses: [...fieldClauses, ...securityClauses],

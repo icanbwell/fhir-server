@@ -85,18 +85,31 @@ class ClickHouseSchemaRegistry {
             errors.push(`engine must be one of: ${validEngines.join(', ')}`);
         }
 
-        // ReplacingMergeTree: not yet supported in scaffolding.
-        // When support ships with the Observation PR, remove this guard and
-        // the versionColumn/dedupKey checks below will enforce the required fields.
+        // Engine-specific validation
+        const COLUMN_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
         if (schema.engine === ENGINE_TYPES.REPLACING_MERGE_TREE) {
-            errors.push(
-                `engine '${ENGINE_TYPES.REPLACING_MERGE_TREE}' is not yet supported. ` +
-                'MergeTree only in the scaffolding PR. ReplacingMergeTree ships with the Observation PR.'
-            );
+            if (!schema.versionColumn || !COLUMN_NAME_PATTERN.test(schema.versionColumn)) {
+                errors.push('ReplacingMergeTree requires versionColumn to be a valid column name');
+            }
+            if (!Array.isArray(schema.dedupKey) || schema.dedupKey.length === 0) {
+                errors.push('ReplacingMergeTree requires dedupKey to be a non-empty array');
+            } else {
+                for (const col of schema.dedupKey) {
+                    if (!COLUMN_NAME_PATTERN.test(col)) {
+                        errors.push(`dedupKey column '${col}' must be alphanumeric/underscore only`);
+                    }
+                }
+            }
+        } else if (schema.engine === ENGINE_TYPES.MERGE_TREE) {
+            if (schema.versionColumn !== null && schema.versionColumn !== undefined) {
+                errors.push('MergeTree engine does not use versionColumn (must be null)');
+            }
+            if (schema.dedupKey !== null && schema.dedupKey !== undefined) {
+                errors.push('MergeTree engine does not use dedupKey (must be null)');
+            }
         }
 
         // seekKey: non-empty array of valid column names
-        const COLUMN_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
         if (!Array.isArray(schema.seekKey) || schema.seekKey.length === 0) {
             errors.push('seekKey must be a non-empty array');
         } else {

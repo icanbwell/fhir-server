@@ -253,6 +253,14 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(query_params._id).toBe('resource-123');
         });
 
+        test('findByIdQuery with null security skips security filtering (wildcard access)', () => {
+            const { query } = builder.buildFindByIdQuery(
+                'resource-123', schema, null
+            );
+            expect(query).toContain('id = {_id:String}');
+            expect(query).not.toContain('hasAny(access_tags');
+        });
+
         test('findByIdQuery with empty accessTags skips security filter', () => {
             const { query, query_params } = builder.buildFindByIdQuery(
                 'resource-123', schema, { accessTags: [] }
@@ -338,7 +346,7 @@ describe('GenericClickHouseQueryBuilder', () => {
     });
 
     describe('security enforcement', () => {
-        test('empty accessTags skips security filter (unrestricted access)', () => {
+        test('empty accessTags skips security filtering (wildcard access)', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { accessTags: [] },
@@ -349,7 +357,7 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(query_params._accessTags).toBeUndefined();
         });
 
-        test('undefined accessTags skips security filter (unrestricted access)', () => {
+        test('undefined accessTags skips security filtering', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: {},
@@ -482,7 +490,7 @@ describe('GenericClickHouseQueryBuilder', () => {
             expect(() => builder.buildSearchQuery(parsed, schema)).not.toThrow();
         });
 
-        test('count query with empty accessTags skips security filter', () => {
+        test('count query skips security with empty accessTags (wildcard access)', () => {
             const parsed = {
                 fieldConditions: [],
                 securityConditions: { accessTags: [] },
@@ -842,6 +850,79 @@ describe('GenericClickHouseQueryBuilder', () => {
                 _id: 'ae-123',
                 _accessTags: ['tenant-1']
             });
+        });
+    });
+
+    describe('ReplacingMergeTree queries', () => {
+        let replacingSchema;
+
+        beforeEach(() => {
+            replacingSchema = {
+                ...schema,
+                engine: 'ReplacingMergeTree',
+                versionColumn: 'meta_version_id',
+                dedupKey: ['subject_reference', 'code_code', 'effective_datetime'],
+                seekKey: ['subject_reference', 'code_code', 'effective_datetime', 'id']
+            };
+        });
+
+        test('search wraps in subquery with LIMIT 1 BY', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' }
+                ],
+                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, replacingSchema);
+            expect(query).toContain('LIMIT 1 BY subject_reference, code_code, effective_datetime');
+            expect(query).toContain('meta_version_id DESC');
+            expect(query).toContain('FROM (');
+        });
+
+        test('search inner query has filters, outer has seekKey ORDER BY', () => {
+            const parsed = {
+                fieldConditions: [
+                    { fieldPath: 'status', column: 'status', type: 'lowcardinality', operator: '$eq', value: 'final' }
+                ],
+                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, replacingSchema);
+            expect(query).toContain('WHERE status = {_p0:String}');
+            expect(query).toContain('ORDER BY subject_reference, code_code, effective_datetime, id');
+        });
+
+        test('count wraps in subquery with LIMIT 1 BY', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildCountQuery(parsed, replacingSchema);
+            expect(query).toContain('SELECT count() AS cnt');
+            expect(query).toContain('LIMIT 1 BY subject_reference, code_code, effective_datetime');
+            expect(query).toContain('FROM (');
+        });
+
+        test('findById uses ORDER BY versionColumn DESC', () => {
+            const { query } = builder.buildFindByIdQuery(
+                'obs-123', replacingSchema, { accessTags: ['test-access'], ownerTags: [] }
+            );
+            expect(query).toContain('ORDER BY meta_version_id DESC');
+            expect(query).toContain('LIMIT 1');
+            expect(query).not.toContain('LIMIT 1 BY');
+        });
+
+        test('MergeTree search has no subquery or LIMIT 1 BY', () => {
+            const parsed = {
+                fieldConditions: [],
+                securityConditions: { accessTags: ['test-access'], ownerTags: [] },
+                paginationCursor: null
+            };
+            const { query } = builder.buildSearchQuery(parsed, schema);
+            expect(query).not.toContain('LIMIT 1 BY');
+            expect(query).not.toContain('FROM (');
         });
     });
 });
