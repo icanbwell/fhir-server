@@ -213,7 +213,7 @@ class AuthService {
                 }
             });
             if (!validInput) {
-                done(null, false);
+                done(null, false, { reason: 'missing_required_jwt_field' });
                 return;
             }
             context.personIdFromJwtToken = jwt_payload[this.requiredJWTFields.clientFhirPersonId];
@@ -225,7 +225,7 @@ class AuthService {
             if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act) {
                 const result = this.processForDelegatedActor({ jwt_payload });
                 if (result.failure) {
-                    done(null, false);
+                    done(null, false, { reason: 'delegated_actor_failure' });
                     return;
                 } else if (result.actor) {
                     context.actor = result.actor;
@@ -249,7 +249,7 @@ class AuthService {
                     username: context.username,
                     userType: context.userType
                 });
-                done(null, false);
+                done(null, false, { reason: 'invalid_user_type_for_non_patient_token' });
                 return;
             }
         }
@@ -474,7 +474,7 @@ class AuthService {
                     logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
                         userClaim: jwt_payload.sub
                     });
-                    return done(null, false);
+                    return done(null, false, { reason: 'client_id_not_allowed_for_issuer' });
                 }
             }
 
@@ -516,7 +516,7 @@ class AuthService {
 
                 }).catch((error) => {
                     logError(`Error while fetching user info: ${error.message}`, {error: error});
-                    done(null, false);
+                    done(null, false, { reason: 'userinfo_endpoint_error' });
                 });
             } else {
                 logDebug(`JWT result`, {
@@ -543,7 +543,7 @@ class AuthService {
                 });
             }
         } else {
-            done(null, false);
+            done(null, false, { reason: 'missing_jwt_payload' });
         }
     }
 
