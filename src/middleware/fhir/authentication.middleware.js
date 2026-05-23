@@ -1,6 +1,8 @@
 const noOpMiddleware = require('./noop.middleware.js');
 
 const passport = require('passport');
+const { isTrue } = require('../../utils/isTrue');
+const { logWarn } = require('../../operations/common/logging');
 
 /**
  * Sends the standard JSON OperationOutcome 401 body when Passport authentication fails.
@@ -31,6 +33,15 @@ const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
                 return next(err);
             }
             if (!user) {
+                if (isTrue(process.env.LOG_AUTH_CONTEXT_ON_401)) {
+                    logWarn('Authentication failed (401)', {
+                        strategy,
+                        method: req.method,
+                        url: req.originalUrl || req.url,
+                        authorizationHeader: (req.headers && req.headers.authorization) || null,
+                        info
+                    });
+                }
                 return sendUnauthorizedJson(res);
             }
             // Supplying a callback disables Passport's default req.logIn/authInfo
