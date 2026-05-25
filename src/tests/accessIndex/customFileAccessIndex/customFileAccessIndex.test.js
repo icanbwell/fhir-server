@@ -140,19 +140,19 @@ describe('Custom File Access Index Tests', () => {
             expect(resultByName).toBe('access_client1_recorded_uuid');
         });
 
-        test('indexHinter resolves wildcard index for any collection from custom file', async () => {
+        test('indexHinter does not match across collections in custom file', async () => {
             const request = await createTestRequest();
             const container = getTestContainer();
 
             const indexHinter = container.indexHinter;
 
-            // _uuid index is in '*' so should match for Patient
+            // _uuid index is defined under AuditEvent_4_0_0 only — Patient should not match it
             const result = indexHinter.findIndexForFields(
                 'Patient_4_0_0',
                 ['_uuid'],
                 undefined
             );
-            expect(result).toBe('uuid');
+            expect(result).toBeNull();
         });
 
         test('indexHinter returns null for index not in custom file', async () => {

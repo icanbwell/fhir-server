@@ -8,52 +8,20 @@ When this env var is set, the entire `customIndexes.js` is ignored. The JSON fil
 
 ### Format
 
-The JSON file has the same structure as the `customIndexes` object — keys are collection names (or `*` for all collections, `*_History` for history collections), values are arrays of index definitions:
+The JSON file has the same structure as the `customIndexes` object — keys are collection names (e.g. `Patient_4_0_0`), or `*_History` for history collections. The top-level `*` key (apply to all collections) is **not supported** in the external file; define indexes per resource collection explicitly. Values are arrays of index definitions:
 
 Each index supports:
 - `keys` — MongoDB index key specification
 - `options` — MongoDB index options (`name` required, plus `unique`, `expireAfterSeconds`, etc.)
-- `include` — only apply to these collections (for `*` indexes)
-- `exclude` — skip these collections (for `*` indexes)
+- `include` — only apply to these collections (for `*_History` indexes)
+- `exclude` — skip these collections (for `*_History` indexes)
 
-**Note:** Access tag indexes (`_access.*`) in `*` or `*_History` are not used for access index query optimization. Define them under the specific resource collection (e.g., `Patient_4_0_0`) for the query rewriter to recognize them.
+**Note:** Access tag indexes (`_access.*`) under `*_History` are not used for access index query optimization. Define them under the specific resource collection (e.g., `Patient_4_0_0`) for the query rewriter to recognize them.
 
 ### Example
 
 ```json
 {
-    "*": [
-        {
-            "keys": {
-                "_uuid": 1
-            },
-            "options": {
-                "name": "uuid",
-                "unique": true
-            },
-            "exclude": ["AuditEvent_4_0_0"]
-        },
-        {
-            "keys": {
-                "_access.client1": 1,
-                "_uuid": 1
-            },
-            "options": {
-                "name": "_access_client1_1._uuid_1"
-            },
-            "exclude": ["AuditEvent_4_0_0", "Person_4_0_0"]
-        },
-        {
-            "keys": {
-                "_access.client2": 1,
-                "_uuid": 1
-            },
-            "options": {
-                "name": "_access_client2_1._uuid_1"
-            },
-            "exclude": ["AuditEvent_4_0_0", "Person_4_0_0"]
-        }
-    ],
     "*_History": [
         {
             "keys": {

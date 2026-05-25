@@ -18,6 +18,13 @@ class IndexProvider {
         if (this._customIndexesFilePath) {
             const fileContent = fs.readFileSync(this._customIndexesFilePath, 'utf-8');
             this._indexes = JSON.parse(fileContent);
+            if (Object.prototype.hasOwnProperty.call(this._indexes, '*')) {
+                throw new Error(
+                    `Custom indexes file ${this._customIndexesFilePath} contains an unsupported "*" key. ` +
+                    'Define indexes per resource collection (e.g. "Patient_4_0_0") instead. ' +
+                    '"*_History" is still supported for history collections.'
+                );
+            }
             this._accessCodesMap = this._buildAccessCodesMap();
         } else {
             this._indexes = null;
@@ -51,7 +58,7 @@ class IndexProvider {
         const map = {};
 
         for (const [collectionName, resourceIndexes] of Object.entries(indexes)) {
-            if (collectionName === '*' || collectionName.endsWith('_History')) {
+            if (collectionName.endsWith('_History')) {
                 continue;
             }
             const resourceType = collectionName.replace('_4_0_0', '');

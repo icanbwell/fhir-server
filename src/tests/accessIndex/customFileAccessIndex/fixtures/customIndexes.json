@@ -1,5 +1,5 @@
 {
-    "*": [
+    "AuditEvent_4_0_0": [
         {
             "keys": {
                 "_uuid": 1
@@ -9,17 +9,6 @@
                 "unique": true
             }
         },
-        {
-            "keys": {
-                "_sourceId": 1,
-                "_uuid": 1
-            },
-            "options": {
-                "name": "sourceId"
-            }
-        }
-    ],
-    "AuditEvent_4_0_0": [
         {
             "keys": {
                 "_access.client1": 1,
