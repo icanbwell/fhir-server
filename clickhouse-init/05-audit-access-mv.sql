@@ -55,7 +55,7 @@ TTL recorded_month + INTERVAL 120 DAY;
 -- Purpose-of-event handling:
 --   - Extracts from purpose_of_event Array(Tuple(system, code)) column
 --   - Concatenates as 'system|code' strings
---   - Uses arrayConcat with [''] to prevent row elimination when purpose is empty
+--   - Defaults to PATRQT (Patient Requested) when no purposeOfEvent is present
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS fhir.AUDIT_ACCESS_MV
 TO fhir.AUDIT_ACCESS_AGG
@@ -68,12 +68,11 @@ SELECT
     countState() AS access_count,
     maxState(recorded) AS last_accessed,
     groupUniqArrayState(
-        assumeNotNull(
-            arrayJoin(
-                arrayConcat(
-                    arrayMap(t -> concat(t.1, '|', t.2), purpose_of_event),
-                    ['']
-                )
+        arrayJoin(
+            if(
+                empty(purpose_of_event),
+                ['http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT'],
+                arrayMap(t -> concat(t.1, '|', t.2), purpose_of_event)
             )
         )
     ) AS purpose_of_events

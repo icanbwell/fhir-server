@@ -6,7 +6,7 @@ const {
     setupAccessHistoryTests,
     teardownAccessHistoryTests,
     cleanupBetweenTests,
-    insertAggRows,
+    insertAuditEvents,
     getClickHouseManager
 } = require('./accessHistoryTestSetup');
 
@@ -62,15 +62,14 @@ describe('AccessHistoryClickHouseRepository', () => {
         });
 
         test('aggregates access counts across multiple inserts', async () => {
-            // Insert a second access for the same key
-            await insertAggRows([{
-                entity_ref: 'Patient/patient-1',
-                agent_requestor_who: 'Practitioner/dr-smith',
-                entity_resource_type: 'Patient',
-                recorded_month: '2026-05-01 00:00:00',
-                last_accessed: '2026-05-16 09:00:00.000',
-                purpose: 'http://healthit.gov/nhin/purposeofuse|TREATMENT'
-            }]);
+            await insertAuditEvents([
+                {
+                    recorded: '2026-05-16 09:00:00.000',
+                    agent_requestor_who: 'Practitioner/dr-smith',
+                    entity_what: ['Patient/patient-1'],
+                    purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' }]
+                }
+            ]);
 
             const { rows } = await repository.getAccessHistoryAsync({
                 entityRefs: ['Patient/patient-1']
@@ -104,14 +103,12 @@ describe('AccessHistoryClickHouseRepository', () => {
         });
 
         test('aggregates across different recorded months into single row', async () => {
-            await insertAggRows([
+            await insertAuditEvents([
                 {
-                    entity_ref: 'Patient/patient-1',
+                    recorded: '2026-04-20 11:00:00.000',
                     agent_requestor_who: 'Practitioner/dr-smith',
-                    entity_resource_type: 'Patient',
-                    recorded_month: '2026-04-01 00:00:00',
-                    last_accessed: '2026-04-20 11:00:00.000',
-                    purpose: 'http://healthit.gov/nhin/purposeofuse|OPERATIONS'
+                    entity_what: ['Patient/patient-1'],
+                    purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'OPERATIONS' }]
                 }
             ]);
 
@@ -126,23 +123,40 @@ describe('AccessHistoryClickHouseRepository', () => {
             expect(drSmithRows[0].purposes).toContain('http://healthit.gov/nhin/purposeofuse|OPERATIONS');
         });
 
-        test('returns separate rows for different accessors', async () => {
-            await insertAggRows([
+        test('returns row with default PATRQT when purpose_of_event is empty', async () => {
+            await insertAuditEvents([
                 {
-                    entity_ref: 'Patient/patient-1',
+                    recorded: '2026-05-20 10:00:00.000',
+                    agent_requestor_who: 'Practitioner/dr-no-purpose',
+                    entity_what: ['Patient/patient-empty-purpose'],
+                    purpose_of_event: []
+                }
+            ]);
+
+            const { rows } = await repository.getAccessHistoryAsync({
+                entityRefs: ['Patient/patient-empty-purpose']
+            });
+
+            expect(rows.length).toBe(1);
+            expect(rows[0].accessor_uuid).toBe('Practitioner/dr-no-purpose');
+            expect(rows[0].entity_resource_type).toBe('Patient');
+            expect(Number(rows[0].access_count)).toBe(1);
+            expect(rows[0].purposes).toContain('http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT');
+        });
+
+        test('returns separate rows for different accessors', async () => {
+            await insertAuditEvents([
+                {
+                    recorded: '2026-05-18 12:00:00.000',
                     agent_requestor_who: 'Practitioner/dr-wilson',
-                    entity_resource_type: 'Patient',
-                    recorded_month: '2026-05-01 00:00:00',
-                    last_accessed: '2026-05-18 12:00:00.000',
-                    purpose: 'http://healthit.gov/nhin/purposeofuse|TREATMENT'
+                    entity_what: ['Patient/patient-1'],
+                    purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' }]
                 },
                 {
-                    entity_ref: 'Patient/patient-1',
+                    recorded: '2026-05-17 15:00:00.000',
                     agent_requestor_who: 'Practitioner/dr-house',
-                    entity_resource_type: 'Patient',
-                    recorded_month: '2026-05-01 00:00:00',
-                    last_accessed: '2026-05-17 15:00:00.000',
-                    purpose: ''
+                    entity_what: ['Patient/patient-1'],
+                    purpose_of_event: []
                 }
             ]);
 
@@ -160,30 +174,24 @@ describe('AccessHistoryClickHouseRepository', () => {
 });
 
 async function insertTestData() {
-    await insertAggRows([
+    await insertAuditEvents([
         {
-            entity_ref: 'Patient/patient-1',
+            recorded: '2026-05-15 14:30:00.000',
             agent_requestor_who: 'Practitioner/dr-smith',
-            entity_resource_type: 'Patient',
-            recorded_month: '2026-05-01 00:00:00',
-            last_accessed: '2026-05-15 14:30:00.000',
-            purpose: 'http://healthit.gov/nhin/purposeofuse|TREATMENT'
+            entity_what: ['Patient/patient-1'],
+            purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' }]
         },
         {
-            entity_ref: 'Patient/patient-1',
+            recorded: '2026-05-10 09:00:00.000',
             agent_requestor_who: 'Practitioner/dr-jones',
-            entity_resource_type: 'Patient',
-            recorded_month: '2026-05-01 00:00:00',
-            last_accessed: '2026-05-10 09:00:00.000',
-            purpose: ''
+            entity_what: ['Patient/patient-1'],
+            purpose_of_event: []
         },
         {
-            entity_ref: 'Observation/obs-1',
+            recorded: '2026-05-12 16:00:00.000',
             agent_requestor_who: 'Practitioner/dr-smith',
-            entity_resource_type: 'Observation',
-            recorded_month: '2026-05-01 00:00:00',
-            last_accessed: '2026-05-12 16:00:00.000',
-            purpose: 'http://healthit.gov/nhin/purposeofuse|OPERATIONS'
+            entity_what: ['Observation/obs-1'],
+            purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'OPERATIONS' }]
         }
     ]);
 }

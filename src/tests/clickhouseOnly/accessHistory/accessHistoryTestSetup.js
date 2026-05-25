@@ -11,6 +11,7 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 const { TABLES } = require('../../../constants/clickHouseConstants');
 
+const AUDIT_EVENT_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/02-audit-event.sql');
 const ACCESS_HISTORY_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/05-audit-access-mv.sql');
 
 let sharedClickHouseManager = null;
@@ -37,18 +38,27 @@ async function waitForClickHouse(manager, maxWaitMs = 30000) {
     throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
 }
 
-async function loadAccessHistorySchema(manager) {
-    const tableExists = await manager.tableExistsAsync('AUDIT_ACCESS_AGG');
-    if (!tableExists) {
-        const schemaSQL = fs.readFileSync(ACCESS_HISTORY_SCHEMA_PATH, 'utf8');
-        const statements = schemaSQL
-            .split(';')
-            .map(s => s.replace(/--.*$/gm, '').trim())
-            .filter(s => s.length > 0);
+async function loadSchemaFromFile(manager, filePath) {
+    const schemaSQL = fs.readFileSync(filePath, 'utf8');
+    const statements = schemaSQL
+        .split(';')
+        .map(s => s.replace(/--.*$/gm, '').trim())
+        .filter(s => s.length > 0);
 
-        for (const stmt of statements) {
-            await manager.queryAsync({ query: stmt });
-        }
+    for (const stmt of statements) {
+        await manager.queryAsync({ query: stmt });
+    }
+}
+
+async function loadAccessHistorySchema(manager) {
+    const sourceTableExists = await manager.tableExistsAsync('AuditEvent_4_0_0');
+    if (!sourceTableExists) {
+        await loadSchemaFromFile(manager, AUDIT_EVENT_SCHEMA_PATH);
+    }
+
+    const aggTableExists = await manager.tableExistsAsync('AUDIT_ACCESS_AGG');
+    if (!aggTableExists) {
+        await loadSchemaFromFile(manager, ACCESS_HISTORY_SCHEMA_PATH);
     }
 }
 
@@ -112,6 +122,9 @@ async function cleanupBetweenTests() {
             await sharedClickHouseManager.queryAsync({
                 query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_ACCESS_AGG}`
             });
+            await sharedClickHouseManager.queryAsync({
+                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_EVENT}`
+            });
         } catch (e) {
             // ignore
         }
@@ -144,6 +157,51 @@ async function insertAggRows(rows) {
     }
 }
 
+async function insertAuditEvents(events) {
+    for (const event of events) {
+        const purposeTuples = (event.purpose_of_event || [])
+            .map(p => `('${p.system}', '${p.code}')`)
+            .join(', ');
+        const purposeExpr = purposeTuples ? `[${purposeTuples}]` : '[]::Array(Tuple(system LowCardinality(String), code LowCardinality(String)))';
+
+        const entityItems = (event.entity_what || [])
+            .map(e => `'${e}'`)
+            .join(', ');
+        const entityExpr = `[${entityItems}]`;
+
+        const id = event.id || `audit-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+        await sharedClickHouseManager.queryAsync({
+            query: `
+                INSERT INTO ${TABLES.AUDIT_EVENT}
+                SELECT
+                    {id:String} AS id,
+                    {uuid:String} AS _uuid,
+                    toDateTime64({recorded:String}, 3, 'UTC') AS recorded,
+                    {action:String} AS action,
+                    [{agent_who:String}] AS agent_who,
+                    []::Array(String) AS agent_altid,
+                    ${entityExpr} AS entity_what,
+                    {agent_requestor_who:String} AS agent_requestor_who,
+                    ${purposeExpr} AS purpose_of_event,
+                    []::Array(Tuple(system LowCardinality(String), code LowCardinality(String))) AS meta_security,
+                    []::Array(String) AS access_tags,
+                    '' AS _sourceAssigningAuthority,
+                    {id:String} AS _sourceId,
+                    '{}' AS resource
+            `,
+            query_params: {
+                id,
+                uuid: event.uuid || `uuid-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                recorded: event.recorded,
+                action: event.action || 'R',
+                agent_who: event.agent_requestor_who,
+                agent_requestor_who: event.agent_requestor_who
+            }
+        });
+    }
+}
+
 function getClickHouseManager() { return sharedClickHouseManager; }
 
 module.exports = {
@@ -151,5 +209,6 @@ module.exports = {
     teardownAccessHistoryTests,
     cleanupBetweenTests,
     insertAggRows,
+    insertAuditEvents,
     getClickHouseManager
 };
