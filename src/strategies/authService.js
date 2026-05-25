@@ -8,7 +8,7 @@ const {
     USER_INFO_CACHE_EXPIRY_TIME,
     AUTH_USER_TYPES
 } = require('../constants');
-const {logDebug, logError, logInfo} = require('../operations/common/logging');
+const {logDebug, logError, logInfo, logWarn} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
@@ -213,6 +213,7 @@ class AuthService {
                 }
             });
             if (!validInput) {
+                logWarn('Auth rejected', { reason: 'missing_required_jwt_field', username, subject });
                 done(null, false, { reason: 'missing_required_jwt_field' });
                 return;
             }
@@ -246,6 +247,7 @@ class AuthService {
         if (context.userType) {
             if (!isUser) {
                 logError(`userType ${context.userType} is not valid for non-patient token`, {
+                    reason: 'invalid_user_type_for_non_patient_token',
                     username: context.username,
                     userType: context.userType
                 });
@@ -443,7 +445,10 @@ class AuthService {
         isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
         if (!isValidInput) {
-            logInfo('Invalid act claim: missing or invalid reference field or sub field', { act });
+            logInfo('Invalid act claim: missing or invalid reference field or sub field', {
+                reason: 'delegated_actor_failure',
+                act
+            });
             response.failure = true;
             return response;
         }
@@ -472,6 +477,7 @@ class AuthService {
             if (this.cidCheckIssuer && jwt_payload.iss === this.cidCheckIssuer) {
                 if (!this.cidCheckClientIds.includes(jwt_payload.cid)) {
                     logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
+                        reason: 'client_id_not_allowed_for_issuer',
                         userClaim: jwt_payload.sub
                     });
                     return done(null, false, { reason: 'client_id_not_allowed_for_issuer' });
@@ -515,7 +521,10 @@ class AuthService {
                     }
 
                 }).catch((error) => {
-                    logError(`Error while fetching user info: ${error.message}`, {error: error});
+                    logError(`Error while fetching user info: ${error.message}`, {
+                        reason: 'userinfo_endpoint_error',
+                        error: error
+                    });
                     done(null, false, { reason: 'userinfo_endpoint_error' });
                 });
             } else {
@@ -543,6 +552,7 @@ class AuthService {
                 });
             }
         } else {
+            logWarn('Auth rejected', { reason: 'missing_jwt_payload' });
             done(null, false, { reason: 'missing_jwt_payload' });
         }
     }
