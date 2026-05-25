@@ -202,16 +202,17 @@ function createApp({fnGetContainer}) {
                 }
             }
 
+            const logAuthContextOn401 = res.statusCode === 401 && isTrue(process.env.LOG_AUTH_CONTEXT_ON_401);
             if (
                 (configManager.enableAccessLogs) &&
-                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body || res.statusCode === 401)
+                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body || logAuthContextOn401)
             ) {
                 accessLogger.logAccessLogAsync({
                     ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
                     req,
                     statusCode: res.statusCode,
                     startTime,
-                    authorizationHeader: res.statusCode === 401 ? req.headers.authorization : undefined
+                    authorizationHeader: logAuthContextOn401 ? req.headers.authorization : undefined
                 });
             }
             logInfo('Request Completed', logData);
