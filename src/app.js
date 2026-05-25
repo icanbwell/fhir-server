@@ -204,13 +204,14 @@ function createApp({fnGetContainer}) {
 
             if (
                 (configManager.enableAccessLogs) &&
-                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body)
+                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body || res.statusCode === 401)
             ) {
                 accessLogger.logAccessLogAsync({
                     ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
                     req,
                     statusCode: res.statusCode,
-                    startTime
+                    startTime,
+                    authorizationHeader: res.statusCode === 401 ? req.headers.authorization : undefined
                 });
             }
             logInfo('Request Completed', logData);

@@ -96,15 +96,16 @@ class AccessLogger {
      * @property {object[]} [operationResult]
      * @property {string|undefined} [streamRequestBody]
      * @property {boolean} [streamingMerge]
+     * @property {string|undefined} [authorizationHeader]
      *
      * @param {logAccessLogAsyncParams}
      */
-    async logAccessLogAsync({ req, statusCode, startTime, stopTime = Date.now(), streamRequestBody, streamingMerge, operationResult }) {
+    async logAccessLogAsync({ req, statusCode, startTime, stopTime = Date.now(), streamRequestBody, streamingMerge, operationResult, authorizationHeader }) {
         /**
          * @type {string}
          */
         const resourceType = req.resourceType ? req.resourceType : (req.url.split('/')[2])?.split('?')[0];
-        if (!resourceType) {
+        if (!resourceType && statusCode !== 401) {
             return;
         }
         /**
@@ -113,28 +114,41 @@ class AccessLogger {
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const isError = !(statusCode >= 200 && statusCode < 300);
 
-        // Fetching args
-        let combined_args = get_all_args(req, req.sanitized_args);
-        combined_args = this.fhirOperationsManager.parseParametersFromBody({ req, combined_args });
         const operation =
             req.method === 'GET' ? READ : req.method === 'POST' && req.url.includes('$graph') ? READ : WRITE;
-        if (!combined_args.base_version) {
-            combined_args.base_version = '4_0_0';
-        }
-        /**
-         * @type {ParsedArgs}
-         */
-        const args = await this.fhirOperationsManager.getParsedArgsAsync({
-            args: combined_args,
-            resourceType,
-            operation
-        });
 
         // Fetching detail
         const details = {
             version: this.imageVersion,
             host: this.hostname
         };
+
+        // Args parsing requires a resourceType; on a 401 the URL may not carry one (e.g. /$graphql).
+        if (resourceType) {
+            let combined_args = get_all_args(req, req.sanitized_args);
+            combined_args = this.fhirOperationsManager.parseParametersFromBody({ req, combined_args });
+            if (!combined_args.base_version) {
+                combined_args.base_version = '4_0_0';
+            }
+            /**
+             * @type {ParsedArgs}
+             */
+            const args = await this.fhirOperationsManager.getParsedArgsAsync({
+                args: combined_args,
+                resourceType,
+                operation
+            });
+
+            const params = {};
+            Object.entries(args.getRawArgs())
+                .filter(([k, _]) => !['resource', 'base_version'].includes(k))
+                .forEach(([k, v]) => {
+                    params[k] = !v || typeof v === 'string' ? v : JSON.stringify(v, getCircularReplacer());
+                });
+            if (Object.keys(params).length > 0) {
+                details['params'] = params;
+            }
+        }
 
         if (requestInfo.contentTypeFromHeader) {
             details['contentType'] = requestInfo.contentTypeFromHeader.type;
@@ -148,14 +162,8 @@ class AccessLogger {
             details['originService'] = req.headers['origin-service'];
         }
 
-        const params = {};
-        Object.entries(args.getRawArgs())
-            .filter(([k, _]) => !['resource', 'base_version'].includes(k))
-            .forEach(([k, v]) => {
-                params[k] = !v || typeof v === 'string' ? v : JSON.stringify(v, getCircularReplacer());
-            });
-        if (Object.keys(params).length > 0) {
-            details['params'] = params;
+        if (authorizationHeader) {
+            details['authorizationHeader'] = authorizationHeader;
         }
 
         if (operationResult) {
