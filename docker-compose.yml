@@ -39,6 +39,7 @@ services:
       RESOURCE_HISTORY_MONGO_DB_NAME: resource-history
       RETURN_BUNDLE: '1'
       LOG_EXCLUDE_RESOURCES: 'Person,Patient'
+      LOG_AUTH_CONTEXT_ON_401: '1'
       STREAM_RESPONSE: '1'
       LOG_STREAM_STEPS: '0'
       ENABLE_EVENTS_KAFKA: '1'
