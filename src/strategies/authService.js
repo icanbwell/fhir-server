@@ -205,15 +205,16 @@ class AuthService {
         }
         if (isUser) {
             context.isUser = isUser;
-            let validInput = true;
-            Object.values(this.requiredJWTFields).forEach((field) => {
-                if (!jwt_payload[field]) {
-                    logDebug(`Error: ${field} field is missing`, {user: ''});
-                    validInput = false;
-                }
-            });
-            if (!validInput) {
-                logWarn('Auth rejected', { reason: 'missing_required_jwt_field', username, subject });
+            const missingRequiredFields = Object.values(this.requiredJWTFields).filter(
+                (field) => !jwt_payload[field]
+            );
+            if (missingRequiredFields.length > 0) {
+                logWarn('Auth rejected', {
+                    reason: 'missing_required_jwt_field',
+                    missingRequiredFields,
+                    username,
+                    subject
+                });
                 done(null, false, { reason: 'missing_required_jwt_field' });
                 return;
             }
