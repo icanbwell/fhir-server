@@ -185,15 +185,11 @@ function createApp({fnGetContainer}) {
                         requestId: req.uniqueRequestId
                     });
                     const errorMessage = req.authFailureDetail || 'Authentication Failed';
-                    const extraParams = req.jwtPayload
-                        ? [{ type: 'jwtPayload', valueString: JSON.stringify(req.jwtPayload) }]
-                        : undefined;
                     auditLogger.logErrorAuditEntryAsync({
                         requestInfo,
                         resourceType,
                         errorCode: 401,
-                        errorMessage,
-                        extraParams
+                        errorMessage
                     }).catch((e) => {
                         logError('Error logging 401 audit event', { error: e.message });
                     });
