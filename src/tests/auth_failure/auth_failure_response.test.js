@@ -15,11 +15,11 @@ const expectFhirOperationOutcome = (resp) => {
     expect(body.issue[0].diagnostics).toBe('Authentication failed');
 };
 
-const expectGraphqlError = (resp, code = 'UNAUTHENTICATED') => {
-    expect(resp.status).toBe(200);
+const expectGraphqlError = (resp, code = 'UNAUTHENTICATED', statusCode = 401) => {
+    expect(resp.status).toBe(statusCode);
     expect(resp.headers['content-type']).toMatch(/application\/json/);
     const body = JSON.parse(resp.text);
-    expect(body.data).toBeNull();
+    expect(body).not.toHaveProperty('data');
     expect(body.errors).toHaveLength(1);
     expect(body.errors[0].message).toBeDefined();
     expect(body.errors[0].extensions.code).toBe(code);
@@ -76,7 +76,7 @@ describe('Authentication failure responses', () => {
 
             // v1 may return 400 if graphql middleware rejects before auth fires.
             // The critical requirement is a valid JSON response (not plain text).
-            expect([200, 400]).toContain(resp.status);
+            expect([400, 401]).toContain(resp.status);
             expect(resp.headers['content-type']).toMatch(/application\/json/);
             expect(() => JSON.parse(resp.text)).not.toThrow();
         });
