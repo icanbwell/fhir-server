@@ -534,7 +534,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toEqual({ reason: 'delegated_actor_failure' });
+                    expect(info).toEqual({reason: 'delegated_actor_failure'});
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -639,7 +639,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toEqual({ reason: 'delegated_actor_failure' });
+                    expect(info).toEqual({reason: 'delegated_actor_failure'});
                     resolve();
                 } catch (assertionError) {
                     reject(assertionError);
@@ -812,7 +812,7 @@ describe('JWT Bearer Strategy', () => {
                 try {
                     expect(error).toBeFalsy();
                     expect(user).toBeFalsy();
-                    expect(info).toEqual({ reason: 'delegated_actor_failure' });
+                    expect(info).toEqual({reason: 'delegated_actor_failure'});
 
                     resolve();
                 } catch (assertionError) {
