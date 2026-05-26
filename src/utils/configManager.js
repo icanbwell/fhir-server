@@ -18,11 +18,8 @@ class ConfigManager {
         return (envVar && envVar.split(',').map(item => item.trim())) || defaultValue;
     }
 
-    get resourcesWithAccessIndex() {
-        return (
-            env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',')
-                .map((col) => col.trim())
-        ) || [];
+    get customIndexesFilePath() {
+        return env.CUSTOM_INDEXES_FILE_PATH || null;
     }
 
     get useAccessIndex() {

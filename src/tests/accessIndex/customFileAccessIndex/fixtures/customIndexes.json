@@ -1,0 +1,64 @@
+{
+    "AuditEvent_4_0_0": [
+        {
+            "keys": {
+                "_uuid": 1
+            },
+            "options": {
+                "name": "uuid",
+                "unique": true
+            }
+        },
+        {
+            "keys": {
+                "_access.client1": 1,
+                "_uuid": 1
+            },
+            "options": {
+                "name": "_access_client1_1._uuid_1"
+            }
+        },
+        {
+            "keys": {
+                "_access.client1": 1,
+                "recorded": 1,
+                "_uuid": 1
+            },
+            "options": {
+                "name": "access_client1_recorded_uuid"
+            }
+        },
+        {
+            "keys": {
+                "recorded": -1
+            },
+            "options": {
+                "name": "recorded_1"
+            }
+        }
+    ],
+    "Encounter_4_0_0": [
+        {
+            "keys": {
+                "_access.client1": 1,
+                "meta.source": 1,
+                "_uuid": 1,
+                "meta.lastUpdated": 1
+            },
+            "options": {
+                "name": "_access_client1_1.meta_source_1._uuid_1.meta_lastUpdated_1"
+            }
+        }
+    ],
+    "Patient_4_0_0": [
+        {
+            "keys": {
+                "_access.client1": 1,
+                "_uuid": 1
+            },
+            "options": {
+                "name": "_access_client1_1._uuid_1"
+            }
+        }
+    ]
+}
