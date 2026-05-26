@@ -4,7 +4,7 @@ process.env.ENABLE_BULK_EXPORT = '1';
 const {describe, test, expect} = require('@jest/globals');
 const {createTestRequest, getUnAuthenticatedGraphQLHeaders} = require('../common');
 
-const expectAuthenticationFailedJson = (resp) => {
+const expectFhirOperationOutcome = (resp) => {
     expect(resp.status).toBe(401);
     expect(resp.headers['content-type']).toMatch(/application\/json/);
     const body = JSON.parse(resp.text);
@@ -15,56 +15,82 @@ const expectAuthenticationFailedJson = (resp) => {
     expect(body.issue[0].diagnostics).toBe('Authentication failed');
 };
 
+const expectGraphqlError = (resp, code = 'UNAUTHENTICATED') => {
+    expect(resp.status).toBe(200);
+    expect(resp.headers['content-type']).toMatch(/application\/json/);
+    const body = JSON.parse(resp.text);
+    expect(body.data).toBeNull();
+    expect(body.errors).toHaveLength(1);
+    expect(body.errors[0].message).toBeDefined();
+    expect(body.errors[0].extensions.code).toBe(code);
+};
+
 describe('Authentication failure responses', () => {
-    test('REST (CRUD) returns JSON OperationOutcome on missing auth', async () => {
-        const request = await createTestRequest();
-        const resp = await request.get('/4_0_0/Patient/123');
-        expectAuthenticationFailedJson(resp);
+    describe('REST/FHIR routes return OperationOutcome with HTTP 401', () => {
+        test('REST (CRUD) returns JSON OperationOutcome on missing auth', async () => {
+            const request = await createTestRequest();
+            const resp = await request.get('/4_0_0/Patient/123');
+            expectFhirOperationOutcome(resp);
+        });
+
+        test('$merge returns JSON OperationOutcome on missing auth', async () => {
+            const request = await createTestRequest();
+            const resp = await request
+                .post('/4_0_0/Patient/$merge')
+                .send([])
+                .set({'Content-Type': 'application/fhir+json'});
+            expectFhirOperationOutcome(resp);
+        });
+
+        test('$everything returns JSON OperationOutcome on missing auth', async () => {
+            const request = await createTestRequest();
+            const resp = await request.get('/4_0_0/Patient/123/$everything');
+            expectFhirOperationOutcome(resp);
+        });
+
+        test('$export returns JSON OperationOutcome on missing auth', async () => {
+            const request = await createTestRequest();
+            const resp = await request
+                .post('/4_0_0/$export?_type=Patient')
+                .set({'Content-Type': 'application/fhir+json'});
+            expectFhirOperationOutcome(resp);
+        });
     });
 
-    test('$merge returns JSON OperationOutcome on missing auth', async () => {
-        const request = await createTestRequest();
-        const resp = await request
-            .post('/4_0_0/Patient/$merge')
-            .send([])
-            .set({'Content-Type': 'application/fhir+json'});
-        expectAuthenticationFailedJson(resp);
-    });
+    describe('GraphQL routes return GraphQL error format with HTTP 200', () => {
+        test('graphqlv2 returns GraphQL error on missing auth', async () => {
+            const request = await createTestRequest();
+            const resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({operationName: null, variables: {}, query: '{ patient { id } }'})
+                .set(getUnAuthenticatedGraphQLHeaders());
+            expectGraphqlError(resp, 'UNAUTHENTICATED');
+        });
 
-    test('$everything returns JSON OperationOutcome on missing auth', async () => {
-        const request = await createTestRequest();
-        const resp = await request.get('/4_0_0/Patient/123/$everything');
-        expectAuthenticationFailedJson(resp);
-    });
+        test('graphql v1 returns valid JSON on missing auth', async () => {
+            const request = await createTestRequest();
+            const resp = await request
+                .post('/4_0_0/$graphql')
+                .send({operationName: null, variables: {}, query: '{ patient { id } }'})
+                .set(getUnAuthenticatedGraphQLHeaders());
 
-    test('$export returns JSON OperationOutcome on missing auth', async () => {
-        const request = await createTestRequest();
-        const resp = await request
-            .post('/4_0_0/$export?_type=Patient')
-            .set({'Content-Type': 'application/fhir+json'});
-        expectAuthenticationFailedJson(resp);
-    });
+            // v1 may return 400 if graphql middleware rejects before auth fires.
+            // The critical requirement is a valid JSON response (not plain text).
+            expect([200, 400]).toContain(resp.status);
+            expect(resp.headers['content-type']).toMatch(/application\/json/);
+            expect(() => JSON.parse(resp.text)).not.toThrow();
+        });
 
-    test('graphql returns valid JSON on missing auth', async () => {
-        const request = await createTestRequest();
-        const resp = await request
-            .post('/4_0_0/$graphql')
-            .send({operationName: null, variables: {}, query: '{ patient { id } }'})
-            .set(getUnAuthenticatedGraphQLHeaders());
-
-        // v1 may return 400 if graphql middleware rejects before auth (content validation).
-        // The critical requirement is that the response body is valid JSON.
-        expect([400, 401]).toContain(resp.status);
-        expect(resp.headers['content-type']).toMatch(/application\/json/);
-        expect(() => JSON.parse(resp.text)).not.toThrow();
-    });
-
-    test('graphqlv2 returns JSON OperationOutcome on missing auth', async () => {
-        const request = await createTestRequest();
-        const resp = await request
-            .post('/4_0_0/$graphqlv2')
-            .send({operationName: null, variables: {}, query: '{ patient { id } }'})
-            .set(getUnAuthenticatedGraphQLHeaders());
-        expectAuthenticationFailedJson(resp);
+        test('graphqlv2 returns GraphQL error on invalid token', async () => {
+            const request = await createTestRequest();
+            const resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({operationName: null, variables: {}, query: '{ patient { id } }'})
+                .set({
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer invalid.jwt.token'
+                });
+            expectGraphqlError(resp, 'UNAUTHENTICATED');
+        });
     });
 });

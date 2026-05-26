@@ -20,6 +20,7 @@ const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {AUTH_USER_TYPES} = require('./constants');
 const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
+const {graphqlErrorFormatter} = require('./middleware/graphql/graphqlErrorFormatter');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
@@ -426,6 +427,7 @@ function createApp({fnGetContainer}) {
         const forbidRestrictedUserTypes = forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]);
 
         const router = express.Router();
+        router.use((req, res, next) => { req.isGraphQLRoute = true; next(); });
         router.use(passport.initialize());
         router.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         router.use(forbidRestrictedUserTypes);
@@ -460,6 +462,7 @@ function createApp({fnGetContainer}) {
         });
 
         const routerv2 = express.Router();
+        routerv2.use((req, res, next) => { req.isGraphQLRoute = true; next(); });
         routerv2.use(passport.initialize());
         routerv2.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         routerv2.use(forbidRestrictedUserTypes);
@@ -499,10 +502,12 @@ function createApp({fnGetContainer}) {
         ]).then(([graphqlMiddleware, graphqlV2Middleware]) => {
             if (graphqlMiddleware) {
                 router.use(graphqlMiddleware);
+                router.use(graphqlErrorFormatter);
                 app.use('/\\$graphql', router);
             }
             if (graphqlV2Middleware) {
                 routerv2.use(graphqlV2Middleware);
+                routerv2.use(graphqlErrorFormatter);
                 app.use('/4_0_0/\\$graphqlv2', routerv2);
             }
             createFhirApp(fnGetContainer, app);
