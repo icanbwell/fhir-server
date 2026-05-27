@@ -28,7 +28,7 @@ class MyJwtStrategy extends JwtStrategy {
                 secretOrKeyProvider: jwksRsa.passportJwtSecret({
                     cache: true,
                     rateLimit: true,
-                    jwksRequestsPerMinute: 5,
+                    jwksRequestsPerMinute: 60,
                     jwksUri: configManager.authJwksUrl,
                     cacheMaxAge: configManager.cacheExpiryTime,
                     fetcher: (jwksUrl) => authService.getJwksByUrlAsync(jwksUrl),
