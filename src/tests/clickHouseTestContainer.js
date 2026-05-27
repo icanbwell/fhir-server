@@ -1,4 +1,5 @@
 const { ClickHouseContainer } = require('@testcontainers/clickhouse');
+const { Wait } = require("testcontainers");
 const path = require('path');
 const { withNockSuspended, setEnvVars, restoreEnvVars } = require('./testContainerUtils');
 
@@ -44,6 +45,7 @@ class ClickHouseTestContainer {
                 .withEnvironment({
                     CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: '1'
                 })
+                .withWaitStrategy(Wait.forListeningPorts())
                 .withStartupTimeout(startupTimeoutMs);
 
             if (loadSchema) {

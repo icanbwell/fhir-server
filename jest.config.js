@@ -22,7 +22,7 @@ module.exports = {
         '<rootDir>/src/graphql/resolvers',
         '<rootDir>/src/graphqlv2/resolvers'
     ],
-    testPathIgnorePatterns: ['<rootDir>/src/tests/performance/'],
+    testPathIgnorePatterns: ['<rootDir>/src/tests/performance/', '<rootDir>/.claude/'],
     setupFiles: ['<rootDir>/jest/setEnvVars.js'],
     setupFilesAfterEnv: ['<rootDir>/src/tests/testSetup.js'],
     testTimeout: 60000,
