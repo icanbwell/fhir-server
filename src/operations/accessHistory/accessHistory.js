@@ -240,8 +240,8 @@ class AccessHistoryOperation {
 
     /**
      * Resolves accessor references to display names and organizations.
-     * For proxy patient accessors (Patient/person.{id}), resolves display from Person
-     * and organization from Patient's managingOrganization.
+     * For proxy patient accessors (Patient/person.{id}), resolves display and
+     * organization from Person's managingOrganization.
      * @param {Object} params
      * @param {string[]} params.accessorRefs
      * @param {string} params.base_version
@@ -387,37 +387,39 @@ class AccessHistoryOperation {
         if (!resource.name) {
             return '';
         }
-        // HumanName[] (Practitioner, Patient, Person)
-        if (Array.isArray(resource.name)) {
-            const humanName = resource.name[0];
-            if (humanName) {
-                const parts = [];
-                if (humanName.prefix) {
-                    parts.push(
-                        Array.isArray(humanName.prefix) ? humanName.prefix[0] : humanName.prefix
-                    );
-                }
-                if (humanName.given) {
-                    parts.push(
-                        Array.isArray(humanName.given) ? humanName.given.join(' ') : humanName.given
-                    );
-                }
-                if (humanName.family) {
-                    parts.push(humanName.family);
-                }
-                if (parts.length > 0) {
-                    return parts.join(' ');
-                }
-                if (humanName.text) {
-                    return humanName.text;
-                }
-            }
-        }
-        // String name (Organization, etc.)
+
         if (typeof resource.name === 'string') {
             return resource.name;
         }
-        return '';
+
+        if (!Array.isArray(resource.name)) {
+            return '';
+        }
+
+        const humanName = resource.name[0];
+        if (!humanName) {
+            return '';
+        }
+
+        const parts = [];
+        if (humanName.prefix) {
+            parts.push(
+                Array.isArray(humanName.prefix) ? humanName.prefix[0] : humanName.prefix
+            );
+        }
+        if (humanName.given) {
+            parts.push(
+                Array.isArray(humanName.given) ? humanName.given.join(' ') : humanName.given
+            );
+        }
+        if (humanName.family) {
+            parts.push(humanName.family);
+        }
+        if (parts.length > 0) {
+            return parts.join(' ');
+        }
+
+        return humanName.text || '';
     }
 
     /**
