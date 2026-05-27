@@ -28,6 +28,7 @@ class AccessHistoryClickHouseRepository {
                 groupUniqArrayMerge(purpose_of_events) AS purposes
             FROM ${TABLES.AUDIT_ACCESS_AGG}
             WHERE entity_ref IN {entity_refs:Array(String)}
+            AND recorded_month >= toStartOfMonth(now() - INTERVAL 90 DAY)
             GROUP BY accessor_uuid, entity_resource_type
             ORDER BY last_accessed DESC
         `;
