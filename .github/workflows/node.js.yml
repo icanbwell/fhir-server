@@ -55,3 +55,4 @@ jobs:
         env:
           NODE_OPTIONS: "--max-old-space-size=10240"
           DEBUG: "testcontainers*"
+          DOCKER_HOST: unix:///var/run/docker.sock
