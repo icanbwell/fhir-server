@@ -17,7 +17,7 @@ const {
     setupAccessHistoryTests,
     teardownAccessHistoryTests,
     cleanupBetweenTests,
-    insertAuditEventRows,
+    insertAuditEvents,
     getClickHouseManager
 } = require('../../clickhouseOnly/accessHistory/accessHistoryTestSetup');
 const { AccessHistoryClickHouseRepository } = require('../../../dataLayer/repositories/accessHistoryClickHouseRepository');
@@ -155,7 +155,7 @@ describe('Person $access-history Tests', () => {
 
         const accessorRef = 'Practitioner/dr-reader-uuid';
         const entityRef = `Patient/${patientUuid}`;
-        await insertAuditEventRows([{
+        await insertAuditEvents([{
             id: 'ae-1',
             _uuid: 'ae-uuid-1',
             recorded: daysAgo(0),
@@ -273,7 +273,7 @@ describe('Person $access-history Tests', () => {
         const observationUuid = resp.body.uuid;
 
         const accessorRef = 'Practitioner/dr-reader-uuid';
-        await insertAuditEventRows([
+        await insertAuditEvents([
             {
                 id: 'ae-patient-read',
                 _uuid: 'ae-uuid-patient-read',
@@ -382,7 +382,7 @@ describe('Person $access-history Tests', () => {
         const accessor2 = 'Patient/person.accessor-person-1';
         const entityRef = `Patient/${patientUuid}`;
 
-        await insertAuditEventRows([
+        await insertAuditEvents([
             {
                 id: 'ae-accessor1',
                 _uuid: 'ae-uuid-accessor1',
@@ -451,7 +451,7 @@ describe('Person $access-history Tests', () => {
         const oneMonthAgo = daysAgo(35);
         const twoMonthsAgo = daysAgo(65);
 
-        await insertAuditEventRows([
+        await insertAuditEvents([
             {
                 id: 'ae-oldest',
                 _uuid: 'ae-uuid-oldest',
@@ -529,7 +529,7 @@ describe('Person $access-history Tests', () => {
         const accessorRef = 'Patient/person.purpose-test-person';
         const entityRef = `Patient/${patientUuid}`;
 
-        await insertAuditEventRows([{
+        await insertAuditEvents([{
             id: 'ae-purpose',
             _uuid: 'ae-uuid-purpose',
             recorded: daysAgo(1),
