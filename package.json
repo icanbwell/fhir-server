@@ -43,56 +43,6 @@
     "prettier-fix": "prettier --write \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",
     "fix_lint": "eslint --fix \"src/**/*.js\""
   },
-  "jest": {
-    "watchman": false,
-    "watchPathIgnorePatterns": [
-      "globalConfig"
-    ],
-    "globalSetup": "<rootDir>/src/tests/jestGlobalSetup.js",
-    "globalTeardown": "<rootDir>/src/tests/jestGlobalTeardown.js",
-    "verbose": false,
-    "testEnvironment": "node",
-    "collectCoverage": false,
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "json"
-    ],
-    "reporters": [
-      "default",
-      "github-actions",
-      "jest-failure-reporter"
-    ],
-    "transform": {
-      "^.+\\.js$": "babel-jest"
-    },
-    "transformIgnorePatterns": [
-      "node_modules/(?!@kubernetes/client-node)/",
-      "node_modules/express-useragent/"
-    ],
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/src/testutils/",
-      "<rootDir>/src/fhir/classes",
-      "<rootDir>/src/fhir/generator",
-      "<rootDir>/src/middleware/fhir/resources",
-      "<rootDir>/src/views",
-      "<rootDir>/src/services",
-      "<rootDir>/src/graphql/resolvers",
-      "<rootDir>/src/graphqlv2/resolvers"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/src/tests/performance/"
-    ],
-    "setupFiles": [
-      "<rootDir>/jest/setEnvVars.js"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/tests/testSetup.js"
-    ],
-    "testTimeout": 60000,
-    "workerIdleMemoryLimit": "8MB",
-    "injectGlobals": false
-  },
   "graphql-schema-linter": {
     "rules": [
       "enum-values-sorted-alphabetically"
@@ -192,8 +142,6 @@
     "yargs": "^18.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "^7.28.6",
     "@eslint/js": "^10.0.1",
     "@graphql-eslint/eslint-plugin": "^4.4.0",
@@ -207,7 +155,6 @@
     "jest-diff": "^30.4.1",
     "jest-environment-node": "^30.4.1",
     "jest-extended": "^7.0.0",
-    "jest-failure-reporter": "^1.0.1",
     "jest-matcher-utils": "^30.4.1",
     "jose": "^6.2.3",
     "jsonwebtoken": "^9.0.3",

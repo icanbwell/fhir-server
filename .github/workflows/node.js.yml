@@ -54,3 +54,5 @@ jobs:
           ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           NODE_OPTIONS: "--max-old-space-size=10240"
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_RYUK_DISABLED: "true"

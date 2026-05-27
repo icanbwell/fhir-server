@@ -707,7 +707,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.23.9, @babel/core@npm:^7.27.4, @babel/core@npm:^7.28.6, @babel/core@npm:^7.29.0":
+"@babel/core@npm:^7.23.9, @babel/core@npm:^7.27.4, @babel/core@npm:^7.28.6":
   version: 7.29.7
   resolution: "@babel/core@npm:7.29.7"
   dependencies:
@@ -1030,17 +1030,6 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 10c0/c49883b0327e8683b770dc823205af5c697da216e590dcf5bf53f3f031e7e381de450b164f8f99853f0837a3de5cb793298e2be6697a0f6e452bb9dd34b5165e
-  languageName: node
-  linkType: hard
-
-"@babel/plugin-transform-export-namespace-from@npm:^7.27.1":
-  version: 7.29.7
-  resolution: "@babel/plugin-transform-export-namespace-from@npm:7.29.7"
-  dependencies:
-    "@babel/helper-plugin-utils": "npm:^7.29.7"
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: 10c0/6cd951e366c5c30223c409157e312d949feecfae8b4b4927053764ec71ff2bacf43aceda9b53239cd90d71caf4ae849c70549e0d3e31377dd8f42a0c283bdda2
   languageName: node
   linkType: hard
 
@@ -5403,8 +5392,6 @@ __metadata:
     "@asymmetrik/sof-scope-checker": "npm:^1.0.7"
     "@aws-sdk/client-s3": "npm:^3.1053.0"
     "@aws-sdk/lib-storage": "npm:^3.1053.0"
-    "@babel/core": "npm:^7.29.0"
-    "@babel/plugin-transform-export-namespace-from": "npm:^7.27.1"
     "@babel/plugin-transform-modules-commonjs": "npm:^7.28.6"
     "@clickhouse/client": "npm:^1.18.5"
     "@eslint/js": "npm:^10.0.1"
@@ -5470,7 +5457,6 @@ __metadata:
     jest-diff: "npm:^30.4.1"
     jest-environment-node: "npm:^30.4.1"
     jest-extended: "npm:^7.0.0"
-    jest-failure-reporter: "npm:^1.0.1"
     jest-matcher-utils: "npm:^30.4.1"
     jose: "npm:^6.2.3"
     jsonwebtoken: "npm:^9.0.3"
@@ -8040,13 +8026,6 @@ __metadata:
     typescript:
       optional: false
   checksum: 10c0/a89b29cf80207c89ab3f1cbd264844049f3f66f566cdc2043a0cbdf8180f23c563cf1aecf22e20e98f38add44646a4675fee8728e00e77bcfb27cf9ce0e7b1d2
-  languageName: node
-  linkType: hard
-
-"jest-failure-reporter@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "jest-failure-reporter@npm:1.0.1"
-  checksum: 10c0/ec61f56361bbde4060c57c97c368e072164ab3cd9ecbaaf1e089d6d178e73ca257028e09ef897c96bfb4fe2802ebdd3fdfca023cdc9a96f59ca9fd8ac66e6d7c
   languageName: node
   linkType: hard
 
