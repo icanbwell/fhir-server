@@ -19,7 +19,6 @@ const {
 } = require('../../common');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 
 const ACCESS_LOG_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/04-access-log.sql');
 
@@ -27,8 +26,6 @@ let sharedRequest = null;
 let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
 
 async function waitForClickHouse (manager, maxWaitMs = 30000) {
     const startTime = Date.now();
@@ -68,11 +65,6 @@ async function setupAccessLogClickHouseTests () {
 
     setupPromise = (async () => {
         try {
-            if (!clickHouseTestContainer) {
-                clickHouseTestContainer = new ClickHouseTestContainer();
-                await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-                savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-            }
 
             await commonBeforeEach();
 
@@ -103,14 +95,6 @@ async function teardownAccessLogClickHouseTests () {
             sharedClickHouseManager = null;
         }
 
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-                savedContainerEnvVars = null;
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
-        }
 
         await commonAfterEach();
         sharedRequest = null;

@@ -12,7 +12,6 @@ const {
 } = require('../../constants/clickHouseConstants');
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 // Set env vars FIRST, before any requires
 process.env.ENABLE_CLICKHOUSE = '1';
@@ -29,8 +28,6 @@ let sharedClickHouseManager = null;
 let schemaRegistry = null;
 let isSetupComplete = false;
 let setupPromise = null;
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
 
 /**
  * ScaffoldingTestResource schema definition.
@@ -102,7 +99,7 @@ async function initializeTestSchema (manager) {
 
 /**
  * Sets up integration test infrastructure.
- * Uses ClickHouseTestContainer (same pattern as Group tests).
+ * Uses the shared ClickHouse container started by jestGlobalSetup.
  */
 async function setupClickHouseOnlyTests () {
     if (setupPromise) return setupPromise;
@@ -110,12 +107,8 @@ async function setupClickHouseOnlyTests () {
 
     setupPromise = (async () => {
         try {
-            // Start ClickHouse test container
-            if (!clickHouseTestContainer) {
-                clickHouseTestContainer = new ClickHouseTestContainer();
-                await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-                savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-            }
+            // ClickHouse container is started once by jestGlobalSetup; CLICKHOUSE_HOST/PORT
+            // are inherited via process.env from the parent process.
 
             // Initialize common test infrastructure
             await commonBeforeEach();
@@ -152,14 +145,7 @@ async function teardownClickHouseOnlyTests () {
             sharedClickHouseManager = null;
         }
 
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-                savedContainerEnvVars = null;
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
-        }
+        // ClickHouse container is stopped once by jestGlobalTeardown.
 
         await commonAfterEach();
         sharedRequest = null;

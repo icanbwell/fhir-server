@@ -6,13 +6,10 @@ const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@je
 const { AdminAccessLogClickHouseManager } = require('../../../admin/adminAccessLogClickHouseManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 const { commonBeforeEach, commonAfterEach } = require('../../common');
 
 const ACCESS_LOG_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/04-access-log.sql');
 
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
 let clientManager = null;
 let adminManager = null;
 
@@ -76,10 +73,6 @@ function makeRow (overrides = {}) {
 
 describe('AdminAccessLogClickHouseManager integration', () => {
     beforeAll(async () => {
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-        savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-
         await commonBeforeEach();
 
         const configManager = new ConfigManager();
@@ -119,13 +112,6 @@ describe('AdminAccessLogClickHouseManager integration', () => {
         if (clientManager) {
             await clientManager.closeAsync();
             clientManager = null;
-        }
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
         }
         await commonAfterEach();
     }, 30000);

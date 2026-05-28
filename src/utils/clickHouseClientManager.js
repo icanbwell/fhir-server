@@ -1,4 +1,4 @@
-const { createClient } = require('@clickhouse/client');
+const { createClient, ClickHouseLogLevel } = require('@clickhouse/client');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { RethrownError } = require('./rethrownError');
 const { trace } = require('@opentelemetry/api');
@@ -70,6 +70,9 @@ class ClickHouseClientManager {
                 database: this.configManager.clickHouseDatabase
             });
 
+            // Allow CLICKHOUSE_LOG_LEVEL=ERROR (or OFF) to silence warnings during tests; (default WARN).
+            const logLevel = ClickHouseLogLevel[process.env.CLICKHOUSE_LOG_LEVEL];
+
             this.client = createClient({
                 url,
                 database: this.configManager.clickHouseDatabase,
@@ -83,7 +86,8 @@ class ClickHouseClientManager {
                 },
                 keep_alive: {
                     enabled: true
-                }
+                },
+                ...(logLevel !== undefined && { log: { level: logLevel } })
             });
 
             // Test connection

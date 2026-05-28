@@ -77,8 +77,13 @@ class ClickHouseTestContainer {
         const { ClickHouseClientManager } = require('../utils/clickHouseClientManager');
         const { ConfigManager } = require('../utils/configManager');
 
-        // Temporarily set env vars so ConfigManager picks up the container's address
+        // Temporarily set env vars so ConfigManager picks up the container's address.
+        // Force the client log level OFF for the schema-wait probe: keep-alive socket
+        // hang-ups while the container's entrypoint init scripts are still running are
+        // expected (that's how this loop knows to keep polling), and the client logs
+        // them as ERROR by default. The setting is restored after the wait completes.
         const saved = this.applyEnvVars();
+        const savedLogLevel = setEnvVars({ CLICKHOUSE_LOG_LEVEL: 'OFF' });
 
         try {
             const configManager = new ConfigManager();
@@ -102,6 +107,7 @@ class ClickHouseTestContainer {
             await manager.closeAsync();
             throw new Error('ClickHouse schema not initialized after 30s');
         } finally {
+            restoreEnvVars(savedLogLevel);
             this.restoreEnvVars(saved);
         }
     }

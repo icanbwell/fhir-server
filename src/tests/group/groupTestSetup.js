@@ -17,7 +17,6 @@ const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = req
 const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 // Set env vars
 // These are read lazily by ConfigManager getters, not at import time.
@@ -33,8 +32,6 @@ let sharedRequest = null;
 let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
 
 /**
  * Waits for ClickHouse to be ready with exponential backoff
@@ -142,11 +139,8 @@ async function setupGroupTests() {
     // Start setup and store promise
     setupPromise = (async () => {
         try {
-            if (!clickHouseTestContainer) {
-                clickHouseTestContainer = new ClickHouseTestContainer();
-                await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-                savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-            }
+            // ClickHouse container is started once by jestGlobalSetup; CLICKHOUSE_HOST/PORT
+            // are inherited via process.env from the parent process.
 
             // Initialize common test infrastructure
             await commonBeforeEach();
@@ -186,14 +180,7 @@ async function teardownGroupTests() {
             sharedClickHouseManager = null;
         }
 
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-                savedContainerEnvVars = null;
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
-        }
+        // ClickHouse container is stopped once by jestGlobalTeardown.
 
         await commonAfterEach();
 

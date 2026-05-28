@@ -11,7 +11,6 @@ const { GenericClickHouseRepository } = require('../../../dataLayer/repositories
 const { ClickHouseStorageProvider } = require('../../../dataLayer/providers/clickHouseStorageProvider');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 const { commonBeforeEach, commonAfterEach } = require('../../common');
 const { makeAuditEvent, TEST_DATES } = require('./auditEventClickHouseTestSetup');
 
@@ -19,8 +18,6 @@ const YM = TEST_DATES.ym;
 
 const AUDIT_EVENT_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/02-audit-event.sql');
 
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
 let clientManager = null;
 let repository = null;
 let storageProvider = null;
@@ -52,10 +49,6 @@ async function insertRows (rows) {
 
 describe('AuditEvent ClickHouse read integration', () => {
     beforeAll(async () => {
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-        savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-
         await commonBeforeEach();
 
         const configManager = new ConfigManager();
@@ -115,13 +108,6 @@ describe('AuditEvent ClickHouse read integration', () => {
         if (clientManager) {
             await clientManager.closeAsync();
             clientManager = null;
-        }
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
         }
         await commonAfterEach();
     }, 30000);

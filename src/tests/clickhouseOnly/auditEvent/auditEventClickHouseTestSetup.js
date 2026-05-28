@@ -13,7 +13,6 @@ process.env.STREAM_RESPONSE = '0';
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders, getHeadersWithCustomPayload } = require('../../common');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 const AUDIT_EVENT_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/02-audit-event.sql');
@@ -22,8 +21,6 @@ let sharedRequest = null;
 let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
 
 async function waitForClickHouse (manager, maxWaitMs = 30000) {
     const startTime = Date.now();
@@ -63,11 +60,6 @@ async function setupAuditEventClickHouseTests () {
 
     setupPromise = (async () => {
         try {
-            if (!clickHouseTestContainer) {
-                clickHouseTestContainer = new ClickHouseTestContainer();
-                await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-                savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-            }
 
             await commonBeforeEach();
 
@@ -98,14 +90,6 @@ async function teardownAuditEventClickHouseTests () {
             sharedClickHouseManager = null;
         }
 
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-                savedContainerEnvVars = null;
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
-        }
 
         await commonAfterEach();
         sharedRequest = null;
