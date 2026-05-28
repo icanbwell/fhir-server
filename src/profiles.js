@@ -9893,7 +9893,7 @@ const profiles = {
           name: 'access-history',
           route: '/:id/$access-history',
           method: 'GET',
-          reference: '/OperationDefinition/access-history'
+          reference: 'https://www.hl7.org/fhir/security.html'
         }
       ]
     },

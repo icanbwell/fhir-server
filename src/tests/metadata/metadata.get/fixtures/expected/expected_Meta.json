@@ -22593,7 +22593,7 @@
         {
           "name": "access-history",
           "definition": {
-            "reference": "/OperationDefinition/access-history"
+            "reference": "https://www.hl7.org/fhir/security.html"
           }
         },
         {
