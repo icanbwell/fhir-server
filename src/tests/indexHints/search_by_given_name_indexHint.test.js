@@ -7,10 +7,7 @@ const expectedPersonResult = require('./fixtures/expectedPersonResult.json');
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-// const { customIndexes } = require('./mockCustomIndexes');
 const { ConfigManager } = require('../../utils/configManager');
-const { CreateCollectionsRunner } = require('../../admin/runners/createCollectionsRunner');
-const { AdminLogger } = require('../../admin/adminLogger');
 
 class MockConfigManager extends ConfigManager {
     get enableReturnBundle () {
@@ -28,25 +25,24 @@ describe('PersonWithIndexHint Test', () => {
     });
 
     describe('Person search using _setIndexHint', () => {
-        test.only('search by given name and _setIndexHint should work', async () => {
+        test('search by given name and _setIndexHint should work', async () => {
             const request = await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
-                container.register(
-                    'createCollectionsRunner',
-                    (c) =>
-                        new CreateCollectionsRunner({
-                            indexManager: c.indexManager,
-                            adminLogger: new AdminLogger(),
-                            mongoDatabaseManager: c.mongoDatabaseManager
-                        })
-                );
                 return container;
             });
 
             const container = getTestContainer();
-            // create collections and indexes
-            const createCollectionsRunner = container.createCollectionsRunner;
-            await createCollectionsRunner.processAsync();
+
+            // Create only the Person_4_0_0 collection + the name.family_1 index
+            // we need to exercise _setIndexHint. Calling CreateCollectionsRunner
+            // would create 140+ collections × 3 db's × all configured indexes,
+            // which routinely brushes the 60s testTimeout under CI load.
+            const db = await container.mongoDatabaseManager.getClientDbAsync();
+            await db.createCollection('Person_4_0_0');
+            await db.collection('Person_4_0_0').createIndex(
+                { 'name.family': 1, 'name.given': 1 },
+                { name: 'name.family_1' }
+            );
 
             let resp = await request.get('/4_0_0/Person').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -69,6 +65,6 @@ describe('PersonWithIndexHint Test', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResult);
-        });
+        }, 120000);
     });
 });

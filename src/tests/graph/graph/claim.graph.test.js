@@ -14,12 +14,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
-    getTestContainer
+    createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { CreateCollectionsRunner } = require('../../../admin/runners/createCollectionsRunner');
-const { AdminLogger } = require('../../../admin/adminLogger');
 
 describe('Claim Graph Contained Tests', () => {
     beforeEach(async () => {
@@ -32,23 +29,7 @@ describe('Claim Graph Contained Tests', () => {
 
     describe('Graph Contained Tests', () => {
         test('Graph contained with multiple targets works properly', async () => {
-            const request = await createTestRequest((container) => {
-                container.register(
-                    'createCollectionsRunner',
-                    (c) =>
-                        new CreateCollectionsRunner({
-                            indexManager: c.indexManager,
-                            adminLogger: new AdminLogger(),
-                            mongoDatabaseManager: c.mongoDatabaseManager
-                        })
-                );
-                return container;
-            });
-
-            const container = getTestContainer();
-            // create collections and indexes
-            const createCollectionsRunner = container.createCollectionsRunner;
-            await createCollectionsRunner.processAsync();
+            const request = await createTestRequest();
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')

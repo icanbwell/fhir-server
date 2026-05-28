@@ -8,8 +8,6 @@ const personBundleResource = require('./fixtures/person_bundle.json');
 
 const fs = require('fs');
 const path = require('path');
-const { CreateCollectionsRunner } = require('../../../admin/runners/createCollectionsRunner');
-const { AdminLogger } = require('../../../admin/adminLogger');
 
 const queryWithIndexHint1 = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_with_indexhint_1.graphql'),
@@ -37,27 +35,27 @@ describe('Graphql IndexHints Test', () => {
     });
 
     describe('Patient search using _setIndexHint', () => {
-        test.only('search by given name and _setIndexHint should workkkkk', async () => {
+        test('search by given name and _setIndexHint should workkkkk', async () => {
             const request = await createTestRequest((container) => {
                 container.register('indexProvider', (c) => new MockIndexProvider({
                     configManager: c.configManager
                 }));
-                container.register(
-                    'createCollectionsRunner',
-                    (c) =>
-                        new CreateCollectionsRunner({
-                            indexManager: c.indexManager,
-                            adminLogger: new AdminLogger(),
-                            mongoDatabaseManager: c.mongoDatabaseManager
-                        })
-                );
                 return container;
             });
 
             const container = getTestContainer();
-            // create collections and indexes
-            const createCollectionsRunner = container.createCollectionsRunner;
-            await createCollectionsRunner.processAsync();
+
+            // Create only the Patient/Person collections + the id_1 and uuid
+            // indexes that this test exercises via _setIndexHint. Calling
+            // CreateCollectionsRunner would create 140+ collections × 3 db's,
+            // most of which this test never touches, and routinely brushes
+            // the 60s testTimeout under CI load.
+            const db = await container.mongoDatabaseManager.getClientDbAsync();
+            for (const collectionName of ['Patient_4_0_0', 'Person_4_0_0']) {
+                await db.createCollection(collectionName);
+                await db.collection(collectionName).createIndex({ id: 1 }, { name: 'id_1' });
+                await db.collection(collectionName).createIndex({ uuid: 1 }, { name: 'uuid' });
+            }
 
             const graphqlQueryTextWithIndexHint1 = queryWithIndexHint1.replace(/\\n/g, '');
             const graphqlQueryTextWithIndexHint2 = queryWithIndexHint2.replace(/\\n/g, '');
