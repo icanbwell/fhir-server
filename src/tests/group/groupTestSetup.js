@@ -34,92 +34,6 @@ let isSetupComplete = false;
 let setupPromise = null;
 
 /**
- * Waits for ClickHouse to be ready with exponential backoff
- */
-async function waitForClickHouse(manager, maxWaitMs = 30000) {
-    const startTime = Date.now();
-    let attempt = 0;
-    let delay = 100; // Start with 100ms
-
-    while (Date.now() - startTime < maxWaitMs) {
-        try {
-            attempt++;
-            await manager.getClientAsync();
-            const isHealthy = await manager.isHealthyAsync();
-            if (isHealthy) {
-                return true;
-            }
-        } catch (e) {
-            // Silent retry
-        }
-
-        // Exponential backoff: 100ms -> 200ms -> 400ms -> 800ms -> 1000ms (cap)
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay = Math.min(delay * 2, 1000);
-    }
-
-    throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-}
-
-/**
- * Initializes ClickHouse schema if needed
- * Uses the full schema from clickhouse-init/01-init-schema.sql
- */
-async function initializeClickHouseSchema(clickHouseManager) {
-    try {
-        const fs = require('fs');
-        const path = require('path');
-
-        // Check if schema is already initialized
-        const exists = await clickHouseManager.tableExistsAsync('fhir.Group_4_0_0_MemberEvents');
-
-        if (!exists) {
-            const schemaPath = path.join(__dirname, '../../..', 'clickhouse-init', '01-init-schema.sql');
-            const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
-
-            const statements = schemaSQL
-                .split(';')
-                .map(s => s.trim())
-                .filter(s => s.length > 0 && !s.match(/^--/) && !s.match(/^SET\s+/i))
-                .filter(s => !s.includes('ClickHouse FHIR schema initialized'));
-
-            for (const statement of statements) {
-                try {
-                    await clickHouseManager.queryAsync({ query: statement });
-                } catch (err) {
-                    if (!err.message.includes('already exists')) {
-                        // Ignore other errors during schema init
-                    }
-                }
-            }
-        }
-
-        // Apply migration for entity_reference_uuid/source_id columns
-        const migrationPath = path.join(__dirname, '../../..', 'clickhouse-init', '02-add-entity-reference-columns.sql');
-        if (fs.existsSync(migrationPath)) {
-            const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
-            const migrationStatements = migrationSQL
-                .split(';')
-                .map(s => s.trim())
-                .filter(s => s.length > 0 && !s.match(/^--/));
-
-            for (const statement of migrationStatements) {
-                try {
-                    await clickHouseManager.queryAsync({ query: statement });
-                } catch (err) {
-                    if (!err.message.includes('already exists') && !err.message.includes('duplicate column')) {
-                        // Ignore migration errors for idempotency
-                    }
-                }
-            }
-        }
-    } catch (e) {
-        console.error('Error initializing ClickHouse schema:', e.message);
-        throw e;
-    }
-}
-
-/**
  * Sets up shared test infrastructure (call once in beforeAll)
  * Uses singleton pattern to ensure setup only happens once
  *
@@ -148,11 +62,9 @@ async function setupGroupTests() {
             // Create shared request (server instance)
             sharedRequest = await createTestRequest();
 
-            // Create shared ClickHouse manager
+            // Create shared ClickHouse manager pointed at the container started by jestGlobalSetup.
             const configManager = new ConfigManager();
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
-
-            await waitForClickHouse(sharedClickHouseManager, 30000);
 
             isSetupComplete = true;
         } catch (error) {

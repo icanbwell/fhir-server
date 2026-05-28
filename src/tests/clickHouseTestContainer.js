@@ -2,11 +2,12 @@ const { ClickHouseContainer } = require('@testcontainers/clickhouse');
 const path = require('path');
 const { withNockSuspended, setEnvVars, restoreEnvVars } = require('./testContainerUtils');
 
-const CLICKHOUSE_IMAGE = 'clickhouse/clickhouse-server:25.12.1';
+const CLICKHOUSE_IMAGE = 'clickhouse/clickhouse-server:26.2';
 const SCHEMA_FILES = [
     '01-init-schema.sql',
     '02-audit-event.sql',
-    '04-access-log.sql'
+    '04-access-log.sql',
+    '05-audit-access-mv.sql'
 ];
 
 class ClickHouseTestContainer {
@@ -31,6 +32,13 @@ class ClickHouseTestContainer {
         if (this._container) {
             return; // Already running
         }
+
+        // Bypass Jest's console capture (-silent suppresses console.log) so this
+        // line lands in CI output and we can confirm the container is spawned
+        // exactly once per Jest run instead of per test file.
+        process.stderr.write(
+            `[ClickHouseTestContainer] starting container pid=${process.pid} worker=${process.env.JEST_WORKER_ID || '0'} loadSchema=${loadSchema}\n`
+        );
 
         const database = 'fhir';
         const username = process.env.CLICKHOUSE_USERNAME || 'default';

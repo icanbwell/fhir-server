@@ -1,34 +1,13 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 const { AdminAccessLogClickHouseManager } = require('../../../admin/adminAccessLogClickHouseManager');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
 const { commonBeforeEach, commonAfterEach } = require('../../common');
 
-const ACCESS_LOG_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/04-access-log.sql');
-
 let clientManager = null;
 let adminManager = null;
-
-async function waitForClickHouse (manager, maxWaitMs = 30000) {
-    const startTime = Date.now();
-    let delay = 100;
-    while (Date.now() - startTime < maxWaitMs) {
-        try {
-            await manager.getClientAsync();
-            const isHealthy = await manager.isHealthyAsync();
-            if (isHealthy) return true;
-        } catch (e) {
-            // retry
-        }
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay = Math.min(delay * 2, 1000);
-    }
-    throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-}
 
 async function insertRows (rows) {
     await clientManager.insertAsync({
@@ -75,22 +54,10 @@ describe('AdminAccessLogClickHouseManager integration', () => {
     beforeAll(async () => {
         await commonBeforeEach();
 
+        // ClickHouse container is started and the AccessLog schema is loaded
+        // by jestGlobalSetup; just create a manager pointed at it.
         const configManager = new ConfigManager();
         clientManager = new ClickHouseClientManager({ configManager });
-        await waitForClickHouse(clientManager, 30000);
-
-        const tableExists = await clientManager.tableExistsAsync('AccessLog');
-        if (!tableExists) {
-            const schemaSQL = fs.readFileSync(ACCESS_LOG_SCHEMA_PATH, 'utf8');
-            const statements = schemaSQL
-                .split(';')
-                .map(s => s.replace(/--.*$/gm, '').trim())
-                .filter(s => s.length > 0);
-
-            for (const stmt of statements) {
-                await clientManager.queryAsync({ query: stmt });
-            }
-        }
 
         adminManager = new AdminAccessLogClickHouseManager({ clickHouseClientManager: clientManager });
     }, 90000);

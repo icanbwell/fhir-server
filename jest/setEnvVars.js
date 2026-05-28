@@ -37,4 +37,8 @@ process.env.RESOURCE_SERVER = "http://localhost:3000";
 process.env.SERVER_PORT = 3000;
 process.env.ENABLE_CLICKHOUSE = '0';
 process.env.CLICKHOUSE_LOG_LEVEL = 'ERROR';
+// Disable keep-alive so a stale idle socket from a previous test file's
+// ClickHouse manager doesn't fire 'read EINVAL' through MSW (nock v14)
+// while the next file's suite is loading. See clickHouseClientManager.js.
+process.env.CLICKHOUSE_KEEP_ALIVE = '0';
 process.env.CMS_ALLOWED_PURPOSE_OF_USE = 'PATRQT';

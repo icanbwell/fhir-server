@@ -61,26 +61,10 @@ function getTestSchema () {
     };
 }
 
-async function waitForClickHouse (manager, maxWaitMs = 30000) {
-    const startTime = Date.now();
-    let delay = 100;
-
-    while (Date.now() - startTime < maxWaitMs) {
-        try {
-            await manager.getClientAsync();
-            const isHealthy = await manager.isHealthyAsync();
-            if (isHealthy) return true;
-        } catch (e) {
-            // retry
-        }
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay = Math.min(delay * 2, 1000);
-    }
-    throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-}
-
 /**
- * Loads the test schema SQL into ClickHouse.
+ * Loads the test schema SQL into ClickHouse. This schema (ScaffoldingTestResource)
+ * is test-only and is not part of the global container's clickhouse-init/ files,
+ * so it must be loaded per-setup.
  */
 async function initializeTestSchema (manager) {
     const exists = await manager.tableExistsAsync('fhir_scaffolding_test');
@@ -114,12 +98,12 @@ async function setupClickHouseOnlyTests () {
             await commonBeforeEach();
             sharedRequest = await createTestRequest();
 
-            // Create ClickHouse manager
+            // Create ClickHouse manager pointed at the container started by jestGlobalSetup.
             const configManager = new ConfigManager();
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
-            await waitForClickHouse(sharedClickHouseManager, 30000);
 
-            // Load test schema (additional to 01-init-schema.sql which is loaded by the container)
+            // Load test-only schema (the global container only has the production
+            // clickhouse-init/ files; ScaffoldingTestResource is added here).
             await initializeTestSchema(sharedClickHouseManager);
 
             // Register test schema
