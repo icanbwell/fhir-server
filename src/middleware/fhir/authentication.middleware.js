@@ -46,6 +46,11 @@ const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
                 } else {
                     req.authFailureDetail = 'Invalid signature';
                 }
+                if (req.isGraphQLRoute) {
+                    const authErr = new Error(req.authFailureDetail || 'Authentication failed');
+                    authErr.statusCode = 401;
+                    return next(authErr);
+                }
                 return sendUnauthorizedJson(res);
             }
             // Supplying a callback disables Passport's default req.logIn/authInfo
