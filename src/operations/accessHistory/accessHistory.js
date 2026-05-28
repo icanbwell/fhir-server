@@ -65,43 +65,40 @@ class AccessHistoryOperation {
             accessRequested: 'read'
         });
 
-        if (requestInfo.isUser &&
-            id !== requestInfo.personIdFromJwtToken &&
-            id !== requestInfo.masterPersonIdFromJwtToken) {
-            throw new ForbiddenError(
-                'Access denied: you can only view access history for your own Person resource'
-            );
-        }
-
         if (!this.accessHistoryClickHouseRepository) {
             throw new BadRequestError(
                 '$access-history operation requires ClickHouse to be enabled'
             );
         }
 
-        // 1. Validate Person exists
-        const [person] = await this._findResourcesByUuids({
-            resourceType: 'Person',
-            uuids: [id],
-            base_version,
-            projection: { _uuid: 1 }
-        });
-        if (!person) {
-            throw new NotFoundError(`Person/${id} not found`);
-        }
-
-        // 2. Get linked Patient UUIDs
+        // 1. Get linked Patient UUIDs (resolves sourceId to UUID internally)
         const patientUuids = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version,
             ids: [id],
             includePatientPrefix: false
         });
 
+        // Extract the resolved Person UUID from the proxy patient entry
+        const proxyEntry = patientUuids.find(p => p.startsWith(PERSON_PROXY_PREFIX));
+        const resolvedPersonUuid = proxyEntry ? proxyEntry.replace(PERSON_PROXY_PREFIX, '') : null;
+
+        if (!resolvedPersonUuid) {
+            throw new NotFoundError(`Person with id ${id} not found`);
+        }
+
+        if (requestInfo.isUser &&
+            resolvedPersonUuid !== requestInfo.personIdFromJwtToken &&
+            resolvedPersonUuid !== requestInfo.masterPersonIdFromJwtToken) {
+            throw new ForbiddenError(
+                'Access denied: you can only view access history for your own Person resource'
+            );
+        }
+
         if (!patientUuids || patientUuids.length === 0) {
             return { resourceType: 'Parameters', parameter: [] };
         }
 
-        // 3. Collect entity_refs from MongoDB
+        // 2. Collect entity_refs from MongoDB
         const entityRefs = await this._collectEntityRefs({
             patientUuids,
             base_version
@@ -111,7 +108,7 @@ class AccessHistoryOperation {
             return { resourceType: 'Parameters', parameter: [] };
         }
 
-        // 4. Query ClickHouse (in batches)
+        // 3. Query ClickHouse (in batches)
         const batchSize = this.configManager.accessHistoryBatchSize;
         const allRows = [];
         for (let i = 0; i < entityRefs.length; i += batchSize) {
@@ -128,17 +125,17 @@ class AccessHistoryOperation {
             return { resourceType: 'Parameters', parameter: [] };
         }
 
-        // 5. Group by accessor (preserving per-resource-type counts)
+        // 4. Group by accessor (preserving per-resource-type counts)
         const accessorMap = this._groupByAccessor(allRows);
 
-        // 6. Resolve accessor display names
+        // 5. Resolve accessor display names
         const accessorRefs = Object.keys(accessorMap);
         const accessorDetails = await this._resolveAccessorDetails({
             accessorRefs,
             base_version
         });
 
-        // 7. Build FHIR Parameters response
+        // 6. Build FHIR Parameters response
         return this._buildParametersResponse({ accessorMap, accessorDetails });
     }
 
