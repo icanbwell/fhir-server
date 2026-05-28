@@ -1,13 +1,14 @@
-// Apply ClickHouse DDL from clickhouse-init/ to an empty ClickHouse container.
-// Verifies the admin runner creates all expected tables, is idempotent on re-run,
-// and honors --dry-run and --file.
+// Verifies the admin runner applies ClickHouse DDL from clickhouse-init/, is
+// idempotent on re-run, and honors --dry-run and --file. Runs against the
+// shared ClickHouse container started by jestGlobalSetup — drops the
+// pre-loaded schemas before assertions, then restores them in afterAll so
+// later test files still see the expected tables.
 
 process.env.ENABLE_CLICKHOUSE = '1';
 
 const path = require('path');
-const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
+const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
@@ -15,12 +16,31 @@ const { AdminLogger } = require('../../admin/adminLogger');
 const { ApplyClickHouseDDLRunner } = require('../../admin/runners/applyClickHouseDDLRunner');
 
 const DDL_DIR = path.resolve(__dirname, '../../../clickhouse-init');
+
 const EXPECTED_TABLES = [
     'Group_4_0_0_MemberEvents',
     'Group_4_0_0_MemberCurrent',
     'Group_4_0_0_MemberCurrentByEntity',
     'AuditEvent_4_0_0',
-    'AccessLog'
+    'AccessLog',
+    'AUDIT_ACCESS_AGG'
+];
+
+// Materialized views must be dropped before their source tables. We list
+// every object in dependency order so dropAll() works regardless of which
+// MV depends on which base table.
+const DROP_ORDER = [
+    // Materialized views first (depend on source tables)
+    'fhir.Group_4_0_0_MemberCurrent_MV',
+    'fhir.Group_4_0_0_MemberCurrentByEntity_MV',
+    'fhir.AUDIT_ACCESS_MV',
+    // Then tables
+    'fhir.Group_4_0_0_MemberCurrent',
+    'fhir.Group_4_0_0_MemberCurrentByEntity',
+    'fhir.Group_4_0_0_MemberEvents',
+    'fhir.AuditEvent_4_0_0',
+    'fhir.AccessLog',
+    'fhir.AUDIT_ACCESS_AGG'
 ];
 
 function makeRunner({ clickHouseClientManager, mongoDatabaseManager, dir, file, dryRun }) {
@@ -34,30 +54,49 @@ function makeRunner({ clickHouseClientManager, mongoDatabaseManager, dir, file, 
     });
 }
 
+async function dropAllSchemas(manager) {
+    for (const ref of DROP_ORDER) {
+        // queryAsync wraps DROP in a span and surfaces errors. IF EXISTS keeps
+        // it idempotent so partial-state cleanup from a failed prior run works.
+        await manager.queryAsync({ query: `DROP TABLE IF EXISTS ${ref}` });
+    }
+}
+
 describe('applyClickHouseDDL admin runner', () => {
-    let container;
     let clickHouseClientManager;
     let mongoDatabaseManager;
-    let savedEnv;
 
     beforeAll(async () => {
-        container = new ClickHouseTestContainer();
-        await container.start({ startupTimeoutMs: 60000, loadSchema: false });
-        savedEnv = container.applyEnvVars();
-
+        // Use the shared container started by jestGlobalSetup.
         const configManager = new ConfigManager();
         clickHouseClientManager = new ClickHouseClientManager({ configManager });
         mongoDatabaseManager = new MongoDatabaseManager({ configManager });
     }, 90000);
 
     afterAll(async () => {
-        if (clickHouseClientManager) {
-            await clickHouseClientManager.closeAsync();
+        // Restore the schemas the rest of the test suite expects. Idempotent
+        // (every CREATE in clickhouse-init/ uses IF NOT EXISTS), so safe even
+        // if a test left some objects intact.
+        try {
+            const runner = makeRunner({
+                clickHouseClientManager,
+                mongoDatabaseManager,
+                dir: DDL_DIR
+            });
+            await runner.processAsync();
+        } catch (e) {
+            console.error('Failed to restore ClickHouse schemas after applyClickHouseDDL tests:', e.message);
+            throw e;
+        } finally {
+            if (clickHouseClientManager) {
+                await clickHouseClientManager.closeAsync();
+            }
         }
-        if (container) {
-            if (savedEnv) container.restoreEnvVars(savedEnv);
-            await container.stop();
-        }
+    }, 90000);
+
+    beforeEach(async () => {
+        // Each test starts from an empty schema, so the runner has work to do.
+        await dropAllSchemas(clickHouseClientManager);
     });
 
     test('applies all DDL files to an empty container', async () => {
@@ -95,6 +134,9 @@ describe('applyClickHouseDDL admin runner', () => {
             mongoDatabaseManager,
             dir: DDL_DIR
         });
+
+        // Apply once to populate the schema, then again to prove no-op behavior.
+        await runner.processAsync();
         await expect(runner.processAsync()).resolves.not.toThrow();
 
         for (const table of EXPECTED_TABLES) {
@@ -103,55 +145,29 @@ describe('applyClickHouseDDL admin runner', () => {
     }, 60000);
 
     test('--file applies a single file only', async () => {
-        // Fresh container to prove only the requested file is applied.
-        const fresh = new ClickHouseTestContainer();
-        await fresh.start({ startupTimeoutMs: 60000, loadSchema: false });
-        const saved = fresh.applyEnvVars();
-        const freshManager = new ClickHouseClientManager({ configManager: new ConfigManager() });
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            file: path.join(DDL_DIR, '04-access-log.sql')
+        });
+        await runner.processAsync();
 
-        try {
-            const runner = makeRunner({
-                clickHouseClientManager: freshManager,
-                mongoDatabaseManager,
-                file: path.join(DDL_DIR, '04-access-log.sql')
-            });
-            await runner.processAsync();
-
-            expect(await freshManager.tableExistsAsync('AccessLog')).toBe(true);
-            expect(await freshManager.tableExistsAsync('Group_4_0_0_MemberEvents')).toBe(false);
-            expect(await freshManager.tableExistsAsync('AuditEvent_4_0_0')).toBe(false);
-        } finally {
-            await freshManager.closeAsync();
-            fresh.restoreEnvVars(saved);
-            await fresh.stop();
-            // Restore env vars for the outer container so later assertions (none here, but safe) work.
-            container.applyEnvVars();
-        }
+        expect(await clickHouseClientManager.tableExistsAsync('AccessLog')).toBe(true);
+        expect(await clickHouseClientManager.tableExistsAsync('Group_4_0_0_MemberEvents')).toBe(false);
+        expect(await clickHouseClientManager.tableExistsAsync('AuditEvent_4_0_0')).toBe(false);
     }, 120000);
 
     test('--dry-run logs without executing', async () => {
-        const fresh = new ClickHouseTestContainer();
-        await fresh.start({ startupTimeoutMs: 60000, loadSchema: false });
-        const saved = fresh.applyEnvVars();
-        const freshManager = new ClickHouseClientManager({ configManager: new ConfigManager() });
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            dir: DDL_DIR,
+            dryRun: true
+        });
+        await runner.processAsync();
 
-        try {
-            const runner = makeRunner({
-                clickHouseClientManager: freshManager,
-                mongoDatabaseManager,
-                dir: DDL_DIR,
-                dryRun: true
-            });
-            await runner.processAsync();
-
-            for (const table of EXPECTED_TABLES) {
-                expect(await freshManager.tableExistsAsync(table)).toBe(false);
-            }
-        } finally {
-            await freshManager.closeAsync();
-            fresh.restoreEnvVars(saved);
-            await fresh.stop();
-            container.applyEnvVars();
+        for (const table of EXPECTED_TABLES) {
+            expect(await clickHouseClientManager.tableExistsAsync(table)).toBe(false);
         }
     }, 120000);
 });

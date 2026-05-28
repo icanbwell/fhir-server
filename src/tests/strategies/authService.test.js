@@ -6,7 +6,18 @@ const {ConfigManager} = require("../../utils/configManager");
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        // nock v14 (built on @mswjs/interceptors) leaks listener state across
+        // tests when a prior scope used `replyWithError`: cleanAll() removes
+        // the scope but leaves the MSW interceptor's request handler in a
+        // state where the next test's matched response triggers a recursive
+        // emit that crashes with a stale "Network error". Fully cycling nock
+        // (abort pending → restore → activate) clears MSW state between tests.
+        nock.abortPendingRequests();
         nock.cleanAll();
+        if (nock.isActive()) {
+            nock.restore();
+        }
+        nock.activate();
     });
 
     test('should fetch JWKS from URL and cache it', async () => {
