@@ -151,7 +151,7 @@ describe('CMS Data Sharing - Patient List with cms-partner', () => {
         // Query as person-1 without any consent
         resp = await request.get('/4_0_0/Patient?_bundle=1&_count=100&_debug=1').set(getCmsHeaders(PERSON_ID_1));
 
-        // Should return empty results (CMS returns { id: '__invalid__' } when no consent)
+        // Should return empty results (CMS returns { _uuid: '__invalid__' } when no consent)
         expect(resp).toHaveStatusCode(200);
         expect(resp).toHaveResponse(expectedPatientListNoConsentResponse);
     });

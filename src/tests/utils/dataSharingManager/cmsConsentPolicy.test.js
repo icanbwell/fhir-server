@@ -152,8 +152,8 @@ describe('DataSharingManager.updateQueryConsideringCmsDataSharing — actor.cons
         expect(actor.consentPolicy).toEqual(expect.stringMatching(/^Consent\/.+\?version=.+$/));
 
         // Sanity: the returned query should NOT be the short-circuit
-        // { id: '__invalid__' } since we have a valid consent.
-        expect(resultQuery).not.toEqual({ id: '__invalid__' });
+        // { _uuid: '__invalid__' } since we have a valid consent.
+        expect(resultQuery).not.toEqual({ _uuid: '__invalid__' });
     });
 
     test('does NOT stamp actor when no consent exists', async () => {
@@ -177,7 +177,7 @@ describe('DataSharingManager.updateQueryConsideringCmsDataSharing — actor.cons
         });
 
         expect(actor.consentPolicy).toBeUndefined();
-        expect(resultQuery).toEqual({ id: '__invalid__' });
+        expect(resultQuery).toEqual({ _uuid: '__invalid__' });
     });
 
     test('safe when actor is null (no throw)', async () => {
@@ -221,7 +221,7 @@ describe('DataSharingManager.updateQueryConsideringCmsDataSharing — actor.cons
         ).resolves.toBeDefined();
     });
 
-    test('short-circuits with {id: \'__invalid__\'} when no consent (regression guard)', async () => {
+    test('short-circuits with {_uuid: \'__invalid__\'} when no consent (regression guard)', async () => {
         const request = await createTestRequest();
 
         // Seed only Person + Patient; no Consent.
@@ -240,6 +240,6 @@ describe('DataSharingManager.updateQueryConsideringCmsDataSharing — actor.cons
             actor: {}
         });
 
-        expect(resultQuery).toEqual({ id: '__invalid__' });
+        expect(resultQuery).toEqual({ _uuid: '__invalid__' });
     });
 });

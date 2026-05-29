@@ -1353,7 +1353,7 @@ class EverythingHelper {
                             `Expected $or operator in query for resource ${relatedResourceType} when consented PROA data is accessed.`,
                             { query, relatedResourceType }
                         );
-                        query = { id: '__invalid__' };
+                        query = { _uuid: '__invalid__' };
                         continue;
                     }
                     for (const orQuery of query.$or) {

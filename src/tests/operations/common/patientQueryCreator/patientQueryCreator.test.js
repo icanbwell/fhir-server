@@ -260,7 +260,7 @@ describe('PatientQueryCreator Tests', () => {
             });
             // Subscription resource is filtered by person id, not patient id
             expect(query).toStrictEqual({
-                id: "__invalid__"
+                _uuid: "__invalid__"
             });
         });
     });

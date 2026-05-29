@@ -364,7 +364,7 @@ describe('AuditEvent ClickHouse API search integration', () => {
                 }));
 
             // Patient-scoped tokens go through the patient filter path which generates
-            // { id: '__invalid__' } when no valid patient IDs are resolved from the token.
+            // { _uuid: '__invalid__' } when no valid patient IDs are resolved from the token.
             // The ClickHouse query pipeline cannot handle this fallback query.
             expect(resp.status).not.toBe(200);
             expect(resp.body.resourceType).toBe('OperationOutcome');

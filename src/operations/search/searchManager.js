@@ -254,7 +254,7 @@ class SearchManager {
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
-                    query = { id: '__invalid__' }; // return nothing since no patient ids were passed
+                    query = { _uuid: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
                     if (applyPatientFilter) {
                         query = this.patientQueryCreator.getQueryWithPatientFilter({
