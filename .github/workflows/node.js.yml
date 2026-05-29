@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     name: lint & graphql sdl check
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
       - name: Enable Corepack
@@ -37,12 +37,12 @@ jobs:
     name: test (chunk ${{ matrix.chunk }})
     strategy:
       matrix:
-        shard: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
+        shard: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
       - name: Enable Corepack

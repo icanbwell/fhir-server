@@ -129,7 +129,7 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
-            expect(onResourceChangeAsync).toBeCalledTimes(1);
+            expect(onResourceChangeAsync).toHaveBeenCalledTimes(1);
         });
 
         test('execAsync handles mongo error', async () => {
@@ -224,7 +224,7 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onResourceChangeAsync).toBeCalledTimes(1);
+            expect(onResourceChangeAsync).toHaveBeenCalledTimes(1);
         });
 
         test('execAsync handles thrown mongo error', async () => {
@@ -343,7 +343,7 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(0);
 
-            expect(onResourceChangeAsync).toBeCalledTimes(0);
+            expect(onResourceChangeAsync).toHaveBeenCalledTimes(0);
             expect(mockBulkWrite).toHaveBeenCalledTimes(2);
         });
 

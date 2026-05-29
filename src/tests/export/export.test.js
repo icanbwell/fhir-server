@@ -1129,7 +1129,7 @@ describe('Export Tests', () => {
             await postSaveProcessor.flushAsync();
 
             expect(mockLogInfo).toHaveBeenCalledTimes(1);
-            expect(mockLogInfo).toBeCalledWith(
+            expect(mockLogInfo).toHaveBeenCalledWith(
                 'Export already triggered for ExportStatus resource with Id- 81673f07-0b70-494d-9903-c391c24c73b0, current status: in-progress',
                 undefined
             );
