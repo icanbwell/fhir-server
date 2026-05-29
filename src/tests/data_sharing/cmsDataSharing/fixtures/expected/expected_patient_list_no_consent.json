@@ -7,7 +7,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Patient_4_0_0.find({'id':'__invalid__'}, {}).sort({'_uuid':1}).limit(100)"
+        "display": "db.Patient_4_0_0.find({'_uuid':'__invalid__'}, {}).sort({'_uuid':1}).limit(100)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",
@@ -19,7 +19,7 @@
       },
       {
         "system": "https://www.icanbwell.com/queryFields",
-        "display": "['id','_uuid']"
+        "display": "['_uuid']"
       },
       {
         "system": "https://www.icanbwell.com/queryTime"

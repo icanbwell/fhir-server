@@ -288,7 +288,7 @@ class PatientQueryCreator {
         }
         // if no queries found then don't allow access
         if (queries.length === 0) {
-            return {id: '__invalid__'}; // return nothing since no valid query was found
+            return {_uuid: '__invalid__'}; // return nothing since no valid query was found
         }
         // Now combine all the queries into one
         const patientAndPersonQuery = {
