@@ -94,25 +94,17 @@ class AccessHistoryOperation {
             );
         }
 
-        if (!patientUuids || patientUuids.length === 0) {
-            return { resourceType: 'Parameters', parameter: [] };
-        }
-
         // 2. Collect entity_refs from MongoDB
         const entityRefs = await this._collectEntityRefs({
             patientUuids,
             base_version
         });
 
-        if (entityRefs.length === 0) {
-            return { resourceType: 'Parameters', parameter: [] };
-        }
-
         // 3. Query ClickHouse (in batches)
         const batchSize = this.configManager.accessHistoryBatchSize;
         const allRows = [];
-        for (let i = 0; i < entityRefs.length; i += batchSize) {
-            const batch = entityRefs.slice(i, i + batchSize);
+        const batches = sliceIntoChunks(entityRefs, batchSize);
+        for (const batch of batches) {
             const { rows } = await this.accessHistoryClickHouseRepository.getAccessHistoryAsync({
                 entityRefs: batch
             });
@@ -146,13 +138,8 @@ class AccessHistoryOperation {
      * @returns {Promise<string[]>}
      */
     async _collectEntityRefs({ patientUuids, base_version }) {
-        const entityRefs = [];
-
-        for (const uuid of patientUuids) {
-            entityRefs.push(`Patient/${uuid}`);
-        }
-
         const patientRefs = patientUuids.map((uuid) => `Patient/${uuid}`);
+        const entityRefs = [...patientRefs];
         const resourceTypes = this.patientFilterManager.getAllPatientOrPersonRelatedResources()
             .filter(rt => rt !== 'Patient' && rt !== 'AuditEvent');
 
@@ -163,9 +150,7 @@ class AccessHistoryOperation {
             const chunkResults = await Promise.all(
                 chunk.map(rt => this._getEntityRefsForResourceType({ rt, patientRefs, base_version }))
             );
-            for (const refs of chunkResults) {
-                entityRefs.push(...refs);
-            }
+            entityRefs.push(...chunkResults.flat());
         }
 
         return entityRefs;
@@ -224,7 +209,7 @@ class AccessHistoryOperation {
             }
             if (Array.isArray(row.purposes)) {
                 for (const p of row.purposes) {
-                    if (p && p !== '') {
+                    if (p) {
                         map[key].purposes.add(p);
                     }
                 }
@@ -267,14 +252,30 @@ class AccessHistoryOperation {
             }
         }
 
-        // Resolve standard accessors (Practitioner, etc.)
-        for (const [type, ids] of Object.entries(byType)) {
-            const resources = await this._findResourcesByUuids({
-                resourceType: type,
-                uuids: ids,
-                base_version,
-                projection: { _uuid: 1, name: 1 }
-            });
+        // Resolve standard accessors and proxy person accessors in parallel
+        const typeEntries = Object.entries(byType);
+        const [typeResults, persons] = await Promise.all([
+            Promise.all(
+                typeEntries.map(([type, ids]) =>
+                    this._findResourcesByUuids({
+                        resourceType: type,
+                        uuids: ids,
+                        base_version,
+                        projection: { _uuid: 1, name: 1 }
+                    }).then(resources => ({ type, resources }))
+                )
+            ),
+            proxyPersonIds.length > 0
+                ? this._findResourcesByUuids({
+                    resourceType: 'Person',
+                    uuids: proxyPersonIds,
+                    base_version,
+                    projection: { _uuid: 1, name: 1, 'managingOrganization._uuid': 1, 'managingOrganization.reference': 1 }
+                })
+                : Promise.resolve([])
+        ]);
+
+        for (const { type, resources } of typeResults) {
             for (const resource of resources) {
                 details[`${type}/${resource._uuid}`] = {
                     display: this._extractDisplayName(resource),
@@ -284,14 +285,7 @@ class AccessHistoryOperation {
         }
 
         // Resolve proxy patient accessors (Patient/person.{personId})
-        if (proxyPersonIds.length > 0) {
-            const persons = await this._findResourcesByUuids({
-                resourceType: 'Person',
-                uuids: proxyPersonIds,
-                base_version,
-                projection: { _uuid: 1, name: 1, 'managingOrganization._uuid': 1, 'managingOrganization.reference': 1 }
-            });
-
+        if (persons.length > 0) {
             const personData = {};
             const orgIds = new Set();
             for (const person of persons) {
