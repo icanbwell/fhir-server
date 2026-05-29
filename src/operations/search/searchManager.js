@@ -254,7 +254,7 @@ class SearchManager {
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     allPatientIdsFromJwtToken.length === (personIdFromJwtToken ? 1 : 0)) {
-                    query = { id: '__invalid__' }; // return nothing since no patient ids were passed
+                    query = { _uuid: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
                     if (applyPatientFilter) {
                         query = this.patientQueryCreator.getQueryWithPatientFilter({
@@ -427,53 +427,6 @@ class SearchManager {
         let originalOptions = deepcopy(options);
 
         /**
-         * whether to use the two-step optimization
-         * In the two-step optimization we request the ids first and then request the documents for those ids
-         *  This can be faster in large tables as both queries can then be satisfied by indexes
-         * @type {boolean}
-         */
-        const useTwoStepSearchOptimization =
-            !parsedArgs._elements &&
-            !parsedArgs.id &&
-            (this.configManager.enableTwoStepOptimization || parsedArgs._useTwoStepOptimization);
-        if (isTrue(useTwoStepSearchOptimization)) {
-            const __ret = await this.handleTwoStepSearchOptimizationAsync(
-                {
-                    resourceType,
-                    base_version,
-                    options,
-                    query,
-                    maxMongoTimeMS
-                }
-            );
-            options = __ret.options;
-            originalQuery = __ret.originalQuery;
-            query = __ret.query;
-            originalOptions = __ret.originalOptions;
-            if (query === null) {
-                // no ids were found so no need to query
-                return new GetCursorResult({
-                        columns,
-                        options,
-                        query,
-                        originalQuery: new QueryItem({
-                            query: originalQuery,
-                            collectionName: null,
-                            resourceType
-                        }),
-                        originalOptions,
-                        useTwoStepSearchOptimization,
-                        resources: [],
-                        total_count: 0,
-                        indexHint: null,
-                        cursorBatchSize: 0,
-                        cursor: null
-                    }
-                );
-            }
-        }
-
-        /**
          * resources to return
          * @type {Resource[]}
          */
@@ -517,15 +470,6 @@ class SearchManager {
         }
 
         cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
-
-        // avoid double sorting since Mongo gives you different results
-        if (useTwoStepSearchOptimization && !options.sort) {
-            const sortOption =
-                originalOptions && originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
-            if (sortOption !== null) {
-                cursorQuery = cursorQuery.sort({ sortOption });
-            }
-        }
 
         // set batch size if specified
         if (process.env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {
@@ -584,7 +528,6 @@ class SearchManager {
                     resourceType
                 }),
                 originalOptions,
-                useTwoStepSearchOptimization,
                 resources,
                 total_count,
                 indexHint,
@@ -763,68 +706,6 @@ class SearchManager {
             options.sort = sort;
         }
         return { columns, options };
-    }
-
-    /**
-     * implements a two-step optimization by first retrieving ids and then requesting the data for those ids
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {Object} options
-     * @param {Object} query
-     * @param {number} maxMongoTimeMS
-     * @return {Promise<{query: Object, options: Object, actualQuery: (Object|Object[]), actualOptions: Object}>}
-     */
-    async handleTwoStepSearchOptimizationAsync (
-        {
-            resourceType,
-            base_version,
-            options,
-            query,
-            maxMongoTimeMS
-        }
-    ) {
-        try {
-            // first get just the ids
-            const projection = {};
-            projection._id = 0;
-            projection.id = 1;
-            options.projection = projection;
-            const originalQuery = [query];
-            const originalOptions = [options];
-            const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                { resourceType, base_version }
-            );
-            /**
-             * @type {import('../../dataLayer/databaseCursor').DatabaseCursor}
-             */
-            const cursor = await databaseQueryManager.findAsync({ query, options });
-            /**
-             * @type {import('mongodb').DefaultSchema[]}
-             */
-            const idResults = await cursor
-                .sort({ sortOption })
-                .maxTimeMS({ milliSecs: maxMongoTimeMS })
-                .toArrayAsync();
-            if (idResults.length > 0) {
-                // now get the documents for those ids.  We can clear all the other query parameters
-                query = idResults.length === 1
-                    ? { id: idResults.map((r) => r.id)[0] }
-                    : { id: { $in: idResults.map((r) => r.id) } };
-                options = {}; // reset options since we'll be looking by id
-                originalQuery.push(query);
-                originalOptions.push(options);
-            } else {
-                // no results
-                query = null; // no need to query
-            }
-            return { options, actualQuery: originalQuery, query, actualOptions: originalOptions };
-        } catch (e) {
-            throw new RethrownError({
-                message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
-                error: e
-            });
-        }
     }
 
     // noinspection FunctionWithInconsistentReturnsJS

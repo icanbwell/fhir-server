@@ -108,23 +108,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -174,23 +174,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "client",
-              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "client",
-              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "client",
-              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "client",
+                  "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "client",
+                  "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "client",
+                  "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://clienthealth.org/provider_appointment_type",
               "versionId": "1"
             },
@@ -255,23 +255,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "client",
-              "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "client",
-              "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "client",
-              "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "client",
+                  "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "client",
+                  "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "client",
+                  "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://clienthealth.org/provider_appointment_type",
               "versionId": "1"
             },
@@ -309,23 +309,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/insurance",
               "versionId": "1"
             },
@@ -374,43 +374,57 @@
           {
             "address": {
               "city": "Washington",
-              "line": ["1 Street"],
+              "line": [
+                "1 Street"
+              ],
               "postalCode": "20007",
               "state": "DC"
             },
             "hoursOfOperation": [
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["mon"],
+                "daysOfWeek": [
+                  "mon"
+                ],
                 "id": "mon-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["tue"],
+                "daysOfWeek": [
+                  "tue"
+                ],
                 "id": "tue-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["wed"],
+                "daysOfWeek": [
+                  "wed"
+                ],
                 "id": "wed-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["thu"],
+                "daysOfWeek": [
+                  "thu"
+                ],
                 "id": "thu-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["fri"],
+                "daysOfWeek": [
+                  "fri"
+                ],
                 "id": "fri-hours",
                 "openingTime": "08:00:00"
               },
               {
-                "daysOfWeek": ["sun"],
+                "daysOfWeek": [
+                  "sun"
+                ],
                 "id": "sun-hours"
               }
             ],
@@ -518,23 +532,23 @@
               "reference": "Organization/myhealthsystem-Alias-GP6-GGIM"
             },
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider_appointment_type",
               "versionId": "1"
             },
@@ -595,43 +609,57 @@
           {
             "address": {
               "city": "Washington",
-              "line": ["1 Street"],
+              "line": [
+                "1 Street"
+              ],
               "postalCode": "20007",
               "state": "DC"
             },
             "hoursOfOperation": [
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["mon"],
+                "daysOfWeek": [
+                  "mon"
+                ],
                 "id": "mon-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["tue"],
+                "daysOfWeek": [
+                  "tue"
+                ],
                 "id": "tue-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["wed"],
+                "daysOfWeek": [
+                  "wed"
+                ],
                 "id": "wed-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["thu"],
+                "daysOfWeek": [
+                  "thu"
+                ],
                 "id": "thu-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": ["fri"],
+                "daysOfWeek": [
+                  "fri"
+                ],
                 "id": "fri-hours",
                 "openingTime": "08:00:00"
               },
               {
-                "daysOfWeek": ["sun"],
+                "daysOfWeek": [
+                  "sun"
+                ],
                 "id": "sun-hours"
               }
             ],
@@ -739,23 +767,23 @@
               "reference": "Organization/myhealthsystem-Alias-GP6-GGIM"
             },
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider_appointment_type",
               "versionId": "1"
             },
@@ -818,12 +846,16 @@
             "address": [
               {
                 "city": "Washington",
-                "line": ["1 Street # 6"],
+                "line": [
+                  "1 Street # 6"
+                ],
                 "postalCode": "20007",
                 "state": "DC"
               }
             ],
-            "alias": ["myhealthsystem Internal Medicine at Georgetown Univ Hospital"],
+            "alias": [
+              "myhealthsystem Internal Medicine at Georgetown Univ Hospital"
+            ],
             "contact": [
               {
                 "purpose": {
@@ -880,23 +912,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -958,12 +990,16 @@
             "address": [
               {
                 "city": "Washington",
-                "line": ["1 Street # 6"],
+                "line": [
+                  "1 Street # 6"
+                ],
                 "postalCode": "20007",
                 "state": "DC"
               }
             ],
-            "alias": ["myhealthsystem Internal Medicine at Georgetown Univ Hospital"],
+            "alias": [
+              "myhealthsystem Internal Medicine at Georgetown Univ Hospital"
+            ],
             "contact": [
               {
                 "purpose": {
@@ -1020,23 +1056,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1201,23 +1237,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1385,23 +1421,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1507,23 +1543,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/insurance",
               "versionId": "1"
             },
@@ -1630,23 +1666,23 @@
               }
             ],
             "meta": {
-          "security": [
-            {
-              "code": "myhealthsystem",
-              "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "myhealthsystem",
-              "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
+              "security": [
+                {
+                  "code": "myhealthsystem",
+                  "id": "6d8c8b5e-673b-5ab9-92d1-264325c255ed",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "2929adad-c270-5efa-b24d-48ccd4a02802",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "myhealthsystem",
+                  "id": "29f1b2df-739f-5e92-97d9-6f796e7ae41f",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                }
+              ],
               "source": "http://myhealthsystemhealth.org/provider",
               "versionId": "1"
             },
@@ -1804,7 +1840,9 @@
         "name": [
           {
             "family": "LNAME",
-            "given": ["FNAME"],
+            "given": [
+              "FNAME"
+            ],
             "text": "FNAME LNAME MD",
             "use": "usual"
           },
@@ -1817,7 +1855,9 @@
               }
             ],
             "family": "LNAME",
-            "given": ["FNAME"],
+            "given": [
+              "FNAME"
+            ],
             "id": "myhealthsystem-name",
             "text": "FNAME LNAME MD",
             "use": "usual"
@@ -2103,7 +2143,9 @@
         "name": [
           {
             "family": "LNAME",
-            "given": ["FNAME"],
+            "given": [
+              "FNAME"
+            ],
             "text": "FNAME LNAME MD",
             "use": "usual"
           },
@@ -2116,7 +2158,9 @@
               }
             ],
             "family": "LNAME",
-            "given": ["FNAME"],
+            "given": [
+              "FNAME"
+            ],
             "id": "myhealthsystem-name",
             "text": "FNAME LNAME MD",
             "use": "usual"
@@ -2238,10 +2282,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "display": "{'useTwoStepSearchOptimization':undefined}",
-        "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"

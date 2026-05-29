@@ -40,7 +40,16 @@
             }
           ]
         },
-        "name": [{ "use": "usual", "text": "t", "family": "PATIENT1", "given": ["SHYLA"] }],
+        "name": [
+          {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ]
+          }
+        ],
         "resourceType": "Patient"
       }
     },
@@ -298,7 +307,16 @@
             }
           ]
         },
-        "name": [{ "use": "usual", "text": "t", "family": "person1", "given": ["OTHER"] }],
+        "name": [
+          {
+            "use": "usual",
+            "text": "t",
+            "family": "person1",
+            "given": [
+              "OTHER"
+            ]
+          }
+        ],
         "resourceType": "Person"
       }
     },
@@ -308,13 +326,18 @@
         "active": true,
         "address": [
           {
-            "line": ["5009 Honeygo Center Drive", "Suite 216"],
+            "line": [
+              "5009 Honeygo Center Drive",
+              "Suite 216"
+            ],
             "city": "Perry Hall",
             "state": "MD",
             "postalCode": "21128"
           }
         ],
-        "alias": ["Client Medical Group Derm at Honeygo"],
+        "alias": [
+          "Client Medical Group Derm at Honeygo"
+        ],
         "contact": [
           {
             "purpose": {
@@ -326,13 +349,29 @@
                 }
               ]
             },
-            "telecom": [{ "system": "phone", "use": "work" }]
+            "telecom": [
+              {
+                "system": "phone",
+                "use": "work"
+              }
+            ]
           }
         ],
-        "extension": [{ "valueDecimal": -76.61668 }, { "valueDecimal": 39.32792 }],
+        "extension": [
+          {
+            "valueDecimal": -76.61668
+          },
+          {
+            "valueDecimal": 39.32792
+          }
+        ],
         "id": "d187d5ce-f842-5e13-a4db-961d8e728ebc",
         "identifier": [
-          { "use": "usual", "system": "bwell", "value": "-733797173" },
+          {
+            "use": "usual",
+            "system": "bwell",
+            "value": "-733797173"
+          },
           {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
@@ -391,8 +430,14 @@
         },
         "resourceType": "Organization",
         "telecom": [
-          { "system": "phone", "value": "(410) 256-5858" },
-          { "system": "fax", "value": "(866) 733-0434" }
+          {
+            "system": "phone",
+            "value": "(410) 256-5858"
+          },
+          {
+            "system": "fax",
+            "value": "(866) 733-0434"
+          }
         ],
         "type": [
           {
@@ -426,13 +471,18 @@
         "active": true,
         "address": [
           {
-            "line": ["5009 Honeygo Center Drive", "Suite 216"],
+            "line": [
+              "5009 Honeygo Center Drive",
+              "Suite 216"
+            ],
             "city": "Perry Hall",
             "state": "MD",
             "postalCode": "21128"
           }
         ],
-        "alias": ["Client Medical Group Derm at Honeygo"],
+        "alias": [
+          "Client Medical Group Derm at Honeygo"
+        ],
         "contact": [
           {
             "purpose": {
@@ -444,13 +494,29 @@
                 }
               ]
             },
-            "telecom": [{ "system": "phone", "use": "work" }]
+            "telecom": [
+              {
+                "system": "phone",
+                "use": "work"
+              }
+            ]
           }
         ],
-        "extension": [{ "valueDecimal": -76.61668 }, { "valueDecimal": 39.32792 }],
+        "extension": [
+          {
+            "valueDecimal": -76.61668
+          },
+          {
+            "valueDecimal": 39.32792
+          }
+        ],
         "id": "7712bd08-fd99-561d-9324-d2fcd41fb009",
         "identifier": [
-          { "use": "usual", "system": "bwell", "value": "-7337971735" },
+          {
+            "use": "usual",
+            "system": "bwell",
+            "value": "-7337971735"
+          },
           {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
@@ -487,8 +553,14 @@
         "name": "Client Medical Group Dermatology at Honeygo",
         "resourceType": "Organization",
         "telecom": [
-          { "system": "phone", "value": "(410) 256-5858" },
-          { "system": "fax", "value": "(866) 733-0434" }
+          {
+            "system": "phone",
+            "value": "(410) 256-5858"
+          },
+          {
+            "system": "fax",
+            "value": "(866) 733-0434"
+          }
         ],
         "type": [
           {
@@ -716,7 +788,11 @@
           {
             "coverage": {
               "extension": [
-                { "id": "sourceId", "url": "https://www.icanbwell.com/sourceId", "valueString": "Coverage/7546D" },
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Coverage/7546D"
+                },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
@@ -736,9 +812,20 @@
         "description": "Hospital charges",
         "id": "ce2b3f55-8a3b-5f06-a449-708dd992119e",
         "identifier": [
-          { "system": "urn:oid:0.1.2.3.4.5.6.7", "value": "654321" },
-          { "id": "sourceId", "system": "https://www.icanbwell.com/sourceId", "value": "example" },
-          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "ce2b3f55-8a3b-5f06-a449-708dd992119e" }
+          {
+            "system": "urn:oid:0.1.2.3.4.5.6.7",
+            "value": "654321"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "example"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "ce2b3f55-8a3b-5f06-a449-708dd992119e"
+          }
         ],
         "meta": {
           "versionId": "1",
@@ -765,7 +852,11 @@
         "name": "HACC Funded Billing for Peter James Chalmers",
         "owner": {
           "extension": [
-            { "id": "sourceId", "url": "https://www.icanbwell.com/sourceId", "valueString": "Organization/hl7" },
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Organization/hl7"
+            },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
@@ -780,12 +871,19 @@
           "reference": "Organization/214ca533-fb96-562d-824d-3aca1406f3fb"
         },
         "resourceType": "Account",
-        "servicePeriod": { "start": "2016-01-01", "end": "2016-06-30" },
+        "servicePeriod": {
+          "start": "2016-01-01",
+          "end": "2016-06-30"
+        },
         "status": "active",
         "subject": [
           {
             "extension": [
-              { "id": "sourceId", "url": "https://www.icanbwell.com/sourceId", "valueString": "Patient/patient1" },
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/patient1"
+              },
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
@@ -823,7 +921,15 @@
       "resource": {
         "active": true,
         "communication": [
-          { "coding": [{ "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d", "system": "urn:ietf:bcp:47", "code": "en" }] }
+          {
+            "coding": [
+              {
+                "id": "dbafba35-4de0-5924-a3fb-491aa1b99e6d",
+                "system": "urn:ietf:bcp:47",
+                "code": "en"
+              }
+            ]
+          }
         ],
         "gender": "unknown",
         "id": "aa8a8ff8-af25-5878-8cf3-bc74227d44dd",
@@ -856,8 +962,16 @@
             "system": "http://hl7.org/fhir/sid/us-npi",
             "value": "1679033641"
           },
-          { "id": "sourceId", "system": "https://www.icanbwell.com/sourceId", "value": "1679033641" },
-          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "aa8a8ff8-af25-5878-8cf3-bc74227d44dd" }
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1679033641"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
+          }
         ],
         "meta": {
           "versionId": "1",
@@ -882,8 +996,22 @@
           ]
         },
         "name": [
-          { "use": "usual", "text": "SAMER S. NAJJAR  MD", "family": "NAJJAR  MD", "given": ["SAMER S."] },
-          { "use": "usual", "text": "NAJJAR  MD, SAMER S.", "family": "NAJJAR  MD", "given": ["SAMER S."] }
+          {
+            "use": "usual",
+            "text": "SAMER S. NAJJAR  MD",
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ]
+          },
+          {
+            "use": "usual",
+            "text": "NAJJAR  MD, SAMER S.",
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ]
+          }
         ],
         "qualification": [
           {
@@ -907,7 +1035,10 @@
                 }
               ]
             },
-            "period": { "start": "1960-01-01", "end": "2021-12-11" },
+            "period": {
+              "start": "1960-01-01",
+              "end": "2021-12-11"
+            },
             "issuer": {
               "extension": [
                 {
@@ -931,18 +1062,35 @@
           }
         ],
         "resourceType": "Practitioner",
-        "telecom": [{ "system": "email", "value": "foo@foo.com", "use": "work" }]
+        "telecom": [
+          {
+            "system": "email",
+            "value": "foo@foo.com",
+            "use": "work"
+          }
+        ]
       }
     },
     {
       "id": "c0f015df-96a2-565f-aa33-e8603472d2f0",
       "resource": {
-        "amount": { "value": 12500, "currency": "USD" },
+        "amount": {
+          "value": 12500,
+          "currency": "USD"
+        },
         "created": "2014-08-15",
         "id": "c0f015df-96a2-565f-aa33-e8603472d2f0",
         "identifier": [
-          { "id": "sourceId", "system": "https://www.icanbwell.com/sourceId", "value": "paymentNotice1" },
-          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "c0f015df-96a2-565f-aa33-e8603472d2f0" }
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "paymentNotice1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "c0f015df-96a2-565f-aa33-e8603472d2f0"
+          }
         ],
         "meta": {
           "versionId": "1",
@@ -986,10 +1134,19 @@
           ],
           "reference": "PaymentReconciliation/d45e43c6-170f-52e1-a157-692ee5c9704b"
         },
-        "recipient": { "identifier": { "system": "http://regulators.gov", "value": "AB123" } },
+        "recipient": {
+          "identifier": {
+            "system": "http://regulators.gov",
+            "value": "AB123"
+          }
+        },
         "request": {
           "extension": [
-            { "id": "sourceId", "url": "https://www.icanbwell.com/sourceId", "valueString": "Patient/patient1" },
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/patient1"
+            },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
@@ -1016,7 +1173,11 @@
             "type": "source",
             "resource": {
               "extension": [
-                { "id": "sourceId", "url": "https://www.icanbwell.com/sourceId", "valueString": "Patient/patient1" },
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/patient1"
+                },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
@@ -1080,14 +1241,16 @@
         "code": "Patient_4_0_0|Consent_4_0_0|Account_4_0_0|AdverseEvent_4_0_0|AllergyIntolerance_4_0_0|Appointment_4_0_0|AppointmentResponse_4_0_0|BiologicallyDerivedProduct_4_0_0|Basic_4_0_0|BodyStructure_4_0_0|CarePlan_4_0_0|CareTeam_4_0_0|ChargeItem_4_0_0|Claim_4_0_0|ClaimResponse_4_0_0|ClinicalImpression_4_0_0|Communication_4_0_0|CommunicationRequest_4_0_0|Composition_4_0_0|Condition_4_0_0|Consent_4_0_0|Contract_4_0_0|Coverage_4_0_0|CoverageEligibilityRequest_4_0_0|CoverageEligibilityResponse_4_0_0|DetectedIssue_4_0_0|Device_4_0_0|DeviceRequest_4_0_0|DeviceUseStatement_4_0_0|DiagnosticReport_4_0_0|DocumentManifest_4_0_0|DocumentReference_4_0_0|Encounter_4_0_0|EnrollmentRequest_4_0_0|EpisodeOfCare_4_0_0|ExplanationOfBenefit_4_0_0|FamilyMemberHistory_4_0_0|Flag_4_0_0|Goal_4_0_0|Group_4_0_0|GuidanceResponse_4_0_0|ImagingStudy_4_0_0|Immunization_4_0_0|ImmunizationEvaluation_4_0_0|ImmunizationRecommendation_4_0_0|Invoice_4_0_0|Linkage_4_0_0|List_4_0_0|MeasureReport_4_0_0|Media_4_0_0|MedicationAdministration_4_0_0|MedicationDispense_4_0_0|MedicationRequest_4_0_0|MedicationStatement_4_0_0|MolecularSequence_4_0_0|NutritionOrder_4_0_0|Observation_4_0_0|Patient_4_0_0|PaymentNotice_4_0_0|Person_4_0_0|Procedure_4_0_0|Provenance_4_0_0|QuestionnaireResponse_4_0_0|RelatedPerson_4_0_0|RequestGroup_4_0_0|ResearchSubject_4_0_0|RiskAssessment_4_0_0|Schedule_4_0_0|ServiceRequest_4_0_0|Specimen_4_0_0|Subscription_4_0_0|SubscriptionStatus_4_0_0|SubscriptionTopic_4_0_0|SupplyDelivery_4_0_0|SupplyRequest_4_0_0|Task_4_0_0|VisionPrescription_4_0_0|Organization_4_0_0|Practitioner_4_0_0|Binary_4_0_0|PaymentReconciliation_4_0_0|Organization_4_0_0|Organization_4_0_0"
       },
       {
-        "system":"https://www.icanbwell.com/queryOptions",
+        "system": "https://www.icanbwell.com/queryOptions",
         "display": "[{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}}]"
       },
-      { "system": "https://www.icanbwell.com/queryFields", "display": "[]" },
-      { "system": "https://www.icanbwell.com/queryTime", "display": "0.196" },
       {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "[]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime",
+        "display": "0.196"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain",

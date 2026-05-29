@@ -196,10 +196,6 @@
         "display": "0.076"
       },
       {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
-      },
-      {
         "system": "https://www.icanbwell.com/queryExplain"
       },
       {

@@ -231,7 +231,8 @@ class MergeResourceValidator extends BaseValidator {
             {
                 requestId: requestInfo.requestId,
                 base_version,
-                requestedResources: resourcesIncomingArray
+                requestedResources: resourcesIncomingArray,
+                useReadFromPrimaryReplica: true
             }
         );
 

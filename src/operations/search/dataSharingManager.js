@@ -295,7 +295,7 @@ class DataSharingManager {
         );
 
         if (patientIdsWithConsent.size === 0) {
-            return { id: '__invalid__' };
+            return { _uuid: '__invalid__' };
         }
 
         if (actor) {
@@ -694,7 +694,7 @@ class DataSharingManager {
 
         // Delegated actor but no consent found — safety net: return impossible query
         if (filteringRules === null) {
-            return { id: '__invalid__' };
+            return { _uuid: '__invalid__' };
         }
 
         const { deniedSensitiveCategories } = filteringRules;

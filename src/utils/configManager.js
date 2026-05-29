@@ -18,11 +18,8 @@ class ConfigManager {
         return (envVar && envVar.split(',').map(item => item.trim())) || defaultValue;
     }
 
-    get resourcesWithAccessIndex() {
-        return (
-            env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',')
-                .map((col) => col.trim())
-        ) || [];
+    get customIndexesFilePath() {
+        return env.CUSTOM_INDEXES_FILE_PATH || null;
     }
 
     get useAccessIndex() {
@@ -45,14 +42,6 @@ class ConfigManager {
      */
     get auditEventMaxRangePeriod() {
         return env.AUDIT_EVENT_MAX_RANGE_PERIOD ? Number(env.AUDIT_EVENT_MAX_RANGE_PERIOD) : 30;
-    }
-
-    /**
-     * whether to enable two step optimization
-     * @return {boolean}
-     */
-    get enableTwoStepOptimization() {
-        return isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION);
     }
 
     /**

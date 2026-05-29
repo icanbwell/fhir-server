@@ -33,7 +33,11 @@
             "system": "https://www.icanbwell.com/sourceId",
             "value": "a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0"
           },
-          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0" }
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "a26bc9e7-1f3c-4c85-b8d3-ca7355f4f1f0"
+          }
         ],
         "link": [
           {
@@ -118,9 +122,19 @@
             "system": "https://www.icanbwell.com/sourceId",
             "value": "27f4a58a-ebc1-4855-91d1-c6234a7d40bc"
           },
-          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "27f4a58a-ebc1-4855-91d1-c6234a7d40bc" }
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "27f4a58a-ebc1-4855-91d1-c6234a7d40bc"
+          }
         ],
-        "name": [{ "given": ["Test"] }]
+        "name": [
+          {
+            "given": [
+              "Test"
+            ]
+          }
+        ]
       }
     },
     {
@@ -151,8 +165,16 @@
           ]
         },
         "identifier": [
-          { "id": "sourceId", "system": "https://www.icanbwell.com/sourceId", "value": "client-A-Observation" },
-          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "4a5745fb-4fec-501b-b3d6-e0448cb97438" }
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "client-A-Observation"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "4a5745fb-4fec-501b-b3d6-e0448cb97438"
+          }
         ],
         "status": "final",
         "code": {
@@ -229,9 +251,19 @@
             "system": "https://www.icanbwell.com/sourceId",
             "value": "e5ec316c-6c24-4e3e-b93a-e352cdb3d1d6"
           },
-          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "e5ec316c-6c24-4e3e-b93a-e352cdb3d1d6" }
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "e5ec316c-6c24-4e3e-b93a-e352cdb3d1d6"
+          }
         ],
-        "name": [{ "given": ["Test"] }]
+        "name": [
+          {
+            "given": [
+              "Test"
+            ]
+          }
+        ]
       }
     },
     {
@@ -262,8 +294,16 @@
           ]
         },
         "identifier": [
-          { "id": "sourceId", "system": "https://www.icanbwell.com/sourceId", "value": "client-PROA-Observation" },
-          { "id": "uuid", "system": "https://www.icanbwell.com/uuid", "value": "63363a1c-8ce0-5f38-8ace-52220af1bcbe" }
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "client-PROA-Observation"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "63363a1c-8ce0-5f38-8ace-52220af1bcbe"
+          }
         ],
         "status": "final",
         "code": {
@@ -330,10 +370,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"

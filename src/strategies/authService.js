@@ -8,7 +8,7 @@ const {
     USER_INFO_CACHE_EXPIRY_TIME,
     AUTH_USER_TYPES
 } = require('../constants');
-const {logDebug, logError, logInfo} = require('../operations/common/logging');
+const {logDebug, logError, logInfo, logWarn} = require('../operations/common/logging');
 const {WellKnownConfigurationManager} = require('../utils/wellKnownConfiguration/wellKnownConfigurationManager');
 const {assertTypeEquals} = require("../utils/assertType");
 const {ConfigManager} = require("../utils/configManager");
@@ -28,6 +28,7 @@ class AuthService {
      * @type {LRUCache<{}, {}, any>}
      */
     static jwksCache;
+
 
     /**
      * Cache for user info data.
@@ -129,9 +130,9 @@ class AuthService {
             AuthService.jwksCache.set(jwksUrl, jsonResponse);
             return jsonResponse;
         } catch (error) {
-            logError(`Error while fetching keys from external jwk url: ${jwksUrl}: ${error.message}`, {
+            logError(`Error fetching JWKS from ${jwksUrl}: ${error.message}`, {
                 error: error,
-                args: {jwksUrl: jwksUrl}
+                args: {jwksUrl}
             });
             return {keys: []};
         }
@@ -204,15 +205,17 @@ class AuthService {
         }
         if (isUser) {
             context.isUser = isUser;
-            let validInput = true;
-            Object.values(this.requiredJWTFields).forEach((field) => {
-                if (!jwt_payload[field]) {
-                    logDebug(`Error: ${field} field is missing`, {user: ''});
-                    validInput = false;
-                }
-            });
-            if (!validInput) {
-                done(null, false);
+            const missingRequiredFields = Object.values(this.requiredJWTFields).filter(
+                (field) => !jwt_payload[field]
+            );
+            if (missingRequiredFields.length > 0) {
+                logWarn('Auth rejected', {
+                    reason: 'missing_required_jwt_field',
+                    missingRequiredFields,
+                    username,
+                    subject
+                });
+                done(null, false, { reason: 'missing_required_jwt_field' });
                 return;
             }
             context.personIdFromJwtToken = jwt_payload[this.requiredJWTFields.clientFhirPersonId];
@@ -224,7 +227,7 @@ class AuthService {
             if (this.configManager.enableDelegatedAccessDetection && jwt_payload.act) {
                 const result = this.processForDelegatedActor({ jwt_payload });
                 if (result.failure) {
-                    done(null, false);
+                    done(null, false, { reason: 'delegated_actor_failure' });
                     return;
                 } else if (result.actor) {
                     context.actor = result.actor;
@@ -245,10 +248,11 @@ class AuthService {
         if (context.userType) {
             if (!isUser) {
                 logError(`userType ${context.userType} is not valid for non-patient token`, {
+                    reason: 'invalid_user_type_for_non_patient_token',
                     username: context.username,
                     userType: context.userType
                 });
-                done(null, false);
+                done(null, false, { reason: 'invalid_user_type_for_non_patient_token' });
                 return;
             }
         }
@@ -442,7 +446,10 @@ class AuthService {
         isValidInput &&= typeof act[this.requiredActorFields.sub] === 'string';
 
         if (!isValidInput) {
-            logInfo('Invalid act claim: missing or invalid reference field or sub field', { act });
+            logInfo('Invalid act claim: missing or invalid reference field or sub field', {
+                reason: 'delegated_actor_failure',
+                act
+            });
             response.failure = true;
             return response;
         }
@@ -471,9 +478,10 @@ class AuthService {
             if (this.cidCheckIssuer && jwt_payload.iss === this.cidCheckIssuer) {
                 if (!this.cidCheckClientIds.includes(jwt_payload.cid)) {
                     logInfo(`Client ID ${jwt_payload.cid} is not allowed from issuer ${jwt_payload.iss}`, {
+                        reason: 'client_id_not_allowed_for_issuer',
                         userClaim: jwt_payload.sub
                     });
-                    return done(null, false);
+                    return done(null, false, { reason: 'client_id_not_allowed_for_issuer' });
                 }
             }
 
@@ -514,8 +522,11 @@ class AuthService {
                     }
 
                 }).catch((error) => {
-                    logError(`Error while fetching user info: ${error.message}`, {error: error});
-                    done(null, false);
+                    logError(`Error while fetching user info: ${error.message}`, {
+                        reason: 'userinfo_endpoint_error',
+                        error: error
+                    });
+                    done(null, false, { reason: 'userinfo_endpoint_error' });
                 });
             } else {
                 logDebug(`JWT result`, {
@@ -542,7 +553,8 @@ class AuthService {
                 });
             }
         } else {
-            done(null, false);
+            logWarn('Auth rejected', { reason: 'missing_jwt_payload' });
+            done(null, false, { reason: 'missing_jwt_payload' });
         }
     }
 

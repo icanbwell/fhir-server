@@ -6,6 +6,7 @@ const { RethrownError } = require('../utils/rethrownError');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { ConfigManager } = require('../utils/configManager');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
+const { ReadPreference } = require('mongodb');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -47,12 +48,14 @@ class DatabaseBulkLoader {
 
     /**
      * Finds all documents with the specified resource type and ids
-     * @param {string} requestId
-     * @param {string} base_version
-     * @param {Resource[]} requestedResources
+     * @param {Object} params
+     * @param {string} params.requestId
+     * @param {string} params.base_version
+     * @param {Resource[]} params.requestedResources
+     * @param {boolean} [params.useReadFromPrimaryReplica]
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async loadResourcesAsync ({ requestId, base_version, requestedResources }) {
+    async loadResourcesAsync ({ requestId, base_version, requestedResources, useReadFromPrimaryReplica }) {
         try {
             /**
              * merge results grouped by resourceType
@@ -70,7 +73,7 @@ class DatabaseBulkLoader {
                 Object.entries(groupByResourceType),
                 async x => await this.getResourcesAsync(
                     {
-                        requestId, base_version, resourceType: x[0], resources: x[1]
+                        requestId, base_version, resourceType: x[0], resources: x[1], useReadFromPrimaryReplica
                     }
                 )
             );
@@ -101,25 +104,31 @@ class DatabaseBulkLoader {
 
     /**
      * Get resources by id for this resourceType
-     * @param {string} requestId
-     * @param {string} base_version
-     * @param {string} resourceType
-     * @param {Resource[]} resources
+     * @param {Object} params
+     * @param {string} params.requestId
+     * @param {string} params.base_version
+     * @param {string} params.resourceType
+     * @param {Resource[]} params.resources
+     * @param {boolean} [params.useReadFromPrimaryReplica]
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
 
-    async getResourcesAsync ({ requestId, base_version, resourceType, resources }) {
+    async getResourcesAsync ({ requestId, base_version, resourceType, resources, useReadFromPrimaryReplica }) {
         try {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {
                     resourceType, base_version
                 }
             );
+            const options = {};
+            if (useReadFromPrimaryReplica) {
+                options.readPreference = ReadPreference.PRIMARY;
+            }
             /**
              * cursor
              * @type {import('../dataLayer/databaseCursor').DatabaseCursor}
              */
-            const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources });
+            const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources, options });
 
             /**
              * @type {Resource[]|Object[]}

@@ -106,8 +106,11 @@ describe('Person Tests', () => {
         });
 
         test('Person search by letting person be the collection that uses access index', async () => {
-            const currentCollectionAccessIndex = process.env.COLLECTIONS_ACCESS_INDEX;
-            process.env.COLLECTIONS_ACCESS_INDEX = ['Person'];
+            const originalUseAccessIndex = process.env.USE_ACCESS_INDEX;
+            const originalAccessTagsIndexedPerson = process.env.ACCESS_TAGS_INDEXED_PERSON;
+            process.env.USE_ACCESS_INDEX = '1';
+            process.env.ACCESS_TAGS_INDEXED_PERSON = 'bwell';
+
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -138,7 +141,17 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithIdAndMetaFields);
-            process.env.USE_ACCESS_INDEX = currentCollectionAccessIndex;
+
+            if (originalUseAccessIndex === undefined) {
+                delete process.env.USE_ACCESS_INDEX;
+            } else {
+                process.env.USE_ACCESS_INDEX = originalUseAccessIndex;
+            }
+            if (originalAccessTagsIndexedPerson === undefined) {
+                delete process.env.ACCESS_TAGS_INDEXED_PERSON;
+            } else {
+                process.env.ACCESS_TAGS_INDEXED_PERSON = originalAccessTagsIndexedPerson;
+            }
         });
     });
 });

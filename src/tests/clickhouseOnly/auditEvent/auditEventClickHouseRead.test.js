@@ -1,7 +1,5 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 const { ClickHouseSchemaRegistry } = require('../../../dataLayer/clickHouse/schemaRegistry');
 const { getAuditEventClickHouseSchema } = require('../../../dataLayer/clickHouse/auditEventClickHouseSchema');
@@ -11,36 +9,14 @@ const { GenericClickHouseRepository } = require('../../../dataLayer/repositories
 const { ClickHouseStorageProvider } = require('../../../dataLayer/providers/clickHouseStorageProvider');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 const { commonBeforeEach, commonAfterEach } = require('../../common');
 const { makeAuditEvent, TEST_DATES } = require('./auditEventClickHouseTestSetup');
 
 const YM = TEST_DATES.ym;
 
-const AUDIT_EVENT_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/02-audit-event.sql');
-
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
 let clientManager = null;
 let repository = null;
 let storageProvider = null;
-
-async function waitForClickHouse (manager, maxWaitMs = 30000) {
-    const startTime = Date.now();
-    let delay = 100;
-    while (Date.now() - startTime < maxWaitMs) {
-        try {
-            await manager.getClientAsync();
-            const isHealthy = await manager.isHealthyAsync();
-            if (isHealthy) return true;
-        } catch (e) {
-            // retry
-        }
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay = Math.min(delay * 2, 1000);
-    }
-    throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-}
 
 async function insertRows (rows) {
     await clientManager.insertAsync({
@@ -52,28 +28,12 @@ async function insertRows (rows) {
 
 describe('AuditEvent ClickHouse read integration', () => {
     beforeAll(async () => {
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-        savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-
         await commonBeforeEach();
 
+        // ClickHouse container is started and the AuditEvent schema is loaded
+        // by jestGlobalSetup; just create a manager pointed at it.
         const configManager = new ConfigManager();
         clientManager = new ClickHouseClientManager({ configManager });
-        await waitForClickHouse(clientManager, 30000);
-
-        const tableExists = await clientManager.tableExistsAsync('AuditEvent_4_0_0');
-        if (!tableExists) {
-            const schemaSQL = fs.readFileSync(AUDIT_EVENT_SCHEMA_PATH, 'utf8');
-            const statements = schemaSQL
-                .split(';')
-                .map(s => s.replace(/--.*$/gm, '').trim())
-                .filter(s => s.length > 0);
-
-            for (const stmt of statements) {
-                await clientManager.queryAsync({ query: stmt });
-            }
-        }
 
         const schemaRegistry = new ClickHouseSchemaRegistry();
         schemaRegistry.registerSchema('AuditEvent', getAuditEventClickHouseSchema());
@@ -115,13 +75,6 @@ describe('AuditEvent ClickHouse read integration', () => {
         if (clientManager) {
             await clientManager.closeAsync();
             clientManager = null;
-        }
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
         }
         await commonAfterEach();
     }, 30000);

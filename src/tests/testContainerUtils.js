@@ -17,26 +17,31 @@
  * @template T
  */
 async function withNockSuspended(fn) {
-    let nockWasActive = false;
+    // Look up nock from the module cache instead of `require('nock')`. Calling
+    // require here would *load* nock if it isn't already, which has a global
+    // side effect (MSW patches http.ClientRequest at import time and routes
+    // every subsequent http call — including ClickHouse queries — through
+    // MockHttpSocket, producing ECONNRESETs on keep-alive connections). When
+    // a test file legitimately uses nock it will already be in the cache.
+    let nockResolved;
     try {
-        const nockModule = require('nock');
-        if (nockModule.isActive()) {
-            nockWasActive = true;
-            nockModule.restore();
-        }
+        nockResolved = require.resolve('nock');
     } catch (_) {
-        // nock not installed — nothing to suspend
+        nockResolved = null;
+    }
+    const nockModule = nockResolved ? require.cache[nockResolved]?.exports : null;
+
+    let nockWasActive = false;
+    if (nockModule && nockModule.isActive()) {
+        nockWasActive = true;
+        nockModule.restore();
     }
 
     try {
         return await fn();
     } finally {
         if (nockWasActive) {
-            try {
-                require('nock').activate();
-            } catch (_) {
-                // ignore
-            }
+            nockModule.activate();
         }
     }
 }

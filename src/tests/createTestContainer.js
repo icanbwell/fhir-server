@@ -1,6 +1,5 @@
 const { createContainer } = require('../createContainer');
 const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
-const { TestConfigManager } = require('./testConfigManager');
 const { MockRedisClient } = require('./mocks/mockRedisClient');
 const { MockKafkaClient } = require('./mocks/mockKafkaClient');
 const { MockAccessLogger } = require('./mocks/mockAccessLogger');
@@ -48,8 +47,6 @@ const createTestContainer = function (fnUpdateContainer) {
     container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({
         configManager: c.configManager
     }));
-
-    container.register('configManager', () => new TestConfigManager());
 
     if (fnUpdateContainer !== undefined) {
         container = fnUpdateContainer(container);

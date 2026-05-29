@@ -259,10 +259,6 @@ class SearchBundleOperation {
              */
             const originalOptions = __ret.originalOptions;
             /**
-             * @type {boolean}
-             */
-            const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
-            /**
              * @type {Resource[]}
              */
             let resources = __ret.resources;
@@ -297,7 +293,7 @@ class SearchBundleOperation {
                 cursor.setEmpty();
             }
             // process results
-            if (cursor !== null) { // usually means the two-step optimization found no results
+            if (cursor !== null) {
                 logDebug('', {
                     user,
                     args: {
@@ -381,7 +377,6 @@ class SearchBundleOperation {
                     columns,
                     stopTime,
                     startTime,
-                    useTwoStepSearchOptimization,
                     indexHint,
                     cursorBatchSize,
                     user,

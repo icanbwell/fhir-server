@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'thedcare'}}},{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z'),'$gte':ISODate('2021-09-19T00:00:00.000Z')}}]}, {}).sort({'_uuid':1}).limit(2)",
+        "display": "db.AuditEvent_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'clientAbc'}}},{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z'),'$gte':ISODate('2021-09-19T00:00:00.000Z')}}]}, {}).sort({'_uuid':1}).limit(2)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -20,10 +20,6 @@
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "display": "{'useTwoStepSearchOptimization':undefined}",
-        "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
         "code": "audit-event",

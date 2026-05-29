@@ -17,6 +17,7 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { isTrue } = require('../../utils/isTrue');
+const { ReadPreference } = require('mongodb');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
 const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
@@ -31,6 +32,7 @@ const { GroupMemberPatchStrategy } = require('./strategies/groupMemberPatchStrat
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
+const { validatePatchDoesNotTargetInternalFields } = require('./validators/patchInternalFieldsValidator');
 
 class PatchOperation {
     /**
@@ -209,6 +211,9 @@ class PatchOperation {
             );
         }
 
+        // Reject any patch operations targeting internal _ fields before any DB work
+        validatePatchDoesNotTargetInternalFields(patchContent);
+
         /**
          * @type {number}
          */
@@ -285,7 +290,7 @@ class PatchOperation {
                 { resourceType, base_version }
             );
 
-            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query, options: { readPreference: ReadPreference.PRIMARY }, extraInfo });
             /**
              * @type {[Resource] | null}
              */

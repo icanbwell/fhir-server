@@ -13,6 +13,7 @@ const {
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { AuditLogger } = require('../../../utils/auditLogger');
 const { createToken } = require('../../mocks/tokens');
+const { privateKey } = require('../../mocks/keys');
 
 const mongoCollectionName = 'AuditEvent_4_0_0';
 
@@ -82,7 +83,7 @@ describe('Error Audit Events Integration Tests', () => {
             expect(jwtDetail).toBeUndefined();
         });
 
-        test('invalid signature — creates audit event with decoded JWT payload', async () => {
+        test('invalid signature — creates audit event without JWT payload', async () => {
             const request = await createTestRequest(createContainerWithRealAuditLogger);
             const container = getTestContainer();
             const auditEventCollection = await getAuditEventCollection(container);
@@ -117,10 +118,42 @@ describe('Error Audit Events Integration Tests', () => {
             expect(auditEvent.outcomeDesc).toBe('Invalid signature');
 
             const jwtDetail = auditEvent.entity[0].detail.find(d => d.type === 'jwtPayload');
-            expect(jwtDetail).toBeDefined();
-            const payload = JSON.parse(jwtDetail.valueString);
-            expect(payload.sub).toBe('attacker-123');
-            expect(payload.iss).toBe('http://foo:80');
+            expect(jwtDetail).toBeUndefined();
+        });
+
+        test('expired token — creates audit event with outcomeDesc "Token Expired" and no JWT payload', async () => {
+            const request = await createTestRequest(createContainerWithRealAuditLogger);
+            const container = getTestContainer();
+            const auditEventCollection = await getAuditEventCollection(container);
+
+            const expiredToken = createToken(privateKey, '123', {
+                sub: 'expired-user',
+                scope: 'user/*.*',
+                token_use: 'access',
+                exp: Math.floor(Date.now() / 1000) - 3600
+            });
+
+            const resp = await request
+                .get('/4_0_0/Patient/123')
+                .set({
+                    ...getUnAuthenticatedHeaders(),
+                    Authorization: `Bearer ${expiredToken}`
+                });
+
+            expect(resp.status).toBe(401);
+
+            await waitForAuditFlush(container);
+
+            const logs = await auditEventCollection.find({ action: 'E' }).toArray();
+            expect(logs.length).toBe(1);
+
+            const auditEvent = logs[0];
+            expect(auditEvent.type.code).toBe('110113');
+            expect(auditEvent.outcome).toBe('4');
+            expect(auditEvent.outcomeDesc).toBe('Token Expired');
+
+            const jwtDetail = auditEvent.entity[0].detail.find(d => d.type === 'jwtPayload');
+            expect(jwtDetail).toBeUndefined();
         });
 
         test('malformed token — creates audit event with outcomeDesc "Malformed Token"', async () => {
@@ -128,8 +161,7 @@ describe('Error Audit Events Integration Tests', () => {
             const container = getTestContainer();
             const auditEventCollection = await getAuditEventCollection(container);
 
-            // 3-part structure so middleware attempts decode, but payload is not valid JSON
-            const malformedToken = 'eyJhbGciOiJSUzI1NiJ9.!!!not-valid-base64!!!.fakesignature';
+            const malformedToken = 'not.a.jwt';
 
             const resp = await request
                 .get('/4_0_0/Patient/123')

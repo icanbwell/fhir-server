@@ -1,55 +1,16 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
 process.env.CLICKHOUSE_ONLY_RESOURCES = 'AuditEvent';
 
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
 const { TABLES } = require('../../../constants/clickHouseConstants');
-
-const AUDIT_EVENT_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/02-audit-event.sql');
-const ACCESS_HISTORY_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/05-audit-access-mv.sql');
 
 let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
-
-async function waitForClickHouse(manager, maxWaitMs = 30000) {
-    const startTime = Date.now();
-    let delay = 100;
-
-    while (Date.now() - startTime < maxWaitMs) {
-        try {
-            await manager.getClientAsync();
-            const isHealthy = await manager.isHealthyAsync();
-            if (isHealthy) return true;
-        } catch (e) {
-            // retry
-        }
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay = Math.min(delay * 2, 1000);
-    }
-    throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-}
-
-async function loadSchemaAlways(manager, schemaPath) {
-    const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
-    const statements = schemaSQL
-        .split(';')
-        .map(s => s.replace(/--.*$/gm, '').trim())
-        .filter(s => s.length > 0);
-
-    for (const stmt of statements) {
-        await manager.queryAsync({ query: stmt });
-    }
-}
 
 async function setupAccessHistoryTests() {
     if (setupPromise) return setupPromise;
@@ -57,19 +18,10 @@ async function setupAccessHistoryTests() {
 
     setupPromise = (async () => {
         try {
-            if (!clickHouseTestContainer) {
-                clickHouseTestContainer = new ClickHouseTestContainer();
-                await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-                savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-            }
-
+            // ClickHouse container is started and the AuditEvent + AccessHistory
+            // schemas are loaded by jestGlobalSetup; just create a manager.
             const configManager = new ConfigManager();
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
-            await waitForClickHouse(sharedClickHouseManager, 30000);
-
-            // Always load schemas with IF NOT EXISTS — safe to re-run
-            await loadSchemaAlways(sharedClickHouseManager, AUDIT_EVENT_SCHEMA_PATH);
-            await loadSchemaAlways(sharedClickHouseManager, ACCESS_HISTORY_SCHEMA_PATH);
 
             isSetupComplete = true;
         } catch (error) {
@@ -90,14 +42,7 @@ async function teardownAccessHistoryTests() {
             sharedClickHouseManager = null;
         }
 
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-                savedContainerEnvVars = null;
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
-        }
+        // ClickHouse container is stopped once by jestGlobalTeardown.
 
         isSetupComplete = false;
         setupPromise = null;

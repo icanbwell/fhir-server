@@ -1,0 +1,7 @@
+[
+  {
+    "op": "add",
+    "path": "/_uuid",
+    "value": "Patient/malicious-uuid-9999"
+  }
+]

@@ -162,7 +162,7 @@ module.exports = {
     SPECIFIED_QUERY_PARAMS: [
         '_explain', '_debug', 'contained', '_hash_references', 'base_version', '_elements',
         '_useAccessIndex', 'active', '_source', '_id', 'onset-date', '_lastUpdated',
-        'source', 'id', 'onset_date', '_bundle', '_sort', '_count', '_useTwoStepOptimization', 'extension',
+        'source', 'id', 'onset_date', '_bundle', '_sort', '_count', 'extension',
         '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset', 'resource', '_streamResponse', 'remove',
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
@@ -227,6 +227,8 @@ module.exports = {
     DEFAULT_CACHE_MAX_COUNT: 25,
     DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,
     USER_INFO_CACHE_EXPIRY_TIME: 5 * 60 * 1000, // 5 mins
+    JWKS_REQUESTS_PER_MINUTE: 60,
+    JWT_EXPIRY_CLOCK_TOLERANCE: 30,
     OPERATIONS: {
         READ: 'READ',
         WRITE: 'WRITE',

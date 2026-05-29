@@ -20,6 +20,7 @@ const {authenticateWithJsonFailure} = require('./middleware/fhir/authentication.
 const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {AUTH_USER_TYPES} = require('./constants');
 const forbidForUserTypes = require('./middleware/forbidForUserTypes.middleware');
+const {graphqlErrorFormatter} = require('./middleware/graphql/graphqlErrorFormatter');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
@@ -185,15 +186,11 @@ function createApp({fnGetContainer}) {
                         requestId: req.uniqueRequestId
                     });
                     const errorMessage = req.authFailureDetail || 'Authentication Failed';
-                    const extraParams = req.jwtPayload
-                        ? [{ type: 'jwtPayload', valueString: JSON.stringify(req.jwtPayload) }]
-                        : undefined;
                     auditLogger.logErrorAuditEntryAsync({
                         requestInfo,
                         resourceType,
                         errorCode: 401,
-                        errorMessage,
-                        extraParams
+                        errorMessage
                     }).catch((e) => {
                         logError('Error logging 401 audit event', { error: e.message });
                     });
@@ -202,15 +199,17 @@ function createApp({fnGetContainer}) {
                 }
             }
 
+            const logAuthContextOn401 = res.statusCode === 401 && isTrue(process.env.LOG_AUTH_CONTEXT_ON_401);
             if (
                 (configManager.enableAccessLogs) &&
-                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body)
+                (httpContext.get(ACCESS_LOGS_ENTRY_DATA) || req.body || logAuthContextOn401)
             ) {
                 accessLogger.logAccessLogAsync({
                     ...httpContext.get(ACCESS_LOGS_ENTRY_DATA),
                     req,
                     statusCode: res.statusCode,
-                    startTime
+                    startTime,
+                    authorizationHeader: logAuthContextOn401 ? req.headers.authorization : undefined
                 });
             }
             logInfo('Request Completed', logData);
@@ -428,6 +427,7 @@ function createApp({fnGetContainer}) {
         const forbidRestrictedUserTypes = forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]);
 
         const router = express.Router();
+        router.use((req, res, next) => { req.isGraphQLRoute = true; next(); });
         router.use(passport.initialize());
         router.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         router.use(forbidRestrictedUserTypes);
@@ -462,6 +462,7 @@ function createApp({fnGetContainer}) {
         });
 
         const routerv2 = express.Router();
+        routerv2.use((req, res, next) => { req.isGraphQLRoute = true; next(); });
         routerv2.use(passport.initialize());
         routerv2.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         routerv2.use(forbidRestrictedUserTypes);
@@ -501,10 +502,12 @@ function createApp({fnGetContainer}) {
         ]).then(([graphqlMiddleware, graphqlV2Middleware]) => {
             if (graphqlMiddleware) {
                 router.use(graphqlMiddleware);
+                router.use(graphqlErrorFormatter);
                 app.use('/\\$graphql', router);
             }
             if (graphqlV2Middleware) {
                 routerv2.use(graphqlV2Middleware);
+                routerv2.use(graphqlErrorFormatter);
                 app.use('/4_0_0/\\$graphqlv2', routerv2);
             }
             createFhirApp(fnGetContainer, app);

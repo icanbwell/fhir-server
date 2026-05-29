@@ -1,0 +1,12 @@
+{
+    "resourceType": "OperationOutcome",
+    "issue": [
+        {
+            "severity": "error",
+            "code": "invalid",
+            "details": {
+                "text": "Patch operation referencing internal field '_uuid' in 'from' is not allowed. Internal fields prefixed with _ cannot be accessed via PATCH."
+            }
+        }
+    ]
+}

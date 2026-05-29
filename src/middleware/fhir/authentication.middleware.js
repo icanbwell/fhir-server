@@ -36,22 +36,20 @@ const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
                 if (info && info.message === 'No auth token') {
                     req.authFailureDetail = 'No token available';
                 } else if (req.jwtPayload) {
-                    // Verify callback ran (signature valid) but validation failed
-                    req.authFailureDetail = 'Invalid token';
+                    req.authFailureDetail = info && info.reason
+                        ? 'Invalid Token: ' + info.reason
+                        : 'Invalid Token';
+                } else if (info && info.message === 'jwt expired') {
+                    req.authFailureDetail = 'Token Expired';
+                } else if (info && (info.message === 'jwt malformed' || info.message === 'invalid token')) {
+                    req.authFailureDetail = 'Malformed Token';
                 } else {
-                    // Signature verification or JWKS failed — decode payload without verification for audit
                     req.authFailureDetail = 'Invalid signature';
-                    try {
-                        const authHeader = req.headers && req.headers.authorization;
-                        if (authHeader && authHeader.startsWith('Bearer ')) {
-                            const parts = authHeader.slice(7).split('.');
-                            if (parts.length === 3) {
-                                req.jwtPayload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
-                            }
-                        }
-                    } catch (_) {
-                        req.authFailureDetail = 'Malformed Token';
-                    }
+                }
+                if (req.isGraphQLRoute) {
+                    const authErr = new Error(req.authFailureDetail || 'Authentication failed');
+                    authErr.statusCode = 401;
+                    return next(authErr);
                 }
                 return sendUnauthorizedJson(res);
             }

@@ -7,10 +7,7 @@ process.env.AUTH_CUSTOM_GROUP = 'groups';
 process.env.AUTH_CUSTOM_SCOPE = 'customscope';
 process.env.AUTH_CUSTOM_CLIENT_ID = 'custom_client_id';
 process.env.CREATE_INDEX_ON_COLLECTION_CREATION = '1';
-process.env.USE_TWO_STEP_SEARCH_OPTIMIZATION = '0';
 process.env.STREAM_RESPONSE = '1';
-// process.env.OLD_SEARCH = '1';
-process.env.COLLECTIONS_ACCESS_INDEX = 'AuditEvent_4_0_0';
 process.env.LOG_STREAM_STEPS = '0';
 process.env.STREAMING_BATCH_COUNT = '10';
 process.env.ENABLE_PATIENT_FILTERING = '1';
@@ -38,15 +35,5 @@ process.env.EXTERNAL_REQUEST_TIMEOUT_SEC = '5';
 process.env.PRE_SAVE_CODING_ID_UPDATE_RESOURCES = "Resource";
 process.env.RESOURCE_SERVER = "http://localhost:3000";
 process.env.SERVER_PORT = 3000;
-// ClickHouse configuration (disabled by default in tests)
 process.env.ENABLE_CLICKHOUSE = '0';
-process.env.CLICKHOUSE_HOST = '127.0.0.1';
-process.env.CLICKHOUSE_PORT = '8123';
-process.env.CLICKHOUSE_DATABASE = 'fhir_test';
-process.env.CLICKHOUSE_USERNAME = 'default';
-process.env.CLICKHOUSE_PASSWORD = '';
-process.env.CLICKHOUSE_ENABLED_RESOURCES = '';
 process.env.CMS_ALLOWED_PURPOSE_OF_USE = 'PATRQT';
-// for running ClickHouse tests in CI with Testcontainers
-// https://node.testcontainers.org/supported-container-runtimes/#docker
-process.env.TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE='/var/run/docker.sock';

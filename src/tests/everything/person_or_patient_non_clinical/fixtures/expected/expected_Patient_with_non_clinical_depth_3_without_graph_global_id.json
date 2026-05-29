@@ -45,7 +45,9 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT1",
-            "given": ["SHYLA"]
+            "given": [
+              "SHYLA"
+            ]
           }
         ],
         "resourceType": "Patient"
@@ -750,7 +752,9 @@
             "use": "usual",
             "text": "t",
             "family": "person1",
-            "given": ["OTHER"]
+            "given": [
+              "OTHER"
+            ]
           }
         ],
         "resourceType": "Person"
@@ -991,13 +995,17 @@
             "use": "usual",
             "text": "SAMER S. NAJJAR  MD",
             "family": "NAJJAR  MD",
-            "given": ["SAMER S."]
+            "given": [
+              "SAMER S."
+            ]
           },
           {
             "use": "usual",
             "text": "NAJJAR  MD, SAMER S.",
             "family": "NAJJAR  MD",
-            "given": ["SAMER S."]
+            "given": [
+              "SAMER S."
+            ]
           }
         ],
         "qualification": [
@@ -1064,13 +1072,18 @@
         "active": true,
         "address": [
           {
-            "line": ["5009 Honeygo Center Drive", "Suite 216"],
+            "line": [
+              "5009 Honeygo Center Drive",
+              "Suite 216"
+            ],
             "city": "Perry Hall",
             "state": "MD",
             "postalCode": "21128"
           }
         ],
-        "alias": ["Client Medical Group Derm at Honeygo"],
+        "alias": [
+          "Client Medical Group Derm at Honeygo"
+        ],
         "contact": [
           {
             "purpose": {
@@ -1204,13 +1217,18 @@
         "active": true,
         "address": [
           {
-            "line": ["5009 Honeygo Center Drive", "Suite 216"],
+            "line": [
+              "5009 Honeygo Center Drive",
+              "Suite 216"
+            ],
             "city": "Perry Hall",
             "state": "MD",
             "postalCode": "21128"
           }
         ],
-        "alias": ["Client Medical Group Derm at Honeygo"],
+        "alias": [
+          "Client Medical Group Derm at Honeygo"
+        ],
         "contact": [
           {
             "purpose": {
@@ -1606,7 +1624,9 @@
         "address": {
           "use": "work",
           "type": "physical",
-          "line": ["1940 Elmer J Bissell Rd"],
+          "line": [
+            "1940 Elmer J Bissell Rd"
+          ],
           "city": "Birmingham",
           "state": "AL",
           "postalCode": "35243"
@@ -1745,13 +1765,17 @@
             "use": "usual",
             "text": "SAMER S. NAJJAR  MD",
             "family": "NAJJAR  MD",
-            "given": ["SAMER S."]
+            "given": [
+              "SAMER S."
+            ]
           },
           {
             "use": "usual",
             "text": "NAJJAR  MD, SAMER S.",
             "family": "NAJJAR  MD",
-            "given": ["SAMER S."]
+            "given": [
+              "SAMER S."
+            ]
           }
         ],
         "qualification": [
@@ -1868,13 +1892,17 @@
             "use": "usual",
             "text": "SAMER S. NAJJAR  MD",
             "family": "NAJJAR  MD",
-            "given": ["SAMER S."]
+            "given": [
+              "SAMER S."
+            ]
           },
           {
             "use": "usual",
             "text": "NAJJAR  MD, SAMER S.",
             "family": "NAJJAR  MD",
-            "given": ["SAMER S."]
+            "given": [
+              "SAMER S."
+            ]
           }
         ],
         "qualification": [
@@ -2478,10 +2506,6 @@
       {
         "system": "https://www.icanbwell.com/queryTime",
         "display": "0.095"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryOptimization",
-        "display": "{'useTwoStepSearchOptimization':undefined}"
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"

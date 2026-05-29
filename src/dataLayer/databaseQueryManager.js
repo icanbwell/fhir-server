@@ -230,17 +230,22 @@ class DatabaseQueryManager {
 
     /**
      * Finds and returns subset of passed in resources that exist in the database
-     * @param {Resource[]} resources
+     * @param {Object} params
+     * @param {Resource[]} params.resources
+     * @param {{readPreference: import('mongodb').ReadPreference}} [params.options]
      * @return {Promise<DatabaseCursor>}
      */
-    async findResourcesInDatabaseAsync({ resources }) {
+    async findResourcesInDatabaseAsync({ resources, options = {} }) {
         try {
             const collection = await this.resourceLocator.getCollectionForResourceAsync(resources[0]);
             const query = {
                 _uuid: { $in: resources.map((r) => r._uuid) }
             };
-            const options = {};
-            const cursor = collection.find(query, options);
+            const queryOptions = {};
+            if (options.readPreference) {
+                queryOptions.readPreference = options.readPreference;
+            }
+            const cursor = collection.find(query, queryOptions);
             return new DatabaseCursor({
                 base_version: this._base_version,
                 resourceType: this._resourceType,

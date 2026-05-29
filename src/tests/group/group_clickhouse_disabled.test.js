@@ -23,22 +23,32 @@
 const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../common');
 
-// IMPORTANT: Do NOT set ENABLE_CLICKHOUSE
-// This test suite validates Groups work with MongoDB-only storage
-// If ENABLE_CLICKHOUSE was set by another test file, explicitly disable it
-delete process.env.ENABLE_CLICKHOUSE;
-delete process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
-
 describe('Group with ClickHouse Disabled (Backward Compatibility)', () => {
     let request;
+    let savedEnableClickHouse;
+    let savedMongoWithClickHouseResources;
 
     beforeAll(async () => {
+        // Disable ClickHouse for this suite only — save and restore so we don't
+        // leak the deletion to later test files in the same Jest worker.
+        savedEnableClickHouse = process.env.ENABLE_CLICKHOUSE;
+        savedMongoWithClickHouseResources = process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
+        delete process.env.ENABLE_CLICKHOUSE;
+        delete process.env.MONGO_WITH_CLICKHOUSE_RESOURCES;
+
         await commonBeforeEach();
         request = await createTestRequest();
     });
 
     afterAll(async () => {
         await commonAfterEach();
+
+        if (savedEnableClickHouse !== undefined) {
+            process.env.ENABLE_CLICKHOUSE = savedEnableClickHouse;
+        }
+        if (savedMongoWithClickHouseResources !== undefined) {
+            process.env.MONGO_WITH_CLICKHOUSE_RESOURCES = savedMongoWithClickHouseResources;
+        }
     });
 
     function getSecurityMeta() {

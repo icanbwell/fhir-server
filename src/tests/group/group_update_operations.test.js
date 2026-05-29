@@ -7,7 +7,6 @@ const { ConfigManager } = require('../../utils/configManager');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 function getHeadersWithExternalStorage() {
     return { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
@@ -25,12 +24,7 @@ function getHeadersWithExternalStorage() {
 describe('Group UPDATE operations', () => {
     let clickHouseManager;
 
-    let clickHouseTestContainer;
     beforeAll(async () => {
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start();
-        clickHouseTestContainer.applyEnvVars();
-
         await commonBeforeEach();
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
@@ -48,9 +42,6 @@ describe('Group UPDATE operations', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
-        }
-        if (clickHouseTestContainer) {
-            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     });

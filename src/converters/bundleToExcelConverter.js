@@ -1,5 +1,5 @@
 const {BaseBundleConverter} = require("./baseBundleConverter");
-const {FHIRBundleConverter} = require("@imranq2/fhir-to-csv/lib/fhir_bundle_converter");
+const {FHIRBundleConverter} = require("@icanbwell/fhir-to-csv/lib/fhir_bundle_converter");
 
 class BundleToExcelConverter extends BaseBundleConverter {
     /**
