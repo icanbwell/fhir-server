@@ -1,22 +1,22 @@
-// Tests for the backfillAuditAccessMV admin runner.
-// Uses a real ClickHouse testcontainer to verify the runner produces correct
-// aggregate state in AUDIT_ACCESS_AGG.
+// Tests for the BackfillAuditAccessMVRunner. Runs against the shared ClickHouse
+// container started by jestGlobalSetup. Drops the AUDIT_ACCESS_MV so test
+// inserts don't auto-populate AUDIT_ACCESS_AGG, then restores it in afterAll.
 
 process.env.ENABLE_CLICKHOUSE = '1';
 
-const path = require('path');
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
 
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../../admin/adminLogger');
+const { ApplyClickHouseDDLRunner } = require('../../admin/runners/applyClickHouseDDLRunner');
 const {
     BackfillAuditAccessMVRunner,
     discoverPartitionsAsync
 } = require('../../admin/runners/backfillAuditAccessMVRunner');
 
+const path = require('path');
 const DDL_DIR = path.resolve(__dirname, '../../../clickhouse-init');
 
 function makeRunner({ clickHouseClientManager, mongoDatabaseManager, batchSize, startMonth, endMonth, dryRun }) {
@@ -32,381 +32,422 @@ function makeRunner({ clickHouseClientManager, mongoDatabaseManager, batchSize, 
 }
 
 describe('backfillAuditAccessMV', () => {
-    describe('runner with ClickHouse testcontainer', () => {
-        let container;
-        let clickHouseClientManager;
-        let mongoDatabaseManager;
-        let savedEnv;
+    let clickHouseClientManager;
+    let mongoDatabaseManager;
 
-        // Use dates within the TTL window (13 months). Generate relative to "now".
-        const MONTH_A = recentMonth(0); // current month
-        const MONTH_B = recentMonth(-1); // 1 month ago
-        const MONTH_C = recentMonth(-2); // 2 months ago
+    // Use dates within the TTL window (13 months). Generate relative to "now".
+    const MONTH_A = recentMonth(0); // current month
+    const MONTH_B = recentMonth(-1); // 1 month ago
+    const MONTH_C = recentMonth(-2); // 2 months ago
 
-        beforeAll(async () => {
-            container = new ClickHouseTestContainer();
-            await container.start({ startupTimeoutMs: 60000, loadSchema: false });
-            savedEnv = container.applyEnvVars();
+    beforeAll(async () => {
+        const configManager = new ConfigManager();
+        clickHouseClientManager = new ClickHouseClientManager({ configManager });
+        mongoDatabaseManager = new MongoDatabaseManager({ configManager });
 
-            const configManager = new ConfigManager();
-            clickHouseClientManager = new ClickHouseClientManager({ configManager });
-            mongoDatabaseManager = new MongoDatabaseManager({ configManager });
+        // Verify connection to the shared ClickHouse testcontainer and ensure
+        // tables exist (jestGlobalSetup creates them via docker-entrypoint-initdb.d).
+        await clickHouseClientManager.getClientAsync();
+        const tables = await clickHouseClientManager.queryAsync({
+            query: "SELECT name FROM system.tables WHERE database = 'fhir'"
+        });
+        const tableNames = tables.map((t) => t.name);
+        if (!tableNames.includes('AuditEvent_4_0_0') || !tableNames.includes('AUDIT_ACCESS_AGG')) {
+            throw new Error(
+                `Required tables missing. Found: ${tableNames.join(', ')}. ` +
+                'Ensure jestGlobalSetup started the ClickHouse container with schemas loaded.'
+            );
+        }
 
-            // Apply base schema (database + AuditEvent table)
-            const { ApplyClickHouseDDLRunner } = require('../../admin/runners/applyClickHouseDDLRunner');
+        // Drop the MV so test inserts don't auto-populate AUDIT_ACCESS_AGG.
+        await clickHouseClientManager.queryAsync({
+            query: 'DROP VIEW IF EXISTS fhir.AUDIT_ACCESS_MV'
+        });
+    }, 90000);
 
+    afterAll(async () => {
+        // Restore the MV so other tests see the expected schema.
+        try {
             const ddlRunner = new ApplyClickHouseDDLRunner({
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager,
                 clickHouseClientManager,
-                dir: DDL_DIR
+                file: path.join(DDL_DIR, '05-audit-access-mv.sql')
             });
             await ddlRunner.processAsync();
-
-            // Drop the MV so test inserts don't auto-populate AUDIT_ACCESS_AGG.
-            // We want to test the backfill runner in isolation.
-            await clickHouseClientManager.queryAsync({
-                query: 'DROP VIEW IF EXISTS fhir.AUDIT_ACCESS_MV'
-            });
-        }, 120000);
-
-        afterAll(async () => {
+        } catch (e) {
+            console.error('Failed to restore AUDIT_ACCESS_MV after backfillAuditAccessMV tests:', e.message);
+        } finally {
             if (clickHouseClientManager) {
                 await clickHouseClientManager.closeAsync();
             }
-            if (container) {
-                if (savedEnv) container.restoreEnvVars(savedEnv);
-                await container.stop();
-            }
+        }
+    }, 90000);
+
+    test('runner returns 0 when no partitions exist', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager
+        });
+        const exitCode = await runner.processAsync();
+        expect(exitCode).toBe(0);
+    }, 30000);
+
+    test('discoverPartitionsAsync finds partitions after insert', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({ recorded: `${MONTH_B.dateStr}-15 10:00:00.000` }),
+            makeAuditEvent({ recorded: `${MONTH_C.dateStr}-20 14:30:00.000` })
+        ]);
+
+        const partitions = await discoverPartitionsAsync(clickHouseClientManager);
+        expect(partitions).toContain(MONTH_B.partition);
+        expect(partitions).toContain(MONTH_C.partition);
+    }, 30000);
+
+    test('runner populates AUDIT_ACCESS_AGG with correct data', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-10 09:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-123', 'Observation/obs-456']
+            }),
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-15 12:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-123']
+            }),
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-20 08:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-2',
+                entity_what: ['Patient/pat-123']
+            })
+        ]);
+
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            startMonth: MONTH_A.dateStr,
+            endMonth: MONTH_A.dateStr
+        });
+        await runner.processAsync();
+
+        await clickHouseClientManager.queryAsync({
+            query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
         });
 
-        test('runner returns 0 when no partitions exist', async () => {
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+        const results = await clickHouseClientManager.queryAsync({
+            query: `
+                SELECT
+                    entity_ref,
+                    agent_requestor_who,
+                    entity_resource_type,
+                    countMerge(access_count) AS total_access,
+                    maxMerge(last_accessed) AS last_access,
+                    arrayFilter(x -> x != '', groupUniqArrayMerge(purpose_of_events)) AS purposes
+                FROM fhir.AUDIT_ACCESS_AGG
+                WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
+                GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                ORDER BY entity_ref, agent_requestor_who
+            `
+        });
 
-            const runner = makeRunner({
-                clickHouseClientManager,
-                mongoDatabaseManager
-            });
-            const exitCode = await runner.processAsync();
-            expect(exitCode).toBe(0);
-        }, 30000);
+        const doc1Patient = results.find(
+            (r) => r.entity_ref === 'Patient/pat-123' && r.agent_requestor_who === 'Practitioner/doc-1'
+        );
+        expect(doc1Patient).toBeDefined();
+        expect(Number(doc1Patient.total_access)).toBe(2);
+        expect(doc1Patient.entity_resource_type).toBe('Patient');
 
-        test('discoverPartitionsAsync finds partitions after insert', async () => {
-            await insertTestAuditEvents(clickHouseClientManager, [
-                makeAuditEvent({ recorded: `${MONTH_B.dateStr}-15 10:00:00.000` }),
-                makeAuditEvent({ recorded: `${MONTH_C.dateStr}-20 14:30:00.000` })
-            ]);
+        const doc1Obs = results.find(
+            (r) => r.entity_ref === 'Observation/obs-456' && r.agent_requestor_who === 'Practitioner/doc-1'
+        );
+        expect(doc1Obs).toBeDefined();
+        expect(Number(doc1Obs.total_access)).toBe(1);
+        expect(doc1Obs.entity_resource_type).toBe('Observation');
 
-            const partitions = await discoverPartitionsAsync(clickHouseClientManager);
-            expect(partitions).toContain(MONTH_B.partition);
-            expect(partitions).toContain(MONTH_C.partition);
-        }, 30000);
+        const doc2Patient = results.find(
+            (r) => r.entity_ref === 'Patient/pat-123' && r.agent_requestor_who === 'Practitioner/doc-2'
+        );
+        expect(doc2Patient).toBeDefined();
+        expect(Number(doc2Patient.total_access)).toBe(1);
+    }, 60000);
 
-        test('runner populates AUDIT_ACCESS_AGG with correct data', async () => {
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+    test('runner applies default PATRQT purpose when purpose_of_event is empty', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
 
-            await insertTestAuditEvents(clickHouseClientManager, [
-                makeAuditEvent({
-                    recorded: `${MONTH_A.dateStr}-10 09:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-123', 'Observation/obs-456']
-                }),
-                makeAuditEvent({
-                    recorded: `${MONTH_A.dateStr}-15 12:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-123']
-                }),
-                makeAuditEvent({
-                    recorded: `${MONTH_A.dateStr}-20 08:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-2',
-                    entity_what: ['Patient/pat-123']
-                })
-            ]);
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-05 10:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-789'],
+                purpose_of_event: []
+            })
+        ]);
 
-            const runner = makeRunner({
-                clickHouseClientManager,
-                mongoDatabaseManager,
-                startMonth: MONTH_A.dateStr,
-                endMonth: MONTH_A.dateStr
-            });
-            await runner.processAsync();
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            startMonth: MONTH_A.dateStr,
+            endMonth: MONTH_A.dateStr
+        });
+        await runner.processAsync();
 
-            await clickHouseClientManager.queryAsync({
-                query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
-            });
+        await clickHouseClientManager.queryAsync({
+            query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
+        });
 
-            const results = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT
-                        entity_ref,
-                        agent_requestor_who,
-                        entity_resource_type,
-                        countMerge(access_count) AS total_access,
-                        maxMerge(last_accessed) AS last_access,
-                        arrayFilter(x -> x != '', groupUniqArrayMerge(purpose_of_events)) AS purposes
-                    FROM fhir.AUDIT_ACCESS_AGG
-                    WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
-                    GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
-                    ORDER BY entity_ref, agent_requestor_who
-                `
-            });
+        const results = await clickHouseClientManager.queryAsync({
+            query: `
+                SELECT
+                    groupUniqArrayMerge(purpose_of_events) AS purposes
+                FROM fhir.AUDIT_ACCESS_AGG
+                WHERE entity_ref = 'Patient/pat-789'
+                GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+            `
+        });
 
-            const doc1Patient = results.find(
-                (r) => r.entity_ref === 'Patient/pat-123' && r.agent_requestor_who === 'Practitioner/doc-1'
-            );
-            expect(doc1Patient).toBeDefined();
-            expect(Number(doc1Patient.total_access)).toBe(2);
-            expect(doc1Patient.entity_resource_type).toBe('Patient');
+        expect(results).toHaveLength(1);
+        expect(results[0].purposes).toContain(
+            'http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT'
+        );
+    }, 60000);
 
-            const doc1Obs = results.find(
-                (r) => r.entity_ref === 'Observation/obs-456' && r.agent_requestor_who === 'Practitioner/doc-1'
-            );
-            expect(doc1Obs).toBeDefined();
-            expect(Number(doc1Obs.total_access)).toBe(1);
-            expect(doc1Obs.entity_resource_type).toBe('Observation');
+    test('runner captures explicit purpose_of_event', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
 
-            const doc2Patient = results.find(
-                (r) => r.entity_ref === 'Patient/pat-123' && r.agent_requestor_who === 'Practitioner/doc-2'
-            );
-            expect(doc2Patient).toBeDefined();
-            expect(Number(doc2Patient.total_access)).toBe(1);
-        }, 60000);
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-abc'],
+                purpose_of_event: [
+                    { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' }
+                ]
+            })
+        ]);
 
-        test('runner applies default PATRQT purpose when purpose_of_event is empty', async () => {
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            startMonth: MONTH_A.dateStr,
+            endMonth: MONTH_A.dateStr
+        });
+        await runner.processAsync();
 
-            await insertTestAuditEvents(clickHouseClientManager, [
-                makeAuditEvent({
-                    recorded: `${MONTH_A.dateStr}-05 10:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-789'],
-                    purpose_of_event: []
-                })
-            ]);
+        await clickHouseClientManager.queryAsync({
+            query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
+        });
 
-            const runner = makeRunner({
-                clickHouseClientManager,
-                mongoDatabaseManager,
-                startMonth: MONTH_A.dateStr,
-                endMonth: MONTH_A.dateStr
-            });
-            await runner.processAsync();
+        const results = await clickHouseClientManager.queryAsync({
+            query: `
+                SELECT
+                    groupUniqArrayMerge(purpose_of_events) AS purposes
+                FROM fhir.AUDIT_ACCESS_AGG
+                WHERE entity_ref = 'Patient/pat-abc'
+                GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+            `
+        });
 
-            await clickHouseClientManager.queryAsync({
-                query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
-            });
+        expect(results).toHaveLength(1);
+        expect(results[0].purposes).toContain(
+            'http://terminology.hl7.org/CodeSystem/v3-ActReason|TREAT'
+        );
+    }, 60000);
 
-            const results = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT
-                        groupUniqArrayMerge(purpose_of_events) AS purposes
-                    FROM fhir.AUDIT_ACCESS_AGG
-                    WHERE entity_ref = 'Patient/pat-789'
-                    GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
-                `
-            });
+    test('runner skips events with empty agent_requestor_who', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
 
-            expect(results).toHaveLength(1);
-            expect(results[0].purposes).toContain(
-                'http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT'
-            );
-        }, 60000);
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
+                agent_requestor_who: '',
+                entity_what: ['Patient/pat-no-agent']
+            })
+        ]);
 
-        test('runner captures explicit purpose_of_event', async () => {
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            startMonth: MONTH_A.dateStr,
+            endMonth: MONTH_A.dateStr
+        });
+        await runner.processAsync();
 
-            await insertTestAuditEvents(clickHouseClientManager, [
-                makeAuditEvent({
-                    recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-abc'],
-                    purpose_of_event: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-ActReason', code: 'TREAT' }
-                    ]
-                })
-            ]);
+        const results = await clickHouseClientManager.queryAsync({
+            query: `
+                SELECT count() AS cnt
+                FROM fhir.AUDIT_ACCESS_AGG
+                WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
+            `
+        });
 
-            const runner = makeRunner({
-                clickHouseClientManager,
-                mongoDatabaseManager,
-                startMonth: MONTH_A.dateStr,
-                endMonth: MONTH_A.dateStr
-            });
-            await runner.processAsync();
+        expect(Number(results[0].cnt)).toBe(0);
+    }, 60000);
 
-            await clickHouseClientManager.queryAsync({
-                query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
-            });
+    test('runner is idempotent - re-run merges correctly', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
 
-            const results = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT
-                        groupUniqArrayMerge(purpose_of_events) AS purposes
-                    FROM fhir.AUDIT_ACCESS_AGG
-                    WHERE entity_ref = 'Patient/pat-abc'
-                    GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
-                `
-            });
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-idem']
+            })
+        ]);
 
-            expect(results).toHaveLength(1);
-            expect(results[0].purposes).toContain(
-                'http://terminology.hl7.org/CodeSystem/v3-ActReason|TREAT'
-            );
-        }, 60000);
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            startMonth: MONTH_A.dateStr,
+            endMonth: MONTH_A.dateStr
+        });
 
-        test('runner skips events with empty agent_requestor_who', async () => {
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+        // Run twice
+        await runner.processAsync();
+        await runner.processAsync();
 
-            await insertTestAuditEvents(clickHouseClientManager, [
-                makeAuditEvent({
-                    recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
-                    agent_requestor_who: '',
-                    entity_what: ['Patient/pat-no-agent']
-                })
-            ]);
+        await clickHouseClientManager.queryAsync({
+            query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
+        });
 
-            const runner = makeRunner({
-                clickHouseClientManager,
-                mongoDatabaseManager,
-                startMonth: MONTH_A.dateStr,
-                endMonth: MONTH_A.dateStr
-            });
-            await runner.processAsync();
+        const results = await clickHouseClientManager.queryAsync({
+            query: `
+                SELECT
+                    countMerge(access_count) AS total_access
+                FROM fhir.AUDIT_ACCESS_AGG
+                WHERE entity_ref = 'Patient/pat-idem'
+                GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+            `
+        });
 
-            const results = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT count() AS cnt
-                    FROM fhir.AUDIT_ACCESS_AGG
-                    WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
-                `
-            });
+        expect(results).toHaveLength(1);
+        expect(Number(results[0].total_access)).toBe(2);
+    }, 60000);
 
-            expect(Number(results[0].cnt)).toBe(0);
-        }, 60000);
+    test('runner processes multiple partitions with batch-size', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
 
-        test('runner processes multiple partitions with batch-size', async () => {
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({
+                recorded: `${MONTH_B.dateStr}-01 10:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-monthB']
+            }),
+            makeAuditEvent({
+                recorded: `${MONTH_C.dateStr}-01 10:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-monthC']
+            })
+        ]);
 
-            await insertTestAuditEvents(clickHouseClientManager, [
-                makeAuditEvent({
-                    recorded: `${MONTH_B.dateStr}-01 10:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-monthB']
-                }),
-                makeAuditEvent({
-                    recorded: `${MONTH_C.dateStr}-01 10:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-monthC']
-                })
-            ]);
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            batchSize: 2
+        });
+        await runner.processAsync();
 
-            const runner = makeRunner({
-                clickHouseClientManager,
-                mongoDatabaseManager,
-                batchSize: 2
-            });
-            await runner.processAsync();
+        await clickHouseClientManager.queryAsync({
+            query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
+        });
 
-            await clickHouseClientManager.queryAsync({
-                query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
-            });
+        const monthBResults = await clickHouseClientManager.queryAsync({
+            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_B.partition}`
+        });
+        const monthCResults = await clickHouseClientManager.queryAsync({
+            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_C.partition}`
+        });
 
-            const monthBResults = await clickHouseClientManager.queryAsync({
-                query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_B.partition}`
-            });
-            const monthCResults = await clickHouseClientManager.queryAsync({
-                query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_C.partition}`
-            });
+        expect(Number(monthBResults[0].cnt)).toBeGreaterThan(0);
+        expect(Number(monthCResults[0].cnt)).toBeGreaterThan(0);
+    }, 60000);
 
-            expect(Number(monthBResults[0].cnt)).toBeGreaterThan(0);
-            expect(Number(monthCResults[0].cnt)).toBeGreaterThan(0);
-        }, 60000);
+    test('runner --dry-run does not modify data', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
 
-        test('runner --dry-run does not modify data', async () => {
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-dryrun']
+            })
+        ]);
 
-            await insertTestAuditEvents(clickHouseClientManager, [
-                makeAuditEvent({
-                    recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-dryrun']
-                })
-            ]);
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            startMonth: MONTH_A.dateStr,
+            endMonth: MONTH_A.dateStr,
+            dryRun: true
+        });
+        const exitCode = await runner.processAsync();
+        expect(exitCode).toBe(0);
 
-            const runner = makeRunner({
-                clickHouseClientManager,
-                mongoDatabaseManager,
-                startMonth: MONTH_A.dateStr,
-                endMonth: MONTH_A.dateStr,
-                dryRun: true
-            });
-            const exitCode = await runner.processAsync();
-            expect(exitCode).toBe(0);
+        const results = await clickHouseClientManager.queryAsync({
+            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}`
+        });
 
-            const results = await clickHouseClientManager.queryAsync({
-                query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}`
-            });
+        expect(Number(results[0].cnt)).toBe(0);
+    }, 60000);
 
-            expect(Number(results[0].cnt)).toBe(0);
-        }, 60000);
+    test('runner respects --start-month and --end-month filters', async () => {
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
+        await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
 
-        test('runner respects --start-month and --end-month filters', async () => {
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AuditEvent_4_0_0' });
-            await clickHouseClientManager.queryAsync({ query: 'TRUNCATE TABLE fhir.AUDIT_ACCESS_AGG' });
+        await insertTestAuditEvents(clickHouseClientManager, [
+            makeAuditEvent({
+                recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-a']
+            }),
+            makeAuditEvent({
+                recorded: `${MONTH_C.dateStr}-01 10:00:00.000`,
+                agent_requestor_who: 'Practitioner/doc-1',
+                entity_what: ['Patient/pat-c']
+            })
+        ]);
 
-            await insertTestAuditEvents(clickHouseClientManager, [
-                makeAuditEvent({
-                    recorded: `${MONTH_A.dateStr}-01 10:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-a']
-                }),
-                makeAuditEvent({
-                    recorded: `${MONTH_C.dateStr}-01 10:00:00.000`,
-                    agent_requestor_who: 'Practitioner/doc-1',
-                    entity_what: ['Patient/pat-c']
-                })
-            ]);
+        // Only process MONTH_C, skip MONTH_A
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            startMonth: MONTH_C.dateStr,
+            endMonth: MONTH_C.dateStr
+        });
+        await runner.processAsync();
 
-            // Only process MONTH_C, skip MONTH_A
-            const runner = makeRunner({
-                clickHouseClientManager,
-                mongoDatabaseManager,
-                startMonth: MONTH_C.dateStr,
-                endMonth: MONTH_C.dateStr
-            });
-            await runner.processAsync();
+        await clickHouseClientManager.queryAsync({
+            query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
+        });
 
-            await clickHouseClientManager.queryAsync({
-                query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
-            });
+        const monthAResults = await clickHouseClientManager.queryAsync({
+            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}`
+        });
+        const monthCResults = await clickHouseClientManager.queryAsync({
+            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_C.partition}`
+        });
 
-            const monthAResults = await clickHouseClientManager.queryAsync({
-                query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}`
-            });
-            const monthCResults = await clickHouseClientManager.queryAsync({
-                query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_C.partition}`
-            });
-
-            expect(Number(monthAResults[0].cnt)).toBe(0);
-            expect(Number(monthCResults[0].cnt)).toBeGreaterThan(0);
-        }, 60000);
-    });
+        expect(Number(monthAResults[0].cnt)).toBe(0);
+        expect(Number(monthCResults[0].cnt)).toBeGreaterThan(0);
+    }, 60000);
 });
 
 // ─── Test Helpers ───────────────────────────────────────────────────────────
 
-/**
- * Returns a month object relative to the current month.
- * offset=0 is current month, offset=-1 is last month, etc.
- * Dates must be within the AuditEvent TTL window (13 months).
- */
 function recentMonth(offset) {
     const d = new Date();
     d.setMonth(d.getMonth() + offset);
