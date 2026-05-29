@@ -11,7 +11,6 @@ const {
     getMaxPatchOperations
 } = require('./groupTestHelpers');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 
 function getHeadersWithExternalStorage() {
     return { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
@@ -34,12 +33,7 @@ describe('Group PATCH operations', () => {
 
     let clickHouseManager;
 
-    let clickHouseTestContainer;
     beforeAll(async () => {
-        clickHouseTestContainer = new ClickHouseTestContainer();
-        await clickHouseTestContainer.start();
-        clickHouseTestContainer.applyEnvVars();
-
         await commonBeforeEach();
         const configManager = new ConfigManager();
         clickHouseManager = new ClickHouseClientManager({ configManager });
@@ -57,9 +51,6 @@ describe('Group PATCH operations', () => {
     afterAll(async () => {
         if (clickHouseManager) {
             await clickHouseManager.closeAsync();
-        }
-        if (clickHouseTestContainer) {
-            await clickHouseTestContainer.stop();
         }
         await commonAfterEach();
     });

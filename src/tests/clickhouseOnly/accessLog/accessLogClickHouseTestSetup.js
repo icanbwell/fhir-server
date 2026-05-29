@@ -1,8 +1,5 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-
 // Set env vars FIRST, before any requires that trigger DI container creation.
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.ENABLE_ACCESS_LOGS_CLICKHOUSE = '1';
@@ -19,48 +16,11 @@ const {
 } = require('../../common');
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
-const { ClickHouseTestContainer } = require('../../clickHouseTestContainer');
-
-const ACCESS_LOG_SCHEMA_PATH = path.join(__dirname, '../../../../clickhouse-init/04-access-log.sql');
 
 let sharedRequest = null;
 let sharedClickHouseManager = null;
 let isSetupComplete = false;
 let setupPromise = null;
-let clickHouseTestContainer = null;
-let savedContainerEnvVars = null;
-
-async function waitForClickHouse (manager, maxWaitMs = 30000) {
-    const startTime = Date.now();
-    let delay = 100;
-    while (Date.now() - startTime < maxWaitMs) {
-        try {
-            await manager.getClientAsync();
-            const isHealthy = await manager.isHealthyAsync();
-            if (isHealthy) return true;
-        } catch (e) {
-            // retry
-        }
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay = Math.min(delay * 2, 1000);
-    }
-    throw new Error(`ClickHouse not ready after ${maxWaitMs}ms`);
-}
-
-async function loadAccessLogSchema (manager) {
-    const tableExists = await manager.tableExistsAsync('AccessLog');
-    if (!tableExists) {
-        const schemaSQL = fs.readFileSync(ACCESS_LOG_SCHEMA_PATH, 'utf8');
-        const statements = schemaSQL
-            .split(';')
-            .map(s => s.replace(/--.*$/gm, '').trim())
-            .filter(s => s.length > 0);
-
-        for (const stmt of statements) {
-            await manager.queryAsync({ query: stmt });
-        }
-    }
-}
 
 async function setupAccessLogClickHouseTests () {
     if (setupPromise) return setupPromise;
@@ -68,19 +28,12 @@ async function setupAccessLogClickHouseTests () {
 
     setupPromise = (async () => {
         try {
-            if (!clickHouseTestContainer) {
-                clickHouseTestContainer = new ClickHouseTestContainer();
-                await clickHouseTestContainer.start({ startupTimeoutMs: 60000 });
-                savedContainerEnvVars = clickHouseTestContainer.applyEnvVars();
-            }
-
             await commonBeforeEach();
 
+            // ClickHouse container is started and the AccessLog schema is loaded
+            // by jestGlobalSetup; just create a manager pointed at it.
             const configManager = new ConfigManager();
             sharedClickHouseManager = new ClickHouseClientManager({ configManager });
-            await waitForClickHouse(sharedClickHouseManager, 30000);
-
-            await loadAccessLogSchema(sharedClickHouseManager);
 
             sharedRequest = await createTestRequest();
 
@@ -103,14 +56,6 @@ async function teardownAccessLogClickHouseTests () {
             sharedClickHouseManager = null;
         }
 
-        if (clickHouseTestContainer) {
-            if (savedContainerEnvVars) {
-                clickHouseTestContainer.restoreEnvVars(savedContainerEnvVars);
-                savedContainerEnvVars = null;
-            }
-            await clickHouseTestContainer.stop();
-            clickHouseTestContainer = null;
-        }
 
         await commonAfterEach();
         sharedRequest = null;
