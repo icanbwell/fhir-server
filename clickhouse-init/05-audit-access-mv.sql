@@ -9,7 +9,7 @@
 -- Source: fhir.AuditEvent_4_0_0 (via AUDIT_ACCESS_MV)
 -- Engine: AggregatingMergeTree (merges partial aggregate states on background compaction)
 -- Partition: Monthly by recorded_month (aligns with AuditEvent source partitioning)
--- TTL: 120 days (access history retention window)
+-- TTL: 13 months (access history retention window)
 --
 -- Columns use AggregateFunction types — query with -Merge combinators:
 --   access_count      → countMerge(access_count)
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS fhir.AUDIT_ACCESS_AGG (
 ENGINE = AggregatingMergeTree()
 ORDER BY (entity_ref, agent_requestor_who, entity_resource_type, recorded_month)
 PARTITION BY toYYYYMM(recorded_month)
-TTL recorded_month + INTERVAL 120 DAY;
+TTL recorded_month + INTERVAL 13 MONTH;
 
 -- ===========================================================================
 -- MV: fhir.AUDIT_ACCESS_MV (Populates AUDIT_ACCESS_AGG from AuditEvent inserts)
