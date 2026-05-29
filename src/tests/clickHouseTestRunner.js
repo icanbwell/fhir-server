@@ -1,6 +1,6 @@
 const path = require('path');
 const { ClickHouseContainer } = require('@testcontainers/clickhouse');
-const { withNockSuspended, setEnvVars, restoreEnvVars } = require('./testContainerUtils');
+const { withNockSuspended, setEnvVars } = require('./testContainerUtils');
 
 const CLICKHOUSE_IMAGE = 'clickhouse/clickhouse-server:26.2';
 const STARTUP_TIMEOUT_MS = 60000;
@@ -62,34 +62,24 @@ async function waitForSchema () {
     const { ClickHouseClientManager } = require('../utils/clickHouseClientManager');
     const { ConfigManager } = require('../utils/configManager');
 
-    // Force log level OFF for the schema-wait probe: keep-alive socket hang-ups
-    // while the container's entrypoint scripts are still running are expected
-    // (that's how this loop knows to keep polling), and the client logs them
-    // as ERROR by default. Restored after the wait.
-    const savedLogLevel = setEnvVars({ CLICKHOUSE_LOG_LEVEL: 'OFF' });
-
+    const manager = new ClickHouseClientManager({ configManager: new ConfigManager() });
     try {
-        const manager = new ClickHouseClientManager({ configManager: new ConfigManager() });
-        try {
-            await manager.getClientAsync();
+        await manager.getClientAsync();
 
-            const startTime = Date.now();
-            let delay = 200;
+        const startTime = Date.now();
+        let delay = 200;
 
-            while (Date.now() - startTime < SCHEMA_WAIT_TIMEOUT_MS) {
-                if (await manager.tableExistsAsync('Group_4_0_0_MemberEvents')) {
-                    return;
-                }
-                await new Promise((resolve) => setTimeout(resolve, delay));
-                delay = Math.min(delay * 2, 2000);
+        while (Date.now() - startTime < SCHEMA_WAIT_TIMEOUT_MS) {
+            if (await manager.tableExistsAsync('Group_4_0_0_MemberEvents')) {
+                return;
             }
-
-            throw new Error(`ClickHouse schema not initialized after ${SCHEMA_WAIT_TIMEOUT_MS}ms`);
-        } finally {
-            await manager.closeAsync();
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            delay = Math.min(delay * 2, 2000);
         }
+
+        throw new Error(`ClickHouse schema not initialized after ${SCHEMA_WAIT_TIMEOUT_MS}ms`);
     } finally {
-        restoreEnvVars(savedLogLevel);
+        await manager.closeAsync();
     }
 }
 

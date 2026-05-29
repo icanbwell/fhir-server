@@ -2,7 +2,6 @@ const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals')
 const {commonBeforeEach, commonAfterEach, getTestRequestInfo} = require('../../../common');
 
 const {TestMongoDatabaseManager} = require('../../../testMongoDatabaseManager');
-const {TestConfigManager} = require('../../../testConfigManager');
 const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
 
 const Person = require('../../../../fhir/classes/4_0_0/resources/person');

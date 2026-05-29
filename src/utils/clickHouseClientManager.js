@@ -1,4 +1,4 @@
-const { createClient, ClickHouseLogLevel } = require('@clickhouse/client');
+const { createClient } = require('@clickhouse/client');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { RethrownError } = require('./rethrownError');
 const { trace } = require('@opentelemetry/api');
@@ -70,15 +70,6 @@ class ClickHouseClientManager {
                 database: this.configManager.clickHouseDatabase
             });
 
-            // Allow CLICKHOUSE_LOG_LEVEL=ERROR (or OFF) to silence warnings during tests; (default WARN).
-            const logLevel = ClickHouseLogLevel[process.env.CLICKHOUSE_LOG_LEVEL];
-
-            // Allow CLICKHOUSE_KEEP_ALIVE='0' to disable keep-alive. Tests set this
-            // because nock v14 wraps every http.ClientRequest in a MockHttpSocket; an
-            // idle keep-alive socket left over from a prior test file can fire
-            // 'read EINVAL' as the next test file loads and abort the suite.
-            const keepAliveEnabled = process.env.CLICKHOUSE_KEEP_ALIVE !== '0';
-
             this.client = createClient({
                 url,
                 database: this.configManager.clickHouseDatabase,
@@ -91,9 +82,8 @@ class ClickHouseClientManager {
                     response: true   // Enable gzip compression for queries
                 },
                 keep_alive: {
-                    enabled: keepAliveEnabled
-                },
-                ...(logLevel !== undefined && { log: { level: logLevel } })
+                    enabled: true
+                }
             });
 
             // Test connection
