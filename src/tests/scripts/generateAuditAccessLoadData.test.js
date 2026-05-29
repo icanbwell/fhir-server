@@ -3,11 +3,11 @@ process.env.ENABLE_CLICKHOUSE = '1';
 const path = require('path');
 const { describe, test, beforeAll, afterAll, beforeEach, expect } = require('@jest/globals');
 
-const { ClickHouseTestContainer } = require('../clickHouseTestContainer');
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../../admin/adminLogger');
+const { ApplyClickHouseDDLRunner } = require('../../admin/runners/applyClickHouseDDLRunner');
 const { GenerateAuditAccessLoadDataRunner } = require('../../admin/runners/generateAuditAccessLoadDataRunner');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { createTestContainer } = require('../createTestContainer');
@@ -75,38 +75,32 @@ function makeRunner({
 }
 
 describe('generateAuditAccessLoadData', () => {
-    describe('integration with ClickHouse testcontainer', () => {
-        let container;
+    describe('integration with shared ClickHouse container', () => {
         let clickHouseClientManager;
-        let savedEnv;
+        let mongoDatabaseManager;
 
         beforeAll(async () => {
-            container = new ClickHouseTestContainer();
-            await container.start({ startupTimeoutMs: 60000, loadSchema: false });
-            savedEnv = container.applyEnvVars();
-
             const configManager = new ConfigManager();
             clickHouseClientManager = new ClickHouseClientManager({ configManager });
-
-            const { ApplyClickHouseDDLRunner } = require('../../admin/runners/applyClickHouseDDLRunner');
-            const mongoDatabaseManager = new MongoDatabaseManager({ configManager });
-
-            const ddlRunner = new ApplyClickHouseDDLRunner({
-                adminLogger: new AdminLogger(),
-                mongoDatabaseManager,
-                clickHouseClientManager,
-                dir: DDL_DIR
-            });
-            await ddlRunner.processAsync();
-        }, 120000);
+            mongoDatabaseManager = new MongoDatabaseManager({ configManager });
+        }, 90000);
 
         afterAll(async () => {
-            if (clickHouseClientManager) {
-                await clickHouseClientManager.closeAsync();
-            }
-            if (container) {
-                if (savedEnv) container.restoreEnvVars(savedEnv);
-                await container.stop();
+            // Restore schemas in case tests modified them.
+            try {
+                const ddlRunner = new ApplyClickHouseDDLRunner({
+                    adminLogger: new AdminLogger(),
+                    mongoDatabaseManager,
+                    clickHouseClientManager,
+                    dir: DDL_DIR
+                });
+                await ddlRunner.processAsync();
+            } catch (e) {
+                console.error('Failed to restore ClickHouse schemas after generateAuditAccessLoadData tests:', e.message);
+            } finally {
+                if (clickHouseClientManager) {
+                    await clickHouseClientManager.closeAsync();
+                }
             }
         });
 
