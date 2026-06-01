@@ -33,11 +33,23 @@ yarn run prettier-fix
 # Bring up full local stack (MongoDB, Keycloak, Redis, Kafka, ClickHouse)
 make up
 
+# Restart just the FHIR server container (picks up env changes)
+make restart_fhir
+
+# Tail FHIR server logs (JSON pretty-printed)
+make fhir_logs
+
+# Tear down local stack
+make down
+
 # Code generation (FHIR classes, GraphQL schemas, search parameters)
 make generate
 make graphql
 make classes
 make searchParameters
+
+# Set up pre-commit lint hook (not auto-installed)
+make setup-pre-commit
 ```
 
 ## Testing Notes
@@ -49,6 +61,43 @@ make searchParameters
 - Custom matchers in `src/tests/customMatchers.js`: `toHaveResponse`, `toHaveMongoQuery`, etc. Use `toHaveMongoQuery` before `toHaveResponse` as it modifies the result
 - Global setup/teardown: `src/tests/jestGlobalSetup.js` / `src/tests/jestGlobalTeardown.js`
 - Test container overrides: `src/tests/createTestContainer.js`
+- Must explicitly import from `@jest/globals`: `const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');`
+
+### Test Authoring Pattern
+
+Tests follow a standard structure using `src/tests/common.js` utilities:
+
+```js
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+
+describe('MyTest', () => {
+    beforeEach(async () => { await commonBeforeEach(); });
+    afterEach(async () => { await commonAfterEach(); });
+
+    test('does something', async () => {
+        const request = await createTestRequest();
+        // Load fixtures via $merge, then query
+        await request.post('/4_0_0/Patient/$merge').send(fixture).set(getHeaders()).expect(200);
+        const resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
+    });
+});
+```
+
+To override container services (especially `ConfigManager` for feature flags), pass `fnUpdateContainer` to `createTestRequest`:
+
+```js
+class MockConfigManager extends ConfigManager {
+    get someFeatureFlag() { return true; }
+}
+
+const request = await createTestRequest((container) => {
+    container.register('configManager', () => new MockConfigManager());
+    return container;
+});
+```
+
+Test fixtures live alongside tests in `fixtures/` directories, expected results in `expected/` or `fixtures/expected/`.
 
 ## Architecture
 
@@ -57,6 +106,8 @@ Express middleware chain -> FhirRouter -> Operations -> DataLayer (MongoDB) -> R
 
 ### IoC Container
 All dependency wiring is in `src/createContainer.js` (~130+ services registered in `SimpleContainer`). New classes must be registered here. For tests, override services in `src/tests/createTestContainer.js`.
+
+The container uses lazy instantiation — services are created as singletons on first property access, not at registration time. Re-registering a service name replaces the factory; already-accessed services remain cached until the container is discarded.
 
 ### Key Entry Points
 - `src/index.js` - Process entry, cluster mode, Sentry init
@@ -80,6 +131,12 @@ All dependency wiring is in `src/createContainer.js` (~130+ services registered 
 - `src/queryRewriters/` - Query optimization (patient proxy, access index rewriting)
 - `src/strategies/` - Passport authentication strategies
 - `src/indexes/` - MongoDB index definitions; custom indexes go in `src/indexes/customIndexes.js`
+
+### Key Operations
+- **$merge** (`POST /4_0_0/{ResourceType}/$merge`) — The primary way resources are created/updated. Accepts a resource or bundle and upserts by id+source. Used extensively in tests to load fixtures.
+- **$graph** — Traverses related resources via GraphDefinition
+- **$everything** — Returns all resources related to a patient/encounter
+- **$export** — Bulk FHIR export (async)
 
 ### Multi-Database Architecture
 - **MongoDB**: Primary store for all FHIR resources, with separate configurable connections for audit events and resource history
