@@ -357,7 +357,13 @@ class GraphHelper {
             });
 
             if (filterProperty) {
-                query[`${filterProperty}`] = filterValue;
+                // Prevent MongoDB operator injection: reject keys that start with '$'
+                // or contain characters not valid in FHIR element names
+                if (/^[a-zA-Z][a-zA-Z0-9_]*$/.test(filterProperty)) {
+                    query[`${filterProperty}`] = filterValue;
+                } else {
+                    logWarn(`getForwardReferencesAsync: ignoring unsafe filterProperty '${filterProperty}'`, {});
+                }
             }
             /**
              * @type {number}
