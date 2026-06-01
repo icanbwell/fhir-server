@@ -1,0 +1,12 @@
+{
+    "issue": [
+        {
+            "code": "not-found",
+            "details": {
+                "text": "${errorMessage}"
+            },
+            "severity": "error"
+        }
+    ],
+    "resourceType": "OperationOutcome"
+}

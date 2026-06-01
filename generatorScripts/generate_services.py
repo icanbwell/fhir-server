@@ -58,6 +58,13 @@ def main() -> int:
                 print(f"Writing file: {resource_file_name}")
                 file.write(service_code)
             collection_entries[resourceType.upper()] = resourceType
+            person_operations = (",\n"
+                "        {\n"
+                "          name: 'access-history',\n"
+                "          route: '/:id/$access-history',\n"
+                "          method: 'GET',\n"
+                "          reference: 'https://www.hl7.org/fhir/security.html'\n"
+                "        }") if resourceType == 'Person' else ""
             config_entries.append(f"""
     {resourceType}: {{
       service: './src/services/{resourceType.lower()}/{resourceType.lower()}.service.js',
@@ -152,7 +159,7 @@ def main() -> int:
           route: '/:id/$summary',
           method: 'GET',
           reference: 'https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html'
-        }}
+        }}{person_operations}
       ]
     }},""")
         else:
