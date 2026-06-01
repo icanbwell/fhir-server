@@ -1,0 +1,10 @@
+[
+    {
+        "entity_ref": "Observation/5ee4dcde-2f4c-57ac-aa52-dfb69844ba31",
+        "agent_requestor_who": "Practitioner/be70f4b0-2039-5c80-9744-a914cfc5011b",
+        "entity_resource_type": "Observation",
+        "total_access": "2",
+        "last_access_month": "${MONTH_A}",
+        "purposes": ["http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT"]
+    }
+]

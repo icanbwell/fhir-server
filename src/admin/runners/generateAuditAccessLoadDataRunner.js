@@ -282,7 +282,7 @@ class GenerateAuditAccessLoadDataRunner extends BaseScriptRunner {
                     who: new Reference({
                         reference: this.accessor
                     }),
-                    altId: '',
+                    altId: 'testAudit@example.com',
                     requestor: true,
                     network: new AuditEventNetwork({ type: '2' })
                 })
