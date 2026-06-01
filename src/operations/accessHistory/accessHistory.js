@@ -7,6 +7,7 @@ const { ScopesValidator } = require('../security/scopesValidator');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
 const { PERSON_PROXY_PREFIX } = require('../../constants');
 const { sliceIntoChunks } = require('../../utils/list.util');
+const { logInfo } = require('../common/logging');
 
 class AccessHistoryOperation {
     /**
@@ -56,19 +57,29 @@ class AccessHistoryOperation {
         const base_version = parsedArgs.base_version;
         assertIsValid(id, 'id is required for $access-history');
 
-        await this.scopesValidator.verifyHasValidScopesAsync({
-            requestInfo,
-            parsedArgs,
-            resourceType,
-            startTime: Date.now(),
-            action: '$access-history',
-            accessRequested: 'read'
-        });
+        const startTime = Date.now();
+        await Promise.all([
+            this.scopesValidator.verifyHasValidScopesAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType,
+                startTime,
+                action: '$access-history',
+                accessRequested: 'read'
+            }),
+            this.scopesValidator.verifyHasValidScopesAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'AuditEvent',
+                startTime,
+                action: '$access-history',
+                accessRequested: 'read'
+            })
+        ]);
 
         if (!this.accessHistoryClickHouseRepository) {
-            throw new BadRequestError(
-                '$access-history operation requires ClickHouse to be enabled'
-            );
+            logInfo('$access-history operation unavailable: ClickHouse is not enabled');
+            throw new NotFoundError(`Invalid url: ${requestInfo.path}`);
         }
 
         // 1. Get linked Patient UUIDs (resolves sourceId to UUID internally)
@@ -254,9 +265,13 @@ class AccessHistoryOperation {
 
         // Resolve standard accessors and proxy person accessors in parallel
         const typeEntries = Object.entries(byType);
-        const [typeResults, persons] = await Promise.all([
-            Promise.all(
-                typeEntries.map(([type, ids]) =>
+        const parallelLimit = this.configManager.accessHistoryMaxParallelProcess;
+        const typeEntryChunks = sliceIntoChunks(typeEntries, parallelLimit);
+
+        const typeResults = [];
+        for (const chunk of typeEntryChunks) {
+            const chunkResults = await Promise.all(
+                chunk.map(([type, ids]) =>
                     this._findResourcesByUuids({
                         resourceType: type,
                         uuids: ids,
@@ -264,16 +279,18 @@ class AccessHistoryOperation {
                         projection: { _uuid: 1, name: 1 }
                     }).then(resources => ({ type, resources }))
                 )
-            ),
-            proxyPersonIds.length > 0
-                ? this._findResourcesByUuids({
-                    resourceType: 'Person',
-                    uuids: proxyPersonIds,
-                    base_version,
-                    projection: { _uuid: 1, name: 1, 'managingOrganization._uuid': 1, 'managingOrganization.reference': 1 }
-                })
-                : Promise.resolve([])
-        ]);
+            );
+            typeResults.push(...chunkResults);
+        }
+
+        const persons = proxyPersonIds.length > 0
+            ? await this._findResourcesByUuids({
+                resourceType: 'Person',
+                uuids: proxyPersonIds,
+                base_version,
+                projection: { _uuid: 1, name: 1, 'managingOrganization._uuid': 1, 'managingOrganization.reference': 1 }
+            })
+            : [];
 
         for (const { type, resources } of typeResults) {
             for (const resource of resources) {

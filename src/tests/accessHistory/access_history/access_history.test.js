@@ -2,6 +2,17 @@
 const person1Resource = require('./fixtures/Person/person1.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
+const activeConsentResource = require('./fixtures/Consent/activeConsent.json');
+
+const expectedEmptyParameters = require('./fixtures/expected/expected_empty_parameters.json');
+const expectedSingleAccessor = require('./fixtures/expected/expected_single_accessor.json');
+const expectedResourceTypeBreakdown = require('./fixtures/expected/expected_resource_type_breakdown.json');
+const expectedMultipleAccessors = require('./fixtures/expected/expected_multiple_accessors.json');
+const expectedAggregatedCounts = require('./fixtures/expected/expected_aggregated_counts.json');
+const expectedPurposeOfEvent = require('./fixtures/expected/expected_purpose_of_event.json');
+const expectedE2ePatientRead = require('./fixtures/expected/expected_e2e_patient_read.json');
+const expectedDelegatedUserAccess = require('./fixtures/expected/expected_delegated_user_access.json');
+const expectedClickhouseNotEnabled = require('./fixtures/expected/expected_clickhouse_not_enabled.json');
 
 const {
     commonBeforeEach,
@@ -11,7 +22,7 @@ const {
     getHeadersWithCustomPayload,
     getTestContainer
 } = require('../../common');
-const { describe, beforeAll, beforeEach, afterAll, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeAll, beforeEach, afterAll, afterEach, test, expect, jest } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 const {
     setupAccessHistoryTests,
@@ -22,6 +33,7 @@ const {
 } = require('../../clickhouseOnly/accessHistory/accessHistoryTestSetup');
 const { AccessHistoryClickHouseRepository } = require('../../../dataLayer/repositories/accessHistoryClickHouseRepository');
 const { ConfigManager } = require('../../../utils/configManager');
+const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
 
 class TestAccessHistoryConfigManager extends ConfigManager {
     get enableAccessAuditEvent() {
@@ -34,6 +46,10 @@ class TestAccessHistoryConfigManager extends ConfigManager {
 
     get clickHouseOnlyResources() {
         return ['AuditEvent'];
+    }
+
+    get enableDelegatedAccessDetection() {
+        return true;
     }
 }
 
@@ -51,6 +67,7 @@ describe('Person $access-history Tests', () => {
     let clickHouseRepository;
     let clickHouseManager;
     let sharedRequest;
+    const cursorHintSpy = jest.spyOn(DatabaseCursor.prototype, 'hint').mockReturnThis();
 
     beforeAll(async () => {
         await setupAccessHistoryTests();
@@ -83,6 +100,7 @@ describe('Person $access-history Tests', () => {
     });
 
     afterAll(async () => {
+        cursorHintSpy.mockRestore();
         await teardownAccessHistoryTests();
     }, 30000);
 
@@ -106,9 +124,7 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp.status).toBe(200);
-        expect(resp.body.resourceType).toBe('Parameters');
-        expect(resp.body.parameter).toEqual([]);
+        expect(resp).toHaveResponse(expectedEmptyParameters);
     });
 
     test('$access-history returns empty parameters when no access records exist', async () => {
@@ -131,9 +147,7 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp.status).toBe(200);
-        expect(resp.body.resourceType).toBe('Parameters');
-        expect(resp.body.parameter).toEqual([]);
+        expect(resp).toHaveResponse(expectedEmptyParameters);
     });
 
     test('$access-history returns accessor details after a resource is read', async () => {
@@ -170,21 +184,10 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp.status).toBe(200);
-        expect(resp.body.resourceType).toBe('Parameters');
-        expect(resp.body.parameter).toHaveLength(1);
-
-        const accessor = resp.body.parameter[0];
-        expect(accessor.name).toBe('accessor');
-
-        const referencePart = accessor.part.find((p) => p.name === 'reference');
-        expect(referencePart.valueReference.reference).toBe(accessorRef);
-
-        const totalCountPart = accessor.part.find((p) => p.name === 'totalCount');
-        expect(totalCountPart.valueInteger).toBe(1);
-
-        const lastAccessedPart = accessor.part.find((p) => p.name === 'lastAccessed');
-        expect(lastAccessedPart.valueDateTime).toBeDefined();
+        const expected = deepcopy(expectedSingleAccessor);
+        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        expect(resp).toHaveResponse(expected);
     });
 
     test('$access-history end-to-end: patient-scoped read populates access history via MV', async () => {
@@ -205,7 +208,6 @@ describe('Person $access-history Tests', () => {
         const patientUuid = resp.body.uuid;
 
         // Read with a patient-scoped token — this sets isUser=true, populating agent_requestor_who.
-        // The bwellFhirPersonId must be a Person UUID that links to the Patient being read.
         resp = await request
             .get(`/4_0_0/Patient/${patientUuid}`)
             .set(
@@ -234,16 +236,85 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
+        const expected = deepcopy(expectedE2ePatientRead);
+        const accessorRefValue = `Patient/person.${personUuid}`;
+        const respRefPart = resp.body.parameter[0].part.find((p) => p.name === 'reference');
+        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.reference = accessorRefValue;
+        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.display = respRefPart.valueReference.display;
+        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        expect(resp).toHaveResponse(expected);
+    });
+
+    test('$access-history end-to-end: delegated user read appears in access history', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const patientUuid = resp.body.uuid;
+
+        // Create a Consent resource linking the delegated actor to this person's patient
+        const delegatedActorRef = 'RelatedPerson/delegated-actor-e2e';
+        const consent = deepcopy(activeConsentResource);
+        consent.patient.reference = `Patient/person.${personUuid}`;
+        consent.provision.actor[0].reference.reference = delegatedActorRef;
+
+        resp = await request
+            .post('/4_0_0/Consent/1/$merge?validate=true')
+            .send(consent)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        // Delegated user reads the Patient resource
+        resp = await request
+            .get(`/4_0_0/Patient/${patientUuid}`)
+            .set(
+                getHeadersWithCustomPayload({
+                    scope: 'patient/*.read user/*.read access/*.*',
+                    username: 'delegated-user',
+                    client_id: 'client',
+                    clientFhirPersonId: personUuid,
+                    clientFhirPatientId: patientUuid,
+                    bwellFhirPersonId: personUuid,
+                    bwellFhirPatientId: patientUuid,
+                    token_use: 'access',
+                    act: {
+                        reference: delegatedActorRef,
+                        sub: 'delegated-sub-e2e'
+                    }
+                })
+            );
         expect(resp.status).toBe(200);
-        expect(resp.body.resourceType).toBe('Parameters');
-        expect(resp.body.parameter).toHaveLength(1);
 
-        const accessor = resp.body.parameter[0];
-        const referencePart = accessor.part.find((p) => p.name === 'reference');
-        expect(referencePart.valueReference.reference).toBe(`Patient/person.${personUuid}`);
+        // Flush audit events through the pipeline into ClickHouse
+        const container = getTestContainer();
+        const postRequestProcessor = container.postRequestProcessor;
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 10 });
+        const auditLogger = container.auditLogger;
+        await auditLogger.flushAsync();
 
-        const totalCountPart = accessor.part.find((p) => p.name === 'totalCount');
-        expect(totalCountPart.valueInteger).toBe(1);
+        // Query access history — the delegated actor should appear as the accessor
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .set(getHeaders());
+
+        const expected = deepcopy(expectedDelegatedUserAccess);
+        const respRefPart = resp.body.parameter[0].part.find((p) => p.name === 'reference');
+        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.reference = respRefPart.valueReference.reference;
+        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.display = respRefPart.valueReference.display;
+        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        expect(resp).toHaveResponse(expected);
     });
 
     test('$access-history returns resource type breakdown for multiple entity types', async () => {
@@ -300,27 +371,16 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp.status).toBe(200);
-        expect(resp.body.parameter).toHaveLength(1);
-
-        const accessor = resp.body.parameter[0];
-        const totalCountPart = accessor.part.find((p) => p.name === 'totalCount');
-        expect(totalCountPart.valueInteger).toBe(2);
-
-        const resourceTypeParts = accessor.part.filter((p) => p.name === 'resourceType');
-        expect(resourceTypeParts).toHaveLength(2);
-
-        const patientType = resourceTypeParts.find(
-            (p) => p.part.find((pp) => pp.name === 'type').valueCode === 'Patient'
-        );
-        expect(patientType).toBeDefined();
-        expect(patientType.part.find((pp) => pp.name === 'count').valueInteger).toBe(1);
-
-        const obsType = resourceTypeParts.find(
-            (p) => p.part.find((pp) => pp.name === 'type').valueCode === 'Observation'
-        );
-        expect(obsType).toBeDefined();
-        expect(obsType.part.find((pp) => pp.name === 'count').valueInteger).toBe(1);
+        const expected = deepcopy(expectedResourceTypeBreakdown);
+        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        const respRtParts = resp.body.parameter[0].part.filter((p) => p.name === 'resourceType');
+        const expectedRtParts = expected.parameter[0].part.filter((p) => p.name === 'resourceType');
+        expectedRtParts[0].part.find((p) => p.name === 'type').valueCode =
+            respRtParts[0].part.find((p) => p.name === 'type').valueCode;
+        expectedRtParts[1].part.find((p) => p.name === 'type').valueCode =
+            respRtParts[1].part.find((p) => p.name === 'type').valueCode;
+        expect(resp).toHaveResponse(expected);
     });
 
     test('$access-history returns 404 when Person does not exist', async () => {
@@ -331,6 +391,72 @@ describe('Person $access-history Tests', () => {
             .set(getHeaders());
 
         expect(resp.status).toBe(404);
+    });
+
+    test('$access-history returns 403 when Person read scope is missing', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .set(getHeaders('user/AuditEvent.read access/*.*'));
+
+        expect(resp.status).toBe(403);
+    });
+
+    test('$access-history returns 403 when AuditEvent read scope is missing', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .set(getHeaders('user/Person.read access/*.*'));
+
+        expect(resp.status).toBe(403);
+    });
+
+    test('$access-history returns 403 for delegated user without valid consent', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .set(
+                getHeadersWithCustomPayload({
+                    scope: 'patient/*.read user/*.read access/*.*',
+                    username: 'delegated-user',
+                    client_id: 'client',
+                    clientFhirPersonId: personUuid,
+                    clientFhirPatientId: 'some-patient-id',
+                    bwellFhirPersonId: personUuid,
+                    bwellFhirPatientId: 'some-patient-id',
+                    token_use: 'access',
+                    act: {
+                        reference: 'RelatedPerson/delegated-actor-uuid',
+                        sub: 'delegated-sub'
+                    }
+                })
+            );
+
+        expect(resp.status).toBe(403);
     });
 
     test('$access-history returns 403 for patient scope accessing another person', async () => {
@@ -409,22 +535,19 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp.status).toBe(200);
-        expect(resp.body.parameter).toHaveLength(2);
-
-        const practitionerAccessor = resp.body.parameter.find((p) =>
-            p.part.some(
-                (pp) => pp.name === 'reference' && pp.valueReference.reference === accessor1
-            )
-        );
-        expect(practitionerAccessor).toBeDefined();
-
-        const patientAccessor = resp.body.parameter.find((p) =>
-            p.part.some(
-                (pp) => pp.name === 'reference' && pp.valueReference.reference === accessor2
-            )
-        );
-        expect(patientAccessor).toBeDefined();
+        const expected = deepcopy(expectedMultipleAccessors);
+        // Match expected parameter order to actual response order
+        const respParam0Ref = resp.body.parameter[0].part.find((p) => p.name === 'reference').valueReference.reference;
+        const respParam1Ref = resp.body.parameter[1].part.find((p) => p.name === 'reference').valueReference.reference;
+        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.reference = respParam0Ref;
+        expected.parameter[0].part.find((p) => p.name === 'reference').valueReference.display = respParam0Ref;
+        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        expected.parameter[1].part.find((p) => p.name === 'reference').valueReference.reference = respParam1Ref;
+        expected.parameter[1].part.find((p) => p.name === 'reference').valueReference.display = respParam1Ref;
+        expected.parameter[1].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            resp.body.parameter[1].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        expect(resp).toHaveResponse(expected);
     });
 
     test('$access-history aggregates access counts across different recorded months', async () => {
@@ -488,25 +611,10 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp.status).toBe(200);
-        expect(resp.body.resourceType).toBe('Parameters');
-        expect(resp.body.parameter).toHaveLength(1);
-
-        const accessor = resp.body.parameter[0];
-        const referencePart = accessor.part.find((p) => p.name === 'reference');
-        expect(referencePart.valueReference.reference).toBe(accessorRef);
-
-        const totalCountPart = accessor.part.find((p) => p.name === 'totalCount');
-        expect(totalCountPart.valueInteger).toBe(3);
-
-        const lastAccessedPart = accessor.part.find((p) => p.name === 'lastAccessed');
-        expect(lastAccessedPart.valueDateTime).toBeDefined();
-
-        const resourceTypeParts = accessor.part.filter((p) => p.name === 'resourceType');
-        expect(resourceTypeParts).toHaveLength(1);
-        const patientType = resourceTypeParts[0];
-        expect(patientType.part.find((pp) => pp.name === 'type').valueCode).toBe('Patient');
-        expect(patientType.part.find((pp) => pp.name === 'count').valueInteger).toBe(3);
+        const expected = deepcopy(expectedAggregatedCounts);
+        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        expect(resp).toHaveResponse(expected);
     });
 
     test('$access-history returns purposeOfEvent codes', async () => {
@@ -547,22 +655,13 @@ describe('Person $access-history Tests', () => {
             .get(`/4_0_0/Person/${personUuid}/$access-history`)
             .set(getHeaders());
 
-        expect(resp.status).toBe(200);
-        expect(resp.body.parameter).toHaveLength(1);
-
-        const accessor = resp.body.parameter[0];
-        const referencePart = accessor.part.find((p) => p.name === 'reference');
-        expect(referencePart.valueReference.reference).toBe(accessorRef);
-
-        const purposeParts = accessor.part.filter((p) => p.name === 'purposeOfEvent');
-        expect(purposeParts).toHaveLength(1);
-        expect(purposeParts[0].valueCoding.system).toBe(
-            'http://terminology.hl7.org/CodeSystem/v3-ActReason'
-        );
-        expect(purposeParts[0].valueCoding.code).toBe('HPAYMT');
+        const expected = deepcopy(expectedPurposeOfEvent);
+        expected.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime =
+            resp.body.parameter[0].part.find((p) => p.name === 'lastAccessed').valueDateTime;
+        expect(resp).toHaveResponse(expected);
     });
 
-    test('$access-history returns 400 when ClickHouse is not enabled', async () => {
+    test('$access-history returns 404 when ClickHouse is not enabled', async () => {
         const request = sharedRequest;
 
         let resp = await request
@@ -575,11 +674,14 @@ describe('Person $access-history Tests', () => {
         const container = getTestContainer();
         container.accessHistoryOperation.accessHistoryClickHouseRepository = null;
 
+        const url = `/4_0_0/Person/${personUuid}/$access-history`;
         resp = await request
-            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .get(url)
             .set(getHeaders());
 
-        expect(resp.status).toBe(400);
+        const expected = deepcopy(expectedClickhouseNotEnabled);
+        expected.issue[0].details.text = `Invalid url: ${url}`;
+        expect(resp).toHaveResponse(expected);
 
         container.accessHistoryOperation.accessHistoryClickHouseRepository = clickHouseRepository;
     });
