@@ -1,0 +1,10 @@
+[
+    {
+        "entity_ref": "Patient/pat-c",
+        "agent_requestor_who": "Practitioner/doc-1",
+        "entity_resource_type": "Patient",
+        "total_access": "1",
+        "last_access": "${MONTH_C}-01 10:00:00.000",
+        "purposes": ["http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT"]
+    }
+]

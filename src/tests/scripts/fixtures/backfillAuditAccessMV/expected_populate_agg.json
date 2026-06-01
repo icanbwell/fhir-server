@@ -1,0 +1,26 @@
+[
+    {
+        "entity_ref": "Observation/obs-456",
+        "agent_requestor_who": "Practitioner/doc-1",
+        "entity_resource_type": "Observation",
+        "total_access": "1",
+        "last_access": "${MONTH_A}-10 09:00:00.000",
+        "purposes": ["http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT"]
+    },
+    {
+        "entity_ref": "Patient/pat-123",
+        "agent_requestor_who": "Practitioner/doc-1",
+        "entity_resource_type": "Patient",
+        "total_access": "2",
+        "last_access": "${MONTH_A}-15 12:00:00.000",
+        "purposes": ["http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT"]
+    },
+    {
+        "entity_ref": "Patient/pat-123",
+        "agent_requestor_who": "Practitioner/doc-2",
+        "entity_resource_type": "Patient",
+        "total_access": "1",
+        "last_access": "${MONTH_A}-20 08:00:00.000",
+        "purposes": ["http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT"]
+    }
+]

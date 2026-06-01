@@ -1,0 +1,18 @@
+[
+    {
+        "entity_ref": "Encounter/e5ff2f50-356f-5c3c-91a5-762c9be418db",
+        "agent_requestor_who": "Practitioner/738e6f1d-fef8-529b-82cf-85b6941ecda6",
+        "entity_resource_type": "Encounter",
+        "total_access": "4",
+        "last_access_month": "${MONTH_A}",
+        "purposes": ["http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT"]
+    },
+    {
+        "entity_ref": "Observation/76005cc2-47e0-53df-99c1-2a87740721a2",
+        "agent_requestor_who": "Practitioner/738e6f1d-fef8-529b-82cf-85b6941ecda6",
+        "entity_resource_type": "Observation",
+        "total_access": "4",
+        "last_access_month": "${MONTH_A}",
+        "purposes": ["http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT"]
+    }
+]

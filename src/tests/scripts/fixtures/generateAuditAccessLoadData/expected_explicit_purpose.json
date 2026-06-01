@@ -1,0 +1,10 @@
+[
+    {
+        "entity_ref": "Observation/9cb2e28f-0205-561f-b6c0-092c82809b29",
+        "agent_requestor_who": "Practitioner/be70f4b0-2039-5c80-9744-a914cfc5011b",
+        "entity_resource_type": "Observation",
+        "total_access": "4",
+        "last_access_month": "${MONTH_A}",
+        "purposes": ["http://terminology.hl7.org/CodeSystem/v3-ActReason|HOPERAT", "http://terminology.hl7.org/CodeSystem/v3-ActReason|TREAT"]
+    }
+]

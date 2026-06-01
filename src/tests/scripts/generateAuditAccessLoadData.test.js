@@ -1,6 +1,7 @@
 process.env.ENABLE_CLICKHOUSE = '1';
 
 const path = require('path');
+const fs = require('fs');
 const { describe, test, beforeAll, afterAll, beforeEach, expect } = require('@jest/globals');
 
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
@@ -13,6 +14,7 @@ const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { createTestContainer } = require('../createTestContainer');
 
 const DDL_DIR = path.resolve(__dirname, '../../../clickhouse-init');
+const FIXTURES_DIR = path.resolve(__dirname, 'fixtures/generateAuditAccessLoadData');
 
 function recentMonth(offset) {
     const d = new Date();
@@ -27,6 +29,25 @@ function recentMonth(offset) {
 
 const MONTH_A = recentMonth(0);
 const MONTH_B = recentMonth(-1);
+
+function loadExpectedResponse(fixtureName, monthReplacements = {}) {
+    const raw = fs.readFileSync(path.join(FIXTURES_DIR, fixtureName), 'utf8');
+    const interpolated = raw
+        .replace(/\$\{MONTH_A\}/g, monthReplacements.MONTH_A || '')
+        .replace(/\$\{MONTH_B\}/g, monthReplacements.MONTH_B || '');
+    return JSON.parse(interpolated);
+}
+
+const AGG_QUERY_SELECT = `
+    SELECT
+        entity_ref,
+        agent_requestor_who,
+        entity_resource_type,
+        toString(countMerge(access_count)) AS total_access,
+        formatDateTime(toStartOfMonth(maxMerge(last_accessed)), '%Y-%m') AS last_access_month,
+        arraySort(arrayFilter(x -> x != '', groupUniqArrayMerge(purpose_of_events))) AS purposes
+    FROM fhir.AUDIT_ACCESS_AGG
+`;
 
 function makeMockDatabaseQueryFactory(documents) {
     return {
@@ -135,28 +156,18 @@ describe('generateAuditAccessLoadData', () => {
                 query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
             });
 
-            const aggResults = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT
-                        entity_ref,
-                        entity_resource_type,
-                        countMerge(access_count) AS total_access
-                    FROM fhir.AUDIT_ACCESS_AGG
+            const results = await clickHouseClientManager.queryAsync({
+                query: `${AGG_QUERY_SELECT}
                     WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
                     GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
                     ORDER BY entity_resource_type
                 `
             });
 
-            expect(aggResults.length).toBe(2);
-
-            const obsResult = aggResults.find((r) => r.entity_resource_type === 'Observation');
-            expect(obsResult).toBeDefined();
-            expect(Number(obsResult.total_access)).toBe(4);
-
-            const encResult = aggResults.find((r) => r.entity_resource_type === 'Encounter');
-            expect(encResult).toBeDefined();
-            expect(Number(encResult.total_access)).toBe(4);
+            const expected = loadExpectedResponse('expected_insert_events.json', {
+                MONTH_A: MONTH_A.dateStr
+            });
+            expect(results).toEqual(expected);
         }, 60000);
 
         test('MV applies default PATRQT purpose when purpose is empty', async () => {
@@ -179,18 +190,17 @@ describe('generateAuditAccessLoadData', () => {
             });
 
             const results = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT groupUniqArrayMerge(purpose_of_events) AS purposes
-                    FROM fhir.AUDIT_ACCESS_AGG
+                query: `${AGG_QUERY_SELECT}
                     WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
                     GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                    ORDER BY entity_ref, agent_requestor_who
                 `
             });
 
-            expect(results).toHaveLength(1);
-            expect(results[0].purposes).toContain(
-                'http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT'
-            );
+            const expected = loadExpectedResponse('expected_default_purpose.json', {
+                MONTH_A: MONTH_A.dateStr
+            });
+            expect(results).toEqual(expected);
         }, 60000);
 
         test('MV captures explicit purpose codes', async () => {
@@ -213,21 +223,17 @@ describe('generateAuditAccessLoadData', () => {
             });
 
             const results = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT groupUniqArrayMerge(purpose_of_events) AS purposes
-                    FROM fhir.AUDIT_ACCESS_AGG
+                query: `${AGG_QUERY_SELECT}
                     WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
                     GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                    ORDER BY entity_ref, agent_requestor_who
                 `
             });
 
-            expect(results).toHaveLength(1);
-            expect(results[0].purposes).toContain(
-                'http://terminology.hl7.org/CodeSystem/v3-ActReason|TREAT'
-            );
-            expect(results[0].purposes).toContain(
-                'http://terminology.hl7.org/CodeSystem/v3-ActReason|HOPERAT'
-            );
+            const expected = loadExpectedResponse('expected_explicit_purpose.json', {
+                MONTH_A: MONTH_A.dateStr
+            });
+            expect(results).toEqual(expected);
         }, 60000);
 
         test('events distributed across months create separate MV partitions', async () => {
@@ -248,28 +254,19 @@ describe('generateAuditAccessLoadData', () => {
                 query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
             });
 
-            const monthAResults = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT countMerge(access_count) AS cnt
-                    FROM fhir.AUDIT_ACCESS_AGG
-                    WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
+            const results = await clickHouseClientManager.queryAsync({
+                query: `${AGG_QUERY_SELECT}
+                    WHERE toYYYYMM(recorded_month) IN (${MONTH_A.partition}, ${MONTH_B.partition})
                     GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                    ORDER BY recorded_month DESC
                 `
             });
 
-            const monthBResults = await clickHouseClientManager.queryAsync({
-                query: `
-                    SELECT countMerge(access_count) AS cnt
-                    FROM fhir.AUDIT_ACCESS_AGG
-                    WHERE toYYYYMM(recorded_month) = ${MONTH_B.partition}
-                    GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
-                `
+            const expected = loadExpectedResponse('expected_multi_month.json', {
+                MONTH_A: MONTH_A.dateStr,
+                MONTH_B: MONTH_B.dateStr
             });
-
-            expect(monthAResults).toHaveLength(1);
-            expect(Number(monthAResults[0].cnt)).toBe(3);
-            expect(monthBResults).toHaveLength(1);
-            expect(Number(monthBResults[0].cnt)).toBe(3);
+            expect(results).toEqual(expected);
         }, 60000);
     });
 });

@@ -5,6 +5,7 @@
 process.env.ENABLE_CLICKHOUSE = '1';
 
 const { describe, test, beforeAll, afterAll, expect } = require('@jest/globals');
+const fs = require('fs');
 
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../utils/configManager');
@@ -18,6 +19,7 @@ const {
 
 const path = require('path');
 const DDL_DIR = path.resolve(__dirname, '../../../clickhouse-init');
+const FIXTURES_DIR = path.resolve(__dirname, 'fixtures/backfillAuditAccessMV');
 
 function makeRunner({ clickHouseClientManager, mongoDatabaseManager, batchSize, startMonth, endMonth, dryRun }) {
     return new BackfillAuditAccessMVRunner({
@@ -30,6 +32,26 @@ function makeRunner({ clickHouseClientManager, mongoDatabaseManager, batchSize, 
         dryRun
     });
 }
+
+function loadExpectedResponse(fixtureName, monthReplacements = {}) {
+    const raw = fs.readFileSync(path.join(FIXTURES_DIR, fixtureName), 'utf8');
+    const interpolated = raw
+        .replace(/\$\{MONTH_A\}/g, monthReplacements.MONTH_A || '')
+        .replace(/\$\{MONTH_B\}/g, monthReplacements.MONTH_B || '')
+        .replace(/\$\{MONTH_C\}/g, monthReplacements.MONTH_C || '');
+    return JSON.parse(interpolated);
+}
+
+const AGG_QUERY_SELECT = `
+    SELECT
+        entity_ref,
+        agent_requestor_who,
+        entity_resource_type,
+        toString(countMerge(access_count)) AS total_access,
+        formatDateTime(maxMerge(last_accessed), '%Y-%m-%d %H:%i:%S.000') AS last_access,
+        arraySort(arrayFilter(x -> x != '', groupUniqArrayMerge(purpose_of_events))) AS purposes
+    FROM fhir.AUDIT_ACCESS_AGG
+`;
 
 describe('backfillAuditAccessMV', () => {
     let clickHouseClientManager;
@@ -144,40 +166,17 @@ describe('backfillAuditAccessMV', () => {
         });
 
         const results = await clickHouseClientManager.queryAsync({
-            query: `
-                SELECT
-                    entity_ref,
-                    agent_requestor_who,
-                    entity_resource_type,
-                    countMerge(access_count) AS total_access,
-                    maxMerge(last_accessed) AS last_access,
-                    arrayFilter(x -> x != '', groupUniqArrayMerge(purpose_of_events)) AS purposes
-                FROM fhir.AUDIT_ACCESS_AGG
+            query: `${AGG_QUERY_SELECT}
                 WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
                 GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
                 ORDER BY entity_ref, agent_requestor_who
             `
         });
 
-        const doc1Patient = results.find(
-            (r) => r.entity_ref === 'Patient/pat-123' && r.agent_requestor_who === 'Practitioner/doc-1'
-        );
-        expect(doc1Patient).toBeDefined();
-        expect(Number(doc1Patient.total_access)).toBe(2);
-        expect(doc1Patient.entity_resource_type).toBe('Patient');
-
-        const doc1Obs = results.find(
-            (r) => r.entity_ref === 'Observation/obs-456' && r.agent_requestor_who === 'Practitioner/doc-1'
-        );
-        expect(doc1Obs).toBeDefined();
-        expect(Number(doc1Obs.total_access)).toBe(1);
-        expect(doc1Obs.entity_resource_type).toBe('Observation');
-
-        const doc2Patient = results.find(
-            (r) => r.entity_ref === 'Patient/pat-123' && r.agent_requestor_who === 'Practitioner/doc-2'
-        );
-        expect(doc2Patient).toBeDefined();
-        expect(Number(doc2Patient.total_access)).toBe(1);
+        const expected = loadExpectedResponse('expected_populate_agg.json', {
+            MONTH_A: MONTH_A.dateStr
+        });
+        expect(results).toEqual(expected);
     }, 60000);
 
     test('runner applies default PATRQT purpose when purpose_of_event is empty', async () => {
@@ -206,19 +205,17 @@ describe('backfillAuditAccessMV', () => {
         });
 
         const results = await clickHouseClientManager.queryAsync({
-            query: `
-                SELECT
-                    groupUniqArrayMerge(purpose_of_events) AS purposes
-                FROM fhir.AUDIT_ACCESS_AGG
+            query: `${AGG_QUERY_SELECT}
                 WHERE entity_ref = 'Patient/pat-789'
                 GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                ORDER BY entity_ref, agent_requestor_who
             `
         });
 
-        expect(results).toHaveLength(1);
-        expect(results[0].purposes).toContain(
-            'http://terminology.hl7.org/CodeSystem/v3-ActReason|PATRQT'
-        );
+        const expected = loadExpectedResponse('expected_default_purpose.json', {
+            MONTH_A: MONTH_A.dateStr
+        });
+        expect(results).toEqual(expected);
     }, 60000);
 
     test('runner captures explicit purpose_of_event', async () => {
@@ -249,19 +246,17 @@ describe('backfillAuditAccessMV', () => {
         });
 
         const results = await clickHouseClientManager.queryAsync({
-            query: `
-                SELECT
-                    groupUniqArrayMerge(purpose_of_events) AS purposes
-                FROM fhir.AUDIT_ACCESS_AGG
+            query: `${AGG_QUERY_SELECT}
                 WHERE entity_ref = 'Patient/pat-abc'
                 GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                ORDER BY entity_ref, agent_requestor_who
             `
         });
 
-        expect(results).toHaveLength(1);
-        expect(results[0].purposes).toContain(
-            'http://terminology.hl7.org/CodeSystem/v3-ActReason|TREAT'
-        );
+        const expected = loadExpectedResponse('expected_explicit_purpose.json', {
+            MONTH_A: MONTH_A.dateStr
+        });
+        expect(results).toEqual(expected);
     }, 60000);
 
     test('runner skips events with empty agent_requestor_who', async () => {
@@ -285,14 +280,14 @@ describe('backfillAuditAccessMV', () => {
         await runner.processAsync();
 
         const results = await clickHouseClientManager.queryAsync({
-            query: `
-                SELECT count() AS cnt
-                FROM fhir.AUDIT_ACCESS_AGG
+            query: `${AGG_QUERY_SELECT}
                 WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
+                GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                ORDER BY entity_ref, agent_requestor_who
             `
         });
 
-        expect(Number(results[0].cnt)).toBe(0);
+        expect(results).toEqual([]);
     }, 60000);
 
     test('runner is idempotent - re-run merges correctly', async () => {
@@ -323,17 +318,17 @@ describe('backfillAuditAccessMV', () => {
         });
 
         const results = await clickHouseClientManager.queryAsync({
-            query: `
-                SELECT
-                    countMerge(access_count) AS total_access
-                FROM fhir.AUDIT_ACCESS_AGG
+            query: `${AGG_QUERY_SELECT}
                 WHERE entity_ref = 'Patient/pat-idem'
                 GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                ORDER BY entity_ref, agent_requestor_who
             `
         });
 
-        expect(results).toHaveLength(1);
-        expect(Number(results[0].total_access)).toBe(2);
+        const expected = loadExpectedResponse('expected_idempotent.json', {
+            MONTH_A: MONTH_A.dateStr
+        });
+        expect(results).toEqual(expected);
     }, 60000);
 
     test('runner processes multiple partitions with batch-size', async () => {
@@ -364,15 +359,19 @@ describe('backfillAuditAccessMV', () => {
             query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
         });
 
-        const monthBResults = await clickHouseClientManager.queryAsync({
-            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_B.partition}`
-        });
-        const monthCResults = await clickHouseClientManager.queryAsync({
-            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_C.partition}`
+        const results = await clickHouseClientManager.queryAsync({
+            query: `${AGG_QUERY_SELECT}
+                WHERE toYYYYMM(recorded_month) IN (${MONTH_B.partition}, ${MONTH_C.partition})
+                GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                ORDER BY entity_ref, agent_requestor_who
+            `
         });
 
-        expect(Number(monthBResults[0].cnt)).toBeGreaterThan(0);
-        expect(Number(monthCResults[0].cnt)).toBeGreaterThan(0);
+        const expected = loadExpectedResponse('expected_multi_partition.json', {
+            MONTH_B: MONTH_B.dateStr,
+            MONTH_C: MONTH_C.dateStr
+        });
+        expect(results).toEqual(expected);
     }, 60000);
 
     test('runner --dry-run does not modify data', async () => {
@@ -398,10 +397,14 @@ describe('backfillAuditAccessMV', () => {
         expect(exitCode).toBe(0);
 
         const results = await clickHouseClientManager.queryAsync({
-            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}`
+            query: `${AGG_QUERY_SELECT}
+                WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}
+                GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                ORDER BY entity_ref, agent_requestor_who
+            `
         });
 
-        expect(Number(results[0].cnt)).toBe(0);
+        expect(results).toEqual([]);
     }, 60000);
 
     test('runner respects --start-month and --end-month filters', async () => {
@@ -434,15 +437,18 @@ describe('backfillAuditAccessMV', () => {
             query: 'OPTIMIZE TABLE fhir.AUDIT_ACCESS_AGG FINAL'
         });
 
-        const monthAResults = await clickHouseClientManager.queryAsync({
-            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_A.partition}`
-        });
-        const monthCResults = await clickHouseClientManager.queryAsync({
-            query: `SELECT count() AS cnt FROM fhir.AUDIT_ACCESS_AGG WHERE toYYYYMM(recorded_month) = ${MONTH_C.partition}`
+        const results = await clickHouseClientManager.queryAsync({
+            query: `${AGG_QUERY_SELECT}
+                WHERE toYYYYMM(recorded_month) IN (${MONTH_A.partition}, ${MONTH_C.partition})
+                GROUP BY entity_ref, agent_requestor_who, entity_resource_type, recorded_month
+                ORDER BY entity_ref, agent_requestor_who
+            `
         });
 
-        expect(Number(monthAResults[0].cnt)).toBe(0);
-        expect(Number(monthCResults[0].cnt)).toBeGreaterThan(0);
+        const expected = loadExpectedResponse('expected_month_filter.json', {
+            MONTH_C: MONTH_C.dateStr
+        });
+        expect(results).toEqual(expected);
     }, 60000);
 });
 
