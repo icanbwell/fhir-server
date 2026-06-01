@@ -139,7 +139,11 @@ class ExportManager {
         const possibleScriptParams = ['patientReferenceBatchSize', 'fetchResourceBatchSize', 'uploadPartSize'];
         possibleScriptParams.forEach(param => {
             if (context[param]) {
-                scriptCommand += ` --${param} ${context[param]}`;
+                const numericValue = parseInt(context[param], 10);
+                if (!Number.isFinite(numericValue) || numericValue <= 0) {
+                    throw new Error(`Invalid value for export parameter '${param}': must be a positive integer`);
+                }
+                scriptCommand += ` --${param} ${numericValue}`;
             }
         });
 
