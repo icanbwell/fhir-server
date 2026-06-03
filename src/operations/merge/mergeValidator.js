@@ -1,4 +1,3 @@
-const deepcopy = require("deepcopy");
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceWriteSerializer } = require("../../fhir/fhirResourceWriteSerializer");
 const { ConfigManager } = require("../../utils/configManager");
