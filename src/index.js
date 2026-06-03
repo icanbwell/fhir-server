@@ -35,12 +35,11 @@ const main = async function () {
 
         await createServer(() => container);
 
-        // Cron tasks (postSave/audit/access flushes) must run in exactly one
-        // worker, otherwise every flush fires N times per interval.
-        const isCronWorker = !cluster.worker || cluster.worker.id === 1;
-        if (isCronWorker) {
-            await container.cronTasksProcessor.initiateTasks();
-        }
+        // Cron tasks flush per-worker buffers (postSaveProcessor, auditLogger,
+        // accessLogger). The buffers are local to each worker, so every worker
+        // must run its own cron — gating to a single worker drops 7/8 of the
+        // audit/access events at WORKER_COUNT=8.
+        await container.cronTasksProcessor.initiateTasks();
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
         console.log(JSON.stringify({ method: 'main', message: e.message, stack: JSON.stringify(e.stack, getCircularReplacer()) }));
