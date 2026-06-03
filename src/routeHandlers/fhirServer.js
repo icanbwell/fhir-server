@@ -84,15 +84,16 @@ class MyFHIRServer {
         );
 
         const allowedContentTypes = ['application/fhir+json', 'application/json+fhir', 'application/json-patch+json', 'application/fhir+ndjson'];
+        const payloadLimit = this.configManager.payloadLimit;
 
-        this.app.use((req, res, next) => {
+        this.app.use(function parseFhirJsonBody(req, res, next) {
             const ct = req.headers['content-type'] || '';
             if (ct.includes('application/fhir+ndjson')) {
                 return next(); // skip parsing
             }
             return express.json({
                 type: allowedContentTypes,
-                limit: this.configManager.payloadLimit,
+                limit: payloadLimit,
                 // Stash the raw Buffer for the access logger. The access logger runs from res.on ('close') and
                 // does the conversion there, off the critical path. This helps prevent expensive operation of
                 // stringifying JSON Payload for saving in access-logs
@@ -105,7 +106,7 @@ class MyFHIRServer {
 
 
         // reject any requests that don't have correct content type
-        this.app.use((req, res, next) => {
+        this.app.use(function validateFhirContentType(req, res, next) {
             // if methods are for GET or DELETE then no need to check content-type
             if (req.method && (req.method.toLowerCase() === 'get' || req.method.toLowerCase() === 'delete')) {
                 next();
@@ -263,13 +264,14 @@ class MyFHIRServer {
         // Generic catch all error handler
         // Errors should be thrown with next and passed through
         // noinspection JSValidateTypes
+        const self = this;
         this.app.use(
-            (
+            function fhirErrorHandler(
                 /** @type {import('express').ErrorRequestHandler} */ err,
                 /** @type {import('express').Request} */ req,
                 /** @type {import('express').Response} */ res,
                 /** @type {import('express').NextFunction} */ next
-            ) => {
+            ) {
                 // noinspection JSValidateTypes
                 /**
                  * This is needed otherwise PyCharm thinks res is the NextFunction
@@ -307,7 +309,7 @@ class MyFHIRServer {
                                 errorToSend = convertErrorToOperationOutcome({ error: err, internalError: true });
                             }
                             if (status >= 400) {
-                                this.logErrorAuditEvent(req, status, err);
+                                self.logErrorAuditEvent(req, status, err);
                             }
                             res1.status(status).json(errorToSend);
                         } else if (err) {
@@ -320,7 +322,7 @@ class MyFHIRServer {
                                 internalError: status === 500
                             });
                             if (status >= 400) {
-                                this.logErrorAuditEvent(req, status, err);
+                                self.logErrorAuditEvent(req, status, err);
                             }
                             res1.status(status).json(operationOutcome);
                         } else {
@@ -350,7 +352,7 @@ class MyFHIRServer {
         );
 
         // Nothing has responded by now, respond with 404
-        this.app.use((req, res) => {
+        this.app.use(function fhirNotFoundHandler(req, res) {
             // get base from URL instead of params since it might not be forwarded
             const base = req.url.split('/')[1] || VERSIONS['4_0_1'];
 
