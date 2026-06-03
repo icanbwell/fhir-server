@@ -37,8 +37,7 @@ const main = async function () {
 
         // Cron tasks flush per-worker buffers (postSaveProcessor, auditLogger,
         // accessLogger). The buffers are local to each worker, so every worker
-        // must run its own cron — gating to a single worker drops 7/8 of the
-        // audit/access events at WORKER_COUNT=8.
+        // must run its own cron task processor.
         await container.cronTasksProcessor.initiateTasks();
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
