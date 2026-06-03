@@ -229,7 +229,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                             args: {
                                 resourceType,
                                 collectionName,
-                                operationsByCollection,
                                 requestId
                             }
                         }
@@ -247,7 +246,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                             error,
                             args: {
                                 requestId,
-                                operations: operationsByCollection,
                                 options,
                                 collection: collectionName
                             }
@@ -397,7 +395,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                         error: e,
                         args: {
                             requestId,
-                            operations: operationsByCollection,
                             options,
                             collection: collectionName
                         }

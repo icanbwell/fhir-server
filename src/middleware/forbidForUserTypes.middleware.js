@@ -4,7 +4,7 @@
  * @return {function} Express middleware
  */
 module.exports = function forbidForUserTypes(userTypes) {
-    return (req, res, next) => {
+    return function forbidForUserTypesMiddleware(req, res, next) {
         const userType = req.authInfo?.context?.userType;
         if (userType && userTypes.includes(userType)) {
             if (req.isGraphQLRoute) {

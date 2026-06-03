@@ -111,7 +111,7 @@ function createApp({fnGetContainer}) {
     const ignoredUrls = ['/live', '/health', '/ready'];
 
     // log every incoming request and every outgoing response
-    app.use((req, res, next) => {
+    app.use(function logRequestLifecycle(req, res, next) {
         // Generates a unique uuid and store in req and later used for operations
         const uniqueRequestId = generateUUID();
         req.uniqueRequestId = uniqueRequestId;
@@ -265,7 +265,7 @@ function createApp({fnGetContainer}) {
     app.use(helmet());
 
     // redirect to new fhir-ui if html is requested
-    app.use((req, res, next) => {
+    app.use(function redirectHtmlToNewUi(req, res, next) {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
             const isGraphQLUrl = reqPath.startsWith('/$graphql') || reqPath.startsWith('/4_0_0/$graphqlv2');
@@ -295,11 +295,11 @@ function createApp({fnGetContainer}) {
      * Use x-request-id in header if sent.
      */
     app.use(
-        (
+        function storeRequestIdsInContext(
             /** @type {import('http').IncomingMessage} **/ req,
             /** @type {import('http').ServerResponse} **/ res,
             next
-        ) => {
+        ) {
             // Stores uniqueRequestId in httpContext and later used for logging
             httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, req.uniqueRequestId);
 
@@ -310,7 +310,7 @@ function createApp({fnGetContainer}) {
     );
 
     // generate nonce, and add to httpContext
-    app.use((req, res, next) => {
+    app.use(function attachCspNonce(req, res, next) {
         const nonce = generateNonce();
         httpContext.set(RESPONSE_NONCE, nonce);
         next();
@@ -319,7 +319,7 @@ function createApp({fnGetContainer}) {
     app.use(handleSecurityPolicy);
 
     // disable browser caching
-    app.use((req, res, next) => {
+    app.use(function disableBrowserCache(req, res, next) {
         res.set('Cache-Control', 'no-store, no-cache');
         res.set('Pragma', 'no-cache');
         next();
@@ -427,7 +427,7 @@ function createApp({fnGetContainer}) {
         const forbidRestrictedUserTypes = forbidForUserTypes([AUTH_USER_TYPES.cmsPartnerUser]);
 
         const router = express.Router();
-        router.use((req, res, next) => { req.isGraphQLRoute = true; next(); });
+        router.use(function markGraphqlRoute(req, res, next) { req.isGraphQLRoute = true; next(); });
         router.use(passport.initialize());
         router.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         router.use(forbidRestrictedUserTypes);
@@ -435,7 +435,7 @@ function createApp({fnGetContainer}) {
         router.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
         router.use(handleSecurityPolicyGraphql);
-        router.use(function (req, res, next) {
+        router.use(function graphqlPostRequestCleanup(req, res, next) {
             res.once('finish', async () => {
                 const req1 = req;
                 /**
@@ -462,7 +462,7 @@ function createApp({fnGetContainer}) {
         });
 
         const routerv2 = express.Router();
-        routerv2.use((req, res, next) => { req.isGraphQLRoute = true; next(); });
+        routerv2.use(function markGraphqlV2Route(req, res, next) { req.isGraphQLRoute = true; next(); });
         routerv2.use(passport.initialize());
         routerv2.use(authenticateWithJsonFailure('graphqlStrategy', {session: false}));
         routerv2.use(forbidRestrictedUserTypes);
@@ -470,7 +470,7 @@ function createApp({fnGetContainer}) {
         routerv2.use(express.json());
         // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
         routerv2.use(handleSecurityPolicyGraphql);
-        routerv2.use(function (req, res, next) {
+        routerv2.use(function graphqlV2PostRequestCleanup(req, res, next) {
             res.once('finish', async () => {
                 const req1 = req;
                 /**

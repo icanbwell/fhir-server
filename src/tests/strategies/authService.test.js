@@ -1,4 +1,4 @@
-const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
+const {describe, beforeEach, afterAll, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
 const {WellKnownConfigurationManager} = require("../../utils/wellKnownConfiguration/wellKnownConfigurationManager");
 const {AuthService} = require("../../strategies/authService");
@@ -6,6 +6,10 @@ const {ConfigManager} = require("../../utils/configManager");
 describe('JWT Bearer Strategy', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        nock.cleanAll();
+    });
+
+    afterAll(() => {
         nock.cleanAll();
     });
 

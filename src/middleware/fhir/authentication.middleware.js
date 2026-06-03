@@ -26,7 +26,7 @@ const sendUnauthorizedJson = (res) => {
  * @returns {import('express').RequestHandler}
  */
 const authenticateWithJsonFailure = (strategy, options = {session: false}) => {
-    return (req, res, next) => {
+    return function authenticateWithJsonFailureMiddleware(req, res, next) {
         passport.authenticate(strategy, options, (err, user, info) => {
             if (err) {
                 return next(err);

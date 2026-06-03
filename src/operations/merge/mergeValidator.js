@@ -1,4 +1,3 @@
-const deepcopy = require("deepcopy");
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceWriteSerializer } = require("../../fhir/fhirResourceWriteSerializer");
 const { ConfigManager } = require("../../utils/configManager");
@@ -53,8 +52,7 @@ class MergeValidator {
         let incomingResources;
 
         if (this.configManager.enableMergeFastSerializer) {
-            // copy incoming objects to avoid mutation of data for access logs
-            incomingResources = deepcopy(incomingObjects);
+            incomingResources = incomingObjects;
 
             if (!this.configManager.updateMergeValidations) {
                 incomingResources = Array.isArray(incomingResources)
