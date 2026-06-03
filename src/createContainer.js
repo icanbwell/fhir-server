@@ -148,6 +148,8 @@ const { ClickHouseSchemaRegistry } = require('./dataLayer/clickHouse/schemaRegis
 const { GenericClickHouseQueryParser } = require('./dataLayer/clickHouse/genericClickHouseQueryParser');
 const { GenericClickHouseQueryBuilder } = require('./dataLayer/builders/genericClickHouseQueryBuilder');
 const { GenericClickHouseRepository } = require('./dataLayer/repositories/genericClickHouseRepository');
+const { AccessHistoryClickHouseRepository } = require('./dataLayer/repositories/accessHistoryClickHouseRepository');
+const { AccessHistoryOperation } = require('./operations/accessHistory/accessHistory');
 const deepcopy = require('deepcopy');
 
 /**
@@ -373,6 +375,14 @@ const createContainer = function () {
             return new AccessLogClickHouseWriter({
                 accessLogClickHouseRepository: c.accessLogClickHouseRepository,
                 accessLogTransformer: new AccessLogTransformer()
+            });
+        }
+        return null;
+    });
+    container.register('accessHistoryClickHouseRepository', (c) => {
+        if (c.clickHouseClientManager) {
+            return new AccessHistoryClickHouseRepository({
+                clickHouseClientManager: c.clickHouseClientManager
             });
         }
         return null;
@@ -954,6 +964,15 @@ const createContainer = function () {
         redisManager: c.redisManager
     }));
 
+    container.register('accessHistoryOperation', (c) => new AccessHistoryOperation({
+        databaseQueryFactory: c.databaseQueryFactory,
+        personToPatientIdsExpander: c.personToPatientIdsExpander,
+        patientFilterManager: c.patientFilterManager,
+        accessHistoryClickHouseRepository: c.accessHistoryClickHouseRepository,
+        configManager: c.configManager,
+        scopesValidator: c.scopesValidator
+    }));
+
     container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
         {
             mongoDatabaseManager: c.mongoDatabaseManager,
@@ -986,7 +1005,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 summaryOperation: c.summaryOperation,
                 accessManager: c.accessManager,
-                cmsManager: c.cmsManager
+                cmsManager: c.cmsManager,
+                accessHistoryOperation: c.accessHistoryOperation
             }
         )
     );

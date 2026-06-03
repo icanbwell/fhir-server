@@ -1,0 +1,58 @@
+{
+    "resourceType": "Parameters",
+    "parameter": [
+        {
+            "name": "accessor",
+            "part": [
+                {
+                    "name": "reference",
+                    "valueReference": {
+                        "reference": "Practitioner/dr-reader-uuid",
+                        "display": "Practitioner/dr-reader-uuid"
+                    }
+                },
+                {
+                    "name": "totalCount",
+                    "valueInteger": 2
+                },
+                {
+                    "name": "lastAccessed",
+                    "valueDateTime": "${lastAccessed}"
+                },
+                {
+                    "name": "purposeOfEvent",
+                    "valueCoding": {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                        "code": "PATRQT"
+                    }
+                },
+                {
+                    "name": "resourceType",
+                    "part": [
+                        {
+                            "name": "type",
+                            "valueCode": "${rt1}"
+                        },
+                        {
+                            "name": "count",
+                            "valueInteger": 1
+                        }
+                    ]
+                },
+                {
+                    "name": "resourceType",
+                    "part": [
+                        {
+                            "name": "type",
+                            "valueCode": "${rt2}"
+                        },
+                        {
+                            "name": "count",
+                            "valueInteger": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

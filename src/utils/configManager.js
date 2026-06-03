@@ -1208,6 +1208,14 @@ class ConfigManager {
         return parseInt(env.CLICKHOUSE_MAX_CONNECTIONS || String(DEFAULT_CLICKHOUSE.MAX_CONNECTIONS), 10);
     }
 
+    get accessHistoryBatchSize() {
+        return parseInt(env.ACCESS_HISTORY_BATCH_SIZE || '10000', 10);
+    }
+
+    get accessHistoryMaxParallelProcess() {
+        return parseInt(env.ACCESS_HISTORY_MAX_PARALLEL_PROCESS || '10', 10);
+    }
+
     get enableDelegatedAccessDetection() {
         return isTrue(env.ENABLE_DELEGATED_ACCESS_DETECTION);
     }

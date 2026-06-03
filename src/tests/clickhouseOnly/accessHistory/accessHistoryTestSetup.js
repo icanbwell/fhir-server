@@ -2,6 +2,7 @@
 
 process.env.ENABLE_CLICKHOUSE = '1';
 process.env.CLICKHOUSE_DATABASE = 'fhir';
+process.env.CLICKHOUSE_ONLY_RESOURCES = 'AuditEvent';
 
 const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../../utils/configManager');
@@ -55,10 +56,10 @@ async function cleanupBetweenTests() {
     if (sharedClickHouseManager) {
         try {
             await sharedClickHouseManager.queryAsync({
-                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_ACCESS_AGG}`
+                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_EVENT}`
             });
             await sharedClickHouseManager.queryAsync({
-                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_EVENT}`
+                query: `TRUNCATE TABLE IF EXISTS ${TABLES.AUDIT_ACCESS_AGG}`
             });
         } catch (e) {
             // ignore

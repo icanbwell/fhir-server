@@ -72,6 +72,7 @@ class FhirOperationsManager {
      * @param {ConfigManager} configManager
      * @param {OperationAccessManager} accessManager
      * @param {CMSManager} cmsManager
+     * @param {AccessHistoryOperation} accessHistoryOperation
      */
     constructor(
         {
@@ -97,7 +98,8 @@ class FhirOperationsManager {
             queryRewriterManager,
             configManager,
             accessManager,
-            cmsManager
+            cmsManager,
+            accessHistoryOperation
         }
     ) {
         /**
@@ -220,6 +222,11 @@ class FhirOperationsManager {
          */
         this.cmsManager = cmsManager;
         assertTypeEquals(cmsManager, CMSManager);
+
+        /**
+         * @type {AccessHistoryOperation}
+         */
+        this.accessHistoryOperation = accessHistoryOperation;
     }
 
     /**
@@ -1203,6 +1210,34 @@ class FhirOperationsManager {
         combined_args = this.parseParametersFromBody({ req, combined_args });
 
         return await this.exportByIdOperation.exportByIdAsync({ requestInfo, args: combined_args });
+    }
+
+    /**
+     * Returns access history for a Person's linked resources
+     * @param {string[]} args
+     * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
+     * @param {string} resourceType
+     * @returns {Promise<Object>}
+     */
+    async accessHistory(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'accessHistory' });
+
+        let combined_args = get_all_args(req, args);
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args,
+            resourceType,
+            headers: req.headers,
+            operation: READ,
+            requestInfo
+        });
+
+        return await this.accessHistoryOperation.accessHistoryAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType
+        });
     }
 }
 
