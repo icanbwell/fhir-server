@@ -36,7 +36,6 @@ describe('AuditEventClickHouseRepository', () => {
             clickhouse_settings: {
                 async_insert: 1,
                 wait_for_async_insert: 1,
-                insert_deduplicate: 0
             }
         });
     });
@@ -78,7 +77,6 @@ describe('AuditEventClickHouseRepository', () => {
             clickhouse_settings: {
                 async_insert: 1,
                 wait_for_async_insert: 1,
-                insert_deduplicate: 0
             }
         };
         for (const call of mockClickHouseClientManager.insertAsync.mock.calls) {
