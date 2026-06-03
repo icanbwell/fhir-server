@@ -34,7 +34,10 @@ const main = async function () {
         BaseFhirResourceSerializer.setConfigManager(container.configManager);
 
         await createServer(() => container);
-        // Initialize cron tasks processor for processing scheduled tasks
+
+        // Cron tasks flush per-worker buffers (postSaveProcessor, auditLogger,
+        // accessLogger). The buffers are local to each worker, so every worker
+        // must run its own cron task processor.
         await container.cronTasksProcessor.initiateTasks();
     } catch (e) {
         console.log('ERROR from MAIN: ' + e);
@@ -44,16 +47,20 @@ const main = async function () {
 };
 
 const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10) : 1;
-if (cluster.isMaster && numCPUs > 1) {
-    console.log(JSON.stringify({message: `Master ${process.pid} is running`}));
+if (cluster.isPrimary && numCPUs > 1) {
+    console.log(JSON.stringify({message: `Master ${process.pid} is running with ${numCPUs} workers`}));
 
     // Fork workers
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork();
     }
 
-    // Forward all signals to the worker processes
+    // Forward all signals to the worker processes. Setting `shuttingDown`
+    // first prevents the exit handler from respawning workers that exit
+    // because we asked them to.
+    let shuttingDown = false;
     const forwardSignal = (signal) => {
+        shuttingDown = true;
         for (const id in cluster.workers) {
             cluster.workers[id].process.kill(signal);
         }
@@ -64,8 +71,10 @@ if (cluster.isMaster && numCPUs > 1) {
     process.on('SIGQUIT', () => forwardSignal('SIGQUIT'));
 
     cluster.on('exit', (worker, code, signal) => {
-        console.log(JSON.stringify({message: `Worker ${worker.process.pid} died`}));
-        // Optionally, you can fork a new worker here
+        console.log(JSON.stringify({message: `Worker ${worker.process.pid} died (code=${code}, signal=${signal})`}));
+        if (shuttingDown) {
+            return;
+        }
         cluster.fork();
     });
 } else {
