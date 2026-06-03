@@ -1,4 +1,4 @@
-const {describe, beforeEach, test, expect, jest} = require('@jest/globals');
+const {describe, beforeEach, afterAll, test, expect, jest} = require('@jest/globals');
 const nock = require('nock');
 const passport = require('passport');
 const {
@@ -17,6 +17,10 @@ const {createJwksKeyAsync} = require("../mocks/jwks");
 
 describe('JWT Bearer Strategy', () => {
     let jwtAccessToken;
+
+    afterAll(() => {
+        nock.cleanAll();
+    });
 
     beforeEach(() => {
         jest.clearAllMocks();
