@@ -40,7 +40,8 @@ class AuditEventClickHouseRepository {
             format: QUERY_FORMAT.JSON_EACH_ROW,
             clickhouse_settings: {
                 async_insert: 1,
-                wait_for_async_insert: 1
+                wait_for_async_insert: 1,
+                insert_deduplicate: 0
             }
         };
 
