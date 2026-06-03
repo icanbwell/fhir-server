@@ -1602,4 +1602,27 @@ describe('AuthService.processUserInfo - purposeOfUse claim parsing', () => {
             }
         });
     });
+
+    test('sets purposeOfUse for delegated user when entitlements claim is present', (done) => {
+        const authService = makeAuthService();
+        authService.configManager = new (class extends ConfigManager {
+            get enableDelegatedAccessDetection() { return true; }
+        })();
+        const jwt_payload = {
+            ...basePayload(),
+            entitlements: ['FAMRQT'],
+            act: { reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013', sub: 'patient-1' }
+        };
+
+        authService.processUserInfo({
+            username: 'u', subject: 's', isUser: true,
+            jwt_payload, client_id: 'c', scope: 'patient/*.read',
+            done: (err, user, info) => {
+                expect(err).toBeNull();
+                expect(info.context.userType).toBe('delegatedUser');
+                expect(info.context.purposeOfUse).toEqual(['FAMRQT']);
+                done();
+            }
+        });
+    });
 });

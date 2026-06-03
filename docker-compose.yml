@@ -189,6 +189,7 @@ services:
       MY_DELEGATED_ACCESS_USER_MASTER_PATIENT_ID: 668d0748-1484-4bba-9cbe-0faf0de8965c
       DELEGATED_ACT_REFERENCE: RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425
       DELEGATED_ACT_SUB: 46265db4-0da2-4436-b4e8-85bf7e52a426
+      DELEGATED_USER_ENTITLEMENTS: FAMRQT
       DELEGATED_MANAGING_ORGANIZATION: 8a7cbd9c-5b1e-5c3d-9c4f-0b2e5f1a7c6d
       # This is the user and password that will be created in the realm for admin scope token
       MY_ADMIN_USER_NAME: admin
