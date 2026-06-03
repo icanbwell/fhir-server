@@ -2,33 +2,25 @@
 const async = require('async');
 const { EventEmitter } = require('events');
 const { logVerboseAsync, logInfo, logError } = require('../operations/common/logging');
-const { logSystemErrorAsync, logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { ResourceManager } = require('../operations/common/resourceManager');
 const { PostRequestProcessor } = require('../utils/postRequestProcessor');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { RethrownError } = require('../utils/rethrownError');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { ConfigManager } = require('../utils/configManager');
-const { getCircularReplacer } = require('../utils/getCircularReplacer');
-const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
 const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
 const { PostSaveProcessor } = require('./postSaveProcessor');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
-const { ACCESS_LOGS_COLLECTION_NAME, MONGO_ERROR } = require('../constants');
 const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backboneElements/bundleEntry.js');
 
-const { MongoInvalidArgumentError } = require('mongodb');
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
-const { FastDatabaseUpdateManager } = require('./fastDatabaseUpdateManager.js');
 const deepEqual = require('fast-deep-equal');
 
 /**
@@ -192,8 +184,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
             )
         );
         assertIsValid(!(operation.replaceOne && typeof operation.replaceOne.replacement !== 'object'));
-        assertIsValid(resource.id, `resource id is not set: ${JSON.stringify(resource)}`);
-        assertIsValid(resource._uuid, `resource _uuid is not set: ${JSON.stringify(resource)}`);
+        assertIsValid(resource.id, `resource id is not set`);
+        assertIsValid(resource._uuid, `resource _uuid is not set`);
         // If there is no entry for this collection then create one
         const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({ requestId });
         if (!operationsByResourceTypeMap.has(resourceType)) {

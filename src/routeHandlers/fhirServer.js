@@ -90,8 +90,16 @@ class MyFHIRServer {
             if (ct.includes('application/fhir+ndjson')) {
                 return next(); // skip parsing
             }
-            return express.json({ type: allowedContentTypes,
-                limit: this.configManager.payloadLimit })(req, res, next); // parse JSON
+            return express.json({
+                type: allowedContentTypes,
+                limit: this.configManager.payloadLimit,
+                // Stash the raw Buffer for the access logger. The access logger runs from res.on ('close') and
+                // does the conversion there, off the critical path. This helps prevent expensive operation of
+                // stringifying JSON Payload for saving in access-logs
+                verify: (req2, _res, buf) => {
+                    req2.rawBodyBuffer = buf;
+                }
+            })(req, res, next); // parse JSON
         });
 
 

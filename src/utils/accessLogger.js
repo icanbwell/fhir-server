@@ -12,7 +12,6 @@ const {
     OPERATIONS: { READ, WRITE }
 } = require('../constants');
 const { ScopesManager } = require('../operations/security/scopesManager');
-const { ConfigManager } = require('./configManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { AccessLogClickHouseWriter } = require('./accessLogClickHouseWriter');
@@ -167,35 +166,55 @@ class AccessLogger {
         }
 
         if (operationResult) {
-            let resultBuffer = Buffer.from(JSON.stringify(operationResult));
+            const resultStr = JSON.stringify(operationResult);
             const sizeLimit = this.configManager.accessLogResultLimit;
-
-            if (resultBuffer.byteLength > sizeLimit) {
-                resultBuffer = resultBuffer.subarray(0, sizeLimit);
+            if (Buffer.byteLength(resultStr) > sizeLimit) {
+                details['operationResult'] = Buffer.from(resultStr).subarray(0, sizeLimit).toString();
                 details['operationResultTruncated'] = 'true';
                 logInfo(
                     `AccessLogger: operationResult truncated in access log for request id: ${requestInfo.userRequestId}`
                 );
+            } else {
+                details['operationResult'] = resultStr;
             }
-            details['operationResult'] = resultBuffer.toString();
         }
 
         if (requestInfo.body) {
-            let body = streamRequestBody
-                ? streamRequestBody
-                : typeof requestInfo.body === 'string'
-                  ? requestInfo.body
-                  : JSON.stringify(requestInfo.body, getCircularReplacer());
-
-            let bodyBuffer = Buffer.from(body);
             const sizeLimit = this.configManager.accessLogRequestBodyLimit;
 
-            if (bodyBuffer.byteLength > sizeLimit) {
-                bodyBuffer = bodyBuffer.subarray(0, sizeLimit);
+            // Resolve the body string. Prefer the raw Buffer captured by the
+            // express.json verify hook (avoids re-stringifying a parsed object).
+            // Falls back to streamRequestBody (ndjson) or a JSON.stringify of
+            // requestInfo.body (urlencoded etc.). Track whether truncation
+            // happened at the source so the marker is applied uniformly.
+            let body;
+            let bodyTruncated = false;
+            if (streamRequestBody) {
+                body = streamRequestBody;
+            } else if (Buffer.isBuffer(req.rawBodyBuffer)) {
+                if (req.rawBodyBuffer.length > sizeLimit) {
+                    body = req.rawBodyBuffer.toString('utf-8', 0, sizeLimit);
+                    bodyTruncated = true;
+                } else {
+                    body = req.rawBodyBuffer.toString('utf-8');
+                }
+            } else {
+                body = typeof requestInfo.body === 'string'
+                    ? requestInfo.body
+                    : JSON.stringify(requestInfo.body, getCircularReplacer());
+            }
+
+            // streamRequestBody / fallback paths haven't been size-checked yet.
+            if (!bodyTruncated && Buffer.byteLength(body) > sizeLimit) {
+                body = Buffer.from(body).subarray(0, sizeLimit).toString();
+                bodyTruncated = true;
+            }
+
+            details['body'] = body;
+            if (bodyTruncated) {
                 details['bodyTruncated'] = 'true';
                 logInfo(`AccessLogger: body truncated in access log for request id: ${requestInfo.userRequestId}`);
             }
-            details['body'] = bodyBuffer.toString();
         }
 
         if (streamingMerge) {
