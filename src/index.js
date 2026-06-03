@@ -49,8 +49,7 @@ const main = async function () {
 };
 
 const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10) : 1;
-const isPrimary = typeof cluster.isPrimary === 'boolean' ? cluster.isPrimary : cluster.isMaster;
-if (isPrimary && numCPUs > 1) {
+if (cluster.isPrimary && numCPUs > 1) {
     console.log(JSON.stringify({message: `Master ${process.pid} is running with ${numCPUs} workers`}));
 
     // Fork workers
