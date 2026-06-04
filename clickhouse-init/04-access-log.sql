@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS fhir.AccessLog (
 
     -- Full nested sub-objects, preserved verbatim
     agent                        JSON(max_dynamic_paths=16),
-    details                      JSON(max_dynamic_paths=64),
+    details                      JSON(max_dynamic_paths=16),
     request                      JSON(max_dynamic_paths=16),
 
     -- Lean, indexed mirrors of the most common filter keys.
@@ -26,5 +26,5 @@ CREATE TABLE IF NOT EXISTS fhir.AccessLog (
 )
 ENGINE = MergeTree()
 ORDER BY timestamp
-PARTITION BY toDate(timestamp)
+PARTITION BY toYYYYMM(timestamp)
 TTL timestamp + INTERVAL 7 DAY DELETE;
