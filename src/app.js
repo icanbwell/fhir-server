@@ -259,13 +259,16 @@ function createApp({fnGetContainer}) {
     app.use(cookieParser());
 
     // middleware to parse user agent string
-    app.use(useragent.express());
+    const userAgentParser = useragent.express();
+    app.use(function parseUserAgent(req, res, next) {
+        return userAgentParser(req, res, next);
+    });
 
     // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
 
-    // redirect to new fhir-ui if html is requested
-    app.use(function redirectHtmlToNewUi(req, res, next) {
+    // redirect to fhir-ui if html is requested
+    app.use(function redirectHtmlToUi(req, res, next) {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
             const isGraphQLUrl = reqPath.startsWith('/$graphql') || reqPath.startsWith('/4_0_0/$graphqlv2');
@@ -274,21 +277,24 @@ function createApp({fnGetContainer}) {
             const isAdminUrl = reqPath.startsWith('/admin');
             // if not graphql url and if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
             if (!isGraphQLUrl && isTrue(process.env.REDIRECT_TO_NEW_UI) && (isAdminUrl || isResourceUrl)) {
-                logInfo('Redirecting to new UI', {path: reqPath});
-                if (isAdminUrl || isResourceUrl) {
-                    res.redirect(new URL(reqPath, process.env.FHIR_SERVER_UI_URL).toString());
-                    return;
-                }
+                logInfo('Redirecting to new UI', { path: reqPath });
+                res.redirect(new URL(reqPath, process.env.FHIR_SERVER_UI_URL).toString());
+                return;
             }
         }
         next();
     });
 
     // middleware for oAuth
-    app.use(passport.initialize());
+    const passportInit = passport.initialize();
+    app.use(function passportInitialize(req, res, next) {
+        return passportInit(req, res, next);
+    });
 
     // Used to initialize context for each request
-    app.use(httpContext.middleware);
+    app.use(function httpContextMiddleware(req, res, next) {
+        return httpContext.middleware(req, res, next);
+    });
 
     /**
      * Generate a unique ID for each request at earliest.

@@ -28,6 +28,10 @@ let instrumentationConfigs = {
                 delete span.attributes['db.statement'];
             }
         }
+    },
+    // Disabled: produces duplicate spans alongside instrumentation-express
+    '@opentelemetry/instrumentation-router': {
+        enabled: false
     }
 }
 
@@ -58,7 +62,6 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
     const { GraphQLInstrumentation } = require('@opentelemetry/instrumentation-graphql');
     const { LruMemoizerInstrumentation } = require('@opentelemetry/instrumentation-lru-memoizer');
-    const { RouterInstrumentation } = require('@opentelemetry/instrumentation-router');
     const { WinstonInstrumentation } = require('@opentelemetry/instrumentation-winston');
     const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
     const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
@@ -72,7 +75,6 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
         instrumentations: [
             new HttpInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-http']),
             new ExpressInstrumentation(),
-            new RouterInstrumentation(),
             new DataloaderInstrumentation(),
             new LruMemoizerInstrumentation(),
             new WinstonInstrumentation(),

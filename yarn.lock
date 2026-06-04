@@ -3013,7 +3013,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation-router@npm:0.62.0, @opentelemetry/instrumentation-router@npm:^0.62.0":
+"@opentelemetry/instrumentation-router@npm:^0.62.0":
   version: 0.62.0
   resolution: "@opentelemetry/instrumentation-router@npm:0.62.0"
   dependencies:
@@ -5092,7 +5092,6 @@ __metadata:
     "@opentelemetry/instrumentation-lru-memoizer": "npm:0.62.0"
     "@opentelemetry/instrumentation-mongodb": "npm:0.71.0"
     "@opentelemetry/instrumentation-redis": "npm:0.66.0"
-    "@opentelemetry/instrumentation-router": "npm:0.62.0"
     "@opentelemetry/instrumentation-winston": "npm:0.62.0"
     "@opentelemetry/resources": "npm:2.7.1"
     "@opentelemetry/sdk-metrics": "npm:2.7.1"
