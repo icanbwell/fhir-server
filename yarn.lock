@@ -1714,15 +1714,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@icanbwell/fhirpatientsummary@npm:^1.0.47":
-  version: 1.0.47
-  resolution: "@icanbwell/fhirpatientsummary@npm:1.0.47"
+"@icanbwell/fhirpatientsummary@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@icanbwell/fhirpatientsummary@npm:2.0.0"
   dependencies:
     html-minifier-terser: "npm:^7.2.0"
     luxon: "npm:^3.7.2"
     turndown: "npm:^7.2.2"
     turndown-plugin-gfm: "npm:^1.0.2"
-  checksum: 10c0/e115799f8e82b238726f837699917db1f6dae7ec71da1bb15d428616c8d7ba519a57c4dc7e48f96ae520f8b84d0916ed467b5ab066140e5beb44c3de741d3f83
+  checksum: 10c0/d9bf36048fc6c95ae8c9efb309d90a1daab1816e3c060cddd2a8e15b4688fee3286f1c0b4c52e3b70b5d448bbff8cc2d42b8e85a0191e1556c0f547ed69077a4
   languageName: node
   linkType: hard
 
@@ -5073,7 +5073,7 @@ __metadata:
     "@graphql-tools/load-files": "npm:^7.0.1"
     "@graphql-tools/merge": "npm:^9.1.9"
     "@icanbwell/fhir-to-csv": "npm:^1.0.16"
-    "@icanbwell/fhirpatientsummary": "npm:^1.0.47"
+    "@icanbwell/fhirpatientsummary": "npm:^2.0.0"
     "@jest/globals": "npm:^30.4.1"
     "@json2csv/node": "npm:^7.0.6"
     "@json2csv/transforms": "npm:^7.0.6"
