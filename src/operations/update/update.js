@@ -18,7 +18,6 @@ const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { isTrue } = require('../../utils/isTrue');
-const { ReadPreference } = require('mongodb');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
@@ -244,7 +243,7 @@ class UpdateOperation {
                 { resourceType, base_version }
             );
 
-            const cursor = await databaseQueryManager.findAsync({ query, options: { readPreference: ReadPreference.PRIMARY }, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             /**
              * @type {[Resource] | null}
              */
