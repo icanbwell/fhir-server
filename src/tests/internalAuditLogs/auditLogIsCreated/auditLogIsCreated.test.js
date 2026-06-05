@@ -253,7 +253,8 @@ describe('InternalAuditLog Tests', () => {
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
                             databaseBulkInserter: c.fastDatabaseBulkInserter,
-                            preSaveManager: c.preSaveManager
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager
                         })
                 );
                 return container;
