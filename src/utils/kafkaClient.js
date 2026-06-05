@@ -3,6 +3,7 @@ const { assertIsValid, assertTypeEquals } = require('./assertType');
 const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { RethrownError } = require('./rethrownError');
 const { ConfigManager } = require('./configManager');
+const { recordKafkaRetryExhausted } = require('./metrics');
 
 /**
  * @typedef KafkaClientMessage
@@ -138,6 +139,9 @@ class KafkaClient {
 
         // by default shouldn't retry
         let shouldRetry = false;
+        // Captured when the retriable branch fires so the retry-exhausted
+        // metric can label exhaustion with the actual cause code.
+        let lastErrorCode = null;
         do {
             try {
                 await this.sendMessagesAsyncHelper(topic, messages);
@@ -171,6 +175,7 @@ class KafkaClient {
                         });
                         // should retry again
                         shouldRetry = true;
+                        lastErrorCode = cause.code;
                     } else {
                         this.producerConnected = false;
                         throw e;
@@ -181,6 +186,11 @@ class KafkaClient {
                 }
             }
         } while (++iteration <= maxRetries && shouldRetry);
+        // If we exited the loop with shouldRetry still true, the retry
+        // budget was exhausted without success. Emit once.
+        if (shouldRetry) {
+            recordKafkaRetryExhausted(topic, lastErrorCode);
+        }
     }
 
     /**
@@ -335,6 +345,7 @@ class KafkaClient {
         const maxRetries = parseInt(process.env.KAFKA_MAX_RETRY) || 3;
         let iteration = 1;
         let shouldRetry = false;
+        let lastErrorCode = null;
         do {
             try {
                 await this.sendCloudEventMessageHelperAsync({ topic, messages });
@@ -361,6 +372,7 @@ class KafkaClient {
                             sasl: this.sasl
                         });
                         shouldRetry = true;
+                        lastErrorCode = cause.code;
                     } else {
                         this.producerConnected = false;
                         throw e;
@@ -371,6 +383,9 @@ class KafkaClient {
                 }
             }
         } while (++iteration <= maxRetries && shouldRetry);
+        if (shouldRetry) {
+            recordKafkaRetryExhausted(topic, lastErrorCode);
+        }
     }
 
     /**

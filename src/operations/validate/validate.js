@@ -15,6 +15,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
 const { READ } = require('../../constants').OPERATIONS;
+const { PATH } = require('../../utils/metrics');
 
 class ValidateOperation {
     /**
@@ -328,7 +329,8 @@ class ValidateOperation {
                 path,
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
-                profile: specifiedProfile
+                profile: specifiedProfile,
+                validationContext: PATH.VALIDATE
             });
         if (validationOperationOutcome) {
             await this.fhirLoggingManager.logOperationSuccessAsync({
