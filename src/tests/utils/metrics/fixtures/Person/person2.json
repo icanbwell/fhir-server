@@ -1,0 +1,14 @@
+{
+    "resourceType": "Person",
+    "id": "metrics-test-person-2",
+    "meta": {
+        "versionId": "1",
+        "source": "bwell",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" }
+        ]
+    },
+    "name": [{ "use": "official", "family": "Metrics", "given": ["Beta"] }],
+    "gender": "female"
+}
