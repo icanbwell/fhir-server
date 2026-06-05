@@ -23,7 +23,6 @@ from generatorScripts.generate_everything_operation_data import get_clinical_res
 custom_data = {
     "shareable_directive": [
         "CodeSystemProperty",
-        "ConsentProvision",
         "OperationOutcomeIssue",
         "PatientCommunication",
         "Address",
