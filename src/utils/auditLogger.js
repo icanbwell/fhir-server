@@ -1,27 +1,18 @@
 /**
  * logs audit entries
  */
-const moment = require('moment-timezone');
 const { generateUUID } = require('./uid.util');
-const deepcopy = require('deepcopy');
 const { PostRequestProcessor } = require('./postRequestProcessor');
-const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { assertTypeEquals } = require('./assertType');
 const { SecurityTagSystem } = require('./securityTagSystem');
 const { logError } = require('../operations/common/logging');
-const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
-const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
-const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
-const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
-const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEventAgent');
-const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
-const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditEventEntity');
-const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
 const { Mutex } = require('async-mutex');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { ConfigManager } = require('./configManager');
+const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
+const { buildBulkWriteRequestContext } = require('../dataLayer/bulkWriteRequestContext');
 const { PERSON_PROXY_PREFIX, AUTH_USER_TYPES, PURPOSE_OF_USE_SYSTEM } = require('../constants');
+
 const mutex = new Mutex();
 
 class AuditLogger {
@@ -29,23 +20,24 @@ class AuditLogger {
      * constructor
      * @typedef {Object} params
      * @property {PostRequestProcessor} postRequestProcessor
-     * @property {DatabaseBulkInserter} databaseBulkInserter
+     * @property {import('../dataLayer/fastDatabaseBulkInserter').FastDatabaseBulkInserter} databaseBulkInserter
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
      * @property {string} base_version
      *
      * @param {params}
      */
-    constructor ({
-                    postRequestProcessor,
-                    databaseBulkInserter,
-                    preSaveManager,
-                    configManager,
-                    base_version = '4_0_0'
-                }) {
+    constructor({
+        postRequestProcessor,
+        databaseBulkInserter,
+        preSaveManager,
+        configManager,
+        base_version = '4_0_0'
+    }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
         assertTypeEquals(preSaveManager, PreSaveManager);
+        assertTypeEquals(configManager, ConfigManager);
+
         /**
          * @type {PostRequestProcessor}
          */
@@ -58,99 +50,105 @@ class AuditLogger {
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
+
         /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-        /**
-         * @type {{doc: import('../fhir/classes/4_0_0/resources/resource'), requestInfo: import('./fhirRequestInfo').FhirRequestInfo}[]}
+         * @type {{doc: Object, requestInfo: import('./fhirRequestInfo').FhirRequestInfo}[]}
          */
         this.queue = [];
-        /**
-         * @type {string}
-         */
         this.base_version = base_version;
-        /**
-         * @type {number}
-         */
-        this.maxIdsPerAuditEvent = this.configManager.maxIdsPerAuditEvent;
+        this.maxIdsPerAuditEvent = configManager.maxIdsPerAuditEvent;
+        this.enableAccessAuditEvent = configManager.enableAccessAuditEvent
+        this.auditEventObserverOrganizationId = configManager.auditEventObserverOrganizationId;
     }
 
     /**
-     * Builds agent array and source from requestInfo
+     * Builds the AuditEvent agent array from requestInfo.
+     * Returns plain objects matching the FHIR AuditEvent.agent shape.
      * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @returns {{agents: AuditEventAgent[], whoReference: Reference|undefined}}
+     * @returns {Object[]}
      */
     buildAgents (requestInfo) {
         const isUser = Boolean(requestInfo?.isUser);
         const whoReference = isUser
-            ? new Reference({ reference: `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}` })
+            ? { reference: `Patient/${PERSON_PROXY_PREFIX}${requestInfo.user}` }
             : undefined;
 
-        const hasDelegatedActor = requestInfo?.userType === AUTH_USER_TYPES.delegatedUser;
-        const alternateId = requestInfo?.alternateUserId;
-
-        let agents;
-        if (hasDelegatedActor) {
+        if (requestInfo?.userType === AUTH_USER_TYPES.delegatedUser) {
             const consentPolicy = requestInfo.actor.consentPolicy;
-            agents = [
-                new AuditEventAgent({
+            return [
+                {
                     who: whoReference,
-                    altId: alternateId,
+                    altId: requestInfo?.alternateUserId,
                     requestor: false,
-                    network: new AuditEventNetwork({
-                        type: '2'
-                    })
-                }),
-                new AuditEventAgent({
-                    who: new Reference({
-                        reference: requestInfo.actor?.reference
-                    }),
+                    network: { type: '2' }
+                },
+                {
+                    who: { reference: requestInfo.actor?.reference },
                     policy: consentPolicy ? [consentPolicy] : undefined,
                     altId: requestInfo.actor?.sub,
                     requestor: true,
-                    network: new AuditEventNetwork({
+                    network: {
                         address: requestInfo?.remoteIpAddress,
                         type: '2'
-                    })
-                })
-            ];
-        } else {
-            const consentPolicy = requestInfo.actor?.consentPolicy;
-            agents = [
-                new AuditEventAgent({
-                    who: whoReference,
-                    altId: alternateId,
-                    requestor: true,
-                    policy: consentPolicy ? [consentPolicy] : undefined,
-                    network: new AuditEventNetwork({
-                        address: requestInfo?.remoteIpAddress,
-                        type: '2'
-                    })
-                })
+                    }
+                }
             ];
         }
 
-        return { agents, whoReference };
+        const consentPolicy = requestInfo.actor?.consentPolicy;
+        return [
+            {
+                who: whoReference,
+                altId: requestInfo?.alternateUserId,
+                requestor: true,
+                policy: consentPolicy ? [consentPolicy] : undefined,
+                network: {
+                    address: requestInfo?.remoteIpAddress,
+                    type: '2'
+                }
+            }
+        ];
     }
 
     /**
-     * Create an AuditEntry resource
+     * Builds the entity[0].detail array, preserving the previous behavior of
+     * blanking the `id` arg and filtering remaining args to strings.
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @returns {{type: string, valueString: string}[]}
+     */
+    _buildEntityDetail (requestInfo, args) {
+        const detail = [];
+        if (requestInfo.originalUrl) {
+            detail.push({ type: 'requestUrl', valueString: requestInfo.originalUrl });
+        }
+        if (requestInfo.requestId) {
+            detail.push({ type: 'requestId', valueString: requestInfo.requestId });
+        }
+        if (args) {
+            for (const [key, value] of Object.entries(args)) {
+                if (key === '_id' || key === '_source') continue;
+                // Match prior semantics: id is blanked out; non-string args dropped.
+                let v = value;
+                if (key === 'id' && v) v = '';
+                if (typeof v !== 'string') continue;
+                detail.push({ type: key, valueString: v });
+            }
+        }
+        return detail;
+    }
+
+    /**
+     * Create an AuditEntry as a plain object.
      * @param {Object} params
      * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {string} params.resourceType
      * @param {string} params.operation
-     * @param {Object} params.cleanedArgs
+     * @param {Object} params.args
      * @param {string[]} params.ids
-     * @returns {AuditEvent}
+     * @returns {Object}
      */
-    createAuditEntry (
-        {
-            requestInfo, operation,
-            ids, resourceType, cleanedArgs
-        }
-    ) {
+    createAuditEntry({ requestInfo, operation, ids, resourceType, args }) {
         const operationCodeMapping = {
             create: 'C',
             read: 'R',
@@ -159,175 +157,148 @@ class AuditLogger {
             execute: 'E'
         };
 
-        const { agents, whoReference } = this.buildAgents(requestInfo);
+        const agents = this.buildAgents(requestInfo);
 
         const purposeOfEvent = requestInfo.purposeOfUse?.length
-            ? requestInfo.purposeOfUse.map(code => new CodeableConcept({
-                coding: [new Coding({ system: PURPOSE_OF_USE_SYSTEM, code })]
-            }))
+            ? requestInfo.purposeOfUse.map((code) => ({
+                  coding: [{ system: PURPOSE_OF_USE_SYSTEM, code }]
+              }))
             : undefined;
 
-        const resource = new AuditEvent({
+        const now = new Date();
+        return {
+            resourceType: 'AuditEvent',
             id: generateUUID(),
-            meta: new Meta({
+            meta: {
                 versionId: '1',
-                lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+                lastUpdated: now,
                 security: [
-                    new Coding({
-                        system: SecurityTagSystem.owner,
-                        code: 'bwell'
-                    }),
-                    new Coding({
-                        system: SecurityTagSystem.access,
-                        code: 'bwell'
-                    })
+                    { system: SecurityTagSystem.owner, code: 'bwell' },
+                    { system: SecurityTagSystem.access, code: 'bwell' }
                 ]
-            }),
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
-            type: new Coding({
+            },
+            recorded: now,
+            type: {
                 system: 'http://dicom.nema.org/resources/ontology/DCM',
                 code: '110112',
                 display: 'Query'
-            }),
+            },
             agent: agents,
-            source: new AuditEventSource({
-                    observer: new Reference({
-                        reference: `Organization/${this.configManager.auditEventObserverOrganizationId}`
-                    })
-                }),
+            source: {
+                observer: {
+                    reference: `Organization/${this.auditEventObserverOrganizationId}`
+                }
+            },
             action: operationCodeMapping[`${operation}`],
-            entity: ids.map((resourceId, index) => {
-                const detail = index === 0
-                    ? [
-                        ...(requestInfo.originalUrl ? [{ type: 'requestUrl', valueString: requestInfo.originalUrl }] : []),
-                        ...(requestInfo.requestId ? [{ type: 'requestId', valueString: requestInfo.requestId }] : []),
-                        ...Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value]) => {
-                            return { type: key, valueString: value };
-                        })
-                    ] : null;
-                return new AuditEventEntity({
-                    what: new Reference({
-                        reference: `${resourceType}/${resourceId}`
-                    }),
-                    detail
-                });
-            }),
+            entity: ids.map((resourceId, index) => ({
+                what: { reference: `${resourceType}/${resourceId}` },
+                detail: index === 0 ? this._buildEntityDetail(requestInfo, args) : null
+            })),
             purposeOfEvent
-        });
-
-        return resource;
+        };
     }
 
     /**
      * logs an entry for audit
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {string} operation
-     * @param {Object} args
-     * @param {string[]} ids
+     * @param {Object} params
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
+     * @param {string} params.base_version
+     * @param {string} params.resourceType
+     * @param {string} params.operation
+     * @param {Object} params.args
+     * @param {string[]} params.ids
      * @return {Promise<void>}
      */
-    async logAuditEntryAsync ({
-        requestInfo, base_version, resourceType, operation, args, ids
-    }) {
-        if (!this.configManager.enableAccessAuditEvent || resourceType === 'AuditEvent') {
+    async logAuditEntryAsync({ requestInfo, base_version, resourceType, operation, args, ids }) {
+        if (!this.enableAccessAuditEvent || resourceType === 'AuditEvent') {
             return;
         }
 
-        const cleanedArgs = deepcopy(args);
-        // remove id and _id args since they are duplicated in the items retrieved
-        if (cleanedArgs.id) {
-            cleanedArgs.id = '';
-        }
-        if (cleanedArgs._id) {
-            delete cleanedArgs._id;
-        }
-        if (cleanedArgs._source) {
-            delete cleanedArgs._source;
-        }
+        // Stash only the required fields the bulk-write chain reads. The full
+        // FhirRequestInfo (headers, body, scopes, user object, parsedArgs) would
+        // otherwise stay alive in the queue until the next cron flush.
+        const queueContext = buildBulkWriteRequestContext(requestInfo);
 
         for (let i = 0; i < ids.length; i += this.maxIdsPerAuditEvent) {
             const idChunk = ids.slice(i, i + this.maxIdsPerAuditEvent);
-            /**
-             * @type {Resource}
-             */
-            const doc = this.createAuditEntry(
-                {
-                    base_version, requestInfo, operation, ids: idChunk, resourceType, cleanedArgs
-                }
-            );
-
+            const doc = this.createAuditEntry({
+                requestInfo,
+                operation,
+                ids: idChunk,
+                resourceType,
+                args
+            });
             await this.preSaveManager.preSaveAsync({ resource: doc });
-            this.queue.push({ doc, requestInfo });
+            const serialized = FhirResourceWriteSerializer.serialize({ obj: doc });
+            this.queue.push({ doc: serialized, requestInfo: queueContext });
         }
     }
 
     /**
-     * Creates an AuditEvent for an error response
+     * Creates an AuditEvent for an error response as a plain object.
      * @param {Object} params
      * @param {import('./fhirRequestInfo').FhirRequestInfo} params.requestInfo
      * @param {string|null} params.resourceType
      * @param {number} params.errorCode - HTTP status code (401, 403, 404, 500) or 0 for abort
      * @param {string} params.errorMessage
      * @param {{type: string, valueString: string}[]} [params.extraParams]
-     * @returns {AuditEvent}
+     * @returns {Object}
      */
-    createErrorAuditEntry ({ requestInfo, resourceType, errorCode, errorMessage, extraParams }) {
-        const originalUrl = requestInfo.originalUrl;
-        const requestId = requestInfo.requestId;
-        const securityAlertType = new Coding({
-            system: 'http://dicom.nema.org/resources/ontology/DCM',
-            code: '110113',
-            display: 'Security Alert'
-        });
-
-        const restType = new Coding({
-            system: 'http://terminology.hl7.org/CodeSystem/audit-event-type',
-            code: 'rest',
-            display: 'RESTful Operation'
-        });
-
+    createErrorAuditEntry({ requestInfo, resourceType, errorCode, errorMessage, extraParams }) {
         const isSecurityError = errorCode === 401 || errorCode === 403;
-        const type = isSecurityError ? securityAlertType : restType;
+        const type = isSecurityError
+            ? {
+                  system: 'http://dicom.nema.org/resources/ontology/DCM',
+                  code: '110113',
+                  display: 'Security Alert'
+              }
+            : {
+                  system: 'http://terminology.hl7.org/CodeSystem/audit-event-type',
+                  code: 'rest',
+                  display: 'RESTful Operation'
+              };
         const outcome = errorCode >= 500 ? '8' : '4';
 
-        const { agents, whoReference } = this.buildAgents(requestInfo);
+        const agents = this.buildAgents(requestInfo);
 
-        const detail = [
-            ...(originalUrl ? [{ type: 'requestUrl', valueString: originalUrl }] : []),
-            ...(requestId ? [{ type: 'requestId', valueString: requestId }] : []),
-            ...(extraParams || [])
-        ];
-        const entity = detail.length > 0 ? [
-            new AuditEventEntity({ detail })
-        ] : undefined;
+        const detail = [];
+        if (requestInfo.originalUrl) {
+            detail.push({ type: 'requestUrl', valueString: requestInfo.originalUrl });
+        }
+        if (requestInfo.requestId) {
+            detail.push({ type: 'requestId', valueString: requestInfo.requestId });
+        }
+        if (extraParams) {
+            for (const p of extraParams) detail.push(p);
+        }
+        const entity = detail.length > 0 ? [{ detail }] : undefined;
 
-        return new AuditEvent({
+        const now = new Date();
+        return {
+            resourceType: 'AuditEvent',
             id: generateUUID(),
-            meta: new Meta({
+            meta: {
                 versionId: '1',
-                lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+                lastUpdated: now,
                 security: [
-                    new Coding({ system: SecurityTagSystem.owner, code: 'bwell' }),
-                    new Coding({ system: SecurityTagSystem.access, code: 'bwell' })
+                    { system: SecurityTagSystem.owner, code: 'bwell' },
+                    { system: SecurityTagSystem.access, code: 'bwell' }
                 ]
-            }),
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+            },
+            recorded: now,
             type,
             action: 'E',
             outcome,
             outcomeDesc: errorMessage,
             agent: agents,
-            source: new AuditEventSource({
-                observer: new Reference({
-                    reference: `Organization/${this.configManager.auditEventObserverOrganizationId}`
-                })
-            }),
+            source: {
+                observer: {
+                    reference: `Organization/${this.auditEventObserverOrganizationId}`
+                }
+            },
             entity
-        });
+        };
     }
-
 
     /**
      * Logs an error audit entry
@@ -339,28 +310,37 @@ class AuditLogger {
      * @param {{type: string, valueString: string}[]} [params.extraParams]
      * @return {Promise<void>}
      */
-    async logErrorAuditEntryAsync ({
-        requestInfo, resourceType,
-        errorCode, errorMessage, extraParams
+    async logErrorAuditEntryAsync({
+        requestInfo,
+        resourceType,
+        errorCode,
+        errorMessage,
+        extraParams
     }) {
-        if (!this.configManager.enableAccessAuditEvent) {
+        if (!this.enableAccessAuditEvent) {
             return;
         }
 
         const doc = this.createErrorAuditEntry({
-            requestInfo, resourceType, errorCode, errorMessage, extraParams
+            requestInfo,
+            resourceType,
+            errorCode,
+            errorMessage,
+            extraParams
         });
-
         await this.preSaveManager.preSaveAsync({ resource: doc });
-
-        this.queue.push({ doc, requestInfo });
+        const serialized = FhirResourceWriteSerializer.serialize({ obj: doc });
+        this.queue.push({
+            doc: serialized,
+            requestInfo: buildBulkWriteRequestContext(requestInfo)
+        });
     }
 
     /**
-     * Flush
+     * Flush queued audit events to the database via the bulk inserter.
      * @return {Promise<void>}
      */
-    async flushAsync () {
+    async flushAsync() {
         if (this.queue.length === 0) {
             return;
         }
@@ -379,7 +359,6 @@ class AuditLogger {
         operationsMap.set(resourceType, []);
 
         for (const { doc, requestInfo } of currentQueue) {
-            assertTypeEquals(doc, AuditEvent);
             ({ requestId } = requestInfo);
 
             operationsMap.get(resourceType).push(
@@ -388,11 +367,7 @@ class AuditLogger {
                     resourceType,
                     doc,
                     operationType: 'insert',
-                    operation: {
-                        insertOne: {
-                            document: doc.toJSONInternal()
-                        }
-                    }
+                    operation: { insertOne: { document: doc } }
                 })
             );
         }
@@ -406,7 +381,7 @@ class AuditLogger {
                 maintainOrder: false
             });
 
-            const mergeResultErrors = mergeResults.filter(m => m.issue);
+            const mergeResultErrors = mergeResults.filter((m) => m.issue);
             if (mergeResultErrors.length > 0) {
                 logError('Error creating audit entries', {
                     error: mergeResultErrors,

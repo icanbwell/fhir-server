@@ -291,7 +291,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 });
             }
 
-            if (this.configManager.verifyResourceBeforeWrite) {
+            if (this.configManager.verifyResourceBeforeWrite && !isAccessLogOperation && resourceType !== 'AuditEvent') {
                 // This check needs to be removed after fast serializer write operation is verified
                 // JSON.stringify to convert date time object to string for comparision
                 let resourceCopy = JSON.parse(JSON.stringify(doc));

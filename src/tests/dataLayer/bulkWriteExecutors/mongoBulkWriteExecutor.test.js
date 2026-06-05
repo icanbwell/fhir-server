@@ -2,23 +2,23 @@
 
 const { describe, beforeEach, test, expect, jest } = require('@jest/globals');
 const { MongoInvalidArgumentError } = require('mongodb');
-const { MongoBulkWriteExecutor } = require('./mongoBulkWriteExecutor');
-const { BulkInsertUpdateEntry } = require('../bulkInsertUpdateEntry');
-const { MergeResultEntry } = require('../../operations/common/mergeResultEntry');
-const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
-const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
-const { ConfigManager } = require('../../utils/configManager');
-const { PostSaveProcessor } = require('../postSaveProcessor');
-const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { MONGO_ERROR } = require('../../constants');
-const { RethrownError } = require('../../utils/rethrownError');
+const { MongoBulkWriteExecutor } = require('../../../dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
+const { BulkInsertUpdateEntry } = require('../../../dataLayer/bulkInsertUpdateEntry');
+const { MergeResultEntry } = require('../../../operations/common/mergeResultEntry');
+const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
+const { ResourceLocatorFactory } = require('../../../operations/common/resourceLocatorFactory');
+const { ConfigManager } = require('../../../utils/configManager');
+const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
+const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
+const { MONGO_ERROR } = require('../../../constants');
+const { RethrownError } = require('../../../utils/rethrownError');
 
 // Suppress logging noise in tests
-jest.mock('../../operations/common/logging', () => ({
+jest.mock('../../../operations/common/logging', () => ({
     logInfo: jest.fn(),
     logError: jest.fn()
 }));
-jest.mock('../../operations/common/systemEventLogging', () => ({
+jest.mock('../../../operations/common/systemEventLogging', () => ({
     logSystemErrorAsync: jest.fn().mockResolvedValue(undefined),
     logTraceSystemEventAsync: jest.fn().mockResolvedValue(undefined)
 }));

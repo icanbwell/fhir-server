@@ -63,7 +63,7 @@ describe('InternalAuditLog Tests', () => {
                     (c) =>
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
-                            databaseBulkInserter: c.databaseBulkInserter,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
                             preSaveManager: c.preSaveManager,
                             configManager: c.configManager
                         })
@@ -252,8 +252,9 @@ describe('InternalAuditLog Tests', () => {
                     (c) =>
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
-                            databaseBulkInserter: c.databaseBulkInserter,
-                            preSaveManager: c.preSaveManager
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager
                         })
                 );
                 return container;
@@ -346,7 +347,7 @@ describe('InternalAuditLog Tests', () => {
                     (c) =>
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
-                            databaseBulkInserter: c.databaseBulkInserter,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
                             preSaveManager: c.preSaveManager,
                             configManager: c.configManager
                         })
@@ -444,7 +445,7 @@ describe('InternalAuditLog Tests', () => {
                     (c) =>
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
-                            databaseBulkInserter: c.databaseBulkInserter,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
                             preSaveManager: c.preSaveManager,
                             configManager: c.configManager
                         })

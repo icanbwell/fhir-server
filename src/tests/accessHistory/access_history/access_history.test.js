@@ -82,7 +82,7 @@ describe('Person $access-history Tests', () => {
             c.register('accessHistoryClickHouseRepository', () => clickHouseRepository);
             c.register('auditLogger', (cont) => new AuditLogger({
                 postRequestProcessor: cont.postRequestProcessor,
-                databaseBulkInserter: cont.databaseBulkInserter,
+                databaseBulkInserter: cont.fastDatabaseBulkInserter,
                 preSaveManager: cont.preSaveManager,
                 configManager: cont.configManager
             }));

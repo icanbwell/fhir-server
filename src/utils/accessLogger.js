@@ -1,5 +1,4 @@
 const httpContext = require('express-http-context');
-const moment = require('moment-timezone');
 const { Mutex } = require('async-mutex');
 const os = require('os');
 
@@ -15,6 +14,7 @@ const { ScopesManager } = require('../operations/security/scopesManager');
 const { logInfo, logError, logDebug } = require('../operations/common/logging');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { AccessLogClickHouseWriter } = require('./accessLogClickHouseWriter');
+const { buildBulkWriteRequestContext } = require('../dataLayer/bulkWriteRequestContext');
 const mutex = new Mutex();
 
 class AccessLogger {
@@ -63,10 +63,6 @@ class AccessLogger {
          */
         this.hostname = os.hostname() ? String(os.hostname()) : null;
         /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        /**
          * @type {DatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
@@ -82,6 +78,13 @@ class AccessLogger {
          * @type {object[]}
          */
         this.queue = [];
+
+        this.enableAccessLogs = configManager.enableAccessLogs;
+        this.accessLogResultLimit = configManager.accessLogResultLimit;
+        this.accessLogRequestBodyLimit = configManager.accessLogRequestBodyLimit;
+
+        this.clickHouseEnabled = configManager.enableAccessLogsClickHouse && this.accessLogClickHouseWriter;
+        this.mongoEnabled = configManager.enableAccessLogsMongoDB;
     }
 
     /**
@@ -99,11 +102,23 @@ class AccessLogger {
      *
      * @param {logAccessLogAsyncParams}
      */
-    async logAccessLogAsync({ req, statusCode, startTime, stopTime = Date.now(), streamRequestBody, streamingMerge, operationResult, authorizationHeader }) {
+    async logAccessLogAsync({
+        req,
+        statusCode,
+        startTime,
+        stopTime = Date.now(),
+        streamRequestBody,
+        streamingMerge,
+        operationResult,
+        authorizationHeader
+    }) {
+        if (!this.enableAccessLogs) {
+            return;
+        }
         /**
          * @type {string}
          */
-        const resourceType = req.resourceType ? req.resourceType : (req.url.split('/')[2])?.split('?')[0];
+        const resourceType = req.resourceType ? req.resourceType : req.url.split('/')[2]?.split('?')[0];
         if (!resourceType && statusCode !== 401) {
             return;
         }
@@ -167,9 +182,8 @@ class AccessLogger {
 
         if (operationResult) {
             const resultStr = JSON.stringify(operationResult);
-            const sizeLimit = this.configManager.accessLogResultLimit;
-            if (Buffer.byteLength(resultStr) > sizeLimit) {
-                details['operationResult'] = Buffer.from(resultStr).subarray(0, sizeLimit).toString();
+            if (Buffer.byteLength(resultStr) > this.accessLogResultLimit) {
+                details['operationResult'] = Buffer.from(resultStr).subarray(0, this.accessLogResultLimit).toString();
                 details['operationResultTruncated'] = 'true';
                 logInfo(
                     `AccessLogger: operationResult truncated in access log for request id: ${requestInfo.userRequestId}`
@@ -180,8 +194,6 @@ class AccessLogger {
         }
 
         if (requestInfo.body) {
-            const sizeLimit = this.configManager.accessLogRequestBodyLimit;
-
             // Resolve the body string. Prefer the raw Buffer captured by the
             // express.json verify hook (avoids re-stringifying a parsed object).
             // Falls back to streamRequestBody (ndjson) or a JSON.stringify of
@@ -192,21 +204,22 @@ class AccessLogger {
             if (streamRequestBody) {
                 body = streamRequestBody;
             } else if (Buffer.isBuffer(req.rawBodyBuffer)) {
-                if (req.rawBodyBuffer.length > sizeLimit) {
-                    body = req.rawBodyBuffer.toString('utf-8', 0, sizeLimit);
+                if (req.rawBodyBuffer.length > this.accessLogRequestBodyLimit) {
+                    body = req.rawBodyBuffer.toString('utf-8', 0, this.accessLogRequestBodyLimit);
                     bodyTruncated = true;
                 } else {
                     body = req.rawBodyBuffer.toString('utf-8');
                 }
             } else {
-                body = typeof requestInfo.body === 'string'
-                    ? requestInfo.body
-                    : JSON.stringify(requestInfo.body, getCircularReplacer());
+                body =
+                    typeof requestInfo.body === 'string'
+                        ? requestInfo.body
+                        : JSON.stringify(requestInfo.body, getCircularReplacer());
             }
 
             // streamRequestBody / fallback paths haven't been size-checked yet.
-            if (!bodyTruncated && Buffer.byteLength(body) > sizeLimit) {
-                body = Buffer.from(body).subarray(0, sizeLimit).toString();
+            if (!bodyTruncated && Buffer.byteLength(body) > this.accessLogRequestBodyLimit) {
+                body = Buffer.from(body).subarray(0, this.accessLogRequestBodyLimit).toString();
                 bodyTruncated = true;
             }
 
@@ -223,7 +236,7 @@ class AccessLogger {
 
         // Creating log entry
         const logEntry = {
-            timestamp: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+            timestamp: new Date(),
             outcomeDesc: isError ? 'Error' : 'Success',
             agent: {
                 altId:
@@ -249,7 +262,15 @@ class AccessLogger {
             }
         };
 
-        this.queue.push({ doc: logEntry, requestInfo });
+        // requestInfo is only consumed by the Mongo flush path. When ClickHouse is
+        // the only sink we omit it entirely; otherwise we stash a stripped clone
+        // carrying just the four fields the bulk-write chain reads, letting the
+        // rest of FhirRequestInfo (headers/body/scopes/user) be GC'd at request end.
+        this.queue.push(
+            this.mongoEnabled
+                ? { doc: logEntry, requestInfo: buildBulkWriteRequestContext(requestInfo) }
+                : { doc: logEntry }
+        );
     }
 
     /**
@@ -270,22 +291,19 @@ class AccessLogger {
 
         logDebug(`Flushing ${currentQueue.length} access log entries`, {});
 
-        let requestId;
-
         /**
          * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
          */
         const operationsMap = new Map();
         operationsMap.set(ACCESS_LOGS_COLLECTION_NAME, []);
         const clickHouseAccessLogs = [];
-        const clickHouseEnabled = this.configManager.enableAccessLogsClickHouse && this.accessLogClickHouseWriter;
 
-        for (const { doc, requestInfo } of currentQueue) {
-            ({ requestId } = requestInfo);
-            if (this.configManager.enableAccessLogsMongoDB){
+        for (const entry of currentQueue) {
+            const { doc } = entry;
+            if (this.mongoEnabled) {
                 operationsMap.get(ACCESS_LOGS_COLLECTION_NAME).push(
                     this.databaseBulkInserter.getOperationForResourceAsync({
-                        requestId,
+                        requestId: entry.requestInfo.requestId,
                         ACCESS_LOGS_COLLECTION_NAME,
                         doc,
                         operationType: 'insert',
@@ -298,7 +316,7 @@ class AccessLogger {
                     })
                 );
             }
-            if (clickHouseEnabled) {
+            if (this.clickHouseEnabled) {
                 clickHouseAccessLogs.push(doc);
             }
         }
@@ -327,7 +345,6 @@ class AccessLogger {
                     error: mergeResultErrors,
                     source: 'flushAsync',
                     args: {
-                        request: { id: requestId },
                         errors: mergeResultErrors
                     }
                 });

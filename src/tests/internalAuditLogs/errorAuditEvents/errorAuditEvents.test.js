@@ -23,7 +23,7 @@ function createContainerWithRealAuditLogger (container) {
         (c) =>
             new AuditLogger({
                 postRequestProcessor: c.postRequestProcessor,
-                databaseBulkInserter: c.databaseBulkInserter,
+                databaseBulkInserter: c.fastDatabaseBulkInserter,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager
             })

@@ -1,43 +1,33 @@
-const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
+const { describe, test, expect, jest, beforeAll, beforeEach } = require('@jest/globals');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ConfigManager } = require('../../utils/configManager');
-const AuditEvent = require('../../fhir/classes/4_0_0/resources/auditEvent');
-const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
-const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const Reference = require('../../fhir/classes/4_0_0/complex_types/reference');
-const AuditEventAgent = require('../../fhir/classes/4_0_0/backbone_elements/auditEventAgent');
-const AuditEventSource = require('../../fhir/classes/4_0_0/backbone_elements/auditEventSource');
+const { BaseFhirResourceSerializer } = require('../../fhir/baseFhirResourceSerializer');
+const BaseSerializer = require('../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 
-function createTestAuditEvent (id) {
-    return new AuditEvent({
+function createTestAuditEvent(id) {
+    return {
+        resourceType: 'AuditEvent',
         id,
-        _uuid: `AuditEvent/${id}`,
+        _uuid: id,
         _sourceId: id,
         _sourceAssigningAuthority: 'bwell',
-        meta: new Meta({
+        meta: {
             versionId: '1',
             lastUpdated: new Date('2024-06-15T10:30:00.000Z'),
             security: [
-                new Coding({ system: 'https://www.icanbwell.com/owner', code: 'bwell' }),
-                new Coding({ system: 'https://www.icanbwell.com/access', code: 'bwell' })
+                { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+                { system: 'https://www.icanbwell.com/access', code: 'bwell' }
             ]
-        }),
+        },
         recorded: new Date('2024-06-15T10:30:00.000Z'),
-        type: new Coding({ system: 'http://dicom.nema.org/resources/ontology/DCM', code: '110112' }),
+        type: { system: 'http://dicom.nema.org/resources/ontology/DCM', code: '110112' },
         action: 'R',
-        agent: [
-            new AuditEventAgent({
-                who: new Reference({ reference: 'Person/test-user' }),
-                requestor: true
-            })
-        ],
-        source: new AuditEventSource({
-            observer: new Reference({ reference: 'Person/test-user' })
-        })
-    });
+        agent: [{ who: { reference: 'Person/test-user' }, requestor: true }],
+        source: { observer: { reference: 'Person/test-user' } }
+    };
 }
 
 describe('AuditLogger', () => {
@@ -46,11 +36,19 @@ describe('AuditLogger', () => {
     let mockPreSaveManager;
     let mockConfigManager;
 
+    beforeAll(() => {
+        // Production wires this once at startup (src/index.js); unit tests must set it
+        // before invoking FhirResourceWriteSerializer in logAuditEntryAsync / logErrorAuditEntryAsync.
+        const serializerConfig = Object.create(ConfigManager.prototype);
+        BaseSerializer.setConfigManager(serializerConfig);
+        BaseFhirResourceSerializer.setConfigManager(serializerConfig);
+    });
+
     beforeEach(() => {
         mockPostRequestProcessor = Object.create(PostRequestProcessor.prototype);
         mockPostRequestProcessor.add = jest.fn();
 
-        mockDatabaseBulkInserter = Object.create(DatabaseBulkInserter.prototype);
+        mockDatabaseBulkInserter = Object.create(FastDatabaseBulkInserter.prototype);
         mockDatabaseBulkInserter.getOperationForResourceAsync = jest.fn().mockReturnValue({});
         mockDatabaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([]);
 
