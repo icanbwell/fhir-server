@@ -1,9 +1,11 @@
-const { describe, test, expect, jest, beforeEach } = require('@jest/globals');
+const { describe, test, expect, jest, beforeAll, beforeEach } = require('@jest/globals');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ConfigManager } = require('../../utils/configManager');
+const { BaseFhirResourceSerializer } = require('../../fhir/baseFhirResourceSerializer');
+const BaseSerializer = require('../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 
 describe('AuditLogger Error Audit', () => {
     let mockPostRequestProcessor;
@@ -11,11 +13,19 @@ describe('AuditLogger Error Audit', () => {
     let mockPreSaveManager;
     let mockConfigManager;
 
+    beforeAll(() => {
+        // Production wires this once at startup (src/index.js); unit tests must set it
+        // before invoking FhirResourceWriteSerializer in logErrorAuditEntryAsync.
+        const serializerConfig = Object.create(ConfigManager.prototype);
+        BaseSerializer.setConfigManager(serializerConfig);
+        BaseFhirResourceSerializer.setConfigManager(serializerConfig);
+    });
+
     beforeEach(() => {
         mockPostRequestProcessor = Object.create(PostRequestProcessor.prototype);
         mockPostRequestProcessor.add = jest.fn();
 
-        mockDatabaseBulkInserter = Object.create(DatabaseBulkInserter.prototype);
+        mockDatabaseBulkInserter = Object.create(FastDatabaseBulkInserter.prototype);
         mockDatabaseBulkInserter.getOperationForResourceAsync = jest.fn().mockReturnValue({});
         mockDatabaseBulkInserter.executeAsync = jest.fn().mockResolvedValue([]);
 

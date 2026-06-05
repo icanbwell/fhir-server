@@ -63,7 +63,7 @@ describe('InternalAuditLog Tests', () => {
                     (c) =>
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
-                            databaseBulkInserter: c.databaseBulkInserter,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
                             preSaveManager: c.preSaveManager,
                             configManager: c.configManager
                         })
@@ -252,7 +252,7 @@ describe('InternalAuditLog Tests', () => {
                     (c) =>
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
-                            databaseBulkInserter: c.databaseBulkInserter,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
                             preSaveManager: c.preSaveManager
                         })
                 );
@@ -346,7 +346,7 @@ describe('InternalAuditLog Tests', () => {
                     (c) =>
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
-                            databaseBulkInserter: c.databaseBulkInserter,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
                             preSaveManager: c.preSaveManager,
                             configManager: c.configManager
                         })
@@ -444,7 +444,7 @@ describe('InternalAuditLog Tests', () => {
                     (c) =>
                         new AuditLogger({
                             postRequestProcessor: c.postRequestProcessor,
-                            databaseBulkInserter: c.databaseBulkInserter,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
                             preSaveManager: c.preSaveManager,
                             configManager: c.configManager
                         })
