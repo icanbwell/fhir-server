@@ -417,40 +417,43 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                         );
                     }
                 } catch (e) {
-                    // The inner bulkWrite catch already logs and wraps with a contextual
-                    // RethrownError. Errors that reach here without going through it (post-save,
-                    // concurrency fallback) need their own log entry — but rethrow as-is to
-                    // preserve the original error class and stack downstream.
-                    if (!(e instanceof RethrownError)) {
-                        await logSystemErrorAsync({
-                            event: 'mongoBulkWriteExecutor_postBulkWrite',
-                            message: 'mongoBulkWriteExecutor: Error after bulk write',
-                            error: e,
-                            args: {
-                                requestId,
-                                options,
-                                collection: collectionName
-                            }
-                        });
+                    // Errors already wrapped at a lower layer (inner bulkWrite catch, post-save,
+                    // concurrency fallback) propagate untouched — wrapping a RethrownError again
+                    // is what produced the original "RethrownError: undefined" audit log lines.
+                    // Plain errors (e.g. from resource-locator collection fetches) get a single
+                    // wrap so upstream consumers still receive a RethrownError with .statusCode,
+                    // .issue, and .nested set.
+                    if (e instanceof RethrownError) {
+                        throw e;
                     }
-                    throw e;
+                    await logSystemErrorAsync({
+                        event: 'mongoBulkWriteExecutor_postBulkWrite',
+                        message: 'mongoBulkWriteExecutor: Error after bulk write',
+                        error: e,
+                        args: {
+                            requestId,
+                            options,
+                            collection: collectionName
+                        }
+                    });
+                    throw new RethrownError({ error: e });
                 }
             }
             return { resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries };
         } catch (e) {
-            // Catches errors from the prep phase (resource locator, operation grouping) only —
-            // bulk-write and post-save errors are logged at inner layers. Re-wrapping with
-            // RethrownError here would lose the original constructor and stack, producing audit
-            // log entries like "operationFailed: <msg>: RethrownError: undefined".
-            if (!(e instanceof RethrownError)) {
-                await logSystemErrorAsync({
-                    event: 'mongoBulkWriteExecutor_prep',
-                    message: 'mongoBulkWriteExecutor: Error before bulk write',
-                    error: e,
-                    args: { requestId, resourceType }
-                });
+            // Same wrap-if-not-already policy as the inner outer catch: preserve any RethrownError
+            // from lower layers verbatim, but wrap raw prep-phase errors (assertIsValid,
+            // resourceLocator failures) once so the upstream contract holds.
+            if (e instanceof RethrownError) {
+                throw e;
             }
-            throw e;
+            await logSystemErrorAsync({
+                event: 'mongoBulkWriteExecutor_prep',
+                message: 'mongoBulkWriteExecutor: Error before bulk write',
+                error: e,
+                args: { requestId, resourceType }
+            });
+            throw new RethrownError({ error: e });
         }
     }
 

@@ -1029,10 +1029,10 @@ describe('MongoBulkWriteExecutor', () => {
         });
     });
 
-    // Outer catch block: logs and rethrows the original error (no RethrownError wrap)
+    // Outer catch block: logs and wraps prep-phase errors in RethrownError exactly once
     describe('outer catch block', () => {
-        test('logs and rethrows the original error from the prep phase, preserving its class', async () => {
-            // Arrange: make resourceLocatorFactory.createResourceLocator throw
+        test('wraps a raw prep-phase error in RethrownError (preserves upstream contract)', async () => {
+            // Arrange: make resourceLocatorFactory.createResourceLocator throw a plain Error
             const originalError = new Error('unexpected locator error');
             const mockResourceLocatorFactory = Object.create(ResourceLocatorFactory.prototype);
             mockResourceLocatorFactory.createResourceLocator = jest.fn().mockImplementation(() => {
@@ -1060,10 +1060,48 @@ describe('MongoBulkWriteExecutor', () => {
                 caught = e;
             }
 
-            // Assert: original Error propagates unwrapped, not as a RethrownError —
-            // ensures audit logs see the real constructor name and stack.
-            expect(caught).toBe(originalError);
-            expect(caught).not.toBeInstanceOf(RethrownError);
+            // Asserts the upstream contract: outer catch must wrap a non-RethrownError so
+            // consumers still receive a RethrownError with .original_error, .nested, and
+            // .statusCode = 500 set.
+            expect(caught).toBeInstanceOf(RethrownError);
+            expect(caught.original_error).toBe(originalError);
+            expect(caught.nested).toBe(originalError);
+            expect(caught.statusCode).toBe(500);
+        });
+
+        test('a RethrownError from a lower layer is rethrown without double-wrapping', async () => {
+            // Arrange: prep phase throws a RethrownError (simulating a lower-layer wrap).
+            const innerCause = new Error('inner cause');
+            const preWrapped = new RethrownError({ message: 'inner', error: innerCause });
+            const mockResourceLocatorFactory = Object.create(ResourceLocatorFactory.prototype);
+            mockResourceLocatorFactory.createResourceLocator = jest.fn().mockImplementation(() => {
+                throw preWrapped;
+            });
+
+            const { executor } = makeExecutor({
+                resourceLocatorFactory: mockResourceLocatorFactory
+            });
+
+            // Act
+            let caught;
+            try {
+                await executor.executeBulkAsync({
+                    resourceType: 'Patient',
+                    base_version,
+                    useHistoryCollection: false,
+                    operations: [makeEntry()],
+                    requestInfo,
+                    insertOneHistoryFn: jest.fn()
+                });
+            } catch (e) {
+                caught = e;
+            }
+
+            // No double-wrap: the SAME RethrownError instance propagates, message preserved,
+            // .original_error not pointing to a wrapping RethrownError.
+            expect(caught).toBe(preWrapped);
+            expect(caught.message).toBe('inner');
+            expect(caught.original_error).toBe(innerCause);
         });
     });
 
