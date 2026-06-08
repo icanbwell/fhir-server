@@ -12,6 +12,7 @@
 // real call.
 const person1 = require('./fixtures/Person/person1.json');
 const person2 = require('./fixtures/Person/person2.json');
+const person3 = require('./fixtures/Person/person3.json');
 
 const {
     commonBeforeEach,
@@ -183,5 +184,116 @@ describe('metrics merge boundary', () => {
         );
         const totalCreated = createdPersonCalls.reduce((acc, [count]) => acc + count, 0);
         expect(totalCreated).toBe(150);
+    });
+
+    test('Bundle wrapper to $merge records full entry count (not 1)', async () => {
+        // Regression for Claude-bot Bug 1: when a client POSTs a FHIR Bundle
+        // to /$merge, incomingObjects is the Bundle wrapper Object — not an
+        // array. The pre-fix Array.isArray-then-truthy ternary fell through
+        // to `1`, so an N-entry Bundle saturated the histogram at 1 even
+        // though BundleResourceValidator unwraps entry[].resource into N
+        // resources downstream.
+        const request = await createTestRequest();
+
+        const bundle = {
+            resourceType: 'Bundle',
+            type: 'collection',
+            entry: [
+                { resource: person1 },
+                { resource: person2 },
+                { resource: person3 }
+            ]
+        };
+
+        await request
+            .post('/4_0_0/Person/$merge')
+            .send(bundle)
+            .set(getHeaders());
+
+        const inboundCalls = bundleSizeRecordSpy.mock.calls.filter(
+            ([, attrs]) => attrs && attrs[metrics.LABEL.DIRECTION] === metrics.DIRECTION.INBOUND
+                && attrs[metrics.LABEL.OPERATION] === metrics.OPERATION.MERGE
+        );
+        expect(inboundCalls.length).toBe(1);
+        // The point of the regression: must be 3 (entry count), not 1.
+        expect(inboundCalls[0][0]).toBe(3);
+    });
+
+    test('pre-check errors survive a mid-flight bulk-insert throw', async () => {
+        // Regression for Claude-bot Bug 2: pre-check errors lived in a
+        // block-scoped const inside the try and never made it into mergeResults
+        // before the catch+rethrow. The finally then called
+        // recordMergeOutcomes([]) and lost the error signal entirely.
+        //
+        // The fix assembles mergeResults incrementally — pre-check errors are
+        // captured immediately after mergeValidator.validateAsync returns, so a
+        // throw from databaseBulkInserter.executeAsync still leaves them in
+        // scope when the finally fires.
+        //
+        // Test design: send [valid Person, malformed Person with pipe in id].
+        // mergeResourceValidator generates a pre-check error for the pipe-id
+        // Person (createFromError() returns a MergeResultEntry with
+        // resourceType: 'Person' and an OperationOutcomeIssue). The valid
+        // Person makes it into validResources and reaches the bulk insert,
+        // where we mock executeAsync to throw. The catch logs and rethrows;
+        // finally fires recordMergeOutcomes(mergeResults). Without the fix,
+        // mergeResults is empty here. With the fix, it contains the pre-check
+        // error and merge_outcome_total fires with outcome=error.
+        const { getTestContainer } = require('../../common');
+
+        const request = await createTestRequest();
+        const container = getTestContainer();
+
+        // MergeOperation picks fastDatabaseBulkInserter when
+        // enableMergeFastSerializer is true (test env default). Spy on the
+        // one the operation will actually invoke.
+        const bulkInserter = container.configManager.enableMergeFastSerializer
+            ? container.fastDatabaseBulkInserter
+            : container.databaseBulkInserter;
+        const insertSpy = jest.spyOn(bulkInserter, 'executeAsync')
+            .mockRejectedValueOnce(new Error('synthetic mid-flight failure'));
+
+        // person1 is valid. badPerson has a pipe in id which mergeResourceValidator
+        // catches as a pre-check error (see validators/mergeResourceValidator.js
+        // 'Pipe | is not allowed in id field').
+        const badPerson = {
+            ...person2,
+            id: 'metrics-bad|pipe-id'
+        };
+
+        try {
+            await request
+                .post('/4_0_0/Person/$merge')
+                .send([person1, badPerson])
+                .set(getHeaders());
+        } catch (_e) { /* server returns 500; supertest may not throw */ }
+
+        // Sanity: the bulk insert spy was actually invoked (and rejected).
+        // If this fails, the test scenario is wrong, not the bug fix.
+        expect(insertSpy).toHaveBeenCalledTimes(1);
+
+        // Bundle-size still emits via finally with full inbound count 2.
+        const inboundCalls = bundleSizeRecordSpy.mock.calls.filter(
+            ([, attrs]) => attrs && attrs[metrics.LABEL.DIRECTION] === metrics.DIRECTION.INBOUND
+                && attrs[metrics.LABEL.OPERATION] === metrics.OPERATION.MERGE
+        );
+        expect(inboundCalls.length).toBe(1);
+        expect(inboundCalls[0][0]).toBe(2);
+
+        // The Bug 2 fix specifically: the pre-check error for badPerson
+        // appears in mergeResults at finally time despite the bulk-insert
+        // throw, so merge_outcome_total fires with outcome=error,
+        // resource_type=Person at least once.
+        // Pre-fix this assertion fails — the counter never increments
+        // because mergeResults is [] at finally time.
+        const errorPersonCalls = mergeOutcomeAddSpy.mock.calls.filter(
+            ([, attrs]) => attrs
+                && attrs[metrics.LABEL.OUTCOME] === metrics.OUTCOME.ERROR
+                && attrs[metrics.LABEL.RESOURCE_TYPE] === 'Person'
+        );
+        const totalErrors = errorPersonCalls.reduce((acc, [count]) => acc + count, 0);
+        expect(totalErrors).toBeGreaterThanOrEqual(1);
+
+        insertSpy.mockRestore();
     });
 });

@@ -4,6 +4,7 @@
 // `path` label depending on whether the failure happened during $validate
 // (path=validate) or during a save flow such as POST/$merge (path=save).
 const invalidPractitioner = require('./fixtures/invalid_practitioner.json');
+const practitionerNoOwner = require('./fixtures/practitioner_no_owner.json');
 
 const {
     commonBeforeEach,
@@ -46,6 +47,34 @@ describe('metrics validation boundary', () => {
             ([, attrs]) => attrs && attrs[metrics.LABEL.PATH] === metrics.PATH.SAVE
         );
         expect(saveCalls.length).toBe(0);
+    });
+
+    test('$validate owner-tag failure emits path=validate, stage=meta', async () => {
+        // Regression for Claude-bot Bug 3: validate.js's inline owner-tag
+        // check returned an OperationOutcome WITHOUT calling
+        // recordValidationFailure. Pre-fix, $validate-time owner-tag failures
+        // were silently invisible to fhir_validation_failure_total.
+        //
+        // The fixture is schema-valid (passes resourceValidator.validateResourceAsync)
+        // but its meta.security array has only an `access` tag, no `owner`.
+        // ScopesManager.doesResourceHaveOwnerTags returns false, the inline
+        // check fires, and we now record the failure with path=validate,
+        // validation_stage=meta before returning.
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/Practitioner/$validate')
+            .send(practitionerNoOwner)
+            .set(getHeaders());
+
+        const validateMetaCalls = validationFailureAddSpy.mock.calls.filter(
+            ([, attrs]) => attrs
+                && attrs[metrics.LABEL.PATH] === metrics.PATH.VALIDATE
+                && attrs[metrics.LABEL.VALIDATION_STAGE] === metrics.VALIDATION_STAGE.META
+                && attrs[metrics.LABEL.RESOURCE_TYPE] === 'Practitioner'
+        );
+        // Pre-fix: 0 calls (silently invisible). Post-fix: at least 1 call.
+        expect(validateMetaCalls.length).toBeGreaterThanOrEqual(1);
     });
 
     test('$merge of a meta-invalid resource emits path=save (META stage)', async () => {

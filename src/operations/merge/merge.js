@@ -190,9 +190,15 @@ class MergeOperation {
         // catch+rethrow, mid-flight throw). recordMergeOutcomes fires on
         // whatever made it into mergeResults before the exit;
         // recordInboundBundleSize fires on the inbound size we observed.
+        // mergeResults is assembled INCREMENTALLY inside the try (pre-check
+        // errors → merge errors → bulk-insert outcomes → unchanged
+        // placeholders), so a throw at any step still leaves the finally
+        // with whatever made it through. wasIncomingAList is hoisted because
+        // the success branch returns based on it; defaults to false (single).
         /** @type {MergeResultEntry[]} */
         let mergeResults = [];
         let inboundCount = 0;
+        let wasIncomingAList = false;
 
         // noinspection JSCheckFunctionSignatures
         try {
@@ -208,14 +214,21 @@ class MergeOperation {
              * @type {Object|Object[]|undefined}
              */
             const incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
-            inboundCount = Array.isArray(incomingObjects)
-                ? incomingObjects.length
-                : (incomingObjects ? 1 : 0);
+            // Bundle wrapper has to be unwrapped *before* the truthy-fallback
+            // ternary, otherwise an N-entry Bundle saturates the histogram at 1.
+            // BundleResourceValidator.validate later flattens entry[].resource
+            // into N individual resources, so the histogram has to match.
+            // Order-dependent: Bundle is also a non-array Object — check first.
+            inboundCount = incomingObjects?.resourceType === 'Bundle'
+                ? (incomingObjects.entry?.length ?? 0)
+                : Array.isArray(incomingObjects)
+                    ? incomingObjects.length
+                    : (incomingObjects ? 1 : 0);
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ resourcesIncomingArray,
-                /** @type {boolean} */ wasIncomingAList
+                /** @type {boolean} */ wasIncomingAList: validatorWasIncomingAList
             } = await this.mergeValidator.validateAsync({
                 base_version,
                 incomingObjects,
@@ -223,6 +236,11 @@ class MergeOperation {
                 requestInfo,
                 effectiveSmartMerge
             });
+            wasIncomingAList = validatorWasIncomingAList;
+            // Capture pre-check errors immediately so they survive a throw from
+            // mergeManager / databaseBulkInserter below. recordMergeOutcomes in
+            // the finally would otherwise see an empty array and lose signal.
+            mergeResults = mergeResults.concat(mergePreCheckErrors);
 
             // merge the resources
             /**
@@ -247,16 +265,18 @@ class MergeOperation {
                 },
                 { validResources: [], mergeErrors: [] }
             );
+            // Capture per-resource merge errors immediately for the same reason.
+            mergeResults = mergeResults.concat(mergeErrors);
 
-            mergeResults = await this.databaseBulkInserter.executeAsync({
+            const inserted = await this.databaseBulkInserter.executeAsync({
                 requestInfo,
                 base_version
             });
+            mergeResults = mergeResults.concat(inserted);
 
-            // add in any pre-merge failures
-            mergeResults = mergeResults.concat(mergePreCheckErrors);
-            mergeResults = mergeResults.concat(mergeErrors);
-
+            // addSuccessfulMergesToMergeResult must run AFTER the bulk insert —
+            // it skips UUIDs already present in mergeResults, including the
+            // ones that just inserted, so we don't duplicate placeholders.
             mergeResults = mergeResults.concat(
                 this.addSuccessfulMergesToMergeResult(validResources, mergeResults)
             );

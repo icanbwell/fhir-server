@@ -1,0 +1,19 @@
+{
+    "resourceType": "Practitioner",
+    "id": "metrics-no-owner-1",
+    "meta": {
+        "source": "http://fhir",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" }
+        ]
+    },
+    "active": true,
+    "name": [
+        {
+            "use": "official",
+            "family": "MissingOwner",
+            "given": ["Test"]
+        }
+    ],
+    "gender": "other"
+}
