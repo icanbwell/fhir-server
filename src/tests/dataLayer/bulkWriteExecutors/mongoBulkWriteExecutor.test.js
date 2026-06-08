@@ -327,6 +327,139 @@ describe('MongoBulkWriteExecutor', () => {
             })).rejects.toThrow(RethrownError);
         });
 
+        // 3a. Error path: MongoBulkWriteError with code 17419 (BSONObj size invalid)
+        test('MongoBulkWriteError with code 17419 returns error MergeResultEntries (not thrown)', async () => {
+            const entry1 = makeEntry({ id: 'p1', uuid: 'uuid-p1' });
+            const entry2 = makeEntry({ id: 'p2', uuid: 'uuid-p2' });
+
+            // Mimic a top-level MongoServerError shape carrying a numeric code
+            const mongoServerError = Object.assign(new Error('BSONObj size is invalid'), {
+                code: 17419,
+                name: 'MongoServerError'
+            });
+
+            const mockCollection = makeMockCollection({
+                bulkWriteImpl: jest.fn().mockRejectedValue(mongoServerError)
+            });
+
+            const mockResourceLocator = {
+                getCollectionNameForResource: jest.fn().mockReturnValue('Patient_4_0_0'),
+                getCollectionByNameAsync: jest.fn().mockResolvedValue(mockCollection)
+            };
+
+            const { executor } = makeExecutor({
+                resourceLocator: mockResourceLocator,
+                cloneResource,
+                createUpdateManager
+            });
+
+            const result = await executor.executeBulkAsync({
+                resourceType: 'Patient',
+                base_version,
+                useHistoryCollection: false,
+                operations: [entry1, entry2],
+                requestInfo,
+                insertOneHistoryFn: jest.fn()
+            });
+
+            expect(result.error).toBe(mongoServerError);
+            expect(result.mergeResultEntries).toHaveLength(2);
+            for (const entry of result.mergeResultEntries) {
+                expect(entry).toBeInstanceOf(MergeResultEntry);
+                expect(entry.created).toBe(false);
+                expect(entry.updated).toBe(false);
+                expect(entry.issue.severity).toBe('error');
+                expect(entry.issue.diagnostics).toContain('Error in one of the resources of Patient');
+            }
+        });
+
+        // 3b. Error path: Node RangeError [ERR_OUT_OF_RANGE] from BSON's 17 MiB scratch buffer
+        test('Node RangeError from oversized BSON document returns error MergeResultEntries (not thrown)', async () => {
+            const entry = makeEntry({ id: 'p1', uuid: 'uuid-p1' });
+
+            // Reproduces the exact error observed in production trace 419ea91b…: a Node
+            // RangeError thrown by Buffer.write* when libbson serializes a >16 MiB document.
+            const rangeError = Object.assign(
+                new RangeError('The value of "offset" is out of range. It must be >= 0 && <= 17825792. Received 17825794'),
+                { code: 'ERR_OUT_OF_RANGE' }
+            );
+
+            const mockCollection = makeMockCollection({
+                bulkWriteImpl: jest.fn().mockRejectedValue(rangeError)
+            });
+
+            const mockResourceLocator = {
+                getCollectionNameForResource: jest.fn().mockReturnValue('Composition_4_0_0'),
+                getCollectionByNameAsync: jest.fn().mockResolvedValue(mockCollection)
+            };
+
+            const { executor } = makeExecutor({
+                resourceLocator: mockResourceLocator,
+                cloneResource,
+                createUpdateManager
+            });
+
+            const result = await executor.executeBulkAsync({
+                resourceType: 'Composition',
+                base_version,
+                useHistoryCollection: false,
+                operations: [entry],
+                requestInfo,
+                insertOneHistoryFn: jest.fn()
+            });
+
+            expect(result.error).toBe(rangeError);
+            expect(result.mergeResultEntries).toHaveLength(1);
+            const entryResult = result.mergeResultEntries[0];
+            expect(entryResult.issue.severity).toBe('error');
+            expect(entryResult.issue.diagnostics).toContain('17825792');
+        });
+
+        // 3c. Telemetry: outer rethrow preserves the original error class and message
+        // (regression for "operationFailed: ... : RethrownError: undefined" audit log line).
+        test('non-size error propagates with original message preserved', async () => {
+            const entry = makeEntry();
+            const originalError = new Error('the underlying mongo failure');
+
+            const mockCollection = makeMockCollection({
+                bulkWriteImpl: jest.fn().mockRejectedValue(originalError)
+            });
+
+            const mockResourceLocator = {
+                getCollectionNameForResource: jest.fn().mockReturnValue('Patient_4_0_0'),
+                getCollectionByNameAsync: jest.fn().mockResolvedValue(mockCollection)
+            };
+
+            const { executor } = makeExecutor({
+                resourceLocator: mockResourceLocator,
+                cloneResource,
+                createUpdateManager
+            });
+
+            let caught;
+            try {
+                await executor.executeBulkAsync({
+                    resourceType: 'Patient',
+                    base_version,
+                    useHistoryCollection: false,
+                    operations: [entry],
+                    requestInfo,
+                    insertOneHistoryFn: jest.fn()
+                });
+            } catch (e) {
+                caught = e;
+            }
+
+            expect(caught).toBeInstanceOf(RethrownError);
+            // The inner bulkWrite catch wraps with a contextual message;
+            // outer catches must NOT re-wrap and lose it.
+            expect(caught.message).toBe('mongoBulkWriteExecutor: Error bulkWrite');
+            expect(caught.original_error).toBe(originalError);
+            // constructor.name is what fhirLoggingManager appends to audit log entries —
+            // exactly one wrap, not double-wrapped to a RethrownError of a RethrownError.
+            expect(caught.nested).toBe(originalError);
+        });
+
         // 4. Concurrency: insert count mismatch triggers one-by-one fallback
         test('concurrency fallback for inserts when upsertedCount < expected', async () => {
             // Arrange
@@ -896,13 +1029,14 @@ describe('MongoBulkWriteExecutor', () => {
         });
     });
 
-    // Outer catch block: logs and rethrows
+    // Outer catch block: logs and rethrows the original error (no RethrownError wrap)
     describe('outer catch block', () => {
-        test('logs and rethrows when an unexpected error occurs in the outer try', async () => {
+        test('logs and rethrows the original error from the prep phase, preserving its class', async () => {
             // Arrange: make resourceLocatorFactory.createResourceLocator throw
+            const originalError = new Error('unexpected locator error');
             const mockResourceLocatorFactory = Object.create(ResourceLocatorFactory.prototype);
             mockResourceLocatorFactory.createResourceLocator = jest.fn().mockImplementation(() => {
-                throw new Error('unexpected locator error');
+                throw originalError;
             });
 
             const { executor } = makeExecutor({
@@ -911,15 +1045,25 @@ describe('MongoBulkWriteExecutor', () => {
 
             const entry = makeEntry();
 
-            // Act + Assert
-            await expect(executor.executeBulkAsync({
-                resourceType: 'Patient',
-                base_version,
-                useHistoryCollection: false,
-                operations: [entry],
-                requestInfo,
-                insertOneHistoryFn: jest.fn()
-            })).rejects.toThrow(RethrownError);
+            // Act
+            let caught;
+            try {
+                await executor.executeBulkAsync({
+                    resourceType: 'Patient',
+                    base_version,
+                    useHistoryCollection: false,
+                    operations: [entry],
+                    requestInfo,
+                    insertOneHistoryFn: jest.fn()
+                });
+            } catch (e) {
+                caught = e;
+            }
+
+            // Assert: original Error propagates unwrapped, not as a RethrownError —
+            // ensures audit logs see the real constructor name and stack.
+            expect(caught).toBe(originalError);
+            expect(caught).not.toBeInstanceOf(RethrownError);
         });
     });
 

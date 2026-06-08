@@ -23,6 +23,37 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PostSaveProcessor } = require('../postSaveProcessor');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
+// MongoDB BSON document hard limit is 16 MiB (16,777,216 bytes). The Node driver and
+// libbson allocate a 17 MiB scratch buffer (kMaxBSONSize + 1 MiB headroom = 17,825,792 bytes),
+// so an oversized document surfaces as a RangeError with that exact boundary.
+const BSON_BUFFER_OVERFLOW_BOUNDARY = '17825792';
+// MongoDB server error codes for oversized documents: 10334 = BSONObjectTooLarge, 17419 = BSONObj size invalid.
+const MONGO_DOC_SIZE_ERROR_CODES = new Set([10334, 17419]);
+
+/**
+ * Detects all known shapes of "document exceeds 16 MiB" errors from a MongoDB bulk write.
+ * @param {Error} error
+ * @returns {boolean}
+ */
+function isDocumentSizeError (error) {
+    if (!error) {
+        return false;
+    }
+    if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCEEDS) {
+        return true;
+    }
+    if (typeof error.code === 'number' && MONGO_DOC_SIZE_ERROR_CODES.has(error.code)) {
+        return true;
+    }
+    if (error.code === 'ERR_OUT_OF_RANGE' && typeof error.message === 'string' && error.message.includes(BSON_BUFFER_OVERFLOW_BOUNDARY)) {
+        return true;
+    }
+    if (Array.isArray(error.writeErrors) && error.writeErrors.some(we => MONGO_DOC_SIZE_ERROR_CODES.has(we && we.code))) {
+        return true;
+    }
+    return false;
+}
+
 /**
  * @classdesc Executes bulk write operations against MongoDB.
  * Extracted from DatabaseBulkInserter and FastDatabaseBulkInserter.
@@ -250,17 +281,14 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                                 collection: collectionName
                             }
                         });
-                        /**
-                         * @type {string}
-                         */
-                        let diagnostics;
-                        if (error instanceof MongoInvalidArgumentError && error.message === MONGO_ERROR.RESOURCE_SIZE_EXCEEDS) {
-                            diagnostics = error.toString();
-                        } else {
+                        if (!isDocumentSizeError(error)) {
                             throw new RethrownError({ message: 'mongoBulkWriteExecutor: Error bulkWrite', error });
                         }
 
-                        diagnostics = `Error in one of the resources of ${resourceType}: ` + diagnostics;
+                        /**
+                         * @type {string}
+                         */
+                        const diagnostics = `Error in one of the resources of ${resourceType}: ` + error.toString();
                         const bulkWriteResultError = new Error(diagnostics);
                         for (const operationByCollection of operationsByCollection) {
                             const mergeResultEntry = new MergeResultEntry({
@@ -389,26 +417,40 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                         );
                     }
                 } catch (e) {
-                    await logSystemErrorAsync({
-                        event: 'mongoBulkWriteExecutor',
-                        message: 'mongoBulkWriteExecutor: Error bulkWrite',
-                        error: e,
-                        args: {
-                            requestId,
-                            options,
-                            collection: collectionName
-                        }
-                    });
-                    throw new RethrownError({
-                        error: e
-                    });
+                    // The inner bulkWrite catch already logs and wraps with a contextual
+                    // RethrownError. Errors that reach here without going through it (post-save,
+                    // concurrency fallback) need their own log entry — but rethrow as-is to
+                    // preserve the original error class and stack downstream.
+                    if (!(e instanceof RethrownError)) {
+                        await logSystemErrorAsync({
+                            event: 'mongoBulkWriteExecutor_postBulkWrite',
+                            message: 'mongoBulkWriteExecutor: Error after bulk write',
+                            error: e,
+                            args: {
+                                requestId,
+                                options,
+                                collection: collectionName
+                            }
+                        });
+                    }
+                    throw e;
                 }
             }
             return { resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries };
         } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
+            // Catches errors from the prep phase (resource locator, operation grouping) only —
+            // bulk-write and post-save errors are logged at inner layers. Re-wrapping with
+            // RethrownError here would lose the original constructor and stack, producing audit
+            // log entries like "operationFailed: <msg>: RethrownError: undefined".
+            if (!(e instanceof RethrownError)) {
+                await logSystemErrorAsync({
+                    event: 'mongoBulkWriteExecutor_prep',
+                    message: 'mongoBulkWriteExecutor: Error before bulk write',
+                    error: e,
+                    args: { requestId, resourceType }
+                });
+            }
+            throw e;
         }
     }
 
@@ -594,5 +636,6 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
 }
 
 module.exports = {
-    MongoBulkWriteExecutor
+    MongoBulkWriteExecutor,
+    isDocumentSizeError
 };
