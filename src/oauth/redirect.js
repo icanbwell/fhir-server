@@ -33,11 +33,18 @@ $(document).ready(function () {
             setCookie('jwt', accessToken, jwt.exp);
 
             const resourceUrl = decodeURIComponent(parameters.get('resourceUrl'));
-            if (resourceUrl.startsWith('/')) {
-                // URL is relative, so redirect
-                window.location.assign(resourceUrl);
-            } else {
-                throw new Error(`Url is not a relative ${resourceUrl}`);
+            try {
+                // Reject protocol-relative and absolute URLs by constructing
+                // a URL object relative to the current origin and verifying
+                // the resulting origin matches before navigating.
+                const resolved = new URL(resourceUrl, window.location.origin);
+                if (resolved.origin === window.location.origin) {
+                    window.location.assign(resolved.pathname + resolved.search + resolved.hash);
+                } else {
+                    throw new Error(`Redirect origin mismatch: ${resolved.origin}`);
+                }
+            } catch (e) {
+                throw new Error(`Invalid redirect URL: ${resourceUrl}`);
             }
         });
 });

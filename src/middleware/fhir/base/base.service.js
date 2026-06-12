@@ -39,19 +39,39 @@ const makeResultBundle = (results, res, baseVersion, type) => {
 
 const createRequestPromises = (entries, req, baseVersion) => {
     const {
-        protocol,
         baseUrl
     } = req;
     const requestPromises = [];
     const results = [];
+
+    // Use a fixed, server-controlled base origin derived from server config,
+    // never from the attacker-controlled Host header.
+    const serverOrigin = process.env.INTERNAL_FHIR_BASE_URL || `${req.protocol}://localhost`;
+
+    const ALLOWED_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete']);
+
+    const isSafeRelativeUrl = (url) => {
+        // Reject absolute URLs and path traversal sequences
+        if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(url)) return false;
+        if (url.includes('..')) return false;
+        return true;
+    };
 
     entries.forEach(entry => {
         const {
             url,
             method
         } = entry.request;
+
+        if (!ALLOWED_METHODS.has(method.toLowerCase())) {
+            throw new Error(`Disallowed method: ${method}`);
+        }
+        if (!isSafeRelativeUrl(url)) {
+            throw new Error(`Disallowed URL in bundle entry: ${url}`);
+        }
+
         const resource = entry.resource;
-        const destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
+        const destinationUrl = `${serverOrigin}${path.join('/', baseUrl, baseVersion, url)}`;
         results.push({
             method,
             url: destinationUrl
