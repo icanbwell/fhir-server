@@ -93,6 +93,15 @@ class CloudStorageClient {
     }
 
     /**
+     * Delete file from cloud storage at the provided path. Idempotent: deleting a
+     * non-existent key should succeed without error.
+     * @param {string} filePath
+     */
+    async deleteAsync(filePath) {
+        throw Error('Not Implemented');
+    }
+
+    /**
      * Download files in parallel from cloud storage in given batch size for provided paths
      * @typedef {Object} downloadInBatchAsyncParams
      * @property {string[]} filePaths

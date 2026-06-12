@@ -5,6 +5,7 @@ const {
     UploadPartCommand,
     AbortMultipartUploadCommand,
     CompleteMultipartUploadCommand,
+    DeleteObjectCommand,
     GetObjectCommand,
     NoSuchKey
 } = require('@aws-sdk/client-s3');
@@ -98,6 +99,31 @@ class S3Client extends CloudStorageClient {
                 message: `Error in downloadAsync: ${err.message}`,
                 error: err,
                 source: 'S3Client'
+            });
+        }
+    }
+
+    /**
+     * Delete file from s3 at the provided path. Idempotent: deleting a non-existent
+     * key returns a 204 from S3 (no NoSuchKey thrown), so this method completes silently.
+     * @param {string} filePath
+     */
+    async deleteAsync(filePath) {
+        try {
+            await this.client.send(
+                new DeleteObjectCommand({
+                    Bucket: this.bucketName,
+                    Key: filePath
+                })
+            );
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in deleteAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    filePath
+                }
             });
         }
     }

@@ -17,10 +17,11 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { isUuid } = require('../../utils/uid.util');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
@@ -42,6 +43,7 @@ class UpdateOperation {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {SearchManager} searchManager
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
@@ -58,6 +60,7 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             searchManager,
             postSaveHandlerFactory,
             identifierEnrichmentProvider
@@ -116,6 +119,12 @@ class UpdateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {SearchManager}
@@ -345,7 +354,13 @@ class UpdateOperation {
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false,
-                    databaseAttachmentManager: this.databaseAttachmentManager
+                    databaseAttachmentManager: this.databaseAttachmentManager,
+                    // Pass the base64 manager so RETRIEVE inlines the externalized `data` field
+                    // onto the cloned currentResource before compareObjects runs. Without this,
+                    // a PUT that omits `data` looks identical (via toJSON's public view) to a
+                    // currentResource whose `data` lives only in `_blobMeta`, the diff is empty,
+                    // and the merge no-ops — leaving the live S3 object and `_blobMeta` stale.
+                    base64DataManager: this.base64DataManager
                 }));
                 doc = updatedResource;
 
@@ -392,6 +407,7 @@ class UpdateOperation {
                 }
                 // Update attachments after all validations
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
+                doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo);
 
                 if (data && data.meta) {
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
@@ -468,6 +484,7 @@ class UpdateOperation {
 
                 // changing the attachment._file_id to attachment.data for response
                 doc = await this.databaseAttachmentManager.transformAttachments(doc, RETRIEVE);
+                doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE, requestInfo);
 
                 const result = {
                     id,
@@ -493,6 +510,7 @@ class UpdateOperation {
                 return result;
             } else {
                 await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
+                await this.base64DataManager.transformAsync(foundResource, BLOB_OP.RETRIEVE, requestInfo);
 
                 const result = {
                     id,

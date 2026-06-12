@@ -857,6 +857,48 @@ class ConfigManager {
     }
 
     /**
+     * Whether to offload `Binary.data` (and other base64 fields listed in
+     * src/dataLayer/base64DataResources.json) above the threshold to cloud storage on write.
+     * @returns {boolean}
+     */
+    get enableBase64FieldCloudStorage() {
+        return isTrue(env.BASE64_FIELD_CLOUD_STORAGE_ENABLED);
+    }
+
+    /**
+     * Cloud storage client implementation for live base64 payloads
+     * (e.g. CLOUD_STORAGE_CLIENTS.S3_CLIENT).
+     * The history-side client reuses the existing `historyResourceCloudStorageClient`.
+     * @returns {string|undefined}
+     */
+    get base64FieldCloudStorageClient() {
+        return env.BASE64_FIELD_CLOUD_STORAGE_CLIENT;
+    }
+
+    /**
+     * Bucket holding current (live) FHIR resource payloads externalized to cloud storage.
+     * Keyed by `{ResourceType}_4_0_0/{_uuid}[/<nested-path-with-indices>]`.
+     * The parallel `historyResourceBucketName` holds historical versions; the
+     * `Binary_4_0_0/...` key prefix used here does not collide with the
+     * `Binary_4_0_0_History/...` prefix used by the whole-history migration script.
+     * @returns {string|undefined}
+     */
+    get resourceBucketName() {
+        return env.RESOURCE_BUCKET_NAME;
+    }
+
+    /**
+     * Size threshold (in KB) above which a base64 payload is offloaded to cloud storage.
+     * Sized from the base64 string's byte length — that's the actual MongoDB cost.
+     * @returns {number}
+     */
+    get base64FieldDataThresholdKB() {
+        return env.BASE64_FIELD_DATA_THRESHOLD_KB
+            ? parseInt(env.BASE64_FIELD_DATA_THRESHOLD_KB)
+            : 64;
+    }
+
+    /**
      * Limit for number of History resources to Cloud storage in a cron job
      * @returns {number}
      */
