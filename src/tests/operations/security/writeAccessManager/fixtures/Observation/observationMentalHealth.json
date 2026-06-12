@@ -1,0 +1,20 @@
+{
+    "resourceType": "Observation",
+    "id": "6f2a9c10-3b7e-4e9a-8c21-1a2b3c4d5e6f",
+    "meta": {
+        "source": "https://www.icanbwell.com/test",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "client" },
+            { "system": "https://www.icanbwell.com/access", "code": "client" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "client" },
+            { "system": "https://www.icanbwell.com/sensitivity-category", "code": "MENTAL_HEALTH" }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [
+            { "system": "http://loinc.org", "code": "44249-1", "display": "PHQ-9 quick depression assessment panel" }
+        ]
+    },
+    "subject": { "reference": "Patient/1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f" }
+}
