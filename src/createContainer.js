@@ -8,6 +8,7 @@ const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
 const {FastDatabaseBulkInserter} = require('./dataLayer/fastDatabaseBulkInserter');
 const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
 const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
+const {Base64DataManager} = require('./dataLayer/base64DataManager');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
 const {AuditLogger} = require('./utils/auditLogger');
 const {IndexManager} = require('./indexes/indexManager');
@@ -513,6 +514,7 @@ const createContainer = function () {
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
                 postRequestProcessor: c.postRequestProcessor
             }
         )
@@ -605,6 +607,7 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
                 bulkWriteExecutors: [c.clickHouseBulkWriteExecutor, c.mongoBulkWriteExecutor].filter(Boolean)
             }
         )
@@ -622,6 +625,7 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
                 bulkWriteExecutors: [c.clickHouseBulkWriteExecutor, c.fastMongoBulkWriteExecutor].filter(Boolean),
                 customTracer: c.customTracer
             }
@@ -761,6 +765,7 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider
             }
         )
@@ -779,6 +784,7 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
                 searchManager: c.searchManager,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
                 identifierEnrichmentProvider: c.identifierEnrichmentProvider
@@ -886,6 +892,7 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
             configManager: c.configManager,
             searchManager: c.searchManager,
             resourceMerger: c.resourceMerger,
@@ -1240,6 +1247,34 @@ const createContainer = function () {
         }
         return null;
     });
+
+    // Cloud storage client for current (live) FHIR resource payloads externalized
+    // via base64DataResources.json. History versions reuse historyResourceCloudStorageClient above.
+    container.register('base64FieldCloudStorageClient', (c) => {
+        if (c.configManager.base64FieldCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT) {
+            return new S3Client({
+                bucketName: c.configManager.resourceBucketName,
+                region: c.configManager.awsRegion,
+                config: {
+                    correctClockSkew: true,
+                    maxAttempts: c.configManager.cloudStorageClientMaxRetry,
+                    requestHandler: {
+                        requestTimeout: c.configManager.cloudStorageClientRequestTimeout,
+                        connectionTimeout: c.configManager.cloudStorageClientConnectionTimeout
+                    }
+                }
+            });
+        }
+        return null;
+    });
+
+    container.register('base64DataManager', (c) => new Base64DataManager({
+        base64FieldCloudStorageClient: c.base64FieldCloudStorageClient,
+        historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
+        configManager: c.configManager,
+        requestSpecificCache: c.requestSpecificCache,
+        preSaveManager: c.preSaveManager
+    }));
 
     container.register('customTracer', () => new CustomTracer());
 

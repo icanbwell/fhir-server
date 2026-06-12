@@ -204,7 +204,17 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             configurable: true,
             get: () => this.__data.{{ extra_property.name }},
             set: valueProvided => {
+    {% if extra_property.is_complex %}
+                if (valueProvided === undefined || valueProvided === null) {
+                    this.__data.{{ extra_property.name }} = undefined;
+                    return;
+                }
+                const {{ extra_property.type }} = require('{{ extra_property.import_path }}');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
+                this.__data.{{ extra_property.name }} = FhirResourceCreator.create(valueProvided, {{ extra_property.type }});
+    {% else %}
                 this.__data.{{ extra_property.name }} = valueProvided;
+    {% endif %}
             }
         });
 {%  endfor %}
@@ -459,7 +469,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         };
 {% for extra_property in extra_properties %}
         if (this.{{ extra_property.name -}}) {
+    {% if extra_property.is_complex %}
+            json.{{ extra_property.name }} = this.{{ extra_property.name -}}.toJSONInternal();
+    {% else %}
             json.{{ extra_property.name }} = this.{{ extra_property.name -}};
+    {% endif %}
         }
 {%  endfor %}
 {% if fhir_entity.cleaned_name == "Reference"  %}
