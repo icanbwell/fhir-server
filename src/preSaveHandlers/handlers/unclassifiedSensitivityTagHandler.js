@@ -1,5 +1,6 @@
 const { PreSaveHandler } = require('./preSaveHandler');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const { SENSITIVE_CATEGORY } = require('../../constants');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 
@@ -51,11 +52,14 @@ class UnclassifiedSensitivityTagHandler extends PreSaveHandler {
             return resource;
         }
 
-        resource.meta.security.push(new Coding({
+        const unclassifiedTag = {
             id: generateUUIDv5(`${SENSITIVE_CATEGORY.SYSTEM}|${SENSITIVE_CATEGORY.UNCLASSIFIED_CODE}`),
             system: SENSITIVE_CATEGORY.SYSTEM,
             code: SENSITIVE_CATEGORY.UNCLASSIFIED_CODE
-        }));
+        };
+        // Push a Coding class instance for Resource instances (normal flow) but a plain object for
+        // plain resources (fast merge flow)
+        resource.meta.security.push(resource instanceof Resource ? new Coding(unclassifiedTag) : unclassifiedTag);
 
         return resource;
     }
