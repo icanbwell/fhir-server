@@ -254,6 +254,19 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
     }
 
     /**
+     * Finds one resource - always uses MongoDB (Groups metadata stored there)
+     * @param {Object} params
+     * @param {Object} params.query
+     * @param {Object} [params.options]
+     * @returns {Promise<Object|null>}
+     */
+    async fastFindOneAsync({ query, options }) {
+        // Group metadata queries go to MongoDB
+        // In future, could reconstruct full Group with members from ClickHouse
+        return await this.mongoStorageProvider.fastFindOneAsync({ query, options });
+    }
+
+    /**
      * Inserts/updates resources with dual-write to MongoDB and ClickHouse
      * @param {Object} params
      * @param {Array<Object>} params.resources

@@ -70,7 +70,7 @@ class DatabaseQueryManager {
         try {
             // Use storage provider if available
             if (this.storageProvider) {
-                return await this.storageProvider.findOneAsync({ query, options });
+                return await this.storageProvider.fastFindOneAsync({ query, options });
             }
 
             // Fall back to direct MongoDB access

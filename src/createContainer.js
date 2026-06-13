@@ -218,7 +218,7 @@ const createContainer = function () {
             new DateColumnHandler(),
             new SourceIdColumnHandler(),
             new AccessColumnHandler(),
-            new OwnerColumnHandler(),
+            new OwnerColumnHandler({ configManager: c.configManager }),
             c.sourceAssigningAuthorityColumnHandler,
             new UnclassifiedSensitivityTagHandler({ configManager: c.configManager }),
             new CodeableConceptIdHandler({
@@ -231,7 +231,7 @@ const createContainer = function () {
             new ReferenceGlobalIdHandler()
         ]
     }));
-    container.register('sourceAssigningAuthorityColumnHandler', (_c) => new SourceAssigningAuthorityColumnHandler());
+    container.register('sourceAssigningAuthorityColumnHandler', (c) => new SourceAssigningAuthorityColumnHandler({ configManager: c.configManager }));
     container.register('uuidColumnHandler', (_c) => new UuidColumnHandler());
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
