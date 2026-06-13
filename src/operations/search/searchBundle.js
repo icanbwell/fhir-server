@@ -13,8 +13,9 @@ const { ConfigManager } = require('../../utils/configManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, BLOB_OP } = require('../../constants');
 const { ResourceLocator } = require('../common/resourceLocator');
 const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const { enrichReferenceExtension } = require('../../fhir/serializers/4_0_0/custom_utils/referenceEnricher');
@@ -30,6 +31,7 @@ class SearchBundleOperation {
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
@@ -42,6 +44,7 @@ class SearchBundleOperation {
             bundleManager,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             postRequestProcessor
         }
     ) {
@@ -91,6 +94,12 @@ class SearchBundleOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {PostRequestProcessor}
@@ -346,6 +355,9 @@ class SearchBundleOperation {
             })));
 
             resources = await this.databaseAttachmentManager.transformAttachments(resources, RETRIEVE);
+            for (const resource of resources) {
+                await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
+            }
 
             /**
              * @type {number}
