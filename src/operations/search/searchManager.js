@@ -23,6 +23,7 @@ const { ScopesManager } = require('../security/scopesManager');
 const { GetCursorResult } = require('./getCursorResult');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { MongoReadableStream } = require('../streaming/mongoStreamReader');
 const { DataSharingManager } = require('./dataSharingManager');
@@ -37,6 +38,7 @@ const {
     DB_SEARCH_LIMIT,
     OPERATIONS: { READ },
     GRIDFS: { RETRIEVE },
+    BLOB_OP,
     AUTH_USER_TYPES
 } = require('../../constants');
 
@@ -53,6 +55,7 @@ class SearchManager {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
@@ -71,6 +74,7 @@ class SearchManager {
             queryRewriterManager,
             scopesManager,
             databaseAttachmentManager,
+            base64DataManager,
             fhirResourceWriterFactory,
             dataSharingManager,
             searchQueryBuilder,
@@ -132,6 +136,12 @@ class SearchManager {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {FhirResourceWriterFactory}
@@ -612,6 +622,28 @@ class SearchManager {
             }
             // always include _uuid for audit logging
             projection._uuid = 1;
+            // Only project _blobMeta sidecars when the corresponding `data` field is also
+            // projected — otherwise Base64DataManager.transformAsync(RETRIEVE) has nothing
+            // to rehydrate, so the sidecar would just be dead weight in the result.
+            const base64Entries = this.base64DataManager.resourcePaths[resourceType];
+            if (base64Entries) {
+                for (const entry of base64Entries) {
+                    const dataProjectionPath = entry.dataPath
+                        .replace(/^\//, '')
+                        .replace(/\/\[\]/g, '')
+                        .replace(/\//g, '.');
+                    // GraphQL/_elements projections request top-level fields (e.g. `content`),
+                    // so check the top-level segment of the dotted path.
+                    const topLevelKey = dataProjectionPath.split('.')[0];
+                    if (projection[dataProjectionPath] || projection[topLevelKey]) {
+                        const blobMetaProjectionPath = entry.blobMetaPath
+                            .replace(/^\//, '')
+                            .replace(/\/\[\]/g, '')
+                            .replace(/\//g, '.');
+                        projection[blobMetaProjectionPath] = 1;
+                    }
+                }
+            }
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection._id = 0;
             if (
@@ -744,6 +776,7 @@ class SearchManager {
                 cursor,
                 signal: ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
+                base64DataManager: this.base64DataManager,
                 highWaterMark,
                 configManager: this.configManager
             });
@@ -987,6 +1020,7 @@ class SearchManager {
             cursor,
             signal: ac.signal,
             databaseAttachmentManager: this.databaseAttachmentManager,
+            base64DataManager: this.base64DataManager,
             searchManager: this,
             highWaterMark,
             configManager: this.configManager,
@@ -1250,6 +1284,7 @@ class SearchManager {
                  */
 
                 startResource = await this.databaseAttachmentManager.transformAttachments(startResource, RETRIEVE);
+                startResource = await this.base64DataManager.transformAsync(startResource, BLOB_OP.RETRIEVE);
                 let current_entity = {
                     id: startResource._sourceId,
                     resource: startResource

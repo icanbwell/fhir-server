@@ -5,7 +5,9 @@ const { ConfigManager } = require('../../utils/configManager');
 const { RethrownError } = require('../../utils/rethrownError');
 const { convertErrorToOperationOutcome } = require('../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../common/sentry');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { RETRIEVE } = require('../../constants').GRIDFS;
+const { BLOB_OP } = require('../../constants');
 
 // https://thenewstack.io/node-js-readable-streams-explained/
 // https://github.com/logdna/tail-file-node/blob/ee0389ba34cb2037de776541f800842bb98df6b3/lib/tail-file.js#L22
@@ -17,6 +19,7 @@ class MongoReadableStream extends Readable {
      * @param {DatabaseCursor} cursor
      * @param {AbortSignal} signal
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} [base64DataManager]
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
@@ -26,6 +29,7 @@ class MongoReadableStream extends Readable {
             cursor,
             signal,
             databaseAttachmentManager,
+            base64DataManager,
             searchManager,
             highWaterMark,
             configManager,
@@ -49,6 +53,14 @@ class MongoReadableStream extends Readable {
          * @type {DatabaseAttachmentManager}
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        if (base64DataManager) {
+            assertTypeEquals(base64DataManager, Base64DataManager);
+        }
 
         /**
          * @type {ConfigManager}
@@ -121,6 +133,9 @@ class MongoReadableStream extends Readable {
                     }
                     if (this.databaseAttachmentManager) {
                         resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+                    }
+                    if (this.base64DataManager) {
+                        resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
                     }
                     this.push(resource);
                 } else {

@@ -14,6 +14,8 @@ const {
     commonAfterEach,
     createTestRequest,
     getHeaders,
+    getHeadersNdJson,
+    getGraphQLHeaders,
     getTestContainer,
     mockHttpContext
 } = require('../../common');
@@ -175,6 +177,20 @@ describe('Binary base64 S3 offload — write paths', () => {
         // Live S3 should have the payload at the deterministic key.
         const liveKey = `Binary_4_0_0/${mongoDoc._uuid}`;
         expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+        // Cold read: a follow-up GET request hits a fresh request scope (stash cleared by
+        // drainPostRequest), so the response can only have `data` if S3 RETRIEVE actually ran.
+        await drainPostRequest(container);
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const getResp = await request
+            .get(`/4_0_0/Binary/${id}`)
+            .set(getHeaders())
+            .expect(200);
+        expect(getResp.body.data).toBe(LARGE_DATA);
+        expect(getResp.body._blobMeta).toBeUndefined();
+        expect(downloadSpy).toHaveBeenCalledTimes(1);
+        expect(downloadSpy).toHaveBeenCalledWith(`Binary_4_0_0/${mongoDoc._uuid}`);
+        downloadSpy.mockRestore();
     });
 
     test('Create with data below threshold stays inline (no S3 traffic)', async () => {
@@ -197,6 +213,16 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(mongoDoc._blobMeta).toBeUndefined();
         // No object should have landed in the live bucket.
         expect(Object.keys(liveClient.uploadedData)).toHaveLength(0);
+
+        await drainPostRequest(container);
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const getResp = await request
+            .get(`/4_0_0/Binary/${id}`)
+            .set(getHeaders())
+            .expect(200);
+        expect(getResp.body.data).toBe(SMALL_DATA);
+        expect(downloadSpy).not.toHaveBeenCalled();
+        downloadSpy.mockRestore();
     });
 
     test('PUT update overwrites live key + appends versioned history key', async () => {
@@ -253,6 +279,16 @@ describe('Binary base64 S3 offload — write paths', () => {
                 expect(entry.resource.data).toBeUndefined();
             }
         }
+
+        // Cold read after overwrite must return the new payload, not the prior version.
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const getResp = await request
+            .get(`/4_0_0/Binary/${id}`)
+            .set(getHeaders())
+            .expect(200);
+        expect(getResp.body.data).toBe(ALT_LARGE_DATA);
+        expect(downloadSpy).toHaveBeenCalledTimes(1);
+        downloadSpy.mockRestore();
     });
 
     test('PATCH /data sanitizes patch diagnostics with <data_value> placeholder', async () => {
@@ -339,6 +375,98 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(smallDoc.data).toBe(SMALL_DATA);
         expect(smallDoc._blobMeta).toBeUndefined();
         expect(liveClient.uploadedData[`Binary_4_0_0/${smallDoc._uuid}`]).toBeUndefined();
+
+        // Cold read via search bundle: both entries come back with `data` populated,
+        // and S3 was hit exactly once (for the large entry only). STREAM_RESPONSE is
+        // forced off so the GET routes through SearchBundleOperation (the path under
+        // test) rather than the streaming reader, which has its own RETRIEVE wiring.
+        const originalStreamResponse = process.env.STREAM_RESPONSE;
+        process.env.STREAM_RESPONSE = '0';
+        try {
+            const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+            const searchResp = await request
+                .get(`/4_0_0/Binary?_bundle=1&_count=10&id=${largeId},${smallId}`)
+                .set(getHeaders())
+                .expect(200);
+            expect(searchResp.body.resourceType).toBe('Bundle');
+            const entries = searchResp.body.entry || [];
+            const largeEntry = entries.find(e => e.resource && e.resource.id === largeId);
+            const smallEntry = entries.find(e => e.resource && e.resource.id === smallId);
+            expect(largeEntry).toBeDefined();
+            expect(smallEntry).toBeDefined();
+            expect(largeEntry.resource.data).toBe(LARGE_DATA);
+            expect(largeEntry.resource._blobMeta).toBeUndefined();
+            expect(smallEntry.resource.data).toBe(SMALL_DATA);
+            expect(smallEntry.resource._blobMeta).toBeUndefined();
+            expect(downloadSpy).toHaveBeenCalledTimes(1);
+            expect(downloadSpy).toHaveBeenCalledWith(`Binary_4_0_0/${largeDoc._uuid}`);
+            downloadSpy.mockRestore();
+        } finally {
+            if (originalStreamResponse === undefined) {
+                delete process.env.STREAM_RESPONSE;
+            } else {
+                process.env.STREAM_RESPONSE = originalStreamResponse;
+            }
+        }
+    });
+
+    test('Streaming search hydrates Binary.data from S3 via MongoReadableStream', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+
+        const largeId = 'binary-stream-large';
+        const smallId = 'binary-stream-small';
+
+        await request
+            .put(`/4_0_0/Binary/${largeId}`)
+            .send(buildBinary({ id: largeId, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        await request
+            .put(`/4_0_0/Binary/${smallId}`)
+            .send(buildBinary({ id: smallId, data: SMALL_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const largeDoc = await readBinaryFromMongo(container, largeId);
+        const smallDoc = await readBinaryFromMongo(container, smallId);
+
+        expect(largeDoc.data).toBeUndefined();
+        expect(largeDoc._blobMeta).toBeDefined();
+        expect(liveClient.uploadedData[`Binary_4_0_0/${largeDoc._uuid}`]).toBe(LARGE_DATA);
+        expect(smallDoc.data).toBe(SMALL_DATA);
+
+        // Cold read via the default streaming search path (STREAM_RESPONSE=1 in jest env),
+        // requesting NDJSON so each Binary serializes as its own newline-delimited line.
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const searchResp = await request
+            .get(`/4_0_0/Binary?_count=10&id=${largeId},${smallId}`)
+            .set(getHeadersNdJson())
+            .expect(200);
+
+        expect(searchResp.headers['content-type']).toBe('application/fhir+ndjson');
+
+        const resources = searchResp.text
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .map(line => JSON.parse(line));
+
+        const largeEntry = resources.find(r => r.resourceType === 'Binary' && r.id === largeId);
+        const smallEntry = resources.find(r => r.resourceType === 'Binary' && r.id === smallId);
+        expect(largeEntry).toBeDefined();
+        expect(smallEntry).toBeDefined();
+        expect(largeEntry.data).toBe(LARGE_DATA);
+        expect(largeEntry._blobMeta).toBeUndefined();
+        expect(smallEntry.data).toBe(SMALL_DATA);
+        expect(smallEntry._blobMeta).toBeUndefined();
+        expect(downloadSpy).toHaveBeenCalledTimes(1);
+        expect(downloadSpy).toHaveBeenCalledWith(`Binary_4_0_0/${largeDoc._uuid}`);
+        downloadSpy.mockRestore();
     });
 
     test('PUT without /data field deletes the orphaned live S3 object and clears _blobMeta', async () => {
@@ -434,6 +562,87 @@ describe('Binary base64 S3 offload — write paths', () => {
         }
     });
 
+    test('GraphQL v1 returns Binary.data hydrated from S3', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-graphql-v1';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const mongoDoc = await readBinaryFromMongo(container, id);
+        expect(mongoDoc).toBeDefined();
+        expect(mongoDoc.data).toBeUndefined();
+        expect(mongoDoc._blobMeta).toBeDefined();
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const query = `query { binary(_id: { value: "${id}" }) { entry { resource { id contentType data } } } }`;
+            const resp = await request
+                .post('/$graphql')
+                .send({ operationName: null, variables: {}, query })
+                .set(getGraphQLHeaders())
+                .expect(200);
+
+            const entries = (resp.body && resp.body.data && resp.body.data.binary && resp.body.data.binary.entry) || [];
+            expect(entries).toHaveLength(1);
+            const resource = entries[0].resource;
+            expect(resource.id).toBe(id);
+            expect(resource.contentType).toBe('application/pdf');
+            expect(downloadSpy).toHaveBeenCalled();
+            expect(downloadSpy).toHaveBeenCalledWith(`Binary_4_0_0/${mongoDoc._uuid}`);
+            expect(resource.data).toBe(LARGE_DATA);
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('GraphQL v2 returns Binary.data hydrated from S3', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-graphql-v2';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const mongoDoc = await readBinaryFromMongo(container, id);
+        expect(mongoDoc).toBeDefined();
+        expect(mongoDoc.data).toBeUndefined();
+        expect(mongoDoc._blobMeta).toBeDefined();
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const query = `query { binaries(id: { value: "${id}" }) { entry { resource { id contentType data } } } }`;
+            const resp = await request
+                .post('/4_0_0/$graphqlv2')
+                .send({ operationName: null, variables: {}, query })
+                .set(getGraphQLHeaders())
+                .expect(200);
+
+            const entries = (resp.body && resp.body.data && resp.body.data.binaries && resp.body.data.binaries.entry) || [];
+            expect(entries).toHaveLength(1);
+            const resource = entries[0].resource;
+            // GraphQL v2 returns _uuid in the id field (consistent with other v2 fixtures).
+            expect(resource.id).toBe(mongoDoc._uuid);
+            expect(resource.contentType).toBe('application/pdf');
+            expect(downloadSpy).toHaveBeenCalled();
+            expect(downloadSpy).toHaveBeenCalledWith(`Binary_4_0_0/${mongoDoc._uuid}`);
+            expect(resource.data).toBe(LARGE_DATA);
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
     test('shrink-below-threshold update deletes the orphaned live S3 object', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
@@ -467,5 +676,181 @@ describe('Binary base64 S3 offload — write paths', () => {
         const mongoDocAfterUpdate = await readBinaryFromMongo(container, id);
         expect(mongoDocAfterUpdate.data).toBe(SMALL_DATA);
         expect(mongoDocAfterUpdate._blobMeta).toBeUndefined();
+    });
+
+    test('$graph hydrates Binary start resource from S3', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const binaryId = 'binary-graph-start';
+
+        // Seed an externalized Binary.
+        await request
+            .put(`/4_0_0/Binary/${binaryId}`)
+            .send(buildBinary({ id: binaryId, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const mongoBinaryDoc = await readBinaryFromMongo(container, binaryId);
+        expect(mongoBinaryDoc).toBeDefined();
+        expect(mongoBinaryDoc.data).toBeUndefined();
+        expect(mongoBinaryDoc._blobMeta).toBeDefined();
+        const liveKey = `Binary_4_0_0/${mongoBinaryDoc._uuid}`;
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+        const graphDefinition = {
+            resourceType: 'GraphDefinition',
+            id: 'binary-only',
+            name: 'binary_only',
+            status: 'active',
+            start: 'Binary'
+        };
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const resp = await request
+                .post(`/4_0_0/Binary/$graph?id=${binaryId}&contained=false`)
+                .send(graphDefinition)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp.body.resourceType).toBe('Bundle');
+            const entries = resp.body.entry || [];
+            const binaryEntry = entries.find(e => e.resource && e.resource.resourceType === 'Binary');
+            expect(binaryEntry).toBeDefined();
+            expect(binaryEntry.resource.id).toBe(binaryId);
+            expect(binaryEntry.resource.data).toBe(LARGE_DATA);
+            expect(binaryEntry.resource._blobMeta).toBeUndefined();
+            expect(downloadSpy).toHaveBeenCalled();
+            expect(downloadSpy).toHaveBeenCalledWith(`Binary_4_0_0/${mongoBinaryDoc._uuid}`);
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('Cold read fails with 5xx OperationOutcome when live S3 object is missing', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-cold-read-missing';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const mongoDoc = await readBinaryFromMongo(container, id);
+        expect(mongoDoc).toBeDefined();
+        const liveKey = `Binary_4_0_0/${mongoDoc._uuid}`;
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+        // Simulate an orphaned _blobMeta: the sidecar remains but the S3 object is gone.
+        delete liveClient.uploadedData[liveKey];
+
+        const resp = await request
+            .get(`/4_0_0/Binary/${id}`)
+            .set(getHeaders());
+
+        expect(resp.status).toBeGreaterThanOrEqual(500);
+        expect(resp).toHaveResponse({
+            issue: [
+                { code: 'internal', details: { text: 'Internal Server Error' }, severity: 'error' }
+            ],
+            resourceType: 'OperationOutcome'
+        });
+    });
+
+    test('$everything hydrates Binary reachable via DocumentReference in patient compartment', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const patientId = 'patient-everything-binary';
+        const docRefId = 'docref-everything-binary';
+        const binaryId = 'binary-everything-target';
+
+        const patientResource = {
+            resourceType: 'Patient',
+            id: patientId,
+            meta: {
+                source: 'https://test.example.com/source',
+                security: [
+                    { system: 'https://www.icanbwell.com/owner', code: 'test' },
+                    { system: 'https://www.icanbwell.com/access', code: 'test' },
+                    { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'test' }
+                ]
+            },
+            birthDate: '2000-01-01',
+            gender: 'female'
+        };
+
+        const documentReferenceResource = {
+            resourceType: 'DocumentReference',
+            id: docRefId,
+            meta: {
+                source: 'https://test.example.com/source',
+                security: [
+                    { system: 'https://www.icanbwell.com/owner', code: 'test' },
+                    { system: 'https://www.icanbwell.com/access', code: 'test' },
+                    { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'test' }
+                ]
+            },
+            status: 'current',
+            subject: { reference: `Patient/${patientId}` },
+            content: [
+                {
+                    attachment: {
+                        contentType: 'application/pdf',
+                        url: `Binary/${binaryId}`
+                    }
+                }
+            ]
+        };
+
+        await request
+            .post('/4_0_0/Patient/$merge')
+            .send(patientResource)
+            .set(getHeaders())
+            .expect(200);
+        await request
+            .post('/4_0_0/DocumentReference/$merge')
+            .send(documentReferenceResource)
+            .set(getHeaders())
+            .expect(200);
+        await request
+            .put(`/4_0_0/Binary/${binaryId}`)
+            .send(buildBinary({ id: binaryId, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const mongoBinaryDoc = await readBinaryFromMongo(container, binaryId);
+        expect(mongoBinaryDoc).toBeDefined();
+        expect(mongoBinaryDoc.data).toBeUndefined();
+        expect(mongoBinaryDoc._blobMeta).toBeDefined();
+        const liveKey = `Binary_4_0_0/${mongoBinaryDoc._uuid}`;
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const resp = await request
+                .get(`/4_0_0/Patient/${patientId}/$everything`)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp.body.resourceType).toBe('Bundle');
+            const entries = resp.body.entry || [];
+            const binaryEntry = entries.find(
+                e => e.resource && e.resource.resourceType === 'Binary'
+            );
+            expect(binaryEntry).toBeDefined();
+            expect(binaryEntry.resource.data).toBe(LARGE_DATA);
+            expect(binaryEntry.resource._blobMeta).toBeUndefined();
+            expect(downloadSpy).toHaveBeenCalledWith(liveKey);
+        } finally {
+            downloadSpy.mockRestore();
+        }
     });
 });
