@@ -20,10 +20,12 @@ const { logError } = require('../common/logging');
 const { sliceIntoChunksGenerator } = require('../../utils/list.util');
 const { ResourceIdentifier } = require('../../fhir/resourceIdentifier');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PatientEverythingCacheKeyGenerator } = require('./patientEverythingCachekeyGenerator')
 const {
     GRIDFS: { RETRIEVE },
     OPERATIONS: { READ },
+    BLOB_OP,
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
     PATIENT_REFERENCE_PREFIX,
@@ -81,6 +83,7 @@ class EverythingHelper {
      * @property {EnrichmentManager} enrichmentManager
      * @property {R4ArgsParser} r4ArgsParser
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
+     * @property {Base64DataManager} base64DataManager
      * @property {SearchParametersManager} searchParametersManager
      * @property {CustomTracer} customTracer
      * @property {PatientDataViewControlManager} patientDataViewControlManager
@@ -99,6 +102,7 @@ class EverythingHelper {
         enrichmentManager,
         r4ArgsParser,
         databaseAttachmentManager,
+        base64DataManager,
         searchParametersManager,
         everythingRelatedResourceMapper,
         customTracer,
@@ -154,6 +158,12 @@ class EverythingHelper {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {SearchParametersManager}
@@ -1561,6 +1571,9 @@ class EverythingHelper {
 
                 startResource = await this.databaseAttachmentManager.transformAttachments(
                     startResource, RETRIEVE
+                );
+                startResource = await this.base64DataManager.transformAsync(
+                    startResource, BLOB_OP.RETRIEVE
                 );
                 let current_entity = {
                     id: startResource._sourceId,
