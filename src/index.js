@@ -50,9 +50,26 @@ const numCPUs = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT, 10
 if (cluster.isPrimary && numCPUs > 1) {
     console.log(JSON.stringify({message: `Master ${process.pid} is running with ${numCPUs} workers`}));
 
+    // Give each worker a distinct, queryable identity on its OpenTelemetry signals
+    // (heap usage, GC, event-loop, traces) so per-worker resource usage is visible
+    // in cluster mode. The attributes are injected via OTEL_RESOURCE_ATTRIBUTES
+    // *before* the worker boots, so the env resource detector picks them up in both
+    // the operator auto-instrumentation path and the manual SDK path. Any pod-level
+    // OTEL_RESOURCE_ATTRIBUTES set on the primary is preserved (prepended).
+    let nextWorkerNumber = 0;
+    const forkWorker = () => {
+        nextWorkerNumber += 1;
+        const otelResourceAttributes = [
+            process.env.OTEL_RESOURCE_ATTRIBUTES,
+            'cluster.role=worker',
+            `cluster.worker.id=${nextWorkerNumber}`
+        ].filter(Boolean).join(',');
+        return cluster.fork({ OTEL_RESOURCE_ATTRIBUTES: otelResourceAttributes });
+    };
+
     // Fork workers
     for (let i = 0; i < numCPUs; i++) {
-        cluster.fork();
+        forkWorker();
     }
 
     // Forward all signals to the worker processes. Setting `shuttingDown`
@@ -75,7 +92,7 @@ if (cluster.isPrimary && numCPUs > 1) {
         if (shuttingDown) {
             return;
         }
-        cluster.fork();
+        forkWorker();
     });
 } else {
     (async () => {
