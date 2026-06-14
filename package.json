@@ -95,6 +95,7 @@
     "@opentelemetry/instrumentation-lru-memoizer": "0.62.0",
     "@opentelemetry/instrumentation-mongodb": "0.71.0",
     "@opentelemetry/instrumentation-redis": "0.66.0",
+    "@opentelemetry/instrumentation-runtime-node": "0.31.0",
     "@opentelemetry/instrumentation-winston": "0.62.0",
     "@opentelemetry/resources": "2.7.1",
     "@opentelemetry/sdk-metrics": "2.7.1",

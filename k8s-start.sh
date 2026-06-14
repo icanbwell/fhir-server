@@ -14,7 +14,7 @@ PER_WORKER_MAX_OLD_SPACE_SIZE_MB=$(( (MAX_OLD_SPACE_SIZE_MB / WORKER_COUNT) * 9 
 
 # Start the Node.js application with the calculated memory limit & instrumentation
 if [ "$1" = "otel" ]; then
-    OTEL_NODE_ENABLED_INSTRUMENTATIONS=dataloader,express,graphql,lru-memoizer,router,winston,http,mongodb,redis exec node --max-old-space-size=$PER_WORKER_MAX_OLD_SPACE_SIZE_MB --require=./src/otel_instrumentation.js src/index.js
+    OTEL_NODE_ENABLED_INSTRUMENTATIONS=dataloader,express,graphql,lru-memoizer,router,winston,http,mongodb,redis,runtime-node exec node --max-old-space-size=$PER_WORKER_MAX_OLD_SPACE_SIZE_MB --require=./src/otel_instrumentation.js src/index.js
 else
     exec node --max-old-space-size=$PER_WORKER_MAX_OLD_SPACE_SIZE_MB src/index.js
 fi
