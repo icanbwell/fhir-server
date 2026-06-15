@@ -14,6 +14,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
 const { READ } = require('../../constants').OPERATIONS;
+const { PATH, VALIDATION_STAGE, recordValidationFailure } = require('../../utils/metrics');
 
 class ValidateOperation {
     /**
@@ -327,7 +328,8 @@ class ValidateOperation {
                 path,
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
-                profile: specifiedProfile
+                profile: specifiedProfile,
+                validationContext: PATH.VALIDATE
             });
         if (validationOperationOutcome) {
             await this.fhirLoggingManager.logOperationSuccessAsync({
@@ -340,7 +342,7 @@ class ValidateOperation {
             return validationOperationOutcome;
         }
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
-            return new OperationOutcome({
+            const ownerTagOutcome = new OperationOutcome({
                 resourceType: 'OperationOutcome',
                 issue: [
                     new OperationOutcomeIssue({
@@ -357,6 +359,22 @@ class ValidateOperation {
                     })
                 ]
             });
+            // Emit fhir_validation_failure_total before returning so $validate
+            // owner-tag failures aren't silently invisible. Coverage on the
+            // path=validate side: SCHEMA + REFERENCE come from
+            // resourceValidator.validateResourceAsync above; here we add the
+            // owner-tag META subset. The other three meta checks in
+            // validateResourceMetaSync (requireMetaSourceTags,
+            // doesResourceHaveMultipleOwnerTags, doesResourceHaveInvalidMetaSecurity)
+            // are NOT currently run on $validate — that's behavior-preserving
+            // and out of scope for the metric fix.
+            recordValidationFailure(
+                ownerTagOutcome,
+                resourceType,
+                VALIDATION_STAGE.META,
+                PATH.VALIDATE
+            );
+            return ownerTagOutcome;
         }
 
         await this.fhirLoggingManager.logOperationSuccessAsync({

@@ -3,6 +3,7 @@ const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/g
 const { KafkaClient } = require('../../../utils/kafkaClient');
 const { KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
 const { ConfigManager } = require('../../../utils/configManager');
+const metrics = require('../../../utils/metrics');
 
 class MockKafkaClient extends KafkaClient {
     /**
@@ -291,6 +292,89 @@ describe('kafkaClient Tests', () => {
       expect(initSpy).toHaveBeenCalledTimes(1);
       expect(kafkaProduceSpy).toHaveBeenCalledTimes(1);
       expect(kafkaProduceSpy).toHaveBeenCalledWith({ topic, messages })
+    });
+  });
+
+  describe('retry-exhausted metric emission', () => {
+    let kafkaRetryExhaustedAddSpy;
+    let sendMessagesAsyncHelperSpy;
+    let sendCloudEventMessageHelperSpy;
+    let initSpy;
+
+    beforeEach(() => {
+      kafkaRetryExhaustedAddSpy = jest.spyOn(metrics.kafkaRetryExhaustedCounter, 'add');
+      sendMessagesAsyncHelperSpy = jest.spyOn(MockKafkaClient.prototype, 'sendMessagesAsyncHelper');
+      sendCloudEventMessageHelperSpy = jest.spyOn(MockKafkaClient.prototype, 'sendCloudEventMessageHelperAsync');
+      initSpy = jest.spyOn(MockKafkaClient.prototype, 'init');
+    });
+
+    afterEach(() => {
+      kafkaRetryExhaustedAddSpy.mockRestore();
+      sendMessagesAsyncHelperSpy.mockRestore();
+      sendCloudEventMessageHelperSpy.mockRestore();
+      initSpy.mockRestore();
+    });
+
+    test('sendMessagesAsync emits retry_exhausted on retry-budget exhaustion', async () => {
+      const code72Error = () => new KafkaJSNonRetriableError('Error', {
+        cause: new KafkaJSProtocolError({
+          type: 'LISTENER_NOT_FOUND',
+          code: 72,
+          retriable: true,
+          message: 'No listener'
+        })
+      });
+      sendMessagesAsyncHelperSpy
+        .mockRejectedValueOnce(code72Error())
+        .mockRejectedValueOnce(code72Error())
+        .mockRejectedValueOnce(code72Error());
+
+      const kafkaClient = new MockKafkaClient({ configManager: new ConfigManager() });
+      await kafkaClient.sendMessagesAsync('topic-x', [{ key: '1', value: 'msg' }]);
+
+      const calls = kafkaRetryExhaustedAddSpy.mock.calls.filter(
+        ([, attrs]) => attrs && attrs[metrics.LABEL.TOPIC] === 'topic-x'
+      );
+      expect(calls.length).toBe(1);
+      expect(calls[0][0]).toBe(1);
+      expect(calls[0][1][metrics.LABEL.ERROR_CODE]).toBe('72');
+      expect(calls[0][1][metrics.LABEL.SUBSYSTEM]).toBe(metrics.SUBSYSTEM.KAFKA);
+    });
+
+    test('sendCloudEventMessageAsync emits retry_exhausted on retry-budget exhaustion', async () => {
+      const code72Error = () => new KafkaJSNonRetriableError('Error', {
+        cause: new KafkaJSProtocolError({
+          type: 'LISTENER_NOT_FOUND',
+          code: 72,
+          retriable: true,
+          message: 'No listener'
+        })
+      });
+      sendCloudEventMessageHelperSpy
+        .mockRejectedValueOnce(code72Error())
+        .mockRejectedValueOnce(code72Error())
+        .mockRejectedValueOnce(code72Error());
+
+      const kafkaClient = new MockKafkaClient({ configManager: new ConfigManager() });
+      await kafkaClient.sendCloudEventMessageAsync({
+        topic: 'fhir.users.events',
+        messages: [{ key: 'k', value: Buffer.from('{}'), headers: {} }]
+      });
+
+      const calls = kafkaRetryExhaustedAddSpy.mock.calls.filter(
+        ([, attrs]) => attrs && attrs[metrics.LABEL.TOPIC] === 'fhir.users.events'
+      );
+      expect(calls.length).toBe(1);
+      expect(calls[0][1][metrics.LABEL.ERROR_CODE]).toBe('72');
+    });
+
+    test('first-attempt success does NOT emit retry_exhausted', async () => {
+      sendMessagesAsyncHelperSpy.mockResolvedValueOnce();
+
+      const kafkaClient = new MockKafkaClient({ configManager: new ConfigManager() });
+      await kafkaClient.sendMessagesAsync('topic-y', [{ key: '1', value: 'msg' }]);
+
+      expect(kafkaRetryExhaustedAddSpy).not.toHaveBeenCalled();
     });
   });
 });
