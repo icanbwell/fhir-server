@@ -977,7 +977,7 @@ class MergeManager {
                                         requestInfo,
                                         resourceType,
                                         errorCode: 400,
-                                        errorMessage: `${resourceType}/${entry.id}: ${errorDetail}`
+                                        errorMessage: `Bad Request`
                                     });
                                 }
                             }
