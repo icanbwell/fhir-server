@@ -148,10 +148,6 @@ class DatabaseUpdateManager {
         const originalDoc = doc.clone();
         const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
         doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
-        /**
-         * @type {Resource[]}
-         */
-        const docVersionsTested = [];
 
         /**
          * @type {import('mongodb').FindOptions}
@@ -219,8 +215,15 @@ class DatabaseUpdateManager {
                 const filter = previousVersionId > 0
                     ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
                     : { _uuid: updatedDoc._uuid };
-                docVersionsTested.push(updatedDoc);
                 const updateResult = await collection.replaceOne(filter, updatedDoc.toJSONInternal());
+                logInfo("Retrying resource merge due to concurrent update request", {
+                    id: updatedDoc.id,
+                    uuid: updatedDoc._uuid,
+                    versionId: updatedDoc.meta.versionId,
+                    resourceType: updatedDoc.resourceType,
+                    sourceAssigningAuthority: updatedDoc._sourceAssigningAuthority,
+                    originService: requestInfo.headers['origin-service'] || 'unknown'
+                });
                 await logTraceSystemEventAsync(
                     {
                         event: 'replaceOneAsync: Merging' + `_${updatedDoc.resourceType}`,
@@ -297,23 +300,14 @@ class DatabaseUpdateManager {
                 }
             }
             if (runsLeft <= 0) {
-                const documentsTestedAsText = JSON.stringify(
-                    docVersionsTested.map(d => d.toJSONInternal()),
-                    getCircularReplacer()
-                );
                 throw new Error(
                     `Unable to save resource ${doc.resourceType}/${doc._uuid} with version ${doc.meta.versionId} ` +
-                    `(original=${originalDatabaseVersion}) after 10 tries. ` +
-                    `(versions tested: ${documentsTestedAsText})`);
+                    `(original=${originalDatabaseVersion}) after 10 tries.`
+                )
             }
         } catch (e) {
             throw new RethrownError({
-                error: e,
-                args: {
-                    originalDoc,
-                    doc,
-                    docVersionsTested
-                }
+                error: e
             });
         }
     }
