@@ -64,13 +64,13 @@ class DatabaseQueryManager {
      * @property {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      *
      * @param {FindOneOption} params
-     * @return {Promise<Resource|null>}
+     * @return {Promise<Object|null>}
      */
     async fastFindOneAsync({ query, options = null }) {
         try {
             // Use storage provider if available
             if (this.storageProvider) {
-                return await this.storageProvider.findOneAsync({ query, options });
+                return await this.storageProvider.fastFindOneAsync({ query, options });
             }
 
             // Fall back to direct MongoDB access
@@ -82,7 +82,7 @@ class DatabaseQueryManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`,
+                message: 'Error in fastFindOneAsync(): ' + `query: ${JSON.stringify(query)}`,
                 error: e,
                 args: { query, options }
             });

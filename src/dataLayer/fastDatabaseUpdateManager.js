@@ -13,6 +13,7 @@ const { ResourceLocatorFactory } = require('../operations/common/resourceLocator
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { RethrownError } = require('../utils/rethrownError');
 const deepcopy = require('deepcopy');
+const { logInfo } = require('../operations/common/logging');
 
 class FastDatabaseUpdateManager {
     /**
@@ -116,10 +117,6 @@ class FastDatabaseUpdateManager {
         const originalDoc = deepcopy(doc);
         const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
         doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
-        /**
-         * @type {Object[]}
-         */
-        const docVersionsTested = [];
 
         /**
          * @type {import('mongodb').FindOptions}
@@ -183,8 +180,15 @@ class FastDatabaseUpdateManager {
                     previousVersionId > 0
                         ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
                         : { _uuid: updatedDoc._uuid };
-                docVersionsTested.push(updatedDoc);
                 const updateResult = await collection.replaceOne(filter, updatedDoc);
+                logInfo("Retrying resource merge due to concurrent update request", {
+                    id: updatedDoc.id,
+                    uuid: updatedDoc._uuid,
+                    versionId: updatedDoc.meta.versionId,
+                    resourceType: updatedDoc.resourceType,
+                    sourceAssigningAuthority: updatedDoc._sourceAssigningAuthority,
+                    originService: requestInfo.headers['origin-service'] || 'unknown'
+                });
                 await logTraceSystemEventAsync({
                     event: 'replaceOneAsync: Merging' + `_${updatedDoc.resourceType}`,
                     message: 'Merging existing resource',
@@ -256,21 +260,14 @@ class FastDatabaseUpdateManager {
                 }
             }
             if (runsLeft <= 0) {
-                const documentsTestedAsText = JSON.stringify(docVersionsTested.map((d) => d));
                 throw new Error(
                     `Unable to save resource ${doc.resourceType}/${doc._uuid} with version ${doc.meta.versionId} ` +
-                        `(original=${originalDatabaseVersion}) after 10 tries. ` +
-                        `(versions tested: ${documentsTestedAsText})`
+                        `(original=${originalDatabaseVersion}) after 10 tries.`
                 );
             }
         } catch (e) {
             throw new RethrownError({
-                error: e,
-                args: {
-                    originalDoc,
-                    doc,
-                    docVersionsTested
-                }
+                error: e
             });
         }
     }
