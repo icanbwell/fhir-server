@@ -174,7 +174,7 @@ class ImportStatus extends Resource {
             configurable: true,
             get: () => this.__data.range,
             set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null) {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     this.__data.range = undefined;
                     return;
                 }

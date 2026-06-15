@@ -77,8 +77,9 @@ class ImportOperation {
             throw new BadRequestError('filepath is required in request body');
         }
 
-        if (!filepath.startsWith('s3://')) {
-            throw new BadRequestError('filepath must be an S3 URI (s3://...)');
+        const s3Match = filepath.match(/^s3:\/\/([^/]+)\/(.+)$/);
+        if (!s3Match) {
+            throw new BadRequestError('filepath must be a valid S3 URI (s3://bucket/key)');
         }
 
         const range = resource?.range;

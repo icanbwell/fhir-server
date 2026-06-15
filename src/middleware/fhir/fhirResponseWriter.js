@@ -311,6 +311,7 @@ class FhirResponseWriter {
             res.status(200).json({
                 transactionTime: result.transactionTime,
                 request: result.request,
+                status: 'completed',
                 outcome: result.outcome,
                 error: result.error
             });
@@ -318,7 +319,7 @@ class FhirResponseWriter {
             res.status(200).json({
                 transactionTime: result.transactionTime,
                 request: result.request,
-                status: result.status,
+                status: 'failed',
                 error: result.error
             });
         } else {
