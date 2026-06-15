@@ -16,6 +16,7 @@ const { RethrownError } = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const { logInfo } = require('../operations/common/logging');
 
 class DatabaseUpdateManager {
     /**
