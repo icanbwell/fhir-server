@@ -502,13 +502,16 @@ class MergeManager {
              * @type {number}
              */
             const chunkSize = this.configManager.mergeParallelChunkSize;
-            const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync({
-                resourceToMerge: x,
-                resourceType,
-                base_version,
-                requestInfo,
-                smartMerge
-            });
+            const mergeResourceFn = async (/** @type {Object} */ x) => {
+                await new Promise(resolve => setImmediate(resolve));
+                return this.mergeResourceWithRetryAsync({
+                    resourceToMerge: x,
+                    resourceType,
+                    base_version,
+                    requestInfo,
+                    smartMerge
+                });
+            };
 
             /**
              * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
