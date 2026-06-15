@@ -972,12 +972,11 @@ class MergeManager {
                             }
                             if (failedItems && failedItems.length > 0) {
                                 for (const entry of failedItems) {
-                                    const errorDetail = entry.issue?.details?.text || entry.issue?.diagnostics || 'Merge failed';
                                     await this.auditLogger.logErrorAuditEntryAsync({
                                         requestInfo,
                                         resourceType,
                                         errorCode: 400,
-                                        errorMessage: `${resourceType}/${entry.id}: ${errorDetail}`
+                                        errorMessage: `${resourceType}/${entry.id}: Bad Request`
                                     });
                                 }
                             }
