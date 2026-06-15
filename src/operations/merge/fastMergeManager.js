@@ -914,7 +914,7 @@ class FastMergeManager {
                                         requestInfo,
                                         resourceType,
                                         errorCode: 400,
-                                        errorMessage: `Bad Request`
+                                        errorMessage: `${resourceType}/${entry.id}: Bad Request`
                                     });
                                 }
                             }
