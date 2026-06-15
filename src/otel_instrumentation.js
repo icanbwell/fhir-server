@@ -33,6 +33,12 @@ let instrumentationConfigs = {
     // Disabled: produces duplicate spans alongside instrumentation-express
     '@opentelemetry/instrumentation-router': {
         enabled: false
+    },
+    // Emits Node.js runtime metrics: V8 heap usage/limit, per-heap-space stats,
+    // GC duration, and event-loop lag/utilization (standard semantic conventions).
+    // Enabled in both the auto-instrumentation and manual SDK paths below.
+    '@opentelemetry/instrumentation-runtime-node': {
+        enabled: true
     }
 }
 
@@ -67,6 +73,7 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
     const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
     const { RedisInstrumentation } = require('@opentelemetry/instrumentation-redis');
+    const { RuntimeNodeInstrumentation } = require('@opentelemetry/instrumentation-runtime-node');
 
     const sdk = new opentelemetry.NodeSDK({
         traceExporter: new OTLPTraceExporter(),
@@ -81,7 +88,8 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
             new WinstonInstrumentation(),
             new GraphQLInstrumentation(),
             new MongoDBInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-mongodb']),
-            new RedisInstrumentation()
+            new RedisInstrumentation(),
+            new RuntimeNodeInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-runtime-node'])
         ],
         // Config needed for Sentry integration
         // https://docs.sentry.io/platforms/javascript/guides/node/opentelemetry/custom-setup/

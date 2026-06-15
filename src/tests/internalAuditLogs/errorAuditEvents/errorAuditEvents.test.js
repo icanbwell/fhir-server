@@ -313,7 +313,7 @@ describe('Error Audit Events Integration Tests', () => {
             const errorEvent = errorLogs[0];
             expect(errorEvent.type.code).toBe('rest');
             expect(errorEvent.outcome).toBe('4');
-            expect(errorEvent.outcomeDesc).toContain('Practitioner');
+            expect(errorEvent.outcomeDesc).toContain('Bad Request');
 
             const errorRequestUrl = errorEvent.entity[0].detail.find(d => d.type === 'requestUrl');
             expect(errorRequestUrl.valueString).toContain('$merge');
