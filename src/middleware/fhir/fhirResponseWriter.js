@@ -285,6 +285,53 @@ class FhirResponseWriter {
     }
 
     /**
+     * @function import
+     * @description Used when bulk import is triggered
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Object} result - results of the import
+     */
+    import ({ req, res, result }) {
+        const baseUrl = `${req.hostname.includes('localhost') ? 'http://' : 'https://'}${req.headers?.host}`;
+        const statusUrl = `${baseUrl}/4_0_0/$import-status/${result?.id}`;
+
+        res.setHeader('Content-Location', statusUrl);
+        res.status(202).send();
+    }
+
+    /**
+     * @function importById
+     * @description Used to check status of the bulk import
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Object} result - import status resource
+     */
+    importById ({ req, res, result }) {
+        if (result.status === 'completed') {
+            res.status(200).json({
+                transactionTime: result.transactionTime,
+                request: result.request,
+                outcome: result.outcome,
+                error: result.error
+            });
+        } else if (result.status === 'failed') {
+            res.status(200).json({
+                transactionTime: result.transactionTime,
+                request: result.request,
+                status: result.status,
+                error: result.error
+            });
+        } else {
+            const progress = result.totalResources
+                ? `${result.resourcesProcessed}/${result.totalResources} resources processed`
+                : result.status;
+            res.setHeader('X-Progress', progress);
+            res.setHeader('Retry-After', '30');
+            res.status(202).send();
+        }
+    }
+
+    /**
      * @function setBaseResponseHeaders
      * @description Used to set base response headers
      * @param {import('http').IncomingMessage} req - Express request object
