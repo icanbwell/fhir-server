@@ -5,10 +5,10 @@ const { SecurityTagManager } = require('../common/securityTagManager');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { ConfigManager } = require('../../utils/configManager');
+const { K8sClient } = require('../../utils/k8sClient');
 const { generateUUID } = require('../../utils/uid.util');
 const { PreSaveOptions } = require('../../preSaveHandlers/preSaveOptions');
-const { DatabaseImportManager } = require('../../dataLayer/databaseImportManager');
-const { logInfo, logError } = require('../common/logging');
+const { logInfo } = require('../common/logging');
 
 class ImportManager {
     /**
@@ -16,11 +16,11 @@ class ImportManager {
      * @property {SecurityTagManager} securityTagManager
      * @property {PreSaveManager} preSaveManager
      * @property {ConfigManager} configManager
-     * @property {DatabaseImportManager} databaseImportManager
+     * @property {K8sClient} k8sClient
      *
      * @param {ConstructorParams}
      */
-    constructor({ securityTagManager, preSaveManager, configManager, databaseImportManager }) {
+    constructor({ securityTagManager, preSaveManager, configManager, k8sClient }) {
         this.securityTagManager = securityTagManager;
         assertTypeEquals(securityTagManager, SecurityTagManager);
 
@@ -30,8 +30,8 @@ class ImportManager {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
-        this.databaseImportManager = databaseImportManager;
-        assertTypeEquals(databaseImportManager, DatabaseImportManager);
+        this.k8sClient = k8sClient;
+        assertTypeEquals(k8sClient, K8sClient);
     }
 
     /**
@@ -97,51 +97,21 @@ class ImportManager {
         return importStatusResource;
     }
 
-    /**
-     * Kicks off async import processing. This method is intentionally not awaited
-     * by the caller — it runs in the background after the 202 response is sent.
-     * Subsequent subtasks (BAI-220, BAI-221) will implement the actual S3 reading
-     * and MongoDB writing logic here.
-     *
-     * @typedef {Object} ProcessImportAsyncParams
-     * @property {import('../../fhir/classes/4_0_0/custom_resources/importStatus')} importStatusResource
-     * @property {string} requestId
-     *
-     * @param {ProcessImportAsyncParams}
-     */
-    async processImportAsync({ importStatusResource, requestId }) {
-        try {
-            logInfo(
-                `Starting async import processing for ${importStatusResource.id}`,
-                { importStatusId: importStatusResource.id, requestId }
-            );
+    async triggerImportJob({ importStatusResource, requestId }) {
+        let scriptCommand =
+            'node /srv/src/src/operations/import/script/bulkDataImport.js ' +
+            `--importStatusId ${importStatusResource._uuid} ` +
+            `--requestId ${requestId} ` +
+            `--awsRegion ${this.configManager.awsRegion}`;
 
-            importStatusResource.status = 'processing';
-            await this.databaseImportManager.updateImportStatusAsync({ importStatusResource });
-
-            // TODO: BAI-220 — S3 NDJSON reader (stream line-by-line, respect range param)
-            // TODO: BAI-221 — Server-side pacing and rate control for MongoDB writes
-            // TODO: BAI-223 — OperationOutcome error file (write per-resource failures to S3)
-            // TODO: BAI-225 — ifNoneExist duplicate-prevention wrapper support
-            // TODO: BAI-226 — Failure handling (S3 read retries, stalled-operation detection)
-
-        } catch (e) {
-            logError(
-                `Import processing failed for ${importStatusResource.id}: ${e.message}`,
-                { importStatusId: importStatusResource.id, requestId, error: e }
-            );
-
-            try {
-                importStatusResource.status = 'failed';
-                importStatusResource.error = e.message;
-                await this.databaseImportManager.updateImportStatusAsync({ importStatusResource });
-            } catch (updateErr) {
-                logError(
-                    `Failed to update ImportStatus after error: ${updateErr.message}`,
-                    { importStatusId: importStatusResource.id, error: updateErr }
-                );
+        const jobResult = await this.k8sClient.createJob({
+            scriptCommand,
+            context: {
+                filepath: importStatusResource.filepath
             }
-        }
+        });
+        logInfo(`Successfully triggered k8s Job for import ${importStatusResource._uuid}`);
+        return jobResult;
     }
 }
 

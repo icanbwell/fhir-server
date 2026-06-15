@@ -1205,7 +1205,7 @@ const createContainer = function () {
         securityTagManager: c.securityTagManager,
         preSaveManager: c.preSaveManager,
         configManager: c.configManager,
-        databaseImportManager: c.databaseImportManager
+        k8sClient: c.k8sClient
     }));
 
     container.register('importOperation', (c) => new ImportOperation({

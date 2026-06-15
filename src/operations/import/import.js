@@ -111,11 +111,8 @@ class ImportOperation {
                 { importStatusId: importStatusResource.id }
             );
 
-            // Kick off async processing (does not block the response)
-            this.importManager.processImportAsync({
-                importStatusResource,
-                requestId
-            });
+            // Trigger K8s job to import data
+            await this.importManager.triggerImportJob({ importStatusResource, requestId });
 
             const importStatusUuid = importStatusResource._uuid;
             this.postRequestProcessor.add({
