@@ -44,6 +44,10 @@ class MockS3Client extends S3Client {
         }
         return null;
     }
+
+    async deleteAsync(filePath) {
+        delete this.uploadedData[filePath];
+    }
 }
 
 module.exports = { MockS3Client };

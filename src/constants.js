@@ -194,6 +194,12 @@ module.exports = {
         RETRIEVE: 'RETRIEVE',
         DELETE: 'DELETE'
     },
+    BLOB_OP: {
+        INSERT: 'INSERT',
+        RETRIEVE: 'RETRIEVE',
+        DELETE: 'DELETE'
+    },
+    BINARY_DATA_VALUE_PLACEHOLDER: '<data_value>',
     PATIENT_INITIATED_CONNECTION: [
         'proa'
     ],

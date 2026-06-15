@@ -15,7 +15,8 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { ConfigManager } = require('../../utils/configManager');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
+const { ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -31,6 +32,7 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
      */
     constructor (
@@ -43,6 +45,7 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             identifierEnrichmentProvider
         }
     ) {
@@ -89,6 +92,12 @@ class CreateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {IdentifierEnrichmentProvider}
@@ -198,6 +207,7 @@ class CreateOperation {
         }
 
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
+        resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
 
         try {
             resource.meta.versionId = '1';
@@ -276,6 +286,10 @@ class CreateOperation {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: mergeResults
             });
+
+            // Inline any externalized base64 payload so the response body matches the
+            // client's request shape
+            doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE, requestInfo);
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(doc);
