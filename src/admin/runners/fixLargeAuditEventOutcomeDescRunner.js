@@ -27,10 +27,10 @@ const ERROR_ACTION = 'E';
  * smaller outcomeDesc and every other field are left as-is.
  *
  * AuditEvents are ClickHouse-only (table fhir.AuditEvent_4_0_0), ORDER BY
- * (recorded, _uuid). Scanning a whole month re-serializes every row in the
- * partition, so the run is chunked one day at a time over [from, to): each
- * day's `recorded` range hits the primary index, keeps each scan/mutation small,
- * and gives incremental progress.
+ * (recorded, _uuid). A wide `recorded` range makes the UPDATE mutation rewrite
+ * large swaths of parts, so the run is chunked one hour at a time over [from, to):
+ * each hour's `recorded` range hits the primary index, keeps each scan/mutation
+ * small, and gives incremental progress.
  *
  * outcomeDesc lives inside the native JSON `resource` column; ClickHouse cannot
  * assign a JSON sub-path, so the whole column is rewritten with JSONMergePatch
@@ -90,11 +90,13 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
     }
 
     /**
-     * Splits [from, to) into one-day ranges (from inclusive, to exclusive).
-     * @returns {{day: string, next: string}[]}
+     * Splits [from, to) into one-hour ranges (from inclusive, to exclusive).
+     * Hourly windows keep each mutation's recorded range small, so it rewrites
+     * fewer parts/rows than a full-day window.
+     * @returns {{start: string, end: string}[]} datetime bounds 'YYYY-MM-DD HH:00:00'
      * @private
      */
-    _resolveDayRanges () {
+    _resolveHourRanges () {
         const fromM = moment.utc(this.from, 'YYYY-MM-DD', true);
         const toM = moment.utc(this.to, 'YYYY-MM-DD', true);
         if (!fromM.isValid()) {
@@ -109,8 +111,11 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
         const ranges = [];
         let cur = fromM.clone();
         while (cur.isBefore(toM)) {
-            const next = cur.clone().add(1, 'day');
-            ranges.push({ day: cur.format('YYYY-MM-DD'), next: next.format('YYYY-MM-DD') });
+            const next = cur.clone().add(1, 'hour');
+            ranges.push({
+                start: cur.format('YYYY-MM-DD HH:00:00'),
+                end: next.format('YYYY-MM-DD HH:00:00')
+            });
             cur = next;
         }
         return ranges;
@@ -132,16 +137,16 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
     }
 
     /**
-     * Builds the row-match condition for a single day: error events whose
+     * Builds the row-match condition for a single hour window: error events whose
      * outcomeDesc exceeds the byte limit.
-     * @param {string} day - inclusive day start (YYYY-MM-DD)
-     * @param {string} next - exclusive day end (YYYY-MM-DD)
+     * @param {string} start - inclusive window start ('YYYY-MM-DD HH:00:00')
+     * @param {string} end - exclusive window end ('YYYY-MM-DD HH:00:00')
      * @returns {string}
      * @private
      */
-    _buildMatchCondition (day, next) {
+    _buildMatchCondition (start, end) {
         return (
-            `recorded >= '${day}' AND recorded < '${next}' ` +
+            `recorded >= '${start}' AND recorded < '${end}' ` +
             `AND action = '${ERROR_ACTION}' AND length(toString(resource.outcomeDesc)) > ${this._maxBytes()}`
         );
     }
@@ -175,14 +180,14 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
             }
 
             const table = TABLES.AUDIT_EVENT;
-            const dayRanges = this._resolveDayRanges();
+            const hourRanges = this._resolveHourRanges();
             const updateExpr = this._buildOutcomeDescUpdateExpr();
 
             this.adminLogger.logInfo('FixLargeAuditEventOutcomeDescRunner: starting', {
                 table,
                 from: this.from,
                 to: this.to,
-                days: dayRanges.length,
+                hours: hourRanges.length,
                 maxOutcomeDescBytes: this.maxOutcomeDescBytes,
                 action: ERROR_ACTION,
                 dryRun: this.dryRun
@@ -190,34 +195,35 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
 
             let totalMatched = 0;
 
-            for (const { day, next } of dayRanges) {
-                const matchCondition = this._buildMatchCondition(day, next);
+            for (const { start, end } of hourRanges) {
+                const matchCondition = this._buildMatchCondition(start, end);
 
                 // Fetch the matching _uuids so the run logs exactly which documents
                 // will change. The recorded range hits the (recorded, _uuid) primary
-                // index, so each day's scan stays small.
+                // index, so each hour's scan stays small.
                 const matchedRows = await this.clickHouseClientManager.queryAsync({
                     query: `SELECT _uuid, id FROM ${table} WHERE ${matchCondition}`
                 });
                 const matched = matchedRows.length;
                 totalMatched += matched;
 
+                // Empty hours are the common case over a long range; stay quiet to
+                // avoid flooding the log with thousands of lines.
                 if (matched === 0) {
-                    this.adminLogger.logInfo(`${day}: no oversized error AuditEvents`);
                     continue;
                 }
 
                 this.adminLogger.logInfo(
-                    `${day}: ${matched.toLocaleString('en-US')} oversized error AuditEvent(s) match`,
+                    `${start}: ${matched.toLocaleString('en-US')} oversized error AuditEvent(s) match`,
                     { uuids: matchedRows.map((r) => r._uuid) }
                 );
 
                 if (this.dryRun) {
-                    this.adminLogger.logInfo(`[dryRun] ${day}: nothing updated`);
+                    this.adminLogger.logInfo(`[dryRun] ${start}: nothing updated`);
                     continue;
                 }
 
-                // mutations_sync = 1 waits for this day's mutation to finish before
+                // mutations_sync = 1 waits for this window's mutation to finish before
                 // moving on, keeping the work incremental.
                 await this.clickHouseClientManager.queryAsync({
                     query:
@@ -225,12 +231,12 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
                         `WHERE ${matchCondition} SETTINGS mutations_sync = 1`
                 });
                 this.adminLogger.logInfo(
-                    `${day}: update mutation submitted for ${matched.toLocaleString('en-US')} document(s)`
+                    `${start}: update mutation submitted for ${matched.toLocaleString('en-US')} document(s)`
                 );
             }
 
             this.adminLogger.logInfo(
-                `FixLargeAuditEventOutcomeDescRunner: done. ${totalMatched.toLocaleString('en-US')} document(s) matched across ${dayRanges.length} day(s)`
+                `FixLargeAuditEventOutcomeDescRunner: done. ${totalMatched.toLocaleString('en-US')} document(s) matched across ${hourRanges.length} hour(s)`
             );
         } catch (e) {
             this.adminLogger.logError('FixLargeAuditEventOutcomeDescRunner: failed', { error: e.message });

@@ -25,7 +25,7 @@ const { FixLargeAuditEventOutcomeDescRunner } = require('../runners/fixLargeAudi
  *   --timeout <ms>        ClickHouse client request timeout (default 600000 = 10 min)
  *   --dryRun              count matches without updating
  *
- * Processes one day at a time over [from, to). Only error AuditEvents (action 'E')
+ * Processes one hour at a time over [from, to). Only error AuditEvents (action 'E')
  * are targeted; that is not configurable.
  *
  * @returns {Promise<void>}
