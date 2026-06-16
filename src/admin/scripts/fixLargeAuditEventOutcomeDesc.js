@@ -1,10 +1,6 @@
 // load config from .env.  Should be first thing so env vars are available to rest of the code
 const path = require('path');
-const dotenv = require('dotenv');
 const pathToEnv = path.resolve(__dirname, '.env');
-dotenv.config({
-    path: pathToEnv
-});
 const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
