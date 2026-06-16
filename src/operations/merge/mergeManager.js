@@ -502,7 +502,7 @@ class MergeManager {
              * @type {number}
              */
             const chunkSize = this.configManager.mergeParallelChunkSize;
-            const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync({
+            const mergeResourceFn = async (/** @type {Resource} */ x) => this.mergeResourceWithRetryAsync({
                 resourceToMerge: x,
                 resourceType,
                 base_version,
@@ -513,11 +513,15 @@ class MergeManager {
             /**
              * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
              */
-            const result = await async.mapLimit(
-                resources_incoming,
-                chunkSize,
-                mergeResourceFn
-            );
+            const result = [];
+            for (let i = 0; i < resources_incoming.length; i += chunkSize) {
+                const chunk = resources_incoming.slice(i, i + chunkSize);
+                const chunkResults = await async.mapLimit(chunk, chunkSize, mergeResourceFn);
+                result.push(...chunkResults);
+                if (i + chunkSize < resources_incoming.length) {
+                    await new Promise(resolve => setImmediate(resolve));
+                }
+            }
             return result.filter(r => (r.resource || r.mergeError));
         } catch (e) {
             throw new RethrownError({
