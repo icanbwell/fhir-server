@@ -1197,6 +1197,7 @@ class ConfigManager {
      * @returns {number}
      */
     get clickHouseRequestTimeout() {
+        console.log('helloooo',  env.CLICKHOUSE_REQUEST_TIMEOUT)
         return parseInt(env.CLICKHOUSE_REQUEST_TIMEOUT || String(DEFAULT_CLICKHOUSE.REQUEST_TIMEOUT_MS), 10);
     }
 
