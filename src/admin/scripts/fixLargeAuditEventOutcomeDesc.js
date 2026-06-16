@@ -11,11 +11,12 @@ const { AdminLogger } = require('../adminLogger');
 const { FixLargeAuditEventOutcomeDescRunner } = require('../runners/fixLargeAuditEventOutcomeDescRunner');
 
 /**
- * Rewrites the oversized outcomeDesc of error AuditEvents (action 'E') in
+ * Replaces the oversized outcomeDesc of error AuditEvents (action 'E') in
  * ClickHouse (table fhir.AuditEvent_4_0_0) with a generic status phrase derived
- * from outcome (8 -> 'Internal Server Error', else -> 'Bad Request'). Error
- * AuditEvents historically stored the raw error payload in outcomeDesc, which can
- * be many MB.
+ * from outcome (8 -> 'Internal Server Error', else -> 'Bad Request'). Only events
+ * whose outcomeDesc exceeds the byte limit (default 500) are touched; every other
+ * field is left as-is. Error AuditEvents historically stored the raw error payload
+ * in outcomeDesc, which can be many MB.
  *
  * Required environment:
  *   ENABLE_CLICKHOUSE=1
@@ -24,7 +25,7 @@ const { FixLargeAuditEventOutcomeDescRunner } = require('../runners/fixLargeAudi
  * Options:
  *   --from <YYYY-MM-DD>   inclusive lower bound on recorded. Required.
  *   --to <YYYY-MM-DD>     exclusive upper bound on recorded. Required.
- *   --minSize <bytes>     size threshold on the stored resource JSON (default 1 MB)
+ *   --maxBytes <bytes>    outcomeDesc byte threshold; events above it are rewritten (default 500)
  *   --dryRun              count matches without updating
  *
  * Processes one day at a time over [from, to). Only error AuditEvents (action 'E')
@@ -43,7 +44,7 @@ async function main () {
         clickHouseClientManager: c.clickHouseClientManager,
         from: parameters.from,
         to: parameters.to,
-        minSizeBytes: parameters.minSize ? parseInt(parameters.minSize) : undefined,
+        maxOutcomeDescBytes: parameters.maxBytes ? parseInt(parameters.maxBytes) : undefined,
         dryRun: Boolean(parameters.dryRun)
     }));
 
@@ -63,14 +64,14 @@ async function main () {
  * To run this:
  * nvm use
  *
- * # Dry run first: count > 1 MB error AuditEvents day-by-day across May & June 2026
+ * # Dry run first: find error AuditEvents with outcomeDesc > 500 bytes, day-by-day across May & June 2026
  * node src/admin/scripts/fixLargeAuditEventOutcomeDesc.js --from=2026-05-01 --to=2026-07-01 --dryRun
  *
- * # Rewrite their outcomeDesc
+ * # Replace their outcomeDesc with the generic phrase (Bad Request / Internal Server Error)
  * node src/admin/scripts/fixLargeAuditEventOutcomeDesc.js --from=2026-05-01 --to=2026-07-01
  *
- * # Override the size threshold (bytes); default is 1 MB
- * node src/admin/scripts/fixLargeAuditEventOutcomeDesc.js --from=2026-06-01 --to=2026-07-01 --minSize=2097152
+ * # Override the byte threshold (default 500)
+ * node src/admin/scripts/fixLargeAuditEventOutcomeDesc.js --from=2026-06-01 --to=2026-07-01 --maxBytes=1000
  */
 main().catch((reason) => {
     console.error(reason);

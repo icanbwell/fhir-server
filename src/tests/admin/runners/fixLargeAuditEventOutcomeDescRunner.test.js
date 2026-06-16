@@ -13,7 +13,7 @@ const { TABLES } = require('../../../constants/clickHouseConstants');
 // rows are isolated and easy to clean up.
 const WINDOW_FROM = '2031-03-01';
 const WINDOW_TO = '2031-03-04'; // exclusive; covers 03-01, 03-02, 03-03
-const BIG = 'x'.repeat(1024 * 1024 + 1000); // > 1 MB so length(toString(resource)) clears the threshold
+const BIG = 'x'.repeat(1024 * 1024 + 1000); // outcomeDesc well over the 500-byte threshold
 
 describe('FixLargeAuditEventOutcomeDescRunner (integration)', () => {
     /** @type {ClickHouseClientManager} */
@@ -106,7 +106,7 @@ describe('FixLargeAuditEventOutcomeDescRunner (integration)', () => {
         const small400 = await fetchByUuid('small-400');
         const bigRead = await fetchByUuid('big-read');
 
-        // rewritten by outcome, and the giant payload shrank
+        // outcomeDesc > 500 bytes -> replaced by generic phrase keyed off outcome, payload shrank
         expect(big500.outcomeDesc).toBe('Internal Server Error');
         expect(big500.resourceType).toBe('AuditEvent'); // other fields preserved
         expect(big500.outcome).toBe('8');
@@ -115,7 +115,7 @@ describe('FixLargeAuditEventOutcomeDescRunner (integration)', () => {
         expect(big400.outcomeDesc).toBe('Bad Request');
         expect(Number(big400.len)).toBeLessThan(1000);
 
-        // untouched
+        // untouched: small outcomeDesc (< 500 bytes) and non-error action
         expect(small400.outcomeDesc).toBe('short msg');
         expect(bigRead.outcomeDesc).toBe(BIG);
     });
@@ -146,14 +146,14 @@ describe('FixLargeAuditEventOutcomeDescRunner (integration)', () => {
         expect(Number(row.len)).toBeGreaterThan(1024 * 1024);
     });
 
-    test('honors a custom minSize (only larger docs are rewritten)', async () => {
-        const MID = 'y'.repeat(1024 * 1024 + 1000); // ~1 MB: above default, below 2 MB
+    test('honors a custom byte threshold (only outcomeDesc above it is rewritten)', async () => {
+        const MID = 'y'.repeat(1000); // above the default 500 but below the custom 2000
         await insertRows([
             buildRow({ id: 'mid', recorded: '2031-03-01 07:00:00.000', action: 'E', outcome: '4', desc: MID })
         ]);
 
-        // threshold 2 MB -> the ~1 MB doc should NOT match
-        await createRunner({ minSizeBytes: 2 * 1024 * 1024 }).processAsync();
+        // threshold 2000 bytes -> the 1000-byte outcomeDesc should NOT match
+        await createRunner({ maxOutcomeDescBytes: 2000 }).processAsync();
 
         expect((await fetchByUuid('mid')).outcomeDesc).toBe(MID);
     });
