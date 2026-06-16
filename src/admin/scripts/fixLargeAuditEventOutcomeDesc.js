@@ -22,6 +22,7 @@ const { FixLargeAuditEventOutcomeDescRunner } = require('../runners/fixLargeAudi
  *   --from <YYYY-MM-DD>   inclusive lower bound on recorded. Required.
  *   --to <YYYY-MM-DD>     exclusive upper bound on recorded. Required.
  *   --maxBytes <bytes>    outcomeDesc byte threshold; events above it are rewritten (default 500)
+ *   --timeout <ms>        ClickHouse client request timeout (default 600000 = 10 min)
  *   --dryRun              count matches without updating
  *
  * Processes one day at a time over [from, to). Only error AuditEvents (action 'E')
@@ -31,6 +32,15 @@ const { FixLargeAuditEventOutcomeDescRunner } = require('../runners/fixLargeAudi
  */
 async function main () {
     const parameters = CommandLineParser.parseCommandLine();
+
+    // The blocking mutation (mutations_sync=1) and the resource scan can take far
+    // longer than a normal query, and dev/prod often preset a low request timeout
+    // (default 180s). Raise it via CLICKHOUSE_REQUEST_TIMEOUT before the container
+    // builds the client (the clickHouseRequestTimeout getter reads process.env live).
+    // Math.max never lowers an already-higher configured value.
+    const requestedTimeout = parameters.timeout ? parseInt(parameters.timeout) : 600000;
+    const existingTimeout = parseInt(process.env.CLICKHOUSE_REQUEST_TIMEOUT, 10) || 0;
+    process.env.CLICKHOUSE_REQUEST_TIMEOUT = String(Math.max(requestedTimeout, existingTimeout));
 
     const container = createContainer();
 
@@ -68,6 +78,9 @@ async function main () {
  *
  * # Override the byte threshold (default 500)
  * node src/admin/scripts/fixLargeAuditEventOutcomeDesc.js --from=2026-06-01 --to=2026-07-01 --maxBytes=1000
+ *
+ * # Raise the request timeout to 20 min for a heavy day (default 10 min)
+ * node src/admin/scripts/fixLargeAuditEventOutcomeDesc.js --from=2026-06-01 --to=2026-07-01 --timeout=1200000
  */
 main().catch((reason) => {
     console.error(reason);
