@@ -10,7 +10,8 @@ const { SearchManager } = require('../search/searchManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { ScopesManager } = require('../security/scopesManager');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
+const { GRIDFS: { RETRIEVE }, BLOB_OP, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -26,6 +27,7 @@ class SearchByVersionIdOperation {
      * @param {SearchManager} searchManager
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      */
     constructor (
@@ -38,6 +40,7 @@ class SearchByVersionIdOperation {
             searchManager,
             scopesManager,
             databaseAttachmentManager,
+            base64DataManager,
             historyResourceCloudStorageClient
         }
     ) {
@@ -82,6 +85,12 @@ class SearchByVersionIdOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {CloudStorageClient | null}
@@ -249,6 +258,9 @@ class SearchByVersionIdOperation {
                 )[0];
 
                 historyResource = await this.databaseAttachmentManager.transformAttachments(historyResource, RETRIEVE);
+                historyResource = await this.base64DataManager.transformAsync(
+                    historyResource, BLOB_OP.RETRIEVE, undefined, true
+                );
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args: parsedArgs.getRawArgs(),

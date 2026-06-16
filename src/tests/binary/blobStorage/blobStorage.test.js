@@ -22,6 +22,11 @@ const {
 const { MockS3Client } = require('../../export/mocks/s3Client');
 const { CLOUD_STORAGE_CLIENTS } = require('../../../constants');
 
+const expectedBinaryHistoryListResponse = require('./fixtures/expected/expectedBinaryHistoryList.json');
+const expectedBinaryHistoryVersionReadResponse = require('./fixtures/expected/expectedBinaryHistoryVersionRead.json');
+const expectedBinaryTypeHistoryResponse = require('./fixtures/expected/expectedBinaryTypeHistory.json');
+const expectedBinaryThresholdFlipFlopHistoryResponse = require('./fixtures/expected/expectedBinaryThresholdFlipFlopHistory.json');
+
 // 80 KB string — exceeds the 64 KB default threshold and triggers S3 offload.
 const LARGE_DATA = 'A'.repeat(80 * 1024);
 // 1 KB string — stays inline.
@@ -291,7 +296,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         downloadSpy.mockRestore();
     });
 
-    test('PATCH /data sanitizes patch diagnostics with <data_value> placeholder', async () => {
+    test('PATCH /data: diagnostics store <data_value> placeholder in Mongo but rehydrate the real value on read', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -319,25 +324,33 @@ describe('Binary base64 S3 offload — write paths', () => {
         // Live key replaced with new content.
         expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
 
-        // History entry's diagnostics should carry the patch shape but with `<data_value>` substituted.
+        // Write-side: Mongo history doc for v2 must carry the `<data_value>` placeholder —
+        // proves _sanitizeHistoryPatches still fires so we don't bloat the history collection
+        // with the full base64 payload.
         const historyDocs = await readBinaryHistoryFromMongo(container);
         const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid);
-        const patchEntries = matchedSnapshots
-            .map(d => d.response && d.response.outcome && d.response.outcome.issue)
-            .filter(Array.isArray)
-            .flat();
-        const dataPatchDiagnostics = patchEntries
-            .map(issue => issue.diagnostics)
-            .filter(Boolean)
-            .map(s => {
-                try { return JSON.parse(s); } catch (e) { return null; }
-            })
-            .filter(p => p && p.path === '/data');
+        const v2Snapshot = matchedSnapshots.find(d => d.resource.meta && d.resource.meta.versionId === '2');
+        expect(v2Snapshot).toBeDefined();
+        const v2DiagnosticInMongo = JSON.parse(v2Snapshot.response.outcome.issue[0].diagnostics);
+        expect(v2DiagnosticInMongo.op).toBe('replace');
+        expect(v2DiagnosticInMongo.path).toBe('/data');
+        expect(v2DiagnosticInMongo.value).toBe('<data_value>');
 
-        expect(dataPatchDiagnostics.length).toBeGreaterThan(0);
-        for (const patch of dataPatchDiagnostics) {
-            expect(patch.value).toBe('<data_value>');
-        }
+        // Read-side: GET /_history must rehydrate the placeholder with the real ALT_LARGE_DATA
+        // payload pulled from S3 — clients see the same diagnostic shape regardless of whether
+        // the version was inline or externalized.
+        const historyListResp = await request
+            .get(`/4_0_0/Binary/${id}/_history`)
+            .set(getHeaders())
+            .expect(200);
+
+        const responseEntries = historyListResp.body.entry || [];
+        const v2Entry = responseEntries.find(e => e.resource && e.resource.meta && e.resource.meta.versionId === '2');
+        expect(v2Entry).toBeDefined();
+        const v2DiagnosticOnRead = JSON.parse(v2Entry.response.outcome.issue[0].diagnostics);
+        expect(v2DiagnosticOnRead.op).toBe('replace');
+        expect(v2DiagnosticOnRead.path).toBe('/data');
+        expect(v2DiagnosticOnRead.value).toBe(ALT_LARGE_DATA);
     });
 
     test('$merge of a mixed Bundle only externalizes the large entry', async () => {
@@ -851,6 +864,272 @@ describe('Binary base64 S3 offload — write paths', () => {
             expect(downloadSpy).toHaveBeenCalledWith(liveKey);
         } finally {
             downloadSpy.mockRestore();
+        }
+    });
+
+    test('GET /Binary/{id}/_history and /Binary/{id}/_history/{vid} both read externalized data from history bucket', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const historyClient = container.historyResourceCloudStorageClient;
+        // Both endpoints exercise the same instance — fixture ids match this id.
+        const id = 'binary-history-list';
+
+        // First PUT — version 1 with LARGE_DATA.
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        // Second PUT — version 2 with ALT_LARGE_DATA.
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: ALT_LARGE_DATA }))
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        const mongoDoc = await readBinaryFromMongo(container, id);
+        expect(mongoDoc).toBeDefined();
+        const uuid = mongoDoc._uuid;
+
+        // Confirm history bucket contains both versions, keyed by epoch ms.
+        const historyDocs = await readBinaryHistoryFromMongo(container);
+        const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === uuid);
+        const externalizedSnapshots = matchedSnapshots.filter(d => d.resource._blobMeta);
+        expect(externalizedSnapshots.length).toBe(2);
+
+        // Find the v1 snapshot up-front — we need its epoch ms for the version-read assertion.
+        const v1Snapshot = matchedSnapshots.find(d => d.resource.meta && d.resource.meta.versionId === '1');
+        expect(v1Snapshot).toBeDefined();
+        expect(v1Snapshot.resource._blobMeta).toBeDefined();
+        const v1EpochMs = new Date(v1Snapshot.resource.meta.lastUpdated).getTime();
+        expect(Number.isFinite(v1EpochMs)).toBe(true);
+
+        const liveDownloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const historyDownloadSpy = jest.spyOn(historyClient, 'downloadAsync');
+        try {
+            // --- Part 1: GET /_history (list of all versions) ---
+            const historyListResp = await request
+                .get(`/4_0_0/Binary/${id}/_history`)
+                .set(getHeaders())
+                .expect(200);
+
+            // Inject dynamic values (entry.id = resource _uuid, inline data payloads) into the
+            // fixture before whole-response comparison. `_blobMeta` is intentionally absent from
+            // the fixture — the serializer strips it from the response.
+            const expectedHistoryList = JSON.parse(
+                JSON.stringify(expectedBinaryHistoryListResponse)
+                    .replace(/__BINARY_UUID__/g, uuid)
+                    .replace(/__ALT_LARGE_DATA__/g, ALT_LARGE_DATA)
+                    .replace(/__LARGE_DATA__/g, LARGE_DATA)
+            );
+            expect(historyListResp).toHaveResponse(expectedHistoryList);
+
+            // History reads must use the history bucket, not the live one. The matcher only
+            // covers the HTTP response — bucket dispatch is observable solely via the spies.
+            expect(historyDownloadSpy).toHaveBeenCalledTimes(2);
+            expect(liveDownloadSpy).not.toHaveBeenCalled();
+
+            // Reset only the call history so the per-version assertion below is clean. Keep the
+            // same spy instances to preserve the linear flow of the test.
+            historyDownloadSpy.mockClear();
+
+            // --- Part 2: GET /_history/1 (specific version read) ---
+            const versionReadResp = await request
+                .get(`/4_0_0/Binary/${id}/_history/1`)
+                .set(getHeaders())
+                .expect(200);
+
+            // Inject the inline data payload into the fixture. `_blobMeta` is intentionally
+            // absent from the fixture — the serializer strips it from the response. The fixture
+            // currently carries the legacy id 'binary-history-version', so swap it to the id
+            // used in this combined test.
+            const expectedVersionRead = JSON.parse(
+                JSON.stringify(expectedBinaryHistoryVersionReadResponse)
+                    .replace('binary-history-version', id)
+                    .replace('__LARGE_DATA__', LARGE_DATA)
+            );
+            expect(versionReadResp).toHaveResponse(expectedVersionRead);
+
+            // The matcher only verifies the HTTP response — assert the version-specific
+            // history-bucket key was used via the spy.
+            expect(historyDownloadSpy).toHaveBeenCalledTimes(1);
+            expect(historyDownloadSpy).toHaveBeenCalledWith(`Binary_4_0_0/${uuid}/${v1EpochMs}`);
+            expect(liveDownloadSpy).not.toHaveBeenCalled();
+        } finally {
+            liveDownloadSpy.mockRestore();
+            historyDownloadSpy.mockRestore();
+        }
+    });
+
+    test('GET /Binary/_history returns externalized data from history bucket across all Binaries', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const historyClient = container.historyResourceCloudStorageClient;
+        const idA = 'binary-history-type-A';
+        const idB = 'binary-history-type-B';
+
+        // Two DIFFERENT Binaries — each becomes one history entry (single PUT, no updates).
+        await request
+            .put(`/4_0_0/Binary/${idA}`)
+            .send(buildBinary({ id: idA, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        await request
+            .put(`/4_0_0/Binary/${idB}`)
+            .send(buildBinary({ id: idB, data: ALT_LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const mongoDocA = await readBinaryFromMongo(container, idA);
+        const mongoDocB = await readBinaryFromMongo(container, idB);
+        expect(mongoDocA).toBeDefined();
+        expect(mongoDocB).toBeDefined();
+        const uuidA = mongoDocA._uuid;
+        const uuidB = mongoDocB._uuid;
+
+        // Both versions must be externalized in the history bucket.
+        const historyDocs = await readBinaryHistoryFromMongo(container);
+        const snapA = historyDocs.find(
+            d => d.resource && d.resource._uuid === uuidA && d.resource.meta && d.resource.meta.versionId === '1'
+        );
+        const snapB = historyDocs.find(
+            d => d.resource && d.resource._uuid === uuidB && d.resource.meta && d.resource.meta.versionId === '1'
+        );
+        expect(snapA).toBeDefined();
+        expect(snapB).toBeDefined();
+        expect(snapA.resource._blobMeta).toBeDefined();
+        expect(snapB.resource._blobMeta).toBeDefined();
+        const epochMsA = new Date(snapA.resource.meta.lastUpdated).getTime();
+        const epochMsB = new Date(snapB.resource.meta.lastUpdated).getTime();
+        expect(Number.isFinite(epochMsA)).toBe(true);
+        expect(Number.isFinite(epochMsB)).toBe(true);
+
+        const liveDownloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const historyDownloadSpy = jest.spyOn(historyClient, 'downloadAsync');
+        try {
+            const resp = await request
+                .get('/4_0_0/Binary/_history')
+                .set(getHeaders())
+                .expect(200);
+
+            const expectedTypeHistory = JSON.parse(
+                JSON.stringify(expectedBinaryTypeHistoryResponse)
+                    .replace(/__BINARY_A_UUID__/g, uuidA)
+                    .replace(/__BINARY_B_UUID__/g, uuidB)
+                    .replace(/__LARGE_DATA__/g, LARGE_DATA)
+                    .replace(/__ALT_LARGE_DATA__/g, ALT_LARGE_DATA)
+            );
+            expect(resp).toHaveResponse(expectedTypeHistory);
+
+            // One history-bucket download per externalized version (one per binary).
+            expect(historyDownloadSpy).toHaveBeenCalledTimes(2);
+            expect(liveDownloadSpy).not.toHaveBeenCalled();
+        } finally {
+            liveDownloadSpy.mockRestore();
+            historyDownloadSpy.mockRestore();
+        }
+    });
+
+    test('Threshold flip-flop: history diagnostics sanitize only the versions that externalized', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const historyClient = container.historyResourceCloudStorageClient;
+        const id = 'binary-history-flip-flop';
+
+        // v1 — below threshold (inline, no S3 traffic).
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: SMALL_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        // v2 — above threshold (externalized).
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        // v3 — below threshold again (inline; this version's diagnostic must NOT be sanitized).
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: SMALL_DATA }))
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        // v4 — above threshold again (externalized).
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        const mongoDoc = await readBinaryFromMongo(container, id);
+        expect(mongoDoc).toBeDefined();
+        const uuid = mongoDoc._uuid;
+
+        // Sanity-check the per-version sidecar state in Mongo history so the assertion below
+        // is grounded in observed behavior, not a stale expectation: only the over-threshold
+        // versions (v2 and v4) carry `_blobMeta`; the inline versions (v1 and v3) do not.
+        const historyDocs = await readBinaryHistoryFromMongo(container);
+        const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === uuid);
+        expect(matchedSnapshots.length).toBe(4);
+        const byVersion = Object.fromEntries(
+            matchedSnapshots.map(d => [d.resource.meta.versionId, d])
+        );
+        expect(byVersion['1'].resource._blobMeta).toBeUndefined();
+        expect(byVersion['2'].resource._blobMeta).toBeDefined();
+        expect(byVersion['3'].resource._blobMeta).toBeUndefined();
+        expect(byVersion['4'].resource._blobMeta).toBeDefined();
+
+        const liveDownloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const historyDownloadSpy = jest.spyOn(historyClient, 'downloadAsync');
+        try {
+            const historyListResp = await request
+                .get(`/4_0_0/Binary/${id}/_history`)
+                .set(getHeaders())
+                .expect(200);
+
+            // The /_history operation runs its per-entry rehydration via `Promise.all`, which
+            // makes the returned `entry[]` order non-deterministic when multiple versions land
+            // in the same response. Sort by versionId ascending in both the response and the
+            // fixture so the whole-bundle assertion is comparing apples to apples — the order
+            // isn't part of what this test cares about; the content per version is.
+            historyListResp.body.entry.sort(
+                (a, b) => Number(a.resource.meta.versionId) - Number(b.resource.meta.versionId)
+            );
+
+            // Substitute dynamic values into the fixture. The diagnostic for v3 carries the
+            // real (small) base64 payload — this is the BUG-FIX assertion: below-threshold
+            // versions must keep their actual patch value, not the `<data_value>` placeholder.
+            const expectedFlipFlop = JSON.parse(
+                JSON.stringify(expectedBinaryThresholdFlipFlopHistoryResponse)
+                    .replace(/__BINARY_UUID__/g, uuid)
+                    .replace(/__LARGE_DATA__/g, LARGE_DATA)
+                    .replace(/__SMALL_DATA__/g, SMALL_DATA)
+            );
+            expect(historyListResp).toHaveResponse(expectedFlipFlop);
+
+            // Only v2 and v4 externalized — those are the only versions that need rehydration
+            // from the history bucket. v1 and v3 are inline in Mongo (no S3 fetch needed).
+            expect(historyDownloadSpy).toHaveBeenCalledTimes(2);
+            expect(liveDownloadSpy).not.toHaveBeenCalled();
+        } finally {
+            liveDownloadSpy.mockRestore();
+            historyDownloadSpy.mockRestore();
         }
     });
 });
