@@ -5,25 +5,26 @@ const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager
 const { TABLES } = require('../../constants/clickHouseConstants');
 
 /**
- * Default size threshold (1 MB). Only AuditEvents whose stored resource JSON is
- * larger than this are fixed, since those are the ones bloated by a raw error
- * payload in outcomeDesc.
+ * Default outcomeDesc byte limit. Only error AuditEvents whose outcomeDesc exceeds
+ * this are rewritten; smaller ones (and all other fields) are left untouched.
  * @type {number}
  */
-const DEFAULT_MIN_SIZE_BYTES = 1024 * 1024;
+const DEFAULT_MAX_OUTCOME_DESC_BYTES = 500;
 
 /**
- * AuditEvent.action for error events. This runner only targets error events, so
+ * AuditEvent.action for error events. outcomeDesc only exists on error events, so
  * the action is fixed (not configurable).
  * @type {string}
  */
 const ERROR_ACTION = 'E';
 
 /**
- * @classdesc Rewrites the oversized outcomeDesc of error AuditEvents (action 'E')
+ * @classdesc Replaces the oversized outcomeDesc of error AuditEvents (action 'E')
  * in ClickHouse with a generic status phrase derived from outcome:
  *   outcome '8' (server error) -> 'Internal Server Error'
  *   otherwise   (client error) -> 'Bad Request'
+ * Only events whose outcomeDesc exceeds the byte limit (default 500) are touched;
+ * smaller outcomeDesc and every other field are left as-is.
  *
  * AuditEvents are ClickHouse-only (table fhir.AuditEvent_4_0_0), ORDER BY
  * (recorded, _uuid). Scanning a whole month re-serializes every row in the
@@ -43,7 +44,7 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
      *   clickHouseClientManager: ClickHouseClientManager | null,
      *   from?: string,
      *   to?: string,
-     *   minSizeBytes?: number,
+     *   maxOutcomeDescBytes?: number,
      *   dryRun?: boolean
      * }} params
      */
@@ -53,7 +54,7 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
         clickHouseClientManager,
         from,
         to,
-        minSizeBytes,
+        maxOutcomeDescBytes,
         dryRun = false
     }) {
         super({ adminLogger, mongoDatabaseManager });
@@ -80,7 +81,7 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
         /**
          * @type {number}
          */
-        this.minSizeBytes = minSizeBytes || DEFAULT_MIN_SIZE_BYTES;
+        this.maxOutcomeDescBytes = maxOutcomeDescBytes || DEFAULT_MAX_OUTCOME_DESC_BYTES;
 
         /**
          * @type {boolean}
@@ -116,22 +117,32 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
     }
 
     /**
-     * Builds the row-match condition for a single day. The size literal is
-     * validated and inlined (not bound as a query param) because ClickHouse
-     * parameter binding is not reliable inside ALTER ... UPDATE.
+     * Validates and returns the outcomeDesc byte limit. Inlined into SQL (not
+     * bound as a query param) because ClickHouse parameter binding is not reliable
+     * inside ALTER ... UPDATE.
+     * @returns {number}
+     * @private
+     */
+    _maxBytes () {
+        const max = parseInt(this.maxOutcomeDescBytes, 10);
+        if (!Number.isFinite(max) || max < 1) {
+            throw new Error(`Invalid maxOutcomeDescBytes: ${this.maxOutcomeDescBytes}`);
+        }
+        return max;
+    }
+
+    /**
+     * Builds the row-match condition for a single day: error events whose
+     * outcomeDesc exceeds the byte limit.
      * @param {string} day - inclusive day start (YYYY-MM-DD)
      * @param {string} next - exclusive day end (YYYY-MM-DD)
      * @returns {string}
      * @private
      */
     _buildMatchCondition (day, next) {
-        const minSize = parseInt(this.minSizeBytes, 10);
-        if (!Number.isFinite(minSize) || minSize < 0) {
-            throw new Error(`Invalid minSizeBytes: ${this.minSizeBytes}`);
-        }
         return (
             `recorded >= '${day}' AND recorded < '${next}' ` +
-            `AND action = '${ERROR_ACTION}' AND length(toString(resource)) > ${minSize}`
+            `AND action = '${ERROR_ACTION}' AND length(toString(resource.outcomeDesc)) > ${this._maxBytes()}`
         );
     }
 
@@ -139,7 +150,7 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
      * Builds the UPDATE SET expression. outcomeDesc lives in the native JSON
      * `resource` column, which has no sub-path assignment; JSONMergePatch overrides
      * only outcomeDesc while keeping every other field. The replacement is a fixed
-     * phrase keyed off outcome ('8' -> server error, else client error).
+     * generic phrase keyed off outcome ('8' -> server error, else client error).
      * @returns {string}
      * @private
      */
@@ -172,7 +183,7 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
                 from: this.from,
                 to: this.to,
                 days: dayRanges.length,
-                minSizeBytes: this.minSizeBytes,
+                maxOutcomeDescBytes: this.maxOutcomeDescBytes,
                 action: ERROR_ACTION,
                 dryRun: this.dryRun
             });
