@@ -68,9 +68,10 @@ class Base64DataManager {
      * @param {import('../fhir/classes/4_0_0/resources/resource')} resource
      * @param {string} operation - one of constants.BLOB_OP values
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo]
+     * @param {boolean} [fromHistory=false] true → use history bucket + per-version key encoded in _blobMeta.rawReference
      * @returns {Promise<import('../fhir/classes/4_0_0/resources/resource')>}
      */
-    async transformAsync (resource, operation, requestInfo) {
+    async transformAsync (resource, operation, requestInfo, fromHistory = false) {
         if (!resource || !this.enableBase64FieldCloudStorage) {
             return resource;
         }
@@ -94,7 +95,7 @@ class Base64DataManager {
             }
         } else if (operation === BLOB_OP.RETRIEVE) {
             for (const entry of entries) {
-                await this._processRetrieveEntry(resource, entry, requestInfo);
+                await this._processRetrieveEntry(resource, entry, requestInfo, fromHistory);
             }
         }
         return resource;
@@ -174,7 +175,7 @@ class Base64DataManager {
      * against actual content (matching how GridFS RETRIEVE works for attachments).
      * @private
      */
-    async _processRetrieveEntry (resource, entry, requestInfo) {
+    async _processRetrieveEntry (resource, entry, requestInfo, fromHistory = false) {
         const dataSegments = this._parseJsonPointer(entry.dataPath);
         const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
         const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
@@ -200,10 +201,15 @@ class Base64DataManager {
                 parent[key] = stashed;
                 return;
             }
-            const liveKey = this._buildLiveKey(resource.resourceType, resource._uuid, dataSegments, indices);
+            // `rawReference` is self-describing — live snapshots store `{uuid}` (or
+            // `{uuid}/{path}` for nested), history snapshots store
+            // `{uuid}/{epochMs}` (or `{uuid}/{path}/{epochMs}`). Prefixing with
+            // `{ResourceType}_4_0_0/` produces the correct S3 key in both shapes.
+            const s3Key = `${resource.resourceType}_4_0_0/${blobMeta.rawReference}`;
+            const client = fromHistory ? this.historyResourceCloudStorageClient : this.base64FieldCloudStorageClient;
             let downloaded;
             try {
-                downloaded = await this.base64FieldCloudStorageClient.downloadAsync(liveKey);
+                downloaded = await client.downloadAsync(s3Key);
             } catch (err) {
                 throw new RethrownError({
                     message: `Failed to download base64 payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
@@ -213,7 +219,7 @@ class Base64DataManager {
                         resourceType: resource.resourceType,
                         resourceId: resource.id,
                         dataPath: entry.dataPath,
-                        key: liveKey
+                        key: s3Key
                     }
                 });
             }
@@ -221,14 +227,14 @@ class Base64DataManager {
                 // Sidecar referenced an object that's gone — fail loudly so callers
                 // don't silently produce a write that erases the data.
                 throw new RethrownError({
-                    message: `Base64 payload missing in cloud storage for ${resource.resourceType}/${resource.id} at ${entry.dataPath} (key ${liveKey})`,
+                    message: `Base64 payload missing in cloud storage for ${resource.resourceType}/${resource.id} at ${entry.dataPath} (key ${s3Key})`,
                     error: new Error('NoSuchKey'),
                     source: 'Base64DataManager',
                     args: {
                         resourceType: resource.resourceType,
                         resourceId: resource.id,
                         dataPath: entry.dataPath,
-                        key: liveKey
+                        key: s3Key
                     }
                 });
             }
@@ -429,8 +435,15 @@ class Base64DataManager {
 
     /**
      * Walk `response.outcome.issue[*].diagnostics` and rewrite any patch whose path
-     * matches a configured dataPath. The patch's `value` is replaced with the
-     * `<data_value>` placeholder; original bytes live in the history bucket already.
+     * matches a configured dataPath AND whose corresponding `_blobMeta` sidecar is
+     * actually set on the snapshot at the same parent. The patch's `value` is replaced
+     * with the `<data_value>` placeholder; original bytes live in the history bucket.
+     *
+     * WHY the sidecar check: a below-threshold update keeps `data` inline and never
+     * uploads anything to S3 — there's no externalized object for that version. If we
+     * sanitized unconditionally (by path match alone), readers would see `<data_value>`
+     * in the diagnostic even though the version's bytes were stored inline in Mongo and
+     * are perfectly available. Sanitize only when this version actually externalized.
      * @private
      */
     _sanitizeHistoryPatches (historyDocument, entries) {
@@ -439,7 +452,14 @@ class Base64DataManager {
         if (!Array.isArray(issues) || issues.length === 0) {
             return;
         }
-        const patchPathPatterns = entries.map(entry => this._buildPathPattern(entry.dataPath));
+        const snapshot = historyDocument.resource;
+        if (!snapshot) {
+            return;
+        }
+        const matchers = entries.map(entry => ({
+            pattern: this._buildPathPattern(entry.dataPath),
+            blobMetaSegments: this._parseJsonPointer(entry.blobMetaPath)
+        }));
         for (const issue of issues) {
             if (!issue || typeof issue.diagnostics !== 'string') {
                 continue;
@@ -459,11 +479,112 @@ class Base64DataManager {
             if (!('value' in patch)) {
                 continue;
             }
-            if (patchPathPatterns.some(pattern => pattern.test(patch.path))) {
-                patch.value = BINARY_DATA_VALUE_PLACEHOLDER;
-                issue.diagnostics = JSON.stringify(patch);
+            const matched = matchers.find(m => m.pattern.test(patch.path));
+            if (!matched) {
+                continue;
             }
+            // Walk the snapshot to the parent of the patch's leaf using the patch's
+            // concrete path (e.g. `/content/2/attachment/data` → parent is
+            // snapshot.content[2].attachment). Then check the configured _blobMeta leaf
+            // on that same parent — that's the per-leaf signal that THIS version was
+            // externalized. If absent, the bytes are inline and we leave the patch alone.
+            const patchSegments = this._parseJsonPointer(patch.path);
+            const parentSegments = patchSegments.slice(0, -1);
+            const parent = this._resolveSegments(snapshot, parentSegments);
+            if (!parent) {
+                continue;
+            }
+            const blobMetaLeaf = matched.blobMetaSegments[matched.blobMetaSegments.length - 1];
+            if (parent[blobMetaLeaf] === undefined || parent[blobMetaLeaf] === null) {
+                continue;
+            }
+            patch.value = BINARY_DATA_VALUE_PLACEHOLDER;
+            issue.diagnostics = JSON.stringify(patch);
         }
+    }
+
+    /**
+     * Read-time counterpart to `_sanitizeHistoryPatches`. We store `<data_value>` in
+     * Mongo for externalized versions to keep history docs small, but API consumers
+     * should see the same diagnostic shape regardless of whether the version was
+     * inline or externalized. After history-read rehydrates `entry.resource.data`
+     * from S3, walk the entry's JSON-Patch diagnostics and substitute the placeholder
+     * with the real value resolved off the now-inlined resource.
+     *
+     * Operates IN PLACE on the entry. Synchronous — no I/O; the data is already
+     * inline on `entry.resource` after `transformAsync(RETRIEVE)`. No-op when the
+     * feature is disabled, resource type unconfigured, or no matching placeholders.
+     *
+     * @param {Object} historyEntry - Bundle entry with `.resource` and `.response.outcome.issue`
+     */
+    rehydrateHistoryDiagnostics (historyEntry) {
+        if (!this.enableBase64FieldCloudStorage || !historyEntry || !historyEntry.resource) {
+            return;
+        }
+        const entries = this.resourcePaths[historyEntry.resource.resourceType];
+        if (!entries) {
+            return;
+        }
+        const issues = historyEntry.response
+            && historyEntry.response.outcome
+            && historyEntry.response.outcome.issue;
+        if (!Array.isArray(issues) || issues.length === 0) {
+            return;
+        }
+        const matchers = entries.map(entry => ({
+            pattern: this._buildPathPattern(entry.dataPath)
+        }));
+        const resource = historyEntry.resource;
+        for (const issue of issues) {
+            if (!issue || typeof issue.diagnostics !== 'string') {
+                continue;
+            }
+            let patch;
+            try {
+                patch = JSON.parse(issue.diagnostics);
+            } catch (e) {
+                continue;
+            }
+            if (!patch || typeof patch.path !== 'string') {
+                continue;
+            }
+            // Only touch placeholders we ourselves wrote — anything else is not ours to rewrite.
+            if (patch.value !== BINARY_DATA_VALUE_PLACEHOLDER) {
+                continue;
+            }
+            const matched = matchers.find(m => m.pattern.test(patch.path));
+            if (!matched) {
+                continue;
+            }
+            const patchSegments = this._parseJsonPointer(patch.path);
+            const resolvedValue = this._resolveSegments(resource, patchSegments);
+            // If the resolved value isn't a non-empty string, leave the placeholder alone —
+            // the read path just put the real bytes there, so this shouldn't happen, but
+            // we'd rather surface the placeholder than write garbage into the diagnostic.
+            if (typeof resolvedValue !== 'string' || resolvedValue.length === 0) {
+                continue;
+            }
+            patch.value = resolvedValue;
+            issue.diagnostics = JSON.stringify(patch);
+        }
+    }
+
+    /**
+     * Sync walker over concrete path segments. Returns the resolved node or undefined.
+     * Distinct from `_walk` (which is async and expands the `[]` wildcard) — patch paths
+     * carry concrete array indices already, so a straight property-chain walk suffices.
+     * String segments resolve through JS arrays naturally (`arr['0']` === `arr[0]`).
+     * @private
+     */
+    _resolveSegments (node, segments) {
+        let current = node;
+        for (const seg of segments) {
+            if (current === null || current === undefined) {
+                return undefined;
+            }
+            current = current[seg];
+        }
+        return current;
     }
 
     /**
