@@ -27,6 +27,7 @@ const { HttpResponseWriter } = require('../streaming/responseWriter');
 const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
 const { fhirContentTypes } = require('../../utils/contentTypes');
 const { FastMergeManager } = require('./fastMergeManager');
+const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../utils/metrics');
 
 
 class MergeOperation {
@@ -185,6 +186,20 @@ class MergeOperation {
             body
         } = requestInfo;
 
+        // Hoisted so `finally` can read them on every exit path (success,
+        // catch+rethrow, mid-flight throw). recordMergeOutcomes fires on
+        // whatever made it into mergeResults before the exit;
+        // recordInboundBundleSize fires on the inbound size we observed.
+        // mergeResults is assembled INCREMENTALLY inside the try (pre-check
+        // errors → merge errors → bulk-insert outcomes → unchanged
+        // placeholders), so a throw at any step still leaves the finally
+        // with whatever made it through. wasIncomingAList is hoisted because
+        // the success branch returns based on it; defaults to false (single).
+        /** @type {MergeResultEntry[]} */
+        let mergeResults = [];
+        let inboundCount = 0;
+        let wasIncomingAList = false;
+
         // noinspection JSCheckFunctionSignatures
         try {
             const {
@@ -199,11 +214,21 @@ class MergeOperation {
              * @type {Object|Object[]|undefined}
              */
             const incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
+            // Bundle wrapper has to be unwrapped *before* the truthy-fallback
+            // ternary, otherwise an N-entry Bundle saturates the histogram at 1.
+            // BundleResourceValidator.validate later flattens entry[].resource
+            // into N individual resources, so the histogram has to match.
+            // Order-dependent: Bundle is also a non-array Object — check first.
+            inboundCount = incomingObjects?.resourceType === 'Bundle'
+                ? (incomingObjects.entry?.length ?? 0)
+                : Array.isArray(incomingObjects)
+                    ? incomingObjects.length
+                    : (incomingObjects ? 1 : 0);
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ resourcesIncomingArray,
-                /** @type {boolean} */ wasIncomingAList
+                /** @type {boolean} */ wasIncomingAList: validatorWasIncomingAList
             } = await this.mergeValidator.validateAsync({
                 base_version,
                 incomingObjects,
@@ -211,6 +236,11 @@ class MergeOperation {
                 requestInfo,
                 effectiveSmartMerge
             });
+            wasIncomingAList = validatorWasIncomingAList;
+            // Capture pre-check errors immediately so they survive a throw from
+            // mergeManager / databaseBulkInserter below. recordMergeOutcomes in
+            // the finally would otherwise see an empty array and lose signal.
+            mergeResults = mergeResults.concat(mergePreCheckErrors);
 
             // merge the resources
             /**
@@ -235,20 +265,18 @@ class MergeOperation {
                 },
                 { validResources: [], mergeErrors: [] }
             );
+            // Capture per-resource merge errors immediately for the same reason.
+            mergeResults = mergeResults.concat(mergeErrors);
 
-            /**
-             * mergeResults
-             * @type {MergeResultEntry[]}
-             */
-            let mergeResults = await this.databaseBulkInserter.executeAsync({
+            const inserted = await this.databaseBulkInserter.executeAsync({
                 requestInfo,
                 base_version
             });
+            mergeResults = mergeResults.concat(inserted);
 
-            // add in any pre-merge failures
-            mergeResults = mergeResults.concat(mergePreCheckErrors);
-            mergeResults = mergeResults.concat(mergeErrors);
-
+            // addSuccessfulMergesToMergeResult must run AFTER the bulk insert —
+            // it skips UUIDs already present in mergeResults, including the
+            // ones that just inserted, so we don't duplicate placeholders.
             mergeResults = mergeResults.concat(
                 this.addSuccessfulMergesToMergeResult(validResources, mergeResults)
             );
@@ -367,6 +395,11 @@ class MergeOperation {
                 error: e
             });
             throw e;
+        } finally {
+            // Emit on every exit path. The catch above rethrows, so
+            // success-only emission would silently lose error-path signal.
+            recordMergeOutcomes(mergeResults);
+            recordInboundBundleSize(OPERATION.MERGE, inboundCount);
         }
     }
 
@@ -398,6 +431,12 @@ class MergeOperation {
         // List of resources we attempted to merge, not yet inserted
         const resourcesToMerge = [];
 
+        // Inbound NDJSON resource count for the bundle-size histogram.
+        // Incremented for every record entering the transform, regardless
+        // of validation/merge outcome — counts what the client actually
+        // sent us. Read from the outer try/finally below.
+        let inboundCount = 0;
+
         const BATCH_SIZE = 100;
         const highWaterMark = this.configManager.streamingHighWaterMark || 100;
 
@@ -417,6 +456,7 @@ class MergeOperation {
         const mergeTransform = new Transform({
             objectMode: true,
             async transform(resource, _, callback) {
+                inboundCount++;
                 try {
                     const {
                         /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
@@ -516,36 +556,47 @@ class MergeOperation {
             }
         );
         try {
-            // Run pipeline
-            await pipeline(
-                req,
-                new NdjsonParser({ configManager: self.configManager }),
-                mergeTransform,
-                fhirWriter,
-                responseWriter
-            );
-        }catch (err){
-            if (err.name === 'AbortError') {
-                logError('Pipeline aborted', err);
-            } else {
-                await self.fhirLoggingManager.logOperationFailureAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    error: err
-                });
-                throw err;
+            try {
+                // Run pipeline
+                await pipeline(
+                    req,
+                    new NdjsonParser({ configManager: self.configManager }),
+                    mergeTransform,
+                    fhirWriter,
+                    responseWriter
+                );
+            }catch (err){
+                if (err.name === 'AbortError') {
+                    logError('Pipeline aborted', err);
+                } else {
+                    await self.fhirLoggingManager.logOperationFailureAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName,
+                        error: err
+                    });
+                    throw err;
+                }
             }
+            await self.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
+        } finally {
+            // Single emission point for the streaming merge boundary.
+            // finalMergeResults accumulates all pre-check errors, merge
+            // errors, bulk-insert outcomes, and unchanged placeholders during
+            // the transform's lifetime; emitting once at finally captures
+            // whatever made it through, including on AbortError fallthrough
+            // and rethrow.
+            recordMergeOutcomes(finalMergeResults);
+            recordInboundBundleSize(OPERATION.NDJSON, inboundCount);
         }
-        await self.fhirLoggingManager.logOperationSuccessAsync({
-            requestInfo,
-            args: parsedArgs.getRawArgs(),
-            resourceType,
-            startTime,
-            action: currentOperationName
-        });
     }
 
     /**

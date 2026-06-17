@@ -56,6 +56,7 @@ const { ResourceMapper, UuidOnlyMapper } = require('./resourceMapper');
 const { RedisStreamManager } = require('../../utils/redisStreamManager');
 const { CachedFhirResponseStreamer } = require('../../utils/cachedFhirResponseStreamer');
 const httpContext = require('express-http-context');
+const { recordOutboundEverything } = require('../../utils/metrics');
 
 /**
  * @typedef {import('../../utils/fhirRequestInfo').FhirRequestInfo} FhirRequestInfo
@@ -565,6 +566,18 @@ class EverythingHelper {
             if (responseStreamer) {
                 responseStreamer.setBundle({ bundle });
             }
+            // Outbound bundle size + empty-bundle counter for the
+            // $everything success path. Streaming mode pushes resources
+            // through `streamedResources` and leaves `bundle.entry` empty by
+            // design — count the streamed resources in that case so the
+            // empty-bundle counter doesn't saturate. Non-streaming uses the
+            // bundle's entry array. This is intentionally success-only:
+            // the catch below rethrows, and the empty-bundle metric is a
+            // read-correctness signal for 200 responses.
+            const entryLength = responseStreamer
+                ? streamedResources.length
+                : (bundle.entry ? bundle.entry.length : 0);
+            recordOutboundEverything(resourceType, entryLength);
             return bundle;
         } catch (error) {
             // Deleting cached stream if any error occurs during processing

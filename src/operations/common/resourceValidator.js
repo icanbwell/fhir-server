@@ -22,6 +22,7 @@ const { logError } = require('./logging');
 const { validateResource } = require('../../utils/validator.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { recordValidationFailure, VALIDATION_STAGE, PATH } = require('../../utils/metrics');
 
 class ResourceValidator {
     /**
@@ -174,6 +175,9 @@ class ResourceValidator {
      * @property {boolean|undefined} useRemoteFhirValidatorIfAvailable
      * @property {string|undefined} profile
      * @property {Resource|undefined} currentResource
+     * @property {string|undefined} validationContext - PATH.SAVE (default) or PATH.VALIDATE.
+     *   Distinguishes save-time (POST/PUT/$merge) from validate-time ($validate)
+     *   in the fhir_validation_failure_total metric.
      *
      * @param {ValidateResourceAsyncParams}
      * @returns {Promise<OperationOutcome | null>}
@@ -189,7 +193,8 @@ class ResourceValidator {
             resourceObj = null,
             useRemoteFhirValidatorIfAvailable = false,
             profile,
-            currentResource
+            currentResource,
+            validationContext
         }
     ) {
         const dateColumnHandler = new DateColumnHandler();
@@ -220,6 +225,11 @@ class ResourceValidator {
                 }
             );
 
+        // Tracks which path produced the outcome. Schema-validation outcomes
+        // (from validateResource / validateResourceFromServerAsync) and
+        // patient-reference outcomes get different validation_stage labels.
+        let validationStage = validationOperationOutcome ? VALIDATION_STAGE.SCHEMA : null;
+
         const { isUser } = requestInfo;
 
         if (!validationOperationOutcome && currentResource) {
@@ -228,8 +238,17 @@ class ResourceValidator {
                 resourceToValidateJson,
                 isUser
             });
+            if (validationOperationOutcome) {
+                validationStage = VALIDATION_STAGE.REFERENCE;
+            }
         }
         if (validationOperationOutcome) {
+            recordValidationFailure(
+                validationOperationOutcome,
+                resourceType,
+                validationStage,
+                validationContext || PATH.SAVE
+            );
             return validationOperationOutcome;
         }
         return null;
@@ -241,9 +260,10 @@ class ResourceValidator {
      * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
      */
     validateResourceMetaSync (resource) {
+        const resourceType = resource && resource.resourceType;
         // Check if meta & meta.source exists in resource
         if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
-            return new OperationOutcome({
+            const outcome = new OperationOutcome({
                 issue: [
                     new OperationOutcomeIssue({
                         severity: 'error',
@@ -254,11 +274,12 @@ class ResourceValidator {
                     })
                 ]
             });
+            recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
+            return outcome;
         }
-
         // Check owner tag is present inside the resource.
         if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
-            return new OperationOutcome({
+            const outcome = new OperationOutcome({
                 issue: [
                     new OperationOutcomeIssue({
                         severity: 'error',
@@ -271,11 +292,12 @@ class ResourceValidator {
                     })
                 ]
             });
+            recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
+            return outcome;
         }
-
         // Check if multiple owner tags are present inside the resource.
         if (this.scopesManager.doesResourceHaveMultipleOwnerTags(resource)) {
-            return new OperationOutcome({
+            const outcome = new OperationOutcome({
                 issue: [
                     new OperationOutcomeIssue({
                         severity: 'error',
@@ -288,10 +310,12 @@ class ResourceValidator {
                     })
                 ]
             });
+            recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
+            return outcome;
         }
         // Check if any system or code in the meta.security array is null
         if (this.scopesManager.doesResourceHaveInvalidMetaSecurity(resource)) {
-            return new OperationOutcome({
+            const outcome = new OperationOutcome({
                 issue: [
                     new OperationOutcomeIssue({
                         severity: 'error',
@@ -303,7 +327,10 @@ class ResourceValidator {
                     })
                 ]
             });
+            recordValidationFailure(outcome, resourceType, VALIDATION_STAGE.META, PATH.SAVE);
+            return outcome;
         }
+        return null;
     }
 
     /**
