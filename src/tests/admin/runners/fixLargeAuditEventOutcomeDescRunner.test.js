@@ -54,6 +54,25 @@ describe('FixLargeAuditEventOutcomeDescRunner (integration)', () => {
         return rows[0];
     }
 
+    // The runner submits ALTER ... UPDATE with mutations_sync = 0 (fire-and-forget),
+    // so processAsync returns before the background mutation finishes. Poll
+    // system.mutations until none are pending for the table before reading back.
+    async function waitForMutations () {
+        const tableName = TABLES.AUDIT_EVENT.split('.').pop();
+        for (let i = 0; i < 100; i++) {
+            const rows = await manager.queryAsync({
+                query:
+                    `SELECT count() AS pending FROM system.mutations ` +
+                    `WHERE table = '${tableName}' AND is_done = 0`
+            });
+            if (Number(rows[0].pending) === 0) {
+                return;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        throw new Error('Timed out waiting for ClickHouse mutations to finish');
+    }
+
     async function cleanWindow () {
         // ALTER ... DELETE mutation (not lightweight `DELETE FROM`): queryAsync
         // appends `FORMAT JSONEachRow`, which lightweight DELETE rejects but the
@@ -100,6 +119,7 @@ describe('FixLargeAuditEventOutcomeDescRunner (integration)', () => {
         ]);
 
         await createRunner().processAsync();
+        await waitForMutations();
 
         const big500 = await fetchByUuid('big-500');
         const big400 = await fetchByUuid('big-400');
@@ -128,6 +148,7 @@ describe('FixLargeAuditEventOutcomeDescRunner (integration)', () => {
         ]);
 
         await createRunner().processAsync();
+        await waitForMutations();
 
         expect((await fetchByUuid('d1')).outcomeDesc).toBe('Internal Server Error');
         expect((await fetchByUuid('d2')).outcomeDesc).toBe('Bad Request');

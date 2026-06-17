@@ -223,15 +223,18 @@ class FixLargeAuditEventOutcomeDescRunner extends BaseScriptRunner {
                     continue;
                 }
 
-                // mutations_sync = 1 waits for this window's mutation to finish before
-                // moving on, keeping the work incremental.
+                // mutations_sync = 0: submit the mutation and return immediately
+                // (fire-and-forget). ClickHouse runs the ALTER ... UPDATE in the
+                // background, so the script does not block on each window's mutation.
+                // Trade-off: a failure during background execution will NOT surface
+                // here — confirm completion via system.mutations (latest_fail_reason).
                 await this.clickHouseClientManager.queryAsync({
                     query:
                         `ALTER TABLE ${table} UPDATE ${updateExpr} ` +
-                        `WHERE ${matchCondition} SETTINGS mutations_sync = 1`
+                        `WHERE ${matchCondition} SETTINGS mutations_sync = 0`
                 });
                 this.adminLogger.logInfo(
-                    `${start}: update mutation submitted for ${matched.toLocaleString('en-US')} document(s)`
+                    `${start}: update mutation submitted (async, not awaited) for ${matched.toLocaleString('en-US')} document(s)`
                 );
             }
 
