@@ -15,11 +15,12 @@ const { fhirContentTypes } = require('../../utils/contentTypes');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
-const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA } = require('../../constants');
+const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
 const { ResourceMerger } = require('../common/resourceMerger');
 const { ResourceValidator } = require('../common/resourceValidator');
 const { DateColumnHandler } = require('../../preSaveHandlers/handlers/dateColumnHandler');
@@ -43,6 +44,7 @@ class PatchOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
      * @param {ResourceMerger} resourceMerger
@@ -59,6 +61,7 @@ class PatchOperation {
             scopesValidator,
             databaseBulkInserter,
             databaseAttachmentManager,
+            base64DataManager,
             configManager,
             searchManager,
             resourceMerger,
@@ -102,6 +105,12 @@ class PatchOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {ConfigManager}
@@ -353,6 +362,9 @@ class PatchOperation {
             foundResource = await this.databaseAttachmentManager.transformAttachments(
                 foundResource, RETRIEVE, effectivePatchContent
             );
+            foundResource = await this.base64DataManager.transformAsync(
+                foundResource, BLOB_OP.RETRIEVE, requestInfo
+            );
 
             // Validate the patch
             const errors = validate(effectivePatchContent, foundResource);
@@ -438,6 +450,7 @@ class PatchOperation {
 
                 // converting attachment.data to attachment._file_id for the response
                 resource = await this.databaseAttachmentManager.transformAttachments(resource);
+                resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
 
                 // Same as update from this point on
                 // Insert/update our resource record
@@ -494,6 +507,7 @@ class PatchOperation {
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+            resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE, requestInfo);
 
             // enrich resource
             this.identifierEnrichmentProvider.enrichIdentifierList(resource);

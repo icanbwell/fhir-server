@@ -14,6 +14,7 @@ const { DateColumnHandler } = require("../../preSaveHandlers/handlers/dateColumn
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
+const { BLOB_OP } = require('../../constants');
 
 /**
  * @typedef {object} MergePatchEntry
@@ -377,6 +378,7 @@ class ResourceMerger {
      * @param {boolean|undefined} [incrementVersion]
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
+     * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async mergeResourceAsync (
@@ -388,7 +390,8 @@ class ResourceMerger {
             smartMerge = true,
             incrementVersion = true,
             limitToPaths,
-            databaseAttachmentManager = null
+            databaseAttachmentManager = null,
+            base64DataManager = null
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -407,6 +410,11 @@ class ResourceMerger {
         resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
         resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
+        if (base64DataManager) {
+            await base64DataManager.transformAsync(
+                currentResource, BLOB_OP.RETRIEVE, requestInfo
+            );
+        }
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
@@ -498,6 +506,7 @@ class ResourceMerger {
      * @param {boolean|undefined} [incrementVersion]
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
+     * @param {import('../../dataLayer/base64DataManager').Base64DataManager|null} [base64DataManager]
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async fastMergeResourceAsync (
@@ -509,7 +518,8 @@ class ResourceMerger {
             smartMerge = true,
             incrementVersion = true,
             limitToPaths,
-            databaseAttachmentManager = null
+            databaseAttachmentManager = null,
+            base64DataManager = null
         }
     ) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
@@ -528,6 +538,11 @@ class ResourceMerger {
         resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
         resourceToMerge = await this.preSaveManager.preSaveAsync({ resource: resourceToMerge, options: preSaveOptions });
+        if (base64DataManager) {
+            await base64DataManager.transformAsync(
+                currentResource, BLOB_OP.RETRIEVE, requestInfo
+            );
+        }
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource, resourceToMerge) === true) {

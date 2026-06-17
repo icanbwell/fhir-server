@@ -5,6 +5,8 @@ const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { ConfigManager } = require('../../utils/configManager');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
+const { BLOB_OP } = require('../../constants');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
@@ -46,6 +48,7 @@ class FastMergeManager {
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
@@ -61,6 +64,7 @@ class FastMergeManager {
             preSaveManager,
             configManager,
             databaseAttachmentManager,
+            base64DataManager,
             postRequestProcessor
         }
     ) {
@@ -126,6 +130,12 @@ class FastMergeManager {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
+
+        /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
@@ -174,7 +184,8 @@ class FastMergeManager {
             resourceToMerge,
             smartMerge,
             limitToPaths: undefined,
-            databaseAttachmentManager: this.databaseAttachmentManager
+            databaseAttachmentManager: this.databaseAttachmentManager,
+            base64DataManager: this.base64DataManager
         });
         if (patched_resource_incoming) {
             /**
@@ -614,6 +625,7 @@ class FastMergeManager {
 
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
+            resourceToMerge = await this.base64DataManager.transformAsync(resourceToMerge, BLOB_OP.INSERT, requestInfo);
 
             // Build contextData with merged members (for ClickHouse event processing)
             const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo, { smartMerge });
@@ -673,6 +685,7 @@ class FastMergeManager {
             });
             // Update attachments after all validations
             resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
+            resourceToMerge = await this.base64DataManager.transformAsync(resourceToMerge, BLOB_OP.INSERT, requestInfo);
 
             // Insert/update our resource record
             const contextData = buildContextDataForHybridStorage(resourceToMerge.resourceType, resourceToMerge, requestInfo);
