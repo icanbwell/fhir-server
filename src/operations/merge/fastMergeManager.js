@@ -457,11 +457,16 @@ class FastMergeManager {
         });
 
         /**
+         * @type {string[]}
+         */
+        const duplicateResources = [];
+        /**
          * @type {Object[]}
          */
         const mergedResources = [];
         Object.values(resourceGroups).forEach((duplicateResourceArray) => {
             if (duplicateResourceArray.length > 1) {
+                duplicateResources.push(duplicateResourceArray[0].id);
                 const mergedResource = duplicateResourceArray.reduce(
                     (mergedResource, resource) => mergeObject(mergedResource, resource),
                     {}
@@ -471,6 +476,13 @@ class FastMergeManager {
                 mergedResources.push(duplicateResourceArray[0]);
             }
         });
+
+        if (duplicateResources.length > 0) {
+            logWarn(
+                'Resource with same body is present multiple times in the request body, ' +
+                `resource ids are ${duplicateResources.join(', ')}`, {}
+            );
+        }
 
         return mergedResources;
     }

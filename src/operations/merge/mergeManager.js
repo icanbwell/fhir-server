@@ -462,7 +462,7 @@ class MergeManager {
         if (duplicateResources.length > 0) {
             logWarn(
                 'Resource with same body is present multiple times in the request body, ' +
-                `resource ids are ${duplicateResources.join(', ')}`
+                `resource ids are ${duplicateResources.join(', ')}`, {}
             );
         }
 
