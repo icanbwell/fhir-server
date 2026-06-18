@@ -67,6 +67,10 @@ For example:
 
 [Bulk Export](readme/export.md)
 
+## Bulk Import functionality
+
+[Bulk Import](readme/import.md)
+
 ## Proxy Patient
 
 [Proxy Patient](readme/proxyPatient.md)
