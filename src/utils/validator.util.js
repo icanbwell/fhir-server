@@ -9,6 +9,12 @@ const { validateReferences, fastValidateReferences } = require('./referenceValid
 
 const generatedSchema = require('../fhir/fhir-generated.schema.json');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const { CustomTracer } = require('./customTracer');
+
+// validateResource is a plain exported function, not IoC-managed, so we use a
+// module-level tracer. CustomTracer is a thin wrapper over the OTel API and is a
+// no-op when the SDK isn't running (e.g. tests), so it is safe to construct once here.
+const customTracer = new CustomTracer();
 
 /**
  * By default, ajv uses fhir.json.schema but only returns first error it finds.
@@ -54,7 +60,10 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
         });
     }
 
-    let errors = fhirGeneratedValidator.validate(resourceBody);
+    let errors = customTracer.traceSync({
+        name: 'validateResource.schemaValidate',
+        func: () => fhirGeneratedValidator.validate(resourceBody)
+    });
 
     let referenceErrors = null;
 
@@ -62,7 +71,10 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
         if (resourceObj instanceof Resource) {
             referenceErrors = validateReferences(resourceObj);
         } else {
-            referenceErrors = fastValidateReferences(resourceObj);
+            referenceErrors = customTracer.traceSync({
+                name: 'validateResource.fastValidateReferences',
+                func: () => fastValidateReferences(resourceObj)
+            });
         }
     }
     let issue;
@@ -89,9 +101,9 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     if (referenceErrors && referenceErrors.length) {
         issue = issue || [];
         issue.push(...referenceErrors.map(err => new OperationOutcomeIssue({
-            severity: 'error',
-            code: 'invalid',
-            details: new CodeableConcept({ text: err })
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({ text: err })
         })));
     }
     if (issue && issue.length) {

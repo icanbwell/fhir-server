@@ -31,6 +31,7 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { COLLECTION } = require('../../constants');
+const { CustomTracer } = require('../../utils/customTracer');
 
 class FastMergeManager {
     /**
@@ -47,6 +48,7 @@ class FastMergeManager {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {CustomTracer} customTracer
      */
     constructor (
         {
@@ -61,7 +63,8 @@ class FastMergeManager {
             preSaveManager,
             configManager,
             databaseAttachmentManager,
-            postRequestProcessor
+            postRequestProcessor,
+            customTracer
         }
     ) {
         /**
@@ -130,6 +133,12 @@ class FastMergeManager {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {CustomTracer}
+         */
+        this.customTracer = customTracer;
+        assertTypeEquals(customTracer, CustomTracer);
     }
 
     /**
@@ -158,8 +167,11 @@ class FastMergeManager {
         assertIsValid(uuid, `No uuid found for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         // found an existing resource
-        currentResource = await this.preSaveManager.preSaveAsync({
-            resource: currentResource, options: preSaveOptions
+        currentResource = await this.customTracer.trace({
+            name: 'FastMergeManager.mergeExistingAsync.preSave',
+            func: async () => await this.preSaveManager.preSaveAsync({
+                resource: currentResource, options: preSaveOptions
+            })
         });
 
         /**
@@ -167,14 +179,17 @@ class FastMergeManager {
          */
         const {
             updatedResource: patched_resource_incoming, patches
-        } = await this.resourceMerger.fastMergeResourceAsync({
-            base_version,
-            requestInfo,
-            currentResource,
-            resourceToMerge,
-            smartMerge,
-            limitToPaths: undefined,
-            databaseAttachmentManager: this.databaseAttachmentManager
+        } = await this.customTracer.trace({
+            name: 'FastMergeManager.mergeExistingAsync.fastMergeResource',
+            func: async () => await this.resourceMerger.fastMergeResourceAsync({
+                base_version,
+                requestInfo,
+                currentResource,
+                resourceToMerge,
+                smartMerge,
+                limitToPaths: undefined,
+                databaseAttachmentManager: this.databaseAttachmentManager
+            })
         });
         if (patched_resource_incoming) {
             /**
@@ -188,22 +203,27 @@ class FastMergeManager {
             FhirResourceWriteNormalizeSerializer.serialize({obj: resourceToValidate});
 
             if (!validationOperationOutcome) {
-                validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                    base_version,
-                    requestInfo,
-                    id: patched_resource_incoming.id,
-                    resourceType: patched_resource_incoming.resourceType,
-                    resourceToValidate,
-                    path: requestInfo.path,
-                    resourceObj: patched_resource_incoming,
-                    currentResource
+                validationOperationOutcome = await this.customTracer.trace({
+                    name: 'FastMergeManager.mergeExistingAsync.validateResource',
+                    func: async () => await this.resourceValidator.validateResourceAsync({
+                        base_version,
+                        requestInfo,
+                        id: patched_resource_incoming.id,
+                        resourceType: patched_resource_incoming.resourceType,
+                        resourceToValidate,
+                        path: requestInfo.path,
+                        resourceObj: patched_resource_incoming,
+                        currentResource
+                    })
                 });
             }
             if (validationOperationOutcome) {
                 return validationOperationOutcome;
             }
 
-            await this.performMergeDbUpdateAsync({
+            await this.customTracer.trace({
+                name: 'FastMergeManager.performMergeDbUpdateAsync',
+                func: async () => await this.performMergeDbUpdateAsync({
                     base_version,
                     requestInfo,
                     resourceToMerge: patched_resource_incoming,
@@ -211,8 +231,8 @@ class FastMergeManager {
                     patches,
                     smartMerge,
                     currentMembers: currentResource.member
-                }
-            );
+                })
+            });
             return null;
         }
     }
@@ -249,24 +269,30 @@ class FastMergeManager {
          * Validate resource to create with fhir schema
          * @type {Object|null}
          */
-        const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-            base_version,
-            requestInfo,
-            id: resourceToMerge.id,
-            resourceType: resourceToMerge.resourceType,
-            resourceToValidate,
-            path: requestInfo.path,
-            resourceObj: resourceToMerge
+        const validationOperationOutcome = await this.customTracer.trace({
+            name: 'FastMergeManager.mergeInsertAsync.validateResource',
+            func: async () => await this.resourceValidator.validateResourceAsync({
+                base_version,
+                requestInfo,
+                id: resourceToMerge.id,
+                resourceType: resourceToMerge.resourceType,
+                resourceToValidate,
+                path: requestInfo.path,
+                resourceObj: resourceToMerge
+            })
         });
 
         if (validationOperationOutcome) {
             return validationOperationOutcome;
         }
 
-        await this.performMergeDbInsertAsync({
-            base_version,
-            requestInfo,
-            resourceToMerge
+        await this.customTracer.trace({
+            name: 'FastMergeManager.performMergeDbInsertAsync',
+            func: async () => await this.performMergeDbInsertAsync({
+                base_version,
+                requestInfo,
+                resourceToMerge
+            })
         });
         return null;
     }

@@ -1,23 +1,14 @@
 const { assertTypeEquals } = require('./assertType');
-const { ConfigManager } = require('./configManager');
 const { trace: otelTrace } = require('@opentelemetry/api');
 
 /**
- * This class provides custom tracer that is enables among Datadog or Opentelemetry
+ * This class provides custom tracer for Opentelemetry
  */
 class CustomTracer {
-    /**
-     * @param {ConfigManager} configManager
-     */
-    constructor({ configManager }) {
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-
+    constructor() {
         // https://opentelemetry.io/docs/languages/js/instrumentation/#create-spans
         const otelTracer = otelTrace.getTracer('fhir-server');
+        this.otelTracer = otelTracer;
         this.traceFunction = async (name, func) =>
             await otelTracer.startActiveSpan(name, async (span) => {
                 const res = await func();
@@ -37,6 +28,28 @@ class CustomTracer {
      */
     async trace({ name, func }) {
         return await this.traceFunction(name, func);
+    }
+
+    /**
+     * Adds a span around a synchronous function. Unlike trace(), this stays synchronous
+     * so it can wrap sync hot paths (e.g. code inside forEach loops) without forcing the
+     * caller to become async. The span is a no-op when the OTel SDK isn't running.
+     * @typedef traceSyncParams
+     * @property {string} name name of the span
+     * @property {() => T} func synchronous function to add a span for
+     *
+     * @template T
+     * @param {traceSyncParams} traceSyncParams
+     * @returns {T}
+     */
+    traceSync({ name, func }) {
+        return this.otelTracer.startActiveSpan(name, (span) => {
+            try {
+                return func();
+            } finally {
+                span.end();
+            }
+        });
     }
 }
 
