@@ -101,9 +101,9 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     if (referenceErrors && referenceErrors.length) {
         issue = issue || [];
         issue.push(...referenceErrors.map(err => new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({ text: err })
+            severity: 'error',
+            code: 'invalid',
+            details: new CodeableConcept({ text: err })
         })));
     }
     if (issue && issue.length) {

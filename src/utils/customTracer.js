@@ -7,14 +7,7 @@ const { trace: otelTrace } = require('@opentelemetry/api');
 class CustomTracer {
     constructor() {
         // https://opentelemetry.io/docs/languages/js/instrumentation/#create-spans
-        const otelTracer = otelTrace.getTracer('fhir-server');
-        this.otelTracer = otelTracer;
-        this.traceFunction = async (name, func) =>
-            await otelTracer.startActiveSpan(name, async (span) => {
-                const res = await func();
-                span.end();
-                return res;
-            });
+        this.otelTracer = otelTrace.getTracer('fhir-server');
     }
 
     /**
@@ -27,7 +20,13 @@ class CustomTracer {
      * @returns {Promise<T>}
      */
     async trace({ name, func }) {
-        return await this.traceFunction(name, func);
+        return await this.otelTracer.startActiveSpan(name, async (span) => {
+            try {
+                return await func();
+            } finally {
+                span.end();
+            }
+        });
     }
 
     /**

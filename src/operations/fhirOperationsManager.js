@@ -627,7 +627,7 @@ class FhirOperationsManager {
      */
     async merge(args, { req, res }, resourceType) {
         const { requestInfo, parsedArgs } = await this.customTracer.trace({
-            name: 'FhirOperationsManager.merge',
+            name: 'FhirOperationsManager.merge.prepare',
             func: async () => {
                 const requestInfo = this.getRequestInfo(req);
                 this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'merge' });
@@ -636,7 +636,7 @@ class FhirOperationsManager {
                 combined_args = this.parseParametersFromBody({ req, combined_args });
 
                 const parsedArgs = await this.customTracer.trace({
-                    name: 'FhirOperationsManager.merge.getParsedArgsAsync',
+                    name: 'FhirOperationsManager.merge.prepare.getParsedArgsAsync',
                     func: async () => await this.getParsedArgsAsync({
                         args: combined_args,
                         resourceType,
