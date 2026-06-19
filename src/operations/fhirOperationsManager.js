@@ -42,6 +42,7 @@ const { BadRequestError } = require('../utils/httpErrors');
 const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHandlerFactory');
 const { CMSManager } = require('../utils/cmsManager');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
+const { CustomTracer } = require('../utils/customTracer');
 
 class FhirOperationsManager {
     /**
@@ -70,6 +71,7 @@ class FhirOperationsManager {
      * @param {OperationAccessManager} accessManager
      * @param {CMSManager} cmsManager
      * @param {AccessHistoryOperation} accessHistoryOperation
+     * @param {CustomTracer} customTracer
      */
     constructor(
         {
@@ -96,7 +98,8 @@ class FhirOperationsManager {
             configManager,
             accessManager,
             cmsManager,
-            accessHistoryOperation
+            accessHistoryOperation,
+            customTracer
         }
     ) {
         /**
@@ -224,6 +227,12 @@ class FhirOperationsManager {
          * @type {AccessHistoryOperation}
          */
         this.accessHistoryOperation = accessHistoryOperation;
+
+        /**
+         * @type {CustomTracer}
+         */
+        this.customTracer = customTracer;
+        assertTypeEquals(customTracer, CustomTracer);
     }
 
     /**
@@ -617,17 +626,26 @@ class FhirOperationsManager {
      * @return {Promise<Resource | Resource[] | void>}
      */
     async merge(args, { req, res }, resourceType) {
-        const requestInfo = this.getRequestInfo(req);
-        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'merge' });
-        // Combine args
-        let combined_args = get_all_args(req, args);
-        combined_args = this.parseParametersFromBody({ req, combined_args });
+        const { requestInfo, parsedArgs } = await this.customTracer.trace({
+            name: 'FhirOperationsManager.merge.prepare',
+            func: async () => {
+                const requestInfo = this.getRequestInfo(req);
+                this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'merge' });
+                // Combine args
+                let combined_args = get_all_args(req, args);
+                combined_args = this.parseParametersFromBody({ req, combined_args });
 
-        const parsedArgs = await this.getParsedArgsAsync({
-            args: combined_args,
-            resourceType,
-            headers: req.headers,
-            operation: WRITE
+                const parsedArgs = await this.customTracer.trace({
+                    name: 'FhirOperationsManager.merge.prepare.getParsedArgsAsync',
+                    func: async () => await this.getParsedArgsAsync({
+                        args: combined_args,
+                        resourceType,
+                        headers: req.headers,
+                        operation: WRITE
+                    })
+                });
+                return { requestInfo, parsedArgs };
+            }
         });
 
         // Detect if the client wants streaming
