@@ -546,14 +546,16 @@ const createContainer = function () {
                     configManager: c.configManager,
                     resourceValidator: c.resourceValidator,
                     sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
-                    uuidColumnHandler: c.uuidColumnHandler
+                    uuidColumnHandler: c.uuidColumnHandler,
+                    customTracer: c.customTracer
                 }),
                 new WriteAllowedByScopesValidator({
                     scopesValidator: c.scopesValidator,
                     databaseBulkLoader: c.databaseBulkLoader
                 })
             ],
-            configManager: c.configManager
+            configManager: c.configManager,
+            customTracer: c.customTracer
         }
     ));
 
@@ -637,7 +639,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bulkWriteExecutors: [c.clickHouseBulkWriteExecutor, c.fastMongoBulkWriteExecutor].filter(Boolean)
+                bulkWriteExecutors: [c.clickHouseBulkWriteExecutor, c.fastMongoBulkWriteExecutor].filter(Boolean),
+                customTracer: c.customTracer
             }
         )
     );
@@ -810,7 +813,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,
             configManager: c.configManager,
-            mergeValidator: c.mergeValidator
+            mergeValidator: c.mergeValidator,
+            customTracer: c.customTracer
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
@@ -1006,7 +1010,8 @@ const createContainer = function () {
                 summaryOperation: c.summaryOperation,
                 accessManager: c.accessManager,
                 cmsManager: c.cmsManager,
-                accessHistoryOperation: c.accessHistoryOperation
+                accessHistoryOperation: c.accessHistoryOperation,
+                customTracer: c.customTracer
             }
         )
     );
@@ -1220,11 +1225,7 @@ const createContainer = function () {
         return null;
     });
 
-    container.register('customTracer', (c) => {
-        return new CustomTracer({
-            configManager: c.configManager
-        });
-    });
+    container.register('customTracer', () => new CustomTracer());
 
     container.register('patientDataViewControlManager', (c) => {
         return new PatientDataViewControlManager({

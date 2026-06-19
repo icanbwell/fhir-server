@@ -16,6 +16,7 @@ const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandl
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
 const { logError } = require('../../common/logging');
 const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
+const { CustomTracer } = require('../../../utils/customTracer');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -27,8 +28,9 @@ class MergeResourceValidator extends BaseValidator {
      * @param {ResourceValidator} resourceValidator
      * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
      * @param {UuidColumnHandler} uuidColumnHandler
+     * @param {CustomTracer} customTracer
      */
-    constructor ({
+    constructor({
         mergeManager,
         fastMergeManager,
         databaseBulkLoader,
@@ -36,7 +38,8 @@ class MergeResourceValidator extends BaseValidator {
         configManager,
         resourceValidator,
         sourceAssigningAuthorityColumnHandler,
-        uuidColumnHandler
+        uuidColumnHandler,
+        customTracer
     }) {
         super();
 
@@ -81,6 +84,12 @@ class MergeResourceValidator extends BaseValidator {
          */
         this.uuidColumnHandler = uuidColumnHandler;
         assertTypeEquals(uuidColumnHandler, UuidColumnHandler);
+
+        /**
+         * @type {CustomTracer}
+         */
+        this.customTracer = customTracer;
+        assertTypeEquals(customTracer, CustomTracer);
     }
 
     /**
@@ -90,9 +99,12 @@ class MergeResourceValidator extends BaseValidator {
      * @param {boolean} effectiveSmartMerge
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
+    async validate({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
         // Merge duplicate resources from the incomingObjects array
-        incomingResources = this.mergeManager.mergeDuplicateResourceEntries(incomingResources);
+        incomingResources = await this.customTracer.trace({
+            name: 'MergeResourceValidator.mergeDuplicateResourceEntries',
+            func: async () => this.mergeManager.mergeDuplicateResourceEntries(incomingResources)
+        });
         /**
          * @type {boolean}
          */
@@ -108,20 +120,22 @@ class MergeResourceValidator extends BaseValidator {
             resourcesIncomingArray = FhirResourceCreator.createArray(incomingResources);
         }
 
-        resourcesIncomingArray = resourcesIncomingArray.map(resource => {
+        resourcesIncomingArray = resourcesIncomingArray.map((resource) => {
             if (resource.id) {
                 resource.id = String(resource.id);
             }
             return resource;
         });
 
-        let {
-            /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
-            /** @type {Resource[]} */ validResources
-        } = await this.mergeManager.preMergeChecksMultipleAsync({
-            requestInfo,
-            resourcesToMerge: resourcesIncomingArray
-        });
+        let { /** @type {MergeResultEntry[]} */ mergePreCheckErrors, /** @type {Resource[]} */ validResources } =
+            await this.customTracer.trace({
+                name: 'MergeResourceValidator.preMergeChecksMultipleAsync',
+                func: async () =>
+                    await this.mergeManager.preMergeChecksMultipleAsync({
+                        requestInfo,
+                        resourcesToMerge: resourcesIncomingArray
+                    })
+            });
 
         // process only the resources that are valid
         resourcesIncomingArray = validResources;
@@ -129,149 +143,189 @@ class MergeResourceValidator extends BaseValidator {
         /**
          * @type {({resource: Resource | null, mergePreCheckError: MergeResultEntry | null})[]}
          */
-        const preSaveResults = await async.map(
-            resourcesIncomingArray,
-            async resource => {
-                if (typeof resource.id === 'string' && resource.id.includes('|')) {
-                    return {
-                        resource: null,
-                        mergePreCheckError: MergeResultEntry.createFromError({
-                            error: new Error('Pipe | is not allowed in id field'),
-                            resource
-                        })
-                    };
-                } else if (isUuid(resource.id)) {
-                    resource._uuid = resource.id;
-                } else {
-                    try {
-                        if (this.configManager.updateMergeValidations) {
-                            // we only need to generate uuid here and all preSave handlers should not be triggered
-                            resource = await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource });
-                            resource = await this.uuidColumnHandler.preSaveAsync({ resource });
-                        } else {
-                            resource = await this.preSaveManager.preSaveAsync({ resource, options: PreSaveOptions.fromRequestInfo(requestInfo) });
+        const preSaveResults = await this.customTracer.trace({
+            name: 'MergeResourceValidator.preSave',
+            func: async () =>
+                await async.map(resourcesIncomingArray, async (resource) => {
+                    if (typeof resource.id === 'string' && resource.id.includes('|')) {
+                        return {
+                            resource: null,
+                            mergePreCheckError: MergeResultEntry.createFromError({
+                                error: new Error('Pipe | is not allowed in id field'),
+                                resource
+                            })
+                        };
+                    } else if (isUuid(resource.id)) {
+                        resource._uuid = resource.id;
+                    } else {
+                        try {
+                            if (this.configManager.updateMergeValidations) {
+                                // we only need to generate uuid here and all preSave handlers should not be triggered
+                                resource = await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource });
+                                resource = await this.uuidColumnHandler.preSaveAsync({ resource });
+                            } else {
+                                resource = await this.preSaveManager.preSaveAsync({
+                                    resource,
+                                    options: PreSaveOptions.fromRequestInfo(requestInfo)
+                                });
+                            }
+                        } catch (error) {
+                            return {
+                                resource: null,
+                                mergePreCheckError: MergeResultEntry.createFromError({ error, resource })
+                            };
                         }
-                    } catch (error) {
-                        return { resource: null, mergePreCheckError: MergeResultEntry.createFromError({ error, resource }) };
                     }
-                }
-                return { resource, mergePreCheckError: null };
-            }
-        );
+                    return { resource, mergePreCheckError: null };
+                })
+        });
 
         resourcesIncomingArray = [];
         for (const result of preSaveResults) {
             if (result.mergePreCheckError) {
                 mergePreCheckErrors.push(result.mergePreCheckError);
-            }
-            else if (result.resource) {
+            } else if (result.resource) {
                 resourcesIncomingArray.push(result.resource);
             }
         }
 
         if (this.configManager.updateMergeValidations) {
-            // validate resources for any additional fields before loading the resources from database
-            // to avoid unnecessary database calls for invalid resources
-            let writeIndex = 0;
-            resourcesIncomingArray.forEach(resource => {
-                // remove uuid & sourceAssigningAuthority before validation since these are internal fields
-                // and should not be validated against the schema
+            await this.customTracer.trace({
+                name: 'MergeResourceValidator.updateMergeValidations',
+                func: async () => {
+                    // validate resources for any additional fields before loading the resources from database
+                    // to avoid unnecessary database calls for invalid resources
 
-                const resourceUuid = resource._uuid;
-                const resourceSourceAssigningAuthority = resource._sourceAssigningAuthority;
+                    // Pass 1: strip internal underscore fields (e.g. _uuid, _sourceAssigningAuthority)
+                    // before schema validation, saving uuid & sourceAssigningAuthority so they can be
+                    // restored afterwards. Bounded single span instead of one span per resource.
+                    const savedMeta = await this.customTracer.trace({
+                        name: 'MergeResourceValidator.updateMergeValidations.removeUnderscoreFields',
+                        func: async () =>
+                            resourcesIncomingArray.map((resource) => {
+                                const saved = {
+                                    uuid: resource._uuid,
+                                    sourceAssigningAuthority: resource._sourceAssigningAuthority
+                                };
+                                // remove all fields starting with _ before validation since these are
+                                // internal fields (e.g. _uuid, _sourceAssigningAuthority) or unsupported
+                                // FHIR primitive extensions (e.g. _system, _code) that are not supported yet
+                                removeUnderscoreFieldsRecursive(resource);
+                                return saved;
+                            })
+                    });
 
-                // remove all fields starting with _ before validation since these are
-                // internal fields (e.g. _uuid, _sourceAssigningAuthority) or unsupported
-                // FHIR primitive extensions (e.g. _system, _code) that are not supported yet
-                removeUnderscoreFieldsRecursive(resource);
+                    // Pass 2: FHIR schema-validate each resource, restore the saved meta fields,
+                    // collect validation errors, and compact the valid resources in place.
+                    await this.customTracer.trace({
+                        name: 'MergeResourceValidator.updateMergeValidations.validateResource',
+                        func: async () => {
+                            let writeIndex = 0;
+                            resourcesIncomingArray.forEach((resource, index) => {
+                                const validationError = validateResource({
+                                    resourceBody: resource,
+                                    resourceName: resource.resourceType,
+                                    path: requestInfo.path,
+                                    // we only want to exclude required field errors when effectiveSmartMerge is true.
+                                    // when its false, we expect all fields to be present
+                                    excludeRequiredFieldErrors: effectiveSmartMerge
+                                });
 
-                const validationError = validateResource({
-                    resourceBody: resource,
-                    resourceName: resource.resourceType,
-                    path: requestInfo.path,
-                    // we only want to exclude required field errors when effectiveSmartMerge is true.
-                    // when its false, we expect all fields to be present
-                    excludeRequiredFieldErrors: effectiveSmartMerge
-                });
+                                // add uuid and sourceAssigningAuthority back to the resource after validation
+                                resource._uuid = savedMeta[index].uuid;
+                                resource._sourceAssigningAuthority = savedMeta[index].sourceAssigningAuthority;
 
-                // add uuid and sourceAssigningAuthority back to the resource after validation
-                resource._uuid = resourceUuid;
-                resource._sourceAssigningAuthority = resourceSourceAssigningAuthority;
-
-                if (validationError) {
-                    if (this.configManager.logUpdatedMergeValidations) {
-                        logError('Updated merge validation error for resource', {
-                            originService: requestInfo.headers['origin-service'] || 'unknown',
-                            resourceType: resource.resourceType,
-                            id: resource.id,
-                            uuid: resource._uuid,
-                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                            operationOutcome: validationError
-                        });
-                    }
-                    mergePreCheckErrors.push(new MergeResultEntry({
-                        id: resource.id,
-                        uuid: resource._uuid,
-                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                        resourceType: resource.resourceType,
-                        created: false,
-                        updated: false,
-                        issue: (validationError.issue && validationError.issue.length > 0) ? validationError.issue[0] : null,
-                        operationOutcome: validationError
-                    }));
-                } else {
-                    resourcesIncomingArray[writeIndex++] = resource;
+                                if (validationError) {
+                                    if (this.configManager.logUpdatedMergeValidations) {
+                                        logError('Updated merge validation error for resource', {
+                                            originService: requestInfo.headers['origin-service'] || 'unknown',
+                                            resourceType: resource.resourceType,
+                                            id: resource.id,
+                                            uuid: resource._uuid,
+                                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                                            operationOutcome: validationError
+                                        });
+                                    }
+                                    mergePreCheckErrors.push(
+                                        new MergeResultEntry({
+                                            id: resource.id,
+                                            uuid: resource._uuid,
+                                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                                            resourceType: resource.resourceType,
+                                            created: false,
+                                            updated: false,
+                                            issue:
+                                                validationError.issue && validationError.issue.length > 0
+                                                    ? validationError.issue[0]
+                                                    : null,
+                                            operationOutcome: validationError
+                                        })
+                                    );
+                                } else {
+                                    resourcesIncomingArray[writeIndex++] = resource;
+                                }
+                            });
+                            resourcesIncomingArray.length = writeIndex;
+                        }
+                    });
                 }
             });
-            resourcesIncomingArray.length = writeIndex;
         }
 
         // Load the resources from the database
-        await this.databaseBulkLoader.loadResourcesAsync(
-            {
-                requestId: requestInfo.requestId,
-                base_version,
-                requestedResources: resourcesIncomingArray
-            }
-        );
+        await this.customTracer.trace({
+            name: 'MergeResourceValidator.loadResourcesAsync',
+            func: async () =>
+                await this.databaseBulkLoader.loadResourcesAsync({
+                    requestId: requestInfo.requestId,
+                    base_version,
+                    requestedResources: resourcesIncomingArray
+                })
+        });
 
-        validResources = [];
-        for (const /** @type {Resource} */ resource of resourcesIncomingArray) {
-            const foundResource = this.databaseBulkLoader.getResourceFromExistingList({
-                requestId: requestInfo.requestId,
-                resourceType: resource.resourceType,
-                uuid: resource._uuid
-            });
-            if (!foundResource) {
-                const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(
-                    resource
-                );
-                if (validationOperationOutcome) {
-                    const issue = (
-                        validationOperationOutcome.issue &&
-                        validationOperationOutcome.issue.length > 0
-                    ) ? validationOperationOutcome.issue[0] : null;
-                    mergePreCheckErrors.push(new MergeResultEntry(
-                        {
-                            id: resource.id,
-                            uuid: resource._uuid,
-                            sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                            created: false,
-                            updated: false,
-                            issue,
-                            operationOutcome: validationOperationOutcome,
-                            resourceType: resource.resourceType
+        validResources = await this.customTracer.trace({
+            name: 'MergeResourceValidator.metaValidation',
+            func: async () => {
+                const metaValidatedResources = [];
+                for (const /** @type {Resource} */ resource of resourcesIncomingArray) {
+                    const foundResource = this.databaseBulkLoader.getResourceFromExistingList({
+                        requestId: requestInfo.requestId,
+                        resourceType: resource.resourceType,
+                        uuid: resource._uuid
+                    });
+                    if (!foundResource) {
+                        const validationOperationOutcome = this.resourceValidator.validateResourceMetaSync(resource);
+                        if (validationOperationOutcome) {
+                            const issue =
+                                validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0
+                                    ? validationOperationOutcome.issue[0]
+                                    : null;
+                            mergePreCheckErrors.push(
+                                new MergeResultEntry({
+                                    id: resource.id,
+                                    uuid: resource._uuid,
+                                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                                    created: false,
+                                    updated: false,
+                                    issue,
+                                    operationOutcome: validationOperationOutcome,
+                                    resourceType: resource.resourceType
+                                })
+                            );
+                        } else {
+                            metaValidatedResources.push(resource);
                         }
-                    ));
-                } else {
-                    validResources.push(resource);
+                    } else {
+                        metaValidatedResources.push(resource);
+                    }
                 }
-            } else {
-                validResources.push(resource);
+                return metaValidatedResources;
             }
-        }
+        });
         return {
-            preCheckErrors: mergePreCheckErrors, validatedObjects: validResources, wasAList: wasIncomingAList
+            preCheckErrors: mergePreCheckErrors,
+            validatedObjects: validResources,
+            wasAList: wasIncomingAList
         };
     }
 }

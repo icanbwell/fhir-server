@@ -22,6 +22,7 @@ const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSav
 const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
 const deepEqual = require('fast-deep-equal');
+const { CustomTracer } = require('../utils/customTracer');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -39,6 +40,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
      * @param {ConfigManager} configManager
      * @param {PostSaveProcessor} postSaveProcessor
      * @param {BulkWriteExecutor[]} bulkWriteExecutors
+     * @param {CustomTracer} customTracer
      */
     constructor({
         resourceManager,
@@ -50,7 +52,8 @@ class FastDatabaseBulkInserter extends EventEmitter {
         resourceMerger,
         configManager,
         postSaveProcessor,
-        bulkWriteExecutors
+        bulkWriteExecutors,
+        customTracer
     }) {
         super();
 
@@ -120,6 +123,12 @@ class FastDatabaseBulkInserter extends EventEmitter {
                 'Each bulkWriteExecutor must implement canHandle and executeBulkAsync'
             );
         }
+
+        /**
+         * @type {CustomTracer}
+         */
+        this.customTracer = customTracer;
+        assertTypeEquals(customTracer, CustomTracer);
     }
 
 
@@ -730,17 +739,22 @@ class FastDatabaseBulkInserter extends EventEmitter {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
-                    await async.map(
-                        historyOperationsByResourceTypeMap.entries(),
-                        async (x) =>
-                            await this.performBulkForResourceTypeWithMapEntryAsync({
-                                requestInfo,
-                                mapEntry: x,
-                                base_version,
-                                useHistoryCollection: true
-                            })
-                    );
-                    historyOperationsByResourceTypeMap.clear();
+                    await this.customTracer.trace({
+                        name: 'FastDatabaseBulkInserter.executeHistoryInPostRequestAsync',
+                        func: async () => {
+                            await async.map(
+                                historyOperationsByResourceTypeMap.entries(),
+                                async (x) =>
+                                    await this.performBulkForResourceTypeWithMapEntryAsync({
+                                        requestInfo,
+                                        mapEntry: x,
+                                        base_version,
+                                        useHistoryCollection: true
+                                    })
+                            );
+                            historyOperationsByResourceTypeMap.clear();
+                        }
+                    });
                 }
             });
         }

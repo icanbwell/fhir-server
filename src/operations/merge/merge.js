@@ -5,8 +5,6 @@ const { MergeManager } = require('./mergeManager');
 const { NdjsonParser } = require('./ndJsonParser');
 const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
-const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { ScopesManager } = require('../security/scopesManager');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { BundleManager } = require('../common/bundleManager');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
@@ -28,6 +26,7 @@ const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resou
 const { fhirContentTypes } = require('../../utils/contentTypes');
 const { FastMergeManager } = require('./fastMergeManager');
 const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../utils/metrics');
+const { CustomTracer } = require('../../utils/customTracer');
 
 
 class MergeOperation {
@@ -36,12 +35,11 @@ class MergeOperation {
      * @param {FastMergeManager} fastMergeManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
-     * @param {PostRequestProcessor} postRequestProcessor
-     * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
      * @param {MergeValidator} mergeValidator
+     * @param {CustomTracer} customTracer
      */
     constructor (
         {
@@ -49,12 +47,11 @@ class MergeOperation {
             fastMergeManager,
             databaseBulkInserter,
             fastDatabaseBulkInserter,
-            postRequestProcessor,
-            scopesManager,
             fhirLoggingManager,
             bundleManager,
             configManager,
-            mergeValidator
+            mergeValidator,
+            customTracer
         }
     ) {
         if (configManager.enableMergeFastSerializer) {
@@ -82,17 +79,6 @@ class MergeOperation {
             this.databaseBulkInserter = databaseBulkInserter;
             assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
         }
-        /**
-         * @type {PostRequestProcessor}
-         */
-        this.postRequestProcessor = postRequestProcessor;
-        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-
-        /**
-         * @type {ScopesManager}
-         */
-        this.scopesManager = scopesManager;
-        assertTypeEquals(scopesManager, ScopesManager);
 
         /**
          * @type {FhirLoggingManager}
@@ -116,6 +102,12 @@ class MergeOperation {
          */
         this.mergeValidator = mergeValidator;
         assertTypeEquals(mergeValidator, MergeValidator);
+
+        /**
+         * @type {CustomTracer}
+        */
+        this.customTracer = customTracer;
+        assertTypeEquals(customTracer, CustomTracer);
     }
 
     /**
@@ -229,12 +221,15 @@ class MergeOperation {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ resourcesIncomingArray,
                 /** @type {boolean} */ wasIncomingAList: validatorWasIncomingAList
-            } = await this.mergeValidator.validateAsync({
-                base_version,
-                incomingObjects,
-                resourceType,
-                requestInfo,
-                effectiveSmartMerge
+            } = await this.customTracer.trace({
+                name: 'MergeOperation.validateAsync',
+                func: async () => await this.mergeValidator.validateAsync({
+                    base_version,
+                    incomingObjects,
+                    resourceType,
+                    requestInfo,
+                    effectiveSmartMerge
+                })
             });
             wasIncomingAList = validatorWasIncomingAList;
             // Capture pre-check errors immediately so they survive a throw from
@@ -246,12 +241,15 @@ class MergeOperation {
             /**
              * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
              */
-            const mergeResourceResults = await this.mergeManager.mergeResourceListAsync({
-                resources_incoming: resourcesIncomingArray,
-                resourceType:resourceType,
-                base_version:base_version,
-                requestInfo:requestInfo,
-                smartMerge:effectiveSmartMerge
+            const mergeResourceResults = await this.customTracer.trace({
+                name: 'MergeOperation.mergeResourceListAsync',
+                func: async () => await this.mergeManager.mergeResourceListAsync({
+                    resources_incoming: resourcesIncomingArray,
+                    resourceType:resourceType,
+                    base_version:base_version,
+                    requestInfo:requestInfo,
+                    smartMerge:effectiveSmartMerge
+                })
             });
 
             /**
@@ -268,9 +266,12 @@ class MergeOperation {
             // Capture per-resource merge errors immediately for the same reason.
             mergeResults = mergeResults.concat(mergeErrors);
 
-            const inserted = await this.databaseBulkInserter.executeAsync({
-                requestInfo,
-                base_version
+            const inserted = await this.customTracer.trace({
+                name: 'MergeOperation.executeAsync',
+                func: async () => await this.databaseBulkInserter.executeAsync({
+                    requestInfo,
+                    base_version
+                })
             });
             mergeResults = mergeResults.concat(inserted);
 
@@ -285,8 +286,11 @@ class MergeOperation {
                 res1._uuid ? res2._uuid ? res1._uuid.localeCompare(res2._uuid) : 1 : -1
             );
 
-            await this.mergeManager.logAuditEntriesForMergeResults({
-                requestInfo, requestId, base_version, parsedArgs, mergeResults
+            await this.customTracer.trace({
+                name: 'MergeOperation.logAuditEntriesForMergeResults',
+                func: async () => await this.mergeManager.logAuditEntriesForMergeResults({
+                    requestInfo, requestId, base_version, parsedArgs, mergeResults
+                })
             });
 
             await this.fhirLoggingManager.logOperationSuccessAsync({

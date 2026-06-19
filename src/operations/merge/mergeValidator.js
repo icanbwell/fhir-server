@@ -2,14 +2,16 @@ const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { FhirResourceWriteSerializer } = require("../../fhir/fhirResourceWriteSerializer");
 const { ConfigManager } = require("../../utils/configManager");
 const { assertTypeEquals } = require("../../utils/assertType");
+const { CustomTracer } = require('../../utils/customTracer');
 
 
 class MergeValidator {
     /**
      * @param {BaseValidator[]} validators
      * @param {ConfigManager} configManager
+     * @param {CustomTracer} customTracer
      */
-    constructor ({ validators, configManager }) {
+    constructor ({ validators, configManager, customTracer }) {
         /**
          * @type {BaseValidator[]}
          */
@@ -20,6 +22,12 @@ class MergeValidator {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {CustomTracer}
+         */
+        this.customTracer = customTracer;
+        assertTypeEquals(customTracer, CustomTracer);
     }
 
     /**
@@ -68,12 +76,15 @@ class MergeValidator {
         for (const validator of this.validators) {
             const {
                 validatedObjects: validatedObjectsByValidator, preCheckErrors, wasAList
-            } = await validator.validate({
-                base_version,
-                incomingResources,
-                resourceType,
-                requestInfo,
-                effectiveSmartMerge
+            } = await this.customTracer.trace({
+                name: `MergeValidator.validate.${validator.constructor.name}`,
+                func: async () => await validator.validate({
+                    base_version,
+                    incomingResources,
+                    resourceType,
+                    requestInfo,
+                    effectiveSmartMerge
+                })
             });
 
             incomingResources = validatedObjectsByValidator;
