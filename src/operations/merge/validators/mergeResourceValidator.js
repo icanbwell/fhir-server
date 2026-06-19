@@ -101,9 +101,9 @@ class MergeResourceValidator extends BaseValidator {
      */
     async validate({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
         // Merge duplicate resources from the incomingObjects array
-        incomingResources = await this.customTracer.trace({
+        incomingResources = this.customTracer.traceSync({
             name: 'MergeResourceValidator.mergeDuplicateResourceEntries',
-            func: async () => this.mergeManager.mergeDuplicateResourceEntries(incomingResources)
+            func: () => this.mergeManager.mergeDuplicateResourceEntries(incomingResources)
         });
         /**
          * @type {boolean}

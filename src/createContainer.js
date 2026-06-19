@@ -806,10 +806,8 @@ const createContainer = function () {
         {
             mergeManager: c.mergeManager,
             fastMergeManager: c.fastMergeManager,
-            postRequestProcessor: c.postRequestProcessor,
             databaseBulkInserter: c.databaseBulkInserter,
             fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
-            scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,
             configManager: c.configManager,
