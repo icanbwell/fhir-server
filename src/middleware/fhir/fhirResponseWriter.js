@@ -292,6 +292,7 @@ class FhirResponseWriter {
      * @param {Object} result - results of the import
      */
     import ({ req, res, result }) {
+        this.setBaseResponseHeaders({ req, res });
         res.status(202).json(result);
     }
 
