@@ -115,10 +115,7 @@ const {ExportManager} = require('./operations/export/exportManager');
 const {ExportByIdOperation} = require('./operations/export/exportById');
 const {AdminExportManager} = require('./admin/adminExportManager');
 const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
-const {DatabaseImportManager} = require('./dataLayer/databaseImportManager');
 const {ImportOperation} = require('./operations/import/import');
-const {ImportManager} = require('./operations/import/importManager');
-const {ImportByIdOperation} = require('./operations/import/importById');
 const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
@@ -1007,7 +1004,6 @@ const createContainer = function () {
                 exportOperation: c.exportOperation,
                 exportByIdOperation: c.exportByIdOperation,
                 importOperation: c.importOperation,
-                importByIdOperation: c.importByIdOperation,
                 r4ArgsParser: c.r4ArgsParser,
                 queryRewriterManager: c.queryRewriterManager,
                 configManager: c.configManager,
@@ -1195,32 +1191,12 @@ const createContainer = function () {
         databaseExportManager: c.databaseExportManager
     }));
 
-    container.register('databaseImportManager', (c) => new DatabaseImportManager({
-        databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory,
-        postSaveProcessor: c.postSaveProcessor
-    }));
-
-    container.register('importManager', (c) => new ImportManager({
-        securityTagManager: c.securityTagManager,
-        preSaveManager: c.preSaveManager,
-        configManager: c.configManager,
-        k8sClient: c.k8sClient
-    }));
-
     container.register('importOperation', (c) => new ImportOperation({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
-        importManager: c.importManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
-        databaseImportManager: c.databaseImportManager
-    }));
-
-    container.register('importByIdOperation', (c) => new ImportByIdOperation({
-        scopesManager: c.scopesManager,
-        fhirLoggingManager: c.fhirLoggingManager,
-        databaseImportManager: c.databaseImportManager
+        configManager: c.configManager
     }));
 
     container.register('adminExportManager', (c) => new AdminExportManager({

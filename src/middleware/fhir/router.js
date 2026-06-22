@@ -354,11 +354,6 @@ class FhirRouter {
                         name: operationName
                     });
                     break;
-
-                case 'get':
-                    operationsControllerRouteHandler = this.customOperationsController.operationsGet({
-                        name: operationName
-                    });
             }
 
             app.options(profile.path, cors(corsOptions));

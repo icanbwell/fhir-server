@@ -158,8 +158,6 @@ class CustomOperationsController {
                     this.fhirResponseWriter.everything({ req, res, result });
                 } else if (name === 'exportById') {
                     this.fhirResponseWriter.exportById({req, res, result});
-                } else if (name === 'importById') {
-                    this.fhirResponseWriter.importById({req, res, result});
                 } else if (name === 'summary') {
                     this.fhirResponseWriter.summary({req, res, result});
                 } else {
