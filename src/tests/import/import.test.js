@@ -66,6 +66,7 @@ describe('Import Tests', () => {
             .expect(202);
 
         expect(resp.body.resourceType).toBe('OperationOutcome');
+        expect(resp.body.id).toBeTruthy();
         expect(resp.body.issue[0].severity).toBe('information');
         expect(resp.body.issue[0].code).toBe('informational');
         expect(resp.body.issue[0].diagnostics).toContain('1 input file(s)');
@@ -328,7 +329,7 @@ describe('Import Tests', () => {
             .expect(400);
     });
 
-    test('any bucket accepted when allow-list is empty', async () => {
+    test('empty allow-list rejects all requests (fail-closed)', async () => {
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = '';
         const request = await createTestRequest();
 
@@ -348,6 +349,17 @@ describe('Import Tests', () => {
         await request
             .post('/4_0_0/$import')
             .send(body)
+            .set(getHeaders())
+            .expect(400);
+    });
+
+    test('malformed BULK_IMPORT_MAX_FILES_PER_REQUEST falls back to default cap', async () => {
+        process.env.BULK_IMPORT_MAX_FILES_PER_REQUEST = 'not-a-number';
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send(validParametersBody)
             .set(getHeaders())
             .expect(202);
     });

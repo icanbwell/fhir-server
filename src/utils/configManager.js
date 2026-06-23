@@ -1240,9 +1240,8 @@ class ConfigManager {
      * @return {number}
      */
     get bulkImportMaxFilesPerRequest() {
-        return env.BULK_IMPORT_MAX_FILES_PER_REQUEST
-            ? parseInt(env.BULK_IMPORT_MAX_FILES_PER_REQUEST, 10)
-            : 100;
+        const parsed = parseInt(env.BULK_IMPORT_MAX_FILES_PER_REQUEST, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
     }
 
     /**
