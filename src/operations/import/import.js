@@ -5,6 +5,7 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { ScopesManager } = require('../security/scopesManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { generateUUID } = require('../../utils/uid.util');
 const { logInfo } = require('../common/logging');
 
 class ImportOperation {
@@ -99,11 +100,19 @@ class ImportOperation {
     }
 
     /**
-     * Validates S3 URIs and bucket allow-list
+     * Validates S3 URIs and bucket allow-list. Fail-closed: an empty allow-list
+     * rejects all requests so that a forgotten BULK_IMPORT_ALLOWED_S3_BUCKETS env
+     * var cannot silently downgrade to "any bucket accepted."
      * @param {Array<{ type?: string, url: string }>} inputs
      */
     validateS3Inputs(inputs) {
         const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
+
+        if (allowedBuckets.length === 0) {
+            throw new BadRequestError(
+                'Bulk import S3 bucket allow-list is not configured. Set BULK_IMPORT_ALLOWED_S3_BUCKETS.'
+            );
+        }
 
         for (const input of inputs) {
             const s3Match = input.url.match(/^s3:\/\/([^/]+)\/(.+)$/);
@@ -114,7 +123,7 @@ class ImportOperation {
             }
 
             const bucket = s3Match[1];
-            if (allowedBuckets.length > 0 && !allowedBuckets.includes(bucket)) {
+            if (!allowedBuckets.includes(bucket)) {
                 throw new BadRequestError(
                     `S3 bucket "${bucket}" is not in the allowed bucket list`
                 );
@@ -143,22 +152,35 @@ class ImportOperation {
 
         assertIsValid(requestId, 'requestId is null');
 
-        if (this.scopesManager.hasPatientScope({ scope })) {
-            throw new ForbiddenError('Bulk import cannot be triggered with patient scopes');
-        }
-
-        const { inputs } = this.parseParametersResource(resource);
-        this.validateS3Inputs(inputs);
-
         try {
+            if (this.scopesManager.hasPatientScope({ scope })) {
+                throw new ForbiddenError('Bulk import cannot be triggered with patient scopes');
+            }
+
+            const { inputs } = this.parseParametersResource(resource);
+            this.validateS3Inputs(inputs);
+
+            const importJobId = generateUUID();
+
             logInfo(
                 `$import request accepted with ${inputs.length} input file(s)`,
                 {
                     requestId,
+                    importJobId,
                     inputCount: inputs.length,
                     urls: inputs.map((i) => i.url)
                 }
             );
+
+            // Log success first; audit is queued only after the success log lands,
+            // so a failure in success logging produces a single coherent failure
+            // record rather than success-logged-as-failure + an AuditEvent.
+            await this.fhirLoggingManager.logOperationSuccessAsync({
+                requestInfo,
+                args,
+                startTime,
+                action: currentOperationName
+            });
 
             this.postRequestProcessor.add({
                 requestId,
@@ -169,19 +191,13 @@ class ImportOperation {
                         resourceType: 'Parameters',
                         operation: currentOperationName,
                         args,
-                        ids: []
+                        ids: [importJobId]
                     });
                 }
             });
 
-            await this.fhirLoggingManager.logOperationSuccessAsync({
-                requestInfo,
-                args,
-                startTime,
-                action: currentOperationName
-            });
-
             return {
+                id: importJobId,
                 resourceType: 'OperationOutcome',
                 issue: [
                     {
