@@ -56,7 +56,7 @@ describe('Import Tests', () => {
         await commonAfterEach();
     });
 
-    test('valid Parameters body returns 202 with OperationOutcome and Content-Location header', async () => {
+    test('valid Parameters body returns 202 with OperationOutcome', async () => {
         const request = await createTestRequest();
 
         const resp = await request
@@ -70,8 +70,6 @@ describe('Import Tests', () => {
         expect(resp.body.issue[0].severity).toBe('information');
         expect(resp.body.issue[0].code).toBe('informational');
         expect(resp.body.issue[0].diagnostics).toContain('1 input file(s)');
-        expect(resp.headers['content-location']).toBeTruthy();
-        expect(resp.headers['content-location']).toContain(`/4_0_0/$import/${resp.body.id}`);
     });
 
     test('multiple input files returns count in diagnostics', async () => {

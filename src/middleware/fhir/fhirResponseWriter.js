@@ -293,10 +293,6 @@ class FhirResponseWriter {
      */
     import ({ req, res, result }) {
         this.setBaseResponseHeaders({ req, res });
-        const baseUrl = `${req.hostname.includes('localhost') ? 'http://' : 'https://'}${req.headers?.host}`;
-        const baseVersion = req.params.base_version;
-        const statusUrl = `${baseUrl}/${baseVersion}/$import/${result?.id}`;
-        res.setHeader('Content-Location', statusUrl);
         res.status(202).json(result);
     }
 
