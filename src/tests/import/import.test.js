@@ -5,13 +5,13 @@ const validParametersBody = {
     resourceType: 'Parameters',
     parameter: [
         {
-            name: 'inputFormat',
-            valueString: 'application/fhir+ndjson'
+            name: 'id',
+            valueString: 'import-job-001'
         },
         {
             name: 'input',
             part: [
-                { name: 'type', valueString: 'Patient' },
+                { name: 'resourceType', valueString: 'Patient' },
                 { name: 'url', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
             ]
         }
@@ -22,20 +22,20 @@ const multiFileBody = {
     resourceType: 'Parameters',
     parameter: [
         {
-            name: 'inputFormat',
-            valueString: 'application/fhir+ndjson'
+            name: 'id',
+            valueString: 'import-job-002'
         },
         {
             name: 'input',
             part: [
-                { name: 'type', valueString: 'Patient' },
+                { name: 'resourceType', valueString: 'Patient' },
                 { name: 'url', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
             ]
         },
         {
             name: 'input',
             part: [
-                { name: 'type', valueString: 'Condition' },
+                { name: 'resourceType', valueString: 'Condition' },
                 { name: 'url', valueUri: 's3://allowed-bucket/run-001/Condition.ndjson' }
             ]
         }
@@ -66,7 +66,7 @@ describe('Import Tests', () => {
             .expect(202);
 
         expect(resp.body.resourceType).toBe('OperationOutcome');
-        expect(resp.body.id).toBeTruthy();
+        expect(resp.body.id).toBe('import-job-001');
         expect(resp.body.issue[0].severity).toBe('information');
         expect(resp.body.issue[0].code).toBe('informational');
         expect(resp.body.issue[0].diagnostics).toContain('1 input file(s)');
@@ -90,7 +90,7 @@ describe('Import Tests', () => {
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' },
+                { name: 'id', valueString: 'import-no-type' },
                 {
                     name: 'input',
                     part: [
@@ -107,7 +107,78 @@ describe('Import Tests', () => {
             .expect(202);
     });
 
-    test('missing body returns 400', async () => {
+    test('missing id parameter returns 400 with error message', async () => {
+        const request = await createTestRequest();
+
+        const body = {
+            resourceType: 'Parameters',
+            parameter: [
+                {
+                    name: 'input',
+                    part: [
+                        { name: 'url', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
+                    ]
+                }
+            ]
+        };
+
+        const resp = await request
+            .post('/4_0_0/$import')
+            .send(body)
+            .set(getHeaders())
+            .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'id parameter is required and must be a non-empty string'
+                    }
+                }
+            ]
+        });
+    });
+
+    test('empty id parameter returns 400 with error message', async () => {
+        const request = await createTestRequest();
+
+        const body = {
+            resourceType: 'Parameters',
+            parameter: [
+                { name: 'id', valueString: '   ' },
+                {
+                    name: 'input',
+                    part: [
+                        { name: 'url', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
+                    ]
+                }
+            ]
+        };
+
+        const resp = await request
+            .post('/4_0_0/$import')
+            .send(body)
+            .set(getHeaders())
+            .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'id parameter is required and must be a non-empty string'
+                    }
+                }
+            ]
+        });
+    });
+
+    test('missing body returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const resp = await request
@@ -116,89 +187,81 @@ describe('Import Tests', () => {
             .set(getHeaders())
             .expect(400);
 
-        expect(resp.body.resourceType).toBe('OperationOutcome');
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'Request body must be a FHIR Parameters resource with a parameter array'
+                    }
+                }
+            ]
+        });
     });
 
-    test('wrong resourceType returns 400', async () => {
+    test('wrong resourceType returns 400 with error message', async () => {
         const request = await createTestRequest();
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send({ resourceType: 'Bundle', parameter: [] })
             .set(getHeaders())
             .expect(400);
-    });
 
-    test('missing inputFormat returns 400', async () => {
-        const request = await createTestRequest();
-
-        const body = {
-            resourceType: 'Parameters',
-            parameter: [
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
                 {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 's3://allowed-bucket/file.ndjson' }
-                    ]
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'Request body must be a FHIR Parameters resource with a parameter array'
+                    }
                 }
             ]
-        };
-
-        await request
-            .post('/4_0_0/$import')
-            .send(body)
-            .set(getHeaders())
-            .expect(400);
+        });
     });
 
-    test('wrong inputFormat returns 400', async () => {
+    test('no input parameters returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'text/csv' },
+                { name: 'id', valueString: 'import-no-inputs' }
+            ]
+        };
+
+        const resp = await request
+            .post('/4_0_0/$import')
+            .send(body)
+            .set(getHeaders())
+            .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
                 {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 's3://allowed-bucket/file.ndjson' }
-                    ]
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'At least one input parameter is required'
+                    }
                 }
             ]
-        };
-
-        await request
-            .post('/4_0_0/$import')
-            .send(body)
-            .set(getHeaders())
-            .expect(400);
+        });
     });
 
-    test('no input parameters returns 400', async () => {
-        const request = await createTestRequest();
-
-        const body = {
-            resourceType: 'Parameters',
-            parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' }
-            ]
-        };
-
-        await request
-            .post('/4_0_0/$import')
-            .send(body)
-            .set(getHeaders())
-            .expect(400);
-    });
-
-    test('too many input files returns 400', async () => {
+    test('too many input files returns 400 with error message', async () => {
         process.env.BULK_IMPORT_MAX_FILES_PER_REQUEST = '2';
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' },
+                { name: 'id', valueString: 'import-too-many' },
                 {
                     name: 'input',
                     part: [{ name: 'url', valueUri: 's3://allowed-bucket/file1.ndjson' }]
@@ -214,59 +277,98 @@ describe('Import Tests', () => {
             ]
         };
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send(body)
             .set(getHeaders())
             .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'Too many input files: 3 exceeds maximum of 2'
+                    }
+                }
+            ]
+        });
     });
 
-    test('input missing url part returns 400', async () => {
+    test('input missing url part returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' },
+                { name: 'id', valueString: 'import-missing-url' },
                 {
                     name: 'input',
-                    part: [{ name: 'type', valueString: 'Patient' }]
+                    part: [{ name: 'resourceType', valueString: 'Patient' }]
                 }
             ]
         };
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send(body)
             .set(getHeaders())
             .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'input parameter at index 0 must have a url part with valueUri'
+                    }
+                }
+            ]
+        });
     });
 
-    test('input without part array returns 400', async () => {
+    test('input without part array returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' },
+                { name: 'id', valueString: 'import-no-part' },
                 { name: 'input', valueString: 's3://allowed-bucket/file.ndjson' }
             ]
         };
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send(body)
             .set(getHeaders())
             .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'input parameter at index 0 must have a part array'
+                    }
+                }
+            ]
+        });
     });
 
-    test('invalid S3 URI returns 400', async () => {
+    test('invalid S3 URI returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' },
+                { name: 'id', valueString: 'import-bad-uri' },
                 {
                     name: 'input',
                     part: [
@@ -276,20 +378,33 @@ describe('Import Tests', () => {
             ]
         };
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send(body)
             .set(getHeaders())
             .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'Invalid S3 URI: "https://example.com/file.ndjson". Must match s3://bucket/key'
+                    }
+                }
+            ]
+        });
     });
 
-    test('S3 URI with no key returns 400', async () => {
+    test('S3 URI with no key returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' },
+                { name: 'id', valueString: 'import-no-key' },
                 {
                     name: 'input',
                     part: [
@@ -299,20 +414,33 @@ describe('Import Tests', () => {
             ]
         };
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send(body)
             .set(getHeaders())
             .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'Invalid S3 URI: "s3://allowed-bucket". Must match s3://bucket/key'
+                    }
+                }
+            ]
+        });
     });
 
-    test('bucket not in allow-list returns 400', async () => {
+    test('bucket not in allow-list returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' },
+                { name: 'id', valueString: 'import-bad-bucket' },
                 {
                     name: 'input',
                     part: [
@@ -322,11 +450,24 @@ describe('Import Tests', () => {
             ]
         };
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send(body)
             .set(getHeaders())
             .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'S3 bucket "unauthorized-bucket" is not in the allowed bucket list'
+                    }
+                }
+            ]
+        });
     });
 
     test('empty allow-list rejects all requests (fail-closed)', async () => {
@@ -336,7 +477,7 @@ describe('Import Tests', () => {
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'inputFormat', valueString: 'application/fhir+ndjson' },
+                { name: 'id', valueString: 'import-empty-allowlist' },
                 {
                     name: 'input',
                     part: [
@@ -346,11 +487,24 @@ describe('Import Tests', () => {
             ]
         };
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send(body)
             .set(getHeaders())
             .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'Bulk import S3 bucket allow-list is not configured. Set BULK_IMPORT_ALLOWED_S3_BUCKETS.'
+                    }
+                }
+            ]
+        });
     });
 
     test('malformed BULK_IMPORT_MAX_FILES_PER_REQUEST falls back to default cap', async () => {
@@ -364,14 +518,28 @@ describe('Import Tests', () => {
             .expect(202);
     });
 
-    test('patient-scoped token returns 403', async () => {
+    test('patient-scoped token returns 403 with error message', async () => {
         const request = await createTestRequest();
 
-        await request
+        const resp = await request
             .post('/4_0_0/$import')
             .send(validParametersBody)
             .set(getHeaders('patient/Patient.read user/*.write access/*.*'))
             .expect(403);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'forbidden',
+                    details: {
+                        text: 'Bulk import cannot be triggered with patient scopes'
+                    },
+                    diagnostics: 'Bulk import cannot be triggered with patient scopes'
+                }
+            ]
+        });
     });
 
     // Feature gate (ENABLE_BULK_IMPORT=0) is not testable here because

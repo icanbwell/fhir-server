@@ -5,7 +5,6 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { ScopesManager } = require('../security/scopesManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { generateUUID } = require('../../utils/uid.util');
 const { logInfo } = require('../common/logging');
 
 class ImportOperation {
@@ -45,47 +44,47 @@ class ImportOperation {
     /**
      * Parses and validates FHIR Parameters resource for $import
      * @param {Object} body
-     * @returns {{ inputFormat: string, inputs: Array<{ type?: string, url: string }> }}
+     * @returns {{ id: string, inputs: Array<{ type?: string, url: string }> }}
      */
     parseParametersResource(body) {
         if (!body || body.resourceType !== 'Parameters' || !Array.isArray(body.parameter)) {
-            throw new BadRequestError(
+            throw new BadRequestError(new Error(
                 'Request body must be a FHIR Parameters resource with a parameter array'
-            );
+            ));
         }
 
-        const inputFormatParam = body.parameter.find((p) => p.name === 'inputFormat');
-        if (!inputFormatParam || inputFormatParam.valueString !== 'application/fhir+ndjson') {
-            throw new BadRequestError(
-                'inputFormat parameter is required and must be "application/fhir+ndjson"'
-            );
+        const idParam = body.parameter.find((p) => p.name === 'id');
+        if (!idParam || !idParam.valueString || !idParam.valueString.trim()) {
+            throw new BadRequestError(new Error(
+                'id parameter is required and must be a non-empty string'
+            ));
         }
 
         const inputParams = body.parameter.filter((p) => p.name === 'input');
         if (!inputParams.length) {
-            throw new BadRequestError('At least one input parameter is required');
+            throw new BadRequestError(new Error('At least one input parameter is required'));
         }
 
         const maxFiles = this.configManager.bulkImportMaxFilesPerRequest;
         if (inputParams.length > maxFiles) {
-            throw new BadRequestError(
+            throw new BadRequestError(new Error(
                 `Too many input files: ${inputParams.length} exceeds maximum of ${maxFiles}`
-            );
+            ));
         }
 
         const inputs = inputParams.map((inputParam, index) => {
             if (!Array.isArray(inputParam.part)) {
-                throw new BadRequestError(`input parameter at index ${index} must have a part array`);
+                throw new BadRequestError(new Error(`input parameter at index ${index} must have a part array`));
             }
 
             const urlPart = inputParam.part.find((p) => p.name === 'url');
             if (!urlPart || !urlPart.valueUri) {
-                throw new BadRequestError(
+                throw new BadRequestError(new Error(
                     `input parameter at index ${index} must have a url part with valueUri`
-                );
+                ));
             }
 
-            const typePart = inputParam.part.find((p) => p.name === 'type');
+            const typePart = inputParam.part.find((p) => p.name === 'resourceType');
 
             return {
                 type: typePart?.valueString,
@@ -94,7 +93,7 @@ class ImportOperation {
         });
 
         return {
-            inputFormat: inputFormatParam.valueString,
+            id: idParam.valueString.trim(),
             inputs
         };
     }
@@ -109,24 +108,24 @@ class ImportOperation {
         const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
 
         if (allowedBuckets.length === 0) {
-            throw new BadRequestError(
+            throw new BadRequestError(new Error(
                 'Bulk import S3 bucket allow-list is not configured. Set BULK_IMPORT_ALLOWED_S3_BUCKETS.'
-            );
+            ));
         }
 
         for (const input of inputs) {
             const s3Match = input.url.match(/^s3:\/\/([^/]+)\/(.+)$/);
             if (!s3Match) {
-                throw new BadRequestError(
+                throw new BadRequestError(new Error(
                     `Invalid S3 URI: "${input.url}". Must match s3://bucket/key`
-                );
+                ));
             }
 
             const bucket = s3Match[1];
             if (!allowedBuckets.includes(bucket)) {
-                throw new BadRequestError(
+                throw new BadRequestError(new Error(
                     `S3 bucket "${bucket}" is not in the allowed bucket list`
-                );
+                ));
             }
         }
     }
@@ -157,10 +156,8 @@ class ImportOperation {
                 throw new ForbiddenError('Bulk import cannot be triggered with patient scopes');
             }
 
-            const { inputs } = this.parseParametersResource(resource);
+            const { id: importJobId, inputs } = this.parseParametersResource(resource);
             this.validateS3Inputs(inputs);
-
-            const importJobId = generateUUID();
 
             logInfo(
                 `$import request accepted with ${inputs.length} input file(s)`,
