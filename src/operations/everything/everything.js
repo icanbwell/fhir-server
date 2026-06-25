@@ -20,6 +20,8 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { REGEX } = require('../../constants');
 const { filterGraphResources } = require('../../utils/filterGraphResources');
 const { CMSManager } = require('../../utils/cmsManager');
+const { trace } = require('@opentelemetry/api');
+const { logInfo } = require('../common/logging');
 
 class EverythingOperation {
     /**
@@ -180,6 +182,17 @@ class EverythingOperation {
             action: currentOperationName,
             accessRequested: 'read'
         });
+
+        const bwellFhirPersonId = requestInfo.masterPersonIdFromJwtToken;
+
+        const activeSpan = trace.getActiveSpan();
+        if (activeSpan && bwellFhirPersonId) {
+            activeSpan.setAttribute('bwell.person.id', bwellFhirPersonId);
+        }
+
+        if (bwellFhirPersonId) {
+            logInfo('everything operation', { bwellFhirPersonId });
+        }
 
         try {
             const {_type: resourceFilter} = parsedArgs;
