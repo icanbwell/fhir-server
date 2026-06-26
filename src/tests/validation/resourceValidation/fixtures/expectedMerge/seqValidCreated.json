@@ -1,0 +1,8 @@
+{
+    "created": true,
+    "id": "observation-validation-test",
+    "uuid": "0437a9a0-14e1-5477-92ae-01a46eaa9a16",
+    "resourceType": "Observation",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+}

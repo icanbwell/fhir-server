@@ -1,0 +1,27 @@
+{
+    "resourceType": "Patient",
+    "id": "patient-validation-test",
+    "meta": {
+        "source": "https://www.icanbwell.com",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
+    },
+    "name": [
+        {
+            "family": "Test",
+            "given": [
+                "Valid"
+            ]
+        }
+    ],
+    "gender": "male",
+    "birthDate": "1970-01-01"
+}

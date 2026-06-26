@@ -1,0 +1,19 @@
+{
+    "resourceType": "OperationOutcome",
+    "issue": [
+        {
+            "severity": "error",
+            "code": "invalid",
+            "details": {
+                "text": "/4_0_0/Patient/patient-validation-test should be string :{\"type\":\"string\"}: at position .birthDate"
+            }
+        },
+        {
+            "severity": "error",
+            "code": "invalid",
+            "details": {
+                "text": "/4_0_0/Patient/patient-validation-test should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+            }
+        }
+    ]
+}
