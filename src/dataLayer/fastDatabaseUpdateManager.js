@@ -12,7 +12,6 @@ const { ReadPreference } = require('mongodb');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { RethrownError } = require('../utils/rethrownError');
-const deepcopy = require('deepcopy');
 const { logInfo } = require('../operations/common/logging');
 
 class FastDatabaseUpdateManager {
@@ -114,7 +113,6 @@ class FastDatabaseUpdateManager {
      */
     async replaceOneAsync({ base_version, requestInfo, doc, smartMerge = true }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
-        const originalDoc = deepcopy(doc);
         const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
         doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
 
@@ -233,11 +231,7 @@ class FastDatabaseUpdateManager {
                     runsLeft -= 1;
                     await logTraceSystemEventAsync({
                         event: 'replaceOneAsync',
-                        message: 'retry',
-                        args: {
-                            originalDoc,
-                            doc
-                        }
+                        message: 'retry'
                     });
                 } else {
                     // save was successful

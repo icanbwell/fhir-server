@@ -288,24 +288,23 @@ class ResourceMerger {
      * @returns {Object}
      */
     fastUpdateMeta ({ patched_resource_incoming, currentResource, original_source, incrementVersion }) {
-        // update the metadata to increment versionId
-        const meta = deepcopy(currentResource.meta);
-        if (incrementVersion) {
-            meta.versionId = `${parseInt(meta.versionId) + 1}`;
+        const currentMeta = currentResource.meta;
+        // The incoming resource may not carry meta; create it so the assignments below are safe
+        if (!patched_resource_incoming.meta) {
+            patched_resource_incoming.meta = {};
         }
-        meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        // set the source from the incoming resource
-        meta.source = original_source;
-        // These properties are set automatically
-        patched_resource_incoming.meta.versionId = meta.versionId;
-        patched_resource_incoming.meta.lastUpdated = meta.lastUpdated;
-        // If not source is provided then use the source of the previous entity
+        const currentVersion = parseInt(currentMeta?.versionId, 10);
+        patched_resource_incoming.meta.versionId = incrementVersion
+            ? `${(Number.isNaN(currentVersion) ? 0 : currentVersion) + 1}`
+            : currentMeta?.versionId;
+        patched_resource_incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+        // If no source is provided then use the source from the incoming resource
         if (!(patched_resource_incoming.meta.source)) {
-            patched_resource_incoming.meta.source = meta.source;
+            patched_resource_incoming.meta.source = original_source;
         }
-        // If no security tags are provided then use the source of the previous entity
+        // If no security tags are provided then use those of the previous entity
         if (!(patched_resource_incoming.meta.security)) {
-            patched_resource_incoming.meta.security = meta.security;
+            patched_resource_incoming.meta.security = deepcopy(currentMeta.security);
         }
 
         return patched_resource_incoming;
