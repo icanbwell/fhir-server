@@ -11,6 +11,7 @@ const { initialize } = require('./winstonInit');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { BaseSerializer } = require('./fhir/writeSerializers/4_0_0/customSerializers');
 const { BaseFhirResourceSerializer } = require('./fhir/baseFhirResourceSerializer');
+const { fhirSchemaValidator } = require('./utils/fhirSchemaValidator');
 
 Sentry.init({
     release: getImageVersion(),
@@ -32,6 +33,8 @@ const main = async function () {
         // Initialize configManager for all serializers
         BaseSerializer.setConfigManager(container.configManager);
         BaseFhirResourceSerializer.setConfigManager(container.configManager);
+        // Pre-compile FHIR schema validators for every resourceType off the request path
+        fhirSchemaValidator.preWarm();
 
         await createServer(() => container);
 
