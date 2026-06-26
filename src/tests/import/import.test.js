@@ -3,41 +3,26 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 
 const validParametersBody = {
     resourceType: 'Parameters',
+    id: 'import-job-001',
     parameter: [
         {
-            name: 'id',
-            valueString: 'import-job-001'
-        },
-        {
             name: 'input',
-            part: [
-                { name: 'resourceType', valueString: 'Patient' },
-                { name: 'url', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
-            ]
+            valueUri: 's3://allowed-bucket/run-001/Patient.ndjson'
         }
     ]
 };
 
 const multiFileBody = {
     resourceType: 'Parameters',
+    id: 'import-job-002',
     parameter: [
         {
-            name: 'id',
-            valueString: 'import-job-002'
+            name: 'input',
+            valueUri: 's3://allowed-bucket/run-001/Patient.ndjson'
         },
         {
             name: 'input',
-            part: [
-                { name: 'resourceType', valueString: 'Patient' },
-                { name: 'url', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
-            ]
-        },
-        {
-            name: 'input',
-            part: [
-                { name: 'resourceType', valueString: 'Condition' },
-                { name: 'url', valueUri: 's3://allowed-bucket/run-001/Condition.ndjson' }
-            ]
+            valueUri: 's3://allowed-bucket/run-001/Condition.ndjson'
         }
     ]
 };
@@ -84,41 +69,13 @@ describe('Import Tests', () => {
         expect(resp.body.issue[0].diagnostics).toContain('2 input file(s)');
     });
 
-    test('input without type part is accepted', async () => {
+    test('missing id returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
             parameter: [
-                { name: 'id', valueString: 'import-no-type' },
-                {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 's3://allowed-bucket/run-001/data.ndjson' }
-                    ]
-                }
-            ]
-        };
-
-        await request
-            .post('/4_0_0/$import')
-            .send(body)
-            .set(getHeaders())
-            .expect(202);
-    });
-
-    test('missing id parameter returns 400 with error message', async () => {
-        const request = await createTestRequest();
-
-        const body = {
-            resourceType: 'Parameters',
-            parameter: [
-                {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
-                    ]
-                }
+                { name: 'input', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
             ]
         };
 
@@ -135,26 +92,21 @@ describe('Import Tests', () => {
                     severity: 'error',
                     code: 'invalid',
                     details: {
-                        text: 'id parameter is required and must be a non-empty string'
+                        text: 'Parameters.id is required and must be a non-empty string'
                     }
                 }
             ]
         });
     });
 
-    test('empty id parameter returns 400 with error message', async () => {
+    test('empty id returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
+            id: '   ',
             parameter: [
-                { name: 'id', valueString: '   ' },
-                {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
-                    ]
-                }
+                { name: 'input', valueUri: 's3://allowed-bucket/run-001/Patient.ndjson' }
             ]
         };
 
@@ -171,7 +123,7 @@ describe('Import Tests', () => {
                     severity: 'error',
                     code: 'invalid',
                     details: {
-                        text: 'id parameter is required and must be a non-empty string'
+                        text: 'Parameters.id is required and must be a non-empty string'
                     }
                 }
             ]
@@ -229,9 +181,8 @@ describe('Import Tests', () => {
 
         const body = {
             resourceType: 'Parameters',
-            parameter: [
-                { name: 'id', valueString: 'import-no-inputs' }
-            ]
+            id: 'import-no-inputs',
+            parameter: []
         };
 
         const resp = await request
@@ -260,20 +211,11 @@ describe('Import Tests', () => {
 
         const body = {
             resourceType: 'Parameters',
+            id: 'import-too-many',
             parameter: [
-                { name: 'id', valueString: 'import-too-many' },
-                {
-                    name: 'input',
-                    part: [{ name: 'url', valueUri: 's3://allowed-bucket/file1.ndjson' }]
-                },
-                {
-                    name: 'input',
-                    part: [{ name: 'url', valueUri: 's3://allowed-bucket/file2.ndjson' }]
-                },
-                {
-                    name: 'input',
-                    part: [{ name: 'url', valueUri: 's3://allowed-bucket/file3.ndjson' }]
-                }
+                { name: 'input', valueUri: 's3://allowed-bucket/file1.ndjson' },
+                { name: 'input', valueUri: 's3://allowed-bucket/file2.ndjson' },
+                { name: 'input', valueUri: 's3://allowed-bucket/file3.ndjson' }
             ]
         };
 
@@ -297,47 +239,13 @@ describe('Import Tests', () => {
         });
     });
 
-    test('input missing url part returns 400 with error message', async () => {
+    test('input without valueUri returns 400 with error message', async () => {
         const request = await createTestRequest();
 
         const body = {
             resourceType: 'Parameters',
+            id: 'import-missing-uri',
             parameter: [
-                { name: 'id', valueString: 'import-missing-url' },
-                {
-                    name: 'input',
-                    part: [{ name: 'resourceType', valueString: 'Patient' }]
-                }
-            ]
-        };
-
-        const resp = await request
-            .post('/4_0_0/$import')
-            .send(body)
-            .set(getHeaders())
-            .expect(400);
-
-        expect(resp).toHaveResponse({
-            resourceType: 'OperationOutcome',
-            issue: [
-                {
-                    severity: 'error',
-                    code: 'invalid',
-                    details: {
-                        text: 'input parameter at index 0 must have a url part with valueUri'
-                    }
-                }
-            ]
-        });
-    });
-
-    test('input without part array returns 400 with error message', async () => {
-        const request = await createTestRequest();
-
-        const body = {
-            resourceType: 'Parameters',
-            parameter: [
-                { name: 'id', valueString: 'import-no-part' },
                 { name: 'input', valueString: 's3://allowed-bucket/file.ndjson' }
             ]
         };
@@ -355,7 +263,7 @@ describe('Import Tests', () => {
                     severity: 'error',
                     code: 'invalid',
                     details: {
-                        text: 'input parameter at index 0 must have a part array'
+                        text: 'input parameter at index 0 must have a valueUri'
                     }
                 }
             ]
@@ -367,14 +275,9 @@ describe('Import Tests', () => {
 
         const body = {
             resourceType: 'Parameters',
+            id: 'import-bad-uri',
             parameter: [
-                { name: 'id', valueString: 'import-bad-uri' },
-                {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 'https://example.com/file.ndjson' }
-                    ]
-                }
+                { name: 'input', valueUri: 'https://example.com/file.ndjson' }
             ]
         };
 
@@ -403,14 +306,9 @@ describe('Import Tests', () => {
 
         const body = {
             resourceType: 'Parameters',
+            id: 'import-no-key',
             parameter: [
-                { name: 'id', valueString: 'import-no-key' },
-                {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 's3://allowed-bucket' }
-                    ]
-                }
+                { name: 'input', valueUri: 's3://allowed-bucket' }
             ]
         };
 
@@ -439,14 +337,9 @@ describe('Import Tests', () => {
 
         const body = {
             resourceType: 'Parameters',
+            id: 'import-bad-bucket',
             parameter: [
-                { name: 'id', valueString: 'import-bad-bucket' },
-                {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 's3://unauthorized-bucket/file.ndjson' }
-                    ]
-                }
+                { name: 'input', valueUri: 's3://unauthorized-bucket/file.ndjson' }
             ]
         };
 
@@ -476,14 +369,9 @@ describe('Import Tests', () => {
 
         const body = {
             resourceType: 'Parameters',
+            id: 'import-empty-allowlist',
             parameter: [
-                { name: 'id', valueString: 'import-empty-allowlist' },
-                {
-                    name: 'input',
-                    part: [
-                        { name: 'url', valueUri: 's3://any-bucket/file.ndjson' }
-                    ]
-                }
+                { name: 'input', valueUri: 's3://any-bucket/file.ndjson' }
             ]
         };
 

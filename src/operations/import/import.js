@@ -44,7 +44,7 @@ class ImportOperation {
     /**
      * Parses and validates FHIR Parameters resource for $import
      * @param {Object} body
-     * @returns {{ id: string, inputs: Array<{ type?: string, url: string }> }}
+     * @returns {{ id: string, inputs: Array<{ url: string }> }}
      */
     parseParametersResource(body) {
         if (!body || body.resourceType !== 'Parameters' || !Array.isArray(body.parameter)) {
@@ -53,10 +53,9 @@ class ImportOperation {
             ));
         }
 
-        const idParam = body.parameter.find((p) => p.name === 'id');
-        if (!idParam || !idParam.valueString || !idParam.valueString.trim()) {
+        if (!body.id || !body.id.trim()) {
             throw new BadRequestError(new Error(
-                'id parameter is required and must be a non-empty string'
+                'Parameters.id is required and must be a non-empty string'
             ));
         }
 
@@ -73,27 +72,19 @@ class ImportOperation {
         }
 
         const inputs = inputParams.map((inputParam, index) => {
-            if (!Array.isArray(inputParam.part)) {
-                throw new BadRequestError(new Error(`input parameter at index ${index} must have a part array`));
-            }
-
-            const urlPart = inputParam.part.find((p) => p.name === 'url');
-            if (!urlPart || !urlPart.valueUri) {
+            if (!inputParam.valueUri) {
                 throw new BadRequestError(new Error(
-                    `input parameter at index ${index} must have a url part with valueUri`
+                    `input parameter at index ${index} must have a valueUri`
                 ));
             }
 
-            const typePart = inputParam.part.find((p) => p.name === 'resourceType');
-
             return {
-                type: typePart?.valueString,
-                url: urlPart.valueUri
+                url: inputParam.valueUri
             };
         });
 
         return {
-            id: idParam.valueString.trim(),
+            id: body.id.trim(),
             inputs
         };
     }
