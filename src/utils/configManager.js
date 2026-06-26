@@ -1228,6 +1228,23 @@ class ConfigManager {
     }
 
     /**
+     * Allowed S3 buckets for bulk import
+     * @return {string[]}
+     */
+    get bulkImportAllowedS3Buckets() {
+        return this._parseCommaSeparatedList(env.BULK_IMPORT_ALLOWED_S3_BUCKETS, []);
+    }
+
+    /**
+     * Maximum number of files per bulk import request
+     * @return {number}
+     */
+    get bulkImportMaxFilesPerRequest() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_FILES_PER_REQUEST, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
      * returns list of external services where restriction needs to be applied to request
      * @return {Object.<string, string | null>}
      */

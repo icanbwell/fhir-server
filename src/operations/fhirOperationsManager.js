@@ -31,6 +31,7 @@ const {
     hasNdJsonContentType
 } = require('../utils/contentTypes');
 const {ExportByIdOperation} = require('./export/exportById');
+const {ImportOperation} = require('./import/import');
 const {FhirResponseNdJsonStreamer} = require('../utils/fhirResponseNdJsonStreamer');
 const {READ, WRITE} = require('../constants').OPERATIONS;
 const {vulcanIgSearchQueries} = require('./query/customQueries');
@@ -65,6 +66,7 @@ class FhirOperationsManager {
      * @param expandOperation
      * @param exportOperation
      * @param exportByIdOperation
+     * @param importOperation
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {ConfigManager} configManager
@@ -93,6 +95,7 @@ class FhirOperationsManager {
             expandOperation,
             exportOperation,
             exportByIdOperation,
+            importOperation,
             r4ArgsParser,
             queryRewriterManager,
             configManager,
@@ -192,6 +195,12 @@ class FhirOperationsManager {
          */
         this.exportByIdOperation = exportByIdOperation;
         assertTypeEquals(exportByIdOperation, ExportByIdOperation);
+
+        /**
+         * @type {ImportOperation}
+         */
+        this.importOperation = importOperation;
+        assertTypeEquals(importOperation, ImportOperation);
 
         /**
          * @type {R4ArgsParser}
@@ -1225,6 +1234,28 @@ class FhirOperationsManager {
         combined_args = this.parseParametersFromBody({ req, combined_args });
 
         return await this.exportByIdOperation.exportByIdAsync({ requestInfo, args: combined_args });
+    }
+
+    /**
+     * triggers bulk import from S3
+     * @param {string[]} args
+     * @param {{ req: import('http').IncomingMessage }}
+     * @return {Promise<Resource | Resource[]>}
+     */
+    async import(args, { req }) {
+        /**
+         * @type {FhirRequestInfo}
+         */
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType: 'import', operation: 'import' });
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+
+        return await this.importOperation.importAsync({ requestInfo, args: combined_args });
     }
 
     /**

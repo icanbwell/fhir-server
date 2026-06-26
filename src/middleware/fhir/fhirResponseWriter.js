@@ -285,6 +285,18 @@ class FhirResponseWriter {
     }
 
     /**
+     * @function import
+     * @description Used when bulk import is triggered
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Object} result - results of the import
+     */
+    import ({ req, res, result }) {
+        this.setBaseResponseHeaders({ req, res });
+        res.status(202).json(result);
+    }
+
+    /**
      * @function setBaseResponseHeaders
      * @description Used to set base response headers
      * @param {import('http').IncomingMessage} req - Express request object
