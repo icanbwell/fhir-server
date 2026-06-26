@@ -1196,7 +1196,11 @@ const createContainer = function () {
         fhirLoggingManager: c.fhirLoggingManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
-        configManager: c.configManager
+        configManager: c.configManager,
+        securityTagManager: c.securityTagManager,
+        databaseUpdateFactory: c.databaseUpdateFactory,
+        databaseQueryFactory: c.databaseQueryFactory,
+        postSaveProcessor: c.postSaveProcessor
     }));
 
     container.register('adminExportManager', (c) => new AdminExportManager({
