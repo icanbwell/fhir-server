@@ -14,7 +14,7 @@ const { FastMergeManager } = require('../fastMergeManager');
 const { validateResource } = require('../../../utils/validator.util');
 const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
-const { logError } = require('../../common/logging');
+const { logInfo } = require('../../common/logging');
 const { removeUnderscoreFieldsRecursive } = require('../../../utils/removeUnderscoreFields');
 const { CustomTracer } = require('../../../utils/customTracer');
 
@@ -237,7 +237,7 @@ class MergeResourceValidator extends BaseValidator {
 
                                 if (validationError) {
                                     if (this.configManager.logUpdatedMergeValidations) {
-                                        logError('Updated merge validation error for resource', {
+                                        logInfo('Updated merge validation error for resource', {
                                             originService: requestInfo.headers['origin-service'] || 'unknown',
                                             resourceType: resource.resourceType,
                                             id: resource.id,

@@ -19,7 +19,7 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { ScopesManager } = require('../security/scopesManager');
 const { ScopesValidator } = require('../security/scopesValidator');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { logDebug, logError, logWarn } = require('../common/logging');
+const { logDebug, logError, logWarn, logInfo } = require('../common/logging');
 const { groupByLambda } = require('../../utils/list.util');
 const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { mergeObject } = require('../../utils/mergeHelper');
@@ -356,7 +356,7 @@ class FastMergeManager {
             if (validationError) {
                 if (this.configManager.logUpdatedMergeValidations) {
                     // general logger for validations error which include updated reference validations
-                    logError('merge validation failed for resource', {
+                    logInfo('merge validation failed for resource', {
                         originService: requestInfo.headers['origin-service'] || 'unknown',
                         resourceType: resourceToMerge.resourceType,
                         id: resourceToMerge.id,
