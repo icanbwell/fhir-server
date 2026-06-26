@@ -16,6 +16,8 @@ Bulk data import is triggered by a POST request:
 
 The server validates the request, creates a single FHIR Task to track the import, fans out processing across Kafka consumers, and returns immediately with a `202 Accepted` response containing the Task resource. Clients poll the Task to monitor progress.
 
+Each input file is supplied as a repeating `input` parameter whose `valueUri` is the file's S3 URI. Input files are always `application/fhir+ndjson`; the resource type of each record is read from its own `resourceType` field, so no `inputFormat` or per-file `type` is required.
+
 Note: This endpoint is not allowed for patient-scoped tokens.
 
 ## Request
@@ -30,70 +32,40 @@ Note: This endpoint is not allowed for patient-scoped tokens.
 
 ### Body
 
-The request body is a FHIR [Parameters](https://www.hl7.org/fhir/parameters.html) resource. Each input file is specified as a repeating `input` parameter with `type` (optional) and `url` parts:
+The request body is a FHIR [Parameters](https://www.hl7.org/fhir/parameters.html) resource. Each input file is a repeating `input` parameter carrying the S3 URI directly in `valueUri`:
 
 ```json
 {
     "resourceType": "Parameters",
+    "id": "3f8a1c2e-9b7d-4e6a-bf21-5c0d9a4e7b13",
     "parameter": [
         {
-            "name": "inputFormat",
-            "valueString": "application/fhir+ndjson"
+            "name": "input",
+            "valueUri": "s3://my-bucket/run-20260601/Patient.ndjson"
         },
         {
             "name": "input",
-            "part": [
-                {
-                    "name": "type",
-                    "valueString": "Patient"
-                },
-                {
-                    "name": "url",
-                    "valueUri": "s3://my-bucket/run-20260601/Patient.ndjson"
-                }
-            ]
+            "valueUri": "s3://my-bucket/run-20260601/Condition.ndjson"
         },
         {
             "name": "input",
-            "part": [
-                {
-                    "name": "type",
-                    "valueString": "Condition"
-                },
-                {
-                    "name": "url",
-                    "valueUri": "s3://my-bucket/run-20260601/Condition.ndjson"
-                }
-            ]
-        },
-        {
-            "name": "input",
-            "part": [
-                {
-                    "name": "type",
-                    "valueString": "Observation"
-                },
-                {
-                    "name": "url",
-                    "valueUri": "s3://my-bucket/run-20260601/Observation.ndjson"
-                }
-            ]
+            "valueUri": "s3://my-bucket/run-20260601/Observation.ndjson"
         }
     ]
 }
 ```
 
-| Parameter | Type | Cardinality | Description |
-|-----------|------|-------------|-------------|
-| `inputFormat` | valueString | 1..1 | Must be `application/fhir+ndjson` |
-| `input` | part | 1..* | One per input file (max 100) |
-| `input.type` | valueString | 0..1 | FHIR resource type contained in the file |
-| `input.url` | valueUri | 1..1 | S3 URI (`s3://bucket/key`). Bucket must be in the server's allow-list. |
+| Field | Type | Cardinality | Description |
+|-------|------|-------------|-------------|
+| `id` | Resource.id | 0..1 | Optional client-supplied id (UUID recommended) for request correlation. Not used by the server for processing; the server mints its own `Task` id. |
+| `input` | valueUri | 1..* | One per input file (max 100). The S3 URI (`s3://bucket/key`) of an NDJSON file. Bucket must be in the server's allow-list. |
+
+> **Note:** Files are always NDJSON. The resource type of each record is taken from its `resourceType`, so there is no `inputFormat` parameter and no per-file `type`.
 
 ### Validation Rules
 
 - At least one `input` parameter is required, up to 100
-- Each `input.url` must be a valid S3 URI matching `s3://bucket/key`
+- Each `input` `valueUri` must be a valid S3 URI matching `s3://bucket/key`
 - Each bucket must be in the configured allow-list (`BULK_IMPORT_ALLOWED_S3_BUCKETS`)
 - Patient-scoped tokens are rejected (403)
 
