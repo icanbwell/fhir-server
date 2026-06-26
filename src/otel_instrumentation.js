@@ -76,10 +76,21 @@ if (process.env.NODE_OPTIONS && process.env.NODE_OPTIONS.includes("/otel-auto-in
     const { RuntimeNodeInstrumentation } = require('@opentelemetry/instrumentation-runtime-node');
     const { KafkaJsInstrumentation } = require('@opentelemetry/instrumentation-kafkajs');
 
+    const { W3CTraceContextPropagator, W3CBaggagePropagator, CompositePropagator } = require('@opentelemetry/core');
+
     const sdk = new opentelemetry.NodeSDK({
         traceExporter: new OTLPTraceExporter(),
         metricReader: new PeriodicExportingMetricReader({
             exporter: new OTLPMetricExporter()
+        }),
+        // Explicitly configure W3C TraceContext as the sole propagator (EA-2307).
+        // B3 is not used; this removes any implicit B3 emission and ensures
+        // Java services (which default to W3C) and this Node service are consistent.
+        textMapPropagator: new CompositePropagator({
+            propagators: [
+                new W3CTraceContextPropagator(),
+                new W3CBaggagePropagator()
+            ]
         }),
         instrumentations: [
             new HttpInstrumentation(instrumentationConfigs['@opentelemetry/instrumentation-http']),
