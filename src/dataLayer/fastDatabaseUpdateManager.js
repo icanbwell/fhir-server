@@ -12,6 +12,7 @@ const { ReadPreference } = require('mongodb');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { RethrownError } = require('../utils/rethrownError');
+const deepcopy = require('deepcopy');
 const { logInfo } = require('../operations/common/logging');
 
 class FastDatabaseUpdateManager {
