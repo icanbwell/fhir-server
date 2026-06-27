@@ -13,7 +13,7 @@ const { ScopesManager } = require('../security/scopesManager');
 const { SecurityTagManager } = require('../common/securityTagManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { logInfo } = require('../common/logging');
+const { logInfo, logError } = require('../common/logging');
 
 class ImportOperation {
     /**
@@ -225,7 +225,17 @@ class ImportOperation {
             base_version: '4_0_0'
         });
 
-        await databaseUpdateManager.insertOneAsync({ doc: taskResource, requestInfo });
+        try {
+            await databaseUpdateManager.insertOneAsync({ doc: taskResource, requestInfo });
+        } catch (e) {
+            // E11000 from the unique _uuid index means a concurrent request won the race
+            if (e.original_error?.code === 11000 || e.nested?.code === 11000) {
+                throw new BadRequestError(new Error(
+                    `An import Task with id "${id}" already exists`
+                ));
+            }
+            throw e;
+        }
 
         await this.postSaveProcessor.afterSaveAsync({
             requestId,
@@ -272,36 +282,45 @@ class ImportOperation {
                 requestInfo
             });
 
-            logInfo(
-                `$import request accepted with ${inputs.length} input file(s)`,
-                {
+            // Task is committed — logging and audit are best-effort so a
+            // failure here does not mask the successfully created Task.
+            try {
+                logInfo(
+                    `$import request accepted with ${inputs.length} input file(s)`,
+                    {
+                        requestId,
+                        importJobId,
+                        inputCount: inputs.length,
+                        urls: inputs.map((i) => i.url)
+                    }
+                );
+
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args,
+                    startTime,
+                    action: currentOperationName
+                });
+
+                this.postRequestProcessor.add({
                     requestId,
-                    importJobId,
-                    inputCount: inputs.length,
-                    urls: inputs.map((i) => i.url)
-                }
-            );
-
-            await this.fhirLoggingManager.logOperationSuccessAsync({
-                requestInfo,
-                args,
-                startTime,
-                action: currentOperationName
-            });
-
-            this.postRequestProcessor.add({
-                requestId,
-                fnTask: async () => {
-                    await this.auditLogger.logAuditEntryAsync({
-                        requestInfo,
-                        base_version,
-                        resourceType: 'Task',
-                        operation: currentOperationName,
-                        args,
-                        ids: [importJobId]
-                    });
-                }
-            });
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version,
+                            resourceType: 'Task',
+                            operation: currentOperationName,
+                            args,
+                            ids: [importJobId]
+                        });
+                    }
+                });
+            } catch (loggingError) {
+                logError(
+                    `Post-insert logging failed for import ${importJobId}`,
+                    { error: loggingError.message, requestId }
+                );
+            }
 
             return taskResource.toJSON();
         } catch (e) {
