@@ -14,6 +14,7 @@ const expectedAuditEvents2 = require('./fixtures/expected/expected_audit_events_
 const expectedAuditEvents3 = require('./fixtures/expected/expected_audit_events_3.json');
 const expectedPatientScopeAuditEvent = require('./fixtures/expected/expected_audit_event_patient_scope.json');
 const expectedDelegatedActorAuditEvent = require('./fixtures/expected/expected_audit_event_delegated_actor.json');
+const expectedDelegatedActorWithEntitlementsAuditEvent = require('./fixtures/expected/expected_audit_event_delegated_actor_with_entitlements.json');
 
 const {
     commonBeforeEach,
@@ -559,6 +560,96 @@ describe('InternalAuditLog Tests', () => {
             delete latestLog._sourceId;
             delete latestLog.recorded;
             expect(latestLog).toStrictEqual(expectedDelegatedActorAuditEvent);
+            delete process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
+            hintSpy.mockRestore();
+        });
+
+        test('InternalAuditLog records purposeOfEvent from entitlements claim on delegated token', async () => {
+            const hintSpy = jest.spyOn(DatabaseCursor.prototype, 'hint').mockReturnThis();
+            process.env.ENABLE_DELEGATED_ACCESS_DETECTION = 'true';
+            const request = await createTestRequest((container) => {
+                container.register(
+                    'auditLogger',
+                    (c) =>
+                        new AuditLogger({
+                            postRequestProcessor: c.postRequestProcessor,
+                            databaseBulkInserter: c.fastDatabaseBulkInserter,
+                            preSaveManager: c.preSaveManager,
+                            configManager: c.configManager
+                        })
+                );
+                return container;
+            });
+            const container = getTestContainer();
+            const postRequestProcessor = container.postRequestProcessor;
+            const auditLogger = container.auditLogger;
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
+            const auditEventCollection = auditEventDb.collection('AuditEvent_4_0_0');
+
+            expect(await auditEventCollection.countDocuments()).toStrictEqual(0);
+
+            // seed resources with admin headers
+            const seedFixtures = [
+                { url: `/4_0_0/Patient/${patient.id}/$merge?validate=true`, body: patient },
+                { url: `/4_0_0/Person/${person.id}/$merge?validate=true`, body: person },
+                { url: `/4_0_0/Observation/${observation.id}/$merge?validate=true`, body: observation },
+                { url: `/4_0_0/Consent/${consent.id}/$merge?validate=true`, body: consent }
+            ];
+            for (const { url, body } of seedFixtures) {
+                const seedResp = await request.post(url).send(body).set(getHeaders());
+                // noinspection JSUnresolvedFunction
+                expect(seedResp).toHaveMergeResponse({ created: true });
+            }
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+
+            const initialCount = await auditEventCollection.countDocuments();
+
+            // delegated headers + entitlements claim
+            const delegatedHeadersWithEntitlements = {
+                ...getHeadersWithCustomPayload({
+                    scope: 'patient/*.* user/*.* access/*.*',
+                    username: 'patient-123@example.com',
+                    clientFhirPersonId: person.id,
+                    clientFhirPatientId: patient.id,
+                    bwellFhirPersonId: person.id,
+                    bwellFhirPatientId: patient.id,
+                    sub: 'unique-identifier-123',
+                    token_use: 'access',
+                    act: {
+                        reference: 'RelatedPerson/8d5fcbff-3707-405c-b0b2-3053a3adc013',
+                        sub: 'related-person-sub-123'
+                    },
+                    entitlements: ['FAMRQT']
+                }),
+                Host: 'localhost:3000'
+            };
+
+            const resp = await request
+                .get(`/4_0_0/Observation/${observation.id}`)
+                .set(delegatedHeadersWithEntitlements);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+            await auditLogger.flushAsync();
+
+            const logs = await auditEventCollection
+                .find({})
+                .sort({ 'meta.lastUpdated': -1, _id: -1 })
+                .toArray();
+            expect(logs.length).toStrictEqual(initialCount + 1);
+
+            const latestLog = logs[0];
+            delete latestLog.meta.lastUpdated;
+            delete latestLog._id;
+            delete latestLog.id;
+            delete latestLog._uuid;
+            delete latestLog._sourceId;
+            delete latestLog.recorded;
+            expect(latestLog).toStrictEqual(expectedDelegatedActorWithEntitlementsAuditEvent);
             delete process.env.ENABLE_DELEGATED_ACCESS_DETECTION;
             hintSpy.mockRestore();
         });
