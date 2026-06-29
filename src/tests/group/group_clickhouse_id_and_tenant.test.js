@@ -183,4 +183,78 @@ describe('Group ClickHouse member search: _id filter and tenant isolation', () =
         expect(foundIds).toContain(ga);
         expect(foundIds).not.toContain(gb);
     });
+
+    test('LIMIT-ordering: _id honored even when the requested group does not sort into the first page', async () => {
+        const request = getSharedRequest();
+        const headers = getTestHeadersWithExternalStorage();
+        const memberReference = 'Patient/idlimit-shared';
+        const meta = metaForTenant('test-owner');
+
+        // Three groups, same tenant, all containing the same member.
+        const ids = [];
+        for (const name of ['Limit Group 1', 'Limit Group 2', 'Limit Group 3']) {
+            ids.push(
+                await createGroupWithMember({ name, memberReference, meta, headers })
+            );
+        }
+
+        for (const id of ids) {
+            await waitForMemberEvent(id);
+        }
+        await syncClickHouseMaterializedViews();
+
+        // Pick the id that sorts LAST under `ORDER BY group_id ASC`. With a page
+        // size of 1, this group only appears if the `_id` constraint is applied
+        // inside the ClickHouse query (before LIMIT). The old post-LIMIT JS
+        // filter returned an empty Bundle here.
+        const lastSortedId = [...ids].sort()[ids.length - 1];
+
+        const searchResponse = await request
+            .get(`/4_0_0/Group?member=${memberReference}&_id=${lastSortedId}&_count=1`)
+            .set(headers);
+
+        expect(searchResponse.status).toBe(200);
+        const bundle = searchResponse.body;
+        expect(bundle.resourceType).toBe('Bundle');
+        expect(bundle.entry).toBeDefined();
+
+        const foundIds = bundle.entry.map((e) => e.resource.id);
+        expect(foundIds).toEqual([lastSortedId]);
+        expect(foundIds).toHaveLength(1);
+    });
+
+    test('total honors _id: member=X&_id=G1&_total=accurate yields Bundle.total === 1', async () => {
+        const request = getSharedRequest();
+        const headers = getTestHeadersWithExternalStorage();
+        const memberReference = 'Patient/idlimit-shared';
+        const meta = metaForTenant('test-owner');
+
+        // Three groups, same tenant, all containing the same member.
+        const ids = [];
+        for (const name of ['Total Group 1', 'Total Group 2', 'Total Group 3']) {
+            ids.push(
+                await createGroupWithMember({ name, memberReference, meta, headers })
+            );
+        }
+
+        for (const id of ids) {
+            await waitForMemberEvent(id);
+        }
+        await syncClickHouseMaterializedViews();
+
+        // Request an accurate total alongside a single `_id`. Bundle.total must
+        // reflect the id-filtered set (1), not every group containing the member (3).
+        const oneId = ids[0];
+        const searchResponse = await request
+            .get(`/4_0_0/Group?member=${memberReference}&_id=${oneId}&_total=accurate`)
+            .set(headers);
+
+        expect(searchResponse.status).toBe(200);
+        const bundle = searchResponse.body;
+        expect(bundle.resourceType).toBe('Bundle');
+        expect(bundle.total).toBe(1);
+        expect(bundle.entry).toBeDefined();
+        expect(bundle.entry).toHaveLength(1);
+        expect(bundle.entry[0].resource.id).toBe(oneId);
+    });
 });

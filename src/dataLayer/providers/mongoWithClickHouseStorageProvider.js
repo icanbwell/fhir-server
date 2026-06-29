@@ -153,6 +153,11 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             const securityTags = QueryParser.extractSecurityTags(query);
             const validation = QueryParser.validateMemberCriteria(memberCriteria);
 
+            // Mirror findAsync: honor any requested `_id` so Bundle.total matches
+            // the id-filtered Bundle.entry rather than counting every group that
+            // contains the member.
+            const requestedIds = QueryParser.extractRequestedIds(query);
+
             if (!validation.valid) {
                 // Fall back to MongoDB if no valid member criteria
                 logWarn(`Cannot count by member: ${validation.reason}`, { memberCriteria });
@@ -164,7 +169,8 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 memberReferenceUuid: validation.entityReferenceUuid,
                 memberReferenceSourceId: validation.entityReferenceSourceId,
                 accessTags: securityTags.accessTags,
-                ownerTags: securityTags.ownerTags
+                ownerTags: securityTags.ownerTags,
+                requestedIds
             });
 
             try {
@@ -275,7 +281,9 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 return await this.mongoStorageProvider.findAsync({ query, options, extraInfo });
             }
 
-            // Build ClickHouse query
+            // Build ClickHouse query. The requested `_id` constraint is pushed
+            // into the SQL WHERE clause so LIMIT and ordering apply to the
+            // id-filtered set (no JS post-filter after the page is truncated).
             const queryDef = QueryBuilder.buildFindGroupsByMemberQuery({
                 memberReferenceUuid: validation.entityReferenceUuid,
                 memberReferenceSourceId: validation.entityReferenceSourceId,
@@ -283,7 +291,8 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 ownerTags: securityTags.ownerTags,
                 limit,
                 afterGroupId,
-                skip
+                skip,
+                requestedIds
             });
 
             // Execute and return
@@ -293,8 +302,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 queryDef,
                 limit,
                 options,
-                extraInfo,
-                requestedIds
+                extraInfo
             });
         } catch (error) {
             logError('Error querying ClickHouse for Groups by member', {
