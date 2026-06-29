@@ -21,6 +21,7 @@ class QueryExecutor {
      * @param {number} params.limit - Page size
      * @param {Object} params.options - Original query options
      * @param {Object} params.extraInfo - Extra info for MongoDB query
+     * @param {string[]|null} [params.requestedIds] - Requested `_id` constraint to intersect with ClickHouse results
      * @returns {Promise<import('../../databaseCursor').DatabaseCursor>}
      */
     static async executeGroupMemberSearch({
@@ -29,15 +30,25 @@ class QueryExecutor {
         queryDef,
         limit,
         options,
-        extraInfo
+        extraInfo,
+        requestedIds = null
     }) {
         // Execute ClickHouse query
         const pageResult = await this._executeClickHouseQuery(clickHouseManager, queryDef);
-        const groupIds = (pageResult || []).map(row => row.group_id);
+        let groupIds = (pageResult || []).map(row => row.group_id);
+
+        // Honor a requested `_id` constraint: intersect it with the group ids
+        // returned by ClickHouse so the Mongo fetch returns only the requested
+        // group(s). If no `_id` was requested, behavior is unchanged.
+        if (requestedIds && requestedIds.length > 0) {
+            const requestedIdSet = new Set(requestedIds);
+            groupIds = groupIds.filter(groupId => requestedIdSet.has(groupId));
+        }
 
         logInfo('ClickHouse member search results', {
             memberReferenceUuid: queryDef.query_params.memberReferenceUuid,
             memberReferenceSourceId: queryDef.query_params.memberReferenceSourceId,
+            requestedIdCount: requestedIds ? requestedIds.length : 0,
             pageSize: groupIds.length
         });
 

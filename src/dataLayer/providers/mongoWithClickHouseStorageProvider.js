@@ -1,8 +1,6 @@
 const { StorageProvider } = require('./storageProvider');
 const { logDebug, logInfo, logError, logWarn } = require('../../operations/common/logging');
 const { RethrownError } = require('../../utils/rethrownError');
-const { TABLES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
-const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 const { QueryParser } = require('./mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('./mongoWithClickHouse/queryBuilder');
@@ -46,162 +44,6 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
         this.clickHouseClientManager = clickHouseClientManager;
         this.mongoStorageProvider = mongoStorageProvider;
         this.configManager = configManager;
-    }
-
-    /**
-     * Builds count query for active members of a Group
-     * Uses HAVING pattern (canonical for ID-only queries on AggregatingMergeTree)
-     * Active-by-default: Counts only event_type=MEMBER_ADDED AND inactive=0 members
-     *
-     * @param {string} groupId - Group ID
-     * @returns {{query: string, query_params: Object}}
-     * @private
-     */
-    _buildCountQuery(groupId) {
-        return QueryBuilder.buildActiveMemberCount({ groupId });
-    }
-
-    /**
-     * Builds roster query for active members of a Group
-     * Uses canonical subquery + outer WHERE pattern (for AggregatingMergeTree)
-     * Active-by-default: Returns only event_type=MEMBER_ADDED AND inactive=0 members
-     *
-     * @param {string} groupId - Group ID
-     * @param {Object} options
-     * @param {number} options.limit - Page size
-     * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
-     * @returns {{query: string, query_params: Object}}
-     * @private
-     */
-    _buildRosterQuery(groupId, { limit, afterReference = null }) {
-        return QueryBuilder.buildActiveMembers({ groupId, limit, afterReference });
-    }
-
-    /**
-     * Get current members with total count from materialized current state table
-     * Uses argMaxMerge on pre-aggregated state (not argMax on events)
-     * Returns only active members (event_type=MEMBER_ADDED AND inactive=0)
-     *
-     * @param {string} groupId - Group ID to query
-     * @param {Object} options - Query options
-     * @param {number} options.limit - Page size (default 100)
-     * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
-     * @returns {Promise<{members: Array<Object>, totalCount: number}>}
-     */
-    async getCurrentMembersWithCountAsync(groupId, { limit = 100, afterReference = null } = {}) {
-        try {
-            const countQuery = this._buildCountQuery(groupId);
-            const rosterQuery = this._buildRosterQuery(groupId, { limit, afterReference });
-
-            // Run queries in parallel for performance
-            const [countResult, members] = await Promise.all([
-                this.clickHouseClientManager.queryAsync(countQuery),
-                this.clickHouseClientManager.queryAsync(rosterQuery)
-            ]);
-
-            const totalCount = countResult.length > 0 ? parseInt(countResult[0].count) : 0;
-
-            return {
-                members,
-                totalCount
-            };
-        } catch (error) {
-            logError('Error querying current members from ClickHouse current state table', {
-                error: error.message,
-                groupId,
-                limit,
-                afterReference
-            });
-
-            throw new RethrownError({
-                message: 'Error getting current members with count from ClickHouse',
-                error,
-                args: { groupId, limit, afterReference }
-            });
-        }
-    }
-
-    /**
-     * Get member count only (for metadata-only GET / Group.quantity)
-     * Uses argMaxMerge on pre-aggregated current state table
-     * Counts members where event_type=MEMBER_ADDED AND inactive=0
-     *
-     * @param {string} groupId - Group ID to query
-     * @returns {Promise<number>} Count of active, non-inactive members
-     */
-    async getActiveMemberCountAsync(groupId) {
-        try {
-            const query = `
-                SELECT count() as count
-                FROM (
-                    SELECT entity_reference
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL  -- need to force sync with MVs
-                    WHERE group_id = {groupId:String}
-                    GROUP BY entity_reference
-                    HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}' AND argMaxMerge(inactive) = 0
-                )
-            `;
-
-            const result = await this.clickHouseClientManager.queryAsync({
-                query,
-                query_params: { groupId }
-            });
-
-            return parseInt(result[0]?.count || 0);
-        } catch (error) {
-            logError('Error querying active member count from ClickHouse current state table', {
-                error: error.message,
-                groupId
-            });
-
-            throw new RethrownError({
-                message: 'Error getting active member count from ClickHouse',
-                error,
-                args: { groupId }
-            });
-        }
-    }
-
-    /**
-     * Search groups by member (GET /Group?member.entity._reference=Patient/X)
-     * Tuple tie-breaker ensures deterministic argMax
-     *
-     * @param {string} memberReference - Member reference to search for
-     * @returns {Promise<Array<Object>>} Array of { group_id } objects
-     */
-    async findGroupsByMemberAsync(memberReference) {
-        try {
-            const query = `
-                SELECT DISTINCT group_id
-                FROM (
-                    SELECT
-                        group_id,
-                        ${QueryFragments.argMaxWithTieBreaker('event_type')} as latest_event
-                    FROM ${TABLES.GROUP_MEMBER_EVENTS}
-                    ${QueryFragments.whereEntityReference('', true)}
-                    GROUP BY group_id
-                )
-                WHERE latest_event = '${EVENT_TYPES.MEMBER_ADDED}'
-            `;
-
-            const result = await this.clickHouseClientManager.queryAsync({
-                query,
-                query_params: { memberReference }
-            });
-
-            return result || [];
-        } catch (error) {
-            logError('Error finding groups by member in ClickHouse', {
-                error: error.message,
-                memberReference
-            });
-
-            throw new RethrownError({
-                message: 'Error finding groups by member in ClickHouse',
-                error,
-                args: { memberReference }
-            });
-        }
     }
 
     /**
@@ -420,6 +262,12 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             const memberCriteria = QueryParser.extractMemberCriteria(cleanQuery);
             const securityTags = QueryParser.extractSecurityTags(query);
 
+            // Extract any requested `_id` constraint so we can intersect it with
+            // the group ids returned by ClickHouse (ClickHouse filters by member,
+            // not by group id). Read from the original query; the extractor only
+            // collects equality/$in id values and ignores the $gt pagination cursor.
+            const requestedIds = QueryParser.extractRequestedIds(query);
+
             // Validate criteria
             const validation = QueryParser.validateMemberCriteria(memberCriteria);
             if (!validation.valid) {
@@ -445,7 +293,8 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 queryDef,
                 limit,
                 options,
-                extraInfo
+                extraInfo,
+                requestedIds
             });
         } catch (error) {
             logError('Error querying ClickHouse for Groups by member', {
