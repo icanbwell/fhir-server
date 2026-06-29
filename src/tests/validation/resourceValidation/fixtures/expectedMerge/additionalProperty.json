@@ -1,0 +1,27 @@
+{
+    "operationOutcome": {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "text": "/4_0_0/Patient/$merge should NOT have additional properties :{\"additionalProperty\":\"notAFhirField\"}: at position root"
+                }
+            }
+        ]
+    },
+    "issue": {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "text": "/4_0_0/Patient/$merge should NOT have additional properties :{\"additionalProperty\":\"notAFhirField\"}: at position root"
+        }
+    },
+    "created": false,
+    "id": "patient-validation-test",
+    "uuid": "48e15d03-6a8f-5c96-8fea-59662308fc92",
+    "resourceType": "Patient",
+    "updated": false,
+    "sourceAssigningAuthority": "client"
+}

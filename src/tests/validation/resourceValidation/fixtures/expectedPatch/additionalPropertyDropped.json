@@ -1,0 +1,47 @@
+{
+    "resourceType": "Observation",
+    "id": "observation-validation-test",
+    "meta": {
+        "versionId": "1",
+        "source": "https://www.icanbwell.com",
+        "security": [
+            {
+                "id": "21b6850a-a1fb-5de3-8f69-7962d5394390",
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "id": "1642e685-6de9-5bdb-89e8-b62ffe4420eb",
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            },
+            {
+                "id": "cea955c4-9b2c-5b0d-8b48-acfd40cabb59",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client"
+            }
+        ]
+    },
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "observation-validation-test"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "0437a9a0-14e1-5477-92ae-01a46eaa9a16"
+        }
+    ],
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "id": "e7e19702-3af3-5f94-a2f5-af67d74fcdd2",
+                "system": "http://loinc.org",
+                "code": "12345-6"
+            }
+        ]
+    }
+}

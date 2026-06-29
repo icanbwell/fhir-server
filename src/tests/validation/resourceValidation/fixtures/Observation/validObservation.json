@@ -1,0 +1,26 @@
+{
+    "resourceType": "Observation",
+    "id": "observation-validation-test",
+    "meta": {
+        "source": "https://www.icanbwell.com",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "system": "http://loinc.org",
+                "code": "12345-6"
+            }
+        ]
+    }
+}
