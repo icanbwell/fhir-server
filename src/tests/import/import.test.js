@@ -70,7 +70,7 @@ describe('Import Tests', () => {
             .set(getHeaders())
             .expect(202);
 
-        expect(resp.headers['content-location']).toContain('/4_0_0/Task/import-job-001');
+        expect(resp.headers['content-location']).toBe('/4_0_0/Task/import-job-001');
     });
 
     test('multiple input files are stored in Task.input', async () => {

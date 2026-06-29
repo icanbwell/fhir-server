@@ -12,7 +12,9 @@ const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { ScopesManager } = require('../security/scopesManager');
 const { SecurityTagManager } = require('../common/securityTagManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { logInfo, logError } = require('../common/logging');
 
 class ImportOperation {
@@ -161,8 +163,9 @@ class ImportOperation {
             base_version: '4_0_0'
         });
 
+        const uuid = isUuid(id) ? id : generateUUIDv5(`${id}|${BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY}`);
         const existing = await databaseQueryManager.findOneAsync({
-            query: { _sourceId: id }
+            query: { _uuid: uuid }
         });
 
         if (existing) {
@@ -192,14 +195,14 @@ class ImportOperation {
                 security: [
                     new Coding({
                         system: SecurityTagSystem.owner,
-                        code: 'bwell'
+                        code: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
                     }),
                     new Coding({
                         system: SecurityTagSystem.sourceAssigningAuthority,
-                        code: 'bwell'
+                        code: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
                     })
                 ],
-                source: requestInfo.host
+                source: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
             }
         });
 
