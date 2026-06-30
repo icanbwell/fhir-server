@@ -1,11 +1,21 @@
+const moment = require('moment-timezone');
+const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const Task = require('../../fhir/classes/4_0_0/resources/task');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
+const { ConfigManager } = require('../../utils/configManager');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { ScopesManager } = require('../security/scopesManager');
-const { ConfigManager } = require('../../utils/configManager');
+const { SecurityTagManager } = require('../common/securityTagManager');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { logInfo } = require('../common/logging');
+const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
+const { logInfo, logError } = require('../common/logging');
 
 class ImportOperation {
     /**
@@ -15,6 +25,10 @@ class ImportOperation {
      * @property {PostRequestProcessor} postRequestProcessor
      * @property {AuditLogger} auditLogger
      * @property {ConfigManager} configManager
+     * @property {SecurityTagManager} securityTagManager
+     * @property {DatabaseUpdateFactory} databaseUpdateFactory
+     * @property {DatabaseQueryFactory} databaseQueryFactory
+     * @property {PostSaveProcessor} postSaveProcessor
      *
      * @param {ConstructorParams}
      */
@@ -23,7 +37,11 @@ class ImportOperation {
         fhirLoggingManager,
         postRequestProcessor,
         auditLogger,
-        configManager
+        configManager,
+        securityTagManager,
+        databaseUpdateFactory,
+        databaseQueryFactory,
+        postSaveProcessor
     }) {
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
@@ -39,6 +57,18 @@ class ImportOperation {
 
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        this.securityTagManager = securityTagManager;
+        assertTypeEquals(securityTagManager, SecurityTagManager);
+
+        this.databaseUpdateFactory = databaseUpdateFactory;
+        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -122,6 +152,105 @@ class ImportOperation {
     }
 
     /**
+     * @param {{ id: string, inputs: Array<{ url: string }>, requestInfo: Object }} params
+     * @returns {Promise<Task>}
+     */
+    async createTaskAsync({ id, inputs, requestInfo }) {
+        const { user, scope, requestId } = requestInfo;
+
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+
+        const uuid = isUuid(id) ? id : generateUUIDv5(`${id}|${BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY}`);
+        const existing = await databaseQueryManager.findOneAsync({
+            query: { _uuid: uuid }
+        });
+
+        if (existing) {
+            throw new BadRequestError(new Error(
+                `An import Task with id "${id}" already exists`
+            ));
+        }
+
+        const taskResource = new Task({
+            id,
+            status: 'requested',
+            intent: 'order',
+            code: {
+                coding: [
+                    new Coding({
+                        system: 'https://www.icanbwell.com/task-type',
+                        code: 'bulk-import'
+                    })
+                ]
+            },
+            authoredOn: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ')),
+            input: inputs.map((i) => ({
+                type: { text: 'url' },
+                valueUri: i.url
+            })),
+            meta: {
+                security: [
+                    new Coding({
+                        system: SecurityTagSystem.owner,
+                        code: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
+                    }),
+                    new Coding({
+                        system: SecurityTagSystem.sourceAssigningAuthority,
+                        code: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
+                    })
+                ],
+                source: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY
+            }
+        });
+
+        const accessCodesFromScopes = this.securityTagManager.getSecurityTagsFromScope({
+            user,
+            scope,
+            accessRequested: 'write'
+        });
+
+        accessCodesFromScopes.forEach((code) => {
+            taskResource.meta.security.push(
+                new Coding({
+                    system: SecurityTagSystem.access,
+                    code: code
+                })
+            );
+        });
+
+        taskResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+
+        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+
+        try {
+            await databaseUpdateManager.insertOneAsync({ doc: taskResource, requestInfo });
+        } catch (e) {
+            // E11000 from the unique _uuid index means a concurrent request won the race
+            if (e.original_error?.code === 11000 || e.nested?.code === 11000) {
+                throw new BadRequestError(new Error(
+                    `An import Task with id "${id}" already exists`
+                ));
+            }
+            throw e;
+        }
+
+        await this.postSaveProcessor.afterSaveAsync({
+            requestId,
+            eventType: 'C',
+            resourceType: 'Task',
+            doc: taskResource
+        });
+
+        return taskResource;
+    }
+
+    /**
      * @typedef {Object} ImportAsyncParams
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {Object} args
@@ -150,51 +279,53 @@ class ImportOperation {
             const { id: importJobId, inputs } = this.parseParametersResource(resource);
             this.validateS3Inputs(inputs);
 
-            logInfo(
-                `$import request accepted with ${inputs.length} input file(s)`,
-                {
-                    requestId,
-                    importJobId,
-                    inputCount: inputs.length,
-                    urls: inputs.map((i) => i.url)
-                }
-            );
-
-            // Log success first; audit is queued only after the success log lands,
-            // so a failure in success logging produces a single coherent failure
-            // record rather than success-logged-as-failure + an AuditEvent.
-            await this.fhirLoggingManager.logOperationSuccessAsync({
-                requestInfo,
-                args,
-                startTime,
-                action: currentOperationName
-            });
-
-            this.postRequestProcessor.add({
-                requestId,
-                fnTask: async () => {
-                    await this.auditLogger.logAuditEntryAsync({
-                        requestInfo,
-                        base_version,
-                        resourceType: 'Parameters',
-                        operation: currentOperationName,
-                        args,
-                        ids: [importJobId]
-                    });
-                }
-            });
-
-            return {
+            const taskResource = await this.createTaskAsync({
                 id: importJobId,
-                resourceType: 'OperationOutcome',
-                issue: [
+                inputs,
+                requestInfo
+            });
+
+            // Task is committed — logging and audit are best-effort so a
+            // failure here does not mask the successfully created Task.
+            try {
+                logInfo(
+                    `$import request accepted with ${inputs.length} input file(s)`,
                     {
-                        severity: 'information',
-                        code: 'informational',
-                        diagnostics: `Import request accepted with ${inputs.length} input file(s)`
+                        requestId,
+                        importJobId,
+                        inputCount: inputs.length,
+                        urls: inputs.map((i) => i.url)
                     }
-                ]
-            };
+                );
+
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args,
+                    startTime,
+                    action: currentOperationName
+                });
+
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync({
+                            requestInfo,
+                            base_version,
+                            resourceType: 'Task',
+                            operation: currentOperationName,
+                            args,
+                            ids: [importJobId]
+                        });
+                    }
+                });
+            } catch (loggingError) {
+                logError(
+                    `Post-insert logging failed for import ${importJobId}`,
+                    { error: loggingError.message, requestId }
+                );
+            }
+
+            return taskResource.toJSON();
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
