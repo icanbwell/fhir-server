@@ -183,15 +183,15 @@ class EverythingOperation {
             accessRequested: 'read'
         });
 
-        const bwellFhirPersonId = requestInfo.masterPersonIdFromJwtToken;
+        const masterPersonId = requestInfo.masterPersonIdFromJwtToken;
 
         const activeSpan = trace.getActiveSpan();
-        if (activeSpan && bwellFhirPersonId) {
-            activeSpan.setAttribute('bwell.person.id', bwellFhirPersonId);
+        if (activeSpan && masterPersonId) {
+            activeSpan.setAttribute('master.person.id', masterPersonId);
         }
 
-        if (bwellFhirPersonId) {
-            logInfo('everything operation', { bwellFhirPersonId });
+        if (masterPersonId) {
+            logInfo('everything operation', { masterPersonId });
         }
 
         try {

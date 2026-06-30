@@ -1,5 +1,5 @@
 /**
- * Unit tests for EA-2308: verify that everythingBundleAsync emits bwellFhirPersonId
+ * Unit tests for EA-2308: verify that everythingBundleAsync emits masterPersonId
  * as an OTel span attribute and structured log field.
  */
 
@@ -195,7 +195,7 @@ describe('EverythingOperation.everythingBundleAsync — OTel span attribute and 
             // THEN
             if (expectAttributeSet) {
                 expect(mockSpan.setAttribute).toHaveBeenCalledWith(
-                    'bwell.person.id',
+                    'master.person.id',
                     masterPersonIdFromJwtToken
                 );
             } else {
@@ -220,7 +220,7 @@ describe('EverythingOperation.everythingBundleAsync — OTel span attribute and 
         ).resolves.not.toThrow();
     });
 
-    test('emits bwellFhirPersonId as a structured log field when person id is present', async () => {
+    test('emits masterPersonId as a structured log field when person id is present', async () => {
         // GIVEN
         trace.getActiveSpan.mockReturnValue(mockSpan);
         const masterPersonIdFromJwtToken = 'person-test-789';
@@ -237,7 +237,7 @@ describe('EverythingOperation.everythingBundleAsync — OTel span attribute and 
         // THEN
         expect(logInfo).toHaveBeenCalledWith(
             'everything operation',
-            expect.objectContaining({ bwellFhirPersonId: masterPersonIdFromJwtToken })
+            expect.objectContaining({ masterPersonId: masterPersonIdFromJwtToken })
         );
     });
 
