@@ -1245,6 +1245,49 @@ class ConfigManager {
     }
 
     /**
+     * Kafka topic for bulk import byte-range messages
+     * @return {string}
+     */
+    get kafkaBulkImportEventTopic() {
+        return env.KAFKA_BULK_IMPORT_EVENT_TOPIC || 'fhir.bulk_import.events';
+    }
+
+    /**
+     * Kafka consumer group ID for bulk import consumers
+     * @return {string}
+     */
+    get bulkImportConsumerGroupId() {
+        return env.BULK_IMPORT_CONSUMER_GROUP_ID || 'fhir-bulk-import-consumer';
+    }
+
+    /**
+     * Byte-range marker size in MB for bulk import file splitting
+     * @return {number}
+     */
+    get bulkImportRangeSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_RANGE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Minimum file size in MB for bulk import
+     * @return {number}
+     */
+    get bulkImportMinFileSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_MIN_FILE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 50;
+    }
+
+    /**
+     * Maximum file size in GB for bulk import
+     * @return {number}
+     */
+    get bulkImportMaxFileSizeGb() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_FILE_SIZE_GB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 5;
+    }
+
+    /**
      * returns list of external services where restriction needs to be applied to request
      * @return {Object.<string, string | null>}
      */

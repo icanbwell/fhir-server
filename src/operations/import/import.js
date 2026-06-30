@@ -1,8 +1,10 @@
+const { S3Client: S3, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const moment = require('moment-timezone');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const Task = require('../../fhir/classes/4_0_0/resources/task');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
+const { BulkImportEventProducer } = require('./bulkImportEventProducer');
 const { ConfigManager } = require('../../utils/configManager');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
@@ -29,6 +31,7 @@ class ImportOperation {
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {PostSaveProcessor} postSaveProcessor
+     * @property {BulkImportEventProducer} bulkImportEventProducer
      *
      * @param {ConstructorParams}
      */
@@ -41,7 +44,8 @@ class ImportOperation {
         securityTagManager,
         databaseUpdateFactory,
         databaseQueryFactory,
-        postSaveProcessor
+        postSaveProcessor,
+        bulkImportEventProducer
     }) {
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
@@ -69,6 +73,9 @@ class ImportOperation {
 
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
+
+        this.bulkImportEventProducer = bulkImportEventProducer;
+        assertTypeEquals(bulkImportEventProducer, BulkImportEventProducer);
     }
 
     /**
@@ -117,6 +124,58 @@ class ImportOperation {
             id: body.id.trim(),
             inputs
         };
+    }
+
+    /**
+     * Parses an S3 URI into bucket and key
+     * @param {string} uri
+     * @returns {{ bucket: string, key: string }}
+     */
+    parseS3Uri(uri) {
+        const match = uri.match(/^s3:\/\/([^/]+)\/(.+)$/);
+        return { bucket: match[1], key: match[2] };
+    }
+
+    /**
+     * HEADs each S3 file to get file sizes and validate they exist
+     * @param {Array<{ url: string }>} inputs
+     * @returns {Promise<Array<{ url: string, fileSize: number }>>}
+     */
+    async headS3FilesAsync(inputs) {
+        const region = this.configManager.awsRegion || 'us-east-1';
+        const s3 = new S3({ region });
+        const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
+        const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
+
+        const results = [];
+        for (const input of inputs) {
+            const { bucket, key } = this.parseS3Uri(input.url);
+            let fileSize;
+            try {
+                const response = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+                fileSize = response.ContentLength;
+            } catch (e) {
+                throw new BadRequestError(new Error(
+                    `Cannot access S3 file "${input.url}": ${e.name || e.message}`
+                ));
+            }
+
+            if (fileSize < minBytes) {
+                throw new BadRequestError(new Error(
+                    `File "${input.url}" is ${(fileSize / (1024 * 1024)).toFixed(1)} MB, ` +
+                    `below the minimum of ${this.configManager.bulkImportMinFileSizeMb} MB`
+                ));
+            }
+            if (fileSize > maxBytes) {
+                throw new BadRequestError(new Error(
+                    `File "${input.url}" is ${(fileSize / (1024 * 1024 * 1024)).toFixed(1)} GB, ` +
+                    `above the maximum of ${this.configManager.bulkImportMaxFileSizeGb} GB`
+                ));
+            }
+
+            results.push({ url: input.url, fileSize });
+        }
+        return results;
     }
 
     /**
@@ -279,10 +338,20 @@ class ImportOperation {
             const { id: importJobId, inputs } = this.parseParametersResource(resource);
             this.validateS3Inputs(inputs);
 
+            const inputsWithSizes = await this.headS3FilesAsync(inputs);
+
             const taskResource = await this.createTaskAsync({
                 id: importJobId,
                 inputs,
                 requestInfo
+            });
+
+            await this.bulkImportEventProducer.publishImportEventsAsync({
+                taskId: importJobId,
+                inputs: inputsWithSizes,
+                requestId,
+                scope,
+                user: requestInfo.user
             });
 
             // Task is committed — logging and audit are best-effort so a
