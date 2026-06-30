@@ -2,15 +2,11 @@ const async = require('async');
 const { assertTypeEquals } = require('../../../utils/assertType');
 const { ConfigManager } = require('../../../utils/configManager');
 const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
-const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
-const { MergeManager } = require('../mergeManager');
-const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
-const { PreSaveOptions } = require('../../../preSaveHandlers/preSaveOptions');
+const { MergeManager } = require('../fastMergeManager');
 const { ResourceValidator } = require('../../common/resourceValidator');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
-const { FastMergeManager } = require('../fastMergeManager');
 const { validateResource } = require('../../../utils/validator.util');
 const { SourceAssigningAuthorityColumnHandler } = require('../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const { UuidColumnHandler } = require('../../../preSaveHandlers/handlers/uuidColumnHandler');
@@ -21,9 +17,7 @@ const { CustomTracer } = require('../../../utils/customTracer');
 class MergeResourceValidator extends BaseValidator {
     /**
      * @param {MergeManager} mergeManager
-     * @param {FastMergeManager} fastMergeManager
      * @param {DatabaseBulkLoader} databaseBulkLoader
-     * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
      * @param {ResourceValidator} resourceValidator
      * @param {SourceAssigningAuthorityColumnHandler} sourceAssigningAuthorityColumnHandler
@@ -32,9 +26,7 @@ class MergeResourceValidator extends BaseValidator {
      */
     constructor({
         mergeManager,
-        fastMergeManager,
         databaseBulkLoader,
-        preSaveManager,
         configManager,
         resourceValidator,
         sourceAssigningAuthorityColumnHandler,
@@ -43,19 +35,11 @@ class MergeResourceValidator extends BaseValidator {
     }) {
         super();
 
-        if (configManager.enableMergeFastSerializer) {
-            this.mergeManager = fastMergeManager;
-            assertTypeEquals(this.mergeManager, FastMergeManager);
-        } else {
-            this.mergeManager = mergeManager;
-            assertTypeEquals(this.mergeManager, MergeManager);
-        }
-
         /**
-         * @type {PreSaveManager}
+         * @type {MergeManager}
          */
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
+        this.mergeManager = mergeManager;
+        assertTypeEquals(mergeManager, MergeManager);
 
         /**
          * @type {DatabaseBulkLoader}
@@ -112,13 +96,7 @@ class MergeResourceValidator extends BaseValidator {
         /**
          * @type {Resource[]}
          */
-        let resourcesIncomingArray;
-
-        if (this.configManager.enableMergeFastSerializer) {
-            resourcesIncomingArray = wasIncomingAList ? incomingResources : [incomingResources];
-        } else {
-            resourcesIncomingArray = FhirResourceCreator.createArray(incomingResources);
-        }
+        let resourcesIncomingArray = wasIncomingAList ? incomingResources : [incomingResources];
 
         resourcesIncomingArray = resourcesIncomingArray.map((resource) => {
             if (resource.id) {
@@ -159,16 +137,9 @@ class MergeResourceValidator extends BaseValidator {
                         resource._uuid = resource.id;
                     } else {
                         try {
-                            if (this.configManager.updateMergeValidations) {
-                                // we only need to generate uuid here and all preSave handlers should not be triggered
-                                resource = await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource });
-                                resource = await this.uuidColumnHandler.preSaveAsync({ resource });
-                            } else {
-                                resource = await this.preSaveManager.preSaveAsync({
-                                    resource,
-                                    options: PreSaveOptions.fromRequestInfo(requestInfo)
-                                });
-                            }
+                            // we only need to generate uuid here and all preSave handlers should not be triggered
+                            resource = await this.sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource });
+                            resource = await this.uuidColumnHandler.preSaveAsync({ resource });
                         } catch (error) {
                             return {
                                 resource: null,
@@ -189,10 +160,9 @@ class MergeResourceValidator extends BaseValidator {
             }
         }
 
-        if (this.configManager.updateMergeValidations) {
-            await this.customTracer.trace({
-                name: 'MergeResourceValidator.updateMergeValidations',
-                func: async () => {
+        await this.customTracer.trace({
+            name: 'MergeResourceValidator.updateMergeValidations',
+            func: async () => {
                     // validate resources for any additional fields before loading the resources from database
                     // to avoid unnecessary database calls for invalid resources
 
@@ -270,7 +240,6 @@ class MergeResourceValidator extends BaseValidator {
                     });
                 }
             });
-        }
 
         // Load the resources from the database
         await this.customTracer.trace({

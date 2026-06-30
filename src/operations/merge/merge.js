@@ -1,9 +1,8 @@
 const httpContext = require('express-http-context');
 require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { MergeManager } = require('./mergeManager');
+const { MergeManager } = require('./fastMergeManager');
 const { NdjsonParser } = require('./ndJsonParser');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
 const { BundleManager } = require('../common/bundleManager');
@@ -24,7 +23,6 @@ const { pipeline } = require('stream/promises'); // <- for async pipeline
 const { HttpResponseWriter } = require('../streaming/responseWriter');
 const { ObjectSerializedFhirResourceNdJsonWriter } = require('../streaming/resourceWriters/objectSerializedFhirResourceNdJsonWriter');
 const { fhirContentTypes } = require('../../utils/contentTypes');
-const { FastMergeManager } = require('./fastMergeManager');
 const { recordMergeOutcomes, recordInboundBundleSize, OPERATION } = require('../../utils/metrics');
 const { CustomTracer } = require('../../utils/customTracer');
 
@@ -32,8 +30,6 @@ const { CustomTracer } = require('../../utils/customTracer');
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
-     * @param {FastMergeManager} fastMergeManager
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {BundleManager} bundleManager
@@ -44,8 +40,6 @@ class MergeOperation {
     constructor (
         {
             mergeManager,
-            fastMergeManager,
-            databaseBulkInserter,
             fastDatabaseBulkInserter,
             fhirLoggingManager,
             bundleManager,
@@ -54,31 +48,17 @@ class MergeOperation {
             customTracer
         }
     ) {
-        if (configManager.enableMergeFastSerializer) {
-            /**
-             * @type {FastMergeManager}
-             */
-            this.mergeManager = fastMergeManager;
-            assertTypeEquals(fastMergeManager, FastMergeManager);
+        /**
+         * @type {MergeManager}
+         */
+        this.mergeManager = mergeManager;
+        assertTypeEquals(mergeManager, MergeManager);
 
-            /**
-             * @type {FastDatabaseBulkInserter}
-             */
-            this.databaseBulkInserter = fastDatabaseBulkInserter;
-            assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
-        } else {
-            /**
-             * @type {MergeManager}
-             */
-            this.mergeManager = mergeManager;
-            assertTypeEquals(mergeManager, MergeManager);
-
-            /**
-             * @type {DatabaseBulkInserter}
-             */
-            this.databaseBulkInserter = databaseBulkInserter;
-            assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        }
+        /**
+         * @type {FastDatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = fastDatabaseBulkInserter;
+        assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
 
         /**
          * @type {FhirLoggingManager}

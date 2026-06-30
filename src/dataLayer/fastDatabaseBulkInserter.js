@@ -19,9 +19,7 @@ const { PreSaveOptions } = require('../preSaveHandlers/preSaveOptions');
 const BundleEntryWriteSerializer = require('../fhir/writeSerializers/4_0_0/backboneElements/bundleEntry.js');
 
 const { handleClickHouseGroupPreSave } = require('../utils/clickHouseGroupPreSave');
-const deepcopy = require('deepcopy');
 const { FhirResourceWriteSerializer } = require('../fhir/fhirResourceWriteSerializer');
-const deepEqual = require('fast-deep-equal');
 const { CustomTracer } = require('../utils/customTracer');
 
 /**
@@ -298,23 +296,6 @@ class FastDatabaseBulkInserter extends EventEmitter {
                         doc
                     }
                 });
-            }
-
-            if (this.configManager.verifyResourceBeforeWrite && !isAccessLogOperation && resourceType !== 'AuditEvent') {
-                // This check needs to be removed after fast serializer write operation is verified
-                // JSON.stringify to convert date time object to string for comparision
-                let resourceCopy = JSON.parse(JSON.stringify(doc));
-
-                const serializedCopy = FhirResourceWriteSerializer.serialize({ obj: deepcopy(resourceCopy) });
-                if (!deepEqual(serializedCopy, resourceCopy)) {
-                    logError('Serialized doc differ from original while writing resource', {
-                        args: {
-                            source: 'DatabaseBulkInserter.getOperationForResourceAsync',
-                            resourceUuid: resourceCopy._uuid,
-                            resourceType: resourceCopy.resourceType
-                        }
-                    });
-                }
             }
 
             return new BulkInsertUpdateEntry({

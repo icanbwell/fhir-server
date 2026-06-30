@@ -15,7 +15,7 @@ const {ValueSetManager} = require('./utils/valueSet.util');
 const {DatabaseQueryFactory} = require('./dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('./operations/common/resourceLocatorFactory');
 const {DatabaseHistoryFactory} = require('./dataLayer/databaseHistoryFactory');
-const {MergeManager} = require('./operations/merge/mergeManager');
+const {MergeManager} = require('./operations/merge/fastMergeManager');
 const {DatabaseUpdateFactory} = require('./dataLayer/databaseUpdateFactory');
 const {SearchManager} = require('./operations/search/searchManager');
 const {GraphHelper} = require('./operations/graph/graphHelpers');
@@ -142,7 +142,6 @@ const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
-const { FastMergeManager } = require('./operations/merge/fastMergeManager');
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { ClickHouseSchemaRegistry } = require('./dataLayer/clickHouse/schemaRegistry');
@@ -500,24 +499,6 @@ const createContainer = function () {
             {
                 databaseQueryFactory: c.databaseQueryFactory,
                 auditLogger: c.auditLogger,
-                databaseBulkInserter: c.databaseBulkInserter,
-                databaseBulkLoader: c.databaseBulkLoader,
-                scopesManager: c.scopesManager,
-                scopesValidator: c.scopesValidator,
-                resourceMerger: c.resourceMerger,
-                resourceValidator: c.resourceValidator,
-                preSaveManager: c.preSaveManager,
-                configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager,
-                postRequestProcessor: c.postRequestProcessor
-            }
-        )
-    );
-
-    container.register('fastMergeManager', (c) => new FastMergeManager(
-            {
-                databaseQueryFactory: c.databaseQueryFactory,
-                auditLogger: c.auditLogger,
                 databaseBulkInserter: c.fastDatabaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
                 scopesManager: c.scopesManager,
@@ -541,9 +522,7 @@ const createContainer = function () {
                 }),
                 new MergeResourceValidator({
                     mergeManager: c.mergeManager,
-                    fastMergeManager: c.fastMergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,
-                    preSaveManager: c.preSaveManager,
                     configManager: c.configManager,
                     resourceValidator: c.resourceValidator,
                     sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
@@ -806,8 +785,6 @@ const createContainer = function () {
     container.register('mergeOperation', (c) => new MergeOperation(
         {
             mergeManager: c.mergeManager,
-            fastMergeManager: c.fastMergeManager,
-            databaseBulkInserter: c.databaseBulkInserter,
             fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,

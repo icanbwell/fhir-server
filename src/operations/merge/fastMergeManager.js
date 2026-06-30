@@ -32,7 +32,7 @@ const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeable
 const { FhirResourceWriteNormalizeSerializer } = require('../../fhir/fhirResourceWriteNormalizeSerializer');
 const { COLLECTION } = require('../../constants');
 
-class FastMergeManager {
+class MergeManager {
     /**
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
@@ -411,7 +411,7 @@ class FastMergeManager {
                 {
                     message: e.message,
                     error: e,
-                    source: 'FastMergeManager',
+                    source: 'MergeManager',
                     args: new MergeResultEntry({
                         id: resourceToMerge.id,
                         uuid: resourceToMerge._uuid,
@@ -844,7 +844,7 @@ class FastMergeManager {
             return { mergePreCheckErrors, validResources };
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in FastMergeManager.preMergeChecksMultipleAsync()',
+                message: 'Error in MergeManager.preMergeChecksMultipleAsync()',
                 error: e
             });
         }
@@ -947,5 +947,5 @@ class FastMergeManager {
 }
 
 module.exports = {
-    FastMergeManager
+    MergeManager
 };
