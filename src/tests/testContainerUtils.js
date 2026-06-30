@@ -1,47 +1,85 @@
 /**
- * Runs an async function with nock temporarily suspended.
- *
- * nock monkey-patches http.ClientRequest on import. Testcontainers talks to
- * Docker via http.request over a Unix socket — nock intercepts those calls
- * and breaks container lifecycle operations. This helper:
- *   1. Checks if nock is loaded and active
- *   2. If so, restores the original http module
- *   3. Runs the provided function
- *   4. Re-activates nock so test HTTP mocking continues to work
- *
- * Safe to call even when nock is not installed — the require is wrapped in
- * a try/catch so non-nock test environments are unaffected.
- *
- * @param {() => Promise<T>} fn - Async function to run with nock suspended
- * @returns {Promise<T>}
- * @template T
+ * Reference count of in-flight {@link withNockSuspended} calls. nock is restored
+ * when this goes 0 -> 1 and re-activated when it returns to 0, so concurrent or
+ * nested suspensions never re-activate nock while another caller still needs it
+ * suspended.
+ * @type {number}
  */
-async function withNockSuspended(fn) {
-    // Look up nock from the module cache instead of `require('nock')`. Calling
-    // require here would *load* nock if it isn't already, which has a global
-    // side effect (MSW patches http.ClientRequest at import time and routes
-    // every subsequent http call — including ClickHouse queries — through
-    // MockHttpSocket, producing ECONNRESETs on keep-alive connections). When
-    // a test file legitimately uses nock it will already be in the cache.
+let nockSuspendDepth = 0;
+
+/**
+ * The nock module that was active (and therefore restored) at the outermost
+ * suspension. Held so the matching re-activation targets the same instance.
+ * @type {*}
+ */
+let suspendedNockModule = null;
+
+/**
+ * Resolves the nock module from the require cache without loading it.
+ *
+ * Calling `require('nock')` here would *load* nock if it isn't already, which
+ * has a global side effect: nock (v14, built on @mswjs/interceptors) patches
+ * http.ClientRequest at import time and routes every subsequent http call
+ * through MockHttpSocket. When a test file legitimately uses nock it will
+ * already be in the cache.
+ *
+ * @returns {*} the cached nock module, or null if not loaded
+ */
+function resolveCachedNock() {
     let nockResolved;
     try {
         nockResolved = require.resolve('nock');
     } catch (_) {
         nockResolved = null;
     }
-    const nockModule = nockResolved ? require.cache[nockResolved]?.exports : null;
+    return nockResolved ? require.cache[nockResolved]?.exports : null;
+}
 
-    let nockWasActive = false;
-    if (nockModule && nockModule.isActive()) {
-        nockWasActive = true;
-        nockModule.restore();
+/**
+ * Runs an async function with nock temporarily suspended.
+ *
+ * nock (v14) delegates to @mswjs/interceptors, which wraps every outbound
+ * http.ClientRequest in a MockHttpSocket on import. Two places this breaks
+ * real network I/O during tests:
+ *   1. Testcontainers talks to Docker via http over a Unix socket — nock
+ *      intercepts those calls and breaks container lifecycle operations.
+ *   2. ClickHouse queries go over HTTP to a host nock does not mock. nock
+ *      "passes through" such requests, but the passthrough MockHttpSocket
+ *      shares the real socket's underlying _handle; on connection teardown the
+ *      shared fd can be closed under one socket while the other still reads it,
+ *      surfacing as intermittent `read EINVAL` / ECONNRESET failures in CI.
+ *
+ * This helper restores the original http module for the duration of `fn` so the
+ * wrapped code uses real, un-intercepted sockets, then re-activates nock so test
+ * HTTP mocking continues to work. Suspension is reference counted, so it is safe
+ * to nest and to run concurrently (ClickHouse can issue parallel queries).
+ *
+ * Safe to call even when nock is not installed — the lookup is cache-only so
+ * non-nock test environments are unaffected.
+ *
+ * @param {() => Promise<T>} fn - Async function to run with nock suspended
+ * @returns {Promise<T>}
+ * @template T
+ */
+async function withNockSuspended(fn) {
+    if (nockSuspendDepth === 0) {
+        const nockModule = resolveCachedNock();
+        if (nockModule && nockModule.isActive()) {
+            suspendedNockModule = nockModule;
+            nockModule.restore();
+        } else {
+            suspendedNockModule = null;
+        }
     }
+    nockSuspendDepth++;
 
     try {
         return await fn();
     } finally {
-        if (nockWasActive) {
-            nockModule.activate();
+        nockSuspendDepth--;
+        if (nockSuspendDepth === 0 && suspendedNockModule) {
+            suspendedNockModule.activate();
+            suspendedNockModule = null;
         }
     }
 }
