@@ -1,4 +1,4 @@
-const { describe, beforeEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { BulkImportEventProducer } = require('../../operations/import/bulkImportEventProducer');
 const { MockKafkaClient } = require('../mocks/mockKafkaClient');
 const { ConfigManager } = require('../../utils/configManager');
