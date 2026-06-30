@@ -156,7 +156,7 @@ class ImportOperation {
                 fileSize = response.ContentLength;
             } catch (e) {
                 throw new BadRequestError(new Error(
-                    `Cannot access S3 file "${input.url}": ${e.name || e.message}`
+                    `Cannot access S3 file "${input.url}": ${e.name}: ${e.message}`
                 ));
             }
 

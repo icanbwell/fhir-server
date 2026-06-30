@@ -48,10 +48,15 @@ class BulkImportEventProducer {
      * @returns {Promise<number>} total number of messages published
      */
     async publishImportEventsAsync({ taskId, inputs, requestId, scope, user }) {
+        if (!this.configManager.kafkaEnableEvents) {
+            return 0;
+        }
+
         const topic = this.configManager.kafkaBulkImportEventTopic;
         const messages = [];
 
-        for (const input of inputs) {
+        for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+            const input = inputs[inputIndex];
             const ranges = this.calculateByteRanges(input.fileSize);
 
             for (let rangeIndex = 0; rangeIndex < ranges.length; rangeIndex++) {
@@ -78,7 +83,7 @@ class BulkImportEventProducer {
                 };
 
                 messages.push({
-                    key: `${taskId}-${rangeIndex}`,
+                    key: `${taskId}-${inputIndex}-${rangeIndex}`,
                     value: JSON.stringify(cloudEvent)
                 });
             }

@@ -1,7 +1,5 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { BulkImportConsumerRunner } = require('../../operations/import/bulkImportConsumerRunner');
-const { ConfigManager } = require('../../utils/configManager');
 const { ImportOperation } = require('../../operations/import/import');
 
 const makeCloudEvent = (overrides = {}) => {
@@ -44,6 +42,7 @@ describe('BulkImportConsumerRunner', () => {
 
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
+        process.env.ENABLE_EVENTS_KAFKA = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
         originalHeadS3FilesAsync = ImportOperation.prototype.headS3FilesAsync;
         ImportOperation.prototype.headS3FilesAsync = async (inputs) =>
@@ -54,6 +53,7 @@ describe('BulkImportConsumerRunner', () => {
     afterEach(async () => {
         ImportOperation.prototype.headS3FilesAsync = originalHeadS3FilesAsync;
         delete process.env.ENABLE_BULK_IMPORT;
+        delete process.env.ENABLE_EVENTS_KAFKA;
         delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
         await commonAfterEach();
     });
@@ -104,7 +104,7 @@ describe('BulkImportConsumerRunner', () => {
         const runner = container.bulkImportConsumerRunner;
 
         await runner.handleMessageAsync({
-            key: 'import-consumer-001-0',
+            key: 'import-consumer-001-0-0',
             value: makeCloudEvent(),
             headers: []
         });
@@ -142,7 +142,7 @@ describe('BulkImportConsumerRunner', () => {
         const runner = container.bulkImportConsumerRunner;
 
         await runner.handleMessageAsync({
-            key: 'import-consumer-001-0',
+            key: 'import-consumer-001-0-0',
             value: makeCloudEvent({ rangeIndex: 0, totalRanges: 2 }),
             headers: []
         });

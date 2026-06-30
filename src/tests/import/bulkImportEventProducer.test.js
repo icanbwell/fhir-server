@@ -8,9 +8,14 @@ describe('BulkImportEventProducer', () => {
     let kafkaClient;
 
     beforeEach(() => {
+        process.env.ENABLE_EVENTS_KAFKA = '1';
         const configManager = new ConfigManager();
         kafkaClient = new MockKafkaClient({ configManager });
         producer = new BulkImportEventProducer({ kafkaClient, configManager });
+    });
+
+    afterEach(() => {
+        delete process.env.ENABLE_EVENTS_KAFKA;
     });
 
     test('calculateByteRanges splits a file into correct ranges', () => {
@@ -121,9 +126,9 @@ describe('BulkImportEventProducer', () => {
         });
 
         const messages = kafkaClient.getCloudEventMessages();
-        expect(messages[0].key).toBe('task-004-0');
-        expect(messages[1].key).toBe('task-004-1');
-        expect(messages[2].key).toBe('task-004-2');
+        expect(messages[0].key).toBe('task-004-0-0');
+        expect(messages[1].key).toBe('task-004-0-1');
+        expect(messages[2].key).toBe('task-004-0-2');
     });
 
     test('CloudEvent envelope has required fields', async () => {
@@ -143,5 +148,25 @@ describe('BulkImportEventProducer', () => {
         expect(event.source).toBe('https://www.icanbwell.com/fhir-server');
         expect(event.type).toBe('ImportRangeRequested');
         expect(event.datacontenttype).toBe('application/json');
+    });
+
+    test('publishImportEventsAsync skips sending when Kafka events are disabled', async () => {
+        delete process.env.ENABLE_EVENTS_KAFKA;
+        const configManager = new ConfigManager();
+        const disabledKafka = new MockKafkaClient({ configManager });
+        const disabledProducer = new BulkImportEventProducer({ kafkaClient: disabledKafka, configManager });
+
+        const count = await disabledProducer.publishImportEventsAsync({
+            taskId: 'task-disabled',
+            inputs: [
+                { url: 's3://bucket/Patient.ndjson', fileSize: 250 * 1024 * 1024 }
+            ],
+            requestId: 'req-disabled',
+            scope: 'user/*.write',
+            user: 'test-user'
+        });
+
+        expect(count).toBe(0);
+        expect(disabledKafka.getCloudEventMessages()).toHaveLength(0);
     });
 });

@@ -15,12 +15,11 @@ async function main() {
         logInfo('Starting bulk import consumer', { topic, groupId });
 
         const consumer = await kafkaClient.createConsumerAsync({ groupId });
-        await kafkaClient.waitForConsumerToJoinGroupAsync(consumer, {
+
+        const joinPromise = kafkaClient.waitForConsumerToJoinGroupAsync(consumer, {
             maxWait: 30000,
             label: 'bulk-import-consumer'
         });
-
-        logInfo('Bulk import consumer joined group', { groupId });
 
         const shutdown = async (signal) => {
             logInfo(`Received ${signal}, shutting down bulk import consumer`);
@@ -35,7 +34,7 @@ async function main() {
         process.on('SIGTERM', () => shutdown('SIGTERM'));
         process.on('SIGINT', () => shutdown('SIGINT'));
 
-        await kafkaClient.receiveMessagesAsync({
+        kafkaClient.receiveMessagesAsync({
             consumer,
             topic,
             fromBeginning: false,
@@ -43,6 +42,9 @@ async function main() {
                 await bulkImportConsumerRunner.handleMessageAsync(message);
             }
         });
+
+        await joinPromise;
+        logInfo('Bulk import consumer joined group', { groupId });
     } catch (e) {
         console.error(JSON.stringify({
             method: 'bulkImportConsumer.main',

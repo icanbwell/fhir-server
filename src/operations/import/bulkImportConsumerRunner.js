@@ -70,16 +70,17 @@ class BulkImportConsumerRunner {
             base_version: '4_0_0'
         });
 
-        task.status = status;
-        task.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+        const updated = task.clone();
+        updated.status = status;
+        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         if (statusReason) {
-            if (!task.statusReason) {
-                task.statusReason = {};
+            if (!updated.statusReason) {
+                updated.statusReason = {};
             }
-            task.statusReason.text = statusReason;
+            updated.statusReason.text = statusReason;
         }
 
-        await databaseUpdateManager.updateOneAsync({ doc: task });
+        await databaseUpdateManager.updateOneAsync({ doc: updated });
     }
 
     /**
