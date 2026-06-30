@@ -13,7 +13,7 @@ const procedure1WithoutRequiredFields = require('./fixtures/Procedure/procedure1
 const expectedPerson1BeforeUpdate = require('./fixtures/expected/expectedPerson1BeforeUpdate.json');
 const expectedPerson1AfterUpdate = require('./fixtures/expected/expectedPerson1AfterUpdate.json');
 const expectedPerson1AfterReferenceUpdate = require('./fixtures/expected/expectedPerson1AfterReferenceUpdate.json');
-const expectedResponseOnError = require('./fixtures/expected/responseOnError-fastMerge.json');
+const expectedResponseOnError = require('./fixtures/expected/responseOnError.json');
 const expectedResponseOnUpdate = require('./fixtures/expected/responseOnUpdate.json');
 const expectedPerson2Response = require('./fixtures/expected/expectedPerson2Response.json');
 

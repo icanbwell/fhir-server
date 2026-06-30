@@ -2,7 +2,7 @@
 const observationResource = require('./fixtures/observation.json');
 // expected
 const accessLogs2 = require('./fixtures/access-logs2.json');
-const accessLogs3 = require('./fixtures/access-logs3-fastMerge.json');
+const accessLogs3 = require('./fixtures/access-logs3.json');
 
 const {
     commonBeforeEach,
