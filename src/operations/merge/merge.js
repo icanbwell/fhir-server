@@ -1,7 +1,7 @@
 const httpContext = require('express-http-context');
 require('moment-timezone');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { MergeManager } = require('./fastMergeManager');
+const { MergeManager } = require('./mergeManager');
 const { NdjsonParser } = require('./ndJsonParser');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
