@@ -20,6 +20,29 @@ const locationQuery = fs.readFileSync(
     'utf8'
 );
 
+const locationWithResourceQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query/locationManagingOrgDisplayWithResource.graphql'),
+    'utf8'
+);
+
+async function mergeFixtures (request) {
+    let resp = await request
+        .post('/4_0_0/Organization/org1/$merge')
+        .send(organization1Resource)
+        .set(getHeaders());
+    // noinspection JSUnresolvedFunction
+    expect(resp).toHaveMergeResponse({ created: true });
+
+    for (const locationResource of [location1Resource, location2Resource, location3Resource]) {
+        resp = await request
+            .post(`/4_0_0/Location/${locationResource.id}/$merge`)
+            .send(locationResource)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+    }
+}
+
 // Location.managingOrganization.display should resolve to the managing
 // organization's name when the stored reference has no display, while a stored
 // display is preserved and a location without a managingOrganization is untouched.
@@ -36,23 +59,9 @@ describe('GraphQLV2 Location.managingOrganization.display enrichment', () => {
         const request = await createTestRequest();
         const graphqlQueryText = locationQuery.replace(/\\n/g, '');
 
-        let resp = await request
-            .post('/4_0_0/Organization/org1/$merge')
-            .send(organization1Resource)
-            .set(getHeaders());
-        // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({ created: true });
+        await mergeFixtures(request);
 
-        for (const locationResource of [location1Resource, location2Resource, location3Resource]) {
-            resp = await request
-                .post(`/4_0_0/Location/${locationResource.id}/$merge`)
-                .send(locationResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-        }
-
-        resp = await request
+        const resp = await request
             .post('/4_0_0/$graphqlv2')
             .send({
                 operationName: null,
@@ -75,5 +84,34 @@ describe('GraphQLV2 Location.managingOrganization.display enrichment', () => {
         expect(displayByName['Downtown Family Clinic'].display).toBe('Stored Organization Display');
         // loc3 has no managingOrganization -> nothing to resolve
         expect(displayByName['Standalone Clinic']).toBeNull();
+    });
+
+    test('resolves display even when the organization resource is also selected', async () => {
+        const request = await createTestRequest();
+        const graphqlQueryText = locationWithResourceQuery.replace(/\\n/g, '');
+
+        await mergeFixtures(request);
+
+        const resp = await request
+            .post('/4_0_0/$graphqlv2')
+            .send({
+                operationName: null,
+                variables: {},
+                query: graphqlQueryText
+            })
+            .set(getGraphQLHeaders());
+
+        expect(resp.status).toBe(200);
+
+        const entries = resp.body?.data?.locations?.entry || [];
+        const managingOrgByName = {};
+        entries.forEach((entry) => {
+            managingOrgByName[entry.resource.name] = entry.resource.managingOrganization;
+        });
+
+        // Co-selecting `resource` builds an Organization projection; `name` must
+        // still be available so the display resolver returns the organization name.
+        expect(managingOrgByName['MSH Virtual (Telehealth POS 2)'].display).toBe('MedStar Health');
+        expect(managingOrgByName['MSH Virtual (Telehealth POS 2)'].resource?.id).toBeTruthy();
     });
 });

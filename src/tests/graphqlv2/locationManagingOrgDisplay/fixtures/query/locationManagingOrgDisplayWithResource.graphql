@@ -1,0 +1,17 @@
+query locationManagingOrgDisplayWithResource {
+  locations(_debug: true) {
+    entry {
+      resource {
+        id
+        name
+        managingOrganization {
+          reference
+          display
+          resource {
+            id
+          }
+        }
+      }
+    }
+  }
+}

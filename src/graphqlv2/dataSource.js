@@ -600,6 +600,12 @@ class FhirDataSource {
                     if (!this.resourceProjections[resourceType]) {
                         this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
                     }
+                    // The custom LocationManagingOrganizationReference.display resolver derives its
+                    // value from the organization name, so name must stay in the projection even
+                    // when a query selects the Organization without selecting name.
+                    if (resourceType === 'Organization') {
+                        this.resourceProjections[resourceType].add('name');
+                    }
                     Object.values(value).forEach(field => {
                         // check if field is valid for resource type as some resources have custom fields
                         if (resourceFields.includes(field.name)) {
