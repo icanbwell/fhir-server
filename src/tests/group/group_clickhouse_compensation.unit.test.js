@@ -111,6 +111,24 @@ describe('EA-2322 Group ClickHouse compensation (unit)', () => {
             expect(result).toBe(false);
             expect(collection.updateOne).not.toHaveBeenCalled();
         });
+
+        // Security: uuid becomes the Mongo filter value ({ _uuid: uuid }). A non-string uuid (e.g. a
+        // query-operator object) must be rejected before it can reach the query, otherwise it is a
+        // NoSQL injection. The guard rejects it: no updateOne, returns false.
+        test.each([
+            ['query-operator object', { $ne: null }],
+            ['array', ['u1']],
+            ['empty string', ''],
+            ['number', 123]
+        ])('rejects non-string uuid (%s) without querying Mongo (NoSQL injection guard)', async (_label, uuid) => {
+            const collection = makeFakeCollection();
+            const members = [{ entity: { reference: 'Patient/1' } }];
+
+            const result = await restoreStrippedMembersInMongo({ collection, uuid, members });
+
+            expect(result).toBe(false);
+            expect(collection.updateOne).not.toHaveBeenCalled();
+        });
     });
 
     describe('_compensateStrippedGroupMembersOnPostSaveFailure', () => {

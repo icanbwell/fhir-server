@@ -114,7 +114,9 @@ function wasMemberStrippedForExternalStorage(contextData) {
  * @returns {Promise<boolean>} true if a document was updated, false if there was nothing to restore
  */
 async function restoreStrippedMembersInMongo({ collection, uuid, members }) {
-    if (!collection || !uuid || !Array.isArray(members) || members.length === 0) {
+    // Type-guard the query values before they reach Mongo: uuid must be a non-empty string so a
+    // query-operator object (e.g. { $ne: null }) can never be injected into the filter (NoSQL injection).
+    if (!collection || typeof uuid !== 'string' || uuid.length === 0 || !Array.isArray(members) || members.length === 0) {
         return false;
     }
 
