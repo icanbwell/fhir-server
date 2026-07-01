@@ -1,0 +1,21 @@
+{
+    "resourceType": "Location",
+    "id": "loc1",
+    "meta": {
+        "source": "https://www.icanbwell.com",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client1"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client1"
+            }
+        ]
+    },
+    "name": "MSH Virtual (Telehealth POS 2)",
+    "managingOrganization": {
+        "reference": "Organization/org1"
+    }
+}
