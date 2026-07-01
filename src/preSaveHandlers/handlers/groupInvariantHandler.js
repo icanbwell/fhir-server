@@ -56,21 +56,28 @@ class GroupInvariantHandler extends PreSaveHandler {
             });
         }
 
-        // TODO: Update to skip this flow when clickhouse is disabled
-        // Check member count limit for CREATE/PUT operations
-        // if (hasMembers) {
-        //     const memberCount = resource.member.length;
-        //     const limit = this.configManager.groupMemberLimit;
+        // Member count limit for CREATE/PUT operations.
+        // Only enforced when Group uses the event-sourced ClickHouse member path: the
+        // limit exists to steer bulk loads toward PATCH (append events) instead of a
+        // single huge member array. When ClickHouse is not enabled for Group, the member
+        // array is stored normally and this guardrail must not block writes.
+        const clickHouseEnabledForGroup =
+            this.configManager.enableClickHouse &&
+            this.configManager.mongoWithClickHouseResources.includes('Group');
 
-        //     if (memberCount > limit) {
-        //         const { message, options } = createTooCostlyError({
-        //             actual: memberCount,
-        //             limit,
-        //             operation: 'PUT'
-        //         });
-        //         throw new BadRequestError({ message }, options);
-        //     }
-        // }
+        if (hasMembers && clickHouseEnabledForGroup) {
+            const memberCount = resource.member.length;
+            const limit = this.configManager.groupMemberLimit;
+
+            if (memberCount > limit) {
+                const { message, options } = createTooCostlyError({
+                    actual: memberCount,
+                    limit,
+                    operation: 'PUT'
+                });
+                throw new BadRequestError({ message }, options);
+            }
+        }
 
         // Valid - return unchanged
         return resource;
