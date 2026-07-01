@@ -11,8 +11,16 @@ Applies every fix required to pass merge validation:
   - Generates a random UUID id for any resource that is missing one
   - Flags ids that contain a pipe character (cannot be auto-fixed)
   - Validates all reference values in the resource tree
+  - Recurses into contained[] resources and nested Bundle entries
 
-Unfixable issues (pipe in id, invalid references, missing required args) are written
+Contained resources (resource.contained[]) are fixed for id and references only —
+they are submitted as part of their parent and are not independently validated for
+meta.source or security tags.
+
+If fhirschemapy is installed, each resource is also validated against the FHIR R4
+schema and structural errors are reported.
+
+Unfixable issues (pipe in id, invalid references, schema errors) are written
 to stderr.  The fixed output is still written so you can inspect and correct manually.
 Exit code is 0 when all resources are fully fixed, 1 when any unfixable issues remain.
 
@@ -56,13 +64,20 @@ _UUID_RE = re.compile(
 # FHIR relative reference: ResourceType/id
 _RELATIVE_REF_RE = re.compile(r"^[A-Z][a-zA-Z]+/\S+$")
 
+try:
+    import fhirschemapy.R4B as _fhir_r4b
+    from pydantic import ValidationError as _PydanticValidationError
+    _FHIR_SCHEMA_AVAILABLE = True
+except ImportError:
+    _FHIR_SCHEMA_AVAILABLE = False
+
 
 def is_uuid(value: str) -> bool:
     return bool(_UUID_RE.match(value))
 
 
 def deterministic_uuid(resource_id: str, source_assigning_authority: str) -> str:
-    """Reproduce the server's UUIDv5 generation for a non-UUID id."""
+    """Reproduce the server's UUIDv5 for a non-UUID id."""
     return str(uuid.uuid5(_OID_NAMESPACE, f"{resource_id}|{source_assigning_authority}"))
 
 
@@ -92,144 +107,217 @@ def _collect_invalid_references(obj, path: str) -> list[str]:
     return issues
 
 
-def fix_resource(resource: dict, args: argparse.Namespace) -> tuple[dict, list[str], list[str]]:
+def _validate_fhir_schema(resource: dict) -> list[str]:
+    """Validate against the FHIR R4 schema using fhirschemapy. Returns error strings."""
+    if not _FHIR_SCHEMA_AVAILABLE:
+        return []
+    resource_type = resource.get("resourceType")
+    if not resource_type:
+        return []
+    # Bundle validation requires the aidbox package (not installed); skip it —
+    # Bundle structure is handled by fix_payload, not by schema validation here.
+    if resource_type in ("Bundle", "Parameters"):
+        return []
+    model_class = getattr(_fhir_r4b, resource_type, None)
+    if model_class is None:
+        return [f"unknown resourceType {resource_type!r} — not in FHIR R4 schema"]
+    try:
+        # Strip contained before validating — contained resources are fixed separately
+        # and their presence triggers an aidbox-dependent resource_families lookup.
+        resource_for_validation = {k: v for k, v in resource.items() if k != "contained"}
+        model_class.model_validate(resource_for_validation)
+        return []
+    except _PydanticValidationError as exc:
+        return [f"schema: {e['loc']} — {e['msg']}" for e in exc.errors()]
+
+
+def fix_resource(
+    resource: dict,
+    args: argparse.Namespace,
+    *,
+    is_contained: bool = False,
+    path: str = "",
+) -> tuple[dict, list[str], list[str]]:
     """
-    Apply all possible fixes to a single resource.
-    Returns (fixed_resource, changes, errors) where errors are issues that could not be auto-fixed.
+    Fix a single FHIR resource in place and recurse into contained[] and nested Bundles.
+
+    is_contained=True skips meta.source and security tag requirements, which do not apply
+    to contained (inline) resources since they are validated as part of their parent.
+
+    Returns (fixed_resource, changes, errors).
     """
     changes: list[str] = []
     errors: list[str] = []
+    label = f"{resource.get('resourceType', '?')}/{resource.get('id', '?')}"
+    prefix = f"{path}{label}: " if path else ""
+
+    def note(msg: str) -> None:
+        changes.append(f"{prefix}{msg}")
+
+    def fail(msg: str) -> None:
+        errors.append(f"{prefix}{msg}")
 
     if not resource.get("resourceType"):
-        errors.append("missing resourceType — cannot determine resource type, fix manually")
+        fail("missing resourceType — fix manually")
 
-    # ── meta.source ──────────────────────────────────────────────────────────
-    if "meta" not in resource:
-        resource["meta"] = {}
+    # ── meta.source and security tags (top-level resources only) ─────────────
+    if not is_contained:
+        if "meta" not in resource:
+            resource["meta"] = {}
 
-    if not resource["meta"].get("source"):
-        if args.meta_source:
-            resource["meta"]["source"] = args.meta_source
-            changes.append(f"set meta.source = {args.meta_source!r}")
-        else:
-            errors.append("missing meta.source — provide --meta-source")
+        if not resource["meta"].get("source"):
+            if args.meta_source:
+                resource["meta"]["source"] = args.meta_source
+                note(f"set meta.source = {args.meta_source!r}")
+            else:
+                fail("missing meta.source — provide --meta-source")
 
-    # ── security tags ─────────────────────────────────────────────────────────
-    if "security" not in resource["meta"]:
-        resource["meta"]["security"] = []
+        if "security" not in resource["meta"]:
+            resource["meta"]["security"] = []
 
-    # Remove tags with null/empty system or code
-    before = len(resource["meta"]["security"])
-    resource["meta"]["security"] = [
-        t for t in resource["meta"]["security"] if t.get("system") and t.get("code")
-    ]
-    removed = before - len(resource["meta"]["security"])
-    if removed:
-        changes.append(f"removed {removed} security tag(s) with null/empty system or code")
-
-    def tags_for(system: str) -> list[dict]:
-        return [t for t in resource["meta"]["security"] if t.get("system") == system]
-
-    def add_tag(system: str, code: str, label: str) -> None:
-        resource["meta"]["security"].append({"system": system, "code": code})
-        changes.append(f"added {label} tag (code={code!r})")
-
-    # Owner tag — exactly one required
-    owner_tags = tags_for(OWNER_SYSTEM)
-    if len(owner_tags) == 0:
-        if args.owner:
-            add_tag(OWNER_SYSTEM, args.owner, "owner")
-        else:
-            errors.append("missing owner security tag — provide --owner")
-    elif len(owner_tags) > 1:
-        kept = owner_tags[0]
+        before = len(resource["meta"]["security"])
         resource["meta"]["security"] = [
-            t for t in resource["meta"]["security"] if t.get("system") != OWNER_SYSTEM
+            t for t in resource["meta"]["security"] if t.get("system") and t.get("code")
         ]
-        resource["meta"]["security"].append(kept)
-        changes.append(
-            f"removed {len(owner_tags) - 1} duplicate owner tag(s), kept code={kept['code']!r}"
-        )
+        removed = before - len(resource["meta"]["security"])
+        if removed:
+            note(f"removed {removed} security tag(s) with null/empty system or code")
 
-    # Access tag
-    access_code = args.access or args.owner
-    if access_code and not tags_for(ACCESS_SYSTEM):
-        add_tag(ACCESS_SYSTEM, access_code, "access")
+        def tags_for(system: str) -> list[dict]:
+            return [t for t in resource["meta"]["security"] if t.get("system") == system]
 
-    # ── id ───────────────────────────────────────────────────────────────────
+        def add_tag(system: str, code: str, label_: str) -> None:
+            resource["meta"]["security"].append({"system": system, "code": code})
+            note(f"added {label_} tag (code={code!r})")
+
+        owner_tags = tags_for(OWNER_SYSTEM)
+        if len(owner_tags) == 0:
+            if args.owner:
+                add_tag(OWNER_SYSTEM, args.owner, "owner")
+            else:
+                fail("missing owner security tag — provide --owner")
+        elif len(owner_tags) > 1:
+            kept = owner_tags[0]
+            resource["meta"]["security"] = [
+                t for t in resource["meta"]["security"] if t.get("system") != OWNER_SYSTEM
+            ]
+            resource["meta"]["security"].append(kept)
+            note(f"removed {len(owner_tags) - 1} duplicate owner tag(s), kept code={kept['code']!r}")
+
+        access_code = args.access or args.owner
+        if access_code and not tags_for(ACCESS_SYSTEM):
+            add_tag(ACCESS_SYSTEM, access_code, "access")
+
+        if args.source_assigning_authority and not tags_for(SOURCE_ASSIGNING_AUTHORITY_SYSTEM):
+            add_tag(SOURCE_ASSIGNING_AUTHORITY_SYSTEM, args.source_assigning_authority, "sourceAssigningAuthority")
+
+    # ── id (applies to all resources including contained) ────────────────────
     if not resource.get("id"):
         new_id = str(uuid.uuid4())
         resource["id"] = new_id
-        changes.append(f"generated random id = {new_id!r}")
+        note(f"generated random id = {new_id!r}")
 
-    resource_id: str = str(resource["id"])
+    resource_id = str(resource.get("id", ""))
 
     if "|" in resource_id:
-        errors.append(
+        fail(
             f"id contains a pipe character '|': {resource_id!r} — "
             "remove the pipe and set --source-assigning-authority to the portion after it"
         )
-
-    # Non-UUID id requires owner or sourceAssigningAuthority tag
-    if not is_uuid(resource_id) and "|" not in resource_id:
-        has_owner_now = bool(tags_for(OWNER_SYSTEM))
-        has_saa = bool(tags_for(SOURCE_ASSIGNING_AUTHORITY_SYSTEM))
-        if not has_owner_now and not has_saa:
+    elif not is_contained and not is_uuid(resource_id):
+        security = resource.get("meta", {}).get("security", [])
+        has_owner = any(t.get("system") == OWNER_SYSTEM for t in security)
+        has_saa = any(t.get("system") == SOURCE_ASSIGNING_AUTHORITY_SYSTEM for t in security)
+        if not has_owner and not has_saa:
             saa = args.source_assigning_authority or args.owner
             if saa:
-                add_tag(SOURCE_ASSIGNING_AUTHORITY_SYSTEM, saa, "sourceAssigningAuthority")
+                resource["meta"]["security"].append(
+                    {"system": SOURCE_ASSIGNING_AUTHORITY_SYSTEM, "code": saa}
+                )
+                note(f"added sourceAssigningAuthority tag (code={saa!r}) — required for non-UUID id")
             else:
-                errors.append(
+                fail(
                     "non-UUID id requires an owner or sourceAssigningAuthority security tag — "
                     "provide --owner or --source-assigning-authority"
                 )
 
-    # Add sourceAssigningAuthority if explicitly requested and not already present
-    if args.source_assigning_authority and not tags_for(SOURCE_ASSIGNING_AUTHORITY_SYSTEM):
-        add_tag(
-            SOURCE_ASSIGNING_AUTHORITY_SYSTEM,
-            args.source_assigning_authority,
-            "sourceAssigningAuthority",
-        )
-
     # ── references ───────────────────────────────────────────────────────────
-    resource_label = f"{resource.get('resourceType', '?')}/{resource.get('id', '?')}"
-    for issue in _collect_invalid_references(resource, resource_label):
-        errors.append(issue)
+    # Exclude subtrees that are walked recursively to avoid duplicate reports.
+    skip_keys = set()
+    if resource.get("resourceType") == "Bundle":
+        skip_keys.add("entry")
+    if isinstance(resource.get("contained"), list):
+        skip_keys.add("contained")
+    resource_for_refs = {k: v for k, v in resource.items() if k not in skip_keys}
+    for issue in _collect_invalid_references(resource_for_refs, label):
+        fail(issue)
+
+    # ── FHIR schema validation ────────────────────────────────────────────────
+    for issue in _validate_fhir_schema(resource):
+        fail(issue)
+
+    # ── contained resources (recurse, skip meta/security) ────────────────────
+    if isinstance(resource.get("contained"), list):
+        fixed_contained = []
+        for cr in resource["contained"]:
+            fixed_cr, cr_changes, cr_errors = fix_resource(
+                cr, args, is_contained=True, path=f"{prefix}contained/"
+            )
+            fixed_contained.append(fixed_cr)
+            changes.extend(cr_changes)
+            errors.extend(cr_errors)
+        resource["contained"] = fixed_contained
+
+    # ── nested Bundle entries (recurse with full fixes) ───────────────────────
+    if resource.get("resourceType") == "Bundle" and isinstance(resource.get("entry"), list):
+        for i, entry in enumerate(resource["entry"]):
+            if "resource" in entry:
+                fixed_r, r_changes, r_errors = fix_resource(
+                    entry["resource"], args, is_contained=False, path=f"{prefix}entry[{i}]/"
+                )
+                entry["resource"] = fixed_r
+                changes.extend(r_changes)
+                errors.extend(r_errors)
 
     return resource, changes, errors
 
 
-def extract_resources(payload: dict) -> list[dict]:
+def fix_payload(
+    payload: dict, args: argparse.Namespace
+) -> tuple[dict, list[tuple[str, list[str], list[str]]]]:
+    """
+    Fix all resources in a Bundle, Parameters, or single resource.
+
+    Returns (fixed_payload, results) where results is a list of
+    (label, changes, errors) — one entry per top-level resource processed.
+    """
     resource_type = payload.get("resourceType")
-    if resource_type == "Bundle":
-        return [e["resource"] for e in payload.get("entry", []) if "resource" in e]
-    if resource_type == "Parameters":
-        return [p["resource"] for p in payload.get("parameter", []) if "resource" in p]
-    return [payload]
-
-
-def rebuild_payload(original: dict, fixed_resources: list[dict]) -> dict:
-    resource_type = original.get("resourceType")
-    resource_iter = iter(fixed_resources)
+    results = []
 
     if resource_type == "Bundle":
-        result = {**original}
-        result["entry"] = [
-            {**e, "resource": next(resource_iter)} if "resource" in e else e
-            for e in original.get("entry", [])
-        ]
-        return result
+        for entry in payload.get("entry", []):
+            if "resource" in entry:
+                r = entry["resource"]
+                label = f"{r.get('resourceType', 'Unknown')}/{r.get('id', '<no id>')}"
+                fixed, changes, errors = fix_resource(r, args)
+                entry["resource"] = fixed
+                results.append((label, changes, errors))
+        return payload, results
 
     if resource_type == "Parameters":
-        result = {**original}
-        result["parameter"] = [
-            {**p, "resource": next(resource_iter)} if "resource" in p else p
-            for p in original.get("parameter", [])
-        ]
-        return result
+        for param in payload.get("parameter", []):
+            if "resource" in param:
+                r = param["resource"]
+                label = f"{r.get('resourceType', 'Unknown')}/{r.get('id', '<no id>')}"
+                fixed, changes, errors = fix_resource(r, args)
+                param["resource"] = fixed
+                results.append((label, changes, errors))
+        return payload, results
 
-    return fixed_resources[0]
+    label = f"{payload.get('resourceType', 'Unknown')}/{payload.get('id', '<no id>')}"
+    fixed, changes, errors = fix_resource(payload, args)
+    results.append((label, changes, errors))
+    return fixed, results
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -276,8 +364,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
         metavar="CODE",
         help=(
             f"Code for the sourceAssigningAuthority tag (system: {SOURCE_ASSIGNING_AUTHORITY_SYSTEM}). "
-            "Added to every resource. For non-UUID ids, also satisfies the id-format requirement "
-            "when --owner is not provided. Defaults to --owner when needed."
+            "Added to every top-level resource. For non-UUID ids, also satisfies the id-format "
+            "requirement when --owner is not provided. Defaults to --owner when needed."
         ),
     )
     parser.add_argument(
@@ -296,28 +384,23 @@ def main() -> int:
     if not path.exists():
         print(f"ERROR: file not found: {args.input}", file=sys.stderr)
         return 1
-    raw = path.read_text(encoding="utf-8")
 
     try:
-        payload = json.loads(raw)
+        payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         print(f"ERROR: invalid JSON — {exc}", file=sys.stderr)
         return 1
 
-    resources = extract_resources(payload)
-    if not resources:
+    fixed_payload, results = fix_payload(payload, args)
+
+    if not results:
         print("ERROR: no resources found in input", file=sys.stderr)
         return 1
 
-    fixed_resources: list[dict] = []
-    total_errors = 0
     total_changes = 0
+    total_errors = 0
 
-    for i, resource in enumerate(resources, start=1):
-        label = f"{resource.get('resourceType', 'Unknown')}/{resource.get('id', '<no id>')}"
-        fixed, changes, errors = fix_resource(resource, args)
-        fixed_resources.append(fixed)
-
+    for i, (label, changes, errors) in enumerate(results, start=1):
         if changes or errors:
             print(f"\n[{i}] {label}", file=sys.stderr)
         for change in changes:
@@ -327,8 +410,9 @@ def main() -> int:
             print(f"  ! {error}", file=sys.stderr)
             total_errors += 1
 
+    schema_note = " (fhirschemapy schema validation included)" if _FHIR_SCHEMA_AVAILABLE else ""
     print(
-        f"\nSummary: {len(resources)} resource(s), "
+        f"\nSummary{schema_note}: {len(results)} top-level resource(s), "
         f"{total_changes} fix(es) applied, "
         f"{total_errors} unfixable issue(s).",
         file=sys.stderr,
@@ -338,9 +422,7 @@ def main() -> int:
         print("Dry run — no output written.", file=sys.stderr)
         return 1 if total_errors else 0
 
-    result = rebuild_payload(payload, fixed_resources)
-    output_json = json.dumps(result, indent=2)
-
+    output_json = json.dumps(fixed_payload, indent=2)
     if args.output == "-":
         print(output_json)
     else:
