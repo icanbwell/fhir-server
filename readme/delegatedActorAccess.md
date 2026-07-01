@@ -149,6 +149,12 @@ Delegated users are restricted to **read-only** operations. Access is enforced b
 
 Any denied operation returns **403 Forbidden**. GraphQL mutations return an error in the GraphQL response body.
 
+### Write Access Support (Upcoming Changes)
+
+- Write allowed based on JWT scopes and filtering rules
+- Only if the sensitivity is not denied via the consent
+- Delete operation not allowed
+
 ## Redis Caching
 
 Redis response caching is **disabled** for delegated users. The `$everything` and `$summary` operations skip both cache reads and writes when the requesting user is a delegated actor.

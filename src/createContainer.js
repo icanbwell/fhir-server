@@ -142,6 +142,8 @@ const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
+const { WriteAccessManager } = require('./operations/security/writeAccessManager');
+const { DelegatedAccessWriteCheck } = require('./operations/security/writeAccessChecks/delegatedAccessWriteCheck');
 const { FastMergeManager } = require('./operations/merge/fastMergeManager');
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
@@ -244,6 +246,14 @@ const createContainer = function () {
     }));
     container.register('delegatedAccessScopeManager', (c) => new DelegatedAccessScopeManager({
         delegatedAccessRulesManager: c.delegatedAccessRulesManager
+    }));
+    container.register('delegatedAccessWriteCheck', (c) => new DelegatedAccessWriteCheck({
+        delegatedAccessRulesManager: c.delegatedAccessRulesManager
+    }));
+    container.register('writeAccessManager', (c) => new WriteAccessManager({
+        writeAccessChecks: [
+            c.delegatedAccessWriteCheck
+        ]
     }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
