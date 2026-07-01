@@ -66,7 +66,7 @@ class DatabaseQueryManager {
      * @param {FindOneOption} params
      * @return {Promise<Object|null>}
      */
-    async fastFindOneAsync({ query, options = null }) {
+    async fastFindOneAsync({ query, options = {} }) {
         try {
             // Use storage provider if available
             if (this.storageProvider) {
@@ -98,7 +98,7 @@ class DatabaseQueryManager {
      * @param {FindOneOption} params
      * @return {Promise<Resource|null>}
      */
-    async findOneAsync({ query, options = null }) {
+    async findOneAsync({ query, options = {} }) {
         try {
             // Use storage provider if available
             if (this.storageProvider) {
@@ -131,7 +131,7 @@ class DatabaseQueryManager {
      * @param {Object} extraInfo
      * @return {Promise<DatabaseCursor>}
      */
-    async findAsync({ query, options = null, extraInfo = {} }) {
+    async findAsync({ query, options = {}, extraInfo = {} }) {
         try {
             // Use storage provider if available
             if (this.storageProvider) {
@@ -166,7 +166,7 @@ class DatabaseQueryManager {
      * @param {Object} extraInfo
      * @return {Promise<DatabaseCursor>}
      */
-    async findUsingAggregationAsync({ query, projection, options = null, extraInfo = {} }) {
+    async findUsingAggregationAsync({ query, projection, options = {}, extraInfo = {} }) {
         try {
             const collection = await this.resourceLocator.getCollectionAsync({ extraInfo });
             let cursor;

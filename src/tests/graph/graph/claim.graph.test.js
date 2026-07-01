@@ -57,33 +57,12 @@ describe('Claim Graph Contained Tests', () => {
             expect(resp).toHaveResourceCount(0);
 
             resp = await request
-                .post('/4_0_0/Practitioner/1376656959/$merge')
-                .send(practitionerResource)
+                .post('/4_0_0/Bundle/$merge')
+                .send([practitionerResource, organizationResource, ...claimResource])
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/Organization/1407857790/$merge')
-                .send(organizationResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$merge')
-                .send(claimResource[0])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request
-                .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$merge')
-                .send(claimResource[1])
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }, { created: true }]);
 
             resp = await request
                 .post(
