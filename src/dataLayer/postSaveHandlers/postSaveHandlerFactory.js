@@ -9,10 +9,13 @@ class PostSaveHandlerFactory {
      * @param {Object} params
      * @param {import('../../utils/configManager').ConfigManager} params.configManager
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} [params.clickHouseClientManager]
+     * @param {import('../repositories/groupMemberRepository').GroupMemberRepository} [params.groupMemberRepository]
+     *   Shared Group member repository. When omitted, one is constructed on demand from the client manager.
      */
-    constructor({ configManager, clickHouseClientManager }) {
+    constructor({ configManager, clickHouseClientManager, groupMemberRepository = null }) {
         this.configManager = configManager;
         this.clickHouseClientManager = clickHouseClientManager;
+        this.groupMemberRepository = groupMemberRepository;
     }
 
     /**
@@ -27,11 +30,16 @@ class PostSaveHandlerFactory {
             logDebug(`Creating storage sync handler for ${resourceType}`);
 
             const { ClickHouseGroupHandler } = require('./clickHouseGroupHandler');
-            const { GroupMemberRepository } = require('../repositories/groupMemberRepository');
 
-            const repository = new GroupMemberRepository({
-                clickHouseClient: this.clickHouseClientManager
-            });
+            // Prefer the injected shared repository; fall back to constructing one so a factory
+            // built without it (e.g. in isolation) still works.
+            let repository = this.groupMemberRepository;
+            if (!repository) {
+                const { GroupMemberRepository } = require('../repositories/groupMemberRepository');
+                repository = new GroupMemberRepository({
+                    clickHouseClient: this.clickHouseClientManager
+                });
+            }
 
             handlers.push(new ClickHouseGroupHandler({
                 clickHouseClientManager: this.clickHouseClientManager,

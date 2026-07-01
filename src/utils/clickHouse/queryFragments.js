@@ -8,14 +8,14 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
  */
 class QueryFragments {
     /**
-     * argMax with a causal tuple tie-breaker for deterministic current-state results (EA-2326).
+     * argMax with a causal tuple tie-breaker for deterministic current-state results.
      *
      * The tie-break tuple is (version_id, batch_seq, event_time, event_id):
      *  - version_id (FHIR meta.versionId) is the primary term, so a causally-later write always
      *    wins over an earlier one for the same member.
      *  - batch_seq orders events within a single write (same version_id).
      *  - event_time / event_id remain beneath as stable, deterministic fallbacks (event_id being a
-     *    content hash keeps retried rows identical, preserving EA-2323 idempotency).
+     *    content hash keeps retried rows identical, preserving idempotency).
      *
      * This ordering must match the AggregatingMergeTree current-state tables' argMax tuple
      * (see clickhouse-init/01-init-schema.sql) so direct-events reads and MV reads agree.

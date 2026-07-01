@@ -47,6 +47,24 @@ function addExternalStorageTagIfNeeded(doc, contextData) {
 }
 
 /**
+ * Returns true when a stored Group document is marked as having its member field
+ * held in ClickHouse (the permanent externalStorageFields tag). This is the read-side
+ * signal that the Mongo document is metadata-only and its roster lives in ClickHouse.
+ *
+ * @param {Resource|Object|null} doc - A stored Group resource (or its plain form)
+ * @returns {boolean}
+ */
+function hasExternalStorageMemberTag(doc) {
+    const tags = doc?.meta?.tag;
+    if (!Array.isArray(tags)) {
+        return false;
+    }
+    return tags.some(
+        t => t?.system === EXTERNAL_STORAGE_TAG_SYSTEM && t?.code === EXTERNAL_STORAGE_TAG_CODE
+    );
+}
+
+/**
  * Strips member field from Group when ClickHouse manages members.
  * Skipped for PATCH (groupMemberEventsWritten) and $merge smartMerge=true
  * because those preserve existing MongoDB members.
@@ -154,6 +172,7 @@ module.exports = {
     addExternalStorageTagIfNeeded,
     stripMembersIfNeeded,
     wasMemberStrippedForExternalStorage,
+    hasExternalStorageMemberTag,
     restoreStrippedMembersInMongo,
     EXTERNAL_STORAGE_TAG_SYSTEM,
     EXTERNAL_STORAGE_TAG_CODE

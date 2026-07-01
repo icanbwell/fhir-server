@@ -81,14 +81,14 @@ class GroupMemberEventBuilder {
     }
 
     /**
-     * Extracts the FHIR meta.versionId as a non-negative integer for causal ordering (EA-2326).
+     * Extracts the FHIR meta.versionId as a non-negative integer for causal ordering.
      *
      * meta.versionId is server-assigned and increments on every write to the resource, so a
      * causally-later operation carries a higher version_id. It is the leading term of the
      * current-state argMax tie-break tuple (version_id, batch_seq, event_time, event_id), so a
      * later add/remove deterministically wins over an earlier one instead of the tie being decided
-     * by event_id — a content hash, not causal order (the BUG-4 hazard). A retry of the same
-     * committed version reuses the same version_id, so EA-2323 idempotency is preserved.
+     * by event_id — a content hash, not causal order. A retry of the same committed version reuses
+     * the same version_id, so idempotency is preserved.
      *
      * @param {Object} groupResource
      * @returns {number} versionId as a positive integer, or 0 when missing/unparseable
@@ -157,8 +157,8 @@ class GroupMemberEventBuilder {
             entity_type: FhirReferenceParser.extractEntityType(entityReference),
             event_type: eventType,
             event_time: eventTime,
-            // Causal-ordering tie-break terms (EA-2326): version_id leads, batch_seq disambiguates
-            // events within a single write, both sitting above event_time/event_id in the argMax tuple.
+            // Causal-ordering tie-break terms: version_id leads, batch_seq disambiguates events
+            // within a single write, both sitting above event_time/event_id in the argMax tuple.
             version_id: versionId,
             batch_seq: batchSeq,
             period_start: member?.period?.start || null,
@@ -258,7 +258,7 @@ class GroupMemberEventBuilder {
         const ownerTags = SecurityTagExtractor.extractOwnerTags(groupResource);
         // version_id is per-resource-version (same for every event in this write); batch_seq is the
         // per-event index within the write. batchSeqOffset lets a caller assembling a combined
-        // add+remove batch keep batch_seq globally monotonic across both sub-batches (EA-2326).
+        // add+remove batch keep batch_seq globally monotonic across both sub-batches.
         const versionId = this._extractVersionId(groupResource);
 
         return members.map((member, index) => {
@@ -372,7 +372,7 @@ class GroupMemberEventBuilder {
         );
 
         // Keep batch_seq monotonic across the combined batch: additions occupy [0, added), removals
-        // continue at [added, added + removed) so the two sub-batches never collide (EA-2326).
+        // continue at [added, added + removed) so the two sub-batches never collide.
         const addedEvents = this.buildAddedEvents({
             groupId,
             members: addedMembers,

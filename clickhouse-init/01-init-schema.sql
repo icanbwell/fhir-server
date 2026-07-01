@@ -26,11 +26,11 @@ CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberEvents
     event_time DateTime64(3, 'UTC') DEFAULT now64(3, 'UTC'),
     event_id UUID DEFAULT generateUUIDv4(),  -- Tie-breaker for argMax
 
-    -- Causal-ordering terms (EA-2326). version_id is the FHIR meta.versionId of the write that
-    -- produced this event; it increments per resource version, so a later write wins. batch_seq
-    -- orders events within a single write (same version_id). Together they lead the current-state
-    -- tie-break tuple (version_id, batch_seq, event_time, event_id) in the views below, so a
-    -- causally-later add/remove beats an earlier one even when event_time ties.
+    -- Causal-ordering terms. version_id is the FHIR meta.versionId of the write that produced this
+    -- event; it increments per resource version, so a later write wins. batch_seq orders events
+    -- within a single write (same version_id). Together they lead the current-state tie-break
+    -- tuple (version_id, batch_seq, event_time, event_id) in the views below, so a causally-later
+    -- add/remove beats an earlier one even when event_time ties.
     version_id UInt64 DEFAULT 0,
     batch_seq UInt32 DEFAULT 0,
 

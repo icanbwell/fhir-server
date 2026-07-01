@@ -11,21 +11,22 @@ const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter'
 const { EVENT_TYPES, OPERATION_TYPES } = require('../../constants/clickHouseConstants');
 
 /**
- * Adversarial unit tests for the INTEGRATED Group-on-ClickHouse code (EA-2319).
+ * Hardening unit tests for the INTEGRATED Group-on-ClickHouse code.
  *
- * These attack the four merged fixes at the unit boundary — fast, deterministic,
+ * These attack the merged fixes at the unit boundary — fast, deterministic,
  * no container — trying to BREAK the code rather than confirm the happy path:
- *   - EA-2320 sockets/streams (result-set draining is verified in the container
+ *   - Sockets/streams (result-set draining is verified in the container
  *     suites; here we assert the client-manager insert/query contracts the fix relies on)
- *   - EA-2322 split-brain (compensation is covered in group_clickhouse_compensation.unit.test.js;
+ *   - Split-brain (compensation is covered in group_clickhouse_compensation.unit.test.js;
  *     here we attack the write-fails-after-Mongo-commit propagation in the handler)
- *   - EA-2323 idempotency (deterministic event_id/event_time across retries), fail-closed
+ *   - Idempotency (deterministic event_id/event_time across retries), fail-closed
  *     tenant filter, retry+jitter, and read-surface (rethrow, never silent quantity:0)
+ *   - Causal ordering of add/remove for the same member (current-state tie-break)
  *
  * Mocks are only at external boundaries (the ClickHouse client / repository); domain
  * logic (event builder, diff computer, query builder, scopes) runs for real.
  */
-describe('Group ClickHouse adversarial (unit)', () => {
+describe('Group ClickHouse hardening (unit)', () => {
     process.env.LOGLEVEL = 'SILENT';
 
     // ---- shared fixtures -------------------------------------------------
@@ -98,12 +99,12 @@ describe('Group ClickHouse adversarial (unit)', () => {
     }
 
     // =====================================================================
-    // EA-2323 (BUG-1 regression guard): event_time must survive as a valid
+    // Regression guard: event_time must survive as a valid
     // ClickHouse DateTime even though meta.lastUpdated is a Date at runtime.
     // Before the fix this threw "result.replace is not a function" and 500'd
     // every Group write with useExternalStorage.
     // =====================================================================
-    describe('event_time normalization (BUG-1 regression)', () => {
+    describe('event_time normalization', () => {
         test('CREATE with a Date meta.lastUpdated does not throw and appends events', async () => {
             const repo = makeCapturingRepo();
             const handler = makeHandler(repo);
@@ -164,7 +165,7 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // EA-2323 idempotency: retried writes must converge (identical rows),
+    // Idempotency: retried writes must converge (identical rows),
     // distinct versions must diverge, remove/re-add ordering is deterministic.
     // =====================================================================
     describe('idempotent, convergent event identity', () => {
@@ -260,7 +261,7 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // EA-2322 split-brain: a ClickHouse write failure AFTER the Mongo commit
+    // Split-brain: a ClickHouse write failure AFTER the Mongo commit
     // must FAIL the request (throw), not silently succeed with an empty Group.
     // (The Mongo compensation itself is unit-tested separately.)
     // =====================================================================
@@ -317,7 +318,7 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // EA-2323 owner/tenant derivation on the WRITE path.
+    // Owner/tenant derivation on the WRITE path.
     // =====================================================================
     describe('source_assigning_authority derivation (write path)', () => {
         test('missing owner tag → event build throws (cannot derive source_assigning_authority)', () => {
@@ -383,7 +384,7 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // EA-2323 fail-closed, admin-exempt tenant filter (QueryBuilder HAVING).
+    // Fail-closed, admin-exempt tenant filter (QueryBuilder HAVING).
     // =====================================================================
     describe('fail-closed tenant filter (read path HAVING clause)', () => {
         test('scoped caller → tag predicate applied (not denied)', () => {
@@ -439,7 +440,7 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // EA-2323 _callerHasFullAccess: authorization derived from scope, not from
+    // _callerHasFullAccess: authorization derived from scope, not from
     // whether the built query happened to carry tag predicates.
     // =====================================================================
     describe('_callerHasFullAccess (scope-derived)', () => {
@@ -478,7 +479,7 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // EA-2323 read-surface (B7): a ClickHouse read error must SURFACE (throw),
+    // Read-surface: a ClickHouse read error must SURFACE (throw),
     // never be masked as a successful, silently-empty quantity:0.
     // =====================================================================
     describe('read-surface: ClickHouse read errors are not swallowed as quantity:0', () => {
@@ -537,7 +538,7 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // EA-2323 retry + full jitter (retryWithBackoff): transient failures are
+    // Retry + full jitter (retryWithBackoff): transient failures are
     // retried within bounds; exhaustion surfaces the LAST error; jitter stays
     // within [0, cap]; and the repository actually wires retry to the insert.
     // =====================================================================
@@ -622,17 +623,17 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // EA-2326: causal ordering of add/remove for the same member (former BUG-4).
+    // Causal ordering of add/remove for the same member.
     //
     // Current membership is argMax(event_type, (version_id, batch_seq, event_time, event_id)).
     // version_id (FHIR meta.versionId) is the leading, causal term, so a later write wins even when
-    // event_time ties; batch_seq orders events within a single write. This closes the former BUG-4,
-    // where an add and a later remove sharing one event_time were decided by event_id — a uuidv5
-    // content hash, not causal order — letting the remove lose so the member wrongly stayed active.
-    // The end-to-end proof against real ClickHouse lives in the integration suite (a create-then-PUT
-    // that empties membership now reads back 0 active). These are the pure-unit contracts. See ADR 0004.
+    // event_time ties; batch_seq orders events within a single write. Without this, an add and a
+    // later remove sharing one event_time were decided by event_id — a uuidv5 content hash, not
+    // causal order — letting the remove lose so the member wrongly stayed active. The end-to-end
+    // proof against real ClickHouse lives in the integration suite (a create-then-PUT that empties
+    // membership now reads back 0 active). These are the pure-unit contracts. See ADR 0004.
     // =====================================================================
-    describe('EA-2326: causal add/remove tie-break', () => {
+    describe('causal add/remove tie-break', () => {
         test('a later remove (higher version_id) beats an earlier add sharing the same event_time', () => {
             const sameTime = new Date('2026-01-01T00:00:00.000Z').toISOString();
             const member = [enrichedMember('tie', 'aaaaaaaa-0000-4000-8000-00000000ffff')];

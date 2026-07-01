@@ -25,6 +25,7 @@ const { isUuid } = require('../../utils/uid.util');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
+const { hasExternalStorageMemberTag } = require('../../utils/clickHouseGroupPreSave');
 
 /**
  * Update Operation
@@ -45,6 +46,7 @@ class UpdateOperation {
      * @param {SearchManager} searchManager
      * @param {import('../../dataLayer/postSaveHandlers/postSaveHandlerFactory').PostSaveHandlerFactory} postSaveHandlerFactory
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
+     * @param {import('../../dataLayer/repositories/groupMemberRepository').GroupMemberRepository|null} [groupMemberRepository]
      */
     constructor (
         {
@@ -60,7 +62,8 @@ class UpdateOperation {
             databaseAttachmentManager,
             searchManager,
             postSaveHandlerFactory,
-            identifierEnrichmentProvider
+            identifierEnrichmentProvider,
+            groupMemberRepository = null
         }
     ) {
         /**
@@ -134,6 +137,52 @@ class UpdateOperation {
          */
         this.identifierEnrichmentProvider = identifierEnrichmentProvider;
         assertTypeEquals(identifierEnrichmentProvider, IdentifierEnrichmentProvider);
+
+        /**
+         * Reverse-lookup for a hybrid Group's current ClickHouse roster. Null when
+         * ClickHouse is disabled; the hydration hook below no-ops in that case.
+         * @type {import('../../dataLayer/repositories/groupMemberRepository').GroupMemberRepository|null}
+         */
+        this.groupMemberRepository = groupMemberRepository;
+    }
+
+    /**
+     * For a hybrid-storage Group (member[] held in ClickHouse, stripped from Mongo), loads the
+     * current roster from ClickHouse onto currentResource.member before the merge runs.
+     *
+     * Why: a member-only PUT otherwise leaves the metadata-only Mongo document unchanged, so the
+     * generic content diff sees no change and meta.versionId / meta.lastUpdated do not advance.
+     * FHIR R4 requires both to change whenever resource content changes, and Group.member is
+     * content. Hydrating the current members makes the diff detect the membership change, so the
+     * existing version machinery bumps the version exactly as it does for a pure-Mongo Group. The
+     * member array is re-stripped downstream, so the Mongo document stays metadata-only.
+     *
+     * Opaque and scoped: no-ops unless ClickHouse is on, the resource is a Group configured for
+     * hybrid storage, the stored document carries the external-storage member tag, and the
+     * repository is wired. Never touches non-ClickHouse resources or the ClickHouse-off path.
+     *
+     * @param {string} resourceType
+     * @param {Resource} currentResource - stored (found) resource, mutated in place
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _hydrateHybridGroupMembersBeforeMerge (resourceType, currentResource) {
+        if (
+            resourceType !== 'Group' ||
+            !this.groupMemberRepository ||
+            !this.configManager.enableClickHouse ||
+            !this.configManager.mongoWithClickHouseResources?.includes('Group') ||
+            !hasExternalStorageMemberTag(currentResource)
+        ) {
+            return;
+        }
+
+        const references = await this.groupMemberRepository.getActiveMembers(currentResource.id);
+        if (references && references.length > 0) {
+            // Minimal member entries — enough for the content diff to register the roster; the array
+            // is re-stripped before the Mongo write so only metadata persists there.
+            currentResource.member = references.map(reference => ({ entity: { reference } }));
+        }
     }
 
     /**
@@ -339,6 +388,10 @@ class UpdateOperation {
                         throw precondition_failed_error;
                     }
                 }
+                // For a hybrid Group, load the current ClickHouse roster onto the found resource so
+                // a member-only change is visible to the content diff and bumps versionId (FHIR R4).
+                await this._hydrateHybridGroupMembersBeforeMerge(resourceType, foundResource);
+
                 ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     base_version,
                     requestInfo,

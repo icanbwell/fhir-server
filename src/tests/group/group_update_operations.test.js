@@ -175,17 +175,16 @@ describe('Group UPDATE operations', () => {
 
     });
 
-    // EA-2326: creating N members and then PUT-ing member:[] must leave 0 active members.
+    // Creating N members and then PUT-ing member:[] must leave 0 active members.
     //
-    // Regression guard for the former BUG-4. Current membership is read as
-    // argMax(event_type, (version_id, batch_seq, event_time, event_id)). The CREATE's MEMBER_ADDED
-    // events (resource version 1) and this PUT's diff-computed MEMBER_REMOVED events (version 2) can
-    // land at the same millisecond event_time (event_time is sourced from meta.lastUpdated per
-    // EA-2323). Before the fix the tie was decided by event_id — a uuidv5 content hash, not causal
-    // order — so the causally-later remove could lose and the member wrongly stayed active (the GET
-    // quantity came back non-zero). version_id now leads the tie-break, so the remove (v2)
-    // deterministically beats the add (v1) and the roster empties. See ADR 0004.
-    test('BUG-4 fixed: PUT empty member array → Remove all current members (same-ms add/remove)', async () => {
+    // Current membership is read as argMax(event_type, (version_id, batch_seq, event_time,
+    // event_id)). The CREATE's MEMBER_ADDED events and this PUT's diff-computed MEMBER_REMOVED
+    // events can land at the same millisecond event_time (event_time is sourced from
+    // meta.lastUpdated). The remove must therefore win by version_id: a member-only PUT to a hybrid
+    // Group bumps meta.versionId (FHIR R4 requires versionId to change on content change, and
+    // Group.member is content), so the remove carries a higher version and the roster empties.
+    // See ADR 0004.
+    test('PUT empty member array removes all current members and advances versionId', async () => {
         const MEMBER_COUNT = 5;
         const initialMembers = Array.from({ length: MEMBER_COUNT }, (_, i) => ({
             entity: { reference: `Patient/update-empty-${i}` }
@@ -196,6 +195,7 @@ describe('Group UPDATE operations', () => {
             actual: true,
             member: initialMembers
         });
+        const createdVersion = parseInt(created.meta.versionId, 10);
 
         // Update with empty array
         const response = await updateGroup(created.id, {
@@ -204,6 +204,9 @@ describe('Group UPDATE operations', () => {
         });
 
         expect([200, 201]).toContain(response.status);
+        // The member-only change must advance meta.versionId (FHIR R4), which is what lets the
+        // remove events out-order the earlier adds.
+        expect(parseInt(response.body.meta.versionId, 10)).toBeGreaterThan(createdVersion);
 
         // All members should be removed
         const currentCount = await clickHouseManager.queryAsync({

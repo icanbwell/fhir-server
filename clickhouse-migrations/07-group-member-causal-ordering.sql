@@ -1,9 +1,10 @@
--- ClickHouse migration 07 (EA-2326): causal ordering for Group membership current-state.
+-- Migration: causal ordering for Group membership current-state.
 --
 -- Adds version_id + batch_seq to the Group member event log and rebuilds the derived current-state
 -- tables + materialized views so the argMax tie-break is (version_id, batch_seq, event_time,
 -- event_id). This makes a causally-later add/remove for the same member win even when event_time
--- ties (the BUG-4 hazard, aggravated by EA-2323's deterministic event_time). See ADR 0004.
+-- ties (a hazard aggravated by event_time being deterministic, sourced from meta.lastUpdated).
+-- See ADR 0004.
 --
 -- Idempotency (ADR 0003) is preserved: version_id and batch_seq are deterministic per committed
 -- write, so a retried write still produces identical rows and argMax converges.

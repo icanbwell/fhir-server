@@ -388,6 +388,17 @@ const createContainer = function () {
         }
         return null;
     });
+    // Group member reverse-lookup repository (member roster in ClickHouse). Null when ClickHouse
+    // is disabled; consumers (update hydration hook, post-save handler) no-op in that case.
+    container.register('groupMemberRepository', (c) => {
+        if (!c.clickHouseClientManager) {
+            return null;
+        }
+        const { GroupMemberRepository } = require('./dataLayer/repositories/groupMemberRepository');
+        return new GroupMemberRepository({
+            clickHouseClient: c.clickHouseClientManager
+        });
+    });
     container.register('indexManager', (c) => new IndexManager(
         {
             indexProvider: c.indexProvider,
@@ -800,7 +811,8 @@ const createContainer = function () {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 searchManager: c.searchManager,
                 postSaveHandlerFactory: c.postSaveHandlerFactory,
-                identifierEnrichmentProvider: c.identifierEnrichmentProvider
+                identifierEnrichmentProvider: c.identifierEnrichmentProvider,
+                groupMemberRepository: c.groupMemberRepository
             }
         )
     );
@@ -1135,7 +1147,8 @@ const createContainer = function () {
 
     container.register('postSaveHandlerFactory', (c) => new PostSaveHandlerFactory({
         clickHouseClientManager: c.clickHouseClientManager,
-        configManager: c.configManager
+        configManager: c.configManager,
+        groupMemberRepository: c.groupMemberRepository
     }));
 
     container.register('postSaveProcessor', (c) => {
