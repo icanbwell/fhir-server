@@ -8,21 +8,28 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
  */
 class QueryFragments {
     /**
-     * argMax with tuple tie-breaker for deterministic results
+     * argMax with a causal tuple tie-breaker for deterministic current-state results (EA-2326).
      *
-     * When multiple events have the same event_time, the tie-breaker
-     * ensures consistent ordering using event_id.
+     * The tie-break tuple is (version_id, batch_seq, event_time, event_id):
+     *  - version_id (FHIR meta.versionId) is the primary term, so a causally-later write always
+     *    wins over an earlier one for the same member.
+     *  - batch_seq orders events within a single write (same version_id).
+     *  - event_time / event_id remain beneath as stable, deterministic fallbacks (event_id being a
+     *    content hash keeps retried rows identical, preserving EA-2323 idempotency).
+     *
+     * This ordering must match the AggregatingMergeTree current-state tables' argMax tuple
+     * (see clickhouse-init/01-init-schema.sql) so direct-events reads and MV reads agree.
      *
      * @param {string} field - Field to get max value of
-     * @param {string} [orderBy='(event_time, event_id)'] - Tuple for ordering
+     * @param {string} [orderBy='(version_id, batch_seq, event_time, event_id)'] - Tuple for ordering
      *
      * @returns {string} SQL fragment
      *
      * @example
      * QueryFragments.argMaxWithTieBreaker('event_type')
-     * // Returns: "argMax(event_type, (event_time, event_id))"
+     * // Returns: "argMax(event_type, (version_id, batch_seq, event_time, event_id))"
      */
-    static argMaxWithTieBreaker(field, orderBy = '(event_time, event_id)') {
+    static argMaxWithTieBreaker(field, orderBy = '(version_id, batch_seq, event_time, event_id)') {
         return `argMax(${field}, ${orderBy})`;
     }
 

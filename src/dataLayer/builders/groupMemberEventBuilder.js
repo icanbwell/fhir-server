@@ -81,6 +81,25 @@ class GroupMemberEventBuilder {
     }
 
     /**
+     * Extracts the FHIR meta.versionId as a non-negative integer for causal ordering (EA-2326).
+     *
+     * meta.versionId is server-assigned and increments on every write to the resource, so a
+     * causally-later operation carries a higher version_id. It is the leading term of the
+     * current-state argMax tie-break tuple (version_id, batch_seq, event_time, event_id), so a
+     * later add/remove deterministically wins over an earlier one instead of the tie being decided
+     * by event_id — a content hash, not causal order (the BUG-4 hazard). A retry of the same
+     * committed version reuses the same version_id, so EA-2323 idempotency is preserved.
+     *
+     * @param {Object} groupResource
+     * @returns {number} versionId as a positive integer, or 0 when missing/unparseable
+     * @private
+     */
+    static _extractVersionId(groupResource) {
+        const parsed = parseInt(groupResource?.meta?.versionId, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    }
+
+    /**
      * Creates an event object with all required fields
      * Returns events with ISO timestamps (domain format).
      * Repository layer handles database-specific format conversions.
@@ -91,6 +110,8 @@ class GroupMemberEventBuilder {
         entityReference,
         eventType,
         eventTime,
+        versionId = 0,
+        batchSeq = 0,
         member,
         groupSourceId,
         groupSourceAuthority,
@@ -136,6 +157,10 @@ class GroupMemberEventBuilder {
             entity_type: FhirReferenceParser.extractEntityType(entityReference),
             event_type: eventType,
             event_time: eventTime,
+            // Causal-ordering tie-break terms (EA-2326): version_id leads, batch_seq disambiguates
+            // events within a single write, both sitting above event_time/event_id in the argMax tuple.
+            version_id: versionId,
+            batch_seq: batchSeq,
             period_start: member?.period?.start || null,
             period_end: member?.period?.end || null,
             inactive: member?.inactive ? 1 : 0,
@@ -183,6 +208,8 @@ class GroupMemberEventBuilder {
             entityReference,
             eventType,
             eventTime: timestamp,
+            versionId: this._extractVersionId(groupResource),
+            batchSeq: 0,
             member,
             groupSourceId: groupResource._sourceId || '',
             groupSourceAuthority: groupResource._sourceAssigningAuthority || '',
@@ -218,7 +245,7 @@ class GroupMemberEventBuilder {
      *   groupResource: groupDoc
      * });
      */
-    static buildEvents({ groupId, members, eventType, groupResource, eventTime, correlationId }) {
+    static buildEvents({ groupId, members, eventType, groupResource, eventTime, correlationId, batchSeqOffset = 0 }) {
         if (!members || members.length === 0) {
             return [];
         }
@@ -229,8 +256,12 @@ class GroupMemberEventBuilder {
         const groupSourceAuthority = groupResource._sourceAssigningAuthority || '';
         const accessTags = SecurityTagExtractor.extractAccessTags(groupResource);
         const ownerTags = SecurityTagExtractor.extractOwnerTags(groupResource);
+        // version_id is per-resource-version (same for every event in this write); batch_seq is the
+        // per-event index within the write. batchSeqOffset lets a caller assembling a combined
+        // add+remove batch keep batch_seq globally monotonic across both sub-batches (EA-2326).
+        const versionId = this._extractVersionId(groupResource);
 
-        return members.map(member => {
+        return members.map((member, index) => {
             const entityReference = member.entity.reference;
 
             return this._createEventObject({
@@ -238,6 +269,8 @@ class GroupMemberEventBuilder {
                 entityReference,
                 eventType,
                 eventTime: timestamp,
+                versionId,
+                batchSeq: batchSeqOffset + index,
                 member,
                 groupSourceId,
                 groupSourceAuthority,
@@ -259,14 +292,15 @@ class GroupMemberEventBuilder {
      *
      * @returns {Array<Object>} Array of "added" events
      */
-    static buildAddedEvents({ groupId, members, groupResource, eventTime, correlationId }) {
+    static buildAddedEvents({ groupId, members, groupResource, eventTime, correlationId, batchSeqOffset = 0 }) {
         return this.buildEvents({
             groupId,
             members,
             eventType: EVENT_TYPES.MEMBER_ADDED,
             groupResource,
             eventTime,
-            correlationId
+            correlationId,
+            batchSeqOffset
         });
     }
 
@@ -281,14 +315,15 @@ class GroupMemberEventBuilder {
      *
      * @returns {Array<Object>} Array of "removed" events
      */
-    static buildRemovedEvents({ groupId, members, groupResource, eventTime, correlationId }) {
+    static buildRemovedEvents({ groupId, members, groupResource, eventTime, correlationId, batchSeqOffset = 0 }) {
         return this.buildEvents({
             groupId,
             members,
             eventType: EVENT_TYPES.MEMBER_REMOVED,
             groupResource,
             eventTime,
-            correlationId
+            correlationId,
+            batchSeqOffset
         });
     }
 
@@ -336,12 +371,15 @@ class GroupMemberEventBuilder {
             m => m.entity?.reference && !newRefs.has(m.entity.reference)
         );
 
+        // Keep batch_seq monotonic across the combined batch: additions occupy [0, added), removals
+        // continue at [added, added + removed) so the two sub-batches never collide (EA-2326).
         const addedEvents = this.buildAddedEvents({
             groupId,
             members: addedMembers,
             groupResource,
             eventTime: timestamp,
-            correlationId
+            correlationId,
+            batchSeqOffset: 0
         });
 
         const removedEvents = this.buildRemovedEvents({
@@ -349,7 +387,8 @@ class GroupMemberEventBuilder {
             members: removedMembers,
             groupResource,
             eventTime: timestamp,
-            correlationId
+            correlationId,
+            batchSeqOffset: addedMembers.length
         });
 
         return {

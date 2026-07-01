@@ -14,8 +14,9 @@ const { logWarn } = require('../../operations/common/logging');
 // deterministic (sourced from meta.lastUpdated), so a re-driven block produces
 // byte-identical rows. The Group_4_0_0_MemberEvents table is a plain (non-
 // Replicated) MergeTree, and the current-state tables are AggregatingMergeTree
-// that resolve state with argMax over (event_time, event_id). Because the retry
-// rows are identical, argMax converges to a single logical member state whether
+// that resolve state with argMax over (version_id, batch_seq, event_time, event_id).
+// Because the retry rows are identical (version_id + batch_seq are deterministic per
+// committed write), argMax converges to a single logical member state whether
 // the block landed once or twice — duplicates are collapsed on read regardless
 // of how many physical rows exist. (Note: ClickHouse insert_deduplication_token
 // is a no-op here — it is honored only by Replicated*MergeTree for sync inserts,

@@ -622,51 +622,74 @@ describe('Group ClickHouse adversarial (unit)', () => {
     });
 
     // =====================================================================
-    // BUG-4 (documented, SKIPPED): same-millisecond add+remove of the same
-    // member resolves to "active" under argMax((event_time, event_id)).
+    // EA-2326: causal ordering of add/remove for the same member (former BUG-4).
     //
-    // event_time is millisecond precision; EA-2323 sources it from
-    // meta.lastUpdated, so a fast CREATE followed by a PUT/PATCH can produce a
-    // MEMBER_ADDED and MEMBER_REMOVED for the same member in the SAME event_time.
-    // Current membership is read as argMax(event_type,(event_time,event_id)); when
-    // event_time ties, the winner is decided by event_id — a uuidv5 content hash,
-    // NOT causal order — so the (causally later) remove can lose and the member
-    // wrongly stays active. Proven against real ClickHouse with a direct
-    // repository probe: inserting added+removed at an identical event_time yields
-    // an active count of 1 (added wins) deterministically.
-    //
-    // This is a PURE-UNIT expression of that hazard: the two opposite events for
-    // one member get the SAME event_time (because eventTime is the doc's Date), so
-    // any argMax tie-break that is not causal cannot reliably pick "removed".
-    //
-    // SKIPPED so the suite stays green while the bug is on record. The real fix is
-    // a design decision (monotonic/sequence tie-breaker or sub-ms component in the
-    // MergeTree ORDER BY key) and needs an ADR — out of scope for test hardening.
-    // TODO(EA-2323 follow-up / new ticket): give the current-state ORDER BY a
-    // causal tie-breaker so a same-millisecond remove always beats the add.
+    // Current membership is argMax(event_type, (version_id, batch_seq, event_time, event_id)).
+    // version_id (FHIR meta.versionId) is the leading, causal term, so a later write wins even when
+    // event_time ties; batch_seq orders events within a single write. This closes the former BUG-4,
+    // where an add and a later remove sharing one event_time were decided by event_id — a uuidv5
+    // content hash, not causal order — letting the remove lose so the member wrongly stayed active.
+    // The end-to-end proof against real ClickHouse lives in the integration suite (a create-then-PUT
+    // that empties membership now reads back 0 active). These are the pure-unit contracts. See ADR 0004.
     // =====================================================================
-    describe.skip('BUG-4: same-millisecond add/remove tie-break (documented, needs ADR)', () => {
-        test('an add and a later remove sharing one event_time cannot be ordered causally by (event_time,event_id)', () => {
-            const doc = makeGroupDoc({ lastUpdated: new Date('2026-01-01T00:00:00.000Z') });
+    describe('EA-2326: causal add/remove tie-break', () => {
+        test('a later remove (higher version_id) beats an earlier add sharing the same event_time', () => {
+            const sameTime = new Date('2026-01-01T00:00:00.000Z').toISOString();
             const member = [enrichedMember('tie', 'aaaaaaaa-0000-4000-8000-00000000ffff')];
-            const sameTime = doc.meta.lastUpdated.toISOString();
 
+            // The add is written in resource version 1, the remove in the later version 2. A fast
+            // create-then-remove can stamp both with the same event_time (both from meta.lastUpdated),
+            // so event_time cannot separate them — version_id must.
             const added = GroupMemberEventBuilder.buildEvents({
-                groupId: doc.id, members: member, eventType: EVENT_TYPES.MEMBER_ADDED,
-                groupResource: doc, eventTime: sameTime, correlationId: `${doc.id}|1`
+                groupId: 'group-1', members: member, eventType: EVENT_TYPES.MEMBER_ADDED,
+                groupResource: makeGroupDoc({ versionId: '1' }), eventTime: sameTime, correlationId: 'group-1|1'
             });
             const removed = GroupMemberEventBuilder.buildEvents({
-                groupId: doc.id, members: member, eventType: EVENT_TYPES.MEMBER_REMOVED,
-                groupResource: doc, eventTime: sameTime, correlationId: `${doc.id}|2`
+                groupId: 'group-1', members: member, eventType: EVENT_TYPES.MEMBER_REMOVED,
+                groupResource: makeGroupDoc({ versionId: '2' }), eventTime: sameTime, correlationId: 'group-1|2'
             });
 
-            // Same event_time => the only discriminator is event_id (a content hash).
+            // event_time genuinely ties; the causal winner is decided by the leading tuple term.
             expect(added[0].event_time).toBe(removed[0].event_time);
-            // The causal winner MUST be 'removed', but ordering by event_id string does not
-            // guarantee that. This assertion documents the intended (currently unmet) contract:
-            const causalWinnerByEventId =
-                removed[0].event_id > added[0].event_id ? EVENT_TYPES.MEMBER_REMOVED : EVENT_TYPES.MEMBER_ADDED;
-            expect(causalWinnerByEventId).toBe(EVENT_TYPES.MEMBER_REMOVED); // fails when the add's hash sorts higher
+            expect(added[0].version_id).toBe(1);
+            expect(removed[0].version_id).toBe(2);
+            // argMax picks the largest tuple; version_id leads, so the remove wins regardless of the
+            // event_id content-hash ordering that used to (wrongly) decide this.
+            expect(removed[0].version_id).toBeGreaterThan(added[0].version_id);
+        });
+
+        test('batch_seq orders events within a single write (same version_id)', () => {
+            const doc = makeGroupDoc({ versionId: '5' });
+            const members = [
+                enrichedMember('a', 'aaaaaaaa-0000-4000-8000-00000000000a'),
+                enrichedMember('b', 'aaaaaaaa-0000-4000-8000-00000000000b')
+            ];
+
+            const events = GroupMemberEventBuilder.buildEvents({
+                groupId: doc.id, members, eventType: EVENT_TYPES.MEMBER_ADDED, groupResource: doc
+            });
+
+            expect(events.map(e => e.version_id)).toEqual([5, 5]);
+            expect(events.map(e => e.batch_seq)).toEqual([0, 1]);
+        });
+
+        test('batchSeqOffset keeps a combined add+remove batch globally monotonic', () => {
+            const doc = makeGroupDoc({ versionId: '3' });
+            const added = GroupMemberEventBuilder.buildEvents({
+                groupId: doc.id, members: [enrichedMember('x', 'aaaaaaaa-0000-4000-8000-00000000000c')],
+                eventType: EVENT_TYPES.MEMBER_ADDED, groupResource: doc, batchSeqOffset: 0
+            });
+            const removed = GroupMemberEventBuilder.buildEvents({
+                groupId: doc.id, members: [enrichedMember('y', 'aaaaaaaa-0000-4000-8000-00000000000d')],
+                eventType: EVENT_TYPES.MEMBER_REMOVED, groupResource: doc, batchSeqOffset: added.length
+            });
+
+            // Same write => same version_id; batch_seq continues across the two sub-batches so the
+            // add (0) and remove (1) never collide.
+            expect(added[0].version_id).toBe(3);
+            expect(removed[0].version_id).toBe(3);
+            expect(added[0].batch_seq).toBe(0);
+            expect(removed[0].batch_seq).toBe(1);
         });
     });
 

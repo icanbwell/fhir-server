@@ -175,26 +175,17 @@ describe('Group UPDATE operations', () => {
 
     });
 
-    // SKIPPED — reproduces BUG-4 (real, surfaced by this adversarial pass; needs an ADR fix).
+    // EA-2326: creating N members and then PUT-ing member:[] must leave 0 active members.
     //
-    // Creating N members and then PUT-ing member:[] should leave 0 active members. It does not:
-    // the API-reported quantity (and the raw argMax) come back as a NON-ZERO count of "still
-    // active" members. Root cause: current membership is read as
-    // argMax(event_type, (event_time, event_id)). event_time is millisecond precision and (per
-    // EA-2323) is sourced from meta.lastUpdated. When the CREATE's MEMBER_ADDED events and this
-    // PUT's diff-computed MEMBER_REMOVED events for the same members land at the same event_time,
-    // the add/remove tie is decided by event_id — a uuidv5 CONTENT HASH, not causal order — so the
-    // causally-later remove can lose and the member wrongly stays active. Verified end-to-end:
-    // even reading via the GET API (MV + argMaxMerge) the quantity comes back non-zero (e.g. 3-4 of
-    // 5), and delaying the PUT does not separate the timestamps. This corrupts clinical cohort
-    // membership on the PUT/UPDATE remove path.
-    //
-    // Fix is a design decision (a monotonic per-event sequence / sub-millisecond component in the
-    // current-state ORDER BY tie-breaker so a later remove always beats an earlier add), out of
-    // scope for this test-hardening pass. Kept as an executable, skipped repro so the bug is on
-    // record and re-enables trivially once the tie-breaker is fixed.
-    // TODO(new ticket): make the current-state argMax tie-breaker causal; then unskip.
-    test.skip('BUG-4: PUT empty member array → Remove all current members (same-ms add/remove tie-break)', async () => {
+    // Regression guard for the former BUG-4. Current membership is read as
+    // argMax(event_type, (version_id, batch_seq, event_time, event_id)). The CREATE's MEMBER_ADDED
+    // events (resource version 1) and this PUT's diff-computed MEMBER_REMOVED events (version 2) can
+    // land at the same millisecond event_time (event_time is sourced from meta.lastUpdated per
+    // EA-2323). Before the fix the tie was decided by event_id — a uuidv5 content hash, not causal
+    // order — so the causally-later remove could lose and the member wrongly stayed active (the GET
+    // quantity came back non-zero). version_id now leads the tie-break, so the remove (v2)
+    // deterministically beats the add (v1) and the roster empties. See ADR 0004.
+    test('BUG-4 fixed: PUT empty member array → Remove all current members (same-ms add/remove)', async () => {
         const MEMBER_COUNT = 5;
         const initialMembers = Array.from({ length: MEMBER_COUNT }, (_, i) => ({
             entity: { reference: `Patient/update-empty-${i}` }
@@ -220,7 +211,7 @@ describe('Group UPDATE operations', () => {
                         SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
                         WHERE group_id = '${created.id}'
                         GROUP BY entity_reference
-                        HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
+                        HAVING argMax(event_type, (version_id, batch_seq, event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
                     )`
         });
         expect(parseInt(currentCount[0].count)).toBe(0);

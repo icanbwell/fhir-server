@@ -341,6 +341,9 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
     async _writeCombinedEventsAsync({ groupId, additions, removals, groupResource, idempotency = {} }) {
         const allEvents = [];
 
+        // Assign batch_seq across the whole write so additions and removals never share an index:
+        // additions take [0, additions.length), removals continue after them. Within a single write
+        // (one version_id) this keeps the argMax tie-break deterministic and idempotent on retry.
         if (additions.length > 0) {
             const addEvents = GroupMemberEventBuilder.buildEvents({
                 groupId,
@@ -348,7 +351,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 eventType: EVENT_TYPES.MEMBER_ADDED,
                 groupResource,
                 eventTime: idempotency.eventTime,
-                correlationId: idempotency.correlationId
+                correlationId: idempotency.correlationId,
+                batchSeqOffset: 0
             });
             allEvents.push(...addEvents);
         }
@@ -360,7 +364,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 eventType: EVENT_TYPES.MEMBER_REMOVED,
                 groupResource,
                 eventTime: idempotency.eventTime,
-                correlationId: idempotency.correlationId
+                correlationId: idempotency.correlationId,
+                batchSeqOffset: additions.length
             });
             allEvents.push(...removeEvents);
         }
