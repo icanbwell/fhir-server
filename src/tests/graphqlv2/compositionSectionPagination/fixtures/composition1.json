@@ -1,0 +1,41 @@
+{
+    "resourceType": "Composition",
+    "id": "composition-pagination-1",
+    "meta": {
+        "source": "https://www.icanbwell.com/intelligence-layer-pipeline",
+        "security": [
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "bwell" }
+        ]
+    },
+    "status": "preliminary",
+    "type": {
+        "coding": [
+            {
+                "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/composition/",
+                "code": "condition_summary_document",
+                "display": "b.Well Condition Summary Composition Document"
+            }
+        ],
+        "text": "Condition Summary Composition Document"
+    },
+    "subject": {
+        "reference": "Patient/e8cfea6f-7051-5c11-b306-b995e6f6adf0",
+        "type": "Patient"
+    },
+    "date": "2024-03-14T16:52:11Z",
+    "author": [
+        {
+            "reference": "Organization/078cf112-f802-4e4b-9b62-ed44cdf05d27",
+            "type": "Organization",
+            "display": "bwell Connected Health"
+        }
+    ],
+    "title": "Condition Summary",
+    "section": [
+        { "id": "section-0", "title": "Section Zero" },
+        { "id": "section-1", "title": "Section One" },
+        { "id": "section-2", "title": "Section Two" }
+    ]
+}
