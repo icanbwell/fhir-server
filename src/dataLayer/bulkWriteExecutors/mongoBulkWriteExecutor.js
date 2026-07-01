@@ -638,8 +638,12 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
     }) {
         const contextData = bulkInsertUpdateEntry.contextData || null;
 
-        // Only Group writes that actually stripped members from Mongo can be split-brained.
-        if (resourceType !== 'Group' || !wasMemberStrippedForExternalStorage(contextData)) {
+        // Only Group writes that actually stripped members from Mongo can be split-brained. Gate on
+        // enableClickHouse so this is self-contained and cannot act when ClickHouse is off, instead
+        // of relying on the post-save sync/async routing elsewhere to keep this path unreachable.
+        if (!this.configManager?.enableClickHouse ||
+            resourceType !== 'Group' ||
+            !wasMemberStrippedForExternalStorage(contextData)) {
             return;
         }
 

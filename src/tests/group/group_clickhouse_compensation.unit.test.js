@@ -132,9 +132,10 @@ describe('Group ClickHouse compensation (unit)', () => {
     });
 
     describe('_compensateStrippedGroupMembersOnPostSaveFailure', () => {
-        // Invoke the private method on a bare object — it relies only on module-level loggers,
-        // not on instance state, so we avoid constructing the full executor (and its deps).
+        // Invoke the private method on a minimal `this` — it needs only configManager (for the
+        // self-contained enableClickHouse guard) and module-level loggers, not the full executor.
         const compensate = MongoBulkWriteExecutor.prototype._compensateStrippedGroupMembersOnPostSaveFailure;
+        const chOnCtx = { configManager: { enableClickHouse: true } };
 
         let postSaveError;
         beforeEach(() => {
@@ -149,7 +150,7 @@ describe('Group ClickHouse compensation (unit)', () => {
             const collection = makeFakeCollection();
             const members = [{ entity: { reference: 'Patient/1' } }];
 
-            await compensate.call({}, {
+            await compensate.call(chOnCtx, {
                 collection,
                 resourceType: 'Group',
                 bulkInsertUpdateEntry: makeEntry({ contextData: strippedGroupContext(members) }),
@@ -165,7 +166,7 @@ describe('Group ClickHouse compensation (unit)', () => {
         test('no-op for non-Group resource', async () => {
             const collection = makeFakeCollection();
 
-            await compensate.call({}, {
+            await compensate.call(chOnCtx, {
                 collection,
                 resourceType: 'Patient',
                 bulkInsertUpdateEntry: makeEntry({
@@ -185,7 +186,7 @@ describe('Group ClickHouse compensation (unit)', () => {
         ])('no-op for %s (members were not stripped from Mongo)', async (_label, contextData) => {
             const collection = makeFakeCollection();
 
-            await compensate.call({}, {
+            await compensate.call(chOnCtx, {
                 collection,
                 resourceType: 'Group',
                 bulkInsertUpdateEntry: makeEntry({ contextData }),
@@ -199,10 +200,25 @@ describe('Group ClickHouse compensation (unit)', () => {
         test('no-op when no members were submitted (empty Group is consistent)', async () => {
             const collection = makeFakeCollection();
 
-            await compensate.call({}, {
+            await compensate.call(chOnCtx, {
                 collection,
                 resourceType: 'Group',
                 bulkInsertUpdateEntry: makeEntry({ contextData: strippedGroupContext([]) }),
+                requestId: 'req-1',
+                postSaveError
+            });
+
+            expect(collection.updateOne).not.toHaveBeenCalled();
+        });
+
+        test('no-op when ClickHouse is disabled (guard is self-contained)', async () => {
+            const collection = makeFakeCollection();
+            const members = [{ entity: { reference: 'Patient/1' } }];
+
+            await compensate.call({ configManager: { enableClickHouse: false } }, {
+                collection,
+                resourceType: 'Group',
+                bulkInsertUpdateEntry: makeEntry({ contextData: strippedGroupContext(members) }),
                 requestId: 'req-1',
                 postSaveError
             });
@@ -217,7 +233,7 @@ describe('Group ClickHouse compensation (unit)', () => {
             // The compensation must resolve (swallow its own secondary error). The caller is the
             // one that re-throws postSaveError, so this method must never throw.
             await expect(
-                compensate.call({}, {
+                compensate.call(chOnCtx, {
                     collection,
                     resourceType: 'Group',
                     bulkInsertUpdateEntry: makeEntry({ contextData: strippedGroupContext(members) }),

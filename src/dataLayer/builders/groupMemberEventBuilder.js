@@ -59,15 +59,14 @@ class GroupMemberEventBuilder {
     /**
      * Derives a stable, deterministic event_id for idempotent retries.
      *
-     * The Group member events table is an append-only MergeTree. A client that
-     * retries a failed write (e.g. after a 500 from a transient ClickHouse
-     * outage) must not create duplicate rows. By deriving event_id as a uuidv5
-     * of (group_id | entity_reference | event_type | correlation_id), a retry
-     * of the SAME logical operation produces the SAME event_id. Combined with a
-     * deterministic event_time (see the handler, which sources it from
-     * meta.lastUpdated) the full row — and thus the MergeTree ORDER BY key —
-     * is identical on retry, so argMax aggregation converges to one logical
-     * member state instead of diverging across duplicate rows.
+     * The Group member events table is an append-only MergeTree. When the bounded insert retry
+     * (see the repository) re-drives a block after a transient failure, the re-sent rows must be
+     * byte-identical so any duplicate physical rows collapse to one logical state on read rather
+     * than accumulating. Deriving event_id as a uuidv5 of
+     * (group_id | entity_reference | event_type | correlation_id) makes a re-drive of the SAME
+     * logical operation produce the SAME event_id; combined with a deterministic event_time (the
+     * handler sources it from meta.lastUpdated) the whole row is identical on retry, so argMax
+     * converges to one member state instead of diverging across duplicates.
      *
      * @param {string} groupId
      * @param {string} entityReference
