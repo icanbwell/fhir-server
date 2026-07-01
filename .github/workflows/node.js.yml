@@ -51,6 +51,6 @@ jobs:
           yarn install || yarn install
       - name: jest
         run: |
-          ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          ./node_modules/.bin/jest --no-watchman --silent --runInBand --forceExit --logHeapUsage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
-          NODE_OPTIONS: "--max-old-space-size=10240"
+          NODE_OPTIONS: "--max-old-space-size=10240 --expose-gc"
