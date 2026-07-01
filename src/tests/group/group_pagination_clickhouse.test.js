@@ -178,29 +178,53 @@ describe('Group Pagination with ClickHouse', () => {
 
         const allIdsInOrder = allResponse.body.entry.map(e => e.resource.id);
 
-        // Get with offset
-        const offsetValue = PAGE_SIZES.LARGE;
-        const offsetResponse = await request
-            .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=${offsetValue}&_getpagesoffset=${offsetValue}`)
+        // `_getpagesoffset` on this server is a PAGE NUMBER, not a row offset:
+        // searchManager.handleCountOption sets skip = pageNumber * _count (same semantics
+        // the AuditEvent ClickHouse search tests rely on). With MEDIUM (30) total and
+        // _count=10 there are 3 pages (0,1,2). We fetch page 1 and assert it is EXACTLY
+        // the middle slice allIdsInOrder[10..19]. A broken/ignored offset (silent no-op
+        // returning nothing, or returning page 0 again) must FAIL here, not be skipped.
+        const pageSize = PAGE_SIZES.LARGE; // 10
+        const page1Response = await request
+            .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=${pageSize}&_getpagesoffset=1`)
             .set(getTestHeadersWithExternalStorage());
 
-        expect(offsetResponse.status).toBe(200);
+        expect(page1Response.status).toBe(200);
 
-        // If entry is undefined or empty, the API may not support _getpagesoffset
-        // or the parameter format is different
-        if (!offsetResponse.body.entry || offsetResponse.body.entry.length === 0) {
-            console.warn('_getpagesoffset returned no results - parameter may not be supported');
-            // Skip the rest of the test if offset not supported
-            return;
-        }
+        // Page 1 must be present and exactly _count long (30 total, second page).
+        expect(Array.isArray(page1Response.body.entry)).toBe(true);
+        expect(page1Response.body.entry.length).toBe(pageSize);
 
-        expect(offsetResponse.body.entry.length).toBeLessThanOrEqual(offsetValue);
+        const page1Ids = page1Response.body.entry.map(e => e.resource.id);
 
-        const offsetIds = offsetResponse.body.entry.map(e => e.resource.id);
+        // Page 1 must be the exact second-page slice (fixed indices, not sized by the
+        // response - so a wrong-length or wrong-window result cannot self-satisfy).
+        const expectedPage1Ids = allIdsInOrder.slice(pageSize, pageSize * 2);
+        expect(page1Ids).toEqual(expectedPage1Ids);
 
-        // Verify we got Groups starting from offset
-        const expectedIds = allIdsInOrder.slice(offsetValue, offsetValue + offsetIds.length);
-        expect(offsetIds).toEqual(expectedIds);
+        // Guard against a no-op offset that silently returns the first page instead.
+        const firstPageIds = allIdsInOrder.slice(0, pageSize);
+        expect(page1Ids).not.toEqual(firstPageIds);
+
+        // Cross-check: pages 0 + 1 + 2 reconstruct the full, distinct result set, proving
+        // the offset actually advances the window rather than returning a fixed page.
+        const page0Response = await request
+            .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=${pageSize}&_getpagesoffset=0`)
+            .set(getTestHeadersWithExternalStorage());
+        const page2Response = await request
+            .get(`/4_0_0/Group?member=${encodeURIComponent(memberRef)}&_count=${pageSize}&_getpagesoffset=2`)
+            .set(getTestHeadersWithExternalStorage());
+
+        expect(page0Response.status).toBe(200);
+        expect(page2Response.status).toBe(200);
+
+        const page0Ids = (page0Response.body.entry || []).map(e => e.resource.id);
+        const page2Ids = (page2Response.body.entry || []).map(e => e.resource.id);
+
+        const combined = [...page0Ids, ...page1Ids, ...page2Ids];
+        expect(combined).toHaveLength(TEST_DATA_SIZES.MEDIUM);
+        expect(new Set(combined).size).toBe(TEST_DATA_SIZES.MEDIUM);
+        expect(combined).toEqual(allIdsInOrder.slice(0, TEST_DATA_SIZES.MEDIUM));
     }, 60000);
 
     test('Pagination beyond available results returns empty', async () => {
