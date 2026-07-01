@@ -90,7 +90,7 @@ function wasMemberStrippedForExternalStorage(contextData) {
  * Context: For a Group create/PUT with useExternalStorage, MongoDB is committed first with
  * member[] stripped, then member events are written to ClickHouse in the post-save handler.
  * If that ClickHouse write fails, MongoDB already holds a Group with no members and ClickHouse
- * holds no events: a silently-empty (orphaned) Group. (EA-2322)
+ * holds no events: a silently-empty (orphaned) Group.
  *
  * This restores the original member array onto the just-committed MongoDB document so the
  * submitted membership is not lost. The caller still surfaces the original error to the client

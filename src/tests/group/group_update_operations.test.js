@@ -175,26 +175,19 @@ describe('Group UPDATE operations', () => {
 
     });
 
-    // SKIPPED — reproduces BUG-4 (real, surfaced by this adversarial pass; needs an ADR fix).
+    // SKIPPED — reproduces a same-timestamp add/remove ordering bug (real; needs an ADR fix).
     //
-    // Creating N members and then PUT-ing member:[] should leave 0 active members. It does not:
-    // the API-reported quantity (and the raw argMax) come back as a NON-ZERO count of "still
-    // active" members. Root cause: current membership is read as
-    // argMax(event_type, (event_time, event_id)). event_time is millisecond precision and (per
-    // EA-2323) is sourced from meta.lastUpdated. When the CREATE's MEMBER_ADDED events and this
-    // PUT's diff-computed MEMBER_REMOVED events for the same members land at the same event_time,
-    // the add/remove tie is decided by event_id — a uuidv5 CONTENT HASH, not causal order — so the
-    // causally-later remove can lose and the member wrongly stays active. Verified end-to-end:
-    // even reading via the GET API (MV + argMaxMerge) the quantity comes back non-zero (e.g. 3-4 of
-    // 5), and delaying the PUT does not separate the timestamps. This corrupts clinical cohort
-    // membership on the PUT/UPDATE remove path.
+    // Creating N members then PUT-ing member:[] should leave 0 active members, but it does not: the
+    // reported quantity comes back non-zero. Current membership is read as
+    // argMax(event_type, (event_time, event_id)); event_time is millisecond precision and is sourced
+    // from meta.lastUpdated, so the CREATE's MEMBER_ADDED and this PUT's diff-computed MEMBER_REMOVED
+    // for the same members can share one event_time. The tie then falls to event_id (a content hash,
+    // not causal order), so the later remove can lose and the member wrongly stays active —
+    // corrupting cohort membership on the PUT/UPDATE remove path.
     //
-    // Fix is a design decision (a monotonic per-event sequence / sub-millisecond component in the
-    // current-state ORDER BY tie-breaker so a later remove always beats an earlier add), out of
-    // scope for this test-hardening pass. Kept as an executable, skipped repro so the bug is on
-    // record and re-enables trivially once the tie-breaker is fixed.
-    // TODO(new ticket): make the current-state argMax tie-breaker causal; then unskip.
-    test.skip('BUG-4: PUT empty member array → Remove all current members (same-ms add/remove tie-break)', async () => {
+    // Fix is a design decision (a causal tie-breaker in the current-state ordering); kept as a
+    // skipped, executable repro that re-enables once the tie-breaker is fixed.
+    test.skip('PUT empty member array clears all current members (same-timestamp add/remove ordering)', async () => {
         const MEMBER_COUNT = 5;
         const initialMembers = Array.from({ length: MEMBER_COUNT }, (_, i) => ({
             entity: { reference: `Patient/update-empty-${i}` }

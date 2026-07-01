@@ -3,13 +3,13 @@ const { GroupMemberEnrichmentProvider } = require('../../../../enrich/providers/
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../../utils/contextDataBuilder');
 
 /**
- * B7 - Surface ClickHouse read failures instead of masking them as quantity=0.
+ * Surface ClickHouse read failures instead of masking them as quantity=0.
  *
  * Previously, a ClickHouse read error during Group enrichment returned
  * quantity: 0 with a 200 OK, silently reporting an empty Group. These tests
  * verify the error now propagates so the request fails loudly.
  */
-describe('GroupMemberEnrichmentProvider read-failure surfacing (B7)', () => {
+describe('GroupMemberEnrichmentProvider read-failure surfacing', () => {
     let mockClickHouseClientManager;
     let mockConfigManager;
     let provider;

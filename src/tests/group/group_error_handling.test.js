@@ -29,19 +29,19 @@ function isMemberCountQuery(query) {
  *
  * Coverage:
  * ✅ Input validation (invalid references, null values, malformed requests)
- * ✅ Read-side errors SURFACE (EA-2323 / B7): a ClickHouse read failure must NOT be
+ * ✅ Read-side errors SURFACE: a ClickHouse read failure must NOT be
  *    masked as a successful, silently-empty quantity:0 — it surfaces as a non-2xx.
  * ✅ Boundary conditions (empty arrays, large datasets, PUT member-limit guardrail)
  *
- * NOTE (EA-2323 / B7 read-surface): On origin/main a ClickHouse read failure degraded
+ * NOTE (read-surface): On origin/main a ClickHouse read failure degraded
  * to a 200 with quantity=0/null. That silently reported an empty clinical cohort and
- * was the bug B7 fixed. On this integrated branch GroupMemberEnrichmentProvider rethrows
+ * was the bug the read-surfacing fix addressed. On this integrated branch GroupMemberEnrichmentProvider rethrows
  * on read failure, so these tests assert the CORRECTED contract: the request fails loudly
  * rather than returning wrong member data.
  *
  * NOT covered here:
  * ❌ Write-side failures (ClickHouse write fails after MongoDB commit) — see
- *    group_clickhouse_write_failure.test.js (EA-2322).
+ *    group_clickhouse_write_failure.test.js.
  * ❌ Orphaned Group detection / reconciliation workflows.
  *
  * Read-side failures are exercised by spying on the container's
@@ -253,10 +253,10 @@ describe('Group Error Handling', () => {
     // Phase 2.1: Critical Error Handling Tests
 
     test('ClickHouse query timeout during READ → surfaces as non-2xx (no silent quantity:0)', async () => {
-        // EA-2323 / B7 read-surface: when the ClickHouse member-count query fails (here: a
-        // socket timeout), the enrichment provider MUST surface the error rather than mask it
-        // as a 200 with quantity=0. Silently reporting an empty clinical cohort is the bug B7
-        // fixed. We INJECT the timeout by rejecting the member-count query at the ClickHouse
+        // Read-surface: when the ClickHouse member-count query fails (here: a socket timeout),
+        // the enrichment provider MUST surface the error rather than mask it as a 200 with
+        // quantity=0. Silently reporting an empty clinical cohort is the bug the read-surfacing
+        // fix addressed. We INJECT the timeout by rejecting the member-count query at the ClickHouse
         // client boundary that GroupMemberEnrichmentProvider uses.
         const groupId = `error-ch-timeout-${Date.now()}`;
 
@@ -295,7 +295,7 @@ describe('Group Error Handling', () => {
         // The injected timeout must actually have been exercised.
         expect(memberCountQueryAttempted).toBe(true);
 
-        // B7 contract: the read failure surfaces as an error, NOT a 200 with a bogus quantity.
+        // Read-surface contract: the read failure surfaces as an error, NOT a 200 with a bogus quantity.
         expect(response.status).toBeGreaterThanOrEqual(500);
         // And crucially, it must never look like a healthy empty cohort.
         expect(response.body.quantity).toBeUndefined();
@@ -314,10 +314,10 @@ describe('Group Error Handling', () => {
         //
         // SCOPE NOTE: coercing that non-finite value into `quantity: 0` (so the response
         // is always a valid finite FHIR quantity) is the read-failure-surfacing/sanitize
-        // fix owned by EA-2323 (B7) in groupMemberEnrichmentProvider.js. On origin/main
+        // fix owned by the read-failure-surfacing work in groupMemberEnrichmentProvider.js. On origin/main
         // the value is NOT sanitized - parseInt(...) yields NaN and JSON serialization
         // emits `quantity: null`. This test therefore does NOT assert quantity === 0
-        // (that would depend on unmerged B7); it only guards graceful degradation and
+        // (that would depend on that unmerged fix); it only guards graceful degradation and
         // documents the current gap: quantity comes back null/absent, never a bogus
         // finite number.
         const groupId = `error-ch-nan-${Date.now()}`;
@@ -357,9 +357,9 @@ describe('Group Error Handling', () => {
         expect(response.body.resourceType).toBe('Group');
         expect(response.body.id).toBe(createdId);
 
-        // Current (pre-B7) contract: quantity is never a bogus finite number. It is
-        // absent or null because the non-finite value is not yet sanitized. Once B7
-        // (EA-2323) lands, a follow-up assertion should tighten this to quantity === 0.
+        // Current (pre-fix) contract: quantity is never a bogus finite number. It is
+        // absent or null because the non-finite value is not yet sanitized. Once the
+        // read-failure-surfacing fix lands, a follow-up assertion should tighten this to quantity === 0.
         const quantity = response.body.quantity;
         const quantityIsAbsentOrNull = quantity === undefined || quantity === null;
         expect(quantityIsAbsentOrNull).toBe(true);

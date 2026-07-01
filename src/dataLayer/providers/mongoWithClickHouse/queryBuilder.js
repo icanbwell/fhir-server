@@ -41,14 +41,11 @@ class QueryBuilder {
         afterGroupId = null,
         skip = 0
     }) {
-        // WATCH ITEM (read cost at scale): this reverse-lookup uses the FINAL
-        // modifier on Group_4_0_0_MemberCurrentByEntity to force merge-on-read for
-        // read-after-write consistency. FINAL merges all parts touching the matched
-        // rows at query time; for a member that belongs to a very large number of
-        // groups (or under heavy insert pressure with many unmerged parts) this can
-        // become expensive. If reverse-lookup latency regresses, revisit: rely on
-        // background merges + argMaxMerge instead of FINAL, or add a lighter
-        // deduplicating read path. No behavior change intended here.
+        // FINAL forces merge-on-read, which the synchronous write path needs for read-after-write
+        // consistency (ClickHouse is the source of truth for membership). Cost caveat: FINAL merges
+        // matching parts at query time, so it can get expensive for a member in very many groups or
+        // under heavy insert pressure; if reverse-lookup latency regresses, revisit with a lighter
+        // deduplicating read.
         const havingClause = this._buildActiveMemberHavingClause(
             accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId, hasFullAccess
         );
@@ -225,25 +222,12 @@ class QueryBuilder {
      * entity_reference_uuid and entity_reference_source_id are AggregateFunction columns,
      * so they must be filtered via argMaxMerge() in HAVING, not WHERE.
      *
-     * TENANT ISOLATION (fail-closed, admin-exempt) — mirrors SecurityTagManager:
-     * The caller's authorization is decided upstream by SecurityTagManager /
-     * ScopesManager, not inferred here from whether tags happen to be present:
-     *   - A wildcard admin (access/*.*) resolves to EMPTY security tags with
-     *     hasFullAccess=true (full access => no tenant predicate). We must NOT
-     *     block them; the previous "empty tags => 1 = 0" logic wrongly denied
-     *     this legitimate admin, and its claim that a wildcard admin "arrives as
-     *     ['*']" was false.
-     *   - A scoped caller carries a non-empty access/owner tag set; we apply the
-     *     tag filter (existing behavior).
-     *   - A genuinely unscoped non-admin (no tags AND not full access) is a
-     *     security error. A caller with no access scope is already rejected with
-     *     403 by ScopesManager.getSecurityTagsFromScope before the query is
-     *     built, so this branch is defense-in-depth. We throw ForbiddenError to
-     *     match the write path (QueryFragments.whereAccessTags/whereOwnerTags,
-     *     which throw on empty tags) rather than silently returning rows across
-     *     every tenant. ForbiddenError carries statusCode 403, which is
-     *     preserved through RethrownError, so the caller sees a 403
-     *     OperationOutcome rather than a leak or a 500.
+     * TENANT ISOLATION (fail-closed, admin-exempt), mirroring SecurityTagManager. Authorization is
+     * decided upstream, not inferred here from whether tags are present:
+     *   - Full-access admin (access/*.*) → empty tags + hasFullAccess: no tenant predicate applied.
+     *   - Scoped caller → filter by the caller's access/owner tags.
+     *   - Unscoped non-admin (no tags, not full access) → ForbiddenError (403). Defense in depth:
+     *     ScopesManager already 403s such a caller before the query is built.
      *
      * @param {string[]} accessTags - Access security tags
      * @param {string[]} ownerTags - Owner security tags

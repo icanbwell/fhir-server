@@ -421,20 +421,11 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
                                 })
                             );
                         } catch (postSaveError) {
-                            // EA-2322: Group dual-write split-brain compensation.
-                            //
-                            // For a Group create/PUT with useExternalStorage, the MongoDB document
-                            // was already committed (above) with member[] stripped, on the
-                            // assumption that the synchronous post-save handler would write the
-                            // members to ClickHouse. A throw here means that ClickHouse write
-                            // failed, so MongoDB now holds a Group with no members and ClickHouse
-                            // holds no events: a silently-empty (orphaned) Group.
-                            //
-                            // Restore the original members onto the committed MongoDB document so
-                            // the submitted membership is not lost, then re-throw so the client
-                            // still receives a 500 and the operation is reported as failed.
-                            // See restoreStrippedMembersInMongo for the rationale and the known
-                            // limitation (members are restored to Mongo, not replayed to ClickHouse).
+                            // Compensate a Group dual-write split-brain: the document was committed
+                            // with member[] stripped (ClickHouse owns membership), so a failed
+                            // ClickHouse write would leave an orphaned, memberless Group. Restore the
+                            // members to Mongo so the submitted data is not lost, then re-throw so the
+                            // client still sees the operation fail.
                             await this._compensateStrippedGroupMembersOnPostSaveFailure({
                                 collection,
                                 resourceType,
@@ -618,7 +609,7 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
     }
 
     /**
-     * EA-2322: Compensates a Group dual-write split-brain after a post-save failure.
+     * Compensates a Group dual-write split-brain after a post-save (ClickHouse) failure.
      *
      * When the synchronous post-save handler (the ClickHouse member write) throws for a Group
      * whose member[] was stripped from MongoDB before the commit, the committed MongoDB document

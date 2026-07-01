@@ -10,7 +10,7 @@ const {
 const { GroupMemberRepository } = require('../../dataLayer/repositories/groupMemberRepository');
 
 /**
- * EA-2322: Group dual-write split-brain on ClickHouse write failure.
+ * Group dual-write split-brain on ClickHouse write failure.
  *
  * For a Group create/PUT/$merge with the useExternalStorage header, MongoDB is committed first
  * with member[] stripped, then the member events are written to ClickHouse in the synchronous
@@ -26,7 +26,7 @@ const { GroupMemberRepository } = require('../../dataLayer/repositories/groupMem
  *
  * i.e. never a silently-empty Group.
  */
-describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
+describe('Group ClickHouse write-failure consistency', () => {
     let appendEventsSpy;
 
     beforeAll(async () => {
@@ -64,7 +64,7 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
     function injectClickHouseWriteFailure() {
         appendEventsSpy = jest
             .spyOn(GroupMemberRepository.prototype, 'appendEvents')
-            .mockRejectedValue(new Error('Simulated ClickHouse outage (EA-2322 test)'));
+            .mockRejectedValue(new Error('Simulated ClickHouse outage'));
     }
 
     /**
@@ -214,7 +214,7 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
         const response = await postGroup({
             type: 'person',
             actual: true,
-            name: 'EA-2322 empty group'
+            name: 'empty group'
         });
 
         expect(response.status).toBe(201);

@@ -4,12 +4,12 @@ const { TABLES } = require('../../../../constants/clickHouseConstants');
 
 /**
  * Unit tests for GroupMemberRepository.appendEvents covering:
- *  - B4: content-based idempotency. Rows are deterministic (event_id + event_time
+ *  - content-based idempotency. Rows are deterministic (event_id + event_time
  *        baked in by GroupMemberEventBuilder), so a retried block is byte-identical
  *        and argMax collapses duplicates on read. The insert deliberately does NOT
  *        set insert_deduplicate / insert_deduplication_token (inert on this plain
  *        MergeTree engine).
- *  - B5: bounded retry with jittered backoff around the insert
+ *  - bounded retry with jittered backoff around the insert
  */
 describe('GroupMemberRepository.appendEvents', () => {
     let mockClient;
@@ -44,7 +44,7 @@ describe('GroupMemberRepository.appendEvents', () => {
         expect(mockClient.insertAsync).not.toHaveBeenCalled();
     });
 
-    test('B4: inserts to the events table and does NOT set the inert dedup settings', async () => {
+    test('inserts to the events table and does NOT set the inert dedup settings', async () => {
         await repository.appendEvents([makeEvent({ event_id: 'evt-1' })], { correlationId: 'group-1|3' });
 
         expect(mockClient.insertAsync).toHaveBeenCalledTimes(1);
@@ -59,7 +59,7 @@ describe('GroupMemberRepository.appendEvents', () => {
         expect(args.clickhouse_settings.wait_for_async_insert).toBe(1);
     });
 
-    test('B4: a retried block sends byte-identical rows so argMax converges to one state', async () => {
+    test('a retried block sends byte-identical rows so argMax converges to one state', async () => {
         // The deterministic rows (event_id + event_time) are what make the write
         // idempotent: two physical copies of the same row collapse under argMax.
         const events = [
@@ -77,7 +77,7 @@ describe('GroupMemberRepository.appendEvents', () => {
         expect(values2.map(v => v.event_id)).toEqual(['evt-1', 'evt-2']);
     });
 
-    test('B5: retries a transient insert failure and eventually succeeds', async () => {
+    test('retries a transient insert failure and eventually succeeds', async () => {
         mockClient.insertAsync
             .mockRejectedValueOnce(new Error('transient ClickHouse error'))
             .mockResolvedValueOnce(undefined);
@@ -87,7 +87,7 @@ describe('GroupMemberRepository.appendEvents', () => {
         expect(mockClient.insertAsync).toHaveBeenCalledTimes(2);
     });
 
-    test('B5: surfaces the error after exhausting retries', async () => {
+    test('surfaces the error after exhausting retries', async () => {
         mockClient.insertAsync.mockRejectedValue(new Error('ClickHouse down'));
 
         await expect(

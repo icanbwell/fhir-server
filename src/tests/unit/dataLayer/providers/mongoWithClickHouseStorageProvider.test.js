@@ -336,14 +336,14 @@ describe('MongoWithClickHouseStorageProvider', () => {
     });
 
     /**
-     * B3 - Admin-exempt fail-closed tenant filtering on the ClickHouse read path.
+     * Admin-exempt fail-closed tenant filtering on the ClickHouse read path.
      *
      * The full-access signal must be derived authoritatively from the caller's
      * SCOPE (via ScopesManager), not inferred from whether the built query
      * carried tag predicates. A wildcard admin's query legitimately carries no
      * tags, so tag-based inference would wrongly deny them.
      */
-    describe('admin-exempt tenant filtering (B3)', () => {
+    describe('admin-exempt tenant filtering', () => {
         // Minimal ScopesManager fake honoring the wildcard contract:
         // access/*.* => access code '*'. Only structural behavior we depend on.
         const fakeScopesManager = {

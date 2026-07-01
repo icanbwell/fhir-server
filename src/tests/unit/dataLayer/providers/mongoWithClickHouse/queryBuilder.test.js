@@ -16,7 +16,7 @@ const expectForbidden = (fn) => {
 };
 
 /**
- * B3 - Tenant isolation on the ClickHouse Group reverse-lookup (fail-closed,
+ * Tenant isolation on the ClickHouse Group reverse-lookup (fail-closed,
  * admin-exempt), mirroring SecurityTagManager / ScopesManager.
  *
  * Authorization is decided upstream, not inferred here from tag presence:
@@ -30,7 +30,7 @@ const expectForbidden = (fn) => {
  *     empty tags). Such callers are already 403'd upstream; this is defense in
  *     depth.
  */
-describe('QueryBuilder tenant isolation (B3)', () => {
+describe('QueryBuilder tenant isolation', () => {
     const baseArgs = {
         memberReferenceUuid: 'Patient/uuid-1',
         memberReferenceSourceId: undefined,

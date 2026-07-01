@@ -6,7 +6,7 @@ const {
 const { MongoBulkWriteExecutor } = require('../../dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
 
 /**
- * EA-2322 unit tests for the Group dual-write split-brain compensation.
+ * Unit tests for the Group dual-write split-brain compensation.
  *
  * These exercise the compensation logic in isolation (no container, ClickHouse, or MongoDB),
  * so they run fast and deterministically and document the exact intended behavior:
@@ -17,7 +17,7 @@ const { MongoBulkWriteExecutor } = require('../../dataLayer/bulkWriteExecutors/m
  *    MongoDB ONLY for Group writes that actually stripped members, is a no-op otherwise, and
  *    never throws (a failed restore must not mask the original ClickHouse error).
  */
-describe('EA-2322 Group ClickHouse compensation (unit)', () => {
+describe('Group ClickHouse compensation (unit)', () => {
     process.env.LOGLEVEL = 'SILENT';
 
     /**

@@ -76,16 +76,9 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
         const versionId = doc?.meta?.versionId || '';
         const correlationId =
             contextData?.correlationId || `${doc?.id || ''}|${versionId}`;
-        // meta.lastUpdated is set once at MongoDB commit; reuse it as the event
-        // time so retries share the same DateTime and thus the same MergeTree key.
-        //
-        // meta.lastUpdated is a FHIR `instant`, which in the live save pipeline is
-        // a Date object (not an ISO string). Downstream the event time flows into
-        // DateTimeFormatter.toClickHouseDateTime, which does string .replace() on
-        // it, so a raw Date throws "result.replace is not a function" and fails the
-        // whole write. Normalize to a deterministic ISO string here so a retry of
-        // the same committed doc still yields the identical event_time (and thus
-        // the identical MergeTree key). Leave already-ISO strings untouched.
+        // Reuse meta.lastUpdated (set once at commit) as the event time so a retry shares the
+        // same DateTime and MergeTree key. It is a Date at runtime; normalize to ISO here because
+        // the downstream ClickHouse formatter does a string .replace() that would throw on a Date.
         const eventTime = this._normalizeEventTime(doc?.meta?.lastUpdated);
         return { correlationId, eventTime };
     }
@@ -180,7 +173,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
 
             // Idempotency context: stable correlation id + deterministic event
             // time so a retried write produces identical, self-deduplicating rows.
-            const idempotency = this._deriveIdempotencyContext(doc, contextData);
+            const idempotencyContext = this._deriveIdempotencyContext(doc, contextData);
 
             logDebug('POST-save: Processing Group', {
                 groupId: doc.id,
@@ -225,7 +218,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                     originalMembers,
                     EVENT_TYPES.MEMBER_ADDED,
                     docWithMembers,
-                    idempotency
+                    idempotencyContext
                 );
 
                 logInfo('ClickHouse CREATE events written', {
@@ -248,7 +241,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 const docWithMembers = { ...doc, member: originalMembers };
 
                 // Always await - Groups require synchronous writes
-                await this._handleUpdateAsync(docWithMembers, { smartMerge: contextData?.smartMerge, idempotency });
+                await this._handleUpdateAsync(docWithMembers, { smartMerge: contextData?.smartMerge, idempotencyContext });
 
                 logInfo('ClickHouse UPDATE events written', {
                     groupId: doc.id
@@ -314,16 +307,16 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @param {Array<Object>} members - Array of FHIR Group.member objects
      * @param {string} eventType - EVENT_TYPES.MEMBER_ADDED or MEMBER_REMOVED
      * @param {Object} groupResource - FHIR Group resource
-     * @param {{correlationId: string, eventTime: string|undefined}} [idempotency] - Idempotency context
+     * @param {{correlationId: string, eventTime: string|undefined}} [idempotencyContext] - Idempotency context
      * @returns {Promise<void>}
      * @private
      */
-    async _writeMemberEventsIfNeeded(members, eventType, groupResource, idempotency = {}) {
+    async _writeMemberEventsIfNeeded(members, eventType, groupResource, idempotencyContext = {}) {
         if (!members || members.length === 0) {
             return;
         }
 
-        return this._appendMemberEventsAsync(groupResource, eventType, members, idempotency);
+        return this._appendMemberEventsAsync(groupResource, eventType, members, idempotencyContext);
     }
 
     /**
@@ -334,11 +327,11 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @param {Array<Object>} params.additions - Members to add
      * @param {Array<Object>} params.removals - Members to remove
      * @param {Object} params.groupResource - FHIR Group resource
-     * @param {{correlationId: string, eventTime: string|undefined}} [params.idempotency] - Idempotency context
+     * @param {{correlationId: string, eventTime: string|undefined}} [params.idempotencyContext] - Idempotency context
      * @returns {Promise<void>}
      * @private
      */
-    async _writeCombinedEventsAsync({ groupId, additions, removals, groupResource, idempotency = {} }) {
+    async _writeCombinedEventsAsync({ groupId, additions, removals, groupResource, idempotencyContext = {} }) {
         const allEvents = [];
 
         if (additions.length > 0) {
@@ -347,8 +340,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 members: additions,
                 eventType: EVENT_TYPES.MEMBER_ADDED,
                 groupResource,
-                eventTime: idempotency.eventTime,
-                correlationId: idempotency.correlationId
+                eventTime: idempotencyContext.eventTime,
+                correlationId: idempotencyContext.correlationId
             });
             allEvents.push(...addEvents);
         }
@@ -359,14 +352,14 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 members: removals,
                 eventType: EVENT_TYPES.MEMBER_REMOVED,
                 groupResource,
-                eventTime: idempotency.eventTime,
-                correlationId: idempotency.correlationId
+                eventTime: idempotencyContext.eventTime,
+                correlationId: idempotencyContext.correlationId
             });
             allEvents.push(...removeEvents);
         }
 
         if (allEvents.length > 0) {
-            await this.repository.appendEvents(allEvents, { correlationId: idempotency.correlationId });
+            await this.repository.appendEvents(allEvents, { correlationId: idempotencyContext.correlationId });
         }
     }
 
@@ -377,11 +370,11 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @param {Object} groupResource - FHIR Group resource
      * @param {string} eventType - EVENT_TYPES.MEMBER_ADDED or MEMBER_REMOVED
      * @param {Array<Object>} members - Array of FHIR Group.member objects
-     * @param {{correlationId: string, eventTime: string|undefined}} [idempotency] - Idempotency context
+     * @param {{correlationId: string, eventTime: string|undefined}} [idempotencyContext] - Idempotency context
      * @returns {Promise<void>}
      * @private
      */
-    async _appendMemberEventsAsync(groupResource, eventType, members, idempotency = {}) {
+    async _appendMemberEventsAsync(groupResource, eventType, members, idempotencyContext = {}) {
         try {
             // Use GroupMemberEventBuilder to construct events
             const eventBuildStart = Date.now();
@@ -390,14 +383,14 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 members,
                 eventType,
                 groupResource,
-                eventTime: idempotency.eventTime,
-                correlationId: idempotency.correlationId
+                eventTime: idempotencyContext.eventTime,
+                correlationId: idempotencyContext.correlationId
             });
             const eventBuildTime = Date.now() - eventBuildStart;
 
             // Pure INSERT - no read operation
             const insertStart = Date.now();
-            await this.repository.appendEvents(events, { correlationId: idempotency.correlationId });
+            await this.repository.appendEvents(events, { correlationId: idempotencyContext.correlationId });
             const insertTime = Date.now() - insertStart;
 
             logInfo('Appended member events to ClickHouse', {
@@ -439,7 +432,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      * @returns {Promise<{added: number, removed: number, finalCount: number}>} Member change statistics
      * @private
      */
-    async _handleUpdateAsync(groupResource, { smartMerge, idempotency = {} } = {}) {
+    async _handleUpdateAsync(groupResource, { smartMerge, idempotencyContext = {} } = {}) {
         try {
             // Get current members from repository
             const currentReferences = await this._getCurrentMembers(groupResource.id);
@@ -479,7 +472,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 additions,
                 removals,
                 groupResource,
-                idempotency
+                idempotencyContext
             });
 
             logInfo('Processed Group update', {
@@ -542,8 +535,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                     throw new Error(`groupResource is required for writeEventsAsync (groupId: ${groupId})`);
                 }
 
-                // Derive idempotency context so a retried PATCH re-drives identical rows.
-                const idempotency = this._deriveIdempotencyContext(groupResource, { correlationId });
+                // Derive the idempotency context so a retried PATCH re-drives identical rows.
+                const idempotencyContext = this._deriveIdempotencyContext(groupResource, { correlationId });
 
                 // Write combined events in single INSERT
                 await this._writeCombinedEventsAsync({
@@ -551,7 +544,7 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                     additions: added,
                     removals: removed,
                     groupResource,
-                    idempotency
+                    idempotencyContext
                 });
 
                 const duration = Date.now() - startTime;
