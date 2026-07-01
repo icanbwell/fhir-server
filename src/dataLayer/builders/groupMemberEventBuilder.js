@@ -2,7 +2,7 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { FhirReferenceParser } = require('../../utils/fhir/referenceParser');
 const { SecurityTagExtractor } = require('../../utils/fhir/securityTagExtractor');
 const { logWarn, logError } = require('../../operations/common/logging');
-const { v4: uuidv4 } = require('uuid');
+const { generateUUIDv5 } = require('../../utils/uid.util');
 
 /**
  * Builder class for constructing Group member event objects
@@ -57,6 +57,30 @@ class GroupMemberEventBuilder {
     }
 
     /**
+     * Derives a stable, deterministic event_id for idempotent retries.
+     *
+     * The Group member events table is an append-only MergeTree. A client that
+     * retries a failed write (e.g. after a 500 from a transient ClickHouse
+     * outage) must not create duplicate rows. By deriving event_id as a uuidv5
+     * of (group_id | entity_reference | event_type | correlation_id), a retry
+     * of the SAME logical operation produces the SAME event_id. Combined with a
+     * deterministic event_time (see the handler, which sources it from
+     * meta.lastUpdated) the full row — and thus the MergeTree ORDER BY key —
+     * is identical on retry, so argMax aggregation converges to one logical
+     * member state instead of diverging across duplicate rows.
+     *
+     * @param {string} groupId
+     * @param {string} entityReference
+     * @param {string} eventType
+     * @param {string} correlationId - Stable identifier for the logical operation
+     * @returns {string} Deterministic UUID
+     * @private
+     */
+    static _deriveEventId(groupId, entityReference, eventType, correlationId) {
+        return generateUUIDv5(`${groupId}|${entityReference}|${eventType}|${correlationId}`);
+    }
+
+    /**
      * Creates an event object with all required fields
      * Returns events with ISO timestamps (domain format).
      * Repository layer handles database-specific format conversions.
@@ -71,7 +95,8 @@ class GroupMemberEventBuilder {
         groupSourceId,
         groupSourceAuthority,
         accessTags,
-        ownerTags
+        ownerTags,
+        correlationId
     }) {
         const sourceAssigningAuthority = this._extractSourceAssigningAuthority(
             ownerTags,
@@ -97,8 +122,13 @@ class GroupMemberEventBuilder {
             );
         }
 
+        // Stable correlation id for the logical operation. Falls back to the
+        // entity reference so a missing correlation still yields a deterministic
+        // (though per-reference-only) id rather than a random one.
+        const effectiveCorrelationId = correlationId || `${groupId}|${entityReference}`;
+
         return {
-            event_id: uuidv4(),
+            event_id: this._deriveEventId(groupId, entityReference, eventType, effectiveCorrelationId),
             group_id: groupId,
             entity_reference: entityReference,
             entity_reference_uuid: entityReferenceUuid,
@@ -109,6 +139,7 @@ class GroupMemberEventBuilder {
             period_start: member?.period?.start || null,
             period_end: member?.period?.end || null,
             inactive: member?.inactive ? 1 : 0,
+            correlation_id: effectiveCorrelationId,
             group_source_id: groupSourceId,
             group_source_assigning_authority: groupSourceAuthority,
             access_tags: accessTags,
@@ -127,6 +158,7 @@ class GroupMemberEventBuilder {
      * @param {Object} [params.member] - FHIR Group.member object (optional, for period/inactive)
      * @param {Object} params.groupResource - Full Group resource for metadata extraction
      * @param {string} [params.eventTime] - ISO timestamp (defaults to now)
+     * @param {string} [params.correlationId] - Stable id for the logical operation (enables idempotent retries)
      *
      * @returns {Object} Event object ready for insertion
      *
@@ -143,7 +175,7 @@ class GroupMemberEventBuilder {
      *   groupResource: { id: '...', meta: { security: [...] }, ... }
      * });
      */
-    static buildEvent({ groupId, entityReference, eventType, member, groupResource, eventTime }) {
+    static buildEvent({ groupId, entityReference, eventType, member, groupResource, eventTime, correlationId }) {
         const timestamp = eventTime || new Date().toISOString();
 
         return this._createEventObject({
@@ -155,7 +187,8 @@ class GroupMemberEventBuilder {
             groupSourceId: groupResource._sourceId || '',
             groupSourceAuthority: groupResource._sourceAssigningAuthority || '',
             accessTags: SecurityTagExtractor.extractAccessTags(groupResource),
-            ownerTags: SecurityTagExtractor.extractOwnerTags(groupResource)
+            ownerTags: SecurityTagExtractor.extractOwnerTags(groupResource),
+            correlationId
         });
     }
 
@@ -185,7 +218,7 @@ class GroupMemberEventBuilder {
      *   groupResource: groupDoc
      * });
      */
-    static buildEvents({ groupId, members, eventType, groupResource, eventTime }) {
+    static buildEvents({ groupId, members, eventType, groupResource, eventTime, correlationId }) {
         if (!members || members.length === 0) {
             return [];
         }
@@ -209,7 +242,8 @@ class GroupMemberEventBuilder {
                 groupSourceId,
                 groupSourceAuthority,
                 accessTags,
-                ownerTags
+                ownerTags,
+                correlationId
             });
         });
     }
@@ -225,13 +259,14 @@ class GroupMemberEventBuilder {
      *
      * @returns {Array<Object>} Array of "added" events
      */
-    static buildAddedEvents({ groupId, members, groupResource, eventTime }) {
+    static buildAddedEvents({ groupId, members, groupResource, eventTime, correlationId }) {
         return this.buildEvents({
             groupId,
             members,
             eventType: EVENT_TYPES.MEMBER_ADDED,
             groupResource,
-            eventTime
+            eventTime,
+            correlationId
         });
     }
 
@@ -246,13 +281,14 @@ class GroupMemberEventBuilder {
      *
      * @returns {Array<Object>} Array of "removed" events
      */
-    static buildRemovedEvents({ groupId, members, groupResource, eventTime }) {
+    static buildRemovedEvents({ groupId, members, groupResource, eventTime, correlationId }) {
         return this.buildEvents({
             groupId,
             members,
             eventType: EVENT_TYPES.MEMBER_REMOVED,
             groupResource,
-            eventTime
+            eventTime,
+            correlationId
         });
     }
 
@@ -279,7 +315,7 @@ class GroupMemberEventBuilder {
      * });
      * // Returns: { addedEvents: [Patient/2], removedEvents: [Patient/1], totalEvents: 2 }
      */
-    static buildDiffEvents({ groupId, oldMembers, newMembers, groupResource, eventTime }) {
+    static buildDiffEvents({ groupId, oldMembers, newMembers, groupResource, eventTime, correlationId }) {
         const timestamp = eventTime || new Date().toISOString();
 
         // Create sets of references for efficient lookup
@@ -304,14 +340,16 @@ class GroupMemberEventBuilder {
             groupId,
             members: addedMembers,
             groupResource,
-            eventTime: timestamp
+            eventTime: timestamp,
+            correlationId
         });
 
         const removedEvents = this.buildRemovedEvents({
             groupId,
             members: removedMembers,
             groupResource,
-            eventTime: timestamp
+            eventTime: timestamp,
+            correlationId
         });
 
         return {

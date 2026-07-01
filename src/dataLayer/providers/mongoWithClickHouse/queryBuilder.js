@@ -36,6 +36,14 @@ class QueryBuilder {
         afterGroupId = null,
         skip = 0
     }) {
+        // WATCH ITEM (read cost at scale): this reverse-lookup uses the FINAL
+        // modifier on Group_4_0_0_MemberCurrentByEntity to force merge-on-read for
+        // read-after-write consistency. FINAL merges all parts touching the matched
+        // rows at query time; for a member that belongs to a very large number of
+        // groups (or under heavy insert pressure with many unmerged parts) this can
+        // become expensive. If reverse-lookup latency regresses, revisit: rely on
+        // background merges + argMaxMerge instead of FINAL, or add a lighter
+        // deduplicating read path. No behavior change intended here.
         const havingClause = this._buildActiveMemberHavingClause(
             accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
         );
@@ -208,6 +216,15 @@ class QueryBuilder {
      * entity_reference_uuid and entity_reference_source_id are AggregateFunction columns,
      * so they must be filtered via argMaxMerge() in HAVING, not WHERE.
      *
+     * FAIL-CLOSED tenant isolation: if BOTH access and owner tags are absent,
+     * the query is unscoped and would otherwise return rows across every tenant.
+     * The write path (QueryFragments.whereAccessTags / whereOwnerTags) throws in
+     * this case; the read path historically just omitted the filter, leaking
+     * cross-tenant results for an empty-tag query. We instead inject a deny
+     * clause ("1 = 0") so an unscoped read returns zero rows. A legitimately
+     * scoped admin caller carries the wildcard access code, which arrives here
+     * as a non-empty array (e.g. ['*']) and is therefore NOT blocked.
+     *
      * @param {string[]} accessTags - Access security tags
      * @param {string[]} ownerTags - Owner security tags
      * @param {string} [memberReferenceUuid] - UUID reference to match
@@ -229,11 +246,21 @@ class QueryBuilder {
             clauses.push(`argMaxMerge(entity_reference_source_id) = {memberReferenceSourceId:String}`);
         }
 
+        const hasAccessTags = Array.isArray(accessTags) && accessTags.length > 0;
+        const hasOwnerTags = Array.isArray(ownerTags) && ownerTags.length > 0;
+
+        // Fail closed: no security scope at all => deny (return no rows) rather
+        // than silently returning cross-tenant data.
+        if (!hasAccessTags && !hasOwnerTags) {
+            clauses.push('1 = 0');
+            return clauses.join(' AND ');
+        }
+
         // Security tags are AggregateFunction columns, must filter in HAVING after argMaxMerge
-        if (accessTags.length > 0) {
+        if (hasAccessTags) {
             clauses.push(`hasAny(argMaxMerge(access_tags), {accessTags:Array(String)})`);
         }
-        if (ownerTags.length > 0) {
+        if (hasOwnerTags) {
             clauses.push(`hasAny(argMaxMerge(owner_tags), {ownerTags:Array(String)})`);
         }
 

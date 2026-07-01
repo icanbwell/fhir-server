@@ -2,6 +2,18 @@ const { TABLES, QUERY_FORMAT } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { RethrownError } = require('../../utils/rethrownError');
 const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
+const { retryWithBackoff } = require('../../utils/retryWithBackoff');
+const { logWarn } = require('../../operations/common/logging');
+
+// Bounded retry policy for the Group member event insert. This write is on the
+// synchronous Group save path (ClickHouse is the source of truth for
+// membership) and previously had no retry, so a single transient ClickHouse
+// blip surfaced as a 500. Retries are safe because the write is idempotent:
+// event rows are deterministic (see GroupMemberEventBuilder) and the insert
+// carries an insert_deduplication_token, so a re-driven block is de-duplicated
+// by ClickHouse rather than duplicated.
+const APPEND_EVENTS_MAX_RETRIES = 3;
+const APPEND_EVENTS_INITIAL_DELAY_MS = 200;
 
 /**
  * Repository for Group member data access
@@ -73,6 +85,9 @@ class GroupMemberRepository {
      * format concerns in the Repository layer.
      *
      * @param {Array<Object>} events - Array of event objects with ISO timestamps
+     * @param {Object} [options]
+     * @param {string} [options.correlationId] - Stable id for the logical operation, used to build the
+     *   ClickHouse insert_deduplication_token so a retried block is de-duplicated at the engine level.
      * @returns {Promise<void>}
      *
      * @example
@@ -81,9 +96,9 @@ class GroupMemberRepository {
      *     event_time: '2024-01-01T00:00:00.000Z', ... },
      *   { group_id: 'group-123', entity_reference: 'Patient/2', event_type: 'added',
      *     event_time: '2024-01-01T00:00:00.000Z', ... }
-     * ]);
+     * ], { correlationId: 'group-123|2' });
      */
-    async appendEvents(events) {
+    async appendEvents(events, { correlationId } = {}) {
         try {
             if (!events || events.length === 0) {
                 return;
@@ -101,13 +116,35 @@ class GroupMemberRepository {
                     : null
             }));
 
-            await this.client.insertAsync({
-                table: TABLES.GROUP_MEMBER_EVENTS,
-                values: formattedEvents,
-                format: QUERY_FORMAT.JSON_EACH_ROW,
-                clickhouse_settings: {
-                    async_insert: 1,
-                    wait_for_async_insert: 1
+            const deduplicationToken = this._buildDeduplicationToken(formattedEvents, correlationId);
+
+            // Bounded retry with jittered backoff. The insert is idempotent
+            // (deterministic rows + insert_deduplication_token), so retrying a
+            // transient ClickHouse failure cannot create duplicates.
+            await retryWithBackoff({
+                fn: () => this.client.insertAsync({
+                    table: TABLES.GROUP_MEMBER_EVENTS,
+                    values: formattedEvents,
+                    format: QUERY_FORMAT.JSON_EACH_ROW,
+                    clickhouse_settings: {
+                        async_insert: 1,
+                        wait_for_async_insert: 1,
+                        // Engine-level idempotency: identical blocks with the same
+                        // token within the dedup window are inserted at most once.
+                        insert_deduplicate: 1,
+                        insert_deduplication_token: deduplicationToken
+                    }
+                }),
+                maxRetries: APPEND_EVENTS_MAX_RETRIES,
+                initialDelayMs: APPEND_EVENTS_INITIAL_DELAY_MS,
+                onRetry: ({ attempt, maxRetries, delay, error }) => {
+                    logWarn('Retrying Group member event insert to ClickHouse', {
+                        attempt,
+                        maxRetries,
+                        delay,
+                        eventCount: formattedEvents.length,
+                        error: error?.message
+                    });
                 }
             });
         } catch (error) {
@@ -117,6 +154,25 @@ class GroupMemberRepository {
                 args: { eventCount: events?.length || 0 }
             });
         }
+    }
+
+    /**
+     * Builds a stable ClickHouse insert_deduplication_token for a batch.
+     *
+     * The token must be identical across retries of the same logical write but
+     * distinct across different writes. We derive it from the correlation id
+     * (stable per operation) plus the batch's deterministic event ids, so a
+     * retried identical block is de-duplicated while genuinely different batches
+     * are not collapsed.
+     *
+     * @param {Array<Object>} events - Formatted event rows (each with a deterministic event_id)
+     * @param {string} [correlationId]
+     * @returns {string}
+     * @private
+     */
+    _buildDeduplicationToken(events, correlationId) {
+        const eventIds = events.map(e => e.event_id).join(',');
+        return correlationId ? `${correlationId}|${eventIds}` : eventIds;
     }
 }
 
