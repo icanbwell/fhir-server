@@ -1,4 +1,4 @@
-const { describe, test, beforeAll, beforeEach, afterEach, afterAll, expect } = require('@jest/globals');
+const { describe, test, beforeAll, beforeEach, afterEach, afterAll, expect, jest } = require('@jest/globals');
 const {
     setupGroupTests,
     teardownGroupTests,
@@ -70,11 +70,15 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
     /**
      * Reads the raw stored MongoDB Group document directly by FHIR id (bypassing the read API,
      * which would route member queries to ClickHouse). Lets us inspect exactly what was persisted.
+     *
+     * Uses the live, bootstrapped test container's mongoDatabaseManager to get the fhir DB — a
+     * fresh createTestContainer() is not connected (its mongoClient is undefined), so this is the
+     * correct handle for the running server's Mongo.
      */
     async function readRawMongoGroupById(id) {
-        const { createTestContainer } = require('../createTestContainer');
-        const container = createTestContainer();
-        const db = container.mongoClient.db(container.configManager.mongoDbName);
+        const { getTestContainer } = require('../common');
+        const container = getTestContainer();
+        const db = await container.mongoDatabaseManager.getClientDbAsync();
         return db.collection('Group_4_0_0').findOne({ id });
     }
 
@@ -86,9 +90,21 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
             .set(getTestHeadersWithExternalStorage());
     }
 
+    /**
+     * Reads every stored Group document from MongoDB. Because each test starts from a clean
+     * collection (cleanupAllData) and does a single create, this lets us assert the invariant
+     * without depending on the resource id — a POST /Group assigns a server-generated UUID as
+     * `id` (and `_sourceId`), so the client-supplied `id` in the body is NOT the stored id.
+     */
+    async function readAllRawMongoGroups() {
+        const { getTestContainer } = require('../common');
+        const container = getTestContainer();
+        const db = await container.mongoDatabaseManager.getClientDbAsync();
+        return db.collection('Group_4_0_0').find({}).toArray();
+    }
+
     test('CREATE: ClickHouse write failure does not leave a silently-empty Group in MongoDB', async () => {
         const clickHouseManager = getClickHouseManager();
-        const groupId = `ea2322-create-${Date.now()}`;
         const submittedMembers = [
             { entity: { reference: 'Patient/ea2322-a' } },
             { entity: { reference: 'Patient/ea2322-b' } },
@@ -98,7 +114,6 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
         injectClickHouseWriteFailure();
 
         const response = await postGroup({
-            id: groupId,
             type: 'person',
             actual: true,
             member: submittedMembers
@@ -110,38 +125,38 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
         // Confirm the failure was the injected ClickHouse error, not something incidental.
         expect(appendEventsSpy).toHaveBeenCalled();
 
-        // 2. ClickHouse must have no events for this group (the write failed).
+        // 2. The committed MongoDB document must NOT be a silently-empty Group. Compensation
+        //    restores the original members onto the Mongo document so no data is lost. We assert
+        //    on the single stored Group (id is server-assigned on POST, so we do not filter by it).
+        const stored = await readAllRawMongoGroups();
+        expect(stored).toHaveLength(1);
+        expect(Array.isArray(stored[0].member)).toBe(true);
+        expect(stored[0].member).toHaveLength(submittedMembers.length);
+        const storedRefs = stored[0].member.map(m => m.entity.reference).sort();
+        expect(storedRefs).toEqual(submittedMembers.map(m => m.entity.reference).sort());
+
+        // 3. ClickHouse must have no events for the created group (the write failed). The group
+        //    id is the server-assigned _uuid on the stored document.
         const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${stored[0]._uuid}'`
         });
         expect(parseInt(events[0].count)).toBe(0);
-
-        // 3. The committed MongoDB document must NOT be a silently-empty Group.
-        //    Compensation restores the original members onto the Mongo document so no data is lost.
-        const stored = await readRawMongoGroupById(groupId);
-
-        expect(stored).toBeTruthy(); // a Group document exists for this id
-        expect(Array.isArray(stored.member)).toBe(true);
-        expect(stored.member).toHaveLength(submittedMembers.length);
-        const storedRefs = stored.member.map(m => m.entity.reference).sort();
-        expect(storedRefs).toEqual(
-            submittedMembers.map(m => m.entity.reference).sort()
-        );
     });
 
     test('PUT/UPDATE: ClickHouse write failure preserves submitted members in MongoDB', async () => {
         const clickHouseManager = getClickHouseManager();
         const request = getSharedRequest();
-        const groupId = `ea2322-put-${Date.now()}`;
 
-        // First create succeeds (no failure injected yet).
+        // First create succeeds (no failure injected yet). POST assigns a server-generated id,
+        // so we PUT/read by the id the server actually returned, not a client-chosen string.
         const createResponse = await postGroup({
-            id: groupId,
             type: 'person',
             actual: true,
             member: [{ entity: { reference: 'Patient/ea2322-initial' } }]
         });
         expect(createResponse.status).toBe(201);
+        const createdId = createResponse.body.id;
+        expect(createdId).toBeTruthy();
 
         // Now inject failure and PUT a new membership.
         injectClickHouseWriteFailure();
@@ -152,10 +167,10 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
         ];
 
         const putResponse = await request
-            .put(`/4_0_0/Group/${groupId}`)
+            .put(`/4_0_0/Group/${createdId}`)
             .send({
                 resourceType: 'Group',
-                id: groupId,
+                id: createdId,
                 type: 'person',
                 actual: true,
                 meta: defaultMeta,
@@ -168,8 +183,8 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
         expect(appendEventsSpy).toHaveBeenCalled();
 
         // The committed Mongo document must retain the submitted PUT members (no silent loss),
-        // and must NOT be a silently-empty Group.
-        const stored = await readRawMongoGroupById(groupId);
+        // and must NOT be a silently-empty Group. PUT preserves the id, so we can read by it.
+        const stored = await readRawMongoGroupById(createdId);
 
         expect(stored).toBeTruthy();
         expect(Array.isArray(stored.member)).toBe(true);
@@ -177,11 +192,17 @@ describe('Group ClickHouse write-failure consistency (EA-2322)', () => {
         const storedRefs = stored.member.map(m => m.entity.reference).sort();
         expect(storedRefs).toEqual(putMembers.map(m => m.entity.reference).sort());
 
-        // ClickHouse holds no events from the failed write.
-        const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${groupId}'`
+        // ClickHouse holds NO events for the PUT members (the PUT's ClickHouse write failed).
+        // Note: the earlier successful CREATE legitimately wrote an event for Patient/ea2322-initial,
+        // so we assert specifically that NONE of the PUT-submitted members produced events, rather
+        // than that the whole group has zero events.
+        const putRefs = putMembers.map(m => m.entity.reference);
+        const putEvents = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
+                    WHERE group_id = '${stored._uuid}'
+                      AND entity_reference IN (${putRefs.map(r => `'${r}'`).join(', ')})`
         });
-        expect(parseInt(events[0].count)).toBe(0);
+        expect(parseInt(putEvents[0].count)).toBe(0);
     });
 
     test('CREATE with no members: ClickHouse failure is irrelevant (empty Group is consistent)', async () => {

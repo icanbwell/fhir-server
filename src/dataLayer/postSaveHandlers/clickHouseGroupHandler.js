@@ -78,8 +78,42 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             contextData?.correlationId || `${doc?.id || ''}|${versionId}`;
         // meta.lastUpdated is set once at MongoDB commit; reuse it as the event
         // time so retries share the same DateTime and thus the same MergeTree key.
-        const eventTime = doc?.meta?.lastUpdated || undefined;
+        //
+        // meta.lastUpdated is a FHIR `instant`, which in the live save pipeline is
+        // a Date object (not an ISO string). Downstream the event time flows into
+        // DateTimeFormatter.toClickHouseDateTime, which does string .replace() on
+        // it, so a raw Date throws "result.replace is not a function" and fails the
+        // whole write. Normalize to a deterministic ISO string here so a retry of
+        // the same committed doc still yields the identical event_time (and thus
+        // the identical MergeTree key). Leave already-ISO strings untouched.
+        const eventTime = this._normalizeEventTime(doc?.meta?.lastUpdated);
         return { correlationId, eventTime };
+    }
+
+    /**
+     * Normalizes an event time to a deterministic ISO 8601 string.
+     *
+     * Accepts the FHIR `instant` shapes that meta.lastUpdated can take at runtime:
+     * a Date (live save pipeline), an ISO string (already normalized), or a value
+     * with a toISOString() method. Returns undefined for falsy input so callers
+     * fall back to their own default. Idempotency is preserved because the same
+     * committed timestamp always maps to the same ISO string.
+     *
+     * @param {Date|string|undefined|null} value
+     * @returns {string|undefined}
+     * @private
+     */
+    _normalizeEventTime(value) {
+        if (!value) {
+            return undefined;
+        }
+        if (typeof value === 'string') {
+            return value;
+        }
+        if (typeof value.toISOString === 'function') {
+            return value.toISOString();
+        }
+        return String(value);
     }
 
     /**

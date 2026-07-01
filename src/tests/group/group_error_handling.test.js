@@ -29,20 +29,24 @@ function isMemberCountQuery(query) {
  *
  * Coverage:
  * ✅ Input validation (invalid references, null values, malformed requests)
- * ✅ Read-side errors (ClickHouse read timeout injected -> quantity=0 via catch)
- * ✅ Read-side degradation (non-finite count injected -> 200, no crash/500)
+ * ✅ Read-side errors SURFACE (EA-2323 / B7): a ClickHouse read failure must NOT be
+ *    masked as a successful, silently-empty quantity:0 — it surfaces as a non-2xx.
  * ✅ Boundary conditions (empty arrays, large datasets, PUT member-limit guardrail)
  *
+ * NOTE (EA-2323 / B7 read-surface): On origin/main a ClickHouse read failure degraded
+ * to a 200 with quantity=0/null. That silently reported an empty clinical cohort and
+ * was the bug B7 fixed. On this integrated branch GroupMemberEnrichmentProvider rethrows
+ * on read failure, so these tests assert the CORRECTED contract: the request fails loudly
+ * rather than returning wrong member data.
+ *
  * NOT covered here:
- * ❌ Non-finite count SANITIZED to quantity=0 (EA-2323 / B7 read-failure surfacing;
- *    origin/main leaves quantity null, so that assertion is deferred to EA-2323)
- * ❌ Write-side failures (ClickHouse write fails after MongoDB commit)
- * ❌ Orphaned Group detection and cleanup workflows
- * ❌ Reconciliation after partial failures
+ * ❌ Write-side failures (ClickHouse write fails after MongoDB commit) — see
+ *    group_clickhouse_write_failure.test.js (EA-2322).
+ * ❌ Orphaned Group detection / reconciliation workflows.
  *
  * Read-side failures are exercised by spying on the container's
  * ClickHouseClientManager.queryAsync (the external boundary the enrichment
- * provider depends on). Write-side failure injection is tracked separately.
+ * provider depends on).
  */
 describe('Group Error Handling', () => {
     beforeAll(async () => {
@@ -248,11 +252,12 @@ describe('Group Error Handling', () => {
 
     // Phase 2.1: Critical Error Handling Tests
 
-    test('ClickHouse query timeout → Returns Group with quantity=0', async () => {
-        // Verifies graceful degradation when the ClickHouse member-count query times
-        // out: the server must still return the Group (200) with quantity=0 instead of
-        // crashing or 500ing. We INJECT the timeout by rejecting the member-count query
-        // at the ClickHouse client boundary that GroupMemberEnrichmentProvider uses.
+    test('ClickHouse query timeout during READ → surfaces as non-2xx (no silent quantity:0)', async () => {
+        // EA-2323 / B7 read-surface: when the ClickHouse member-count query fails (here: a
+        // socket timeout), the enrichment provider MUST surface the error rather than mask it
+        // as a 200 with quantity=0. Silently reporting an empty clinical cohort is the bug B7
+        // fixed. We INJECT the timeout by rejecting the member-count query at the ClickHouse
+        // client boundary that GroupMemberEnrichmentProvider uses.
         const groupId = `error-ch-timeout-${Date.now()}`;
 
         const createResponse = await createGroup({
@@ -290,12 +295,10 @@ describe('Group Error Handling', () => {
         // The injected timeout must actually have been exercised.
         expect(memberCountQueryAttempted).toBe(true);
 
-        // Graceful degradation: Group still returned, quantity sanitized to 0.
-        expect(response.status).toBe(200);
-        expect(response.body.resourceType).toBe('Group');
-        expect(response.body.id).toBe(createdId);
-        expect(typeof response.body.quantity).toBe('number');
-        expect(response.body.quantity).toBe(0);
+        // B7 contract: the read failure surfaces as an error, NOT a 200 with a bogus quantity.
+        expect(response.status).toBeGreaterThanOrEqual(500);
+        // And crucially, it must never look like a healthy empty cohort.
+        expect(response.body.quantity).toBeUndefined();
     });
 
     test.each([
