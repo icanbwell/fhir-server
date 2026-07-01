@@ -586,6 +586,16 @@ class FhirDataSource {
                 if (key === 'FhirSubscription') {
                     key = 'Subscription'
                 }
+                // When a query selects the managing organization's `display`, the custom
+                // LocationManagingOrganizationReference.display resolver derives it from the
+                // organization name. Ensure name is projected so it is not pruned when the
+                // Organization is otherwise fetched without it (e.g. resource is co-selected).
+                if (key === 'LocationManagingOrganizationReference' && value && value.display) {
+                    if (!this.resourceProjections['Organization']) {
+                        this.resourceProjections['Organization'] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
+                    }
+                    this.resourceProjections['Organization'].add('name');
+                }
                 if (Object.values(COLLECTION).includes(key)) {
                     let resourceType = key;
                     /**
@@ -599,12 +609,6 @@ class FhirDataSource {
 
                     if (!this.resourceProjections[resourceType]) {
                         this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
-                    }
-                    // The custom LocationManagingOrganizationReference.display resolver derives its
-                    // value from the organization name, so name must stay in the projection even
-                    // when a query selects the Organization without selecting name.
-                    if (resourceType === 'Organization') {
-                        this.resourceProjections[resourceType].add('name');
                     }
                     Object.values(value).forEach(field => {
                         // check if field is valid for resource type as some resources have custom fields
