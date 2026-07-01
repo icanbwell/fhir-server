@@ -34,18 +34,45 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
      * @param {import('./mongoStorageProvider').MongoStorageProvider} params.mongoStorageProvider
      * @param {import('../../utils/configManager').ConfigManager} params.configManager
+     * @param {import('../../operations/security/scopesManager').ScopesManager} [params.scopesManager]
      */
     constructor({
         resourceLocator,
         clickHouseClientManager,
         mongoStorageProvider,
-        configManager
+        configManager,
+        scopesManager
     }) {
         super();
         this.resourceLocator = resourceLocator;
         this.clickHouseClientManager = clickHouseClientManager;
         this.mongoStorageProvider = mongoStorageProvider;
         this.configManager = configManager;
+        this.scopesManager = scopesManager || null;
+    }
+
+    /**
+     * Determines whether the caller has full (wildcard) access from their scope.
+     *
+     * This is the authoritative signal used to decide tenant filtering on the
+     * ClickHouse read path, and mirrors SecurityTagManager.getSecurityTagsFromScope:
+     * a wildcard admin (access/*.*) resolves to a '*' access code (and empty
+     * security tags), meaning "sees everything / no tenant predicate". We derive
+     * it from the parsed scope via ScopesManager rather than inferring authorization
+     * from whether the built query happened to contain tag predicates (a wildcard
+     * admin's query legitimately contains none).
+     *
+     * @param {Object} [extraInfo] - Carries the caller's scope (extraInfo.scope)
+     * @returns {boolean} True if the caller holds a wildcard access scope
+     * @private
+     */
+    _callerHasFullAccess(extraInfo) {
+        const scope = extraInfo?.scope;
+        if (!scope || !this.scopesManager) {
+            return false;
+        }
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', extraInfo?.user || '', scope);
+        return accessCodes.includes('*');
     }
 
     /**
@@ -335,7 +362,8 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 memberReferenceUuid: validation.entityReferenceUuid,
                 memberReferenceSourceId: validation.entityReferenceSourceId,
                 accessTags: securityTags.accessTags,
-                ownerTags: securityTags.ownerTags
+                ownerTags: securityTags.ownerTags,
+                hasFullAccess: this._callerHasFullAccess(extraInfo)
             });
 
             try {
@@ -446,6 +474,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 memberReferenceSourceId: validation.entityReferenceSourceId,
                 accessTags: securityTags.accessTags,
                 ownerTags: securityTags.ownerTags,
+                hasFullAccess: this._callerHasFullAccess(extraInfo),
                 limit,
                 afterGroupId,
                 skip

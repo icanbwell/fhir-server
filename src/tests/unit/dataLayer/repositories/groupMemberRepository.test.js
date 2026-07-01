@@ -4,7 +4,11 @@ const { TABLES } = require('../../../../constants/clickHouseConstants');
 
 /**
  * Unit tests for GroupMemberRepository.appendEvents covering:
- *  - B4: ClickHouse insert_deduplicate + deterministic deduplication token
+ *  - B4: content-based idempotency. Rows are deterministic (event_id + event_time
+ *        baked in by GroupMemberEventBuilder), so a retried block is byte-identical
+ *        and argMax collapses duplicates on read. The insert deliberately does NOT
+ *        set insert_deduplicate / insert_deduplication_token (inert on this plain
+ *        MergeTree engine).
  *  - B5: bounded retry with jittered backoff around the insert
  */
 describe('GroupMemberRepository.appendEvents', () => {
@@ -40,43 +44,37 @@ describe('GroupMemberRepository.appendEvents', () => {
         expect(mockClient.insertAsync).not.toHaveBeenCalled();
     });
 
-    test('B4: enables insert_deduplicate with a deduplication token', async () => {
+    test('B4: inserts to the events table and does NOT set the inert dedup settings', async () => {
         await repository.appendEvents([makeEvent({ event_id: 'evt-1' })], { correlationId: 'group-1|3' });
 
         expect(mockClient.insertAsync).toHaveBeenCalledTimes(1);
         const args = mockClient.insertAsync.mock.calls[0][0];
         expect(args.table).toBe(TABLES.GROUP_MEMBER_EVENTS);
-        expect(args.clickhouse_settings.insert_deduplicate).toBe(1);
-        expect(args.clickhouse_settings.insert_deduplication_token).toBe('group-1|3|evt-1');
+        // The token/insert_deduplicate are no-ops on a plain MergeTree, so they
+        // must not be set (relying on them would be a false idempotency guarantee).
+        expect(args.clickhouse_settings.insert_deduplicate).toBeUndefined();
+        expect(args.clickhouse_settings.insert_deduplication_token).toBeUndefined();
+        // Async insert with wait is still configured.
+        expect(args.clickhouse_settings.async_insert).toBe(1);
+        expect(args.clickhouse_settings.wait_for_async_insert).toBe(1);
     });
 
-    test('B4: deduplication token is stable across a simulated retry of the same batch', async () => {
-        const events = [makeEvent({ event_id: 'evt-1' }), makeEvent({ event_id: 'evt-2', entity_reference: 'Patient/2' })];
-
-        await repository.appendEvents(events, { correlationId: 'group-1|3' });
-        await repository.appendEvents(events, { correlationId: 'group-1|3' });
-
-        const token1 = mockClient.insertAsync.mock.calls[0][0].clickhouse_settings.insert_deduplication_token;
-        const token2 = mockClient.insertAsync.mock.calls[1][0].clickhouse_settings.insert_deduplication_token;
-        expect(token1).toBe(token2);
-        expect(token1).toBe('group-1|3|evt-1,evt-2');
-    });
-
-    test('B4: retried batch sends identical insert values (idempotent write)', async () => {
-        const events = [makeEvent({ event_id: 'evt-1' })];
+    test('B4: a retried block sends byte-identical rows so argMax converges to one state', async () => {
+        // The deterministic rows (event_id + event_time) are what make the write
+        // idempotent: two physical copies of the same row collapse under argMax.
+        const events = [
+            makeEvent({ event_id: 'evt-1' }),
+            makeEvent({ event_id: 'evt-2', entity_reference: 'Patient/2' })
+        ];
 
         await repository.appendEvents(events, { correlationId: 'group-1|3' });
         await repository.appendEvents(events, { correlationId: 'group-1|3' });
 
         const values1 = mockClient.insertAsync.mock.calls[0][0].values;
         const values2 = mockClient.insertAsync.mock.calls[1][0].values;
+        // Identical event_id + event_time across the retry => argMax dedup on read.
         expect(values2).toEqual(values1);
-    });
-
-    test('B4: token falls back to event ids when no correlationId supplied', async () => {
-        await repository.appendEvents([makeEvent({ event_id: 'evt-1' })]);
-        const token = mockClient.insertAsync.mock.calls[0][0].clickhouse_settings.insert_deduplication_token;
-        expect(token).toBe('evt-1');
+        expect(values2.map(v => v.event_id)).toEqual(['evt-1', 'evt-2']);
     });
 
     test('B5: retries a transient insert failure and eventually succeeds', async () => {

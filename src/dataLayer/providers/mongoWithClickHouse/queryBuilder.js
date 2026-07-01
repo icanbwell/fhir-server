@@ -1,4 +1,5 @@
 const { TABLES, EVENT_TYPES } = require('../../../constants/clickHouseConstants');
+const { ForbiddenError } = require('../../../utils/httpErrors');
 
 /**
  * Query builder for ClickHouse Group member queries
@@ -22,6 +23,9 @@ class QueryBuilder {
      * @param {string} [params.memberReferenceSourceId] - Source ID reference (e.g., "Patient/123")
      * @param {string[]} params.accessTags - Access security tags for filtering
      * @param {string[]} params.ownerTags - Owner security tags for filtering
+     * @param {boolean} [params.hasFullAccess] - True when the caller holds a wildcard
+     *   (access/*.*) scope and legitimately sees every tenant. When true, no tenant
+     *   predicate is applied. See _buildActiveMemberHavingClause.
      * @param {number} params.limit - Page size
      * @param {string|null} params.afterGroupId - Seek cursor (group_id to start after)
      * @param {number} params.skip - Offset for numeric pagination (fallback)
@@ -32,6 +36,7 @@ class QueryBuilder {
         memberReferenceSourceId,
         accessTags = [],
         ownerTags = [],
+        hasFullAccess = false,
         limit,
         afterGroupId = null,
         skip = 0
@@ -45,7 +50,7 @@ class QueryBuilder {
         // background merges + argMaxMerge instead of FINAL, or add a lighter
         // deduplicating read path. No behavior change intended here.
         const havingClause = this._buildActiveMemberHavingClause(
-            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
+            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId, hasFullAccess
         );
 
         let query;
@@ -102,16 +107,20 @@ class QueryBuilder {
      * @param {string} [params.memberReferenceSourceId] - Source ID reference
      * @param {string[]} params.accessTags - Access security tags for filtering
      * @param {string[]} params.ownerTags - Owner security tags for filtering
+     * @param {boolean} [params.hasFullAccess] - True when the caller holds a wildcard
+     *   (access/*.*) scope and legitimately sees every tenant. When true, no tenant
+     *   predicate is applied. See _buildActiveMemberHavingClause.
      * @returns {{query: string, query_params: Object}}
      */
     static buildCountGroupsByMemberQuery({
         memberReferenceUuid,
         memberReferenceSourceId,
         accessTags = [],
-        ownerTags = []
+        ownerTags = [],
+        hasFullAccess = false
     }) {
         const havingClause = this._buildActiveMemberHavingClause(
-            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
+            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId, hasFullAccess
         );
 
         const query = `
@@ -216,23 +225,38 @@ class QueryBuilder {
      * entity_reference_uuid and entity_reference_source_id are AggregateFunction columns,
      * so they must be filtered via argMaxMerge() in HAVING, not WHERE.
      *
-     * FAIL-CLOSED tenant isolation: if BOTH access and owner tags are absent,
-     * the query is unscoped and would otherwise return rows across every tenant.
-     * The write path (QueryFragments.whereAccessTags / whereOwnerTags) throws in
-     * this case; the read path historically just omitted the filter, leaking
-     * cross-tenant results for an empty-tag query. We instead inject a deny
-     * clause ("1 = 0") so an unscoped read returns zero rows. A legitimately
-     * scoped admin caller carries the wildcard access code, which arrives here
-     * as a non-empty array (e.g. ['*']) and is therefore NOT blocked.
+     * TENANT ISOLATION (fail-closed, admin-exempt) — mirrors SecurityTagManager:
+     * The caller's authorization is decided upstream by SecurityTagManager /
+     * ScopesManager, not inferred here from whether tags happen to be present:
+     *   - A wildcard admin (access/*.*) resolves to EMPTY security tags with
+     *     hasFullAccess=true (full access => no tenant predicate). We must NOT
+     *     block them; the previous "empty tags => 1 = 0" logic wrongly denied
+     *     this legitimate admin, and its claim that a wildcard admin "arrives as
+     *     ['*']" was false.
+     *   - A scoped caller carries a non-empty access/owner tag set; we apply the
+     *     tag filter (existing behavior).
+     *   - A genuinely unscoped non-admin (no tags AND not full access) is a
+     *     security error. A caller with no access scope is already rejected with
+     *     403 by ScopesManager.getSecurityTagsFromScope before the query is
+     *     built, so this branch is defense-in-depth. We throw ForbiddenError to
+     *     match the write path (QueryFragments.whereAccessTags/whereOwnerTags,
+     *     which throw on empty tags) rather than silently returning rows across
+     *     every tenant. ForbiddenError carries statusCode 403, which is
+     *     preserved through RethrownError, so the caller sees a 403
+     *     OperationOutcome rather than a leak or a 500.
      *
      * @param {string[]} accessTags - Access security tags
      * @param {string[]} ownerTags - Owner security tags
      * @param {string} [memberReferenceUuid] - UUID reference to match
      * @param {string} [memberReferenceSourceId] - Source ID reference to match
+     * @param {boolean} [hasFullAccess] - True when the caller holds a wildcard scope
      * @returns {string} HAVING clause (without "HAVING" keyword)
+     * @throws {ForbiddenError} When the caller is neither scoped nor full-access
      * @private
      */
-    static _buildActiveMemberHavingClause(accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId) {
+    static _buildActiveMemberHavingClause(
+        accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId, hasFullAccess = false
+    ) {
         const clauses = [
             `argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'`,
             `argMaxMerge(inactive) = 0`
@@ -249,13 +273,22 @@ class QueryBuilder {
         const hasAccessTags = Array.isArray(accessTags) && accessTags.length > 0;
         const hasOwnerTags = Array.isArray(ownerTags) && ownerTags.length > 0;
 
-        // Fail closed: no security scope at all => deny (return no rows) rather
-        // than silently returning cross-tenant data.
-        if (!hasAccessTags && !hasOwnerTags) {
-            clauses.push('1 = 0');
+        // Full/wildcard access: legitimately sees every tenant => no tenant predicate.
+        if (hasFullAccess) {
             return clauses.join(' AND ');
         }
 
+        // Genuinely unscoped (no tags and not full access): deny with a 403 rather
+        // than leaking cross-tenant rows. Matches the write path, which throws on
+        // empty tags.
+        if (!hasAccessTags && !hasOwnerTags) {
+            throw new ForbiddenError(
+                'Cannot query Group members without an access scope: the caller has ' +
+                'neither security tags nor full access. Denying to prevent cross-tenant access.'
+            );
+        }
+
+        // Scoped caller: filter on the tags they carry.
         // Security tags are AggregateFunction columns, must filter in HAVING after argMaxMerge
         if (hasAccessTags) {
             clauses.push(`hasAny(argMaxMerge(access_tags), {accessTags:Array(String)})`);
