@@ -25,6 +25,7 @@ class StorageProviderFactory {
      * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager|null} params.clickHouseClientManager
      * @param {import('../databaseAttachmentManager').DatabaseAttachmentManager} params.databaseAttachmentManager
      * @param {import('../../utils/configManager').ConfigManager} params.configManager
+     * @param {import('../../operations/security/scopesManager').ScopesManager} [params.scopesManager]
      */
     constructor({
         resourceLocatorFactory,
@@ -32,7 +33,8 @@ class StorageProviderFactory {
         databaseAttachmentManager,
         configManager,
         genericClickHouseRepository,
-        schemaRegistry
+        schemaRegistry,
+        scopesManager
     }) {
         this.resourceLocatorFactory = resourceLocatorFactory;
         this.clickHouseClientManager = clickHouseClientManager;
@@ -40,6 +42,7 @@ class StorageProviderFactory {
         this.configManager = configManager;
         this.genericClickHouseRepository = genericClickHouseRepository || null;
         this.schemaRegistry = schemaRegistry || null;
+        this.scopesManager = scopesManager || null;
 
         // Log configuration on initialization
         if (this.configManager.enableClickHouse) {
@@ -85,7 +88,8 @@ class StorageProviderFactory {
                     resourceLocator,
                     clickHouseClientManager: this.clickHouseClientManager,
                     mongoStorageProvider: mongoProvider,
-                    configManager: this.configManager
+                    configManager: this.configManager,
+                    scopesManager: this.scopesManager
                 });
             }
 

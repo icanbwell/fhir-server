@@ -68,12 +68,14 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
 
             return enrichedResources;
         } catch (error) {
+            // Surface the failure rather than returning resources with a
+            // misleading quantity. A ClickHouse read error must not be masked
+            // as a successful, silently-empty response.
             logError('Error in GroupMemberEnrichmentProvider.enrichAsync', {
                 error: error.message,
                 stack: error.stack
             });
-            // On error, return resources unchanged
-            return resources;
+            throw error;
         }
     }
 
@@ -106,12 +108,14 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
 
             return enrichedEntries;
         } catch (error) {
+            // Surface the failure rather than returning entries with a
+            // misleading quantity. A ClickHouse read error must not be masked
+            // as a successful, silently-empty response.
             logError('Error in GroupMemberEnrichmentProvider.enrichBundleEntriesAsync', {
                 error: error.message,
                 stack: error.stack
             });
-            // On error, return entries unchanged
-            return entries;
+            throw error;
         }
     }
 
@@ -145,15 +149,14 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
 
             return enriched;
         } catch (error) {
+            // Do NOT fall back to quantity=0: that masks a ClickHouse read
+            // failure as an empty-but-successful Group. Propagate so the request
+            // surfaces the error instead of returning silently wrong member data.
             logError('Error enriching Group resource', {
                 error: error.message,
                 groupId: resource.id
             });
-            // On error, at minimum strip member array
-            const safeResource = { ...resource };
-            delete safeResource.member;
-            safeResource.quantity = 0;
-            return safeResource;
+            throw error;
         }
     }
 
@@ -193,11 +196,15 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
 
             return rows.length > 0 ? parseInt(rows[0].count) : 0;
         } catch (error) {
+            // Do NOT mask a read failure as quantity=0. Returning 0 here would
+            // report an empty Group with a 200 OK, silently hiding members and
+            // corrupting clinical cohort counts. Surface the error so callers
+            // fail loudly (see enrichAsync, which rethrows).
             logError('Error querying member count from ClickHouse', {
                 error: error.message,
                 groupId
             });
-            return 0;
+            throw error;
         }
     }
 }
