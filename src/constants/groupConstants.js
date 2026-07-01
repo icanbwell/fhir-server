@@ -71,7 +71,7 @@ const DEFAULT_CLICKHOUSE = {
     // Idle keep-alive sockets older than this are discarded before reuse. Kept
     // comfortably below REQUEST_TIMEOUT_MS so a socket the server may have already
     // closed is never reused for a new request (root cause of ECONNRESET/EPIPE
-    // under sustained load). See EA-2320.
+    // under sustained load).
     IDLE_SOCKET_TTL_MS: 30000 // 30 seconds
 };
 

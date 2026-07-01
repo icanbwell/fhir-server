@@ -1214,7 +1214,7 @@ class ConfigManager {
      * of being handed to a new request, preventing reuse of a socket the server
      * has already closed (a primary cause of intermittent ECONNRESET/EPIPE under
      * sustained load). Must stay comfortably below clickHouseRequestTimeout.
-     * Default: 30000ms (30 seconds). See EA-2320.
+     * Default: 30000ms (30 seconds).
      * @returns {number}
      */
     get clickHouseIdleSocketTtl() {
@@ -1227,7 +1227,6 @@ class ConfigManager {
      * so long queries/inserts are not torn down mid-flight, avoiding "socket was
      * closed or ended before the response was fully read" / ECONNRESET warnings.
      * Default: true. Set CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS=false to disable.
-     * See EA-2320.
      * @returns {boolean}
      */
     get clickHouseSendProgressInHttpHeaders() {

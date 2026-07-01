@@ -80,7 +80,7 @@ class ClickHouseClientManager {
                 // Discard idle keep-alive sockets before they are reused so we never
                 // hand a request to a socket the server has already closed. Kept well
                 // below request_timeout. Primary mitigation for intermittent
-                // ECONNRESET/EPIPE under sustained load (EA-2320).
+                // ECONNRESET/EPIPE under sustained load.
                 idle_socket_ttl_ms: this.configManager.clickHouseIdleSocketTtl,
                 compression: {
                     request: true,   // Enable gzip compression for inserts (70-90% smaller payload)
@@ -93,7 +93,7 @@ class ClickHouseClientManager {
                     // Emit progress in HTTP headers during long ops so the socket keeps
                     // producing bytes and is not torn down mid-response, avoiding the
                     // "socket was closed or ended before the response was fully read"
-                    // warnings (EA-2320).
+                    // warnings.
                     send_progress_in_http_headers: this.configManager.clickHouseSendProgressInHttpHeaders ? 1 : 0
                 }
             });
@@ -153,7 +153,7 @@ class ClickHouseClientManager {
             return false;
         } finally {
             // Always destroy the response stream so a partially-read socket is not
-            // left dangling (EA-2320). Safe no-op once json()/text() has drained it.
+            // left dangling. Safe no-op once json()/text() has drained it.
             if (resultSet) {
                 resultSet.close();
             }
@@ -249,7 +249,7 @@ class ClickHouseClientManager {
             } finally {
                 // Always destroy the response stream, including early-return and
                 // error paths, so a partially-read socket is never left un-drained
-                // (root cause of ECONNRESET/EPIPE under load, EA-2320). Safe no-op
+                // (root cause of ECONNRESET/EPIPE under load). Safe no-op
                 // once json() has fully consumed the stream.
                 if (resultSet) {
                     resultSet.close();
@@ -371,8 +371,8 @@ class ClickHouseClientManager {
                     results.push(result);
                 } finally {
                     // Destroy each statement's response stream before moving on (or on
-                    // error), so an aborted batch never leaves an un-drained socket
-                    // (EA-2320). Safe no-op once json() has consumed the stream.
+                    // error), so an aborted batch never leaves an un-drained socket.
+                    // Safe no-op once json() has consumed the stream.
                     if (resultSet) {
                         resultSet.close();
                     }
