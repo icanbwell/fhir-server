@@ -3,23 +3,8 @@ const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operatio
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { BaseValidator } = require('./baseValidator');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
-const { ConfigManager } = require('../../../utils/configManager');
-const { assertTypeEquals } = require('../../../utils/assertType');
 
 class ParametersResourceValidator extends BaseValidator {
-    /**
-     * @param {ConfigManager} configManager
-     */
-    constructor({ configManager }) {
-        super();
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-    }
-
     /**
      * @param {FhirRequestInfo} requestInfo
      * @param {Resource|Resource[]} incomingResources
@@ -34,14 +19,8 @@ class ParametersResourceValidator extends BaseValidator {
         let errors = [];
         // see if the resources were passed as parameters
         if (incomingResources && incomingResources.resourceType === 'Parameters') {
-            // Unfortunately our FHIR schema resource creator does not support Parameters
-            // const ParametersResourceCreator = getResource(base_version, 'Parameters');
-            // const parametersResource = new ParametersResourceCreator(resource_incoming);
             /**
              * @type {Object}
-             */
-            /**
-             * @type {Parameters}
              */
             const parametersResource = incomingResources;
 

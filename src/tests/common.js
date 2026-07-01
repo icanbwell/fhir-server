@@ -14,7 +14,6 @@ const { fhirContentTypes } = require('../utils/contentTypes');
 const { ConfigManager } = require('../utils/configManager');
 const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 const { BaseSerializer } = require('../fhir/writeSerializers/4_0_0/customSerializers');
-const { BaseFhirResourceSerializer } = require('../fhir/baseFhirResourceSerializer');
 
 /**
  * @type {import('supertest').Test}
@@ -49,7 +48,6 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      */
     testContainer = createTestContainer(fnUpdateContainer);
     BaseSerializer.setConfigManager(testContainer.configManager);
-    BaseFhirResourceSerializer.setConfigManager(testContainer.configManager);
     return createApp({ fnGetContainer: () => testContainer });
 };
 

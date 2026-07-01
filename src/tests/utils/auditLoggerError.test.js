@@ -4,7 +4,6 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ConfigManager } = require('../../utils/configManager');
-const { BaseFhirResourceSerializer } = require('../../fhir/baseFhirResourceSerializer');
 const BaseSerializer = require('../../fhir/writeSerializers/4_0_0/customSerializers/baseSerializer');
 
 describe('AuditLogger Error Audit', () => {
@@ -18,7 +17,6 @@ describe('AuditLogger Error Audit', () => {
         // before invoking FhirResourceWriteSerializer in logErrorAuditEntryAsync.
         const serializerConfig = Object.create(ConfigManager.prototype);
         BaseSerializer.setConfigManager(serializerConfig);
-        BaseFhirResourceSerializer.setConfigManager(serializerConfig);
     });
 
     beforeEach(() => {
