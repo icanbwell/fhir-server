@@ -65,12 +65,14 @@ describe('hybrid Group version-bump hook (unit)', () => {
         });
     });
 
+    // Signature: (resourceType, incomingCarriesMember, currentResource). incomingCarriesMember is
+    // true when the PUT body has a member field (present, even []).
     describe('_hydrateHybridGroupMembersBeforeMerge', () => {
-        test('hydrates current members from ClickHouse onto a tagged hybrid Group', async () => {
+        test('hydrates current members from ClickHouse when the write carries member', async () => {
             const repository = repoReturning(['Patient/1', 'Patient/2']);
             const currentResource = taggedGroup();
 
-            await hydrate.call(host({ repository }), 'Group', currentResource);
+            await hydrate.call(host({ repository }), 'Group', true, currentResource);
 
             expect(repository.getActiveMembers).toHaveBeenCalledWith('group-1');
             expect(currentResource.member).toEqual([
@@ -79,11 +81,21 @@ describe('hybrid Group version-bump hook (unit)', () => {
             ]);
         });
 
+        test('no-op (does not query ClickHouse) when the write omits member', async () => {
+            const repository = repoReturning(['Patient/1', 'Patient/2']);
+            const currentResource = taggedGroup();
+
+            await hydrate.call(host({ repository }), 'Group', false, currentResource);
+
+            expect(repository.getActiveMembers).not.toHaveBeenCalled();
+            expect(currentResource.member).toBeUndefined();
+        });
+
         test('no-op (does not query ClickHouse) when ClickHouse is disabled', async () => {
             const repository = repoReturning(['Patient/1']);
             const currentResource = taggedGroup();
 
-            await hydrate.call(host({ enableClickHouse: false, repository }), 'Group', currentResource);
+            await hydrate.call(host({ enableClickHouse: false, repository }), 'Group', true, currentResource);
 
             expect(repository.getActiveMembers).not.toHaveBeenCalled();
             expect(currentResource.member).toBeUndefined();
@@ -93,7 +105,7 @@ describe('hybrid Group version-bump hook (unit)', () => {
             const currentResource = taggedGroup();
 
             await expect(
-                hydrate.call(host({ repository: null }), 'Group', currentResource)
+                hydrate.call(host({ repository: null }), 'Group', true, currentResource)
             ).resolves.toBeUndefined();
             expect(currentResource.member).toBeUndefined();
         });
@@ -102,7 +114,7 @@ describe('hybrid Group version-bump hook (unit)', () => {
             const repository = repoReturning(['Patient/1']);
             const currentResource = taggedGroup();
 
-            await hydrate.call(host({ hybridGroup: false, repository }), 'Group', currentResource);
+            await hydrate.call(host({ hybridGroup: false, repository }), 'Group', true, currentResource);
 
             expect(repository.getActiveMembers).not.toHaveBeenCalled();
             expect(currentResource.member).toBeUndefined();
@@ -112,7 +124,7 @@ describe('hybrid Group version-bump hook (unit)', () => {
             const repository = repoReturning(['Patient/1']);
             const currentResource = { id: 'p1', resourceType: 'Patient', meta: {} };
 
-            await hydrate.call(host({ repository }), 'Patient', currentResource);
+            await hydrate.call(host({ repository }), 'Patient', true, currentResource);
 
             expect(repository.getActiveMembers).not.toHaveBeenCalled();
             expect(currentResource.member).toBeUndefined();
@@ -122,7 +134,7 @@ describe('hybrid Group version-bump hook (unit)', () => {
             const repository = repoReturning(['Patient/1']);
             const currentResource = { id: 'g2', resourceType: 'Group', meta: { versionId: '1' } };
 
-            await hydrate.call(host({ repository }), 'Group', currentResource);
+            await hydrate.call(host({ repository }), 'Group', true, currentResource);
 
             expect(repository.getActiveMembers).not.toHaveBeenCalled();
             expect(currentResource.member).toBeUndefined();
@@ -132,10 +144,20 @@ describe('hybrid Group version-bump hook (unit)', () => {
             const repository = repoReturning([]);
             const currentResource = taggedGroup();
 
-            await hydrate.call(host({ repository }), 'Group', currentResource);
+            await hydrate.call(host({ repository }), 'Group', true, currentResource);
 
             expect(repository.getActiveMembers).toHaveBeenCalledWith('group-1');
             expect(currentResource.member).toBeUndefined();
+        });
+
+        test('hydrated shape matches an unchanged same-order resend (diffs to nothing)', () => {
+            // getActiveMembers returns a stable order (ORDER BY entity_reference in the repository).
+            // A client re-sending that exact roster in the same order produces an identical member
+            // array, so the content diff sees no change and the version does not spuriously bump.
+            const references = ['Patient/1', 'Patient/2', 'Patient/3'];
+            const hydrated = references.map(reference => ({ entity: { reference } }));
+            const clientResend = references.map(reference => ({ entity: { reference } }));
+            expect(hydrated).toEqual(clientResend);
         });
     });
 });

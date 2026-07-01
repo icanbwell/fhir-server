@@ -729,6 +729,20 @@ describe('Group ClickHouse hardening (unit)', () => {
             expect(repo.appendEvents).not.toHaveBeenCalled();
         });
 
+        test('memberFieldPresent false (PUT omitted member) → roster left unchanged, no diff/write', async () => {
+            const repo = makeCapturingRepo();
+            repo.getActiveMembers = jestGlobal.fn(async () => ['Patient/existing']);
+            const handler = makeHandler(repo);
+            await handler.afterSaveAsync({
+                requestId: 'r', eventType: OPERATION_TYPES.UPDATE, resourceType: 'Group',
+                doc: makeGroupDoc(),
+                contextData: { useExternalStorage: true, memberFieldPresent: false, groupMembers: [] }
+            });
+            // Neither reads the roster to diff nor writes any events.
+            expect(repo.getActiveMembers).not.toHaveBeenCalled();
+            expect(repo.appendEvents).not.toHaveBeenCalled();
+        });
+
         test('DELETE → no events written (ClickHouse log retained as audit trail)', async () => {
             const repo = makeCapturingRepo();
             const handler = makeHandler(repo);

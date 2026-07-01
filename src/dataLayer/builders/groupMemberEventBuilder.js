@@ -96,7 +96,17 @@ class GroupMemberEventBuilder {
      */
     static _extractVersionId(groupResource) {
         const parsed = parseInt(groupResource?.meta?.versionId, 10);
-        return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+        if (Number.isFinite(parsed) && parsed > 0) {
+            return parsed;
+        }
+        // A committed resource always has meta.versionId >= 1. A 0 here means it was missing or
+        // unparseable — unexpected on the live path. Warn but do not throw: 0 still sorts beneath
+        // any real version, and pre-migration rows legitimately default to 0.
+        logWarn('Group member event has no usable meta.versionId; defaulting version_id to 0', {
+            groupId: groupResource?.id,
+            versionId: groupResource?.meta?.versionId
+        });
+        return 0;
     }
 
     /**

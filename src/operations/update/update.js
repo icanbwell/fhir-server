@@ -157,18 +157,25 @@ class UpdateOperation {
      * existing version machinery bumps the version exactly as it does for a pure-Mongo Group. The
      * member array is re-stripped downstream, so the Mongo document stays metadata-only.
      *
+     * Only runs when the incoming write carries a member field (present, even if []). A PUT that
+     * omits member is not asserting a roster — hydrating there would make an absent member diff as
+     * "remove all" (wiping the roster) and would spuriously bump a metadata-only PUT. Gating on the
+     * incoming member keeps a memberless PUT a no-op for membership and preserves version behavior.
+     *
      * Opaque and scoped: no-ops unless ClickHouse is on, the resource is a Group configured for
      * hybrid storage, the stored document carries the external-storage member tag, and the
      * repository is wired. Never touches non-ClickHouse resources or the ClickHouse-off path.
      *
      * @param {string} resourceType
+     * @param {boolean} incomingCarriesMember - the incoming write body has a member field
      * @param {Resource} currentResource - stored (found) resource, mutated in place
      * @returns {Promise<void>}
      * @private
      */
-    async _hydrateHybridGroupMembersBeforeMerge (resourceType, currentResource) {
+    async _hydrateHybridGroupMembersBeforeMerge (resourceType, incomingCarriesMember, currentResource) {
         if (
             resourceType !== 'Group' ||
+            !incomingCarriesMember ||
             !this.groupMemberRepository ||
             !this.configManager.enableClickHouse ||
             !this.configManager.mongoWithClickHouseResources?.includes('Group') ||
@@ -180,7 +187,8 @@ class UpdateOperation {
         const references = await this.groupMemberRepository.getActiveMembers(currentResource.id);
         if (references && references.length > 0) {
             // Minimal member entries — enough for the content diff to register the roster; the array
-            // is re-stripped before the Mongo write so only metadata persists there.
+            // is re-stripped before the Mongo write so only metadata persists there. getActiveMembers
+            // returns references in a stable order, so an unchanged same-order resend diffs to nothing.
             currentResource.member = references.map(reference => ({ entity: { reference } }));
         }
     }
@@ -388,9 +396,10 @@ class UpdateOperation {
                         throw precondition_failed_error;
                     }
                 }
-                // For a hybrid Group, load the current ClickHouse roster onto the found resource so
-                // a member-only change is visible to the content diff and bumps versionId (FHIR R4).
-                await this._hydrateHybridGroupMembersBeforeMerge(resourceType, foundResource);
+                // For a hybrid Group whose PUT carries a member field, load the current ClickHouse
+                // roster onto the found resource so the change is visible to the content diff and
+                // bumps versionId (FHIR R4). A memberless PUT skips this and stays a no-op.
+                await this._hydrateHybridGroupMembersBeforeMerge(resourceType, hasMemberField, foundResource);
 
                 ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     base_version,
@@ -447,7 +456,12 @@ class UpdateOperation {
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
 
                 if (data && data.meta) {
-                    const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
+                    // memberFieldPresent tells the ClickHouse handler whether this write asserted a
+                    // roster. A PUT that omits member must not be diffed to empty (which would wipe
+                    // the roster); passing false skips membership processing for that write.
+                    const contextData = buildContextDataForHybridStorage(
+                        resourceType, doc, requestInfo, { memberFieldPresent: hasMemberField }
+                    );
 
                     await this.databaseBulkInserter.replaceOneAsync(
                         {

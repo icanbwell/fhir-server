@@ -20,9 +20,12 @@ const USE_EXTERNAL_STORAGE_HEADER = 'useexternalstorage';
  * @param {FhirRequestInfo|null} [requestInfo] - Request info with headers
  * @param {Object} [options] - Additional options
  * @param {boolean} [options.smartMerge] - Whether this is a smartMerge operation (additions only, no removals)
+ * @param {boolean} [options.memberFieldPresent] - Whether the incoming write asserted a member field.
+ *   When explicitly false (e.g. a PUT that omits member), downstream membership processing is skipped
+ *   so an unasserted roster is left untouched rather than diffed to empty. Defaults to asserted.
  * @returns {Object|null} contextData object or null if not a hybrid storage resource
  */
-function buildContextDataForHybridStorage(resourceType, resource, requestInfo = null, { smartMerge } = {}) {
+function buildContextDataForHybridStorage(resourceType, resource, requestInfo = null, { smartMerge, memberFieldPresent } = {}) {
     if (resourceType === 'Group') {
         const useExternalStorage = isTrue(requestInfo?.headers?.[USE_EXTERNAL_STORAGE_HEADER]);
 
@@ -31,7 +34,8 @@ function buildContextDataForHybridStorage(resourceType, resource, requestInfo = 
             resourceType,
             resourceId: resource.id,
             useExternalStorage,
-            smartMerge: smartMerge ?? undefined
+            smartMerge: smartMerge ?? undefined,
+            memberFieldPresent: memberFieldPresent ?? undefined
         };
     }
 

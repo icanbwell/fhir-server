@@ -174,6 +174,17 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
                 return;
             }
 
+            // A write that did not assert a member field (e.g. a metadata-only PUT) is not changing
+            // the roster. Skip membership processing so an unasserted roster is left intact rather
+            // than diffed to empty. Only an explicit false suppresses; absent means asserted.
+            if (contextData?.memberFieldPresent === false) {
+                logDebug('POST-save: Write did not assert member field, leaving roster unchanged', {
+                    groupId: doc.id,
+                    eventType
+                });
+                return;
+            }
+
             // Retrieve original member array from contextData
             // contextData is threaded through BulkInsertUpdateEntry pipeline
             const originalMembers = contextData?.groupMembers || [];

@@ -15,6 +15,9 @@
 -- version_id = 0 / batch_seq = 0 via the column DEFAULTs; this only affects ordering AMONG
 -- pre-migration events (which already resolved by event_time/event_id), not post-migration
 -- correctness. Groups-on-ClickHouse is dev-only today, so no production data is affected.
+--
+-- Re-running the whole script after go-live is also safe: the backfill inserts argMax states and
+-- argMax of duplicate states is the same value, so a repeat run does not change query results.
 
 -- ---------------------------------------------------------------------------
 -- 1) Event log: add the causal-ordering columns (metadata-only ALTER).

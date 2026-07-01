@@ -60,12 +60,16 @@ class GroupMemberRepository {
      */
     async getActiveMembers(groupId) {
         try {
+            // ORDER BY entity_reference gives a stable roster order. This keeps update-path
+            // hydration deterministic, so a client re-PUTing an unchanged roster in the same order
+            // diffs to nothing (no spurious version bump).
             const query = `
                 SELECT entity_reference
                 FROM ${TABLES.GROUP_MEMBER_EVENTS}
                 ${QueryFragments.whereGroupId('', true)}
                 ${QueryFragments.groupByEntityReference()}
                 HAVING ${QueryFragments.activeMembers()}
+                ${QueryFragments.orderByEntityReference()}
             `;
 
             const results = await this.client.queryAsync({

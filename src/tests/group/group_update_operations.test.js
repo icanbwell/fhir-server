@@ -220,6 +220,112 @@ describe('Group UPDATE operations', () => {
         expect(parseInt(currentCount[0].count)).toBe(0);
     });
 
+    // A PUT that OMITS member must not touch the roster. The read path returns quantity and strips
+    // member, so a GET->modify-name->PUT round-trip carries no member; hydrating there would wipe
+    // the roster and spuriously bump. The write must leave membership intact.
+    test('PUT that omits member (metadata-only) preserves the roster and writes no member events', async () => {
+        const initialMembers = Array.from({ length: 4 }, (_, i) => ({
+            entity: { reference: `Patient/omit-member-${i}` }
+        }));
+
+        const created = await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Roster Group',
+            member: initialMembers
+        });
+
+        // GET returns quantity, no member array (hybrid storage) — the shape a client round-trips.
+        const request = await createTestRequest();
+        const getResponse = await request
+            .get(`/4_0_0/Group/${created.id}`)
+            .set(getHeadersWithExternalStorage());
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body.member).toBeUndefined();
+        expect(getResponse.body.quantity).toBe(4);
+
+        const eventsBefore = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${created.id}'`
+        });
+
+        // PUT the GET body back with only a metadata change — no member field present.
+        const response = await updateGroup(created.id, {
+            ...getResponse.body,
+            name: 'Renamed Roster Group'
+        });
+        expect([200, 201]).toContain(response.status);
+
+        // No new member events (roster untouched).
+        const eventsAfter = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents WHERE group_id = '${created.id}'`
+        });
+        expect(parseInt(eventsAfter[0].count)).toBe(parseInt(eventsBefore[0].count));
+
+        // Roster still has all 4 active members.
+        const activeCount = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM (
+                        SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
+                        WHERE group_id = '${created.id}'
+                        GROUP BY entity_reference
+                        HAVING argMax(event_type, (version_id, batch_seq, event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
+                    )`
+        });
+        expect(parseInt(activeCount[0].count)).toBe(4);
+
+        const getAfter = await (await createTestRequest())
+            .get(`/4_0_0/Group/${created.id}`)
+            .set(getHeadersWithExternalStorage());
+        expect(getAfter.body.quantity).toBe(4);
+    });
+
+    // A member-bearing PUT that re-sends the current roster unchanged must not wipe it, and must
+    // bump the version at most once (a single content diff), not once per member.
+    test('PUT re-sending the unchanged roster preserves members and bumps version at most once', async () => {
+        const members = Array.from({ length: 3 }, (_, i) => ({
+            entity: { reference: `Patient/resend-${i}` }
+        }));
+
+        const created = await createGroup({
+            type: 'person',
+            actual: true,
+            member: members
+        });
+        const createdVersion = parseInt(created.meta.versionId, 10);
+
+        const removeEventsBefore = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
+                    WHERE group_id = '${created.id}' AND event_type = '${EVENT_TYPES.MEMBER_REMOVED}'`
+        });
+
+        // Re-send the same roster explicitly.
+        const response = await updateGroup(created.id, {
+            ...created,
+            member: members
+        });
+        expect([200, 201]).toContain(response.status);
+
+        // Roster preserved (no removals), and the version advanced by at most one step.
+        const removeEventsAfter = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
+                    WHERE group_id = '${created.id}' AND event_type = '${EVENT_TYPES.MEMBER_REMOVED}'`
+        });
+        expect(parseInt(removeEventsAfter[0].count)).toBe(parseInt(removeEventsBefore[0].count));
+
+        const newVersion = parseInt(response.body.meta.versionId, 10);
+        expect(newVersion).toBeGreaterThanOrEqual(createdVersion);
+        expect(newVersion).toBeLessThanOrEqual(createdVersion + 1);
+
+        const activeCount = await clickHouseManager.queryAsync({
+            query: `SELECT count() as count FROM (
+                        SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
+                        WHERE group_id = '${created.id}'
+                        GROUP BY entity_reference
+                        HAVING argMax(event_type, (version_id, batch_seq, event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
+                    )`
+        });
+        expect(parseInt(activeCount[0].count)).toBe(3);
+    });
+
     test('PUT Group → quantity available via GET', async () => {
         // Create initial group with 2 members
         const initialMembers = Array.from({ length: 2 }, (_, i) => ({
