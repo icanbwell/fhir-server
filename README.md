@@ -47,6 +47,10 @@ For example:
 
 [Merge](readme/merge.md)
 
+## Merge Validation
+
+[Merge Validation Spec](docs/merge-validation-spec.md)
+
 ## $everything functionality
 
 [Everything](readme/everything.md)
