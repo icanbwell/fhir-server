@@ -603,10 +603,12 @@ class BulkDataExportRunner {
      */
     async getGroupMemberPatientReferencesAsync({ groupId, query }) {
         // The group id arrives from the request URL; validate it as a bounded FHIR id/uuid token
-        // before it reaches the datastore query (fail fast; breaks the user-input -> query taint).
+        // and cast to a primitive string before it reaches the datastore query (fail fast; defeats
+        // NoSQL operator-object injection into findOne, e.g. { $ne: ... }).
         if (typeof groupId !== 'string' || !/^[A-Za-z0-9\-.]{1,64}$/.test(groupId)) {
             throw new BadRequestError(new Error('Invalid Group id for $export'));
         }
+        const safeGroupId = String(groupId);
 
         // Load the Group with the export's tenant scope so an unauthorized caller sees nothing.
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
@@ -616,7 +618,7 @@ class BulkDataExportRunner {
         const collection = await resourceLocator.getCollectionAsync({});
         const groupQuery = this.r4SearchQueryCreator.appendAndSimplifyQuery({
             query: deepcopy(query),
-            andQuery: { $or: [{ _uuid: groupId }, { _sourceId: groupId }] }
+            andQuery: { $or: [{ _uuid: safeGroupId }, { _sourceId: safeGroupId }] }
         });
         const groupDoc = await collection.findOne(groupQuery);
 
