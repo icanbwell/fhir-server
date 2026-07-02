@@ -76,12 +76,14 @@ async function truncateClickHouse() {
 
 /**
  * Runs a full Group export cycle and returns { body, s3Client }.
+ * `query` is an optional query string (e.g. '_type=Patient&_elements=id') appended
+ * to the kickoff URL; it is preserved into ExportStatus.request and parsed by the runner.
  */
-async function runGroupExport(request, groupId, { scope } = {}) {
+async function runGroupExport(request, groupId, { scope, query } = {}) {
     const headers = scope ? getHeaders(scope) : getHeaders();
 
     let resp = await request
-        .get(`/4_0_0/Group/${groupId}/$export`)
+        .get(`/4_0_0/Group/${groupId}/$export${query ? `?${query}` : ''}`)
         .set(headers)
         .expect(202);
 
@@ -329,6 +331,331 @@ describe('Group Export Tests', () => {
         const exportedIds = patients.map(p => p.id).sort();
         expect(exportedIds).toEqual(memberIds.slice().sort());
         expect(exportedIds).not.toContain('inline-nonmember');
+    }, 60000);
+
+    test('Group $export _type=Patient&_elements=id returns id-only Patient rows without PHI', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        const externalHeaders = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+
+        // Members carry PHI (name/birthDate/telecom) that must NOT appear in the id-only roster.
+        const memberIds = ['elem-p1', 'elem-p2'];
+        for (const id of memberIds) {
+            await request
+                .post('/4_0_0/Patient/$merge')
+                .send({
+                    resourceType: 'Patient',
+                    id,
+                    meta: { source: 'http://test.com', security: bwellTags },
+                    name: [{ family: 'Doe', given: ['Jane'] }],
+                    birthDate: '1980-01-01',
+                    telecom: [{ system: 'phone', value: '555-0100' }]
+                })
+                .set(getHeaders())
+                .expect(200);
+        }
+
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                meta: { source: 'http://export-test.com/Group', security: bwellTags },
+                type: 'person',
+                actual: true,
+                member: memberIds.map(id => ({ entity: { reference: `Patient/${id}` } }))
+            })
+            .set(externalHeaders)
+            .expect(201);
+
+        expect(createResp.body.member).toBeUndefined();
+
+        await syncMaterializedViews();
+
+        const result = await runGroupExport(request, createResp.body.id, { query: '_type=Patient&_elements=id' });
+        expect(result.body.errors).toHaveLength(0);
+
+        const patients = exportedResources(result, 'Patient');
+        expect(patients.map(p => p.id).sort()).toEqual(memberIds.slice().sort());
+
+        // Every row is a valid Patient carrying only mandatory fields; no requested-out PHI.
+        for (const patient of patients) {
+            expect(patient.resourceType).toEqual('Patient');
+            expect(patient.id).toBeDefined();
+            expect(patient.name).toBeUndefined();
+            expect(patient.birthDate).toBeUndefined();
+            expect(patient.telecom).toBeUndefined();
+            // Mongo-internal fields must never leak into the NDJSON.
+            expect(patient._uuid).toBeUndefined();
+            expect(patient._sourceId).toBeUndefined();
+        }
+    }, 60000);
+
+    test('Group $export without _elements still returns full Patient resources (regression)', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        const externalHeaders = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+
+        await request
+            .post('/4_0_0/Patient/$merge')
+            .send({
+                resourceType: 'Patient',
+                id: 'full-p1',
+                meta: { source: 'http://test.com', security: bwellTags },
+                name: [{ family: 'Roe', given: ['John'] }],
+                birthDate: '1975-05-05'
+            })
+            .set(getHeaders())
+            .expect(200);
+
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                meta: { source: 'http://export-test.com/Group', security: bwellTags },
+                type: 'person',
+                actual: true,
+                member: [{ entity: { reference: 'Patient/full-p1' } }]
+            })
+            .set(externalHeaders)
+            .expect(201);
+
+        expect(createResp.body.member).toBeUndefined();
+
+        await syncMaterializedViews();
+
+        const result = await runGroupExport(request, createResp.body.id);
+        expect(result.body.errors).toHaveLength(0);
+
+        const patients = exportedResources(result, 'Patient');
+        expect(patients).toHaveLength(1);
+        // Full export keeps hydrated PHI fields.
+        expect(patients[0].name).toEqual([{ family: 'Roe', given: ['John'] }]);
+        expect(patients[0].birthDate).toEqual('1975-05-05');
+    }, 60000);
+
+    test('System $export _type=Patient&_elements=id projects beyond Group', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        await request
+            .post('/4_0_0/Patient/$merge')
+            .send({
+                resourceType: 'Patient',
+                id: 'sys-p1',
+                meta: { source: 'http://test.com', security: bwellTags },
+                name: [{ family: 'System', given: ['Sam'] }],
+                birthDate: '1990-09-09'
+            })
+            .set(getHeaders())
+            .expect(200);
+
+        // Kick off a system-level export scoped to Patient with an id-only projection.
+        // System/Patient $export are POST routes (Group is GET); query params still land in ExportStatus.request.
+        let resp = await request
+            .post('/4_0_0/$export?_type=Patient&_elements=id')
+            .set(getHeaders())
+            .expect(202);
+        const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+        const container = getTestContainer();
+        const requestId = generateUUID();
+        const s3Client = new CapturingS3Client({ bucketName: 'test', region: 'test' });
+        delete container.services.bulkDataExportRunner;
+        container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseExportManager: c.databaseExportManager,
+            patientFilterManager: c.patientFilterManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator,
+            patientQueryCreator: c.patientQueryCreator,
+            enrichmentManager: c.enrichmentManager,
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            r4ArgsParser: c.r4ArgsParser,
+            searchManager: c.searchManager,
+            postSaveProcessor: c.postSaveProcessor,
+            bulkExportEventProducer: c.bulkExportEventProducer,
+            storageProviderFactory: c.storageProviderFactory,
+            exportStatusId,
+            patientReferenceBatchSize: 1000,
+            uploadPartSize: 1024 * 1024,
+            s3Client,
+            requestId
+        }));
+
+        await container.bulkDataExportRunner.processAsync();
+        await container.postRequestProcessor.executeAsync({ requestId });
+        await container.postSaveProcessor.flushAsync();
+
+        resp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders())
+            .expect(200);
+
+        const entry = resp.body.output.find(o => o.type === 'Patient');
+        expect(entry).toBeDefined();
+        const patients = s3Client.getResourcesForPublicPath(entry.url);
+        const sysPatient = patients.find(p => p.id === 'sys-p1');
+        expect(sysPatient).toBeDefined();
+        expect(sysPatient.resourceType).toEqual('Patient');
+        expect(sysPatient.name).toBeUndefined();
+        expect(sysPatient.birthDate).toBeUndefined();
+    }, 60000);
+
+    test('Group $export _type=Patient&_elements=id,gender projects exactly requested + mandatory', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        const externalHeaders = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+
+        // Members carry gender (requested) plus name/birthDate/telecom (PHI, not requested).
+        const memberIds = ['multi-p1', 'multi-p2'];
+        for (const id of memberIds) {
+            await request
+                .post('/4_0_0/Patient/$merge')
+                .send({
+                    resourceType: 'Patient',
+                    id,
+                    meta: { source: 'http://test.com', security: bwellTags },
+                    gender: 'female',
+                    name: [{ family: 'Doe', given: ['Jane'] }],
+                    birthDate: '1980-01-01',
+                    telecom: [{ system: 'phone', value: '555-0100' }]
+                })
+                .set(getHeaders())
+                .expect(200);
+        }
+
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                meta: { source: 'http://export-test.com/Group', security: bwellTags },
+                type: 'person',
+                actual: true,
+                member: memberIds.map(id => ({ entity: { reference: `Patient/${id}` } }))
+            })
+            .set(externalHeaders)
+            .expect(201);
+
+        expect(createResp.body.member).toBeUndefined();
+
+        await syncMaterializedViews();
+
+        const result = await runGroupExport(request, createResp.body.id, { query: '_type=Patient&_elements=id,gender' });
+        expect(result.body.errors).toHaveLength(0);
+
+        const patients = exportedResources(result, 'Patient');
+        expect(patients.map(p => p.id).sort()).toEqual(memberIds.slice().sort());
+
+        for (const patient of patients) {
+            expect(patient.resourceType).toEqual('Patient');
+            expect(patient.id).toBeDefined();
+            expect(patient.gender).toEqual('female');
+            // Requested-out PHI must be absent.
+            expect(patient.name).toBeUndefined();
+            expect(patient.birthDate).toBeUndefined();
+            expect(patient.telecom).toBeUndefined();
+            // Mongo-internal fields must never leak.
+            expect(patient._uuid).toBeUndefined();
+            expect(patient._sourceId).toBeUndefined();
+        }
+    }, 60000);
+
+    test('Group $export with an invalid _elements fails the export and emits no Patient data', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        const externalHeaders = { ...getHeaders(), [USE_EXTERNAL_STORAGE_HEADER]: 'true' };
+
+        await request
+            .post('/4_0_0/Patient/$merge')
+            .send({
+                resourceType: 'Patient',
+                id: 'invalid-elem-p1',
+                meta: { source: 'http://test.com', security: bwellTags },
+                name: [{ family: 'Doe', given: ['Jane'] }]
+            })
+            .set(getHeaders())
+            .expect(200);
+
+        const createResp = await request
+            .post('/4_0_0/Group')
+            .send({
+                resourceType: 'Group',
+                meta: { source: 'http://export-test.com/Group', security: bwellTags },
+                type: 'person',
+                actual: true,
+                member: [{ entity: { reference: 'Patient/invalid-elem-p1' } }]
+            })
+            .set(externalHeaders)
+            .expect(201);
+
+        expect(createResp.body.member).toBeUndefined();
+
+        await syncMaterializedViews();
+
+        // Kick off with an unknown element: handleElementsQuery throws BadRequestError,
+        // which propagates and marks the ExportStatus entered-in-error (never completed).
+        let resp = await request
+            .get('/4_0_0/Group/' + createResp.body.id + '/$export?_type=Patient&_elements=notARealField')
+            .set(getHeaders())
+            .expect(202);
+        const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+        const container = getTestContainer();
+        const requestId = generateUUID();
+        const s3Client = new CapturingS3Client({ bucketName: 'test', region: 'test' });
+        delete container.services.bulkDataExportRunner;
+        container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseExportManager: c.databaseExportManager,
+            patientFilterManager: c.patientFilterManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator,
+            patientQueryCreator: c.patientQueryCreator,
+            enrichmentManager: c.enrichmentManager,
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            r4ArgsParser: c.r4ArgsParser,
+            searchManager: c.searchManager,
+            postSaveProcessor: c.postSaveProcessor,
+            bulkExportEventProducer: c.bulkExportEventProducer,
+            storageProviderFactory: c.storageProviderFactory,
+            exportStatusId,
+            patientReferenceBatchSize: 1000,
+            uploadPartSize: 1024 * 1024,
+            s3Client,
+            requestId
+        }));
+
+        await container.bulkDataExportRunner.processAsync();
+        await container.postRequestProcessor.executeAsync({ requestId });
+        await container.postSaveProcessor.flushAsync();
+
+        // Export did not complete: status poll stays 202 with entered-in-error progress.
+        resp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders())
+            .expect(202);
+        expect(resp.headers['x-progress']).toEqual('entered-in-error');
+
+        // No populated Patient NDJSON was written (the invalid projection aborted the fetch).
+        const patientParts = Object.entries(s3Client.partsByPath)
+            .filter(([path]) => path.includes('Patient'))
+            .flatMap(([, parts]) => parts)
+            .filter(data => data && data.trim().length > 0);
+        expect(patientParts).toHaveLength(0);
     }, 60000);
 
     test('Group export enforces tenant isolation across owner/access tags', async () => {

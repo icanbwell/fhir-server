@@ -262,7 +262,7 @@ class BulkDataExportRunner {
                 });
 
                 for (const resourceType of requestedResources) {
-                    await this.processResourceAsync({ resourceType, query });
+                    await this.processResourceAsync({ resourceType, query, searchParams });
                 }
             } else {
                 const requestedResources = await this.getRequestedResourceAsync({
@@ -481,6 +481,89 @@ class BulkDataExportRunner {
         }
 
         return allowedResources;
+    }
+
+    /**
+     * Builds a Mongo projection for _elements, or null when _elements is absent.
+     * Reuses searchManager.handleElementsQuery (same seam as search) to validate the
+     * requested elements against the resource and build the base projection, then forces
+     * the FHIR-mandatory fields so the emitted doc stays a valid resource: resourceType,
+     * id, meta, plus _uuid. On the projected path we skip enrichment/attachment transforms,
+     * so only what is projected is emitted (no stripped/omitted content is re-expanded).
+     *
+     * @typedef {Object} BuildElementsProjectionParams
+     * @property {string} resourceType
+     * @property {URLSearchParams} searchParams
+     *
+     * @param {BuildElementsProjectionParams}
+     * @returns {import('mongodb').Document|null}
+     */
+    buildElementsProjection({ resourceType, searchParams }) {
+        if (!searchParams.has('_elements')) {
+            return null;
+        }
+        const parsedArgs = this.r4ArgsParser.parseArgs({
+            resourceType,
+            args: { base_version: '4_0_0', _elements: searchParams.get('_elements') }
+        });
+        if (!parsedArgs._elements) {
+            return null;
+        }
+        // handleElementsQuery validates each requested element and mutates options.projection.
+        const { options } = this.searchManager.handleElementsQuery({
+            parsedArgs,
+            columns: new Set(),
+            resourceType,
+            options: {},
+            useAccessIndex: false
+        });
+        const projection = options.projection || {};
+        // Drop any meta sub-paths handleElementsQuery added (e.g. meta.security.system):
+        // Mongo rejects a path collision between `meta` and `meta.<sub>` in one projection.
+        for (const key of Object.keys(projection)) {
+            if (key.startsWith('meta.')) {
+                delete projection[key];
+            }
+        }
+        // Force FHIR-mandatory fields so the emitted doc is a valid resource.
+        projection.resourceType = 1;
+        projection.id = 1;
+        projection.meta = 1;
+        projection._uuid = 1;
+        return projection;
+    }
+
+    /**
+     * Turns a raw Mongo export doc into a serialized NDJSON-ready object.
+     * Full export (no projection) hydrates + enriches + attachment-transforms as before.
+     * The projected (_elements) path skips those re-expansions and serializes the doc
+     * as fetched; the resource serializer drops Mongo-internal fields (_uuid, _sourceId, ...).
+     *
+     * Raw-elements contract: with enrichment skipped, reference-valued elements are emitted
+     * in their raw stored (uuid) form, not the enrichment-rewritten form a full export gives.
+     * Edge case: a resource whose stored top-level `id` differs from `_sourceId` (data ingested
+     * in global-id form) can yield a different `id` under `_elements=id` than a full export,
+     * since IdEnrichmentProvider rewrites id from _sourceId only on the full path.
+     *
+     * @typedef {Object} SerializeExportDocParams
+     * @property {Object} doc - raw Mongo document
+     * @property {string} resourceType
+     * @property {ParsedArgs} parsedArgs
+     * @property {boolean} isProjected
+     *
+     * @param {SerializeExportDocParams}
+     * @returns {Promise<Object>}
+     */
+    async serializeExportDoc({ doc, resourceType, parsedArgs, isProjected }) {
+        const resource = FhirResourceCreator.createByResourceType(doc, resourceType);
+        if (!isProjected) {
+            await this.enrichmentManager.enrichAsync({ resources: [resource], parsedArgs });
+            await this.databaseAttachmentManager.transformAttachments({
+                resource,
+                operation: GRIDFS.RETRIEVE
+            });
+        }
+        return FhirResourceSerializer.serialize(resource.toJSONInternal());
     }
 
     /**
@@ -713,7 +796,7 @@ class BulkDataExportRunner {
             });
 
             if (resourceType === 'Patient') {
-                await this.processResourceAsync({ resourceType, query: patientQuery });
+                await this.processResourceAsync({ resourceType, query: patientQuery, searchParams });
                 return;
             }
 
@@ -733,6 +816,10 @@ class BulkDataExportRunner {
             const multipartContext = new S3MultiPartContext({
                 resourceFilePath: `${this.baseS3Folder}/${resourceType}.ndjson`
             });
+            // _elements projection (if any) applies to the exported resource type, not the
+            // Patient-reference lookup above (which only needs _uuid).
+            const elementsProjection = this.buildElementsProjection({ resourceType, searchParams });
+
             let patientReferences = [];
             for await (const result of patientCursor) {
                 patientReferences.push(`Patient/${result._uuid}`);
@@ -742,7 +829,8 @@ class BulkDataExportRunner {
                         resourceType,
                         query,
                         patientReferences,
-                        multipartContext
+                        multipartContext,
+                        elementsProjection
                     });
                     patientReferences = [];
                 }
@@ -753,7 +841,8 @@ class BulkDataExportRunner {
                     resourceType,
                     query,
                     patientReferences,
-                    multipartContext
+                    multipartContext,
+                    elementsProjection
                 });
             }
 
@@ -816,6 +905,8 @@ class BulkDataExportRunner {
      * @property {Object} query
      * @property {string[]} patientReferences
      * @property {Object} multipartContext
+     * @property {import('mongodb').Document|null} [elementsProjection] - When set (_elements),
+     *   restricts the fetch to these fields and skips enrichment/attachment transforms.
      *
      * @param {ExportPatientDataAsyncParams}
      */
@@ -823,7 +914,8 @@ class BulkDataExportRunner {
         resourceType,
         query,
         patientReferences,
-        multipartContext
+        multipartContext,
+        elementsProjection = null
     }) {
         const resourceQuery = this.addPatientFiltersToQuery({
             patientReferences,
@@ -854,6 +946,9 @@ class BulkDataExportRunner {
             }
 
             const options = { batchSize: this.fetchResourceBatchSize };
+            if (elementsProjection) {
+                options.projection = elementsProjection;
+            }
             const cursor = multipartContext.collection.find(resourceQuery, options);
 
             // start multipart upload
@@ -868,17 +963,12 @@ class BulkDataExportRunner {
                 const currentBatch = new Array(minUploadBatchSize);
                 let currentBatchSize = 0;
                 while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
-                    let doc = await cursor.next();
-                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
-                    await this.enrichmentManager.enrichAsync({
-                        resources: [doc],
-                        parsedArgs
+                    const doc = await this.serializeExportDoc({
+                        doc: await cursor.next(),
+                        resourceType,
+                        parsedArgs,
+                        isProjected: Boolean(elementsProjection)
                     });
-                    await this.databaseAttachmentManager.transformAttachments({
-                        resource: doc,
-                        operation: GRIDFS.RETRIEVE
-                    });
-                    doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
 
@@ -931,10 +1021,11 @@ class BulkDataExportRunner {
      * @property {string} resourceType
      * @property {Object} query
      * @property {number} [batchNumber]
+     * @property {URLSearchParams} [searchParams] - Source of the optional _elements projection.
      *
      * @param {ProcessResourceAsyncParams}
      */
-    async processResourceAsync({ resourceType, query, batchNumber }) {
+    async processResourceAsync({ resourceType, query, batchNumber, searchParams }) {
         const filePath = `${this.baseS3Folder}/${resourceType}${batchNumber ? `_${batchNumber}` : ''}.ndjson`;
         let uploadId;
         try {
@@ -949,6 +1040,11 @@ class BulkDataExportRunner {
             });
             parsedArgs.headers = {};
 
+            // _elements: project to requested + mandatory fields and skip enrichment/attachment.
+            const elementsProjection = searchParams
+                ? this.buildElementsProjection({ resourceType, searchParams })
+                : null;
+
             logInfo(`Exporting resources for ${resourceType} resource`);
 
             /**
@@ -961,6 +1057,9 @@ class BulkDataExportRunner {
 
             const db = await resourceLocator.getDatabaseConnectionAsync();
             const options = { batchSize: this.fetchResourceBatchSize };
+            if (elementsProjection) {
+                options.projection = elementsProjection;
+            }
             const cursor = db.collection(`${resourceType}_4_0_0`).find(query, options);
 
             let readCount = 0;
@@ -979,17 +1078,12 @@ class BulkDataExportRunner {
                 let currentBatchSize = 0;
 
                 while (await cursor.hasNext() && currentBatchSize < minUploadBatchSize) {
-                    let doc = await cursor.next();
-                    doc = FhirResourceCreator.createByResourceType(doc, resourceType);
-                    await this.enrichmentManager.enrichAsync({
-                        resources: [doc],
-                        parsedArgs
+                    const doc = await this.serializeExportDoc({
+                        doc: await cursor.next(),
+                        resourceType,
+                        parsedArgs,
+                        isProjected: Boolean(elementsProjection)
                     });
-                    await this.databaseAttachmentManager.transformAttachments({
-                        resource: doc,
-                        operation: GRIDFS.RETRIEVE
-                    });
-                    doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
 
