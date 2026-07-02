@@ -26,6 +26,14 @@ CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberEvents
     event_time DateTime64(3, 'UTC') DEFAULT now64(3, 'UTC'),
     event_id UUID DEFAULT generateUUIDv4(),  -- Tie-breaker for argMax
 
+    -- Causal-ordering terms. version_id is the FHIR meta.versionId of the write that produced this
+    -- event; it increments per resource version, so a later write wins. batch_seq orders events
+    -- within a single write (same version_id). Together they lead the current-state tie-break
+    -- tuple (version_id, batch_seq, event_time, event_id) in the views below, so a causally-later
+    -- add/remove beats an earlier one even when event_time ties.
+    version_id UInt64 DEFAULT 0,
+    batch_seq UInt32 DEFAULT 0,
+
     -- member.period (0..1)
     period_start Nullable(DateTime64(3, 'UTC')),
     period_end Nullable(DateTime64(3, 'UTC')),
@@ -71,32 +79,32 @@ CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberCurrent
 (
     group_id String,
     entity_reference String,
-    entity_reference_uuid AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
-    entity_reference_source_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
+    entity_reference_uuid AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    entity_reference_source_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
 
     -- Latest entity_type (kept consistent with other columns)
-    entity_type AggregateFunction(argMax, LowCardinality(String), Tuple(DateTime64(3, 'UTC'), UUID)),
+    entity_type AggregateFunction(argMax, LowCardinality(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
 
     -- Latest membership state
-    event_type AggregateFunction(argMax, Enum8('added' = 1, 'removed' = 2), Tuple(DateTime64(3, 'UTC'), UUID)),
-    event_time AggregateFunction(argMax, DateTime64(3, 'UTC'), Tuple(DateTime64(3, 'UTC'), UUID)),
-    event_id   AggregateFunction(argMax, UUID, Tuple(DateTime64(3, 'UTC'), UUID)),
+    event_type AggregateFunction(argMax, Enum8('added' = 1, 'removed' = 2), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    event_time AggregateFunction(argMax, DateTime64(3, 'UTC'), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    event_id   AggregateFunction(argMax, UUID, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
 
-    period_start AggregateFunction(argMax, Nullable(DateTime64(3, 'UTC')), Tuple(DateTime64(3, 'UTC'), UUID)),
-    period_end   AggregateFunction(argMax, Nullable(DateTime64(3, 'UTC')), Tuple(DateTime64(3, 'UTC'), UUID)),
-    inactive     AggregateFunction(argMax, UInt8, Tuple(DateTime64(3, 'UTC'), UUID)),
+    period_start AggregateFunction(argMax, Nullable(DateTime64(3, 'UTC')), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    period_end   AggregateFunction(argMax, Nullable(DateTime64(3, 'UTC')), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    inactive     AggregateFunction(argMax, UInt8, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
 
     -- Latest provenance for this member state
-    actor          AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
-    reason         AggregateFunction(argMax, LowCardinality(String), Tuple(DateTime64(3, 'UTC'), UUID)),
-    source         AggregateFunction(argMax, LowCardinality(String), Tuple(DateTime64(3, 'UTC'), UUID)),
-    correlation_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
+    actor          AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    reason         AggregateFunction(argMax, LowCardinality(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    source         AggregateFunction(argMax, LowCardinality(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    correlation_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
 
     -- Latest security/metadata (copied from the event that produced the latest state)
-    group_source_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
-    group_source_assigning_authority AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
-    access_tags AggregateFunction(argMax, Array(String), Tuple(DateTime64(3, 'UTC'), UUID)),
-    owner_tags  AggregateFunction(argMax, Array(String), Tuple(DateTime64(3, 'UTC'), UUID))
+    group_source_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    group_source_assigning_authority AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    access_tags AggregateFunction(argMax, Array(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    owner_tags  AggregateFunction(argMax, Array(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID))
 )
 ENGINE = AggregatingMergeTree
 ORDER BY (group_id, entity_reference);
@@ -146,7 +154,9 @@ FROM (
         group_source_assigning_authority,
         access_tags,
         owner_tags,
-        tuple(event_time, event_id) AS tie
+        version_id,
+        batch_seq,
+        tuple(version_id, batch_seq, event_time, event_id) AS tie
     FROM fhir.Group_4_0_0_MemberEvents
 )
 GROUP BY group_id, entity_reference;
@@ -164,16 +174,16 @@ CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberCurrentByEntity
 (
     entity_reference String,
     group_id String,
-    entity_reference_uuid AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
-    entity_reference_source_id AggregateFunction(argMax, String, Tuple(DateTime64(3, 'UTC'), UUID)),
+    entity_reference_uuid AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    entity_reference_source_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
 
-    event_type AggregateFunction(argMax, Enum8('added' = 1, 'removed' = 2), Tuple(DateTime64(3, 'UTC'), UUID)),
-    inactive   AggregateFunction(argMax, UInt8, Tuple(DateTime64(3, 'UTC'), UUID)),
+    event_type AggregateFunction(argMax, Enum8('added' = 1, 'removed' = 2), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    inactive   AggregateFunction(argMax, UInt8, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
 
     -- Security/authorization tags (added for Gate 3)
     -- These enable security filtering at the database level for member lookups
-    access_tags AggregateFunction(argMax, Array(String), Tuple(DateTime64(3, 'UTC'), UUID)),
-    owner_tags  AggregateFunction(argMax, Array(String), Tuple(DateTime64(3, 'UTC'), UUID))
+    access_tags AggregateFunction(argMax, Array(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    owner_tags  AggregateFunction(argMax, Array(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID))
 )
 ENGINE = AggregatingMergeTree
 ORDER BY (entity_reference, group_id);
@@ -202,7 +212,9 @@ FROM (
         inactive,
         access_tags,
         owner_tags,
-        tuple(event_time, event_id) AS tie
+        version_id,
+        batch_seq,
+        tuple(version_id, batch_seq, event_time, event_id) AS tie
     FROM fhir.Group_4_0_0_MemberEvents
 )
 GROUP BY entity_reference, group_id;

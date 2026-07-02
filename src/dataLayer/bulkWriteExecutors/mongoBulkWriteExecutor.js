@@ -22,6 +22,10 @@ const { ResourceLocatorFactory } = require('../../operations/common/resourceLoca
 const { ConfigManager } = require('../../utils/configManager');
 const { PostSaveProcessor } = require('../postSaveProcessor');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const {
+    wasMemberStrippedForExternalStorage,
+    restoreStrippedMembersInMongo
+} = require('../../utils/clickHouseGroupPreSave');
 
 // MongoDB BSON document hard limit is 16 MiB (16,777,216 bytes). The Node driver and
 // libbson allocate a 17 MiB scratch buffer (kMaxBSONSize + 1 MiB headroom = 17,825,792 bytes),
@@ -403,18 +407,43 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
 
                     // 3. Call postSaveAsync for each operation
                     for (const operationByCollection of operationsByCollection) {
-                        mergeResultEntries.push(
-                            await this._postSaveAsync({
-                                base_version,
-                                requestInfo,
+                        try {
+                            mergeResultEntries.push(
+                                await this._postSaveAsync({
+                                    base_version,
+                                    requestInfo,
+                                    resourceType,
+                                    bulkInsertUpdateEntry: operationByCollection,
+                                    bulkWriteResult,
+                                    useHistoryCollection,
+                                    isAccessLogOperation,
+                                    insertOneHistoryFn
+                                })
+                            );
+                        } catch (postSaveError) {
+                            // EA-2322: Group dual-write split-brain compensation.
+                            //
+                            // For a Group create/PUT with useExternalStorage, the MongoDB document
+                            // was already committed (above) with member[] stripped, on the
+                            // assumption that the synchronous post-save handler would write the
+                            // members to ClickHouse. A throw here means that ClickHouse write
+                            // failed, so MongoDB now holds a Group with no members and ClickHouse
+                            // holds no events: a silently-empty (orphaned) Group.
+                            //
+                            // Restore the original members onto the committed MongoDB document so
+                            // the submitted membership is not lost, then re-throw so the client
+                            // still receives a 500 and the operation is reported as failed.
+                            // See restoreStrippedMembersInMongo for the rationale and the known
+                            // limitation (members are restored to Mongo, not replayed to ClickHouse).
+                            await this._compensateStrippedGroupMembersOnPostSaveFailure({
+                                collection,
                                 resourceType,
                                 bulkInsertUpdateEntry: operationByCollection,
-                                bulkWriteResult,
-                                useHistoryCollection,
-                                isAccessLogOperation,
-                                insertOneHistoryFn
-                            })
-                        );
+                                requestId,
+                                postSaveError
+                            });
+                            throw postSaveError;
+                        }
                     }
                 } catch (e) {
                     // Errors already wrapped at a lower layer (inner bulkWrite catch, post-save,
@@ -586,6 +615,84 @@ class MongoBulkWriteExecutor extends BulkWriteExecutor {
         }
 
         return mergeResultEntry;
+    }
+
+    /**
+     * EA-2322: Compensates a Group dual-write split-brain after a post-save failure.
+     *
+     * When the synchronous post-save handler (the ClickHouse member write) throws for a Group
+     * whose member[] was stripped from MongoDB before the commit, the committed MongoDB document
+     * is left silently empty. This restores the original members (carried in contextData) back
+     * onto that document so the data is not lost.
+     *
+     * Compensation is best-effort: if the restore itself fails we log and swallow that secondary
+     * error so the ORIGINAL post-save error is the one surfaced to the caller (it is the actionable
+     * failure). This method never throws.
+     *
+     * @param {Object} params
+     * @param {import('mongodb').Collection} params.collection - Open collection for this resource table
+     * @param {string} params.resourceType
+     * @param {BulkInsertUpdateEntry} params.bulkInsertUpdateEntry
+     * @param {string|null} params.requestId
+     * @param {Error} params.postSaveError - The original post-save (ClickHouse) error being compensated
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _compensateStrippedGroupMembersOnPostSaveFailure ({
+        collection,
+        resourceType,
+        bulkInsertUpdateEntry,
+        requestId,
+        postSaveError
+    }) {
+        const contextData = bulkInsertUpdateEntry.contextData || null;
+
+        // Only Group writes that actually stripped members from Mongo can be split-brained.
+        if (resourceType !== 'Group' || !wasMemberStrippedForExternalStorage(contextData)) {
+            return;
+        }
+
+        const originalMembers = contextData?.groupMembers || [];
+        if (originalMembers.length === 0) {
+            // No members were submitted, so there is nothing to lose (empty Group is consistent).
+            return;
+        }
+
+        try {
+            const restored = await restoreStrippedMembersInMongo({
+                collection,
+                uuid: bulkInsertUpdateEntry.uuid,
+                members: originalMembers
+            });
+
+            logError('mongoBulkWriteExecutor: ClickHouse member write failed; restored Group members to MongoDB to prevent data loss', {
+                args: {
+                    source: 'mongoBulkWriteExecutor._compensateStrippedGroupMembersOnPostSaveFailure',
+                    requestId,
+                    resourceType,
+                    id: bulkInsertUpdateEntry.id,
+                    uuid: bulkInsertUpdateEntry.uuid,
+                    memberCount: originalMembers.length,
+                    restored,
+                    originalError: postSaveError && postSaveError.message
+                }
+            });
+        } catch (compensationError) {
+            // Secondary failure: the Group remains empty in Mongo. Log loudly but do not mask the
+            // original post-save error, which the caller re-throws.
+            await logSystemErrorAsync({
+                event: 'mongoBulkWriteExecutor_compensationFailed',
+                message: 'mongoBulkWriteExecutor: failed to restore Group members after ClickHouse write failure',
+                error: compensationError,
+                args: {
+                    requestId,
+                    resourceType,
+                    id: bulkInsertUpdateEntry.id,
+                    uuid: bulkInsertUpdateEntry.uuid,
+                    originalError: postSaveError && postSaveError.message
+                }
+            });
+        }
     }
 
     /**
