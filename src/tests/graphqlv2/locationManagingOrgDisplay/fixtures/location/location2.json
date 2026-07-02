@@ -1,0 +1,22 @@
+{
+    "resourceType": "Location",
+    "id": "loc2",
+    "meta": {
+        "source": "https://www.icanbwell.com",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client1"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client1"
+            }
+        ]
+    },
+    "name": "Downtown Family Clinic",
+    "managingOrganization": {
+        "reference": "Organization/org1",
+        "display": "Stored Organization Display"
+    }
+}
