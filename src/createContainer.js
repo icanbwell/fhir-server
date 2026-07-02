@@ -410,7 +410,8 @@ const createContainer = function () {
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
             genericClickHouseRepository: c.genericClickHouseRepository,
-            schemaRegistry: c.clickHouseSchemaRegistry
+            schemaRegistry: c.clickHouseSchemaRegistry,
+            scopesManager: c.scopesManager
         });
     });
 

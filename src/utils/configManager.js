@@ -1183,6 +1183,34 @@ class ConfigManager {
         return parseInt(env.CLICKHOUSE_MAX_CONNECTIONS || String(DEFAULT_CLICKHOUSE.MAX_CONNECTIONS), 10);
     }
 
+    /**
+     * ClickHouse idle socket TTL in milliseconds.
+     * Keep-alive sockets idle longer than this are discarded before reuse instead
+     * of being handed to a new request, preventing reuse of a socket the server
+     * has already closed (a primary cause of intermittent ECONNRESET/EPIPE under
+     * sustained load). Must stay comfortably below clickHouseRequestTimeout.
+     * Default: 30000ms (30 seconds). See EA-2320.
+     * @returns {number}
+     */
+    get clickHouseIdleSocketTtl() {
+        return parseInt(env.CLICKHOUSE_IDLE_SOCKET_TTL_MS || String(DEFAULT_CLICKHOUSE.IDLE_SOCKET_TTL_MS), 10);
+    }
+
+    /**
+     * Whether ClickHouse should send progress in HTTP headers during long-running
+     * operations. This keeps the underlying socket alive (periodic header writes)
+     * so long queries/inserts are not torn down mid-flight, avoiding "socket was
+     * closed or ended before the response was fully read" / ECONNRESET warnings.
+     * Default: true. Set CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS=false to disable.
+     * See EA-2320.
+     * @returns {boolean}
+     */
+    get clickHouseSendProgressInHttpHeaders() {
+        return env.CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS === undefined
+            ? true
+            : isTrue(env.CLICKHOUSE_SEND_PROGRESS_IN_HTTP_HEADERS);
+    }
+
     get accessHistoryBatchSize() {
         return parseInt(env.ACCESS_HISTORY_BATCH_SIZE || '10000', 10);
     }

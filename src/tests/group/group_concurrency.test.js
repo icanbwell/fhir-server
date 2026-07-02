@@ -5,7 +5,8 @@ const {
     cleanupAllData,
     getSharedRequest,
     getClickHouseManager,
-    getTestHeadersWithExternalStorage
+    getTestHeadersWithExternalStorage,
+    syncClickHouseMaterializedViews
 } = require('./groupTestSetup');
 const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 
@@ -286,8 +287,9 @@ describe('Group Concurrency Tests', () => {
         }
     }, 30000);
 
-    test('100 concurrent PATCH operations → All events stored', async () => {
+    test('100 concurrent PATCH operations → No lost writes, all distinct members present', async () => {
         const groupId = `concurrent-patch-flood-${Date.now()}`;
+        const N = 100;
 
         const clickHouseManager = getClickHouseManager();
 
@@ -295,9 +297,12 @@ describe('Group Concurrency Tests', () => {
         expect(createResponse.status).toBe(201);
         const actualId = createResponse.body.id;
 
-        // Prepare 100 concurrent PATCH operations, each adding a unique member
+        // Prepare N concurrent PATCH operations, each adding a distinct member.
+        // The event-sourced PATCH path is append-only (one INSERT per op, keyed by a
+        // distinct entity_reference) with no read-modify-write of a shared member
+        // array, so concurrency must NOT drop any member's `added` event.
         const patchPromises = [];
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < N; i++) {
             const request = getSharedRequest();
             const patchPromise = request
                 .patch(`/4_0_0/Group/${actualId}`)
@@ -317,34 +322,44 @@ describe('Group Concurrency Tests', () => {
         // Execute all PATCH operations concurrently
         const results = await Promise.all(patchPromises);
 
-        // Count successful operations
-        const successCount = results.filter(r => r.status === 200).length;
-        expect(successCount).toBeGreaterThan(0); // At least some should succeed
+        // Every PATCH adds a distinct member and must succeed. Fail loudly (with
+        // the actual failing status codes) if any request was lost/rejected so a
+        // real concurrency regression cannot hide behind a "> 0" assertion.
+        const failed = results
+            .map((r, i) => ({ i, status: r.status }))
+            .filter(r => r.status !== 200);
+        expect(failed).toEqual([]);
+        const successCount = results.length - failed.length;
+        expect(successCount).toBe(N);
 
+        // Force materialized-view / part merges so reads see every appended event.
+        await syncClickHouseMaterializedViews();
 
-        // Verify all events were stored in ClickHouse
-        const events = await clickHouseManager.queryAsync({
-            query: `SELECT count() as count FROM fhir.Group_4_0_0_MemberEvents
-                    WHERE group_id = '${actualId}' AND event_type = '${EVENT_TYPES.MEMBER_ADDED}'`
-        });
-
-        const eventCount = parseInt(events[0].count);
-        expect(eventCount).toBeGreaterThan(0);
-
-        // Verify final state via argMax (handles duplicates and race conditions)
-        const uniqueMembers = await clickHouseManager.queryAsync({
+        // Exactly N distinct members must have an `added` event (no lost writes).
+        const addedRefs = await clickHouseManager.queryAsync({
             query: `SELECT count(DISTINCT entity_reference) as count
                     FROM fhir.Group_4_0_0_MemberEvents
-                    WHERE group_id = '${actualId}'
-                    GROUP BY group_id
-                    HAVING argMax(event_type, (event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'`
+                    WHERE group_id = {groupId:String}
+                      AND event_type = {eventType:String}`,
+            query_params: { groupId: actualId, eventType: EVENT_TYPES.MEMBER_ADDED }
         });
+        expect(parseInt(addedRefs[0].count)).toBe(N);
 
-        // We should have captured many unique members
-        // (May not be exactly 100 due to race conditions, but should be substantial)
-        if (uniqueMembers.length > 0) {
-            const uniqueCount = parseInt(uniqueMembers[0].count);
-            expect(uniqueCount).toBeGreaterThan(0);
+        // Final state via argMax: all N members must resolve to `added` (active).
+        const activeMembers = await clickHouseManager.queryAsync({
+            query: `SELECT entity_reference
+                    FROM fhir.Group_4_0_0_MemberEvents
+                    WHERE group_id = {groupId:String}
+                    GROUP BY entity_reference
+                    HAVING argMax(event_type, (event_time, event_id)) = {eventType:String}`,
+            query_params: { groupId: actualId, eventType: EVENT_TYPES.MEMBER_ADDED }
+        });
+        expect(activeMembers.length).toBe(N);
+
+        const activeSet = new Set(activeMembers.map(m => m.entity_reference));
+        expect(activeSet.size).toBe(N);
+        for (let i = 0; i < N; i++) {
+            expect(activeSet.has(`Patient/flood-${i}`)).toBe(true);
         }
     }, 180000); // Extended timeout for 100 concurrent operations (slower in full suite due to resource contention)
 
@@ -423,11 +438,29 @@ describe('Group Concurrency Tests', () => {
             format: 'JSONEachRow'
         });
 
-        // Query with argMax - tie-breaker should use event_id to determine winner
+        // argMax(event_type, (event_time, event_id)) breaks the event_time tie on the
+        // greatest event_id. All three rows share baseTime, so the winner is fully
+        // determined by which event_id is greatest under ClickHouse's UUID ordering.
+        //
+        // event_id is a ClickHouse `UUID` column (see 01-init-schema.sql), which is
+        // compared by its internal binary layout, NOT by canonical-text lexical order.
+        // Reimplementing that byte order in JS would be brittle, so instead we assert
+        // the tie-break INVARIANT directly: the event_type argMax selects must be the
+        // event_type of the very row whose event_id argMax selects (same tie tuple, so
+        // the same winning row). We ask ClickHouse which event_id wins, then map it back
+        // to the type we inserted for that id. This verifies real tie-break semantics
+        // deterministically without hardcoding an ordering assumption.
+        const typeByEventId = {
+            [uuid1]: 'added',
+            [uuid2]: 'removed',
+            [uuid3]: 'added'
+        };
+
         const result = await clickHouseManager.queryAsync({
             query: `SELECT
                         entity_reference,
-                        argMax(event_type, (event_time, event_id)) as final_event_type
+                        argMax(event_type, (event_time, event_id)) as final_event_type,
+                        toString(argMax(event_id, (event_time, event_id))) as winning_event_id
                     FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String}
                     GROUP BY entity_reference`,
@@ -436,18 +469,27 @@ describe('Group Concurrency Tests', () => {
 
         expect(result.length).toBe(1);
         expect(result[0].entity_reference).toBe(memberRef);
-        // Final state is deterministic based on (event_time, event_id) tuple
-        expect(['added', 'removed']).toContain(result[0].final_event_type);
 
-        // Verify determinism - query again, should get same result
+        // The tie-break must land on one of the three inserted events.
+        const winningEventId = result[0].winning_event_id;
+        expect(Object.keys(typeByEventId)).toContain(winningEventId);
+
+        // Invariant: the winning event_type is the type of the winning event_id's row.
+        const expectedFinalType = typeByEventId[winningEventId];
+        expect(result[0].final_event_type).toBe(expectedFinalType);
+
+        // Verify determinism - query again, should resolve to the identical winner.
         const result2 = await clickHouseManager.queryAsync({
-            query: `SELECT argMax(event_type, (event_time, event_id)) as final_event_type
+            query: `SELECT
+                        argMax(event_type, (event_time, event_id)) as final_event_type,
+                        toString(argMax(event_id, (event_time, event_id))) as winning_event_id
                     FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}
                     GROUP BY entity_reference`,
             query_params: { groupId, memberRef }
         });
 
-        expect(result2[0].final_event_type).toBe(result[0].final_event_type);
+        expect(result2[0].winning_event_id).toBe(winningEventId);
+        expect(result2[0].final_event_type).toBe(expectedFinalType);
     }, 30000);
 });

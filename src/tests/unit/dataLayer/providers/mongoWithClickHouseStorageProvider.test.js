@@ -334,4 +334,108 @@ describe('MongoWithClickHouseStorageProvider', () => {
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
         });
     });
+
+    /**
+     * Admin-exempt fail-closed tenant filtering on the ClickHouse read path.
+     *
+     * The full-access signal must be derived authoritatively from the caller's
+     * SCOPE (via ScopesManager), not inferred from whether the built query
+     * carried tag predicates. A wildcard admin's query legitimately carries no
+     * tags, so tag-based inference would wrongly deny them.
+     */
+    describe('admin-exempt tenant filtering', () => {
+        // Minimal ScopesManager fake honoring the wildcard contract:
+        // access/*.* => access code '*'. Only structural behavior we depend on.
+        const fakeScopesManager = {
+            getAccessCodesFromScopes: (action, user, scope) => {
+                const codes = [];
+                for (const s of (scope || '').split(' ')) {
+                    if (s.startsWith('access/')) {
+                        const [tag, type] = s.replace('access/', '').split('.');
+                        if (type === '*' || type === action) {
+                            codes.push(tag);
+                        }
+                    }
+                }
+                return codes;
+            }
+        };
+
+        const buildProvider = () => new MongoWithClickHouseStorageProvider({
+            resourceLocator: mockResourceLocator,
+            clickHouseClientManager: mockClickHouseClientManager,
+            mongoStorageProvider: mockMongoStorageProvider,
+            configManager: mockConfigManager,
+            scopesManager: fakeScopesManager
+        });
+
+        test('_callerHasFullAccess is true for a wildcard (access/*.*) scope', () => {
+            const p = buildProvider();
+            expect(p._callerHasFullAccess({ scope: 'access/*.* user/*.read', user: 'admin' })).toBe(true);
+        });
+
+        test('_callerHasFullAccess is false for a tenant-scoped caller', () => {
+            const p = buildProvider();
+            expect(p._callerHasFullAccess({ scope: 'access/client1.* user/*.read', user: 'u1' })).toBe(false);
+        });
+
+        test('_callerHasFullAccess is false when no scopesManager is wired', () => {
+            expect(provider._callerHasFullAccess({ scope: 'access/*.*', user: 'admin' })).toBe(false);
+        });
+
+        test('wildcard admin with NO query tags is NOT denied; ClickHouse is queried without a tenant predicate', async () => {
+            const p = buildProvider();
+            // Wildcard admin => upstream added no meta.security predicate => query has no tags.
+            const query = { 'member.entity._sourceId': 'Patient/123' };
+            const adminExtraInfo = {
+                headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' },
+                scope: 'access/*.* user/*.read',
+                user: 'admin'
+            };
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_id: 'group-1' }]);
+            mockMongoStorageProvider.findAsync.mockResolvedValue({});
+
+            await p.findAsync({ query, options: {}, extraInfo: adminExtraInfo });
+
+            expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalledTimes(1);
+            const executed = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            // No tenant predicate and no deny clause for a legitimate full-access admin
+            expect(executed.query).not.toContain('1 = 0');
+            expect(executed.query).not.toContain('access_tags');
+            expect(executed.query).not.toContain('owner_tags');
+        });
+
+        test('genuinely unscoped non-admin (no tags, no full access) is denied with 403', async () => {
+            const p = buildProvider();
+            const query = { 'member.entity._sourceId': 'Patient/123' };
+            const unscopedExtraInfo = {
+                headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' },
+                scope: 'user/*.read', // no access/* scope => no tags, not full access
+                user: 'u1'
+            };
+
+            await expect(
+                p.findAsync({ query, options: {}, extraInfo: unscopedExtraInfo })
+            ).rejects.toMatchObject({ statusCode: 403 });
+            // Denied before touching ClickHouse
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+        });
+
+        test('tenant-scoped caller still gets the access tag filter', async () => {
+            const p = buildProvider();
+            const query = withSecurityTags({ 'member.entity._sourceId': 'Patient/123' });
+            const scopedExtraInfo = {
+                headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' },
+                scope: 'access/client1.* user/*.read',
+                user: 'u1'
+            };
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_id: 'group-1' }]);
+            mockMongoStorageProvider.findAsync.mockResolvedValue({});
+
+            await p.findAsync({ query, options: {}, extraInfo: scopedExtraInfo });
+
+            const executed = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(executed.query).toContain('hasAny(argMaxMerge(');
+        });
+    });
 });

@@ -1,6 +1,7 @@
 const { describe, test, expect } = require('@jest/globals');
 const { GroupMemberEventBuilder } = require('../../../../dataLayer/builders/groupMemberEventBuilder');
 const { EVENT_TYPES } = require('../../../../constants/clickHouseConstants');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 // Minimal group resource with required security tags
 const makeGroupResource = (overrides = {}) => ({
@@ -152,6 +153,86 @@ describe('GroupMemberEventBuilder', () => {
                     groupResource: makeGroupResource()
                 });
             }).toThrow('Member reference missing _uuid');
+        });
+    });
+
+    describe('idempotent event identity (B4)', () => {
+        const member = makeMember('Patient/1|auth', 'Patient/uuid-1', 'Patient/1');
+        const buildArgs = {
+            groupId: 'group-1',
+            entityReference: 'Patient/1|auth',
+            eventType: EVENT_TYPES.MEMBER_ADDED,
+            member,
+            groupResource: makeGroupResource(),
+            eventTime: '2024-01-01T00:00:00.000Z',
+            correlationId: 'group-1|3'
+        };
+
+        test('sets correlation_id from the provided correlationId', () => {
+            const event = GroupMemberEventBuilder.buildEvent(buildArgs);
+            expect(event.correlation_id).toBe('group-1|3');
+        });
+
+        test('derives event_id deterministically as uuidv5(group|reference|type|correlation)', () => {
+            const event = GroupMemberEventBuilder.buildEvent(buildArgs);
+            const expected = generateUUIDv5('group-1|Patient/1|auth|added|group-1|3');
+            expect(event.event_id).toBe(expected);
+        });
+
+        test('a simulated retry produces an identical row (no duplicate)', () => {
+            // Same operation re-driven with the same correlation id + event time
+            const first = GroupMemberEventBuilder.buildEvent(buildArgs);
+            const retry = GroupMemberEventBuilder.buildEvent({ ...buildArgs });
+
+            // Full row must be identical so the append-only MergeTree converges
+            expect(retry).toEqual(first);
+            expect(retry.event_id).toBe(first.event_id);
+            expect(retry.event_time).toBe(first.event_time);
+        });
+
+        test('different correlation ids yield different event_ids (distinct operations not collapsed)', () => {
+            const opA = GroupMemberEventBuilder.buildEvent({ ...buildArgs, correlationId: 'group-1|3' });
+            const opB = GroupMemberEventBuilder.buildEvent({ ...buildArgs, correlationId: 'group-1|4' });
+            expect(opA.event_id).not.toBe(opB.event_id);
+        });
+
+        test('added and removed events for the same member have different event_ids', () => {
+            const added = GroupMemberEventBuilder.buildEvent({ ...buildArgs, eventType: EVENT_TYPES.MEMBER_ADDED });
+            const removed = GroupMemberEventBuilder.buildEvent({ ...buildArgs, eventType: EVENT_TYPES.MEMBER_REMOVED });
+            expect(added.event_id).not.toBe(removed.event_id);
+        });
+
+        test('falls back to a deterministic per-reference correlation when none provided', () => {
+            const noCorrelation = { ...buildArgs };
+            delete noCorrelation.correlationId;
+
+            const first = GroupMemberEventBuilder.buildEvent(noCorrelation);
+            const retry = GroupMemberEventBuilder.buildEvent({ ...noCorrelation });
+
+            // Even without an explicit correlation id, event_id must be stable
+            // (derived from group|reference) rather than a random uuid.
+            expect(first.correlation_id).toBe('group-1|Patient/1|auth');
+            expect(retry.event_id).toBe(first.event_id);
+        });
+
+        test('buildEvents applies the same correlation id to every event in a batch', () => {
+            const members = [
+                makeMember('Patient/1|auth', 'Patient/uuid-1', 'Patient/1'),
+                makeMember('Patient/2|auth', 'Patient/uuid-2', 'Patient/2')
+            ];
+            const events = GroupMemberEventBuilder.buildEvents({
+                groupId: 'group-1',
+                members,
+                eventType: EVENT_TYPES.MEMBER_ADDED,
+                groupResource: makeGroupResource(),
+                eventTime: '2024-01-01T00:00:00.000Z',
+                correlationId: 'group-1|3'
+            });
+
+            expect(events).toHaveLength(2);
+            expect(events.every(e => e.correlation_id === 'group-1|3')).toBe(true);
+            // Distinct members => distinct event ids
+            expect(events[0].event_id).not.toBe(events[1].event_id);
         });
     });
 });

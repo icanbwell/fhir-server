@@ -119,7 +119,12 @@ class SearchBundleOperation {
         const currentOperationName = 'search';
         const extraInfo = {
             currentOperationName,
-            headers: requestInfo.headers
+            headers: requestInfo.headers,
+            // Carry the parsed scope/user so storage providers that filter by tenant
+            // (e.g. the ClickHouse Group reverse-lookup) can authoritatively detect a
+            // full-access (wildcard) caller instead of inferring it from tag presence.
+            scope: requestInfo.scope,
+            user: requestInfo.user
         };
         /**
          * @type {number}
