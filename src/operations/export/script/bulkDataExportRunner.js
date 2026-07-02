@@ -12,6 +12,7 @@ const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { PatientQueryCreator } = require('../../common/patientQueryCreator');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { RethrownError } = require('../../../utils/rethrownError');
+const { BadRequestError } = require('../../../utils/httpErrors');
 const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { R4SearchQueryCreator } = require('../../query/r4');
 const { S3Client } = require('../../../utils/s3Client');
@@ -601,6 +602,12 @@ class BulkDataExportRunner {
      * @returns {Promise<string[]>}
      */
     async getGroupMemberPatientReferencesAsync({ groupId, query }) {
+        // The group id arrives from the request URL; validate it as a bounded FHIR id/uuid token
+        // before it reaches the datastore query (fail fast; breaks the user-input -> query taint).
+        if (typeof groupId !== 'string' || !/^[A-Za-z0-9\-.]{1,64}$/.test(groupId)) {
+            throw new BadRequestError(new Error('Invalid Group id for $export'));
+        }
+
         // Load the Group with the export's tenant scope so an unauthorized caller sees nothing.
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
             resourceType: 'Group',

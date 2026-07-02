@@ -279,6 +279,72 @@ describe('Group Export Tests', () => {
         expect(allIds).not.toContain('empty-grp-nonmember');
     }, 60000);
 
+    test('Group export with a malformed group id fails the export (invalid id rejected at the datastore boundary)', async () => {
+        const request = await createTestRequest((c) => {
+            c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
+            return c;
+        });
+
+        // A Patient the caller owns: must NOT leak even though the id is rejected.
+        await request
+            .post('/4_0_0/Patient/$merge')
+            .send({ resourceType: 'Patient', id: 'bad-id-nonmember', meta: { source: 'http://test.com', security: bwellTags } })
+            .set(getHeaders())
+            .expect(200);
+
+        // 'bad!id' matches the route's [^/]+ segment but fails the FHIR-id regex.
+        const malformedId = 'bad!id';
+
+        let resp = await request
+            .get(`/4_0_0/Group/${malformedId}/$export`)
+            .set(getHeaders())
+            .expect(202);
+
+        const exportStatusId = resp.headers['content-location'].split('/').pop();
+
+        const container = getTestContainer();
+        const postRequestProcessor = container.postRequestProcessor;
+        const postSaveProcessor = container.postSaveProcessor;
+        const requestId = generateUUID();
+        const s3Client = new CapturingS3Client({ bucketName: 'test', region: 'test' });
+
+        delete container.services.bulkDataExportRunner;
+        container.register('bulkDataExportRunner', (c) => new BulkDataExportRunner({
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseExportManager: c.databaseExportManager,
+            patientFilterManager: c.patientFilterManager,
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator,
+            patientQueryCreator: c.patientQueryCreator,
+            enrichmentManager: c.enrichmentManager,
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            r4ArgsParser: c.r4ArgsParser,
+            searchManager: c.searchManager,
+            postSaveProcessor: c.postSaveProcessor,
+            bulkExportEventProducer: c.bulkExportEventProducer,
+            storageProviderFactory: c.storageProviderFactory,
+            exportStatusId,
+            patientReferenceBatchSize: 1000,
+            uploadPartSize: 1024 * 1024,
+            s3Client,
+            requestId
+        }));
+
+        await container.bulkDataExportRunner.processAsync();
+        await postRequestProcessor.executeAsync({ requestId });
+        await postSaveProcessor.flushAsync();
+
+        // Invalid id -> runner throws -> ExportStatus marked entered-in-error (not completed).
+        resp = await request
+            .get(`/4_0_0/$export/${exportStatusId}`)
+            .set(getHeaders())
+            .expect(202);
+        expect(resp.headers['x-progress']).toEqual('entered-in-error');
+
+        // And no patient data was written (the owned non-member must not leak).
+        expect(s3Client.getResourcesForPublicPath('s3://test/exports/bwell/' + exportStatusId + '/Patient.ndjson')).toHaveLength(0);
+    }, 60000);
+
     test('Non-ClickHouse Group export enumerates inline Group.member[] from Mongo', async () => {
         const request = await createTestRequest((c) => {
             c.register('k8sClient', (c) => new MockK8sClient({ configManager: c.configManager }));
