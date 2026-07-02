@@ -130,15 +130,27 @@ class QueryBuilder {
      * Builds query for active members of a specific Group (roster query)
      * Supports seek cursor pagination via afterReference
      *
+     * Tenant filtering: access_tags/owner_tags are projected from the current
+     * state table and filtered in the outer WHERE when tags are provided.
+     *
      * @param {Object} params
      * @param {string} params.groupId - Group ID to query
      * @param {number} params.limit - Page size
      * @param {string|null} params.afterReference - Seek cursor (entity_reference to start after)
+     * @param {string[]} params.accessTags - Access security tags for tenant filtering
+     * @param {string[]} params.ownerTags - Owner security tags for tenant filtering
      * @returns {{query: string, query_params: Object}}
      */
-    static buildActiveMembers({ groupId, limit, afterReference = null }) {
+    static buildActiveMembers({ groupId, limit, afterReference = null, accessTags = [], ownerTags = [] }) {
         const cursorClause = afterReference
             ? 'AND entity_reference > {afterReference:String}'
+            : '';
+
+        const accessTagClause = accessTags.length > 0
+            ? 'AND hasAny(access_tags, {accessTags:Array(String)})'
+            : '';
+        const ownerTagClause = ownerTags.length > 0
+            ? 'AND hasAny(owner_tags, {ownerTags:Array(String)})'
             : '';
 
         const query = `
@@ -151,13 +163,17 @@ class QueryBuilder {
                     entity_reference,
                     argMaxMerge(entity_type) AS entity_type,
                     argMaxMerge(event_type)  AS event_type,
-                    argMaxMerge(inactive)    AS inactive
+                    argMaxMerge(inactive)    AS inactive,
+                    argMaxMerge(access_tags) AS access_tags,
+                    argMaxMerge(owner_tags)  AS owner_tags
                 FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL
                 WHERE group_id = {groupId:String}
                 GROUP BY entity_reference
             )
             WHERE event_type = '${EVENT_TYPES.MEMBER_ADDED}'
               AND inactive = 0
+              ${accessTagClause}
+              ${ownerTagClause}
               ${cursorClause}
             ORDER BY entity_reference
             LIMIT {limit:UInt32}
@@ -166,7 +182,9 @@ class QueryBuilder {
         const query_params = {
             groupId,
             limit,
-            ...(afterReference && { afterReference })
+            ...(afterReference && { afterReference }),
+            ...(accessTags.length > 0 && { accessTags }),
+            ...(ownerTags.length > 0 && { ownerTags })
         };
 
         return { query, query_params };
@@ -175,11 +193,18 @@ class QueryBuilder {
     /**
      * Builds count query for active members of a specific Group
      *
+     * Tenant filtering: access_tags/owner_tags clauses are appended to the
+     * HAVING when tags are provided (reuses _buildActiveMemberHavingClause).
+     *
      * @param {Object} params
      * @param {string} params.groupId - Group ID to query
+     * @param {string[]} params.accessTags - Access security tags for tenant filtering
+     * @param {string[]} params.ownerTags - Owner security tags for tenant filtering
      * @returns {{query: string, query_params: Object}}
      */
-    static buildActiveMemberCount({ groupId }) {
+    static buildActiveMemberCount({ groupId, accessTags = [], ownerTags = [] }) {
+        const havingClause = this._buildActiveMemberHavingClause(accessTags, ownerTags);
+
         const query = `
             SELECT count() as count
             FROM (
@@ -187,12 +212,17 @@ class QueryBuilder {
                 FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL
                 WHERE group_id = {groupId:String}
                 GROUP BY entity_reference
-                HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'
-                   AND argMaxMerge(inactive) = 0
+                HAVING ${havingClause}
             )
         `;
 
-        return { query, query_params: { groupId } };
+        const query_params = {
+            groupId,
+            ...(accessTags.length > 0 && { accessTags }),
+            ...(ownerTags.length > 0 && { ownerTags })
+        };
+
+        return { query, query_params };
     }
 
     /**
