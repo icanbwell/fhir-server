@@ -30,57 +30,98 @@ describe('Claim Graph Contained Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Graph Contained Tests', () => {
-        test('Graph contained with multiple targets works properly', async () => {
-            const request = await createTestRequest((container) => {
-                container.register(
-                    'createCollectionsRunner',
-                    (c) =>
-                        new CreateCollectionsRunner({
-                            indexManager: c.indexManager,
-                            adminLogger: new AdminLogger(),
-                            mongoDatabaseManager: c.mongoDatabaseManager
-                        })
-                );
-                return container;
-            });
-
-            const container = getTestContainer();
-            // create collections and indexes
-            const createCollectionsRunner = container.createCollectionsRunner;
-            await createCollectionsRunner.processAsync();
-
-            let resp = await request
-                .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
-
-            resp = await request
-                .post('/4_0_0/Bundle/$merge')
-                .send([practitionerResource, organizationResource, ...claimResource])
-                .set(getHeaders());
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }, { created: true }]);
-
-            resp = await request
-                .post(
-                    '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true'
-                )
-                .set(getHeaders())
-                .send(graphDefinitionResource);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResource);
-
-            resp = await request
-                .post(
-                    '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true&_explain=1'
-                )
-                .set(getHeaders())
-                .send(graphDefinitionResource);
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWithExplainResource);
+    test('Graph contained with multiple targets works properly', async () => {
+        const request = await createTestRequest((container) => {
+            container.register(
+                'createCollectionsRunner',
+                (c) =>
+                    new CreateCollectionsRunner({
+                        indexManager: c.indexManager,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager
+                    })
+            );
+            return container;
         });
+
+        const container = getTestContainer();
+        // create collections and indexes
+        const createCollectionsRunner = container.createCollectionsRunner;
+        await createCollectionsRunner.processAsync();
+
+        let resp = await request
+            .get('/4_0_0/ExplanationOfBenefit')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResourceCount(0);
+
+        resp = await request
+            .post('/4_0_0/Bundle/$merge')
+            .send([practitionerResource, organizationResource, ...claimResource])
+            .set(getHeaders());
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }, { created: true }]);
+
+        resp = await request
+            .post(
+                '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true'
+            )
+            .set(getHeaders())
+            .send(graphDefinitionResource);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedResource);
+
+        resp = await request
+            .post(
+                '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true&_explain=1'
+            )
+            .set(getHeaders())
+            .send(graphDefinitionResource);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedWithExplainResource);
+    });
+
+    test('Graph contained with multiple targets works properly with explain', async () => {
+        const request = await createTestRequest((container) => {
+            container.register(
+                'createCollectionsRunner',
+                (c) =>
+                    new CreateCollectionsRunner({
+                        indexManager: c.indexManager,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager
+                    })
+            );
+            return container;
+        });
+
+        const container = getTestContainer();
+        // create collections and indexes
+        const createCollectionsRunner = container.createCollectionsRunner;
+        await createCollectionsRunner.processAsync();
+
+        let resp = await request
+            .get('/4_0_0/ExplanationOfBenefit')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResourceCount(0);
+
+        resp = await request
+            .post('/4_0_0/Bundle/$merge')
+            .send([practitionerResource, organizationResource, ...claimResource])
+            .set(getHeaders());
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }, { created: true }]);
+
+        resp = await request
+            .post(
+                '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true&_explain=1'
+            )
+            .set(getHeaders())
+            .send(graphDefinitionResource);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedWithExplainResource);
     });
 });
