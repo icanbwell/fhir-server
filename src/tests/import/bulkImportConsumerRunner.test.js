@@ -42,7 +42,7 @@ describe('BulkImportConsumerRunner', () => {
 
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
-        process.env.ENABLE_EVENTS_KAFKA = '1';
+        process.env.ENABLE_EVENTS_KAFKA_V2 = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
         originalHeadS3FilesAsync = ImportOperation.prototype.headS3FilesAsync;
         ImportOperation.prototype.headS3FilesAsync = async (inputs) =>
@@ -53,7 +53,7 @@ describe('BulkImportConsumerRunner', () => {
     afterEach(async () => {
         ImportOperation.prototype.headS3FilesAsync = originalHeadS3FilesAsync;
         delete process.env.ENABLE_BULK_IMPORT;
-        delete process.env.ENABLE_EVENTS_KAFKA;
+        delete process.env.ENABLE_EVENTS_KAFKA_V2;
         delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
         await commonAfterEach();
     });

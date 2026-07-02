@@ -4,8 +4,8 @@ const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const Task = require('../../fhir/classes/4_0_0/resources/task');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
-const { BulkImportEventProducer } = require('./bulkImportEventProducer');
 const { ConfigManager } = require('../../utils/configManager');
+const { KafkaClientV2 } = require('../../utils/kafkaClientV2');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -16,7 +16,7 @@ const { SecurityTagManager } = require('../common/securityTagManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
+const { generateUUID, isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { logInfo, logError } = require('../common/logging');
 
 class ImportOperation {
@@ -31,7 +31,7 @@ class ImportOperation {
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {PostSaveProcessor} postSaveProcessor
-     * @property {BulkImportEventProducer} bulkImportEventProducer
+     * @property {KafkaClientV2} kafkaClientV2
      *
      * @param {ConstructorParams}
      */
@@ -45,7 +45,7 @@ class ImportOperation {
         databaseUpdateFactory,
         databaseQueryFactory,
         postSaveProcessor,
-        bulkImportEventProducer
+        kafkaClientV2
     }) {
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
@@ -74,8 +74,8 @@ class ImportOperation {
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
-        this.bulkImportEventProducer = bulkImportEventProducer;
-        assertTypeEquals(bulkImportEventProducer, BulkImportEventProducer);
+        this.kafkaClientV2 = kafkaClientV2;
+        assertTypeEquals(kafkaClientV2, KafkaClientV2);
     }
 
     /**
@@ -346,13 +346,30 @@ class ImportOperation {
                 requestInfo
             });
 
-            await this.bulkImportEventProducer.publishImportEventsAsync({
-                taskId: importJobId,
-                inputs: inputsWithSizes,
-                requestId,
-                scope,
-                user: requestInfo.user
-            });
+            if (this.configManager.kafkaV2EnableEvents) {
+                const taskCreatedEvent = {
+                    specversion: '1.0',
+                    id: generateUUID(),
+                    source: 'https://www.icanbwell.com/fhir-server',
+                    type: 'TaskCreated',
+                    datacontenttype: 'application/json',
+                    data: {
+                        taskId: importJobId,
+                        inputs: inputsWithSizes,
+                        requestId,
+                        scope,
+                        user: requestInfo.user
+                    }
+                };
+
+                await this.kafkaClientV2.sendCloudEventMessageAsync({
+                    topic: this.configManager.kafkaBulkImportTaskCreatedTopic,
+                    messages: [{
+                        key: importJobId,
+                        value: JSON.stringify(taskCreatedEvent)
+                    }]
+                });
+            }
 
             // Task is committed — logging and audit are best-effort so a
             // failure here does not mask the successfully created Task.

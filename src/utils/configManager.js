@@ -1263,6 +1263,95 @@ class ConfigManager {
     }
 
     /**
+     * Kafka topic for bulk import task-created notifications
+     * @return {string}
+     */
+    get kafkaBulkImportTaskCreatedTopic() {
+        return env.KAFKA_BULK_IMPORT_TASK_CREATED_TOPIC || 'fhir.bulk_import.task_created';
+    }
+
+    /**
+     * Kafka consumer group ID for the import orchestrator
+     * @return {string}
+     */
+    get bulkImportOrchestratorGroupId() {
+        return env.BULK_IMPORT_ORCHESTRATOR_GROUP_ID || 'fhir-bulk-import-orchestrator';
+    }
+
+    // ── Kafka v2 (new MSK cluster) ──────────────────────────────────────────
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2EnableEvents() {
+        return isTrue(env.ENABLE_EVENTS_KAFKA_V2);
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2ClientId() {
+        return env.KAFKA_V2_CLIENT_ID || 'fhir-server-v2';
+    }
+
+    /**
+     * @return {string[]}
+     */
+    get kafkaV2Brokers() {
+        return env.KAFKA_V2_URLS ? env.KAFKA_V2_URLS.split(',') : [];
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2UseSsl() {
+        return isTrue(env.KAFKA_V2_SSL);
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get kafkaV2UseSasl() {
+        return isTrue(env.KAFKA_V2_SASL);
+    }
+
+    /**
+     * Auth type: 'iam' for MSK IAM, 'scram' for SASL/SCRAM, or empty for no auth
+     * @return {string}
+     */
+    get kafkaV2AuthType() {
+        return env.KAFKA_V2_AUTH_TYPE || '';
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2AuthMechanism() {
+        return env.KAFKA_V2_SASL_MECHANISM || 'scram-sha-512';
+    }
+
+    /**
+     * @return {string|null}
+     */
+    get kafkaV2UserName() {
+        return env.KAFKA_V2_SASL_USERNAME || null;
+    }
+
+    /**
+     * @return {string|null}
+     */
+    get kafkaV2Password() {
+        return env.KAFKA_V2_SASL_PASSWORD || null;
+    }
+
+    /**
+     * @return {string}
+     */
+    get kafkaV2AwsRegion() {
+        return env.KAFKA_V2_AWS_REGION || 'us-east-1';
+    }
+
+    /**
      * returns list of external services where restriction needs to be applied to request
      * @return {Object.<string, string | null>}
      */

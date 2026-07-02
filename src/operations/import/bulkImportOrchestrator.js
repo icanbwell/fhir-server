@@ -8,25 +8,25 @@ async function main() {
         initialize();
         const container = createContainer();
 
-        const { kafkaClientV2, configManager, bulkImportConsumerRunner } = container;
-        const topic = configManager.kafkaBulkImportEventTopic;
-        const groupId = configManager.bulkImportConsumerGroupId;
+        const { kafkaClientV2, configManager, bulkImportOrchestratorRunner } = container;
+        const topic = configManager.kafkaBulkImportTaskCreatedTopic;
+        const groupId = configManager.bulkImportOrchestratorGroupId;
 
-        logInfo('Starting bulk import consumer', { topic, groupId });
+        logInfo('Starting bulk import orchestrator', { topic, groupId });
 
         const consumer = await kafkaClientV2.createConsumerAsync({ groupId });
 
         const joinPromise = kafkaClientV2.waitForConsumerToJoinGroupAsync(consumer, {
             maxWait: 30000,
-            label: 'bulk-import-consumer'
+            label: 'bulk-import-orchestrator'
         });
 
         const shutdown = async (signal) => {
-            logInfo(`Received ${signal}, shutting down bulk import consumer`);
+            logInfo(`Received ${signal}, shutting down bulk import orchestrator`);
             try {
                 await kafkaClientV2.removeConsumerAsync({ consumer });
             } catch (e) {
-                logError('Error during consumer shutdown', { error: e.message });
+                logError('Error during orchestrator shutdown', { error: e.message });
             }
             process.exit(0);
         };
@@ -39,15 +39,15 @@ async function main() {
             topic,
             fromBeginning: false,
             onMessageAsync: async (message) => {
-                await bulkImportConsumerRunner.handleMessageAsync(message);
+                await bulkImportOrchestratorRunner.handleMessageAsync(message);
             }
         });
 
         await joinPromise;
-        logInfo('Bulk import consumer joined group', { groupId });
+        logInfo('Bulk import orchestrator joined group', { groupId });
     } catch (e) {
         console.error(JSON.stringify({
-            method: 'bulkImportConsumer.main',
+            method: 'bulkImportOrchestrator.main',
             message: e.message,
             stack: JSON.stringify(e.stack, getCircularReplacer())
         }));

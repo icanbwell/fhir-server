@@ -118,6 +118,9 @@ const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {ImportOperation} = require('./operations/import/import');
 const {BulkImportEventProducer} = require('./operations/import/bulkImportEventProducer');
 const {BulkImportConsumerRunner} = require('./operations/import/bulkImportConsumerRunner');
+const {BulkImportOrchestratorRunner} = require('./operations/import/bulkImportOrchestratorRunner');
+const {KafkaClientV2} = require('./utils/kafkaClientV2');
+const {DummyKafkaClientV2} = require('./utils/dummyKafkaClientV2');
 const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
@@ -1168,8 +1171,13 @@ const createContainer = function () {
         databaseExportManager: c.databaseExportManager
     }));
 
+    container.register('kafkaClientV2', (c) => c.configManager.kafkaV2EnableEvents
+        ? new KafkaClientV2({configManager: c.configManager})
+        : new DummyKafkaClientV2({configManager: c.configManager})
+    );
+
     container.register('bulkImportEventProducer', (c) => new BulkImportEventProducer({
-        kafkaClient: c.kafkaClient,
+        kafkaClientV2: c.kafkaClientV2,
         configManager: c.configManager
     }));
 
@@ -1177,6 +1185,13 @@ const createContainer = function () {
         configManager: c.configManager,
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory
+    }));
+
+    container.register('bulkImportOrchestratorRunner', (c) => new BulkImportOrchestratorRunner({
+        configManager: c.configManager,
+        kafkaClientV2: c.kafkaClientV2,
+        bulkImportEventProducer: c.bulkImportEventProducer,
+        databaseQueryFactory: c.databaseQueryFactory
     }));
 
     container.register('importOperation', (c) => new ImportOperation({
@@ -1189,7 +1204,7 @@ const createContainer = function () {
         databaseUpdateFactory: c.databaseUpdateFactory,
         databaseQueryFactory: c.databaseQueryFactory,
         postSaveProcessor: c.postSaveProcessor,
-        bulkImportEventProducer: c.bulkImportEventProducer
+        kafkaClientV2: c.kafkaClientV2
     }));
 
     container.register('adminExportManager', (c) => new AdminExportManager({
