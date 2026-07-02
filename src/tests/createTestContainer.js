@@ -2,6 +2,7 @@ const { createContainer } = require('../createContainer');
 const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const { MockRedisClient } = require('./mocks/mockRedisClient');
 const { MockKafkaClient } = require('./mocks/mockKafkaClient');
+const { MockKafkaClientV2 } = require('./mocks/mockKafkaClientV2');
 const { MockAccessLogger } = require('./mocks/mockAccessLogger');
 const { MockAuditLogger } = require('./mocks/mockAuditLogger');
 const { MockCronTasksProcessor } = require('./mocks/mockCronTasksProcessor');
@@ -18,6 +19,10 @@ const createTestContainer = function (fnUpdateContainer) {
     let container = createContainer();
     // update any values here
     container.register('kafkaClient', (c) => new MockKafkaClient(
+        {
+            configManager: c.configManager
+        }));
+    container.register('kafkaClientV2', (c) => new MockKafkaClientV2(
         {
             configManager: c.configManager
         }));
