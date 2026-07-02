@@ -31,7 +31,9 @@ class QueryExecutor {
         options,
         extraInfo
     }) {
-        // Execute ClickHouse query
+        // Execute ClickHouse query. Any requested `_id` constraint has already
+        // been pushed into the SQL (WHERE group_id IN (...)), so LIMIT and
+        // ordering apply to the id-filtered set and the page is authoritative.
         const pageResult = await this._executeClickHouseQuery(clickHouseManager, queryDef);
         const groupIds = (pageResult || []).map(row => row.group_id);
 
