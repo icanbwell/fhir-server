@@ -41,7 +41,7 @@ describe('Import Tests', () => {
         await commonAfterEach();
     });
 
-    test('valid Parameters body returns 202 with OperationOutcome', async () => {
+    test('valid Parameters body returns 202 with Task resource', async () => {
         const request = await createTestRequest();
 
         const resp = await request
@@ -50,14 +50,30 @@ describe('Import Tests', () => {
             .set(getHeaders())
             .expect(202);
 
-        expect(resp.body.resourceType).toBe('OperationOutcome');
+        expect(resp.body.resourceType).toBe('Task');
         expect(resp.body.id).toBe('import-job-001');
-        expect(resp.body.issue[0].severity).toBe('information');
-        expect(resp.body.issue[0].code).toBe('informational');
-        expect(resp.body.issue[0].diagnostics).toContain('1 input file(s)');
+        expect(resp.body.status).toBe('requested');
+        expect(resp.body.intent).toBe('order');
+        expect(resp.body.code.coding[0].system).toBe('https://www.icanbwell.com/task-type');
+        expect(resp.body.code.coding[0].code).toBe('bulk-import');
+        expect(resp.body.input).toHaveLength(1);
+        expect(resp.body.input[0].valueUri).toBe('s3://allowed-bucket/run-001/Patient.ndjson');
+        expect(resp.body.meta.versionId).toBe('1');
     });
 
-    test('multiple input files returns count in diagnostics', async () => {
+    test('response includes Content-Location header', async () => {
+        const request = await createTestRequest();
+
+        const resp = await request
+            .post('/4_0_0/$import')
+            .send(validParametersBody)
+            .set(getHeaders())
+            .expect(202);
+
+        expect(resp.headers['content-location']).toBe('/4_0_0/Task/import-job-001');
+    });
+
+    test('multiple input files are stored in Task.input', async () => {
         const request = await createTestRequest();
 
         const resp = await request
@@ -66,7 +82,57 @@ describe('Import Tests', () => {
             .set(getHeaders())
             .expect(202);
 
-        expect(resp.body.issue[0].diagnostics).toContain('2 input file(s)');
+        expect(resp.body.input).toHaveLength(2);
+        expect(resp.body.input[0].valueUri).toBe('s3://allowed-bucket/run-001/Patient.ndjson');
+        expect(resp.body.input[1].valueUri).toBe('s3://allowed-bucket/run-001/Condition.ndjson');
+    });
+
+    test('Task is persisted in the database', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send(validParametersBody)
+            .set(getHeaders())
+            .expect(202);
+
+        const getResp = await request
+            .get('/4_0_0/Task/import-job-001')
+            .set(getHeaders())
+            .expect(200);
+
+        expect(getResp.body.resourceType).toBe('Task');
+        expect(getResp.body.id).toBe('import-job-001');
+        expect(getResp.body.status).toBe('requested');
+    });
+
+    test('duplicate import id returns 400', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send(validParametersBody)
+            .set(getHeaders())
+            .expect(202);
+
+        const resp = await request
+            .post('/4_0_0/$import')
+            .send(validParametersBody)
+            .set(getHeaders())
+            .expect(400);
+
+        expect(resp).toHaveResponse({
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'An import Task with id "import-job-001" already exists'
+                    }
+                }
+            ]
+        });
     });
 
     test('missing id returns 400 with error message', async () => {

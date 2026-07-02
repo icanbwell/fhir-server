@@ -53,7 +53,7 @@ class DatabaseHistoryManager {
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {Promise<{resource: object, collectionName: string}|null>}
      */
-    async findOneAsync ({ query, options = null }) {
+    async findOneAsync ({ query, options = {} }) {
         try {
             const collection = await this.resourceLocator.getHistoryCollectionAsync();
             /**
@@ -78,7 +78,7 @@ class DatabaseHistoryManager {
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {Promise<DatabaseCursor>}
      */
-    async findAsync ({ query, options = null }) {
+    async findAsync ({ query, options = {} }) {
         const collection = await this.resourceLocator.getHistoryCollectionAsync();
         const cursor = collection.find(query, options);
         return new DatabaseCursor({
