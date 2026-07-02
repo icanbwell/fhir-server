@@ -74,8 +74,6 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
  * @return {Promise<void>}
  */
 module.exports.commonBeforeEach = async () => {
-    // noinspection DynamicallyGeneratedCodeJS
-    jest.setTimeout(30000);
     const urlObject = new URL(process.env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
         { pub: publicKey, kid: '123' }
