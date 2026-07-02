@@ -409,6 +409,53 @@ describe('MongoWithClickHouseStorageProvider', () => {
         });
     });
 
+    describe('getActiveMembersPageAsync tenant scope', () => {
+        test('rejects with 403 when no tags and no full access (fail closed)', async () => {
+            const err = await provider
+                .getActiveMembersPageAsync('group-1', {}, { hasFullAccess: false, accessTags: [], ownerTags: [] })
+                .catch(e => e);
+
+            expect(err.statusCode).toBe(403);
+            expect(err.message).toContain('Cross-tenant access denied');
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+        });
+
+        test('rejects with 403 when securityContext omitted (safe default)', async () => {
+            const err = await provider.getActiveMembersPageAsync('group-1', {}).catch(e => e);
+
+            expect(err.statusCode).toBe(403);
+            expect(mockClickHouseClientManager.queryAsync).not.toHaveBeenCalled();
+        });
+
+        test('runs only the roster query (no count) and returns members', async () => {
+            const rows = [{ entity_reference: 'Patient/1', entity_type: 'Patient', inactive: 0 }];
+            mockClickHouseClientManager.queryAsync.mockResolvedValue(rows);
+
+            const members = await provider.getActiveMembersPageAsync('group-1', { limit: 50 }, { accessTags: ['clientA'] });
+
+            expect(members).toEqual(rows);
+            expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalledTimes(1);
+            const rosterCall = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(rosterCall.query_params.limit).toBe(50);
+            expect(rosterCall.query_params.accessTags).toEqual(['clientA']);
+        });
+
+        test('threads the seek cursor and owner tags into the roster query', async () => {
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([]);
+
+            await provider.getActiveMembersPageAsync(
+                'group-1',
+                { limit: 10, afterReference: 'Patient/5' },
+                { ownerTags: ['bwell'] }
+            );
+
+            const rosterCall = mockClickHouseClientManager.queryAsync.mock.calls[0][0];
+            expect(rosterCall.query_params.afterReference).toBe('Patient/5');
+            expect(rosterCall.query_params.ownerTags).toEqual(['bwell']);
+            expect(rosterCall.query_params.accessTags).toBeUndefined();
+        });
+    });
+
     describe('getActiveMemberCountAsync tenant scope', () => {
         test('rejects with 403 when no tags and no full access (fail closed)', async () => {
             const err = await provider.getActiveMemberCountAsync('group-1', { hasFullAccess: false }).catch(e => e);
