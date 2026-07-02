@@ -1,4 +1,5 @@
 const { describe, test, expect, jest, beforeEach, afterEach } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 /**
  * EA-2320 socket-stability configuration wiring.
@@ -10,19 +11,6 @@ const { describe, test, expect, jest, beforeEach, afterEach } = require('@jest/g
  * cover half (2): that the manager passes those settings to createClient, and
  * that the ConfigManager getters that feed them parse the environment correctly.
  */
-
-// Shared query mock so pingAsync (run during connect) resolves without a real
-// connection. `mock`-prefixed so the jest.mock factory may reference it.
-const mockQuery = jest.fn();
-
-jest.mock('@clickhouse/client', () => ({
-    createClient: jest.fn(() => ({ query: mockQuery })),
-    ClickHouseLogLevel: { OFF: 0 }
-}));
-
-const { createClient } = require('@clickhouse/client');
-const { ClickHouseClientManager } = require('../../../utils/clickHouseClientManager');
-const { ConfigManager } = require('../../../utils/configManager');
 
 process.env.LOGLEVEL = 'SILENT';
 
@@ -43,35 +31,49 @@ function stubConfig(overrides = {}) {
 }
 
 describe('ClickHouseClientManager passes socket-stability settings to createClient', () => {
-    beforeEach(() => {
-        createClient.mockClear();
-        // pingAsync (called during connect) needs a drainable result set.
-        mockQuery.mockImplementation(async () => ({
-            json: async () => [{ ping: 1 }],
-            close: jest.fn()
+    // A plain top-level jest.mock('@clickhouse/client') is unsafe here: the global
+    // jest/patchClickHouseClient.js setup file redefines createClient on the real
+    // module, which shadows the spy in a full test run. Loading the manager inside an
+    // isolated module registry with doMock lets us hold the createClient spy directly.
+    function loadManagerWithMockedCreateClient() {
+        const createClientMock = jest.fn(() => ({
+            query: jest.fn(async () => ({
+                json: async () => [{ ping: 1 }],
+                close: jest.fn()
+            }))
         }));
-    });
+        let ClickHouseClientManager;
+        jest.isolateModules(() => {
+            jest.doMock('@clickhouse/client', () => ({
+                createClient: createClientMock,
+                ClickHouseLogLevel: { OFF: 0 }
+            }));
+            ({ ClickHouseClientManager } = require('../../../utils/clickHouseClientManager'));
+        });
+        return { ClickHouseClientManager, createClientMock };
+    }
 
     test('sets idle_socket_ttl_ms and enables send_progress_in_http_headers by default', async () => {
+        const { ClickHouseClientManager, createClientMock } = loadManagerWithMockedCreateClient();
         const manager = new ClickHouseClientManager({ configManager: stubConfig() });
 
         await manager.getClientAsync();
 
-        expect(createClient).toHaveBeenCalledTimes(1);
-        expect(createClient).toHaveBeenCalledWith(expect.objectContaining({
+        expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
             idle_socket_ttl_ms: 30000,
             clickhouse_settings: expect.objectContaining({ send_progress_in_http_headers: 1 })
         }));
     });
 
     test('disables send_progress_in_http_headers when the config flag is false', async () => {
+        const { ClickHouseClientManager, createClientMock } = loadManagerWithMockedCreateClient();
         const manager = new ClickHouseClientManager({
             configManager: stubConfig({ clickHouseSendProgressInHttpHeaders: false })
         });
 
         await manager.getClientAsync();
 
-        expect(createClient).toHaveBeenCalledWith(expect.objectContaining({
+        expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
             clickhouse_settings: expect.objectContaining({ send_progress_in_http_headers: 0 })
         }));
     });
