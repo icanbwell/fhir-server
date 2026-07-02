@@ -64,4 +64,52 @@ describe('ClickHouseClientManager drains the response stream', () => {
         expect(ok).toBe(true);
         expect(resultSet.close).toHaveBeenCalledTimes(1);
     });
+
+    test('executeBatchAsync closes every result set on success', async () => {
+        const rs1 = makeResultSet(jestGlobal.fn(async () => [{ a: 1 }]));
+        const rs2 = makeResultSet(jestGlobal.fn(async () => [{ b: 2 }]));
+        const query = jestGlobal.fn().mockResolvedValueOnce(rs1).mockResolvedValueOnce(rs2);
+        const manager = makeManager({ query });
+
+        const results = await manager.executeBatchAsync([
+            { query: 'SELECT 1 AS a' },
+            { query: 'SELECT 2 AS b' }
+        ]);
+
+        expect(results).toEqual([[{ a: 1 }], [{ b: 2 }]]);
+        expect(rs1.close).toHaveBeenCalledTimes(1);
+        expect(rs2.close).toHaveBeenCalledTimes(1);
+    });
+
+    test('executeBatchAsync still closes result sets when a mid-batch query throws', async () => {
+        const rs1 = makeResultSet(jestGlobal.fn(async () => [{ a: 1 }]));
+        const rs2 = makeResultSet(jestGlobal.fn(async () => {
+            throw new Error('second statement failed');
+        }));
+        const query = jestGlobal.fn().mockResolvedValueOnce(rs1).mockResolvedValueOnce(rs2);
+        const manager = makeManager({ query });
+
+        await expect(manager.executeBatchAsync([
+            { query: 'SELECT 1 AS a' },
+            { query: 'SELECT 2 AS b' }
+        ])).rejects.toThrow();
+
+        // An aborted batch must not strand a partially-read socket: the completed
+        // statement and the failing one both drain in their finally blocks.
+        expect(rs1.close).toHaveBeenCalledTimes(1);
+        expect(rs2.close).toHaveBeenCalledTimes(1);
+    });
+
+    test('pingAsync returns false and still closes the result set when the read throws', async () => {
+        const resultSet = makeResultSet(jestGlobal.fn(async () => {
+            throw new Error('ping read failed');
+        }));
+        const client = { query: jestGlobal.fn(async () => resultSet) };
+        const manager = makeManager(client);
+
+        const ok = await manager.pingAsync();
+
+        expect(ok).toBe(false);
+        expect(resultSet.close).toHaveBeenCalledTimes(1);
+    });
 });
