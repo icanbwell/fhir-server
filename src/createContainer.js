@@ -116,6 +116,8 @@ const {ExportByIdOperation} = require('./operations/export/exportById');
 const {AdminExportManager} = require('./admin/adminExportManager');
 const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {ImportOperation} = require('./operations/import/import');
+const {BulkImportEventProducer} = require('./operations/import/bulkImportEventProducer');
+const {BulkImportConsumerRunner} = require('./operations/import/bulkImportConsumerRunner');
 const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
@@ -1166,6 +1168,17 @@ const createContainer = function () {
         databaseExportManager: c.databaseExportManager
     }));
 
+    container.register('bulkImportEventProducer', (c) => new BulkImportEventProducer({
+        kafkaClient: c.kafkaClient,
+        configManager: c.configManager
+    }));
+
+    container.register('bulkImportConsumerRunner', (c) => new BulkImportConsumerRunner({
+        configManager: c.configManager,
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseUpdateFactory: c.databaseUpdateFactory
+    }));
+
     container.register('importOperation', (c) => new ImportOperation({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
@@ -1175,7 +1188,8 @@ const createContainer = function () {
         securityTagManager: c.securityTagManager,
         databaseUpdateFactory: c.databaseUpdateFactory,
         databaseQueryFactory: c.databaseQueryFactory,
-        postSaveProcessor: c.postSaveProcessor
+        postSaveProcessor: c.postSaveProcessor,
+        bulkImportEventProducer: c.bulkImportEventProducer
     }));
 
     container.register('adminExportManager', (c) => new AdminExportManager({
