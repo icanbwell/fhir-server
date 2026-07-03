@@ -621,7 +621,10 @@ class BulkDataExportRunner {
             query: deepcopy(query),
             andQuery: { $or: [{ _uuid: safeGroupId }, { _sourceId: safeGroupId }] }
         });
-        const groupDoc = await collection.findOne(groupQuery);
+        // Reviewed false positive: groupId is a URL path segment (always a string), validated and
+        // derived from a bounded FHIR-id regex match above, so a NoSQL operator-object cannot reach
+        // this query. Aikido's taint engine flags the URL->findOne flow regardless of that. See EA-2331.
+        const groupDoc = await collection.findOne(groupQuery); // nosec
 
         if (!groupDoc) {
             logInfo(`Group not found or not authorized for export: ${groupId}`);
