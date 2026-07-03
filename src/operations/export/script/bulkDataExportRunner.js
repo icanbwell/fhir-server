@@ -602,13 +602,14 @@ class BulkDataExportRunner {
      * @returns {Promise<string[]>}
      */
     async getGroupMemberPatientReferencesAsync({ groupId, query }) {
-        // The group id arrives from the request URL; validate it as a bounded FHIR id/uuid token
-        // and cast to a primitive string before it reaches the datastore query (fail fast; defeats
-        // NoSQL operator-object injection into findOne, e.g. { $ne: ... }).
-        if (typeof groupId !== 'string' || !/^[A-Za-z0-9\-.]{1,64}$/.test(groupId)) {
+        // The group id arrives from the request URL. Derive the value used in the datastore query
+        // from a validating regex match (a bounded FHIR id/uuid token) rather than the raw input,
+        // so an operator-object can never reach findOne (fail fast on anything else).
+        const groupIdMatch = typeof groupId === 'string' && groupId.match(/^[A-Za-z0-9\-.]{1,64}$/);
+        if (!groupIdMatch) {
             throw new BadRequestError(new Error('Invalid Group id for $export'));
         }
-        const safeGroupId = String(groupId);
+        const safeGroupId = groupIdMatch[0];
 
         // Load the Group with the export's tenant scope so an unauthorized caller sees nothing.
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
