@@ -1425,11 +1425,9 @@ module.exports = {
                     ];
                 }
 
-                if (container.configManager.enableMergeFastSerializer) {
-                    const dateColumnHandler = new DateColumnHandler();
-                    dateColumnHandler.setFlag(true);
-                    patientToChange = await dateColumnHandler.preSaveAsync({ resource: patientToChange });
-                }
+                const dateColumnHandler = new DateColumnHandler();
+                dateColumnHandler.setFlag(true);
+                patientToChange = await dateColumnHandler.preSaveAsync({ resource: patientToChange });
 
                 requestInfo.body = [patientToChange];
 

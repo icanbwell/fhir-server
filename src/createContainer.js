@@ -116,6 +116,8 @@ const {ExportByIdOperation} = require('./operations/export/exportById');
 const {AdminExportManager} = require('./admin/adminExportManager');
 const {BulkExportEventProducer} = require('./utils/bulkExportEventProducer');
 const {ImportOperation} = require('./operations/import/import');
+const {BulkImportEventProducer} = require('./operations/import/bulkImportEventProducer');
+const {BulkImportConsumerRunner} = require('./operations/import/bulkImportConsumerRunner');
 const {S3Client} = require('./utils/s3Client');
 const {CLOUD_STORAGE_CLIENTS} = require('./constants');
 const {MetaUuidEnrichmentProvider} = require('./enrich/providers/metaUuidEnrichmentProvider');
@@ -142,7 +144,6 @@ const { FhirCacheKeyManager } = require('./utils/fhirCacheKeyManager');
 const { SummaryCacheKeyGenerator } = require('./operations/summary/summaryCacheKeyGenerator');
 const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesManager');
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
-const { FastMergeManager } = require('./operations/merge/fastMergeManager');
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
 const { ClickHouseSchemaRegistry } = require('./dataLayer/clickHouse/schemaRegistry');
@@ -500,24 +501,6 @@ const createContainer = function () {
             {
                 databaseQueryFactory: c.databaseQueryFactory,
                 auditLogger: c.auditLogger,
-                databaseBulkInserter: c.databaseBulkInserter,
-                databaseBulkLoader: c.databaseBulkLoader,
-                scopesManager: c.scopesManager,
-                scopesValidator: c.scopesValidator,
-                resourceMerger: c.resourceMerger,
-                resourceValidator: c.resourceValidator,
-                preSaveManager: c.preSaveManager,
-                configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager,
-                postRequestProcessor: c.postRequestProcessor
-            }
-        )
-    );
-
-    container.register('fastMergeManager', (c) => new FastMergeManager(
-            {
-                databaseQueryFactory: c.databaseQueryFactory,
-                auditLogger: c.auditLogger,
                 databaseBulkInserter: c.fastDatabaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
                 scopesManager: c.scopesManager,
@@ -536,14 +519,10 @@ const createContainer = function () {
         {
             validators: [
                 new BundleResourceValidator(),
-                new ParametersResourceValidator({
-                    configManager: c.configManager
-                }),
+                new ParametersResourceValidator(),
                 new MergeResourceValidator({
                     mergeManager: c.mergeManager,
-                    fastMergeManager: c.fastMergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,
-                    preSaveManager: c.preSaveManager,
                     configManager: c.configManager,
                     resourceValidator: c.resourceValidator,
                     sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
@@ -806,8 +785,6 @@ const createContainer = function () {
     container.register('mergeOperation', (c) => new MergeOperation(
         {
             mergeManager: c.mergeManager,
-            fastMergeManager: c.fastMergeManager,
-            databaseBulkInserter: c.databaseBulkInserter,
             fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
             fhirLoggingManager: c.fhirLoggingManager,
             bundleManager: c.bundleManager,
@@ -1191,12 +1168,28 @@ const createContainer = function () {
         databaseExportManager: c.databaseExportManager
     }));
 
+    container.register('bulkImportEventProducer', (c) => new BulkImportEventProducer({
+        kafkaClient: c.kafkaClient,
+        configManager: c.configManager
+    }));
+
+    container.register('bulkImportConsumerRunner', (c) => new BulkImportConsumerRunner({
+        configManager: c.configManager,
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseUpdateFactory: c.databaseUpdateFactory
+    }));
+
     container.register('importOperation', (c) => new ImportOperation({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager,
         postRequestProcessor: c.postRequestProcessor,
         auditLogger: c.auditLogger,
-        configManager: c.configManager
+        configManager: c.configManager,
+        securityTagManager: c.securityTagManager,
+        databaseUpdateFactory: c.databaseUpdateFactory,
+        databaseQueryFactory: c.databaseQueryFactory,
+        postSaveProcessor: c.postSaveProcessor,
+        bulkImportEventProducer: c.bulkImportEventProducer
     }));
 
     container.register('adminExportManager', (c) => new AdminExportManager({

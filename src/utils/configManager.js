@@ -391,11 +391,10 @@ class ConfigManager {
      */
     get enabledGridFsResources() {
         const gridFsResources = env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
-        // restrict gridFs resources to DocumentReference when fast serializer in merge
+        // restrict gridFs resources to DocumentReference
         if (
-            this.enableMergeFastSerializer &&
-            (gridFsResources.length > 1 ||
-            (gridFsResources.length === 1 && gridFsResources[0] !== 'DocumentReference'))
+            gridFsResources.length > 1 ||
+            (gridFsResources.length === 1 && gridFsResources[0] !== 'DocumentReference')
         ) {
             throw new Error('Only DocumentReference is supported as a GridFS resource');
         }
@@ -623,35 +622,11 @@ class ConfigManager {
     }
 
     /**
-     * whether to enable fast serializer in merge operation
-     * @returns {boolean}
-     */
-    get enableMergeFastSerializer() {
-        return isTrue(env.ENABLE_MERGE_FAST_SERIALIZER);
-    }
-
-    /**
-     * whether to verify resource before write in merge operation
-     * @returns {boolean}
-     */
-    get verifyResourceBeforeWrite() {
-        return this.enableMergeFastSerializer && isTrueWithFallback(env.VERIFY_RESOURCE_BEFORE_WRITE, true);
-    }
-
-    /**
-     * whether to enable the new validations in merge operation
-     * @returns {boolean}
-     */
-    get updateMergeValidations() {
-        return this.enableMergeFastSerializer && isTrueWithFallback(env.UPDATE_MERGE_VALIDATIONS, true);
-    }
-
-    /**
-     * whether to enable logging of validation errors in updated merge operation
+     * whether to enable logging of validation errors in merge operation
      * @returns {boolean}
      */
     get logUpdatedMergeValidations() {
-        return this.updateMergeValidations && isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
+        return isTrueWithFallback(env.LOG_UPDATED_MERGE_VALIDATION_ERRORS, true);
     }
 
     /**
@@ -1242,6 +1217,49 @@ class ConfigManager {
     get bulkImportMaxFilesPerRequest() {
         const parsed = parseInt(env.BULK_IMPORT_MAX_FILES_PER_REQUEST, 10);
         return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Kafka topic for bulk import byte-range messages
+     * @return {string}
+     */
+    get kafkaBulkImportEventTopic() {
+        return env.KAFKA_BULK_IMPORT_EVENT_TOPIC || 'fhir.bulk_import.events';
+    }
+
+    /**
+     * Kafka consumer group ID for bulk import consumers
+     * @return {string}
+     */
+    get bulkImportConsumerGroupId() {
+        return env.BULK_IMPORT_CONSUMER_GROUP_ID || 'fhir-bulk-import-consumer';
+    }
+
+    /**
+     * Byte-range marker size in MB for bulk import file splitting
+     * @return {number}
+     */
+    get bulkImportRangeSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_RANGE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Minimum file size in MB for bulk import
+     * @return {number}
+     */
+    get bulkImportMinFileSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_MIN_FILE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 50;
+    }
+
+    /**
+     * Maximum file size in GB for bulk import
+     * @return {number}
+     */
+    get bulkImportMaxFileSizeGb() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_FILE_SIZE_GB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 5;
     }
 
     /**

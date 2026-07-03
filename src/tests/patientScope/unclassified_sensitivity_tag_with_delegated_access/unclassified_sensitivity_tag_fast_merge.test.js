@@ -37,10 +37,6 @@ class MockConfigManager extends ConfigManager {
         return new Set(['Observation', 'CareTeam']);
     }
 
-    get enableMergeFastSerializer () {
-        return true;
-    }
-
     get enableDelegatedAccessDetection () {
         return true;
     }
@@ -82,12 +78,7 @@ describe('Unclassified Sensitivity Tag (Fast Merge Serializer)', () => {
     const MOCK_DATE = new Date('2025-12-24T20:00:00.000Z');
     const cursorSpy = jest.spyOn(DatabaseCursor.prototype, 'hint');
 
-    beforeAll(() => {
-        process.env.ENABLE_MERGE_FAST_SERIALIZER = '1';
-    });
-
     afterAll(async () => {
-        delete process.env.ENABLE_MERGE_FAST_SERIALIZER;
         cursorSpy.mockRestore();
         await commonAfterEach();
     });
