@@ -2,7 +2,7 @@ const httpContext = require('express-http-context');
 const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
-const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, PayloadTooLargeError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -143,6 +143,17 @@ class CreateOperation {
                     'Only single resource can be sent to create.'
                 )
             );
+        }
+
+        // Reject oversized AuditEvent submissions: large AuditEvents stall the
+        // ClickHouse write path, so we cap inbound docs at the configured limit.
+        if (resourceType === 'AuditEvent') {
+            const sizeInBytes = Buffer.byteLength(JSON.stringify(resource_incoming), 'utf8');
+            if (sizeInBytes > this.configManager.auditEventMaxSizeBytes) {
+                throw new PayloadTooLargeError(
+                    new Error('Payload size too large.')
+                );
+            }
         }
 
         const { base_version } = parsedArgs;
