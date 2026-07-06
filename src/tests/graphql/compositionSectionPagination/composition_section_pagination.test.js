@@ -30,6 +30,8 @@ async function seedComposition(request) {
 }
 
 /**
+ * The v1 `composition` query returns a CompositionBundle, so the resource (and its
+ * paginated section list) is reached via entry[].resource.
  * @param {import('supertest').SuperTest} request
  * @param {string} query
  * @return {Promise<Object[]>} the section array of the first returned Composition
@@ -41,7 +43,7 @@ async function querySections(request, query) {
         .set(getGraphQLHeaders());
 
     expect(resp.body.errors).toBeUndefined();
-    return resp.body.data.composition[0].section;
+    return resp.body.data.composition.entry[0].resource.section;
 }
 
 describe('GraphQL Composition.section field-level pagination', () => {
@@ -59,7 +61,7 @@ describe('GraphQL Composition.section field-level pagination', () => {
 
         const sections = await querySections(
             request,
-            `query { composition { id section { id } } }`
+            `query { composition { entry { resource { id section { id } } } } }`
         );
         expect(sections.map((s) => s.id)).toEqual(['section-0', 'section-1', 'section-2']);
     });
@@ -70,7 +72,7 @@ describe('GraphQL Composition.section field-level pagination', () => {
 
         const sections = await querySections(
             request,
-            `query { composition { id section(_count: 2) { id } } }`
+            `query { composition { entry { resource { id section(_count: 2) { id } } } } }`
         );
         expect(sections.map((s) => s.id)).toEqual(['section-0', 'section-1']);
     });
@@ -81,7 +83,7 @@ describe('GraphQL Composition.section field-level pagination', () => {
 
         const sections = await querySections(
             request,
-            `query { composition { id section(_offset: 1) { id } } }`
+            `query { composition { entry { resource { id section(_offset: 1) { id } } } } }`
         );
         expect(sections.map((s) => s.id)).toEqual(['section-1', 'section-2']);
     });
@@ -92,7 +94,7 @@ describe('GraphQL Composition.section field-level pagination', () => {
 
         const sections = await querySections(
             request,
-            `query { composition { id section(_offset: 1, _count: 1) { id title } } }`
+            `query { composition { entry { resource { id section(_offset: 1, _count: 1) { id title } } } } }`
         );
         expect(sections).toHaveLength(1);
         expect(sections[0].id).toEqual('section-1');
@@ -105,7 +107,7 @@ describe('GraphQL Composition.section field-level pagination', () => {
 
         const sections = await querySections(
             request,
-            `query { composition { id section(_offset: 10, _count: 5) { id } } }`
+            `query { composition { entry { resource { id section(_offset: 10, _count: 5) { id } } } } }`
         );
         expect(sections).toEqual([]);
     });
