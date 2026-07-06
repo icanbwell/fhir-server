@@ -9,7 +9,8 @@ A delegated access token is a patient-scoped token which has an `act` and `sub` 
   "act": {
     "reference": "RelatedPerson/<id>",
     "sub": "<sub claim>"
-  }
+  },
+  "entitlements": ["<entitlement code>"] // optional; recorded on the audit event (see Audit Logging)
   // rest of the payload
 }
 ```
@@ -160,6 +161,30 @@ When a delegated actor is present, the audit event contains **two agents**:
 
 The `source.observer` references the delegated actor.
 
+### Purpose of Event (Entitlements)
+
+If the delegated user's JWT carries an `entitlements` array, those values are copied verbatim into `context.purposeOfUse` during authentication and then surface as `purposeOfEvent.coding` on the two-agent AuditEvent.
+
+- Each entitlement code becomes one `purposeOfEvent[].coding[]` entry.
+- The `system` is always `http://terminology.hl7.org/CodeSystem/v3-ActReason`.
+- The codes are passed through **as-is** — no validation or mapping is performed on the values.
+- If the JWT has no `entitlements` array (or it is empty), `purposeOfEvent` is omitted from the audit event.
+
+For example, a JWT with `"entitlements": ["FAMRQT"]` produces:
+
+```json
+"purposeOfEvent": [
+  {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "FAMRQT"
+      }
+    ]
+  }
+]
+```
+
 ## Local Testing
 
 ### Generate a delegated access token
@@ -184,7 +209,8 @@ The generated token will contain:
   "act": {
     "reference": "RelatedPerson/36265db4-0da2-4436-b4e8-85bf7e52a425",
     "sub": "46265db4-0da2-4436-b4e8-85bf7e52a426"
-  }
+  },
+  "entitlements": ["FAMRQT"]
 }
 ```
 
@@ -205,4 +231,4 @@ Filtering happens at the **enrichment level** via `EnrichmentManager`, across al
 
 ## Config
 
-- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
+- `ENABLE_DELEGATED_ACCESS_DETECTION`: true/false — **gates the entire delegated access flow**, including Composition section filtering. When `false`, the `act` claim in the JWT is completely ignored. When `true`, the server parses the `act` claim, validates it, detects the delegated actor, performs consent lookups, applies filtering rules (including Composition section filtering), copies any JWT `entitlements` into `context.purposeOfUse` (recorded as `purposeOfEvent` on the audit event), and generates two-agent audit events. Invalid `act` formats result in 401 Unauthorized.
