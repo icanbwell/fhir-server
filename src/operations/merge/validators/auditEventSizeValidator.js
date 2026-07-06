@@ -64,7 +64,7 @@ class AuditEventSizeValidator extends BaseValidator {
                 uuid: resource._uuid,
                 created: false,
                 updated: false,
-                sourceAssigningAuthority: resource.meta?.sourceAssigningAuthority,
+                sourceAssigningAuthority: resource._sourceAssigningAuthority,
                 operationOutcome: new OperationOutcome({ resourceType: 'OperationOutcome', issue: [issue] }),
                 issue
             }));

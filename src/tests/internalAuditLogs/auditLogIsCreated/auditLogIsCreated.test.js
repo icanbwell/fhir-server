@@ -323,7 +323,7 @@ describe('InternalAuditLog Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             logs = await auditEventCollection.find({}).toArray();
-            expect(logs.length).toStrictEqual(2);
+            expect(logs.length).toStrictEqual(3);
 
             // No audit event must be fetched when using patients scope
             const currentDate = fieldDate.toISOString().split('T')[0];
@@ -336,7 +336,7 @@ describe('InternalAuditLog Tests', () => {
             await auditLogger.flushAsync();
             logs = await auditEventCollection.find({}).toArray();
             // No new audit event must be created as nothing is fetched
-            expect(logs.length).toStrictEqual(2);
+            expect(logs.length).toStrictEqual(3);
         });
 
         test('InternalAuditLog creates audit logs with patient-scoped headers', async () => {

@@ -39,7 +39,14 @@ describe('AuditEvent merge size limit', () => {
     });
 
     afterEach(async () => {
-        process.env.AUDIT_EVENT_MAX_SIZE_BYTES = sizeEnvValue;
+        // restore carefully: assigning undefined would coerce to the string
+        // "undefined" and break the cap (parseInt("undefined") === NaN) for
+        // subsequent --runInBand tests.
+        if (sizeEnvValue === undefined) {
+            delete process.env.AUDIT_EVENT_MAX_SIZE_BYTES;
+        } else {
+            process.env.AUDIT_EVENT_MAX_SIZE_BYTES = sizeEnvValue;
+        }
         await commonAfterEach();
     });
 

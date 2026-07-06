@@ -34,6 +34,8 @@ describe('AuditEventSizeValidator', () => {
         const large = {
             resourceType: 'AuditEvent',
             id: 'big',
+            _uuid: 'c4171fee-aaa6-4526-a377-000000000009',
+            _sourceAssigningAuthority: 'bwell',
             meta: { source: 'test' },
             entity: [{ detail: [{ type: 'x', valueString: 'x'.repeat(5000) }] }]
         };
@@ -50,6 +52,8 @@ describe('AuditEventSizeValidator', () => {
         expect(preCheckErrors[0].id).toBe('big');
         expect(preCheckErrors[0].resourceType).toBe('AuditEvent');
         expect(preCheckErrors[0].created).toBe(false);
+        // sourceAssigningAuthority comes from the internal _ field, not meta
+        expect(preCheckErrors[0]._sourceAssigningAuthority).toBe('bwell');
         expect(preCheckErrors[0].issue.code).toBe('too-long');
         expect(preCheckErrors[0].issue.details.text).toMatch(/Payload size too large/);
     });

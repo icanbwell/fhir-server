@@ -934,7 +934,7 @@ class MergeManager {
                                     requestInfo,
                                     resourceType,
                                     errorCode: entry.issue?.code === 'too-long' ? 413 : 400,
-                                    errorMessage: `${resourceType}/${entry.id}: ${entry.issue?.details?.text || 'Bad Request'}`
+                                    errorMessage: `${resourceType}/${entry.id}: Bad Request`
                                 });
                             }
                         }
