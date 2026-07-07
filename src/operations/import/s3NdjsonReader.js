@@ -94,7 +94,7 @@ class S3NdjsonReader {
                 continue;
             }
 
-            if (!isLastRange && bytesRead - lineBytes >= byteRangeEnd) {
+            if (!isLastRange && bytesRead - lineBytes > byteRangeEnd) {
                 break;
             }
 

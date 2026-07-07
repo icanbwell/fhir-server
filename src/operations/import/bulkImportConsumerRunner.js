@@ -132,7 +132,7 @@ class BulkImportConsumerRunner {
                 filepath,
                 byteRangeStart,
                 byteRangeEnd,
-                fileSize: fileSize || byteRangeEnd
+                fileSize
             })) {
                 linesRead++;
                 // Phase 4 (BAI-221) will add batched MongoDB writes here
