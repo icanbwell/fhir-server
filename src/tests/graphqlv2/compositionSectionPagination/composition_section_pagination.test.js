@@ -88,4 +88,15 @@ describe('GraphQL v2 Composition.section field-level pagination', () => {
         );
         expect(sections).toEqual([]);
     });
+
+    test('negative _count returns an empty page (clamped, not slice-from-end)', async () => {
+        const request = await createTestRequest();
+        await seedComposition(request);
+
+        const sections = await querySections(
+            request,
+            `query { compositions { entry { resource { id section(_offset: 0, _count: -1) { id } } } } }`
+        );
+        expect(sections).toEqual([]);
+    });
 });

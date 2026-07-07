@@ -21,7 +21,10 @@ module.exports = {
                 return sections;
             }
             const start = _offset > 0 ? _offset : 0;
-            const end = _count != null ? start + _count : undefined;
+            // Clamp a negative _count to 0 (empty page) rather than leaking Array.slice
+            // negative-index semantics; _count == null stays unbounded (return the rest).
+            const safeCount = _count != null && _count < 0 ? 0 : _count;
+            const end = safeCount != null ? start + safeCount : undefined;
             return sections.slice(start, end);
         }
     }
