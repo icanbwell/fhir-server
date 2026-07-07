@@ -3,6 +3,7 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
+const { S3NdjsonReader } = require('./s3NdjsonReader');
 const { logInfo, logError } = require('../common/logging');
 
 class BulkImportConsumerRunner {
@@ -11,10 +12,11 @@ class BulkImportConsumerRunner {
      * @property {ConfigManager} configManager
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
+     * @property {S3NdjsonReader} s3NdjsonReader
      *
      * @param {ConstructorParams}
      */
-    constructor({ configManager, databaseQueryFactory, databaseUpdateFactory }) {
+    constructor({ configManager, databaseQueryFactory, databaseUpdateFactory, s3NdjsonReader }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
@@ -23,6 +25,9 @@ class BulkImportConsumerRunner {
 
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+
+        this.s3NdjsonReader = s3NdjsonReader;
+        assertTypeEquals(s3NdjsonReader, S3NdjsonReader);
     }
 
     /**
@@ -100,7 +105,7 @@ class BulkImportConsumerRunner {
             return;
         }
 
-        const { taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges } = eventData;
+        const { taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize } = eventData;
 
         logInfo('Processing bulk import range', {
             taskId,
@@ -121,14 +126,34 @@ class BulkImportConsumerRunner {
             await this.updateTaskStatusAsync(task, 'in-progress');
         }
 
-        // Placeholder: actual byte-range processing will be added in Phase 3 (S3 NDJSON Reader)
-        // and Phase 4 (MongoDB Write Pacing). For now, just mark the range as acknowledged.
+        let linesRead = 0;
+        try {
+            for await (const { lineNumber, resource } of this.s3NdjsonReader.readNdjsonAsync({
+                filepath,
+                byteRangeStart,
+                byteRangeEnd,
+                fileSize: fileSize || byteRangeEnd
+            })) {
+                linesRead++;
+                // Phase 4 (BAI-221) will add batched MongoDB writes here
+            }
+        } catch (e) {
+            logError('Error reading S3 NDJSON range', {
+                taskId,
+                filepath,
+                rangeIndex,
+                error: e.message
+            });
+            await this.updateTaskStatusAsync(task, 'failed', e.message);
+            return;
+        }
 
-        logInfo('Bulk import range acknowledged', {
+        logInfo('Bulk import range processed', {
             taskId,
             filepath,
             rangeIndex,
-            totalRanges
+            totalRanges,
+            linesRead
         });
     }
 }

@@ -6,6 +6,7 @@ const { MockKafkaClientV2 } = require('./mocks/mockKafkaClientV2');
 const { MockAccessLogger } = require('./mocks/mockAccessLogger');
 const { MockAuditLogger } = require('./mocks/mockAuditLogger');
 const { MockCronTasksProcessor } = require('./mocks/mockCronTasksProcessor');
+const { MockS3NdjsonReader } = require('./mocks/mockS3NdjsonReader');
 
 /**
  * Creates a container and sets up all the services
@@ -50,6 +51,9 @@ const createTestContainer = function (fnUpdateContainer) {
             configManager: c.configManager
         }));
     container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({
+        configManager: c.configManager
+    }));
+    container.register('s3NdjsonReader', (c) => new MockS3NdjsonReader({
         configManager: c.configManager
     }));
 
