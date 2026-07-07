@@ -95,6 +95,13 @@ class BulkImportOrchestratorRunner {
 
     /**
      * HEADs each S3 file to get file sizes and validate they exist
+        const allowedBuckets = (this.configManager.bulkImportAllowedS3Buckets || '')
+            .split(',')
+            .map(b => b.trim())
+            .filter(b => b);
+        if (!allowedBuckets.length) {
+            throw new Error('Bulk import S3 bucket allowlist is not configured');
+        }
      * @param {Array<{ url: string }>} inputs
      * @returns {Promise<Array<{ url: string, fileSize: number }>>}
      */
@@ -104,6 +111,9 @@ class BulkImportOrchestratorRunner {
         const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
         const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
 
+            if (!allowedBuckets.includes(bucket)) {
+                throw new Error(`S3 bucket \"${bucket}\" is not in the allowed list`);
+            }
         const results = [];
         for (const input of inputs) {
             const match = input.url.match(/^s3:\/\/([^/]+)\/(.+)$/);
