@@ -25,6 +25,11 @@ const locationWithResourceQuery = fs.readFileSync(
     'utf8'
 );
 
+const locationAliasedQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query/locationManagingOrgDisplayAliased.graphql'),
+    'utf8'
+);
+
 async function mergeFixtures (request) {
     let resp = await request
         .post('/4_0_0/Organization/org1/$merge')
@@ -112,6 +117,37 @@ describe('GraphQLV2 Location.managingOrganization.display enrichment', () => {
         // Co-selecting `resource` builds an Organization projection; `name` must
         // still be available so the display resolver returns the organization name.
         expect(managingOrgByName['MSH Virtual (Telehealth POS 2)'].display).toBe('MedStar Health');
+        expect(managingOrgByName['MSH Virtual (Telehealth POS 2)'].resource?.id).toBeTruthy();
+    });
+
+    test('resolves display when the field is aliased (e.g. orgName: display)', async () => {
+        const request = await createTestRequest();
+        const graphqlQueryText = locationAliasedQuery.replace(/\\n/g, '');
+
+        await mergeFixtures(request);
+
+        const resp = await request
+            .post('/4_0_0/$graphqlv2')
+            .send({
+                operationName: null,
+                variables: {},
+                query: graphqlQueryText
+            })
+            .set(getGraphQLHeaders());
+
+        expect(resp.status).toBe(200);
+
+        const entries = resp.body?.data?.locations?.entry || [];
+        const managingOrgByName = {};
+        entries.forEach((entry) => {
+            managingOrgByName[entry.resource.name] = entry.resource.managingOrganization;
+        });
+
+        // Co-selecting `resource` builds an Organization projection that would prune
+        // `name`. parseResolveInfo keys fields by response-key (the alias), so the
+        // `name` projection must be added by matching on the field name, not the key;
+        // otherwise the aliased display resolves to null.
+        expect(managingOrgByName['MSH Virtual (Telehealth POS 2)'].orgName).toBe('MedStar Health');
         expect(managingOrgByName['MSH Virtual (Telehealth POS 2)'].resource?.id).toBeTruthy();
     });
 });

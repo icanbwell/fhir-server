@@ -590,7 +590,13 @@ class FhirDataSource {
                 // LocationManagingOrganizationReference.display resolver derives it from the
                 // organization name. Ensure name is projected so it is not pruned when the
                 // Organization is otherwise fetched without it (e.g. resource is co-selected).
-                if (key === 'LocationManagingOrganizationReference' && value && value.display) {
+                // `value` is keyed by response-key (the alias when one is used), so match on the
+                // field's actual `name` to also handle aliased selections (e.g. `orgName: display`).
+                if (
+                    key === 'LocationManagingOrganizationReference' &&
+                    value &&
+                    Object.values(value).some((field) => field?.name === 'display')
+                ) {
                     if (!this.resourceProjections['Organization']) {
                         this.resourceProjections['Organization'] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
                     }
