@@ -43,6 +43,16 @@ class S3NdjsonReader {
      * @returns {AsyncGenerator<{ lineNumber: number, resource: Object }, void, void>}
      */
     async *readNdjsonAsync({ filepath, byteRangeStart, byteRangeEnd, fileSize }) {
+        if (!Number.isFinite(fileSize) || fileSize <= 0) {
+            throw new Error(`Invalid fileSize ${fileSize} for "${filepath}"`);
+        }
+        if (!Number.isFinite(byteRangeStart) || byteRangeStart < 0) {
+            throw new Error(`Invalid byteRangeStart ${byteRangeStart} for "${filepath}"`);
+        }
+        if (!Number.isFinite(byteRangeEnd) || byteRangeEnd <= byteRangeStart) {
+            throw new Error(`Invalid byteRangeEnd ${byteRangeEnd} for "${filepath}"`);
+        }
+
         const { bucket, key } = this.parseS3Uri(filepath);
         const region = this.configManager.awsRegion || 'us-east-1';
         const s3 = new S3({ region });

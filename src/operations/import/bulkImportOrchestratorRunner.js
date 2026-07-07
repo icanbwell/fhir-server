@@ -94,26 +94,22 @@ class BulkImportOrchestratorRunner {
     }
 
     /**
-     * HEADs each S3 file to get file sizes and validate they exist
-        const allowedBuckets = (this.configManager.bulkImportAllowedS3Buckets || '')
-            .split(',')
-            .map(b => b.trim())
-            .filter(b => b);
-        if (!allowedBuckets.length) {
-            throw new Error('Bulk import S3 bucket allowlist is not configured');
-        }
+     * HEADs each S3 file to get file sizes and validate they exist.
+     * Validates each bucket against the configured allow-list to prevent SSRF.
      * @param {Array<{ url: string }>} inputs
      * @returns {Promise<Array<{ url: string, fileSize: number }>>}
      */
     async headS3FilesAsync(inputs) {
+        const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
+        if (!allowedBuckets.length) {
+            throw new Error('Bulk import S3 bucket allowlist is not configured');
+        }
+
         const region = this.configManager.awsRegion || 'us-east-1';
         const s3 = new S3({ region });
         const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
         const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
 
-            if (!allowedBuckets.includes(bucket)) {
-                throw new Error(`S3 bucket \"${bucket}\" is not in the allowed list`);
-            }
         const results = [];
         for (const input of inputs) {
             const match = input.url.match(/^s3:\/\/([^/]+)\/(.+)$/);
@@ -123,12 +119,20 @@ class BulkImportOrchestratorRunner {
             const bucket = match[1];
             const key = match[2];
 
+            if (!allowedBuckets.includes(bucket)) {
+                throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
+            }
+
             let fileSize;
             try {
                 const response = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
                 fileSize = response.ContentLength;
             } catch (e) {
                 throw new Error(`Cannot access S3 file "${input.url}": ${e.name}: ${e.message}`);
+            }
+
+            if (!Number.isFinite(fileSize)) {
+                throw new Error(`S3 HEAD for "${input.url}" returned no ContentLength`);
             }
 
             if (fileSize < minBytes) {
