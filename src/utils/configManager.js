@@ -1291,7 +1291,7 @@ class ConfigManager {
      * @return {string}
      */
     get kafkaV2ClientId() {
-        return env.KAFKA_V2_CLIENT_ID || 'fhir-server-v2';
+        return env.KAFKA_V2_CLIENT_ID || 'fhir-server';
     }
 
     /**

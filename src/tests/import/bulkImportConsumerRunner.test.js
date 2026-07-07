@@ -1,6 +1,5 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { ImportOperation } = require('../../operations/import/import');
 
 const makeCloudEvent = (overrides = {}) => {
     const data = {
@@ -38,19 +37,13 @@ const validParametersBody = {
 };
 
 describe('BulkImportConsumerRunner', () => {
-    let originalHeadS3FilesAsync;
-
     beforeEach(async () => {
         process.env.ENABLE_BULK_IMPORT = '1';
         process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS = 'allowed-bucket';
-        originalHeadS3FilesAsync = ImportOperation.prototype.headS3FilesAsync;
-        ImportOperation.prototype.headS3FilesAsync = async (inputs) =>
-            inputs.map((i) => ({ url: i.url, fileSize: 100 * 1024 * 1024 }));
         await commonBeforeEach();
     });
 
     afterEach(async () => {
-        ImportOperation.prototype.headS3FilesAsync = originalHeadS3FilesAsync;
         delete process.env.ENABLE_BULK_IMPORT;
         delete process.env.BULK_IMPORT_ALLOWED_S3_BUCKETS;
         await commonAfterEach();
