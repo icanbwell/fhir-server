@@ -1,20 +1,20 @@
 const { generateUUID } = require('../../utils/uid.util');
 const { assertTypeEquals } = require('../../utils/assertType');
-const { KafkaClient } = require('../../utils/kafkaClient');
+const { KafkaClientV2 } = require('../../utils/kafkaClientV2');
 const { ConfigManager } = require('../../utils/configManager');
 const { logInfo, logError } = require('../common/logging');
 
 class BulkImportEventProducer {
     /**
      * @typedef {Object} ConstructorParams
-     * @property {KafkaClient} kafkaClient
+     * @property {KafkaClientV2} kafkaClientV2
      * @property {ConfigManager} configManager
      *
      * @param {ConstructorParams}
      */
-    constructor({ kafkaClient, configManager }) {
-        this.kafkaClient = kafkaClient;
-        assertTypeEquals(kafkaClient, KafkaClient);
+    constructor({ kafkaClientV2, configManager }) {
+        this.kafkaClientV2 = kafkaClientV2;
+        assertTypeEquals(kafkaClientV2, KafkaClientV2);
 
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -48,7 +48,7 @@ class BulkImportEventProducer {
      * @returns {Promise<number>} total number of messages published
      */
     async publishImportEventsAsync({ taskId, inputs, requestId, scope, user }) {
-        if (!this.configManager.kafkaEnableEvents) {
+        if (!this.configManager.kafkaV2EnableEvents) {
             return 0;
         }
 
@@ -94,7 +94,7 @@ class BulkImportEventProducer {
         }
 
         try {
-            await this.kafkaClient.sendCloudEventMessageAsync({ topic, messages });
+            await this.kafkaClientV2.sendCloudEventMessageAsync({ topic, messages });
             logInfo(`Published ${messages.length} ImportRangeRequested message(s)`, {
                 taskId,
                 topic,

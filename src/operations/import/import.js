@@ -1,11 +1,10 @@
-const { S3Client: S3, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const moment = require('moment-timezone');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const Task = require('../../fhir/classes/4_0_0/resources/task');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
-const { BulkImportEventProducer } = require('./bulkImportEventProducer');
 const { ConfigManager } = require('../../utils/configManager');
+const { KafkaClientV2 } = require('../../utils/kafkaClientV2');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
 const { FhirLoggingManager } = require('../common/fhirLoggingManager');
@@ -16,7 +15,7 @@ const { SecurityTagManager } = require('../common/securityTagManager');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
-const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
+const { generateUUID, isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 const { logInfo, logError } = require('../common/logging');
 
 class ImportOperation {
@@ -31,7 +30,7 @@ class ImportOperation {
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {PostSaveProcessor} postSaveProcessor
-     * @property {BulkImportEventProducer} bulkImportEventProducer
+     * @property {KafkaClientV2} kafkaClientV2
      *
      * @param {ConstructorParams}
      */
@@ -45,7 +44,7 @@ class ImportOperation {
         databaseUpdateFactory,
         databaseQueryFactory,
         postSaveProcessor,
-        bulkImportEventProducer
+        kafkaClientV2
     }) {
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
@@ -74,8 +73,8 @@ class ImportOperation {
         this.postSaveProcessor = postSaveProcessor;
         assertTypeEquals(postSaveProcessor, PostSaveProcessor);
 
-        this.bulkImportEventProducer = bulkImportEventProducer;
-        assertTypeEquals(bulkImportEventProducer, BulkImportEventProducer);
+        this.kafkaClientV2 = kafkaClientV2;
+        assertTypeEquals(kafkaClientV2, KafkaClientV2);
     }
 
     /**
@@ -124,58 +123,6 @@ class ImportOperation {
             id: body.id.trim(),
             inputs
         };
-    }
-
-    /**
-     * Parses an S3 URI into bucket and key
-     * @param {string} uri
-     * @returns {{ bucket: string, key: string }}
-     */
-    parseS3Uri(uri) {
-        const match = uri.match(/^s3:\/\/([^/]+)\/(.+)$/);
-        return { bucket: match[1], key: match[2] };
-    }
-
-    /**
-     * HEADs each S3 file to get file sizes and validate they exist
-     * @param {Array<{ url: string }>} inputs
-     * @returns {Promise<Array<{ url: string, fileSize: number }>>}
-     */
-    async headS3FilesAsync(inputs) {
-        const region = this.configManager.awsRegion || 'us-east-1';
-        const s3 = new S3({ region });
-        const minBytes = this.configManager.bulkImportMinFileSizeMb * 1024 * 1024;
-        const maxBytes = this.configManager.bulkImportMaxFileSizeGb * 1024 * 1024 * 1024;
-
-        const results = [];
-        for (const input of inputs) {
-            const { bucket, key } = this.parseS3Uri(input.url);
-            let fileSize;
-            try {
-                const response = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
-                fileSize = response.ContentLength;
-            } catch (e) {
-                throw new BadRequestError(new Error(
-                    `Cannot access S3 file "${input.url}": ${e.name}: ${e.message}`
-                ));
-            }
-
-            if (fileSize < minBytes) {
-                throw new BadRequestError(new Error(
-                    `File "${input.url}" is ${(fileSize / (1024 * 1024)).toFixed(1)} MB, ` +
-                    `below the minimum of ${this.configManager.bulkImportMinFileSizeMb} MB`
-                ));
-            }
-            if (fileSize > maxBytes) {
-                throw new BadRequestError(new Error(
-                    `File "${input.url}" is ${(fileSize / (1024 * 1024 * 1024)).toFixed(1)} GB, ` +
-                    `above the maximum of ${this.configManager.bulkImportMaxFileSizeGb} GB`
-                ));
-            }
-
-            results.push({ url: input.url, fileSize });
-        }
-        return results;
     }
 
     /**
@@ -338,21 +285,36 @@ class ImportOperation {
             const { id: importJobId, inputs } = this.parseParametersResource(resource);
             this.validateS3Inputs(inputs);
 
-            const inputsWithSizes = await this.headS3FilesAsync(inputs);
-
             const taskResource = await this.createTaskAsync({
                 id: importJobId,
                 inputs,
                 requestInfo
             });
 
-            await this.bulkImportEventProducer.publishImportEventsAsync({
-                taskId: importJobId,
-                inputs: inputsWithSizes,
-                requestId,
-                scope,
-                user: requestInfo.user
-            });
+            if (this.configManager.kafkaV2EnableEvents) {
+                const taskCreatedEvent = {
+                    specversion: '1.0',
+                    id: generateUUID(),
+                    source: 'https://www.icanbwell.com/fhir-server',
+                    type: 'TaskCreated',
+                    datacontenttype: 'application/json',
+                    data: {
+                        taskId: importJobId,
+                        inputs,
+                        requestId,
+                        scope,
+                        user: requestInfo.user
+                    }
+                };
+
+                await this.kafkaClientV2.sendCloudEventMessageAsync({
+                    topic: this.configManager.kafkaBulkImportTaskCreatedTopic,
+                    messages: [{
+                        key: importJobId,
+                        value: JSON.stringify(taskCreatedEvent)
+                    }]
+                });
+            }
 
             // Task is committed — logging and audit are best-effort so a
             // failure here does not mask the successfully created Task.
