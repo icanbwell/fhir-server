@@ -1191,7 +1191,8 @@ const createContainer = function () {
         configManager: c.configManager,
         kafkaClientV2: c.kafkaClientV2,
         bulkImportEventProducer: c.bulkImportEventProducer,
-        databaseQueryFactory: c.databaseQueryFactory
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseUpdateFactory: c.databaseUpdateFactory
     }));
 
     container.register('importOperation', (c) => new ImportOperation({
