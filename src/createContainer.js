@@ -107,7 +107,6 @@ const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const {PatientScopeManager} = require('./operations/security/patientScopeManager');
 const {WriteAllowedByScopesValidator} = require('./operations/merge/validators/writeAllowedByScopesValidator');
-const {AuditEventSizeValidator} = require('./operations/merge/validators/auditEventSizeValidator');
 const {PatientQueryCreator} = require('./operations/common/patientQueryCreator');
 const {SearchParametersManager} = require('./searchParameters/searchParametersManager');
 const {DatabaseExportManager} = require('./dataLayer/databaseExportManager');
@@ -532,11 +531,6 @@ const createContainer = function () {
                     sourceAssigningAuthorityColumnHandler: c.sourceAssigningAuthorityColumnHandler,
                     uuidColumnHandler: c.uuidColumnHandler,
                     customTracer: c.customTracer
-                }),
-                // Runs after MergeResourceValidator so _uuid / sourceAssigningAuthority
-                // are populated for the per-resource error entry.
-                new AuditEventSizeValidator({
-                    configManager: c.configManager
                 }),
                 new WriteAllowedByScopesValidator({
                     scopesValidator: c.scopesValidator,

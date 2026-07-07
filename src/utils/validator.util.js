@@ -19,7 +19,7 @@ const Resource = require('../fhir/classes/4_0_0/resources/resource');
  * @param {boolean} excludeRequiredFieldErrors - whether to exclude required field errors from validation results. This is used in merge operation where we want to allow missing required fields as long as they are present in the other resource being merged.
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource ({ resourceBody, resourceName, path, resourceObj = null, excludeRequiredFieldErrors = false }) {
+function validateResource ({ resourceBody, resourceName, path, resourceObj = null, excludeRequiredFieldErrors = false, maxSizeInBytes = null }) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -29,6 +29,20 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
                     details: new CodeableConcept({
                         text: `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
                             ' ResourceType does not match the endpoint you are posting to.'
+                    })
+                })
+            ]
+        });
+    }
+
+    if (maxSizeInBytes !== null && Buffer.byteLength(JSON.stringify(resourceBody), 'utf8') > maxSizeInBytes) {
+        return new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'too-long',
+                    details: new CodeableConcept({
+                        text: 'Payload size too large.'
                     })
                 })
             ]

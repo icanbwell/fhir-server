@@ -221,7 +221,10 @@ class ResourceValidator {
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
                     path,
-                    resourceObj
+                    resourceObj,
+                    maxSizeInBytes: resourceType === 'AuditEvent'
+                        ? this.configManager.auditEventMaxSizeBytes
+                        : null
                 }
             );
 

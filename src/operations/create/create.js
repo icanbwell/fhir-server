@@ -145,17 +145,6 @@ class CreateOperation {
             );
         }
 
-        // Reject oversized AuditEvent submissions: large AuditEvents stall the
-        // ClickHouse write path, so we cap inbound docs at the configured limit.
-        if (resourceType === 'AuditEvent') {
-            const sizeInBytes = Buffer.byteLength(JSON.stringify(resource_incoming), 'utf8');
-            if (sizeInBytes > this.configManager.auditEventMaxSizeBytes) {
-                throw new PayloadTooLargeError(
-                    new Error('Payload size too large.')
-                );
-            }
-        }
-
         const { base_version } = parsedArgs;
 
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
@@ -194,18 +183,22 @@ class CreateOperation {
             });
             // noinspection JSValidateTypes
             /**
+             * A too-long issue is a payload-size rejection (HTTP 413); everything
+             * else is a normal validation failure (HTTP 400).
              * @type {Error}
              */
-            const notValidatedError = new NotValidatedError(validationOperationOutcome);
+            const validationError = validationOperationOutcome.issue?.some((i) => i.code === 'too-long')
+                ? new PayloadTooLargeError(new Error('Payload size too large.'))
+                : new NotValidatedError(validationOperationOutcome);
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                error: notValidatedError
+                error: validationError
             });
-            throw notValidatedError;
+            throw validationError;
         }
 
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
