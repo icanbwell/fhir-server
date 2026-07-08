@@ -36,7 +36,8 @@ class DatabaseUpdateManager {
                     resourceType,
                     base_version,
                     databaseQueryFactory,
-                    configManager
+                    configManager,
+                    base64DataManager
                 }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
@@ -81,6 +82,13 @@ class DatabaseUpdateManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * Used to re-upload changed base64 payloads to the live key before each retry commit,
+         * so concurrent writes to the same resource converge (see Base64DataManager §17).
+         * @type {import('./base64DataManager').Base64DataManager|undefined}
+         */
+        this.base64DataManager = base64DataManager;
     }
 
     /**
@@ -216,6 +224,11 @@ class DatabaseUpdateManager {
                 const filter = previousVersionId > 0
                     ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
                     : { _uuid: updatedDoc._uuid };
+                // Re-upload any base64 payload this request is changing so the live object holds
+                // our bytes at commit time (converges concurrent writes on the shared live key).
+                if (this.base64DataManager) {
+                    await this.base64DataManager.reuploadChangedToLiveAsync(updatedDoc, requestInfo);
+                }
                 const updateResult = await collection.replaceOne(filter, updatedDoc.toJSONInternal());
                 logInfo("Retrying resource merge due to concurrent update request", {
                     id: updatedDoc.id,
@@ -307,6 +320,11 @@ class DatabaseUpdateManager {
                 )
             }
         } catch (e) {
+            // The Mongo write failed (retry exhaustion or hard error) after we may have written
+            // this request's payload to the live bucket — roll it back so live matches Mongo.
+            if (this.base64DataManager) {
+                await this.base64DataManager.revertLiveAsync(doc, requestInfo);
+            }
             throw new RethrownError({
                 error: e
             });

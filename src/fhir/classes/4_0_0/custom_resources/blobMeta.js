@@ -10,11 +10,13 @@ class BlobMeta {
     /**
      * @param {string|undefined} [rawReference]
      * @param {number|undefined} [rawSize]
+     * @param {string|undefined} [lastUpdated]
      */
     constructor (
         {
             rawReference,
-            rawSize
+            rawSize,
+            lastUpdated
         } = {}
     ) {
         Object.defineProperty(this, '__data', {
@@ -56,9 +58,31 @@ class BlobMeta {
             }
         });
 
+        /**
+         * @description Version timestamp (ISO string) of the version where the current
+         *              content was first stored. Combined with `rawReference` it forms the
+         *              history bucket key `<rawReference>/<epoch ms>`. Distinct from
+         *              `meta.lastUpdated` (which advances on every version) — this only
+         *              advances when the offloaded content itself changes.
+         * @property {string|undefined}
+         */
+        Object.defineProperty(this, 'lastUpdated', {
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.lastUpdated,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null) {
+                    this.__data.lastUpdated = undefined;
+                    return;
+                }
+                this.__data.lastUpdated = valueProvided;
+            }
+        });
+
         Object.assign(this, {
             rawReference,
-            rawSize
+            rawSize,
+            lastUpdated
         });
     }
 
@@ -68,7 +92,8 @@ class BlobMeta {
     toJSON () {
         return removeNull({
             rawReference: this.rawReference,
-            rawSize: this.rawSize
+            rawSize: this.rawSize,
+            lastUpdated: this.lastUpdated
         });
     }
 
@@ -78,7 +103,8 @@ class BlobMeta {
     toJSONInternal () {
         return removeNull({
             rawReference: this.rawReference,
-            rawSize: this.rawSize
+            rawSize: this.rawSize,
+            lastUpdated: this.lastUpdated
         });
     }
 }

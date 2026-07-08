@@ -7,6 +7,7 @@ const {
     CompleteMultipartUploadCommand,
     DeleteObjectCommand,
     GetObjectCommand,
+    CopyObjectCommand,
     NoSuchKey
 } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
@@ -122,6 +123,44 @@ class S3Client extends CloudStorageClient {
                 error: err,
                 source: 'S3Client',
                 args: {
+                    filePath
+                }
+            });
+        }
+    }
+
+    /**
+     * Copy an object within the bucket. Passing sourcePath === filePath rewrites the
+     * object in place with MetadataDirective REPLACE, which resets its Last-Modified
+     * timestamp and refreshes the lifecycle-TTL age clock.
+     * @typedef {Object} CopyObjectAsyncParams
+     * @property {string} sourcePath
+     * @property {string} filePath
+     *
+     * @param {CopyObjectAsyncParams}
+     * @returns {Promise<boolean>} true if copied, false if the source object was missing.
+     */
+    async copyObjectAsync({ sourcePath, filePath }) {
+        try {
+            await this.client.send(
+                new CopyObjectCommand({
+                    Bucket: this.bucketName,
+                    CopySource: `${this.bucketName}/${sourcePath}`,
+                    Key: filePath,
+                    MetadataDirective: 'REPLACE'
+                })
+            );
+            return true;
+        } catch (err) {
+            if (err instanceof NoSuchKey || err.name === 'NoSuchKey') {
+                return false;
+            }
+            throw new RethrownError({
+                message: `Error in copyObjectAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    sourcePath,
                     filePath
                 }
             });

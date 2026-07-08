@@ -102,6 +102,22 @@ class CloudStorageClient {
     }
 
     /**
+     * Copy an object within the bucket. When sourcePath === filePath this resets the
+     * object's Last-Modified timestamp, which refreshes any TTL/lifecycle age clock
+     * keyed off Last-Modified.
+     * @typedef {Object} CopyObjectAsyncParams
+     * @property {string} sourcePath
+     * @property {string} filePath
+     *
+     * @param {CopyObjectAsyncParams}
+     * @returns {Promise<boolean>} true if the object was copied, false if the source
+     *          object did not exist (e.g. already expired/deleted).
+     */
+    async copyObjectAsync({ sourcePath, filePath }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
      * Download files in parallel from cloud storage in given batch size for provided paths
      * @typedef {Object} downloadInBatchAsyncParams
      * @property {string[]} filePaths

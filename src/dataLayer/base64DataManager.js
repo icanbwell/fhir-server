@@ -11,9 +11,17 @@ const base64DataResources = require('./base64DataResources.json');
 const { CloudStorageClient } = require('../utils/cloudStorageClient');
 
 // Name used to scope the original-data stash inside the requestSpecificCache.
-// The stash carries the raw base64 string from transformAsync (live-path upload)
+// The stash carries { content, changed } from transformAsync (live-path upload)
 // to transformHistoryAsync (history-path upload) without re-fetching from S3.
+// `changed` records whether this write introduced new content (upload) vs. reused
+// existing content (TTL-refresh the existing history object).
 const ORIGINAL_DATA_CACHE_NAME = 'base64DataManager.originalData';
+
+// Name used to scope the current-data stash. Populated when RETRIEVE hydrates the
+// existing DB resource during a merge/update; carries { content, lastUpdated } so the
+// subsequent INSERT can detect whether the incoming payload actually changed and, if
+// not, carry the content's history-key discriminator (`lastUpdated`) forward.
+const CURRENT_DATA_CACHE_NAME = 'base64DataManager.currentData';
 
 /**
  * @classdesc Offloads large base64 payloads listed in base64DataResources.json to cloud storage on write. The inline base64 string is replaced
@@ -101,8 +109,133 @@ class Base64DataManager {
     }
 
     /**
+     * Re-upload this request's changed base64 payloads to their live keys. Called from the
+     * concurrency-retry loop (before each `replaceOne`) so that, under parallel writes to the
+     * same resource on a shared deterministic key, the winning commit's bytes are the ones on
+     * S3. Only re-uploads leaves the current request is changing (stashed `changed: true`);
+     * unchanged/reused fields and non-configured resources are no-ops. Safe when the feature
+     * is disabled.
+     *
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - the doc about to be written
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @returns {Promise<void>}
+     */
+    async reuploadChangedToLiveAsync (resource, requestInfo) {
+        if (!resource || !this.enableBase64FieldCloudStorage) {
+            return;
+        }
+        const entries = this.resourcePaths[resource.resourceType];
+        if (!entries) {
+            return;
+        }
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+
+            await this._walk(resource, dataSegments, [], async ({ parent, indices }) => {
+                const blobMeta = parent[blobMetaLeaf];
+                if (!blobMeta || !blobMeta.rawReference) {
+                    return;
+                }
+                const stashed = this._readStashedOriginalData(requestInfo, resource._uuid, dataSegments, indices);
+                if (!stashed || !stashed.changed || !stashed.content) {
+                    return;
+                }
+                const liveKey = `${resource.resourceType}_4_0_0/${blobMeta.rawReference}`;
+                try {
+                    await this.base64FieldCloudStorageClient.uploadAsync({
+                        filePath: liveKey,
+                        data: Buffer.from(stashed.content, 'utf8')
+                    });
+                } catch (err) {
+                    throw new RethrownError({
+                        message: `Failed to re-upload base64 payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
+                        error: err,
+                        source: 'Base64DataManager',
+                        args: {
+                            resourceType: resource.resourceType,
+                            resourceId: resource.id,
+                            dataPath: entry.dataPath,
+                            key: liveKey
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    /**
+     * Roll back the live-bucket S3 changes this request made, when the MongoDB write
+     * ultimately fails (e.g. retry exhaustion, or a hard bulk-write error). For each leaf the
+     * request changed (stashed `changed: true`): if a previous version's content is known
+     * (current-data stash), restore it so the live object matches the version still in Mongo;
+     * otherwise (a create) delete the orphaned object. Best-effort — S3 errors are logged, not
+     * thrown, so the caller's original failure is preserved. No-op when disabled or unchanged.
+     *
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @returns {Promise<void>}
+     */
+    async revertLiveAsync (resource, requestInfo) {
+        if (!resource || !this.enableBase64FieldCloudStorage) {
+            return;
+        }
+        const entries = this.resourcePaths[resource.resourceType];
+        if (!entries) {
+            return;
+        }
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+
+            await this._walk(resource, dataSegments, [], async ({ parent, indices }) => {
+                const blobMeta = parent[blobMetaLeaf];
+                if (!blobMeta || !blobMeta.rawReference) {
+                    return;
+                }
+                const stashed = this._readStashedOriginalData(requestInfo, resource._uuid, dataSegments, indices);
+                if (!stashed || !stashed.changed) {
+                    // We didn't change this leaf's content, so there's nothing to roll back.
+                    return;
+                }
+                const liveKey = `${resource.resourceType}_4_0_0/${blobMeta.rawReference}`;
+                const previous = this._readCurrentData(requestInfo, resource._uuid, dataSegments, indices);
+                try {
+                    if (previous && previous.content) {
+                        // Restore the prior version's bytes so live matches the doc still in Mongo.
+                        await this.base64FieldCloudStorageClient.uploadAsync({
+                            filePath: liveKey,
+                            data: Buffer.from(previous.content, 'utf8')
+                        });
+                    } else {
+                        // No prior content (a failed create) — remove the orphaned object.
+                        await this.base64FieldCloudStorageClient.deleteAsync(liveKey);
+                    }
+                } catch (err) {
+                    // Best-effort: never mask the original write failure. A lingering/orphaned
+                    // object is invisible to clients and can be swept later.
+                    logError(`Failed to revert base64 live object for ${resource.resourceType}/${resource.id}`, {
+                        err,
+                        source: 'Base64DataManager',
+                        key: liveKey
+                    });
+                }
+            });
+        }
+    }
+
+    /**
      * Process a single config entry on a resource: walk the dataPath, upload each
      * over-threshold leaf, replace it with a `_blobMeta` sidecar.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - the resource
+     *        being written (FHIR-class instance or plain object); mutated in place.
+     * @param {{dataPath: string, blobMetaPath: string}} entry - a base64DataResources.json config
+     *        entry: `dataPath` is the JSON-Pointer to the base64 field, `blobMetaPath` to its sidecar.
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - current request;
+     *        used to key the per-request stashes (change detection + history bytes).
+     * @returns {Promise<void>}
      * @private
      */
     async _processEntry (resource, entry, requestInfo) {
@@ -116,31 +249,54 @@ class Base64DataManager {
             const exceedsThreshold = byteLength > thresholdBytes;
 
             if (exceedsThreshold) {
+                // Change detection: compare against the current DB content stashed by the
+                // RETRIEVE that hydrated `currentResource` earlier in this request. On an
+                // unchanged payload we skip the live re-upload and carry the content's
+                // history-key discriminator (`lastUpdated`) forward so the history object
+                // is reused instead of duplicated.
+                const currentData = this._readCurrentData(requestInfo, resource._uuid, dataSegments, indices);
+                const unchanged = !!currentData && currentData.content === value;
+                // Stamp the content. Prefer the version's meta.lastUpdated (set before INSERT on
+                // the merge/patch paths); fall back to now() for paths that finalize
+                // meta.lastUpdated after INSERT (create / update-insert). The stamp is an
+                // internal content discriminator, so exact equality with meta.lastUpdated is
+                // not required — only stability across unchanged updates (carried forward).
+                const newStamp = this._normalizeStamp(resource.meta && resource.meta.lastUpdated)
+                    || new Date().toISOString();
+                const stamp = unchanged ? (currentData.lastUpdated || newStamp) : newStamp;
+
                 const liveKey = this._buildLiveKey(resource.resourceType, resource._uuid, dataSegments, indices);
-                try {
-                    await this.base64FieldCloudStorageClient.uploadAsync({
-                        filePath: liveKey,
-                        data: Buffer.from(value, 'utf8')
-                    });
-                } catch (err) {
-                    throw new RethrownError({
-                        message: `Failed to upload base64 payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
-                        error: err,
-                        source: 'Base64DataManager',
-                        args: {
-                            resourceType: resource.resourceType,
-                            resourceId: resource.id,
-                            dataPath: entry.dataPath,
-                            key: liveKey
-                        }
-                    });
+                if (!unchanged) {
+                    try {
+                        await this.base64FieldCloudStorageClient.uploadAsync({
+                            filePath: liveKey,
+                            data: Buffer.from(value, 'utf8')
+                        });
+                    } catch (err) {
+                        throw new RethrownError({
+                            message: `Failed to upload base64 payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
+                            error: err,
+                            source: 'Base64DataManager',
+                            args: {
+                                resourceType: resource.resourceType,
+                                resourceId: resource.id,
+                                dataPath: entry.dataPath,
+                                key: liveKey
+                            }
+                        });
+                    }
                 }
-                // Stash the original payload so transformHistoryAsync can mirror it into
-                // the history bucket without an extra GetObject from the live bucket.
-                this._stashOriginalData(requestInfo, resource._uuid, dataSegments, indices, value);
+                // Stash the changed flag so transformHistoryAsync and the retry re-upload know
+                // whether this request introduced new content. Keep the payload bytes only when
+                // the request is actually changing the field; for an unchanged/reused field the
+                // bytes are already available via the current-data stash (see _readRequestContent).
+                this._stashOriginalData(requestInfo, resource._uuid, dataSegments, indices,
+                    unchanged ? { changed: false } : { content: value, changed: true }
+                );
                 parent[blobMetaLeaf] = new BlobMeta({
                     rawReference: this._buildLiveReference(resource._uuid, dataSegments, indices),
-                    rawSize: Math.ceil(byteLength / 1024)
+                    rawSize: Math.ceil(byteLength / 1024),
+                    lastUpdated: stamp
                 });
                 this._clearField(parent, key);
                 return;
@@ -172,6 +328,13 @@ class Base64DataManager {
      * matching `data` field, and clear the sidecar. After this runs the resource
      * looks identical to a freshly inlined one — so resourceMerger can diff
      * against actual content (matching how GridFS RETRIEVE works for attachments).
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - the resource
+     *        being hydrated (FHIR-class instance or plain object); mutated in place.
+     * @param {{dataPath: string, blobMetaPath: string}} entry - a base64DataResources.json config
+     *        entry: `dataPath` is the JSON-Pointer to the base64 field, `blobMetaPath` to its sidecar.
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - current request;
+     *        used to read/write the per-request stashes (avoids re-fetching from S3).
+     * @returns {Promise<void>}
      * @private
      */
     async _processRetrieveEntry (resource, entry, requestInfo) {
@@ -184,62 +347,77 @@ class Base64DataManager {
             if (!blobMeta) {
                 return;
             }
+            /**
+             * @type {string} the resolved current content for this leaf
+             */
+            let content;
             // Fast path: data is already inlined on this resource (e.g. a previous RETRIEVE
             // earlier in the same request hydrated it). Nothing to fetch.
             if (typeof parent[key] === 'string' && parent[key].length > 0) {
-                return;
-            }
-            // Stash hit: the same request just uploaded this payload via transformAsync(INSERT)
-            // — reuse it instead of round-tripping S3. The response path after a create/update/
-            // patch always hits this branch, so externalized writes do zero S3 GetObjects on
-            // the response side.
-            const stashed = this._readStashedOriginalData(
-                requestInfo, resource._uuid, dataSegments, indices
-            );
-            if (stashed) {
-                parent[key] = stashed;
-                return;
-            }
-            const liveKey = this._buildLiveKey(resource.resourceType, resource._uuid, dataSegments, indices);
-            let downloaded;
-            try {
-                downloaded = await this.base64FieldCloudStorageClient.downloadAsync(liveKey);
-            } catch (err) {
-                throw new RethrownError({
-                    message: `Failed to download base64 payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
-                    error: err,
-                    source: 'Base64DataManager',
-                    args: {
-                        resourceType: resource.resourceType,
-                        resourceId: resource.id,
-                        dataPath: entry.dataPath,
-                        key: liveKey
+                content = parent[key];
+            } else {
+                // Stash hit: the same request already has this payload — either the INSERT that
+                // just wrote it (changed) or the current-data captured earlier this request
+                // (unchanged). Reuse it instead of round-tripping S3, so the response path after
+                // a create/update/patch does zero S3 GetObjects.
+                const cached = this._readRequestContent(
+                    requestInfo, resource._uuid, dataSegments, indices
+                );
+                if (cached) {
+                    content = cached;
+                    parent[key] = content;
+                } else {
+                    const liveKey = this._buildLiveKey(resource.resourceType, resource._uuid, dataSegments, indices);
+                    let downloaded;
+                    try {
+                        downloaded = await this.base64FieldCloudStorageClient.downloadAsync(liveKey);
+                    } catch (err) {
+                        throw new RethrownError({
+                            message: `Failed to download base64 payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
+                            error: err,
+                            source: 'Base64DataManager',
+                            args: {
+                                resourceType: resource.resourceType,
+                                resourceId: resource.id,
+                                dataPath: entry.dataPath,
+                                key: liveKey
+                            }
+                        });
                     }
-                });
-            }
-            if (downloaded === null || downloaded === undefined) {
-                // Sidecar referenced an object that's gone — fail loudly so callers
-                // don't silently produce a write that erases the data.
-                throw new RethrownError({
-                    message: `Base64 payload missing in cloud storage for ${resource.resourceType}/${resource.id} at ${entry.dataPath} (key ${liveKey})`,
-                    error: new Error('NoSuchKey'),
-                    source: 'Base64DataManager',
-                    args: {
-                        resourceType: resource.resourceType,
-                        resourceId: resource.id,
-                        dataPath: entry.dataPath,
-                        key: liveKey
+                    if (downloaded === null || downloaded === undefined) {
+                        // Sidecar referenced an object that's gone — fail loudly so callers
+                        // don't silently produce a write that erases the data.
+                        throw new RethrownError({
+                            message: `Base64 payload missing in cloud storage for ${resource.resourceType}/${resource.id} at ${entry.dataPath} (key ${liveKey})`,
+                            error: new Error('NoSuchKey'),
+                            source: 'Base64DataManager',
+                            args: {
+                                resourceType: resource.resourceType,
+                                resourceId: resource.id,
+                                dataPath: entry.dataPath,
+                                key: liveKey
+                            }
+                        });
                     }
-                });
+                    content = downloaded;
+                    // Set `data` to the downloaded payload but DO NOT clear `_blobMeta` here —
+                    // leaving it in place is the signal INSERT's orphan-cleanup branch uses to
+                    // detect that a live S3 object exists and may need deletion if a subsequent
+                    // patch removes/shrinks `data` in the same request. The public read
+                    // serializer drops `_blobMeta` from responses (it's not in its property map),
+                    // and the INSERT upload-branch overwrites `_blobMeta` with a fresh value, so
+                    // the lingering sidecar never reaches a client or the wrong Mongo state.
+                    parent[key] = content;
+                }
             }
-            // Set `data` to the downloaded payload but DO NOT clear `_blobMeta` here —
-            // leaving it in place is the signal INSERT's orphan-cleanup branch uses to
-            // detect that a live S3 object exists and may need deletion if a subsequent
-            // patch removes/shrinks `data` in the same request. The public read
-            // serializer drops `_blobMeta` from responses (it's not in its property map),
-            // and the INSERT upload-branch overwrites `_blobMeta` with a fresh value, so
-            // the lingering sidecar never reaches a client or the wrong Mongo state.
-            parent[key] = downloaded;
+            // Stash the current content + its history-key discriminator so a subsequent
+            // INSERT in this request can detect whether the payload changed and, if not,
+            // reuse the existing history object. Harmless on the response-hydration path
+            // (INSERT has already run by then).
+            this._stashCurrentData(requestInfo, resource._uuid, dataSegments, indices, {
+                content,
+                lastUpdated: blobMeta.lastUpdated
+            });
         });
     }
 
@@ -335,15 +513,18 @@ class Base64DataManager {
     }
 
     /**
-     * Mirror the live-path uploads into the history bucket and sanitize the patch
-     * diagnostics on the supplied history document. Mutates `historyDocument` in place.
+     * Ensure the history bucket holds this version's base64 payload and sanitize the
+     * patch diagnostics on the supplied history document. Mutates `historyDocument` in place.
      *
-     * For each configured dataPath whose corresponding `_blobMeta` sidecar exists on
-     * `historyDocument.resource`, this method:
-     *  1. Uploads the original base64 (read from the request-scoped stash) to the
-     *     history bucket at a per-version key including `meta.lastUpdated` epoch ms.
-     *  2. Overwrites `_blobMeta.rawReference` on the snapshot with the history-form
-     *     reference so a future read knows which version to fetch.
+     * For each configured dataPath whose `_blobMeta` sidecar exists on
+     * `historyDocument.resource`, this method builds the history key from the sidecar's
+     * `rawReference` + `lastUpdated` (the content discriminator) and:
+     *  - if the content changed this write, uploads the payload to that key;
+     *  - if the content is unchanged (reused), refreshes the existing object's TTL via
+     *    copy-onto-self, and re-uploads only if the object has already expired.
+     *
+     * The snapshot's `_blobMeta` is left as INSERT set it (`rawReference` = live ref,
+     * `lastUpdated` = content stamp) — a history read reconstructs the key from both.
      *
      * It also walks `historyDocument.response.outcome.issue[].diagnostics`, parses each
      * stringified patch, and substitutes the placeholder `<data_value>` for the `value`
@@ -363,24 +544,28 @@ class Base64DataManager {
         if (!entries) {
             return historyDocument;
         }
-        const epochMs = this._extractLastUpdatedEpochMs(snapshot);
-        if (!epochMs) {
-            // Without a stable version timestamp we can't build a unique history key.
-            return historyDocument;
-        }
         for (const entry of entries) {
-            await this._processHistoryEntry(historyDocument, snapshot, entry, requestInfo, epochMs);
+            await this._processHistoryEntry(historyDocument, snapshot, entry, requestInfo);
         }
         this._sanitizeHistoryPatches(historyDocument, entries);
         return historyDocument;
     }
 
     /**
-     * Per-entry history upload + rawReference rewrite. Skips a leaf if the snapshot
-     * has no `_blobMeta` (nothing to mirror) or the cache miss makes the upload impossible.
+     * Per-entry history upload/refresh. Skips a leaf when the snapshot has no `_blobMeta`,
+     * the request stashed no content (e.g. a no-op that never went through INSERT), or the
+     * sidecar carries no content stamp to build a stable key from.
+     * @param {Object} historyDocument - the history bundle-entry snapshot (has `.resource`,
+     *        `.response`); mutated in place if diagnostics need sanitizing.
+     * @param {Object} snapshot - `historyDocument.resource`, the versioned resource snapshot.
+     * @param {{dataPath: string, blobMetaPath: string}} entry - a base64DataResources.json config
+     *        entry: `dataPath` is the JSON-Pointer to the base64 field, `blobMetaPath` to its sidecar.
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo - current request;
+     *        used to read the per-request content stashes.
+     * @returns {Promise<void>}
      * @private
      */
-    async _processHistoryEntry (historyDocument, snapshot, entry, requestInfo, epochMs) {
+    async _processHistoryEntry (historyDocument, snapshot, entry, requestInfo) {
         const dataSegments = this._parseJsonPointer(entry.dataPath);
         const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
         const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
@@ -390,26 +575,49 @@ class Base64DataManager {
             if (!blobMeta) {
                 return;
             }
-            const originalData = this._readStashedOriginalData(
+            const stashed = this._readStashedOriginalData(
                 requestInfo, snapshot._uuid, dataSegments, indices
             );
-            if (!originalData) {
-                // Cache miss — either the resource didn't go through transformAsync this
-                // request (no-data-change update of an externalized Binary) or the cache
-                // already cleared. Skip silently; the live key still holds the bytes.
+            if (!stashed) {
+                // Cache miss — the resource didn't go through INSERT this request. Skip
+                // silently; the existing history object (if any) is untouched.
                 return;
             }
-            const historyKey = this._buildHistoryKey(
-                snapshot.resourceType, snapshot._uuid, dataSegments, indices, epochMs
-            );
+            const stampMs = this._toEpochMs(blobMeta.lastUpdated);
+            if (!stampMs) {
+                // Without a content stamp we can't build a stable history key.
+                return;
+            }
+            const historyKey = this._buildHistoryKey(snapshot.resourceType, blobMeta.rawReference, stampMs);
+            // Content bytes come from the changed-write stash or, for an unchanged write, the
+            // current-data stash (byte-identical) — used only if an upload is actually needed.
+            const content = this._readRequestContent(requestInfo, snapshot._uuid, dataSegments, indices);
             try {
-                await this.historyResourceCloudStorageClient.uploadAsync({
-                    filePath: historyKey,
-                    data: Buffer.from(originalData, 'utf8')
-                });
+                if (stashed.changed) {
+                    if (!content) {
+                        return;
+                    }
+                    await this.historyResourceCloudStorageClient.uploadAsync({
+                        filePath: historyKey,
+                        data: Buffer.from(content, 'utf8')
+                    });
+                } else {
+                    // Unchanged content: refresh the existing object's TTL. If it has
+                    // already expired (copy reports the source missing), re-upload it.
+                    const refreshed = await this.historyResourceCloudStorageClient.copyObjectAsync({
+                        sourcePath: historyKey,
+                        filePath: historyKey
+                    });
+                    if (!refreshed && content) {
+                        await this.historyResourceCloudStorageClient.uploadAsync({
+                            filePath: historyKey,
+                            data: Buffer.from(content, 'utf8')
+                        });
+                    }
+                }
             } catch (err) {
                 throw new RethrownError({
-                    message: `Failed to upload base64 history payload for ${snapshot.resourceType}/${snapshot.id} at ${entry.dataPath}: ${err.message}`,
+                    message: `Failed to persist base64 history payload for ${snapshot.resourceType}/${snapshot.id} at ${entry.dataPath}: ${err.message}`,
                     error: err,
                     source: 'Base64DataManager',
                     args: {
@@ -420,10 +628,6 @@ class Base64DataManager {
                     }
                 });
             }
-            parent[blobMetaLeaf] = {
-                ...blobMeta,
-                rawReference: this._buildHistoryReference(snapshot._uuid, dataSegments, indices, epochMs)
-            };
         });
     }
 
@@ -480,49 +684,40 @@ class Base64DataManager {
     }
 
     /**
-     * History S3 key shape.
-     *  - Root data path: "{ResourceType}_4_0_0/{uuid}/{ms_epoch}"
-     *  - Nested data path: "{ResourceType}_4_0_0/{uuid}/{path-with-indices}/{ms_epoch}"
+     * History S3 key shape, derived from the sidecar's stored `rawReference`
+     * ("{uuid}" or "{uuid}/{path-with-indices}") plus the content stamp:
+     *  - "{ResourceType}_4_0_0/{rawReference}/{ms_epoch}"
      * Distinct from the legacy whole-history-doc migration (which uses the suffix
      * "{ResourceType}_4_0_0_History/{uuid}/{fileId}.json") so the two schemes coexist
      * in the same bucket without colliding.
      * @private
      */
-    _buildHistoryKey (resourceType, uuid, dataSegments, indices, epochMs) {
-        const base = `${resourceType}_4_0_0/${uuid}`;
-        if (dataSegments.length <= 1) {
-            return `${base}/${epochMs}`;
-        }
-        return `${base}/${this._substituteIndices(dataSegments, indices)}/${epochMs}`;
+    _buildHistoryKey (resourceType, rawReference, epochMs) {
+        return `${resourceType}_4_0_0/${rawReference}/${epochMs}`;
     }
 
     /**
-     * Value written into the history snapshot's `_blobMeta.rawReference`.
-     *  - Root data path: "{uuid}/{ms_epoch}"
-     *  - Nested data path: "{uuid}/{path-with-indices}/{ms_epoch}"
+     * Convert a Date instance or ISO string into ms-since-epoch. Returns null when the
+     * value is missing or unparseable.
      * @private
      */
-    _buildHistoryReference (uuid, dataSegments, indices, epochMs) {
-        if (dataSegments.length <= 1) {
-            return `${uuid}/${epochMs}`;
-        }
-        return `${uuid}/${this._substituteIndices(dataSegments, indices)}/${epochMs}`;
-    }
-
-    /**
-     * Pull the ms-since-epoch from `meta.lastUpdated`. Supports both Date instances
-     * (set by DateColumnHandler in preSave) and ISO strings (history docs serialized
-     * via FhirResourceWriteSerializer).
-     * @private
-     */
-    _extractLastUpdatedEpochMs (snapshot) {
-        const lastUpdated = snapshot && snapshot.meta && snapshot.meta.lastUpdated;
-        if (!lastUpdated) {
+    _toEpochMs (value) {
+        if (!value) {
             return null;
         }
-        const date = lastUpdated instanceof Date ? lastUpdated : new Date(lastUpdated);
+        const date = value instanceof Date ? value : new Date(value);
         const ms = date.getTime();
         return Number.isFinite(ms) ? ms : null;
+    }
+
+    /**
+     * Normalize a version timestamp (Date or ISO string) into an ISO string for storage
+     * in `_blobMeta.lastUpdated`. Returns undefined when the value is missing/unparseable.
+     * @private
+     */
+    _normalizeStamp (value) {
+        const ms = this._toEpochMs(value);
+        return ms === null ? undefined : new Date(ms).toISOString();
     }
 
     /**
@@ -536,8 +731,7 @@ class Base64DataManager {
     }
 
     /**
-     * Store the raw base64 payload for later retrieval by transformHistoryAsync.
-     * No-op when requestInfo isn't supplied (e.g. callers that don't yet thread it).
+     * Store the { content, changed } payload for later retrieval by transformHistoryAsync.
      * @private
      */
     _stashOriginalData (requestInfo, uuid, dataSegments, indices, value) {
@@ -552,7 +746,7 @@ class Base64DataManager {
     }
 
     /**
-     * Look up the previously stashed base64 payload. Returns null on cache miss.
+     * Look up the previously stashed { content, changed } payload. Returns null on cache miss.
      * @private
      */
     _readStashedOriginalData (requestInfo, uuid, dataSegments, indices) {
@@ -564,6 +758,56 @@ class Base64DataManager {
             name: ORIGINAL_DATA_CACHE_NAME
         });
         return map.get(this._stashKey(uuid, dataSegments, indices)) || null;
+    }
+
+    /**
+     * Store the current DB content + its history-key discriminator ({ content, lastUpdated })
+     * captured during RETRIEVE, so a later INSERT can detect an unchanged payload and reuse
+     * the existing history object. No-op without a requestId.
+     * @private
+     */
+    _stashCurrentData (requestInfo, uuid, dataSegments, indices, value) {
+        if (!requestInfo || !requestInfo.requestId) {
+            return;
+        }
+        const map = this.requestSpecificCache.getMap({
+            requestId: requestInfo.requestId,
+            name: CURRENT_DATA_CACHE_NAME
+        });
+        map.set(this._stashKey(uuid, dataSegments, indices), value);
+    }
+
+    /**
+     * Look up the current DB content stashed during RETRIEVE. Returns null on cache miss.
+     * @private
+     */
+    _readCurrentData (requestInfo, uuid, dataSegments, indices) {
+        if (!requestInfo || !requestInfo.requestId) {
+            return null;
+        }
+        const map = this.requestSpecificCache.getMap({
+            requestId: requestInfo.requestId,
+            name: CURRENT_DATA_CACHE_NAME
+        });
+        return map.get(this._stashKey(uuid, dataSegments, indices)) || null;
+    }
+
+    /**
+     * Resolve this request's content bytes for a leaf: the changed-write stash if the request
+     * is changing the field, otherwise the current-data stash (byte-identical for an unchanged
+     * write). Returns null when neither is available.
+     * @private
+     */
+    _readRequestContent (requestInfo, uuid, dataSegments, indices) {
+        const original = this._readStashedOriginalData(requestInfo, uuid, dataSegments, indices);
+        if (original && original.content) {
+            return original.content;
+        }
+        const current = this._readCurrentData(requestInfo, uuid, dataSegments, indices);
+        if (current && current.content) {
+            return current.content;
+        }
+        return null;
     }
 }
 

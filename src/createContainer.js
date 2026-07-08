@@ -435,7 +435,8 @@ const createContainer = function () {
             resourceMerger: c.resourceMerger,
             preSaveManager: c.preSaveManager,
             databaseQueryFactory: c.databaseQueryFactory,
-            configManager: c.configManager
+            configManager: c.configManager,
+            base64DataManager: c.base64DataManager
         }));
 
     container.register('resourceManager', (c) => new ResourceManager(

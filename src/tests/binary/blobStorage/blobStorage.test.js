@@ -15,10 +15,11 @@ const {
     createTestRequest,
     getHeaders,
     getTestContainer,
+    getTestRequestInfo,
     mockHttpContext
 } = require('../../common');
 const { MockS3Client } = require('../../export/mocks/s3Client');
-const { CLOUD_STORAGE_CLIENTS } = require('../../../constants');
+const { CLOUD_STORAGE_CLIENTS, BLOB_OP } = require('../../../constants');
 
 // 80 KB string — exceeds the 64 KB default threshold and triggers S3 offload.
 const LARGE_DATA = 'A'.repeat(80 * 1024);
@@ -110,8 +111,8 @@ describe('Binary base64 S3 offload — write paths', () => {
         if (container) {
             const liveClient = container.base64FieldCloudStorageClient;
             const historyClient = container.historyResourceCloudStorageClient;
-            if (liveClient) liveClient.uploadedData = {};
-            if (historyClient) historyClient.uploadedData = {};
+            if (liveClient) { liveClient.uploadedData = {}; liveClient.copyCalls = []; }
+            if (historyClient) { historyClient.uploadedData = {}; historyClient.copyCalls = []; }
         }
     });
 
@@ -241,15 +242,16 @@ describe('Binary base64 S3 offload — write paths', () => {
             expect(suffix).toMatch(/^\d{10,}$/);
         }
 
-        // History Mongo snapshot should have `_blobMeta` pointing at the versioned reference.
+        // History Mongo snapshot keeps the deterministic rawReference; the version
+        // discriminator lives in `_blobMeta.lastUpdated`. The history bucket key is
+        // `{rawReference}/{epoch(lastUpdated)}` (asserted above via versionedKeys).
         const historyDocs = await readBinaryHistoryFromMongo(container);
         const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid);
         expect(matchedSnapshots.length).toBeGreaterThan(0);
         for (const entry of matchedSnapshots) {
             if (entry.resource._blobMeta) {
-                expect(entry.resource._blobMeta.rawReference).toMatch(
-                    new RegExp(`^${mongoDocAfterCreate._uuid}/\\d{10,}$`)
-                );
+                expect(entry.resource._blobMeta.rawReference).toBe(mongoDocAfterCreate._uuid);
+                expect(entry.resource._blobMeta.lastUpdated).toBeDefined();
                 expect(entry.resource.data).toBeUndefined();
             }
         }
@@ -467,5 +469,346 @@ describe('Binary base64 S3 offload — write paths', () => {
         const mongoDocAfterUpdate = await readBinaryFromMongo(container, id);
         expect(mongoDocAfterUpdate.data).toBe(SMALL_DATA);
         expect(mongoDocAfterUpdate._blobMeta).toBeUndefined();
+    });
+
+    const historyKeysFor = (historyClient, uuid) =>
+        Object.keys(historyClient.uploadedData).filter(k => k.startsWith(`Binary_4_0_0/${uuid}/`));
+
+    // History-collection snapshots for a uuid, sorted ascending by versionId.
+    const historySnapshotsFor = async (container, uuid) => {
+        const docs = await readBinaryHistoryFromMongo(container);
+        return docs
+            .filter(d => d.resource && d.resource._uuid === uuid)
+            .map(d => d.resource)
+            .sort((a, b) => parseInt(a.meta.versionId, 10) - parseInt(b.meta.versionId, 10));
+    };
+
+    test('reuploadChangedToLiveAsync re-PUTs changed content and no-ops without a cached change', async () => {
+        await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const b64 = container.base64DataManager;
+        const liveClient = container.base64FieldCloudStorageClient;
+        const requestInfo = getTestRequestInfo({ requestId: 'reupload-mechanism' });
+        const uuid = '11111111-1111-1111-1111-111111111111';
+
+        // Externalize a Binary through INSERT: uploads to live + stashes { content, changed:true }.
+        const resource = {
+            resourceType: 'Binary',
+            id: 'ru',
+            _uuid: uuid,
+            meta: { lastUpdated: '2026-07-08T00:00:00.000Z' },
+            contentType: 'application/pdf',
+            data: LARGE_DATA
+        };
+        await b64.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
+        const liveKey = `Binary_4_0_0/${uuid}`;
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+        // A competitor clobbered the live object; re-upload must re-establish our bytes.
+        liveClient.uploadedData[liveKey] = 'competitor-bytes';
+        await b64.reuploadChangedToLiveAsync(resource, requestInfo);
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+        // No cached change for a different uuid => no-op (nothing uploaded).
+        liveClient.uploadedData = {};
+        const other = {
+            resourceType: 'Binary',
+            _uuid: '22222222-2222-2222-2222-222222222222',
+            _blobMeta: { rawReference: '22222222-2222-2222-2222-222222222222' }
+        };
+        await b64.reuploadChangedToLiveAsync(other, requestInfo);
+        expect(Object.keys(liveClient.uploadedData).length).toBe(0);
+    });
+
+    test('revertLiveAsync restores previous content on update and deletes on create', async () => {
+        await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const b64 = container.base64DataManager;
+        const liveClient = container.base64FieldCloudStorageClient;
+        const PREV = 'P'.repeat(80 * 1024);
+        const NEW = 'N'.repeat(80 * 1024);
+
+        // --- update case: a previous version's content exists, so revert restores it ---
+        const R1 = getTestRequestInfo({ requestId: 'revert-update' });
+        const U = '33333333-3333-3333-3333-333333333333';
+        const liveKeyU = `Binary_4_0_0/${U}`;
+        const res = {
+            resourceType: 'Binary', id: 'rv', _uuid: U,
+            meta: { lastUpdated: '2026-07-08T00:00:00.000Z' }, contentType: 'application/pdf', data: PREV
+        };
+        await b64.transformAsync(res, BLOB_OP.INSERT, R1);      // externalize v-prev: live = PREV
+        await b64.transformAsync(res, BLOB_OP.RETRIEVE, R1);    // hydrate + stash currentData = PREV
+        res.data = NEW;
+        await b64.transformAsync(res, BLOB_OP.INSERT, R1);      // changed write: live = NEW
+        expect(liveClient.uploadedData[liveKeyU]).toBe(NEW);
+
+        await b64.revertLiveAsync(res, R1);
+        expect(liveClient.uploadedData[liveKeyU]).toBe(PREV);
+
+        // --- create case: no previous content, so revert deletes the orphan ---
+        const R2 = getTestRequestInfo({ requestId: 'revert-create' });
+        const U2 = '44444444-4444-4444-4444-444444444444';
+        const liveKeyU2 = `Binary_4_0_0/${U2}`;
+        const res2 = {
+            resourceType: 'Binary', id: 'rv2', _uuid: U2,
+            meta: { lastUpdated: '2026-07-08T00:00:00.000Z' }, contentType: 'application/pdf', data: NEW
+        };
+        await b64.transformAsync(res2, BLOB_OP.INSERT, R2);     // live = NEW, no prior content
+        expect(liveClient.uploadedData[liveKeyU2]).toBe(NEW);
+
+        await b64.revertLiveAsync(res2, R2);
+        expect(liveClient.uploadedData[liveKeyU2]).toBeUndefined();
+    });
+
+    test('retry replaceOneAsync re-uploads the changed payload before committing', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const b64 = container.base64DataManager;
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-retry-reupload';
+
+        // Seed v1 with LARGE_DATA.
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const dbDoc = await readBinaryFromMongo(container, id);
+        const uuid = dbDoc._uuid;
+        const liveKey = `Binary_4_0_0/${uuid}`;
+
+        // Build the retry input: the current externalized doc with a changed payload, run
+        // through INSERT under a controlled requestInfo so its bytes are cached (changed:true).
+        const requestInfo = getTestRequestInfo({ requestId: 'retry-reupload-req' });
+        const incoming = { ...dbDoc, data: ALT_LARGE_DATA, contentType: 'application/xml' };
+        delete incoming._id;
+        await b64.transformAsync(incoming, BLOB_OP.INSERT, requestInfo);
+
+        // Simulate a concurrent writer clobbering the live object with different bytes.
+        liveClient.uploadedData[liveKey] = LARGE_DATA;
+
+        // Drive the fallback retry path directly; it must re-upload our payload before the write.
+        const updateManager = container.databaseUpdateFactory.createFastDatabaseUpdateManager({
+            resourceType: 'Binary',
+            base_version: '4_0_0'
+        });
+        await updateManager.replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: incoming });
+
+        expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
+    });
+
+    test('concurrency-retry replaceOneAsync on an externalized Binary keeps content + _blobMeta consistent', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-retry-target';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const dbDoc = await readBinaryFromMongo(container, id);
+        expect(dbDoc._blobMeta).toBeDefined();
+        expect(dbDoc.data).toBeUndefined();
+        const liveKey = `Binary_4_0_0/${dbDoc._uuid}`;
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+        // Simulate the one-by-one concurrency retry input: the already-externalized doc
+        // (data stripped, _blobMeta set) with a metadata-only change.
+        const retryDoc = { ...dbDoc, contentType: 'application/xml' };
+        delete retryDoc._id;
+
+        const updateManager = container.databaseUpdateFactory.createFastDatabaseUpdateManager({
+            resourceType: 'Binary',
+            base_version: '4_0_0'
+        });
+        const requestInfo = getTestRequestInfo({ requestId: 'retry-req' });
+        const { savedResource } = await updateManager.replaceOneAsync({
+            base_version: '4_0_0',
+            requestInfo,
+            doc: retryDoc
+        });
+
+        // Retry must produce a valid state: metadata change applied, _blobMeta intact,
+        // and the live object (which holds the payload) untouched — no data loss.
+        expect(savedResource).toBeDefined();
+        expect(savedResource.contentType).toBe('application/xml');
+        expect(savedResource._blobMeta.rawReference).toBe(dbDoc._uuid);
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+    });
+
+    test('unchanged-data update reuses the history object and refreshes its TTL', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const historyClient = container.historyResourceCloudStorageClient;
+        const id = 'binary-reuse-target';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const docV1 = await readBinaryFromMongo(container, id);
+        const uuid = docV1._uuid;
+        expect(docV1._blobMeta.rawReference).toBe(uuid);
+        const v1Stamp = docV1._blobMeta.lastUpdated;
+        expect(v1Stamp).toBeDefined();
+        const histKeysV1 = historyKeysFor(historyClient, uuid);
+        expect(histKeysV1.length).toBe(1);
+        const v1HistoryKey = histKeysV1[0];
+        historyClient.copyCalls = [];
+
+        // Metadata-only update: same payload, different contentType => version bump, data unchanged.
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send({ ...buildBinary({ id, data: LARGE_DATA }), contentType: 'application/xml' })
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        // No NEW history object; the existing one had its TTL refreshed via copy-onto-self.
+        expect(historyKeysFor(historyClient, uuid)).toEqual(histKeysV1);
+        expect(historyClient.copyCalls).toContain(v1HistoryKey);
+
+        // Current doc carried the same content stamp forward (chain discriminator unchanged).
+        const docV2 = await readBinaryFromMongo(container, id);
+        expect(docV2._blobMeta.lastUpdated).toBe(v1Stamp);
+        expect(docV2._blobMeta.rawReference).toBe(uuid);
+        expect(docV2.contentType).toBe('application/xml');
+
+        // History collection: one snapshot per version, both referencing the same reused
+        // history object (same rawReference + lastUpdated), neither carrying inline data.
+        const snapshots = await historySnapshotsFor(container, uuid);
+        expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2']);
+        for (const snap of snapshots) {
+            expect(snap._blobMeta.rawReference).toBe(uuid);
+            expect(snap._blobMeta.lastUpdated).toBe(v1Stamp);
+            expect(snap.data).toBeUndefined();
+        }
+    });
+
+    test('changed-data update creates a new versioned history object', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const historyClient = container.historyResourceCloudStorageClient;
+        const id = 'binary-change-target';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const docV1 = await readBinaryFromMongo(container, id);
+        const uuid = docV1._uuid;
+        const v1Stamp = docV1._blobMeta.lastUpdated;
+        expect(historyKeysFor(historyClient, uuid).length).toBe(1);
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: ALT_LARGE_DATA }))
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        // Two distinct history objects now (one per content), live overwritten with new bytes.
+        expect(historyKeysFor(historyClient, uuid).length).toBe(2);
+        expect(liveClient.uploadedData[`Binary_4_0_0/${uuid}`]).toBe(ALT_LARGE_DATA);
+
+        const docV2 = await readBinaryFromMongo(container, id);
+        expect(docV2._blobMeta.lastUpdated).not.toBe(v1Stamp);
+
+        // History collection: two snapshots, each pinned to its own content object
+        // (distinct lastUpdated stamps), neither carrying inline data.
+        const snapshots = await historySnapshotsFor(container, uuid);
+        expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2']);
+        expect(snapshots[0]._blobMeta.lastUpdated).toBe(v1Stamp);
+        expect(snapshots[1]._blobMeta.lastUpdated).toBe(docV2._blobMeta.lastUpdated);
+        expect(snapshots[0]._blobMeta.lastUpdated).not.toBe(snapshots[1]._blobMeta.lastUpdated);
+        for (const snap of snapshots) {
+            expect(snap.data).toBeUndefined();
+        }
+    });
+
+    test('unchanged-data update re-uploads when the history object has expired', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const historyClient = container.historyResourceCloudStorageClient;
+        const id = 'binary-expired-target';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const docV1 = await readBinaryFromMongo(container, id);
+        const uuid = docV1._uuid;
+        const v1HistoryKey = historyKeysFor(historyClient, uuid)[0];
+
+        // Simulate the 12-month TTL having deleted the history object.
+        delete historyClient.uploadedData[v1HistoryKey];
+        historyClient.copyCalls = [];
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send({ ...buildBinary({ id, data: LARGE_DATA }), contentType: 'application/xml' })
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        // Copy was attempted (and failed), so the payload was re-uploaded to the same key.
+        expect(historyClient.copyCalls).toContain(v1HistoryKey);
+        expect(historyClient.uploadedData[v1HistoryKey]).toBe(LARGE_DATA);
+    });
+
+    test('content stamp stays stable across multiple unchanged updates (chain integrity)', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const historyClient = container.historyResourceCloudStorageClient;
+        const id = 'binary-chain-target';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const docV1 = await readBinaryFromMongo(container, id);
+        const uuid = docV1._uuid;
+        const v1Stamp = docV1._blobMeta.lastUpdated;
+
+        for (const contentType of ['application/xml', 'text/plain']) {
+            await request
+                .put(`/4_0_0/Binary/${id}`)
+                .send({ ...buildBinary({ id, data: LARGE_DATA }), contentType })
+                .set(getHeaders())
+                .expect(200);
+            await drainPostRequest(container);
+        }
+
+        // Still exactly one history object, stamp never advanced.
+        expect(historyKeysFor(historyClient, uuid).length).toBe(1);
+        const docFinal = await readBinaryFromMongo(container, id);
+        expect(docFinal._blobMeta.lastUpdated).toBe(v1Stamp);
+
+        // Three history snapshots (v1..v3), all pinned to the same reused history object.
+        const snapshots = await historySnapshotsFor(container, uuid);
+        expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2', '3']);
+        for (const snap of snapshots) {
+            expect(snap._blobMeta.lastUpdated).toBe(v1Stamp);
+            expect(snap._blobMeta.rawReference).toBe(uuid);
+        }
     });
 });
