@@ -263,6 +263,16 @@ class MergeManager {
             return validationOperationOutcome;
         }
 
+        // Reject oversized AuditEvents (bounds document size / avoids write-path
+        // memory pressure) as a per-resource merge error.
+        const sizeOperationOutcome = this.resourceValidator.validateResourceSizeSync({
+            resource: resourceToMerge,
+            resourceType: resourceToMerge.resourceType
+        });
+        if (sizeOperationOutcome) {
+            return sizeOperationOutcome;
+        }
+
         await this.performMergeDbInsertAsync({
             base_version,
             requestInfo,
@@ -884,8 +894,14 @@ class MergeManager {
                     for (const [resourceType, mergeResultsForResourceType] of Object.entries(
                         groupByResourceType
                     )) {
+                        /**
+                         * @type {MergeResultEntry[]}
+                         */
+                        const failedItems = mergeResultsForResourceType.filter(
+                            (r) => r.issue
+                        );
                         if (resourceType !== 'AuditEvent') {
-                            // we don't log queries on AuditEvent itself
+                            // we don't log success (create/update) audits on AuditEvent itself
                             /**
                              * @type {MergeResultEntry[]}
                              */
@@ -897,12 +913,6 @@ class MergeManager {
                              */
                             const updatedItems = mergeResultsForResourceType.filter(
                                 (r) => r.updated === true
-                            );
-                            /**
-                             * @type {MergeResultEntry[]}
-                             */
-                            const failedItems = mergeResultsForResourceType.filter(
-                                (r) => r.issue
                             );
                             if (createdItems && createdItems.length > 0) {
                                 await this.auditLogger.logAuditEntryAsync({
@@ -924,15 +934,18 @@ class MergeManager {
                                     ids: updatedItems.map((r) => r._uuid)
                                 });
                             }
-                            if (failedItems && failedItems.length > 0) {
-                                for (const entry of failedItems) {
-                                    await this.auditLogger.logErrorAuditEntryAsync({
-                                        requestInfo,
-                                        resourceType,
-                                        errorCode: 400,
-                                        errorMessage: `${resourceType}/${entry.id}: Bad Request`
-                                    });
-                                }
+                        }
+                        // error audits are logged for all resource types, including
+                        // AuditEvent, to match the create path (logErrorAuditEntryAsync
+                        // does not skip AuditEvent).
+                        if (failedItems && failedItems.length > 0) {
+                            for (const entry of failedItems) {
+                                await this.auditLogger.logErrorAuditEntryAsync({
+                                    requestInfo,
+                                    resourceType,
+                                    errorCode: entry.issue?.code === 'too-long' ? 413 : 400,
+                                    errorMessage: `${resourceType}/${entry.id}: Bad Request`
+                                });
                             }
                         }
                     }

@@ -2,7 +2,7 @@ const httpContext = require('express-http-context');
 const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
-const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, PayloadTooLargeError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -169,14 +169,19 @@ class CreateOperation {
                 resourceObj: resource
             });
         }
-        if (validationOperationOutcome) {
+        // Oversized AuditEvents are rejected with 413 (payload too large) once
+        // schema validation passes, rather than a generic 400 validation error.
+        const sizeOperationOutcome = validationOperationOutcome
+            ? null
+            : this.resourceValidator.validateResourceSizeSync({ resource: resource_incoming, resourceType });
+        if (validationOperationOutcome || sizeOperationOutcome) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: [{
                     id: resource.id,
                     uuid: resource.id,
                     sourceAssigningAuthority: resource._sourceAssigningAuthority,
                     resourceType: resource.resourceType,
-                    operationOutcome: validationOperationOutcome,
+                    operationOutcome: validationOperationOutcome || sizeOperationOutcome,
                     created: false,
                     updated: false
                 }]
@@ -185,16 +190,18 @@ class CreateOperation {
             /**
              * @type {Error}
              */
-            const notValidatedError = new NotValidatedError(validationOperationOutcome);
+            const validationError = sizeOperationOutcome
+                ? new PayloadTooLargeError(new Error('Payload size too large.'))
+                : new NotValidatedError(validationOperationOutcome);
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName,
-                error: notValidatedError
+                error: validationError
             });
-            throw notValidatedError;
+            throw validationError;
         }
 
         resource = await this.databaseAttachmentManager.transformAttachments(resource);

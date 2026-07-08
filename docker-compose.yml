@@ -114,6 +114,7 @@ services:
       CLICKHOUSE_ONLY_RESOURCES: 'AuditEvent'
       ENABLE_ACCESS_LOGS_CLICKHOUSE: '1'
       ENABLE_ACCESS_LOGS_MONGODB: '0'
+      AUDIT_EVENT_MAX_SIZE_BYTES: '1048576'
     ports:
       - '3000:3000'
     volumes:
