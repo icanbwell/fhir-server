@@ -46,6 +46,11 @@ module.exports = {
         JSON_EACH_ROW: 'JSONEachRow'
     },
 
+    // Rolling window (in days) covered by the $access-history operation.
+    // Shared between the ClickHouse aggregation query and the summary section
+    // of the Parameters response so the two never drift apart.
+    ACCESS_HISTORY_WINDOW_DAYS: 90,
+
     // DateTime conversion patterns
     DATETIME_CONVERSION: {
         // ISO 8601 to ClickHouse DateTime64 format
