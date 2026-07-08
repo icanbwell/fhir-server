@@ -50,6 +50,16 @@ class S3NdjsonReader {
         if (!Number.isFinite(fileSize) || fileSize <= 0) {
             throw new Error(`Invalid fileSize ${fileSize} for "${filepath}"`);
         }
+        
+        const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
+        if (!allowedBuckets.length) {
+            throw new Error('Bulk import S3 bucket allowlist is not configured');
+        }
+        
+        const { bucket } = this.parseS3Uri(filepath);
+        if (!allowedBuckets.includes(bucket)) {
+            throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
+        }
         if (!Number.isFinite(byteRangeStart) || byteRangeStart < 0) {
             throw new Error(`Invalid byteRangeStart ${byteRangeStart} for "${filepath}"`);
         }
