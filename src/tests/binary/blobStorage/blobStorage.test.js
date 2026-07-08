@@ -660,6 +660,8 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(docV1._blobMeta.rawReference).toBe(uuid);
         const v1Stamp = docV1._blobMeta.lastUpdated;
         expect(v1Stamp).toBeDefined();
+        // Stored as a BSON Date in Mongo, matching meta.lastUpdated.
+        expect(v1Stamp).toBeInstanceOf(Date);
         const histKeysV1 = historyKeysFor(historyClient, uuid);
         expect(histKeysV1.length).toBe(1);
         const v1HistoryKey = histKeysV1[0];
@@ -679,7 +681,7 @@ describe('Binary base64 S3 offload — write paths', () => {
 
         // Current doc carried the same content stamp forward (chain discriminator unchanged).
         const docV2 = await readBinaryFromMongo(container, id);
-        expect(docV2._blobMeta.lastUpdated).toBe(v1Stamp);
+        expect(docV2._blobMeta.lastUpdated).toEqual(v1Stamp);
         expect(docV2._blobMeta.rawReference).toBe(uuid);
         expect(docV2.contentType).toBe('application/xml');
 
@@ -689,7 +691,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2']);
         for (const snap of snapshots) {
             expect(snap._blobMeta.rawReference).toBe(uuid);
-            expect(snap._blobMeta.lastUpdated).toBe(v1Stamp);
+            expect(snap._blobMeta.lastUpdated).toEqual(v1Stamp);
             expect(snap.data).toBeUndefined();
         }
     });
@@ -725,15 +727,15 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(liveClient.uploadedData[`Binary_4_0_0/${uuid}`]).toBe(ALT_LARGE_DATA);
 
         const docV2 = await readBinaryFromMongo(container, id);
-        expect(docV2._blobMeta.lastUpdated).not.toBe(v1Stamp);
+        expect(docV2._blobMeta.lastUpdated).not.toEqual(v1Stamp);
 
         // History collection: two snapshots, each pinned to its own content object
         // (distinct lastUpdated stamps), neither carrying inline data.
         const snapshots = await historySnapshotsFor(container, uuid);
         expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2']);
-        expect(snapshots[0]._blobMeta.lastUpdated).toBe(v1Stamp);
-        expect(snapshots[1]._blobMeta.lastUpdated).toBe(docV2._blobMeta.lastUpdated);
-        expect(snapshots[0]._blobMeta.lastUpdated).not.toBe(snapshots[1]._blobMeta.lastUpdated);
+        expect(snapshots[0]._blobMeta.lastUpdated).toEqual(v1Stamp);
+        expect(snapshots[1]._blobMeta.lastUpdated).toEqual(docV2._blobMeta.lastUpdated);
+        expect(snapshots[0]._blobMeta.lastUpdated).not.toEqual(snapshots[1]._blobMeta.lastUpdated);
         for (const snap of snapshots) {
             expect(snap.data).toBeUndefined();
         }
@@ -801,13 +803,13 @@ describe('Binary base64 S3 offload — write paths', () => {
         // Still exactly one history object, stamp never advanced.
         expect(historyKeysFor(historyClient, uuid).length).toBe(1);
         const docFinal = await readBinaryFromMongo(container, id);
-        expect(docFinal._blobMeta.lastUpdated).toBe(v1Stamp);
+        expect(docFinal._blobMeta.lastUpdated).toEqual(v1Stamp);
 
         // Three history snapshots (v1..v3), all pinned to the same reused history object.
         const snapshots = await historySnapshotsFor(container, uuid);
         expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2', '3']);
         for (const snap of snapshots) {
-            expect(snap._blobMeta.lastUpdated).toBe(v1Stamp);
+            expect(snap._blobMeta.lastUpdated).toEqual(v1Stamp);
             expect(snap._blobMeta.rawReference).toBe(uuid);
         }
     });

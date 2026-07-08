@@ -262,7 +262,7 @@ class Base64DataManager {
                 // internal content discriminator, so exact equality with meta.lastUpdated is
                 // not required — only stability across unchanged updates (carried forward).
                 const newStamp = this._normalizeStamp(resource.meta && resource.meta.lastUpdated)
-                    || new Date().toISOString();
+                    || new Date();
                 const stamp = unchanged ? (currentData.lastUpdated || newStamp) : newStamp;
 
                 const liveKey = this._buildLiveKey(resource.resourceType, resource._uuid, dataSegments, indices);
@@ -711,13 +711,14 @@ class Base64DataManager {
     }
 
     /**
-     * Normalize a version timestamp (Date or ISO string) into an ISO string for storage
-     * in `_blobMeta.lastUpdated`. Returns undefined when the value is missing/unparseable.
+     * Normalize a version timestamp (Date or ISO string) into a Date for storage in
+     * `_blobMeta.lastUpdated`. Stored as a BSON Date in Mongo to match `meta.lastUpdated`'s
+     * on-disk representation. Returns undefined when the value is missing/unparseable.
      * @private
      */
     _normalizeStamp (value) {
         const ms = this._toEpochMs(value);
-        return ms === null ? undefined : new Date(ms).toISOString();
+        return ms === null ? undefined : new Date(ms);
     }
 
     /**

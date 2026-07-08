@@ -10,7 +10,7 @@ class BlobMeta {
     /**
      * @param {string|undefined} [rawReference]
      * @param {number|undefined} [rawSize]
-     * @param {string|undefined} [lastUpdated]
+     * @param {Date|undefined} [lastUpdated]
      */
     constructor (
         {
@@ -59,12 +59,13 @@ class BlobMeta {
         });
 
         /**
-         * @description Version timestamp (ISO string) of the version where the current
-         *              content was first stored. Combined with `rawReference` it forms the
-         *              history bucket key `<rawReference>/<epoch ms>`. Distinct from
-         *              `meta.lastUpdated` (which advances on every version) — this only
-         *              advances when the offloaded content itself changes.
-         * @property {string|undefined}
+         * @description Version timestamp of the version where the current content was first
+         *              stored. Stored as a BSON Date in Mongo (matching `meta.lastUpdated`).
+         *              Combined with `rawReference` it forms the history bucket key
+         *              `<rawReference>/<epoch ms>`. Distinct from `meta.lastUpdated` (which
+         *              advances on every version) — this only advances when the offloaded
+         *              content itself changes.
+         * @property {Date|undefined}
          */
         Object.defineProperty(this, 'lastUpdated', {
             enumerable: true,
