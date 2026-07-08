@@ -1263,6 +1263,15 @@ class ConfigManager {
     }
 
     /**
+     * Maximum line size in MB for bulk import NDJSON files
+     * @return {number}
+     */
+    get bulkImportMaxLineSizeMb() {
+        const parsed = parseInt(env.BULK_IMPORT_MAX_LINE_SIZE_MB, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 16;
+    }
+
+    /**
      * Kafka topic for bulk import task-created notifications
      * @return {string}
      */

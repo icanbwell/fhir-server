@@ -30,6 +30,10 @@ class S3NdjsonReader {
 
     /**
      * Streams an S3 object (or byte range) and yields parsed NDJSON lines.
+     * Assumes LF (\n) line terminators — byte accounting uses +1 per line.
+     * Input files are produced by Spark's .write.text() which always uses LF.
+     * CRLF files would miscount bytes and corrupt range boundaries.
+     *
      * When reading a byte range that is not the start of the file, the first
      * partial line is skipped (the previous range owns it). When reading a
      * range that is not the end of the file, one extra line past the boundary
@@ -56,7 +60,7 @@ class S3NdjsonReader {
         const { bucket, key } = this.parseS3Uri(filepath);
         const region = this.configManager.awsRegion || 'us-east-1';
         const s3 = new S3({ region });
-        const maxLineSizeBytes = (this.configManager.bulkImportMaxLineSizeMb || 16) * 1024 * 1024;
+        const maxLineSizeBytes = this.configManager.bulkImportMaxLineSizeMb * 1024 * 1024;
         const isFirstRange = byteRangeStart === 0;
         const isLastRange = byteRangeEnd >= fileSize;
 
@@ -107,7 +111,7 @@ class S3NdjsonReader {
             if (Buffer.byteLength(line, 'utf8') > maxLineSizeBytes) {
                 throw new Error(
                     `Line ${lineNumber} in "${filepath}" exceeds maximum size of ` +
-                    `${this.configManager.bulkImportMaxLineSizeMb || 16} MB`
+                    `${this.configManager.bulkImportMaxLineSizeMb} MB`
                 );
             }
 
