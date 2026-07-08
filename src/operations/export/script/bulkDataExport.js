@@ -63,6 +63,7 @@ async function main() {
                 searchManager: c.searchManager,
                 postSaveProcessor: c.postSaveProcessor,
                 bulkExportEventProducer: c.bulkExportEventProducer,
+                storageProviderFactory: c.storageProviderFactory,
                 exportStatusId,
                 patientReferenceBatchSize,
                 fetchResourceBatchSize,
