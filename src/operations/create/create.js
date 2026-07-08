@@ -169,25 +169,28 @@ class CreateOperation {
                 resourceObj: resource
             });
         }
-        if (validationOperationOutcome) {
+        // Oversized AuditEvents are rejected with 413 (payload too large) once
+        // schema validation passes, rather than a generic 400 validation error.
+        const sizeOperationOutcome = validationOperationOutcome
+            ? null
+            : this.resourceValidator.validateResourceSizeSync({ resource: resource_incoming, resourceType });
+        if (validationOperationOutcome || sizeOperationOutcome) {
             httpContext.set(ACCESS_LOGS_ENTRY_DATA, {
                 operationResult: [{
                     id: resource.id,
                     uuid: resource.id,
                     sourceAssigningAuthority: resource._sourceAssigningAuthority,
                     resourceType: resource.resourceType,
-                    operationOutcome: validationOperationOutcome,
+                    operationOutcome: validationOperationOutcome || sizeOperationOutcome,
                     created: false,
                     updated: false
                 }]
             });
             // noinspection JSValidateTypes
             /**
-             * A too-long issue is a payload-size rejection (HTTP 413); everything
-             * else is a normal validation failure (HTTP 400).
              * @type {Error}
              */
-            const validationError = validationOperationOutcome.issue?.some((i) => i.code === 'too-long')
+            const validationError = sizeOperationOutcome
                 ? new PayloadTooLargeError(new Error('Payload size too large.'))
                 : new NotValidatedError(validationOperationOutcome);
             await this.fhirLoggingManager.logOperationFailureAsync({

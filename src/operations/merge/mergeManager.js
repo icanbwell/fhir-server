@@ -263,6 +263,16 @@ class MergeManager {
             return validationOperationOutcome;
         }
 
+        // Reject oversized AuditEvents (bounds document size / avoids write-path
+        // memory pressure) as a per-resource merge error.
+        const sizeOperationOutcome = this.resourceValidator.validateResourceSizeSync({
+            resource: resourceToMerge,
+            resourceType: resourceToMerge.resourceType
+        });
+        if (sizeOperationOutcome) {
+            return sizeOperationOutcome;
+        }
+
         await this.performMergeDbInsertAsync({
             base_version,
             requestInfo,

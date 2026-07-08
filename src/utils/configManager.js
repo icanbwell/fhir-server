@@ -597,8 +597,9 @@ class ConfigManager {
 
     /**
      * maximum serialized size (in bytes) allowed for a single inbound AuditEvent.
-     * Oversized AuditEvents are rejected, since large docs stall the ClickHouse
-     * write path. Defaults to 16 MiB when AUDIT_EVENT_MAX_SIZE_BYTES is not set.
+     * Oversized AuditEvents are rejected to bound document size and avoid
+     * write-path memory pressure. Defaults to 16 MiB when
+     * AUDIT_EVENT_MAX_SIZE_BYTES is not set.
      * @returns {number}
      */
     get auditEventMaxSizeBytes() {
