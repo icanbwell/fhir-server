@@ -135,7 +135,10 @@ class BulkImportOrchestratorRunner {
                 throw new Error(`S3 HEAD for "${input.url}" returned no ContentLength`);
             }
 
-            if (fileSize < minBytes) {
+            if (fileSize <= 0) {
+                throw new Error(`File "${input.url}" is empty (0 bytes)`);
+            }
+            if (minBytes > 0 && fileSize < minBytes) {
                 throw new Error(
                     `File "${input.url}" is ${(fileSize / (1024 * 1024)).toFixed(1)} MB, ` +
                     `below the minimum of ${this.configManager.bulkImportMinFileSizeMb} MB`

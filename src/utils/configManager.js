@@ -1250,7 +1250,7 @@ class ConfigManager {
      */
     get bulkImportMinFileSizeMb() {
         const parsed = parseInt(env.BULK_IMPORT_MIN_FILE_SIZE_MB, 10);
-        return Number.isFinite(parsed) && parsed > 0 ? parsed : 50;
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
     }
 
     /**
