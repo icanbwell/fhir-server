@@ -124,7 +124,8 @@
         "username": "${MY_DELEGATED_ACCESS_USER_TOKEN_USERNAME}",
         "act.reference": "${DELEGATED_ACT_REFERENCE}",
         "act.sub": "${DELEGATED_ACT_SUB}",
-        "managingOrganization": "${DELEGATED_MANAGING_ORGANIZATION}"
+        "managingOrganization": "${DELEGATED_MANAGING_ORGANIZATION}",
+        "entitlements": "${DELEGATED_ACCESS_USER_ENTITLEMENT}"
       }
     },
     {
