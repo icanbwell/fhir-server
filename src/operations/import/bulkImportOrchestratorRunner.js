@@ -176,35 +176,49 @@ class BulkImportOrchestratorRunner {
 
         const { taskId, inputs, requestId, scope, user } = eventData;
 
-        logInfo('Orchestrator received TaskCreated event', { taskId, inputCount: inputs.length });
-
-        const task = await this.loadTaskAsync(taskId);
-        if (!task) {
-            logError('Task not found for orchestrator message', { taskId });
-            return;
-        }
-
-        let inputsWithSizes;
-        try {
-            inputsWithSizes = await this.headS3FilesAsync(inputs);
-        } catch (e) {
-            logError('S3 validation failed for import task', { taskId, error: e.message });
-            await this.updateTaskStatusAsync(task, 'failed', e.message);
-            return;
-        }
-
-        const messageCount = await this.bulkImportEventProducer.publishImportEventsAsync({
+        logInfo('Orchestrator received TaskCreated event', {
             taskId,
-            inputs: inputsWithSizes,
+            inputCount: inputs.length,
+            inputs,
             requestId,
             scope,
             user
         });
 
-        logInfo('Orchestrator published byte-range messages', {
-            taskId,
-            messageCount
-        });
+        // TODO: S3 HEAD validation and byte-range splitting will be added in a follow-up PR.
+        // The orchestrator will:
+        // 1. Load the Task resource
+        // 2. HEAD each S3 file to get sizes and validate
+        // 3. Split files into byte ranges
+        // 4. Publish ImportRangeRequested events for each range
+        //
+        // const task = await this.loadTaskAsync(taskId);
+        // if (!task) {
+        //     logError('Task not found for orchestrator message', { taskId });
+        //     return;
+        // }
+        //
+        // let inputsWithSizes;
+        // try {
+        //     inputsWithSizes = await this.headS3FilesAsync(inputs);
+        // } catch (e) {
+        //     logError('S3 validation failed for import task', { taskId, error: e.message });
+        //     await this.updateTaskStatusAsync(task, 'failed', e.message);
+        //     return;
+        // }
+        //
+        // const messageCount = await this.bulkImportEventProducer.publishImportEventsAsync({
+        //     taskId,
+        //     inputs: inputsWithSizes,
+        //     requestId,
+        //     scope,
+        //     user
+        // });
+        //
+        // logInfo('Orchestrator published byte-range messages', {
+        //     taskId,
+        //     messageCount
+        // });
     }
 }
 
