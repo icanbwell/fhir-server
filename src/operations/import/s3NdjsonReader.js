@@ -30,6 +30,7 @@ class S3NdjsonReader {
 
     /**
      * Streams an S3 object (or byte range) and yields parsed NDJSON lines.
+     * Validates the bucket against the configured allow-list to prevent SSRF.
      * Assumes LF (\n) line terminators — byte accounting uses +1 per line.
      * Input files are produced by Spark's .write.text() which always uses LF.
      * CRLF files would miscount bytes and corrupt range boundaries.
@@ -50,16 +51,6 @@ class S3NdjsonReader {
         if (!Number.isFinite(fileSize) || fileSize <= 0) {
             throw new Error(`Invalid fileSize ${fileSize} for "${filepath}"`);
         }
-        
-        const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
-        if (!allowedBuckets.length) {
-            throw new Error('Bulk import S3 bucket allowlist is not configured');
-        }
-        
-        const { bucket } = this.parseS3Uri(filepath);
-        if (!allowedBuckets.includes(bucket)) {
-            throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
-        }
         if (!Number.isFinite(byteRangeStart) || byteRangeStart < 0) {
             throw new Error(`Invalid byteRangeStart ${byteRangeStart} for "${filepath}"`);
         }
@@ -68,6 +59,15 @@ class S3NdjsonReader {
         }
 
         const { bucket, key } = this.parseS3Uri(filepath);
+
+        const allowedBuckets = this.configManager.bulkImportAllowedS3Buckets;
+        if (!allowedBuckets.length) {
+            throw new Error('Bulk import S3 bucket allowlist is not configured');
+        }
+        if (!allowedBuckets.includes(bucket)) {
+            throw new Error(`S3 bucket "${bucket}" is not in the allowed list`);
+        }
+
         const region = this.configManager.awsRegion || 'us-east-1';
         const s3 = new S3({ region });
         const maxLineSizeBytes = this.configManager.bulkImportMaxLineSizeMb * 1024 * 1024;
