@@ -27,6 +27,11 @@ const LARGE_DATA = 'A'.repeat(80 * 1024);
 const SMALL_DATA = 'B'.repeat(1024);
 // 70 KB replacement payload — also above threshold, used to test PUT-overwriting an externalized Binary.
 const ALT_LARGE_DATA = 'C'.repeat(70 * 1024);
+// Short, valid base64 stand-in swapped over the real `data` before a whole-resource
+// toHaveResponse comparison. The matcher walks the `data` string char-by-char and
+// FHIR-validates the body, which is pathologically slow on an 80 KB payload; the real
+// content is asserted separately with a direct string compare.
+const DATA_PLACEHOLDER = 'AAAA';
 
 /**
  * Build a Binary resource fixture with deterministic id + access tag so we can identify it in Mongo.
@@ -40,6 +45,28 @@ const buildBinary = ({ id, data }) => ({
             { system: 'https://www.icanbwell.com/owner', code: 'test' },
             { system: 'https://www.icanbwell.com/access', code: 'test' },
             { system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'test' }
+        ]
+    },
+    contentType: 'application/pdf',
+    data
+});
+
+/**
+ * Whole-resource shape the server returns for a Binary created by `buildBinary` above.
+ * `id` is injected per-test (server-generated on POST); `meta.lastUpdated` is stripped by
+ * the toHaveResponse matcher. The `meta.security` tag ids are the deterministic UUIDv5
+ * values preSave derives from system|code, so they are stable across runs.
+ */
+const buildExpectedBinary = ({ id, data, versionId = '1' }) => ({
+    resourceType: 'Binary',
+    id,
+    meta: {
+        versionId,
+        source: 'https://test.example.com/source',
+        security: [
+            { id: '393b248d-39c0-5a90-8833-2ba9ad8e78fc', system: 'https://www.icanbwell.com/owner', code: 'test' },
+            { id: 'ef7e6bf0-3950-5433-b871-0fc6a7e1573e', system: 'https://www.icanbwell.com/access', code: 'test' },
+            { id: '48850590-7eb6-51cd-8556-5c574aad2782', system: 'https://www.icanbwell.com/sourceAssigningAuthority', code: 'test' }
         ]
     },
     contentType: 'application/pdf',
@@ -928,6 +955,55 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2', '3']);
         for (const snap of snapshots) {
             expect(snap._blobMeta.lastUpdated).toEqual(v1Stamp);
+        }
+    });
+
+    test('POST create with data above threshold offloads to S3 and returns hydrated resource', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+
+        // POST (unlike PUT) assigns a server-generated UUID as the id.
+        const createResp = await request
+            .post('/4_0_0/Binary')
+            .send(buildBinary({ data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+
+        const createdId = createResp.body.id;
+
+        // Mongo doc is offloaded: no inline data, _blobMeta sidecar present, payload in live bucket.
+        const mongoDoc = await readBinaryFromMongo(container, createdId);
+        expect(mongoDoc).toBeDefined();
+        expect(mongoDoc.data).toBeUndefined();
+        expect(mongoDoc._blobMeta).toBeDefined();
+        expect(mongoDoc._blobMeta.rawReference).toBe(mongoDoc._uuid);
+        expect(mongoDoc._blobMeta.rawSize).toBe(80);
+        const liveKey = `Binary_4_0_0/${mongoDoc._uuid}`;
+        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+        // Response carries the hydrated inline data (asserted directly) and no _blobMeta sidecar.
+        expect(createResp.body.data).toBe(LARGE_DATA);
+        // Whole-resource verification of the rest of the shape (data swapped for the placeholder
+        // on both sides to keep the matcher fast — see DATA_PLACEHOLDER).
+        createResp.body.data = DATA_PLACEHOLDER;
+        expect(createResp).toHaveResponse(buildExpectedBinary({ id: createdId, data: DATA_PLACEHOLDER }));
+
+        // Cold read on a fresh request scope (stash cleared by drainPostRequest) must hit S3
+        // to hydrate — verify the same again and that a download actually ran.
+        await drainPostRequest(container);
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const getResp = await request
+                .get(`/4_0_0/Binary/${createdId}`)
+                .set(getHeaders())
+                .expect(200);
+            expect(getResp.body.data).toBe(LARGE_DATA);
+            getResp.body.data = DATA_PLACEHOLDER;
+            expect(getResp).toHaveResponse(buildExpectedBinary({ id: createdId, data: DATA_PLACEHOLDER }));
+            expect(downloadSpy).toHaveBeenCalledWith(liveKey);
+        } finally {
+            downloadSpy.mockRestore();
         }
     });
 });
