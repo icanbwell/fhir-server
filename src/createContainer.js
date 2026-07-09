@@ -119,6 +119,7 @@ const {ImportOperation} = require('./operations/import/import');
 const {BulkImportEventProducer} = require('./operations/import/bulkImportEventProducer');
 const {BulkImportConsumerRunner} = require('./operations/import/bulkImportConsumerRunner');
 const {BulkImportOrchestratorRunner} = require('./operations/import/bulkImportOrchestratorRunner');
+const {S3NdjsonReader} = require('./operations/import/s3NdjsonReader');
 const {KafkaClientV2} = require('./utils/kafkaClientV2');
 const {DummyKafkaClientV2} = require('./utils/dummyKafkaClientV2');
 const {S3Client} = require('./utils/s3Client');
@@ -1181,17 +1182,23 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
+    container.register('s3NdjsonReader', (c) => new S3NdjsonReader({
+        configManager: c.configManager
+    }));
+
     container.register('bulkImportConsumerRunner', (c) => new BulkImportConsumerRunner({
         configManager: c.configManager,
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory
+        databaseUpdateFactory: c.databaseUpdateFactory,
+        s3NdjsonReader: c.s3NdjsonReader
     }));
 
     container.register('bulkImportOrchestratorRunner', (c) => new BulkImportOrchestratorRunner({
         configManager: c.configManager,
         kafkaClientV2: c.kafkaClientV2,
         bulkImportEventProducer: c.bulkImportEventProducer,
-        databaseQueryFactory: c.databaseQueryFactory
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseUpdateFactory: c.databaseUpdateFactory
     }));
 
     container.register('importOperation', (c) => new ImportOperation({

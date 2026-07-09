@@ -257,6 +257,31 @@ class ImportOperation {
     }
 
     /**
+     * @param {string} taskId
+     * @param {string} reason
+     * @returns {Promise<void>}
+     */
+    async markTaskFailedAsync(taskId, reason) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+        const task = await databaseQueryManager.findOneAsync({ query: { id: taskId } });
+        if (!task) {
+            return;
+        }
+        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+        const updated = task.clone();
+        updated.status = 'failed';
+        updated.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
+        updated.statusReason = { text: reason };
+        await databaseUpdateManager.updateOneAsync({ doc: updated });
+    }
+
+    /**
      * @typedef {Object} ImportAsyncParams
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @property {Object} args
@@ -307,13 +332,21 @@ class ImportOperation {
                     }
                 };
 
-                await this.kafkaClientV2.sendCloudEventMessageAsync({
-                    topic: this.configManager.kafkaBulkImportTaskCreatedTopic,
-                    messages: [{
-                        key: importJobId,
-                        value: JSON.stringify(taskCreatedEvent)
-                    }]
-                });
+                try {
+                    await this.kafkaClientV2.sendCloudEventMessageAsync({
+                        topic: this.configManager.kafkaBulkImportTaskCreatedTopic,
+                        messages: [{
+                            key: importJobId,
+                            value: JSON.stringify(taskCreatedEvent)
+                        }]
+                    });
+                } catch (kafkaError) {
+                    logError('Kafka publish failed after Task was committed; marking Task as failed', {
+                        importJobId, requestId, error: kafkaError.message
+                    });
+                    await this.markTaskFailedAsync(importJobId, kafkaError.message);
+                    throw kafkaError;
+                }
             }
 
             // Task is committed — logging and audit are best-effort so a

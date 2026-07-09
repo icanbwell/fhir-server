@@ -72,6 +72,7 @@ class BulkImportEventProducer {
                     data: {
                         taskId,
                         filepath: input.url,
+                        fileSize: input.fileSize,
                         byteRangeStart: range.start,
                         byteRangeEnd: range.end,
                         rangeIndex,
