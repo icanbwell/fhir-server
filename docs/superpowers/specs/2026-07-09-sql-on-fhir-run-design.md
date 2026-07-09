@@ -51,6 +51,30 @@ over large stored result sets without buffering.
 
 ## 4. Architecture
 
+### 4.0 Execution model (read this first)
+
+There is **no input SQL** and **no query pushdown**. The input is a `ViewDefinition`
+(declarative JSON whose columns/filters are FHIRPath). Execution is:
+
+1. **Fetch resources** — for the stored case, query MongoDB for the target
+   `resourceType` via a **secured streaming cursor** (same auth/query-rewriter path
+   as `$search`; see §7). For the inline case, iterate the resources in the request.
+   Either way, resources are consumed one at a time — the collection is never fully
+   loaded.
+2. **Evaluate in-process** — for each resource, apply the ViewDefinition's FHIRPath
+   `where`/`column`/`forEach`/`unionAll` in Node to produce rows. This is medplum's
+   `evalSqlOnFhir` algorithm (`packages/core/src/sql-on-fhir/eval.ts`), ported
+   here but made **streaming** (`AsyncIterable<Row>`) instead of materializing the
+   whole `OutputRow[]` table in memory.
+3. **Write out** — each row is written straight to the NDJSON/CSV response stream.
+
+We do **not** translate the ViewDefinition into a Mongo aggregation. FHIRPath is far
+more expressive than Mongo aggregation maps cleanly onto, and every reference
+implementation (medplum, Aidbox, Pathling) evaluates FHIRPath in-process. Memory
+stays bounded at roughly one resource + its rows. Any future Mongo-side pushdown
+would be a niche optimization layered behind the source seam, never a replacement
+for the in-process engine.
+
 ### 4.1 Request flow
 
 ```
