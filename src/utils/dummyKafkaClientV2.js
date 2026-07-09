@@ -25,6 +25,11 @@ class DummyKafkaClientV2 extends KafkaClientV2 {
     async removeConsumerAsync({ consumer }) {
         // no-op when v2 Kafka is disabled
     }
+
+    createAdminClient() {
+        // no-op when v2 Kafka is disabled
+        return null;
+    }
 }
 
 module.exports = { DummyKafkaClientV2 };

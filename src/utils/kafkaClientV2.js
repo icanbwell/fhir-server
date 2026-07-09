@@ -274,6 +274,15 @@ class KafkaClientV2 {
     async createConsumerAsync({ groupId }) {
         return this.client.consumer({ groupId });
     }
+
+    /**
+     * Creates a Kafka admin client that reuses this client's broker/auth
+     * configuration. Caller is responsible for connect()/disconnect().
+     * @returns {import('kafkajs').Admin}
+     */
+    createAdminClient() {
+        return this.client.admin();
+    }
 }
 
 module.exports = { KafkaClientV2 };
