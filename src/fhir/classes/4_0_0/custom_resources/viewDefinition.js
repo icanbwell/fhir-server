@@ -361,7 +361,7 @@ class ViewDefinition extends Resource {
     toJSON() {
         const { removeNull } = require('../../../../utils/nullRemover.js');
 
-        return removeNull({
+        const json = removeNull({
             id: this.id,
             resourceType: this.resourceType,
             meta: this.meta && this.meta.toJSON(),
@@ -369,11 +369,23 @@ class ViewDefinition extends Resource {
             name: this.name,
             title: this.title,
             status: this.status,
-            resource: this.resource,
-            constant: this.constant,
-            select: this.select,
-            where: this.where
+            resource: this.resource
         });
+
+        // constant/select/where are opaque FHIRPath pass-through payloads (the same
+        // object references held by the caller/validator/FHIRPath engine). Attach them
+        // as-is instead of running them through the mutating removeNull().
+        if (this.constant !== undefined) {
+            json.constant = this.constant;
+        }
+        if (this.select !== undefined) {
+            json.select = this.select;
+        }
+        if (this.where !== undefined) {
+            json.where = this.where;
+        }
+
+        return json;
     }
 
     /**
