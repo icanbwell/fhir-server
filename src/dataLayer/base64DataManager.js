@@ -109,6 +109,72 @@ class Base64DataManager {
     }
 
     /**
+     * Whether this request changed the base64 payload of any configured leaf on `resource`
+     * (i.e. INSERT stashed `changed: true`). Used by the concurrency-retry path to force a
+     * write through when the merge diff can't see the change — the externalized `_blobMeta`
+     * sidecar is stripped by normalization, so a payload-only update otherwise collapses to a
+     * no-op and the loser's write is silently dropped.
+     *
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @returns {boolean}
+     */
+    hasChangedContent (resource, requestInfo) {
+        if (!resource || !this.enableBase64FieldCloudStorage) {
+            return false;
+        }
+        const entries = this.resourcePaths[resource.resourceType];
+        if (!entries) {
+            return false;
+        }
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            let changed = false;
+            // _walk is async, but our visitor is synchronous; collect the result via a flag.
+            this._walkSync(resource, dataSegments, [], ({ parent, indices }) => {
+                if (!parent[blobMetaLeaf]) {
+                    return;
+                }
+                const stashed = this._readStashedOriginalData(requestInfo, resource._uuid, dataSegments, indices);
+                if (stashed && stashed.changed) {
+                    changed = true;
+                }
+            });
+            if (changed) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Synchronous variant of `_walk` for synchronous visitors.
+     * @private
+     */
+    _walkSync (node, segments, indices, visitor) {
+        if (node === null || node === undefined || segments.length === 0) {
+            return;
+        }
+        const [head, ...rest] = segments;
+        if (head === '[]') {
+            if (!Array.isArray(node)) {
+                return;
+            }
+            for (let i = 0; i < node.length; i++) {
+                this._walkSync(node[i], rest, indices.concat(i), visitor);
+            }
+            return;
+        }
+        if (rest.length === 0) {
+            visitor({ parent: node, key: head, value: node[head], indices });
+            return;
+        }
+        this._walkSync(node[head], rest, indices, visitor);
+    }
+
+    /**
      * Re-upload this request's changed base64 payloads to their live keys. Called from the
      * concurrency-retry loop (before each `replaceOne`) so that, under parallel writes to the
      * same resource on a shared deterministic key, the winning commit's bytes are the ones on

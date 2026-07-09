@@ -680,6 +680,109 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
     });
 
+    test('payload-only concurrent update is forced through on retry (not silently dropped)', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const b64 = container.base64DataManager;
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-payload-only';
+
+        // Seed v1 with a payload.
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const dbDoc = await readBinaryFromMongo(container, id);
+        const uuid = dbDoc._uuid;
+        const liveKey = `Binary_4_0_0/${uuid}`;
+
+        // Build the retry input: an externalized write that changes ONLY the base64 payload
+        // (same contentType/meta) — the case where the FHIR diff can't see the change.
+        const requestInfo = getTestRequestInfo({ requestId: 'payload-only-req' });
+        const incoming = { ...dbDoc, data: ALT_LARGE_DATA };
+        delete incoming._id;
+        await b64.transformAsync(incoming, BLOB_OP.INSERT, requestInfo); // externalize: S3[U]=ALT, stash changed:true
+        expect(incoming.data).toBeUndefined();
+        expect(incoming._blobMeta).toBeDefined();
+
+        const updateManager = container.databaseUpdateFactory.createFastDatabaseUpdateManager({
+            resourceType: 'Binary',
+            base_version: '4_0_0'
+        });
+        const { savedResource } = await updateManager.replaceOneAsync({
+            base_version: '4_0_0',
+            requestInfo,
+            doc: incoming
+        });
+
+        // Must NOT be dropped: forced through as a new version, with the payload committed.
+        expect(savedResource).not.toBeNull();
+        expect(savedResource).toBeDefined();
+        expect(savedResource.meta.versionId).toBe('2');
+        expect(savedResource._blobMeta.rawReference).toBe(uuid);
+        expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
+
+        const finalDoc = await readBinaryFromMongo(container, id);
+        expect(finalDoc.meta.versionId).toBe('2');
+        expect(finalDoc._blobMeta).toBeDefined();
+    });
+
+    test('payload-only concurrent update is forced through on the PUT (non-fast) retry path', async () => {
+        const Binary = require('../../../fhir/classes/4_0_0/resources/binary');
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const b64 = container.base64DataManager;
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-payload-only-put';
+
+        // Seed v1 with a payload.
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const dbDoc = await readBinaryFromMongo(container, id);
+        const uuid = dbDoc._uuid;
+        const liveKey = `Binary_4_0_0/${uuid}`;
+
+        // Build a class-instance incoming write (as the PUT path uses) that changes ONLY the
+        // payload; externalize it so it mirrors the doc reaching DatabaseUpdateManager on retry.
+        const requestInfo = getTestRequestInfo({ requestId: 'payload-only-put-req' });
+        const plain = { ...dbDoc, data: ALT_LARGE_DATA };
+        delete plain._id;
+        delete plain._blobMeta; // a fresh inline write carries no sidecar
+        const incoming = new Binary(plain);
+        await b64.transformAsync(incoming, BLOB_OP.INSERT, requestInfo);
+        expect(incoming.data).toBeUndefined();
+        expect(incoming._blobMeta).toBeDefined();
+
+        const updateManager = container.databaseUpdateFactory.createDatabaseUpdateManager({
+            resourceType: 'Binary',
+            base_version: '4_0_0'
+        });
+        const { savedResource } = await updateManager.replaceOneAsync({
+            base_version: '4_0_0',
+            requestInfo,
+            doc: incoming
+        });
+
+        // Must NOT be dropped: forced through as a new version, with the payload committed.
+        expect(savedResource).not.toBeNull();
+        expect(savedResource).toBeDefined();
+        expect(savedResource.meta.versionId).toBe('2');
+        expect(savedResource._blobMeta.rawReference).toBe(uuid);
+        expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
+
+        const finalDoc = await readBinaryFromMongo(container, id);
+        expect(finalDoc.meta.versionId).toBe('2');
+        expect(finalDoc._blobMeta).toBeDefined();
+    });
+
     test('unchanged-data update reuses the history object and refreshes its TTL', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();

@@ -210,7 +210,15 @@ class DatabaseUpdateManager {
                 }
             );
             if (!updatedResource) {
-                return { savedResource: null, patches: null }; // nothing to do
+                // The diff can't see an externalized base64 payload change (the `_blobMeta`
+                // sidecar is stripped during normalization), so a payload-only concurrent update
+                // would otherwise collapse to a no-op and be silently dropped. If this request
+                // did change the payload, force it through (last-writer-wins) rebased onto current.
+                updatedResource = this._forceBase64UpdateIfChanged(resourceInDatabase, doc, requestInfo);
+                if (!updatedResource) {
+                    return { savedResource: null, patches: null }; // nothing to do
+                }
+                patches = null;
             }
             doc = updatedResource;
             /**
@@ -277,6 +285,10 @@ class DatabaseUpdateManager {
                                 }
                             )
                         );
+                        if (!updatedResource) {
+                            // Payload-only change invisible to the diff — force it through (see above).
+                            updatedResource = this._forceBase64UpdateIfChanged(resourceInDatabase, doc, requestInfo);
+                        }
                         if (updatedResource) {
                             doc = updatedResource;
                         } else {
@@ -337,6 +349,31 @@ class DatabaseUpdateManager {
                 error: e
             });
         }
+    }
+
+    /**
+     * When a merge collapsed to a no-op but this request actually changed the base64 payload
+     * (an externalized change the diff can't see), force the incoming doc through as the next
+     * version — the incoming doc carries the new `_blobMeta`, and the retry loop re-uploads the
+     * bytes before committing, so the payload write wins (last-writer-wins) instead of being
+     * silently dropped. Returns the version-rebased doc, or null when there's nothing to force.
+     * @param {Resource} currentResource
+     * @param {Resource} doc - the incoming (externalized) doc
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @returns {Resource|null}
+     * @private
+     */
+    _forceBase64UpdateIfChanged (currentResource, doc, requestInfo) {
+        if (!this.base64DataManager || !this.base64DataManager.hasChangedContent(doc, requestInfo)) {
+            return null;
+        }
+        const forced = doc.clone();
+        return this.resourceMerger.updateMeta({
+            patched_resource_incoming: forced,
+            currentResource,
+            original_source: forced?.meta?.source,
+            incrementVersion: true
+        });
     }
 
     /**
