@@ -49,6 +49,33 @@ const KAFKA_RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const KAFKA_MAX_MESSAGE_BYTES = 2 * 1024 * 1024; // 2mb
 
 /**
+ * Parse an optional integer CLI flag. Returns the default when the flag is
+ * absent, but throws when it is present yet not a valid integer — so a typo
+ * like `--partitions 3x` fails loudly instead of silently parsing to 3 (as
+ * parseInt would) or falling through to the default. `min` guards domain
+ * constraints (e.g. Kafka requires at least 1 partition).
+ * @param {string|undefined} raw raw flag value from parseArgs
+ * @param {number} defaultValue value to use when the flag is omitted
+ * @param {string} flagName flag name for the error message (without dashes)
+ * @param {number} [min] minimum allowed value (inclusive)
+ * @returns {number}
+ */
+function parseIntArg(raw, defaultValue, flagName, min = Number.NEGATIVE_INFINITY) {
+    if (raw === undefined) {
+        return defaultValue;
+    }
+    const parsed = Number(raw);
+    if (!Number.isInteger(parsed) || parsed < min) {
+        throw new Error(
+            `Invalid --${flagName} "${raw}": expected an integer${
+                min > Number.NEGATIVE_INFINITY ? ` >= ${min}` : ''
+            }`
+        );
+    }
+    return parsed;
+}
+
+/**
  * Builds a connected admin client from a fresh KafkaClientV2.
  * Caller is responsible for calling disconnect() on the returned admin.
  * @param {ConfigManager} configManager
@@ -105,23 +132,29 @@ async function describeKafkaTopic(configManager, topicName) {
     try {
         log.info('Describing Kafka topic', { topicName });
         const metadata = await admin.fetchTopicMetadata({ topics: [topicName] });
+        // kafkajs always returns the requested topic here (it throws
+        // UNKNOWN_TOPIC_OR_PARTITION below when the topic is missing), so this
+        // find never misses — but guard defensively rather than index blindly.
         const topic = metadata.topics.find((t) => t.name === topicName);
-
-        if (!topic) {
-            log.warn('Topic does not exist', { topicName });
-            return;
-        }
 
         log.info('Topic metadata', {
             topicName,
-            partitionCount: topic.partitions.length,
-            partitions: topic.partitions.map((p) => ({
+            partitionCount: topic ? topic.partitions.length : 0,
+            partitions: (topic ? topic.partitions : []).map((p) => ({
                 partitionId: p.partitionId,
                 leader: p.leader,
                 replicas: p.replicas,
                 isr: p.isr
             }))
         });
+    } catch (err) {
+        // fetchTopicMetadata throws (rather than returning an empty list) when
+        // the topic does not exist — same signal deleteKafkaTopic handles.
+        if (err && err.type === 'UNKNOWN_TOPIC_OR_PARTITION') {
+            log.warn('Topic does not exist', { topicName });
+            return;
+        }
+        throw err;
     } finally {
         await admin.disconnect();
     }
@@ -167,8 +200,10 @@ async function main() {
         process.exit(1);
     }
 
-    const numPartitions = parseInt(values.partitions, 10) || KAFKA_PARTITION_COUNT;
-    const retentionMs = parseInt(values['retention-ms'], 10) || KAFKA_RETENTION_MS;
+    // Kafka requires >= 1 partition. retention.ms allows -1 (infinite) and 0,
+    // so it has no minimum beyond being an integer.
+    const numPartitions = parseIntArg(values.partitions, KAFKA_PARTITION_COUNT, 'partitions', 1);
+    const retentionMs = parseIntArg(values['retention-ms'], KAFKA_RETENTION_MS, 'retention-ms', -1);
 
     const configManager = new ConfigManager();
     log.info('Script started', {
@@ -192,7 +227,10 @@ if (require.main === module) {
     main()
         .then(() => process.exit(0))
         .catch((error) => {
-            log.error('Kafka topic script failed', { error });
+            // Log message/stack explicitly: a bare Error serializes to {} in the
+            // JSON logger because its fields are non-enumerable, which would hide
+            // the reason (e.g. the --partitions validation message).
+            log.error('Kafka topic script failed', { error: error.message, stack: error.stack });
             process.exit(1);
         });
 }
@@ -201,6 +239,7 @@ module.exports = {
     createKafkaTopic,
     describeKafkaTopic,
     deleteKafkaTopic,
+    parseIntArg,
     main,
     KAFKA_PARTITION_COUNT,
     KAFKA_RETENTION_MS,

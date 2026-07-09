@@ -12,6 +12,7 @@ const {
     createKafkaTopic,
     describeKafkaTopic,
     deleteKafkaTopic,
+    parseIntArg,
     KAFKA_PARTITION_COUNT,
     KAFKA_RETENTION_MS,
     KAFKA_MAX_MESSAGE_BYTES
@@ -124,12 +125,22 @@ describe('create_kafka_topic script', () => {
             expect(admin.disconnect).toHaveBeenCalledTimes(1);
         });
 
-        test('returns gracefully when the topic does not exist', async () => {
-            const admin = mockAdmin({
-                fetchTopicMetadata: jest.fn().mockResolvedValue({ topics: [] })
-            });
+        test('returns gracefully when the topic does not exist (fetchTopicMetadata throws UNKNOWN_TOPIC_OR_PARTITION)', async () => {
+            // Real kafkajs throws rather than resolving to { topics: [] } for a
+            // missing topic, so the missing-topic path must be a caught throw.
+            const err = Object.assign(new Error('nope'), { type: 'UNKNOWN_TOPIC_OR_PARTITION' });
+            const admin = mockAdmin({ fetchTopicMetadata: jest.fn().mockRejectedValue(err) });
 
             await expect(describeKafkaTopic(fakeConfigManager, 'missing.topic')).resolves.toBeUndefined();
+            expect(admin.disconnect).toHaveBeenCalledTimes(1);
+        });
+
+        test('rethrows non-UNKNOWN_TOPIC_OR_PARTITION errors', async () => {
+            const admin = mockAdmin({
+                fetchTopicMetadata: jest.fn().mockRejectedValue(new Error('broker down'))
+            });
+
+            await expect(describeKafkaTopic(fakeConfigManager, 'my.topic')).rejects.toThrow('broker down');
             expect(admin.disconnect).toHaveBeenCalledTimes(1);
         });
     });
@@ -166,6 +177,41 @@ describe('create_kafka_topic script', () => {
         test('default retention is 7 days and default partition count is 30', () => {
             expect(KAFKA_RETENTION_MS).toBe(7 * 24 * 60 * 60 * 1000);
             expect(KAFKA_PARTITION_COUNT).toBe(30);
+        });
+    });
+
+    describe('parseIntArg', () => {
+        test('returns the default when the flag is absent', () => {
+            expect(parseIntArg(undefined, 30, 'partitions', 1)).toBe(30);
+        });
+
+        test('returns the parsed integer when valid', () => {
+            expect(parseIntArg('6', 30, 'partitions', 1)).toBe(6);
+        });
+
+        test('accepts an explicit value equal to the minimum', () => {
+            expect(parseIntArg('1', 30, 'partitions', 1)).toBe(1);
+        });
+
+        test('accepts explicit 0 and -1 when the minimum allows (retention.ms)', () => {
+            expect(parseIntArg('0', KAFKA_RETENTION_MS, 'retention-ms', -1)).toBe(0);
+            expect(parseIntArg('-1', KAFKA_RETENTION_MS, 'retention-ms', -1)).toBe(-1);
+        });
+
+        test('throws on a value below the minimum (0 partitions)', () => {
+            expect(() => parseIntArg('0', 30, 'partitions', 1)).toThrow('Invalid --partitions');
+        });
+
+        test('throws on non-numeric input instead of silently defaulting', () => {
+            expect(() => parseIntArg('abc', 30, 'partitions', 1)).toThrow('Invalid --partitions');
+        });
+
+        test('throws on partial-numeric input (parseInt would silently return 3)', () => {
+            expect(() => parseIntArg('3x', 30, 'partitions', 1)).toThrow('Invalid --partitions');
+        });
+
+        test('throws on non-integer numeric input', () => {
+            expect(() => parseIntArg('6.5', 30, 'partitions', 1)).toThrow('Invalid --partitions');
         });
     });
 });
