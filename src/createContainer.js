@@ -728,8 +728,6 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager,
-                base64DataManager: c.base64DataManager,
                 postRequestProcessor: c.postRequestProcessor
             }
         )

@@ -12,8 +12,6 @@ const { BundleManager } = require('../common/bundleManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { OPERATIONS: { READ } } = require('../../constants');
 const { ResourceLocator } = require('../common/resourceLocator');
@@ -30,8 +28,6 @@ class SearchBundleOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
-     * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {Base64DataManager} base64DataManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor (
@@ -43,8 +39,6 @@ class SearchBundleOperation {
             scopesValidator,
             bundleManager,
             configManager,
-            databaseAttachmentManager,
-            base64DataManager,
             postRequestProcessor
         }
     ) {
@@ -88,18 +82,6 @@ class SearchBundleOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {DatabaseAttachmentManager}
-         */
-        this.databaseAttachmentManager = databaseAttachmentManager;
-        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
-
-        /**
-         * @type {Base64DataManager}
-         */
-        this.base64DataManager = base64DataManager;
-        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {PostRequestProcessor}
