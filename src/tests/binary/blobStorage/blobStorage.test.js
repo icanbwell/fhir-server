@@ -111,8 +111,8 @@ describe('Binary base64 S3 offload — write paths', () => {
         if (container) {
             const liveClient = container.base64FieldCloudStorageClient;
             const historyClient = container.historyResourceCloudStorageClient;
-            if (liveClient) { liveClient.uploadedData = {}; liveClient.copyCalls = []; }
-            if (historyClient) { historyClient.uploadedData = {}; historyClient.copyCalls = []; }
+            if (liveClient) { liveClient.uploadedData = {}; liveClient.etags = {}; liveClient.copyCalls = []; }
+            if (historyClient) { historyClient.uploadedData = {}; historyClient.etags = {}; historyClient.copyCalls = []; }
         }
     });
 
@@ -520,7 +520,22 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(Object.keys(liveClient.uploadedData).length).toBe(0);
     });
 
-    test('revertLiveAsync restores previous content on update and deletes on create', async () => {
+    // Externalize a "previous version" then a "changed write" for the same uuid under one
+    // request, returning the live key. After this the live bucket holds the NEW bytes and the
+    // request stashes { currentData: PREV, originalData: { NEW, etag } }.
+    const setUpChangedWrite = async (b64, requestInfo, uuid, prev, next) => {
+        const res = {
+            resourceType: 'Binary', id: 'rv', _uuid: uuid,
+            meta: { lastUpdated: '2026-07-08T00:00:00.000Z' }, contentType: 'application/pdf', data: prev
+        };
+        await b64.transformAsync(res, BLOB_OP.INSERT, requestInfo);   // externalize prev: live = PREV
+        await b64.transformAsync(res, BLOB_OP.RETRIEVE, requestInfo); // stash currentData = PREV
+        res.data = next;
+        await b64.transformAsync(res, BLOB_OP.INSERT, requestInfo);   // changed write: live = NEW
+        return { res, liveKey: `Binary_4_0_0/${uuid}` };
+    };
+
+    test('revertLiveAsync restores previous bytes when the live object is still ours (ETag matches)', async () => {
         await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const b64 = container.base64DataManager;
@@ -528,36 +543,59 @@ describe('Binary base64 S3 offload — write paths', () => {
         const PREV = 'P'.repeat(80 * 1024);
         const NEW = 'N'.repeat(80 * 1024);
 
-        // --- update case: a previous version's content exists, so revert restores it ---
-        const R1 = getTestRequestInfo({ requestId: 'revert-update' });
+        const R = getTestRequestInfo({ requestId: 'revert-restore' });
         const U = '33333333-3333-3333-3333-333333333333';
-        const liveKeyU = `Binary_4_0_0/${U}`;
+        const { res, liveKey } = await setUpChangedWrite(b64, R, U, PREV, NEW);
+        expect(liveClient.uploadedData[liveKey]).toBe(NEW);
+
+        // No competitor touched the object → If-Match succeeds → previous bytes restored.
+        await b64.revertLiveAsync(res, R);
+        expect(liveClient.uploadedData[liveKey]).toBe(PREV);
+    });
+
+    test('revertLiveAsync leaves live intact when a competitor overwrote the object (ETag mismatch)', async () => {
+        await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const b64 = container.base64DataManager;
+        const liveClient = container.base64FieldCloudStorageClient;
+        const PREV = 'P'.repeat(80 * 1024);
+        const NEW = 'N'.repeat(80 * 1024);
+        const COMPETITOR = 'K'.repeat(80 * 1024);
+
+        const R = getTestRequestInfo({ requestId: 'revert-skip' });
+        const U = '55555555-5555-5555-5555-555555555555';
+        const { res, liveKey } = await setUpChangedWrite(b64, R, U, PREV, NEW);
+
+        // A competitor commits & overwrites the live object (bumps its ETag) after our write.
+        await liveClient.uploadAsync({ filePath: liveKey, data: Buffer.from(COMPETITOR, 'utf8') });
+        expect(liveClient.uploadedData[liveKey]).toBe(COMPETITOR);
+
+        await b64.revertLiveAsync(res, R);
+        // If-Match on our stale ETag fails → no clobber of the winner's committed bytes.
+        expect(liveClient.uploadedData[liveKey]).toBe(COMPETITOR);
+    });
+
+    test('revertLiveAsync leaves the live object in place on a failed create (orphan is harmless)', async () => {
+        await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const b64 = container.base64DataManager;
+        const liveClient = container.base64FieldCloudStorageClient;
+        const NEW = 'N'.repeat(80 * 1024);
+
+        const R = getTestRequestInfo({ requestId: 'revert-create-noop' });
+        const U = '66666666-6666-6666-6666-666666666666';
+        const liveKey = `Binary_4_0_0/${U}`;
         const res = {
             resourceType: 'Binary', id: 'rv', _uuid: U,
-            meta: { lastUpdated: '2026-07-08T00:00:00.000Z' }, contentType: 'application/pdf', data: PREV
-        };
-        await b64.transformAsync(res, BLOB_OP.INSERT, R1);      // externalize v-prev: live = PREV
-        await b64.transformAsync(res, BLOB_OP.RETRIEVE, R1);    // hydrate + stash currentData = PREV
-        res.data = NEW;
-        await b64.transformAsync(res, BLOB_OP.INSERT, R1);      // changed write: live = NEW
-        expect(liveClient.uploadedData[liveKeyU]).toBe(NEW);
-
-        await b64.revertLiveAsync(res, R1);
-        expect(liveClient.uploadedData[liveKeyU]).toBe(PREV);
-
-        // --- create case: no previous content, so revert deletes the orphan ---
-        const R2 = getTestRequestInfo({ requestId: 'revert-create' });
-        const U2 = '44444444-4444-4444-4444-444444444444';
-        const liveKeyU2 = `Binary_4_0_0/${U2}`;
-        const res2 = {
-            resourceType: 'Binary', id: 'rv2', _uuid: U2,
             meta: { lastUpdated: '2026-07-08T00:00:00.000Z' }, contentType: 'application/pdf', data: NEW
         };
-        await b64.transformAsync(res2, BLOB_OP.INSERT, R2);     // live = NEW, no prior content
-        expect(liveClient.uploadedData[liveKeyU2]).toBe(NEW);
+        await b64.transformAsync(res, BLOB_OP.INSERT, R);   // create: live = NEW, no prior content
+        expect(liveClient.uploadedData[liveKey]).toBe(NEW);
 
-        await b64.revertLiveAsync(res2, R2);
-        expect(liveClient.uploadedData[liveKeyU2]).toBeUndefined();
+        // No previous version to restore → revert is a no-op; the unreferenced orphan is left as-is
+        // (it will be overwritten by any future write to the same deterministic key).
+        await b64.revertLiveAsync(res, R);
+        expect(liveClient.uploadedData[liveKey]).toBe(NEW);
     });
 
     test('retry replaceOneAsync re-uploads the changed payload before committing', async () => {

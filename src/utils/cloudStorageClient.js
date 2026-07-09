@@ -37,11 +37,16 @@ class CloudStorageClient {
      * Upload the data passed to cloud storage
      * @typedef {Object} UploadAsyncParams
      * @property {string} filePath
-     * @property {string} data
+     * @property {string|Buffer} data
+     * @property {string} [ifMatch] - when set, the write is conditional (If-Match on the object's
+     *          current ETag); it succeeds only if the object is unchanged since that ETag.
      *
      * @param {UploadAsyncParams}
+     * @returns {Promise<object|null>} the provider's raw upload response (which carries the
+     *          object's ETag) on success, or null when a conditional `ifMatch` precondition
+     *          failed (object changed since the ETag was captured).
      */
-    async uploadAsync({ filePath, data }) {
+    async uploadAsync({ filePath, data, ifMatch }) {
         throw Error('Not Implemented');
     }
 

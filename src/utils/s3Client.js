@@ -49,23 +49,35 @@ class S3Client extends CloudStorageClient {
     }
 
     /**
-     * Upload the data passed to s3
+     * Upload the data passed to s3.
      * @typedef {Object} UploadAsyncParams
      * @property {string} filePath
-     * @property {string} data
+     * @property {string|Buffer} data
+     * @property {string} [ifMatch] - when set, performs a conditional write (If-Match on the
+     *          object's current ETag); the write succeeds only if the object is unchanged since
+     *          that ETag was captured.
      *
      * @param {UploadAsyncParams}
+     * @returns {Promise<import('@aws-sdk/client-s3').PutObjectCommandOutput|null>} the raw
+     *          PutObject response (callers read `.ETag` when needed), or null when a conditional
+     *          `ifMatch` precondition failed (object changed/gone since the ETag was captured).
      */
-    async uploadAsync({ filePath, data }) {
+    async uploadAsync({ filePath, data, ifMatch }) {
         try {
-            await this.client.send(
-                new PutObjectCommand({
-                    Bucket: this.bucketName,
-                    Key: filePath,
-                    Body: data
-                })
-            );
+            const params = {
+                Bucket: this.bucketName,
+                Key: filePath,
+                Body: data
+            };
+            if (ifMatch) {
+                params.IfMatch = ifMatch;
+            }
+            return await this.client.send(new PutObjectCommand(params));
         } catch (err) {
+            if (ifMatch && this._isPreconditionFailed(err)) {
+                // Object changed since `ifMatch` was captured — caller decides to skip.
+                return null;
+            }
             throw new RethrownError({
                 message: `Error in uploadAsync: ${err.message}`,
                 error: err,
@@ -75,6 +87,16 @@ class S3Client extends CloudStorageClient {
                 }
             });
         }
+    }
+
+    /**
+     * Whether an S3 error is a failed conditional (If-Match/If-None-Match) precondition (HTTP 412).
+     * @param {Error} err
+     * @returns {boolean}
+     * @private
+     */
+    _isPreconditionFailed(err) {
+        return err?.name === 'PreconditionFailed' || err?.$metadata?.httpStatusCode === 412;
     }
 
     /**

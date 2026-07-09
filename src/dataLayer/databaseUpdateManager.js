@@ -16,7 +16,7 @@ const { RethrownError } = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
-const { logInfo } = require('../operations/common/logging');
+const { logInfo, logError } = require('../operations/common/logging');
 
 class DatabaseUpdateManager {
     /**
@@ -321,9 +321,17 @@ class DatabaseUpdateManager {
             }
         } catch (e) {
             // The Mongo write failed (retry exhaustion or hard error) after we may have written
-            // this request's payload to the live bucket — roll it back so live matches Mongo.
+            // this request's payload to the live bucket. Roll it back — the revert is ETag-gated
+            // (If-Match on what we wrote), so it only undoes our own write and never clobbers a
+            // concurrent winner's committed bytes.
             if (this.base64DataManager) {
-                await this.base64DataManager.revertLiveAsync(doc, requestInfo);
+                try {
+                    await this.base64DataManager.revertLiveAsync(doc, requestInfo);
+                } catch (revertErr) {
+                    logError('Failed to revert base64 live object after write failure', {
+                        args: { source: 'DatabaseUpdateManager', error: revertErr }
+                    });
+                }
             }
             throw new RethrownError({
                 error: e

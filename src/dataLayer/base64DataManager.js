@@ -144,9 +144,14 @@ class Base64DataManager {
                 }
                 const liveKey = `${resource.resourceType}_4_0_0/${blobMeta.rawReference}`;
                 try {
-                    await this.base64FieldCloudStorageClient.uploadAsync({
+                    const uploadResponse = await this.base64FieldCloudStorageClient.uploadAsync({
                         filePath: liveKey,
                         data: Buffer.from(stashed.content, 'utf8')
+                    });
+                    // Refresh the stashed ETag so a later revert conditions on our most-recent write.
+                    this._stashOriginalData(requestInfo, resource._uuid, dataSegments, indices, {
+                        ...stashed,
+                        etag: uploadResponse && uploadResponse.ETag
                     });
                 } catch (err) {
                     throw new RethrownError({
@@ -166,14 +171,24 @@ class Base64DataManager {
     }
 
     /**
-     * Roll back the live-bucket S3 changes this request made, when the MongoDB write
-     * ultimately fails (e.g. retry exhaustion, or a hard bulk-write error). For each leaf the
-     * request changed (stashed `changed: true`): if a previous version's content is known
-     * (current-data stash), restore it so the live object matches the version still in Mongo;
-     * otherwise (a create) delete the orphaned object. Best-effort — S3 errors are logged, not
-     * thrown, so the caller's original failure is preserved. No-op when disabled or unchanged.
+     * Roll back the live-bucket S3 change this request made when the MongoDB write ultimately
+     * fails (e.g. retry exhaustion, or a hard bulk-write error), for an **update** that
+     * overwrote a prior version's bytes: restore the prior bytes so the live object matches the
+     * version still committed in Mongo.
      *
-     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * The restore is **conditional on the live object's ETag** (`If-Match` on the ETag we
+     * captured/refreshed when we last wrote it), so a concurrent winner's bytes are never
+     * clobbered — no MongoDB re-fetch is needed. If a competitor overwrote the object since
+     * (ETag no longer matches), the write no-ops and we leave their bytes in place.
+     *
+     * A **failed create** is intentionally a no-op: the live object is unreferenced (no committed
+     * doc points to it) and therefore harmless — it will be overwritten by a future write to the
+     * same deterministic key, so we don't delete it.
+     *
+     * Best-effort — S3 errors are logged, not thrown, so the caller's original failure is
+     * preserved. No-op when disabled, unchanged, on a create, or when we hold no ETag.
+     *
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - the doc we tried to write
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @returns {Promise<void>}
      */
@@ -196,23 +211,25 @@ class Base64DataManager {
                     return;
                 }
                 const stashed = this._readStashedOriginalData(requestInfo, resource._uuid, dataSegments, indices);
-                if (!stashed || !stashed.changed) {
-                    // We didn't change this leaf's content, so there's nothing to roll back.
+                if (!stashed || !stashed.changed || !stashed.etag) {
+                    // Nothing we changed, or we hold no ETag to safely verify ownership — skip.
+                    return;
+                }
+                const previous = this._readCurrentData(requestInfo, resource._uuid, dataSegments, indices);
+                if (!previous || !previous.content) {
+                    // Failed create — the live object is an unreferenced orphan; leave it in place.
                     return;
                 }
                 const liveKey = `${resource.resourceType}_4_0_0/${blobMeta.rawReference}`;
-                const previous = this._readCurrentData(requestInfo, resource._uuid, dataSegments, indices);
                 try {
-                    if (previous && previous.content) {
-                        // Restore the prior version's bytes so live matches the doc still in Mongo.
-                        await this.base64FieldCloudStorageClient.uploadAsync({
-                            filePath: liveKey,
-                            data: Buffer.from(previous.content, 'utf8')
-                        });
-                    } else {
-                        // No prior content (a failed create) — remove the orphaned object.
-                        await this.base64FieldCloudStorageClient.deleteAsync(liveKey);
-                    }
+                    // Conditionally restore the prior bytes — only overwrites if the live object
+                    // is still the one we wrote (If-Match). If a competitor overwrote it, this
+                    // no-ops (returns null) and their committed bytes stay intact.
+                    await this.base64FieldCloudStorageClient.uploadAsync({
+                        filePath: liveKey,
+                        data: Buffer.from(previous.content, 'utf8'),
+                        ifMatch: stashed.etag
+                    });
                 } catch (err) {
                     // Best-effort: never mask the original write failure. A lingering/orphaned
                     // object is invisible to clients and can be swept later.
@@ -266,12 +283,14 @@ class Base64DataManager {
                 const stamp = unchanged ? (currentData.lastUpdated || newStamp) : newStamp;
 
                 const liveKey = this._buildLiveKey(resource.resourceType, resource._uuid, dataSegments, indices);
+                let etag;
                 if (!unchanged) {
                     try {
-                        await this.base64FieldCloudStorageClient.uploadAsync({
+                        const uploadResponse = await this.base64FieldCloudStorageClient.uploadAsync({
                             filePath: liveKey,
                             data: Buffer.from(value, 'utf8')
                         });
+                        etag = uploadResponse && uploadResponse.ETag;
                     } catch (err) {
                         throw new RethrownError({
                             message: `Failed to upload base64 payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
@@ -286,12 +305,13 @@ class Base64DataManager {
                         });
                     }
                 }
-                // Stash the changed flag so transformHistoryAsync and the retry re-upload know
-                // whether this request introduced new content. Keep the payload bytes only when
-                // the request is actually changing the field; for an unchanged/reused field the
-                // bytes are already available via the current-data stash (see _readRequestContent).
+                // Stash the changed flag (+ payload bytes and the live object's ETag) so
+                // transformHistoryAsync, the retry re-upload, and the failure revert can act on it.
+                // Keep the payload bytes only when the request is actually changing the field; for an
+                // unchanged/reused field the bytes are available via the current-data stash. The ETag
+                // lets revert conditionally roll back only if the live object is still the one we wrote.
                 this._stashOriginalData(requestInfo, resource._uuid, dataSegments, indices,
-                    unchanged ? { changed: false } : { content: value, changed: true }
+                    unchanged ? { changed: false } : { content: value, changed: true, etag }
                 );
                 parent[blobMetaLeaf] = new BlobMeta({
                     rawReference: this._buildLiveReference(resource._uuid, dataSegments, indices),
