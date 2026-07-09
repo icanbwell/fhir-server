@@ -15,7 +15,7 @@ const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { Base64DataManager } = require('../../dataLayer/base64DataManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, BLOB_OP } = require('../../constants');
+const { OPERATIONS: { READ } } = require('../../constants');
 const { ResourceLocator } = require('../common/resourceLocator');
 const { resourceReferenceUpdater } = require('../../utils/resourceUpdater');
 const { enrichReferenceExtension } = require('../../fhir/serializers/4_0_0/custom_utils/referenceEnricher');
@@ -354,10 +354,9 @@ class SearchBundleOperation {
                 return reference;
             })));
 
-            resources = await this.databaseAttachmentManager.transformAttachments(resources, RETRIEVE);
-            for (const resource of resources) {
-                await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
-            }
+            // NOTE: attachment (GridFS) and base64 (S3) payloads are already rehydrated per
+            // resource inside MongoReadableStream (see readResourcesFromCursorAsync ->
+            // mongoStreamReader), which is the single authoritative RETRIEVE site for this path.
 
             /**
              * @type {number}
