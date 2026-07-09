@@ -60,9 +60,6 @@ class ViewDefinitionValidator {
                     this._walkSelections([branch], new Set(seen));
                 }
             }
-            if (Array.isArray(selection.forEach)) {
-                this._walkSelections(selection.forEach, seen);
-            }
         }
     }
 }
