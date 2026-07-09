@@ -48,4 +48,61 @@ describe('ViewDefinition custom resource', () => {
         expect(view.select[0].column[0]).toHaveProperty('description', null);
         expect(view.where[0]).toHaveProperty('tag', null);
     });
+
+    test('toJSONInternal does not mutate the instance pass-through select/where/constant payloads', () => {
+        const rawWithNulls = {
+            resourceType: 'ViewDefinition',
+            id: 'v3',
+            status: 'active',
+            resource: 'Patient',
+            select: [
+                {
+                    column: [{ name: 'id', path: 'getResourceKey()', description: null }]
+                }
+            ],
+            where: [{ path: 'active', tag: null }],
+            constant: [{ name: 'someConstant', valueString: 'foo', meta: { tag: null } }]
+        };
+        const view = FhirResourceCreator.create(rawWithNulls);
+
+        const selectSnapshot = JSON.stringify(view.select);
+        const whereSnapshot = JSON.stringify(view.where);
+        const constantSnapshot = JSON.stringify(view.constant);
+
+        view.toJSONInternal();
+
+        expect(JSON.stringify(view.select)).toBe(selectSnapshot);
+        expect(JSON.stringify(view.where)).toBe(whereSnapshot);
+        expect(JSON.stringify(view.constant)).toBe(constantSnapshot);
+        expect(view.select[0].column[0]).toHaveProperty('description', null);
+        expect(view.where[0]).toHaveProperty('tag', null);
+        expect(view.constant[0].meta).toHaveProperty('tag', null);
+    });
+
+    test('Resource.clone() (which calls toJSONInternal) does not mutate select/where/constant', () => {
+        const rawWithNulls = {
+            resourceType: 'ViewDefinition',
+            id: 'v4',
+            status: 'active',
+            resource: 'Patient',
+            select: [
+                {
+                    column: [{ name: 'id', path: 'getResourceKey()', description: null }]
+                }
+            ],
+            where: [{ path: 'active', tag: null }],
+            constant: [{ name: 'someConstant', valueString: 'foo', meta: { tag: null } }]
+        };
+        const view = FhirResourceCreator.create(rawWithNulls);
+
+        const selectSnapshot = JSON.stringify(view.select);
+        const whereSnapshot = JSON.stringify(view.where);
+        const constantSnapshot = JSON.stringify(view.constant);
+
+        view.clone();
+
+        expect(JSON.stringify(view.select)).toBe(selectSnapshot);
+        expect(JSON.stringify(view.where)).toBe(whereSnapshot);
+        expect(JSON.stringify(view.constant)).toBe(constantSnapshot);
+    });
 });
