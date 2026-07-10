@@ -17,6 +17,10 @@ const {
 } = require('./import/import.config');
 
 const {
+    routes: sqlOnFhirConfig
+} = require('./sqlOnFhir/sqlOnFhir.config');
+
+const {
     routeArgs,
     routes
 } = require('./route.config');
@@ -374,6 +378,34 @@ class FhirRouter {
         }
     }
 
+    enableSqlOnFhirRoutes (app, config, corsDefaults) {
+        for (const profile of sqlOnFhirConfig) {
+            const operationName = profile.operation;
+
+            const corsOptions = Object.assign({}, corsDefaults, profile.corsOptions);
+
+            const operationsControllerRouteHandler = this.customOperationsController.operationsPost({
+                name: operationName
+            });
+
+            app.options(profile.path, cors(corsOptions));
+
+            app[profile.method.toLowerCase()](
+                profile.path,
+                cors(corsOptions),
+                versionValidationMiddleware(profile),
+                getArgsMiddleware(),
+                authenticationMiddleware(config),
+                sofScopeMiddleware({
+                    route: profile.path,
+                    auth: config.auth,
+                    name: operationName
+                }),
+                operationsControllerRouteHandler
+            );
+        }
+    }
+
     /**
      * @function enableProfileRoutes
      * @description Start iterating over potential routes to enable for this profile
@@ -539,6 +571,7 @@ class FhirRouter {
         this.enableMetadataRoute(app, config, corsDefaults);
         this.enableExportRoutes(app, config, corsDefaults);
         this.enableImportRoutes(app, config, corsDefaults);
+        this.enableSqlOnFhirRoutes(app, config, corsDefaults);
         this.enableResourceRoutes(app, config, corsDefaults); // Enable all routes, operations base: Batch and Transactions
 
         this.enableBaseRoute(app, config, corsDefaults);
