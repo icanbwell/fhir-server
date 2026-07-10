@@ -93,21 +93,19 @@ class SqlOnFhirRunOperation {
 
         // Guardrail D2: a stored $run with NO filter and NO explicit _count would scan the
         // entire collection. Reject before any query/stream/headers.
-        const reservedArgs = ['base_version', 'resourceType', '_format', '_type'];
-        const hasFilter =
-            parsedArgs &&
-            Object.keys(parsedArgs).some((k) => !reservedArgs.includes(k));
-        if (!hasFilter) {
+        // NOTE: the real ParsedArgs (src/operations/query/parsedArgs.js) attaches search
+        // params as NON-ENUMERABLE getters via Object.defineProperty, so Object.keys() on
+        // the instance never sees them. The actual params live in parsedArgs.parsedArgItems.
+        const reservedArgs = ['_format', '_type', '_count'];
+        const items = (parsedArgs && parsedArgs.parsedArgItems) || [];
+        const hasFilter = items.some((a) => !reservedArgs.includes(a.queryParameter));
+        const hasExplicitCount = !!(parsedArgs && parsedArgs.get && parsedArgs.get('_count'));
+        if (!hasFilter && !hasExplicitCount) {
             throw new BadRequestError(
                 new Error(
                     'stored $run requires a filter (e.g. patient, _lastUpdated) or an explicit _count'
                 )
             );
-        }
-
-        // constructQueryAsync requires parsedArgs.base_version to be set.
-        if (parsedArgs && !parsedArgs.base_version) {
-            parsedArgs.base_version = BASE_VERSION;
         }
 
         // AUTHORIZATION GATE — never bypass this for stored resources. Returns
