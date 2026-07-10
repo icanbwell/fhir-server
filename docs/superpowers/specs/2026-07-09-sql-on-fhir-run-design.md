@@ -67,6 +67,8 @@ There is **no input SQL** and **no query pushdown**. The input is a `ViewDefinit
    here but made **streaming** (`AsyncIterable<Row>`) instead of materializing the
    whole `OutputRow[]` table in memory.
 3. **Write out** — each row is written straight to the NDJSON/CSV response stream.
+   Once this has started, the HTTP status (`200`) is already committed; see §6
+   for what happens if a later resource in the stream hits a fail-fast error.
 
 We do **not** translate the ViewDefinition into a Mongo aggregation. FHIRPath is far
 more expressive than Mongo aggregation maps cleanly onto, and every reference
@@ -197,6 +199,14 @@ yields an array; otherwise a scalar (or null when the FHIRPath yields empty).
   silently truncated. `maxTimeMS` on the cursor bounds runtime; if exceeded
   mid-stream, the response is terminated and the error logged.
 - **Missing SMART scope** → `403`.
+- **Mid-stream error contract:** once row streaming has begun (HTTP 200 headers
+  already sent), a per-resource FHIRPath runtime error (Decision D1, fail-fast)
+  **cannot change the already-sent status code**. The response stays a `200`
+  whose NDJSON/CSV body simply terminates early (aborted/truncated) — it is
+  **not** followed by an `OperationOutcome`. Clients must treat an unexpected
+  early end of the stream (e.g. NDJSON not ending on a clean line boundary, or
+  a connection reset) as a failed request, not a partial success. Pre-stream
+  errors (validation, guardrail, scope) remain clean `400`/`403` responses.
 
 ## 7. Security (non-negotiable)
 

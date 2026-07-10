@@ -79,4 +79,28 @@ describe('runView', () => {
         };
         await expect(collect(view, [patients[0]])).rejects.toThrow(/single|collection/i);
     });
+
+    test('D1 fail-fast is mid-stream: rows already yielded are not swallowed by a later error', async () => {
+        const view = {
+            resource: 'Patient',
+            select: [{ column: [{ name: 'family', path: 'name.family' }] }]
+        };
+        const goodPatient = {
+            resourceType: 'Patient',
+            id: 'good',
+            name: [{ family: 'Solo' }]
+        };
+        const badPatient = {
+            resourceType: 'Patient',
+            id: 'bad',
+            name: [{ family: 'Skywalker' }, { family: 'Vader' }]
+        };
+        const iterator = runView(view, [goodPatient, badPatient], { fhirPathEvaluator });
+
+        const first = await iterator.next();
+        expect(first.done).toBe(false);
+        expect(first.value).toEqual({ family: 'Solo' });
+
+        await expect(iterator.next()).rejects.toThrow(/single|collection/i);
+    });
 });
