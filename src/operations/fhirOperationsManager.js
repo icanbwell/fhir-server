@@ -44,6 +44,8 @@ const { ResponseHandlerFactory } = require('../utils/responseHandler/responseHan
 const { CMSManager } = require('../utils/cmsManager');
 const { OperationAccessManager } = require('../utils/operationAccessManager');
 const { CustomTracer } = require('../utils/customTracer');
+const { SqlOnFhirRunOperation } = require('./sqlOnFhir/sqlOnFhirRunOperation');
+const { ViewResolver } = require('./sqlOnFhir/viewResolver');
 
 class FhirOperationsManager {
     /**
@@ -74,6 +76,7 @@ class FhirOperationsManager {
      * @param {CMSManager} cmsManager
      * @param {AccessHistoryOperation} accessHistoryOperation
      * @param {CustomTracer} customTracer
+     * @param {SqlOnFhirRunOperation} sqlOnFhirRunOperation
      */
     constructor(
         {
@@ -102,7 +105,8 @@ class FhirOperationsManager {
             accessManager,
             cmsManager,
             accessHistoryOperation,
-            customTracer
+            customTracer,
+            sqlOnFhirRunOperation
         }
     ) {
         /**
@@ -242,6 +246,12 @@ class FhirOperationsManager {
          */
         this.customTracer = customTracer;
         assertTypeEquals(customTracer, CustomTracer);
+
+        /**
+         * @type {SqlOnFhirRunOperation}
+         */
+        this.sqlOnFhirRunOperation = sqlOnFhirRunOperation;
+        assertTypeEquals(sqlOnFhirRunOperation, SqlOnFhirRunOperation);
     }
 
     /**
@@ -792,6 +802,47 @@ class FhirOperationsManager {
                 });
             return result;
         }
+    }
+
+    /**
+     * does a SQL-on-FHIR $run
+     * @param {string[]} args
+     * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
+     * @param {string} resourceType
+     * @returns {Promise<undefined>} response is written directly to res
+     */
+    async run(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType: resourceType || 'ViewDefinition', operation: 'run' });
+
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+
+        // The view's target resourceType drives arg parsing for the stored path. Resolve
+        // the body once here and pass the resolved resourceType through to the operation,
+        // which resolves the body again internally (small Parameters body, cheap).
+        const { view } = new ViewResolver().resolve({ body: req.body });
+        const targetResourceType = view.resource;
+
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args, resourceType: targetResourceType, headers: req.headers, operation: READ, requestInfo
+        });
+
+        return await this.sqlOnFhirRunOperation.runAsync({
+            requestInfo,
+            parsedArgs,
+            body: req.body,
+            resourceType: targetResourceType,
+            res
+        });
     }
 
     /**
