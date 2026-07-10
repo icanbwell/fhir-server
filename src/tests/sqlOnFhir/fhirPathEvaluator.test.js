@@ -9,6 +9,14 @@ describe('FhirPathEvaluator', () => {
         name: [{ use: 'official', family: 'Smith', given: ['Jane'] }],
         managingOrganization: { reference: 'Organization/o1' }
     };
+    const multiNamePatient = {
+        resourceType: 'Patient',
+        id: 'p2',
+        name: [
+            { use: 'official', family: 'Smith', given: ['Jane'] },
+            { use: 'nickname', family: 'Jones', given: ['J'] }
+        ]
+    };
 
     test('evaluates a simple path to a scalar array', () => {
         expect(evaluator.evaluate({ node: patient, expression: 'name.family' })).toEqual(['Smith']);
@@ -69,6 +77,24 @@ describe('FhirPathEvaluator', () => {
 
     test('does not rewrite $this inside a string literal', () => {
         expect(evaluator.evaluate({ node: patient, expression: "'$this'" })).toEqual(['$this']);
+    });
+
+    test('does not rewrite $this nested inside where() — fhirpath binds it natively', () => {
+        expect(
+            evaluator.evaluate({
+                node: multiNamePatient,
+                expression: "name.where($this.use = 'official').family"
+            })
+        ).toEqual(['Smith']);
+    });
+
+    test('does not rewrite $this nested inside select() — fhirpath binds it natively', () => {
+        expect(
+            evaluator.evaluate({
+                node: multiNamePatient,
+                expression: 'name.select($this.family)'
+            })
+        ).toEqual(['Smith', 'Jones']);
     });
 
     test('getReferenceKey also tolerates a quoted string type specifier', () => {
