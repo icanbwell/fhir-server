@@ -13,6 +13,8 @@ const {
     describeKafkaTopic,
     deleteKafkaTopic,
     parseIntArg,
+    applyTopicPrefix,
+    TOPIC_PREFIX,
     KAFKA_PARTITION_COUNT,
     KAFKA_RETENTION_MS,
     KAFKA_MAX_MESSAGE_BYTES
@@ -177,6 +179,24 @@ describe('create_kafka_topic script', () => {
         test('default retention is 7 days and default partition count is 30', () => {
             expect(KAFKA_RETENTION_MS).toBe(7 * 24 * 60 * 60 * 1000);
             expect(KAFKA_PARTITION_COUNT).toBe(30);
+        });
+
+        test('topic prefix is fhir_server.', () => {
+            expect(TOPIC_PREFIX).toBe('fhir_server.');
+        });
+    });
+
+    describe('applyTopicPrefix', () => {
+        test('prepends fhir_server. to a short name', () => {
+            expect(applyTopicPrefix('auditevents')).toBe('fhir_server.auditevents');
+        });
+
+        test('is idempotent for an already-prefixed name', () => {
+            expect(applyTopicPrefix('fhir_server.auditevents')).toBe('fhir_server.auditevents');
+        });
+
+        test('only skips when the prefix is at the start, not merely contained', () => {
+            expect(applyTopicPrefix('legacy.fhir_server.x')).toBe('fhir_server.legacy.fhir_server.x');
         });
     });
 

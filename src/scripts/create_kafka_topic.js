@@ -16,17 +16,21 @@
  * Usage:
  *   node src/scripts/create_kafka_topic.js --topic <name> [--describe | --delete]
  *
+ * All topics are namespaced under the `fhir_server.` prefix. You may pass the
+ * short name (`auditevents`) or the fully-qualified name
+ * (`fhir_server.auditevents`) — both resolve to `fhir_server.auditevents`.
+ *
  * Options:
- *   --topic       (required) topic name to manage
+ *   --topic       (required) topic name to manage (prefixed with fhir_server.)
  *   --describe     describe the topic's partition metadata instead of creating
  *   --delete       delete the topic instead of creating
  *   --partitions   number of partitions when creating (default: 30)
  *   --retention-ms retention period in ms when creating (default: 7 days)
  *
  * Examples:
- *   node src/scripts/create_kafka_topic.js --topic fhir.resource.changes
- *   node src/scripts/create_kafka_topic.js --topic fhir.resource.changes --describe
- *   node src/scripts/create_kafka_topic.js --topic fhir.resource.changes --delete
+ *   node src/scripts/create_kafka_topic.js --topic auditevents            # fhir_server.auditevents
+ *   node src/scripts/create_kafka_topic.js --topic auditevents --describe
+ *   node src/scripts/create_kafka_topic.js --topic auditevents --delete
  */
 
 const { parseArgs } = require('node:util');
@@ -47,6 +51,20 @@ const log = {
 const KAFKA_PARTITION_COUNT = 30;
 const KAFKA_RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const KAFKA_MAX_MESSAGE_BYTES = 2 * 1024 * 1024; // 2mb
+
+// All topics managed by this script live under a single namespace.
+const TOPIC_PREFIX = 'fhir_server.';
+
+/**
+ * Namespace a topic name under TOPIC_PREFIX. Idempotent: a name that already
+ * starts with the prefix is returned unchanged, so `auditevents` and
+ * `fhir_server.auditevents` both resolve to `fhir_server.auditevents`.
+ * @param {string} topicName
+ * @returns {string}
+ */
+function applyTopicPrefix(topicName) {
+    return topicName.startsWith(TOPIC_PREFIX) ? topicName : `${TOPIC_PREFIX}${topicName}`;
+}
 
 /**
  * Parse an optional integer CLI flag. Returns the default when the flag is
@@ -192,13 +210,13 @@ async function main() {
         }
     });
 
-    const topicName = values.topic;
-    if (!topicName) {
+    if (!values.topic) {
         log.error('--topic is required', {
             usage: 'node src/scripts/create_kafka_topic.js --topic <name> [--describe | --delete] [--partitions N]'
         });
         process.exit(1);
     }
+    const topicName = applyTopicPrefix(values.topic);
 
     // Kafka requires >= 1 partition. retention.ms allows -1 (infinite) and 0,
     // so it has no minimum beyond being an integer.
@@ -240,7 +258,9 @@ module.exports = {
     describeKafkaTopic,
     deleteKafkaTopic,
     parseIntArg,
+    applyTopicPrefix,
     main,
+    TOPIC_PREFIX,
     KAFKA_PARTITION_COUNT,
     KAFKA_RETENTION_MS,
     KAFKA_MAX_MESSAGE_BYTES
