@@ -43,7 +43,35 @@ describe('FhirPathEvaluator', () => {
         ).toEqual(['o1']);
     });
 
-    test('getReferenceKey with matching type returns id, non-matching returns empty', () => {
+    test('getReferenceKey with matching type identifier returns id, non-matching returns empty', () => {
+        // SQL-on-FHIR passes the type specifier as a FHIRPath identifier, not a string.
+        expect(
+            evaluator.evaluate({
+                node: patient,
+                expression: 'managingOrganization.getReferenceKey(Organization)'
+            })
+        ).toEqual(['o1']);
+        expect(
+            evaluator.evaluate({
+                node: patient,
+                expression: 'managingOrganization.getReferenceKey(Patient)'
+            })
+        ).toEqual([]);
+    });
+
+    test('resolves a top-level $this to the focus (primitive and derived paths)', () => {
+        expect(evaluator.evaluate({ node: 'Jane', expression: '$this' })).toEqual(['Jane']);
+        expect(evaluator.evaluate({ node: 42, expression: '$this' })).toEqual([42]);
+        expect(
+            evaluator.evaluate({ node: { family: 'Smith' }, expression: '$this.family' })
+        ).toEqual(['Smith']);
+    });
+
+    test('does not rewrite $this inside a string literal', () => {
+        expect(evaluator.evaluate({ node: patient, expression: "'$this'" })).toEqual(['$this']);
+    });
+
+    test('getReferenceKey also tolerates a quoted string type specifier', () => {
         expect(
             evaluator.evaluate({
                 node: patient,
