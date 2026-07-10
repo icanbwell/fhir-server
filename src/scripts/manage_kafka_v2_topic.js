@@ -14,7 +14,7 @@
  *   KAFKA_V2_AUTH_TYPE       'iam' for MSK IAM, plus KAFKA_V2_AWS_REGION
  *
  * Usage:
- *   node src/scripts/create_kafka_topic.js --topic <name> [--describe | --delete]
+ *   node src/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete]
  *
  * All topics are namespaced under the `fhir_server.` prefix. You may pass the
  * short name (`auditevents`) or the fully-qualified name
@@ -28,9 +28,9 @@
  *   --retention-ms retention period in ms when creating (default: 7 days)
  *
  * Examples:
- *   node src/scripts/create_kafka_topic.js --topic auditevents            # fhir_server.auditevents
- *   node src/scripts/create_kafka_topic.js --topic auditevents --describe
- *   node src/scripts/create_kafka_topic.js --topic auditevents --delete
+ *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents            # fhir_server.auditevents
+ *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents --describe
+ *   node src/scripts/manage_kafka_v2_topic.js --topic auditevents --delete
  */
 
 const { parseArgs } = require('node:util');
@@ -41,7 +41,7 @@ const { logInfo, logError, logWarn } = require('../operations/common/logging');
 
 // Prefix every log line so this script's output is easy to grep out of the
 // shared server logs (mirrors the reference's logger.child({ script })).
-const LOG_PREFIX = '[create_kafka_topic]';
+const LOG_PREFIX = '[manage_kafka_v2_topic]';
 const log = {
     info: (message, args) => logInfo(`${LOG_PREFIX} ${message}`, args),
     warn: (message, args) => logWarn(`${LOG_PREFIX} ${message}`, args),
@@ -136,6 +136,16 @@ async function createKafkaTopic(configManager, topicName, numPartitions, retenti
         } else {
             log.info('Topic already exists', { topicName });
         }
+    } catch (err) {
+        // Attach topic context to the failure before it bubbles to the outer
+        // handler; rethrow so the process still exits non-zero.
+        log.error('Failed to create Kafka topic', {
+            topicName,
+            numPartitions,
+            retentionMs,
+            error: err.message
+        });
+        throw err;
     } finally {
         await admin.disconnect();
     }
@@ -212,7 +222,7 @@ async function main() {
 
     if (!values.topic) {
         log.error('--topic is required', {
-            usage: 'node src/scripts/create_kafka_topic.js --topic <name> [--describe | --delete] [--partitions N]'
+            usage: 'node src/scripts/manage_kafka_v2_topic.js --topic <name> [--describe | --delete] [--partitions N]'
         });
         process.exit(1);
     }
@@ -239,7 +249,7 @@ async function main() {
     }
 }
 
-// Only auto-run when invoked directly (node src/scripts/create_kafka_topic.js),
+// Only auto-run when invoked directly (node src/scripts/manage_kafka_v2_topic.js),
 // not when imported by tests.
 if (require.main === module) {
     main()
