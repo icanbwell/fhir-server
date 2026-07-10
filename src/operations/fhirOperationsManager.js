@@ -827,6 +827,11 @@ class FhirOperationsManager {
         // the body once here and pass the resolved resourceType through to the operation,
         // which resolves the body again internally (small Parameters body, cheap).
         const { view } = new ViewResolver().resolve({ body: req.body });
+        if (!view || typeof view.resource !== 'string' || view.resource.length === 0) {
+            throw new BadRequestError(new Error(
+                '$run ViewDefinition requires a non-empty "resource" (target FHIR resource type)'
+            ));
+        }
         const targetResourceType = view.resource;
 
         /**

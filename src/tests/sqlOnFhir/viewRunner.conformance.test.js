@@ -1,3 +1,10 @@
+// Fixture provenance: the JSON files under ./fixtures/ (basic.json,
+// fn_reference_keys.json, where.json) are vendored verbatim from the upstream
+// HL7 SQL-on-FHIR v2 conformance test suite, repo `FHIR/sql-on-fhir-v2`, from
+// branch `intro-update` at the time of vendoring, which resolved to immutable
+// commit `e5345f64ff7df8214f9c39cdfa82841630d9f78b`
+// (https://github.com/FHIR/sql-on-fhir-v2/commit/e5345f64ff7df8214f9c39cdfa82841630d9f78b).
+// Re-vendor from that SHA (not the branch) if the fixtures ever need refreshing.
 const fs = require('fs');
 const path = require('path');
 const { describe, test, expect } = require('@jest/globals');
