@@ -3,16 +3,6 @@ const { VERSIONS } = require('../utils/constants.js');
 
 const routes = [
     {
-        path: '/:base_version/$run',
-        method: 'POST',
-        corsOptions: {
-            methods: ['POST']
-        },
-        args: [routeArgs.BASE],
-        versions: [VERSIONS['4_0_0']],
-        operation: 'run'
-    },
-    {
         path: '/:base_version/ViewDefinition/$run',
         method: 'POST',
         corsOptions: {
