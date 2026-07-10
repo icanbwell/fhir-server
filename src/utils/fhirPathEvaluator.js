@@ -76,17 +76,26 @@ const sqlOnFhirFunctions = {
 };
 
 /**
- * Rewrites a bare top-level `$this` token to `%context`.
+ * Rewrites a bare root-level `$this` token to `%context`.
  *
  * The npm `fhirpath` engine does not bind `ctx.$this` at the root of an evaluation,
- * so a top-level `$this` throws (and `$this.foo` silently returns empty), even though
+ * so a root-level `$this` throws (and `$this.foo` silently returns empty), even though
  * the FHIRPath spec defines the root `$this` to be identical to the input focus (which
  * the engine *does* expose as `%context`). SQL-on-FHIR views routinely use `$this` as a
  * column path when iterating a primitive collection via `forEach` (e.g. `forEach:
  * name.given`, `column path: $this`), so we normalize it here.
  *
+ * Crucially, fhirpath.js DOES correctly bind `$this` natively inside macro
+ * sub-expressions such as `where(...)`, `select(...)`, `exists(...)`, `all(...)`, and
+ * `iif(...)` — there it refers to the item currently being iterated, not the evaluation
+ * root. Rewriting those nested occurrences to `%context` would silently replace the
+ * per-item focus with the root node, producing wrong (but not erroring) results. To
+ * avoid that, only tokens at parenthesis depth 0 (i.e. not lexically inside any `(...)`)
+ * are rewritten.
+ *
  * The substitution only touches `$this` tokens outside of quoted string literals so it
- * cannot corrupt a literal that happens to contain the text `$this`.
+ * cannot corrupt a literal that happens to contain the text `$this`, and parens inside
+ * string literals do not affect the depth count either.
  * @param {string} expression
  * @returns {string}
  */
@@ -96,6 +105,7 @@ function normalizeThis(expression) {
     }
     let out = '';
     let quote = null; // active string-literal delimiter, or null
+    let depth = 0; // parenthesis nesting depth outside of string literals
     for (let i = 0; i < expression.length; i++) {
         const ch = expression[i];
         if (quote) {
@@ -113,7 +123,21 @@ function normalizeThis(expression) {
             out += ch;
             continue;
         }
-        if (expression.startsWith('$this', i) && !/[A-Za-z0-9_]/.test(expression[i + 5] || '')) {
+        if (ch === '(') {
+            depth++;
+            out += ch;
+            continue;
+        }
+        if (ch === ')') {
+            depth--;
+            out += ch;
+            continue;
+        }
+        if (
+            depth === 0 &&
+            expression.startsWith('$this', i) &&
+            !/[A-Za-z0-9_]/.test(expression[i + 5] || '')
+        ) {
             out += '%context';
             i += 4; // skip the remaining chars of "$this"
             continue;
