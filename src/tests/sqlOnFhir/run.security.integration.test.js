@@ -136,31 +136,21 @@ describe('$run stored-path security', () => {
         expect(resp.text).not.toContain('patient-b-lf');
     });
 
-    // GUARDRAIL D2 — DEFECT DOCUMENTED, TEST SKIPPED (do not delete).
+    // GUARDRAIL D2 — FIXED.
     //
-    // Guardrail D2 (sqlOnFhirRunOperation._resourceSource) is meant to reject a stored $run
-    // that has NO filter and NO explicit _count, before any query/stream, to avoid a full
-    // collection scan. It inspects `parsedArgs.parsedArgItems` and treats any item whose
-    // queryParameter is not in reservedArgs = ['_format','_type','_count'] as a "filter".
+    // Guardrail D2 (sqlOnFhirRunOperation._resourceSource) rejects a stored $run that has NO
+    // filter and NO explicit _count, before any query/stream, to avoid a full collection scan.
+    // It inspects `parsedArgs.parsedArgItems` and treats any item whose queryParameter is not
+    // in nonFilterArgs as a "filter".
     //
-    // Via the real HTTP path this guardrail is INERT: an unfiltered stored $run always arrives
-    // with parsedArgItems = ["base_version","resource","viewResource"]. `base_version` is added
-    // by get_all_args from sanitized_args on every request; `resource`/`viewResource` are the
-    // Parameters body params folded into parsedArgs by parseParametersFromBody. None of the
-    // three are in reservedArgs, so hasFilter is ALWAYS true and D2 never fires — a truly
-    // unfiltered stored $run returns 200 instead of 400.
-    //
-    // Verified empirically: POST /4_0_0/ViewDefinition/$run with only a viewResource (no query
-    // string, full-access token) -> HTTP 200, parsedArgItems = ["base_version","resource",
-    // "viewResource"]. The D2 unit test in sqlOnFhirRunOperation.test.js passes only because it
-    // hand-builds ParsedArgs with an empty item list, which never happens over HTTP.
-    //
-    // This is a production defect in the D2 guardrail (Task 4/8/9), NOT a test problem, and NOT
-    // a data-leak (access filtering still works — see assertion #1 above). Per task constraints
-    // we do not modify production code here and we do not paper over the defect by asserting
-    // 200. The fix is to exclude the always-present params (base_version, resource,
-    // viewResource) from the guardrail's filter detection. Once fixed, unskip this test.
-    test.skip('(MUST) guardrail D2: stored $run with no filter and no _count returns 400 [BLOCKED: D2 inert over HTTP]', async () => {
+    // Over the real HTTP path an unfiltered stored $run always arrives with parsedArgItems =
+    // ["base_version","resource","viewResource"]. `base_version` is added by get_all_args from
+    // sanitized_args on every request; `resource`/`viewResource` are the Parameters body params
+    // folded into parsedArgs by parseParametersFromBody. These are structural/control params,
+    // not user filters, so nonFilterArgs now excludes all three (in addition to
+    // _format/_type/_count) — hasFilter is correctly false for an unfiltered stored $run, and
+    // D2 fires as intended.
+    test('(MUST) guardrail D2: stored $run with no filter and no _count returns 400', async () => {
         const request = await createTestRequest();
         await seedPatients(request);
 

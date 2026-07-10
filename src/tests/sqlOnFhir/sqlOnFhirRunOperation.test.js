@@ -148,6 +148,54 @@ describe('SqlOnFhirRunOperation (stored, guardrail D2)', () => {
         expect(createQuery).not.toHaveBeenCalled();
     });
 
+    test('rejects a stored $run whose parsedArgItems contain ONLY the structural params ' +
+        'present on every real HTTP request (base_version, resource, viewResource), ' +
+        'writes zero bytes, never queries', async () => {
+        // This mirrors the REAL HTTP shape: over the actual request path, parsedArgItems is
+        // NEVER empty for a $run request — get_all_args always injects base_version, the
+        // POST operations controller always sets args.resource = req.body, and
+        // parseParametersFromBody always folds in viewResource from the Parameters body.
+        // None of these are user-supplied filters, so the guardrail must not treat them as
+        // one. Before the fix, hasFilter was computed from a reservedArgs list that only
+        // excluded _format/_type/_count, so this exact shape was wrongly treated as
+        // "filtered" and the guardrail never fired (RED). After the fix, base_version,
+        // resource, and viewResource are also excluded, so this rejects as expected (GREEN).
+        const createQuery = jestGlobal.fn();
+        const constructQueryAsync = jestGlobal.fn();
+        const op = new SqlOnFhirRunOperation({
+            viewResolver: new ViewResolver(),
+            viewDefinitionValidator: new ViewDefinitionValidator(),
+            fhirPathEvaluator: new FhirPathEvaluator(),
+            searchManager: { constructQueryAsync },
+            databaseQueryFactory: { createQuery },
+            configManager: {}
+        });
+        const res = fakeRes();
+        const body = {
+            resourceType: 'Parameters',
+            parameter: [{ name: 'viewResource', resource: view }]
+        };
+        const parsedArgs = buildParsedArgs([
+            buildParsedArgsItem('base_version', '4_0_0'),
+            buildParsedArgsItem('resource', body),
+            buildParsedArgsItem('viewResource', view)
+        ]);
+
+        await expect(
+            op.runAsync({
+                requestInfo: { accept: ['application/x-ndjson'] },
+                parsedArgs,
+                body,
+                resourceType: 'Patient',
+                res
+            })
+        ).rejects.toThrow(/filter|_count/i);
+
+        expect(res._body).toBe('');
+        expect(constructQueryAsync).not.toHaveBeenCalled();
+        expect(createQuery).not.toHaveBeenCalled();
+    });
+
     test('stored $run with a real filter routes through constructQueryAsync and streams rows', async () => {
         const fakeCursor = {
             _returned: false,

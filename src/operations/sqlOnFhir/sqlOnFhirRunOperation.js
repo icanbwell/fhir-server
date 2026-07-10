@@ -96,9 +96,16 @@ class SqlOnFhirRunOperation {
         // NOTE: the real ParsedArgs (src/operations/query/parsedArgs.js) attaches search
         // params as NON-ENUMERABLE getters via Object.defineProperty, so Object.keys() on
         // the instance never sees them. The actual params live in parsedArgs.parsedArgItems.
-        const reservedArgs = ['_format', '_type', '_count'];
+        // NOTE: over the real HTTP path, parsedArgItems for a $run request ALWAYS includes
+        // base_version (injected by get_all_args from req.sanitized_args), resource (the
+        // controller always sets args.resource = req.body for POST custom operations — see
+        // operations.controller.js operationsPost), and viewResource (folded in from the
+        // Parameters body by parseParametersFromBody). These are structural/control params,
+        // always present regardless of caller input, and MUST NOT count as a user filter —
+        // otherwise an unfiltered stored $run always looks "filtered" and D2 never fires.
+        const nonFilterArgs = ['_format', '_type', '_count', 'base_version', 'resource', 'viewResource'];
         const items = (parsedArgs && parsedArgs.parsedArgItems) || [];
-        const hasFilter = items.some((a) => !reservedArgs.includes(a.queryParameter));
+        const hasFilter = items.some((a) => !nonFilterArgs.includes(a.queryParameter));
         const hasExplicitCount = !!(parsedArgs && parsedArgs.get && parsedArgs.get('_count'));
         if (!hasFilter && !hasExplicitCount) {
             throw new BadRequestError(
