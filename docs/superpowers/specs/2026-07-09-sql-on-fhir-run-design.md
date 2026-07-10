@@ -80,8 +80,7 @@ for the in-process engine.
 ### 4.1 Request flow
 
 ```
-POST /4_0_0/ViewDefinition/$run     (primary, spec-aligned type-level form)
-POST /4_0_0/$run                    (system-level convenience form)
+POST /4_0_0/ViewDefinition/$run     (spec-aligned type-level form)
   → sqlOnFhir.config.js route registration (new)
   → CustomOperationsController
   → FhirOperationsManager.run(args, { req, res })
