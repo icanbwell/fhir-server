@@ -22,6 +22,8 @@ const {
 } = require('../../common');
 const { MockS3Client } = require('../../export/mocks/s3Client');
 const { CLOUD_STORAGE_CLIENTS, BLOB_OP } = require('../../../constants');
+const expectedBinaryHistoryListResponse = require('./fixtures/expected/expectedBinaryHistoryList.json');
+const expectedBinaryTypeHistoryResponse = require('./fixtures/expected/expectedBinaryTypeHistory.json');
 
 // 80 KB string — exceeds the 64 KB default threshold and triggers S3 offload.
 const LARGE_DATA = 'A'.repeat(80 * 1024);
@@ -1263,6 +1265,132 @@ describe('Binary base64 S3 offload — write paths', () => {
             expect(resp.body.resourceType).toBe('Binary');
             expect(resp.body.data).toBeUndefined();
             expect(resp.body._blobMeta).toBeUndefined();
+        });
+    });
+
+    // History/version reads pull each version's bytes from the HISTORY bucket (content-hash keyed
+    // `{Type}/{uuid}/{hash}`), never the live bucket, and bypass the per-request stash so distinct
+    // versions in one response don't cross-contaminate.
+    describe('history reads — each version hydrates from the history bucket', () => {
+        const historyKeyOf = (uuid, snapshot) => `Binary_4_0_0/${uuid}/${snapshot.resource._blobMeta.hash}`;
+        // toHaveResponse walks `data` char-by-char and FHIR-validates the body — pathologically slow
+        // on an 80 KB payload. Swap the real payloads for short, distinct placeholders on BOTH the
+        // response and the fixture before the whole-response compare (the real bytes are asserted
+        // separately with a direct string compare). `data` inside the stringified diagnostics is
+        // swapped too, so the rehydrated patch value is verified against the fixture.
+        const LARGE_PH = 'AAAA';
+        const ALT_PH = 'CCCC';
+        const withPlaceholders = (resp) => {
+            resp.body = JSON.parse(
+                JSON.stringify(resp.body).split(LARGE_DATA).join(LARGE_PH).split(ALT_LARGE_DATA).join(ALT_PH)
+            );
+            return resp;
+        };
+        const fillFixture = (fixture, subs) =>
+            JSON.parse(Object.entries(subs).reduce((s, [k, v]) => s.split(k).join(v), JSON.stringify(fixture)));
+
+        test('GET /_history/{vid} hydrates that version from the history bucket, not the live bucket', async () => {
+            const request = await createTestRequest(registerMockClients);
+            const container = getTestContainer();
+            const liveClient = container.base64FieldCloudStorageClient;
+            const historyClient = container.historyResourceCloudStorageClient;
+            const id = 'binary-hist-version';
+
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+            await drainPostRequest(container);
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
+            await drainPostRequest(container);
+
+            const uuid = (await readBinaryFromMongo(container, id))._uuid;
+            const v1 = (await readBinaryHistoryFromMongo(container)).find(
+                d => d.resource._uuid === uuid && d.resource.meta.versionId === '1'
+            );
+            expect(v1.resource._blobMeta).toBeDefined();
+
+            const liveSpy = jest.spyOn(liveClient, 'downloadAsync');
+            const historySpy = jest.spyOn(historyClient, 'downloadAsync');
+            try {
+                const resp = await request.get(`/4_0_0/Binary/${id}/_history/1`).set(getHeaders()).expect(200);
+                // Real bytes + history-bucket dispatch (observable only via the spies).
+                expect(resp.body.data).toBe(LARGE_DATA);
+                expect(historySpy).toHaveBeenCalledWith(historyKeyOf(uuid, v1));
+                expect(liveSpy).not.toHaveBeenCalled();
+                // Complete-response shape (data swapped for a placeholder; `_blobMeta` absent).
+                withPlaceholders(resp);
+                expect(resp).toHaveResponse(buildExpectedBinary({ id, data: LARGE_PH, versionId: '1' }));
+            } finally {
+                liveSpy.mockRestore();
+                historySpy.mockRestore();
+            }
+        });
+
+        test('GET /_history returns the complete versioned bundle, each version hydrated from history', async () => {
+            const request = await createTestRequest(registerMockClients);
+            const container = getTestContainer();
+            const liveClient = container.base64FieldCloudStorageClient;
+            const historyClient = container.historyResourceCloudStorageClient;
+            const id = 'binary-history-list'; // matches the fixture's embedded resource id
+
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+            await drainPostRequest(container);
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
+            await drainPostRequest(container);
+
+            const uuid = (await readBinaryFromMongo(container, id))._uuid;
+
+            const liveSpy = jest.spyOn(liveClient, 'downloadAsync');
+            const historySpy = jest.spyOn(historyClient, 'downloadAsync');
+            try {
+                const resp = await request.get(`/4_0_0/Binary/${id}/_history`).set(getHeaders()).expect(200);
+                expect(historySpy).toHaveBeenCalledTimes(2);
+                expect(liveSpy).not.toHaveBeenCalled();
+                // Complete response: both versions' data hydrated AND the v2 patch diagnostic
+                // rehydrated from the `<data_value>` placeholder to the real payload.
+                withPlaceholders(resp);
+                expect(resp).toHaveResponse(fillFixture(expectedBinaryHistoryListResponse, {
+                    __BINARY_UUID__: uuid,
+                    __LARGE_DATA__: LARGE_PH,
+                    __ALT_LARGE_DATA__: ALT_PH
+                }));
+            } finally {
+                liveSpy.mockRestore();
+                historySpy.mockRestore();
+            }
+        });
+
+        test('GET /Binary/_history returns the complete type-level bundle, hydrated across Binaries', async () => {
+            const request = await createTestRequest(registerMockClients);
+            const container = getTestContainer();
+            const liveClient = container.base64FieldCloudStorageClient;
+            const historyClient = container.historyResourceCloudStorageClient;
+            const idA = 'binary-history-type-A'; // ids match the fixture
+            const idB = 'binary-history-type-B';
+
+            await request.put(`/4_0_0/Binary/${idA}`).send(buildBinary({ id: idA, data: LARGE_DATA })).set(getHeaders()).expect(201);
+            await drainPostRequest(container);
+            await request.put(`/4_0_0/Binary/${idB}`).send(buildBinary({ id: idB, data: ALT_LARGE_DATA })).set(getHeaders()).expect(201);
+            await drainPostRequest(container);
+
+            const uuidA = (await readBinaryFromMongo(container, idA))._uuid;
+            const uuidB = (await readBinaryFromMongo(container, idB))._uuid;
+
+            const liveSpy = jest.spyOn(liveClient, 'downloadAsync');
+            const historySpy = jest.spyOn(historyClient, 'downloadAsync');
+            try {
+                const resp = await request.get('/4_0_0/Binary/_history').set(getHeaders()).expect(200);
+                expect(historySpy).toHaveBeenCalledTimes(2);
+                expect(liveSpy).not.toHaveBeenCalled();
+                withPlaceholders(resp);
+                expect(resp).toHaveResponse(fillFixture(expectedBinaryTypeHistoryResponse, {
+                    __BINARY_A_UUID__: uuidA,
+                    __BINARY_B_UUID__: uuidB,
+                    __LARGE_DATA__: LARGE_PH,
+                    __ALT_LARGE_DATA__: ALT_PH
+                }));
+            } finally {
+                liveSpy.mockRestore();
+                historySpy.mockRestore();
+            }
         });
     });
 });
