@@ -1,6 +1,18 @@
 const fhirpath = require('fhirpath');
 const fhirpathR4Model = require('fhirpath/fhir-context/r4');
 
+// fhirpath monkey-patches String.prototype with *enumerable* `hashCode` and `seed`.
+// Enumerable properties on String.prototype leak into every `for...in` over a string,
+// including Express's res.set/res.header, which then tries to emit them as HTTP headers
+// and throws "Invalid character in header content" — 500ing all FHIR write responses.
+// Make them non-enumerable while keeping fhirpath's functionality intact.
+for (const prop of ['hashCode', 'seed']) {
+    const descriptor = Object.getOwnPropertyDescriptor(String.prototype, prop);
+    if (descriptor && descriptor.enumerable) {
+        Object.defineProperty(String.prototype, prop, { ...descriptor, enumerable: false });
+    }
+}
+
 /**
  * Parses a FHIR reference string like "Organization/o1" or a full URL into its logical id.
  * @param {string} reference
