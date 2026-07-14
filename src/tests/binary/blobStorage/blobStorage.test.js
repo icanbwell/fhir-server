@@ -111,8 +111,8 @@ describe('Binary base64 S3 offload — write paths', () => {
         if (container) {
             const liveClient = container.base64FieldCloudStorageClient;
             const historyClient = container.historyResourceCloudStorageClient;
-            if (liveClient) { liveClient.uploadedData = {}; liveClient.etags = {}; liveClient.copyCalls = []; }
-            if (historyClient) { historyClient.uploadedData = {}; historyClient.etags = {}; historyClient.copyCalls = []; }
+            if (liveClient) { liveClient.uploadedData = {}; liveClient.copyCalls = []; }
+            if (historyClient) { historyClient.uploadedData = {}; historyClient.copyCalls = []; }
         }
     });
 
@@ -147,6 +147,11 @@ describe('Binary base64 S3 offload — write paths', () => {
         return historyDb.collection('Binary_4_0_0_History').find({}).toArray();
     };
 
+    // Live-bucket key for a Binary doc: `{ResourceType}_4_0_0/{uuid}/{lastUpdatedEpochMs}`. The live
+    // key is timestamped (not a bare uuid) and rotates on every PUT/PATCH, so it must be derived
+    // from the doc's current `_blobMeta.lastUpdated` rather than hardcoded.
+    const liveKeyOf = (doc) => `Binary_4_0_0/${doc._uuid}/${doc._blobMeta.lastUpdated.getTime()}`;
+
     test('Create with data above threshold offloads to live bucket', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
@@ -170,12 +175,13 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(mongoDoc).toBeDefined();
         expect(mongoDoc.data).toBeUndefined();
         expect(mongoDoc._blobMeta).toBeDefined();
-        expect(mongoDoc._blobMeta.rawReference).toBe(mongoDoc._uuid);
+        // `hash` is the content hash (drives the history key + change detection), not the uuid.
+        expect(typeof mongoDoc._blobMeta.hash).toBe('string');
+        expect(mongoDoc._blobMeta.hash.length).toBeGreaterThan(0);
         expect(mongoDoc._blobMeta.rawSize).toBe(80);
 
-        // Live S3 should have the payload at the deterministic key.
-        const liveKey = `Binary_4_0_0/${mongoDoc._uuid}`;
-        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+        // Live S3 should have the payload at the timestamped key.
+        expect(liveClient.uploadedData[liveKeyOf(mongoDoc)]).toBe(LARGE_DATA);
     });
 
     test('Create with data below threshold stays inline (no S3 traffic)', async () => {
@@ -200,7 +206,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(Object.keys(liveClient.uploadedData)).toHaveLength(0);
     });
 
-    test('PUT update overwrites live key + appends versioned history key', async () => {
+    test('PUT update rotates the live key + appends a hash-keyed history object', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const liveClient = container.base64FieldCloudStorageClient;
@@ -215,10 +221,9 @@ describe('Binary base64 S3 offload — write paths', () => {
             .expect(201);
         await drainPostRequest(container);
 
-        const mongoDocAfterCreate = await readBinaryFromMongo(container, id);
-        expect(mongoDocAfterCreate).toBeDefined();
-        const liveKey = `Binary_4_0_0/${mongoDocAfterCreate._uuid}`;
-        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+        const docV1 = await readBinaryFromMongo(container, id);
+        const keyV1 = liveKeyOf(docV1);
+        expect(liveClient.uploadedData[keyV1]).toBe(LARGE_DATA);
 
         // Now PUT with a different above-threshold payload.
         await request
@@ -228,29 +233,31 @@ describe('Binary base64 S3 offload — write paths', () => {
             .expect(200);
         await drainPostRequest(container);
 
-        // Live key now holds the new payload (deterministic overwrite).
-        expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
+        // Live key ROTATED: the new version lives at a fresh timestamped key holding the new
+        // payload, and the superseded v1 object was cleaned up.
+        const docV2 = await readBinaryFromMongo(container, id);
+        const keyV2 = liveKeyOf(docV2);
+        expect(keyV2).not.toBe(keyV1);
+        expect(liveClient.uploadedData[keyV2]).toBe(ALT_LARGE_DATA);
+        expect(liveClient.uploadedData[keyV1]).toBeUndefined();
 
-        // History bucket should have at least one entry keyed by `Binary_4_0_0/{uuid}/{epoch}`.
-        const historyKeys = Object.keys(historyClient.uploadedData);
-        expect(historyKeys.length).toBeGreaterThan(0);
-        const versionedKeys = historyKeys.filter(k => k.startsWith(`Binary_4_0_0/${mongoDocAfterCreate._uuid}/`));
-        expect(versionedKeys.length).toBeGreaterThan(0);
-        // Suffix after the uuid should be a numeric epoch — no slashes for the root-path case.
+        // History bucket is content-addressed: `Binary_4_0_0/{uuid}/{hash}`. Two distinct payloads
+        // (LARGE + ALT) => two distinct history objects; the suffix is a base64url hash, not an epoch.
+        const versionedKeys = Object.keys(historyClient.uploadedData)
+            .filter(k => k.startsWith(`Binary_4_0_0/${docV1._uuid}/`));
+        expect(versionedKeys.length).toBe(2);
         for (const key of versionedKeys) {
-            const suffix = key.replace(`Binary_4_0_0/${mongoDocAfterCreate._uuid}/`, '');
-            expect(suffix).toMatch(/^\d{10,}$/);
+            const suffix = key.replace(`Binary_4_0_0/${docV1._uuid}/`, '');
+            expect(suffix).toMatch(/^[A-Za-z0-9_-]+$/);
         }
 
-        // History Mongo snapshot keeps the deterministic rawReference; the version
-        // discriminator lives in `_blobMeta.lastUpdated`. The history bucket key is
-        // `{rawReference}/{epoch(lastUpdated)}` (asserted above via versionedKeys).
+        // History Mongo snapshots reference the content by `_blobMeta.hash`, carry no inline data.
         const historyDocs = await readBinaryHistoryFromMongo(container);
-        const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid);
+        const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === docV1._uuid);
         expect(matchedSnapshots.length).toBeGreaterThan(0);
         for (const entry of matchedSnapshots) {
             if (entry.resource._blobMeta) {
-                expect(entry.resource._blobMeta.rawReference).toBe(mongoDocAfterCreate._uuid);
+                expect(typeof entry.resource._blobMeta.hash).toBe('string');
                 expect(entry.resource._blobMeta.lastUpdated).toBeDefined();
                 expect(entry.resource.data).toBeUndefined();
             }
@@ -272,7 +279,6 @@ describe('Binary base64 S3 offload — write paths', () => {
 
         const mongoDocAfterCreate = await readBinaryFromMongo(container, id);
         expect(mongoDocAfterCreate).toBeDefined();
-        const liveKey = `Binary_4_0_0/${mongoDocAfterCreate._uuid}`;
 
         // Patch the data field with a new above-threshold payload.
         await request
@@ -282,8 +288,9 @@ describe('Binary base64 S3 offload — write paths', () => {
             .expect(200);
         await drainPostRequest(container);
 
-        // Live key replaced with new content.
-        expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
+        // New content lives at the patched version's (rotated) timestamped live key.
+        const docAfterPatch = await readBinaryFromMongo(container, id);
+        expect(liveClient.uploadedData[liveKeyOf(docAfterPatch)]).toBe(ALT_LARGE_DATA);
 
         // History entry's diagnostics should carry the patch shape but with `<data_value>` substituted.
         const historyDocs = await readBinaryHistoryFromMongo(container);
@@ -335,12 +342,12 @@ describe('Binary base64 S3 offload — write paths', () => {
         // Large → externalized.
         expect(largeDoc.data).toBeUndefined();
         expect(largeDoc._blobMeta).toBeDefined();
-        expect(liveClient.uploadedData[`Binary_4_0_0/${largeDoc._uuid}`]).toBe(LARGE_DATA);
+        expect(liveClient.uploadedData[liveKeyOf(largeDoc)]).toBe(LARGE_DATA);
 
-        // Small → inline.
+        // Small → inline; nothing landed in the live bucket for its uuid.
         expect(smallDoc.data).toBe(SMALL_DATA);
         expect(smallDoc._blobMeta).toBeUndefined();
-        expect(liveClient.uploadedData[`Binary_4_0_0/${smallDoc._uuid}`]).toBeUndefined();
+        expect(Object.keys(liveClient.uploadedData).some(k => k.startsWith(`Binary_4_0_0/${smallDoc._uuid}/`))).toBe(false);
     });
 
     test('PUT without /data field deletes the orphaned live S3 object and clears _blobMeta', async () => {
@@ -359,7 +366,7 @@ describe('Binary base64 S3 offload — write paths', () => {
 
         const mongoDocAfterCreate = await readBinaryFromMongo(container, id);
         expect(mongoDocAfterCreate).toBeDefined();
-        const liveKey = `Binary_4_0_0/${mongoDocAfterCreate._uuid}`;
+        const liveKey = liveKeyOf(mongoDocAfterCreate);
         expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
 
         // PUT a replacement that simply omits `data` — client intent is "no data".
@@ -398,7 +405,7 @@ describe('Binary base64 S3 offload — write paths', () => {
 
         const mongoDocAfterCreate = await readBinaryFromMongo(container, id);
         expect(mongoDocAfterCreate).toBeDefined();
-        const liveKey = `Binary_4_0_0/${mongoDocAfterCreate._uuid}`;
+        const liveKey = liveKeyOf(mongoDocAfterCreate);
         expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
 
         // Patch out the data field entirely.
@@ -451,7 +458,7 @@ describe('Binary base64 S3 offload — write paths', () => {
 
         const mongoDocAfterCreate = await readBinaryFromMongo(container, id);
         expect(mongoDocAfterCreate).toBeDefined();
-        const liveKey = `Binary_4_0_0/${mongoDocAfterCreate._uuid}`;
+        const liveKey = liveKeyOf(mongoDocAfterCreate);
         expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
 
         // PUT with a small payload — should trigger orphan cleanup of the live S3 object.
@@ -483,160 +490,6 @@ describe('Binary base64 S3 offload — write paths', () => {
             .sort((a, b) => parseInt(a.meta.versionId, 10) - parseInt(b.meta.versionId, 10));
     };
 
-    test('reuploadChangedToLiveAsync re-PUTs changed content and no-ops without a cached change', async () => {
-        await createTestRequest(registerMockClients);
-        const container = getTestContainer();
-        const b64 = container.base64DataManager;
-        const liveClient = container.base64FieldCloudStorageClient;
-        const requestInfo = getTestRequestInfo({ requestId: 'reupload-mechanism' });
-        const uuid = '11111111-1111-1111-1111-111111111111';
-
-        // Externalize a Binary through INSERT: uploads to live + stashes { content, changed:true }.
-        const resource = {
-            resourceType: 'Binary',
-            id: 'ru',
-            _uuid: uuid,
-            meta: { lastUpdated: '2026-07-08T00:00:00.000Z' },
-            contentType: 'application/pdf',
-            data: LARGE_DATA
-        };
-        await b64.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
-        const liveKey = `Binary_4_0_0/${uuid}`;
-        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
-
-        // A competitor clobbered the live object; re-upload must re-establish our bytes.
-        liveClient.uploadedData[liveKey] = 'competitor-bytes';
-        await b64.reuploadChangedToLiveAsync(resource, requestInfo);
-        expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
-
-        // No cached change for a different uuid => no-op (nothing uploaded).
-        liveClient.uploadedData = {};
-        const other = {
-            resourceType: 'Binary',
-            _uuid: '22222222-2222-2222-2222-222222222222',
-            _blobMeta: { rawReference: '22222222-2222-2222-2222-222222222222' }
-        };
-        await b64.reuploadChangedToLiveAsync(other, requestInfo);
-        expect(Object.keys(liveClient.uploadedData).length).toBe(0);
-    });
-
-    // Externalize a "previous version" then a "changed write" for the same uuid under one
-    // request, returning the live key. After this the live bucket holds the NEW bytes and the
-    // request stashes { currentData: PREV, originalData: { NEW, etag } }.
-    const setUpChangedWrite = async (b64, requestInfo, uuid, prev, next) => {
-        const res = {
-            resourceType: 'Binary', id: 'rv', _uuid: uuid,
-            meta: { lastUpdated: '2026-07-08T00:00:00.000Z' }, contentType: 'application/pdf', data: prev
-        };
-        await b64.transformAsync(res, BLOB_OP.INSERT, requestInfo);   // externalize prev: live = PREV
-        await b64.transformAsync(res, BLOB_OP.RETRIEVE, requestInfo); // stash currentData = PREV
-        res.data = next;
-        await b64.transformAsync(res, BLOB_OP.INSERT, requestInfo);   // changed write: live = NEW
-        return { res, liveKey: `Binary_4_0_0/${uuid}` };
-    };
-
-    test('revertLiveAsync restores previous bytes when the live object is still ours (ETag matches)', async () => {
-        await createTestRequest(registerMockClients);
-        const container = getTestContainer();
-        const b64 = container.base64DataManager;
-        const liveClient = container.base64FieldCloudStorageClient;
-        const PREV = 'P'.repeat(80 * 1024);
-        const NEW = 'N'.repeat(80 * 1024);
-
-        const R = getTestRequestInfo({ requestId: 'revert-restore' });
-        const U = '33333333-3333-3333-3333-333333333333';
-        const { res, liveKey } = await setUpChangedWrite(b64, R, U, PREV, NEW);
-        expect(liveClient.uploadedData[liveKey]).toBe(NEW);
-
-        // No competitor touched the object → If-Match succeeds → previous bytes restored.
-        await b64.revertLiveAsync(res, R);
-        expect(liveClient.uploadedData[liveKey]).toBe(PREV);
-    });
-
-    test('revertLiveAsync leaves live intact when a competitor overwrote the object (ETag mismatch)', async () => {
-        await createTestRequest(registerMockClients);
-        const container = getTestContainer();
-        const b64 = container.base64DataManager;
-        const liveClient = container.base64FieldCloudStorageClient;
-        const PREV = 'P'.repeat(80 * 1024);
-        const NEW = 'N'.repeat(80 * 1024);
-        const COMPETITOR = 'K'.repeat(80 * 1024);
-
-        const R = getTestRequestInfo({ requestId: 'revert-skip' });
-        const U = '55555555-5555-5555-5555-555555555555';
-        const { res, liveKey } = await setUpChangedWrite(b64, R, U, PREV, NEW);
-
-        // A competitor commits & overwrites the live object (bumps its ETag) after our write.
-        await liveClient.uploadAsync({ filePath: liveKey, data: Buffer.from(COMPETITOR, 'utf8') });
-        expect(liveClient.uploadedData[liveKey]).toBe(COMPETITOR);
-
-        await b64.revertLiveAsync(res, R);
-        // If-Match on our stale ETag fails → no clobber of the winner's committed bytes.
-        expect(liveClient.uploadedData[liveKey]).toBe(COMPETITOR);
-    });
-
-    test('revertLiveAsync leaves the live object in place on a failed create (orphan is harmless)', async () => {
-        await createTestRequest(registerMockClients);
-        const container = getTestContainer();
-        const b64 = container.base64DataManager;
-        const liveClient = container.base64FieldCloudStorageClient;
-        const NEW = 'N'.repeat(80 * 1024);
-
-        const R = getTestRequestInfo({ requestId: 'revert-create-noop' });
-        const U = '66666666-6666-6666-6666-666666666666';
-        const liveKey = `Binary_4_0_0/${U}`;
-        const res = {
-            resourceType: 'Binary', id: 'rv', _uuid: U,
-            meta: { lastUpdated: '2026-07-08T00:00:00.000Z' }, contentType: 'application/pdf', data: NEW
-        };
-        await b64.transformAsync(res, BLOB_OP.INSERT, R);   // create: live = NEW, no prior content
-        expect(liveClient.uploadedData[liveKey]).toBe(NEW);
-
-        // No previous version to restore → revert is a no-op; the unreferenced orphan is left as-is
-        // (it will be overwritten by any future write to the same deterministic key).
-        await b64.revertLiveAsync(res, R);
-        expect(liveClient.uploadedData[liveKey]).toBe(NEW);
-    });
-
-    test('retry replaceOneAsync re-uploads the changed payload before committing', async () => {
-        const request = await createTestRequest(registerMockClients);
-        const container = getTestContainer();
-        const b64 = container.base64DataManager;
-        const liveClient = container.base64FieldCloudStorageClient;
-        const id = 'binary-retry-reupload';
-
-        // Seed v1 with LARGE_DATA.
-        await request
-            .put(`/4_0_0/Binary/${id}`)
-            .send(buildBinary({ id, data: LARGE_DATA }))
-            .set(getHeaders())
-            .expect(201);
-        await drainPostRequest(container);
-
-        const dbDoc = await readBinaryFromMongo(container, id);
-        const uuid = dbDoc._uuid;
-        const liveKey = `Binary_4_0_0/${uuid}`;
-
-        // Build the retry input: the current externalized doc with a changed payload, run
-        // through INSERT under a controlled requestInfo so its bytes are cached (changed:true).
-        const requestInfo = getTestRequestInfo({ requestId: 'retry-reupload-req' });
-        const incoming = { ...dbDoc, data: ALT_LARGE_DATA, contentType: 'application/xml' };
-        delete incoming._id;
-        await b64.transformAsync(incoming, BLOB_OP.INSERT, requestInfo);
-
-        // Simulate a concurrent writer clobbering the live object with different bytes.
-        liveClient.uploadedData[liveKey] = LARGE_DATA;
-
-        // Drive the fallback retry path directly; it must re-upload our payload before the write.
-        const updateManager = container.databaseUpdateFactory.createFastDatabaseUpdateManager({
-            resourceType: 'Binary',
-            base_version: '4_0_0'
-        });
-        await updateManager.replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: incoming });
-
-        expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
-    });
-
     test('concurrency-retry replaceOneAsync on an externalized Binary keeps content + _blobMeta consistent', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
@@ -653,7 +506,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         const dbDoc = await readBinaryFromMongo(container, id);
         expect(dbDoc._blobMeta).toBeDefined();
         expect(dbDoc.data).toBeUndefined();
-        const liveKey = `Binary_4_0_0/${dbDoc._uuid}`;
+        const liveKey = liveKeyOf(dbDoc);
         expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
 
         // Simulate the one-by-one concurrency retry input: the already-externalized doc
@@ -676,7 +529,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         // and the live object (which holds the payload) untouched — no data loss.
         expect(savedResource).toBeDefined();
         expect(savedResource.contentType).toBe('application/xml');
-        expect(savedResource._blobMeta.rawReference).toBe(dbDoc._uuid);
+        expect(typeof savedResource._blobMeta.hash).toBe('string');
         expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
     });
 
@@ -696,8 +549,6 @@ describe('Binary base64 S3 offload — write paths', () => {
         await drainPostRequest(container);
 
         const dbDoc = await readBinaryFromMongo(container, id);
-        const uuid = dbDoc._uuid;
-        const liveKey = `Binary_4_0_0/${uuid}`;
 
         // Build the retry input: an externalized write that changes ONLY the base64 payload
         // (same contentType/meta) — the case where the FHIR diff can't see the change.
@@ -722,12 +573,11 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(savedResource).not.toBeNull();
         expect(savedResource).toBeDefined();
         expect(savedResource.meta.versionId).toBe('2');
-        expect(savedResource._blobMeta.rawReference).toBe(uuid);
-        expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
 
         const finalDoc = await readBinaryFromMongo(container, id);
         expect(finalDoc.meta.versionId).toBe('2');
-        expect(finalDoc._blobMeta).toBeDefined();
+        expect(typeof finalDoc._blobMeta.hash).toBe('string');
+        expect(liveClient.uploadedData[liveKeyOf(finalDoc)]).toBe(ALT_LARGE_DATA);
     });
 
     test('payload-only concurrent update is forced through on the PUT (non-fast) retry path', async () => {
@@ -747,8 +597,6 @@ describe('Binary base64 S3 offload — write paths', () => {
         await drainPostRequest(container);
 
         const dbDoc = await readBinaryFromMongo(container, id);
-        const uuid = dbDoc._uuid;
-        const liveKey = `Binary_4_0_0/${uuid}`;
 
         // Build a class-instance incoming write (as the PUT path uses) that changes ONLY the
         // payload; externalize it so it mirrors the doc reaching DatabaseUpdateManager on retry.
@@ -775,15 +623,61 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(savedResource).not.toBeNull();
         expect(savedResource).toBeDefined();
         expect(savedResource.meta.versionId).toBe('2');
-        expect(savedResource._blobMeta.rawReference).toBe(uuid);
-        expect(liveClient.uploadedData[liveKey]).toBe(ALT_LARGE_DATA);
 
         const finalDoc = await readBinaryFromMongo(container, id);
         expect(finalDoc.meta.versionId).toBe('2');
-        expect(finalDoc._blobMeta).toBeDefined();
+        expect(typeof finalDoc._blobMeta.hash).toBe('string');
+        expect(liveClient.uploadedData[liveKeyOf(finalDoc)]).toBe(ALT_LARGE_DATA);
     });
 
-    test('unchanged-data update reuses the history object and refreshes its TTL', async () => {
+    test('retry reconciliation: caller data (A) overwrites a concurrent B and re-uploads A even though its original key was deleted', async () => {
+        const Binary = require('../../../fhir/classes/4_0_0/resources/binary');
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const b64 = container.base64DataManager;
+        const id = 'binary-merge-retry-rebase';
+
+        // v1: caller R's data A externalized → key K_A.
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+        const v1 = await readBinaryFromMongo(container, id);
+        const keyA = liveKeyOf(v1);
+        const hashA = v1._blobMeta.hash;
+        expect(liveClient.uploadedData[keyA]).toBe(LARGE_DATA);
+
+        // Concurrent writer W commits data B (v2 → K_B); W's cleanup deletes the superseded K_A.
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
+        await drainPostRequest(container);
+        const v2 = await readBinaryFromMongo(container, id);
+        expect(liveClient.uploadedData[liveKeyOf(v2)]).toBe(ALT_LARGE_DATA);
+        expect(liveClient.uploadedData[keyA]).toBeUndefined(); // K_A gone
+
+        // R now reaches the version-checked manager: it read v1 and re-sends data A. R hash-skipped
+        // the upload (data matched what it read), so its sidecar still points at the now-deleted
+        // K_A and it never uploaded A itself. Its bytes survive only in the request stash
+        // (currentData captured at RETRIEVE). Drive replaceOneAsync against the concurrently-moved DB.
+        const requestInfo = getTestRequestInfo({ requestId: 'merge-retry-rebase-R' });
+        const rDoc = new Binary({ ...v1 });
+        delete rDoc._id;
+        const dataSegments = ['data'];
+        b64._stashCurrentData(requestInfo, rDoc._uuid, dataSegments, [], { content: LARGE_DATA, lastUpdated: v1._blobMeta.lastUpdated });
+        b64._stashOriginalData(requestInfo, rDoc._uuid, dataSegments, [], { hash: hashA, changed: false });
+
+        const mgr = container.databaseUpdateFactory.createDatabaseUpdateManager({ resourceType: 'Binary', base_version: '4_0_0' });
+        const { savedResource } = await mgr.replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: rDoc });
+        expect(savedResource).not.toBeNull();
+
+        // R's data A must WIN over the concurrent B, and it must live at a VALID (re-uploaded) key —
+        // never a dangling reference to the deleted K_A.
+        const committed = await readBinaryFromMongo(container, id);
+        expect(committed._blobMeta.hash).toBe(hashA);
+        const committedKey = liveKeyOf(committed);
+        expect(committedKey).not.toBe(keyA); // fresh key — K_A was deleted, so A had to be re-uploaded
+        expect(liveClient.uploadedData[committedKey]).toBe(LARGE_DATA);
+    });
+
+    test('unchanged-data $merge reuses the history object (hash-dedup) and refreshes its TTL', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const historyClient = container.historyResourceCloudStorageClient;
@@ -798,7 +692,7 @@ describe('Binary base64 S3 offload — write paths', () => {
 
         const docV1 = await readBinaryFromMongo(container, id);
         const uuid = docV1._uuid;
-        expect(docV1._blobMeta.rawReference).toBe(uuid);
+        expect(typeof docV1._blobMeta.hash).toBe('string');
         const v1Stamp = docV1._blobMeta.lastUpdated;
         expect(v1Stamp).toBeDefined();
         // Stored as a BSON Date in Mongo, matching meta.lastUpdated.
@@ -808,30 +702,30 @@ describe('Binary base64 S3 offload — write paths', () => {
         const v1HistoryKey = histKeysV1[0];
         historyClient.copyCalls = [];
 
-        // Metadata-only update: same payload, different contentType => version bump, data unchanged.
+        // Metadata-only $merge: same payload, different contentType. $merge uses the hash-skip path
+        // (data unchanged), which keeps the content stamp stable and refreshes the existing history
+        // object's TTL via copy-onto-self — unlike PUT/PATCH, which always rotate to a fresh key.
         await request
-            .put(`/4_0_0/Binary/${id}`)
+            .post(`/4_0_0/Binary/$merge`)
             .send({ ...buildBinary({ id, data: LARGE_DATA }), contentType: 'application/xml' })
             .set(getHeaders())
             .expect(200);
         await drainPostRequest(container);
 
-        // No NEW history object; the existing one had its TTL refreshed via copy-onto-self.
+        // No NEW history object (same hash); the existing one had its TTL refreshed via copy-onto-self.
         expect(historyKeysFor(historyClient, uuid)).toEqual(histKeysV1);
         expect(historyClient.copyCalls).toContain(v1HistoryKey);
 
-        // Current doc carried the same content stamp forward (chain discriminator unchanged).
+        // $merge kept the content stamp stable (data unchanged).
         const docV2 = await readBinaryFromMongo(container, id);
         expect(docV2._blobMeta.lastUpdated).toEqual(v1Stamp);
-        expect(docV2._blobMeta.rawReference).toBe(uuid);
         expect(docV2.contentType).toBe('application/xml');
 
-        // History collection: one snapshot per version, both referencing the same reused
-        // history object (same rawReference + lastUpdated), neither carrying inline data.
+        // History collection: one snapshot per version, both pinned to the same content stamp,
+        // neither carrying inline data.
         const snapshots = await historySnapshotsFor(container, uuid);
         expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2']);
         for (const snap of snapshots) {
-            expect(snap._blobMeta.rawReference).toBe(uuid);
             expect(snap._blobMeta.lastUpdated).toEqual(v1Stamp);
             expect(snap.data).toBeUndefined();
         }
@@ -863,11 +757,11 @@ describe('Binary base64 S3 offload — write paths', () => {
             .expect(200);
         await drainPostRequest(container);
 
-        // Two distinct history objects now (one per content), live overwritten with new bytes.
+        // Two distinct history objects now (one per content, hash-keyed); the live key rotated to
+        // the new version's timestamped object holding the new bytes.
         expect(historyKeysFor(historyClient, uuid).length).toBe(2);
-        expect(liveClient.uploadedData[`Binary_4_0_0/${uuid}`]).toBe(ALT_LARGE_DATA);
-
         const docV2 = await readBinaryFromMongo(container, id);
+        expect(liveClient.uploadedData[liveKeyOf(docV2)]).toBe(ALT_LARGE_DATA);
         expect(docV2._blobMeta.lastUpdated).not.toEqual(v1Stamp);
 
         // History collection: two snapshots, each pinned to its own content object
@@ -882,7 +776,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         }
     });
 
-    test('unchanged-data update re-uploads when the history object has expired', async () => {
+    test('unchanged-data $merge re-uploads when the history object has expired', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const historyClient = container.historyResourceCloudStorageClient;
@@ -903,8 +797,10 @@ describe('Binary base64 S3 offload — write paths', () => {
         delete historyClient.uploadedData[v1HistoryKey];
         historyClient.copyCalls = [];
 
+        // Metadata-only $merge (data unchanged) → hash-skip path attempts the copy-onto-self TTL
+        // refresh; the source is gone, so it falls back to re-uploading the payload to the same key.
         await request
-            .put(`/4_0_0/Binary/${id}`)
+            .post(`/4_0_0/Binary/$merge`)
             .send({ ...buildBinary({ id, data: LARGE_DATA }), contentType: 'application/xml' })
             .set(getHeaders())
             .expect(200);
@@ -915,7 +811,7 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(historyClient.uploadedData[v1HistoryKey]).toBe(LARGE_DATA);
     });
 
-    test('content stamp stays stable across multiple unchanged updates (chain integrity)', async () => {
+    test('content stamp stays stable across multiple unchanged $merge updates (chain integrity)', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();
         const historyClient = container.historyResourceCloudStorageClient;
@@ -932,9 +828,11 @@ describe('Binary base64 S3 offload — write paths', () => {
         const uuid = docV1._uuid;
         const v1Stamp = docV1._blobMeta.lastUpdated;
 
+        // $merge keeps the content stamp stable when data is unchanged (hash-skip reuse), so the
+        // history chain stays pinned to one object across metadata-only versions.
         for (const contentType of ['application/xml', 'text/plain']) {
             await request
-                .put(`/4_0_0/Binary/${id}`)
+                .post(`/4_0_0/Binary/$merge`)
                 .send({ ...buildBinary({ id, data: LARGE_DATA }), contentType })
                 .set(getHeaders())
                 .expect(200);
@@ -951,7 +849,6 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(snapshots.map(s => s.meta.versionId)).toEqual(['1', '2', '3']);
         for (const snap of snapshots) {
             expect(snap._blobMeta.lastUpdated).toEqual(v1Stamp);
-            expect(snap._blobMeta.rawReference).toBe(uuid);
         }
     });
 });
