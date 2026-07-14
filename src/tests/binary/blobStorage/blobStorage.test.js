@@ -350,6 +350,85 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(Object.keys(liveClient.uploadedData).some(k => k.startsWith(`Binary_4_0_0/${smallDoc._uuid}/`))).toBe(false);
     });
 
+    test('$merge changing the data rotates the live key AND deletes the superseded live object', async () => {
+        // The merged doc inherits the current version's `_blobMeta`, so the data-change upload
+        // branch rotates to a fresh key. The superseded key must be deleted post-commit — the same
+        // cleanup PUT/PATCH get, driven off the recorded previous key rather than `alwaysCreateNew`.
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-merge-change-cleanup';
+
+        // Seed an externalized Binary.
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const docV1 = await readBinaryFromMongo(container, id);
+        const keyV1 = liveKeyOf(docV1);
+        expect(liveClient.uploadedData[keyV1]).toBe(LARGE_DATA);
+
+        // $merge a DIFFERENT above-threshold payload → data change on the existing resource.
+        await request
+            .post('/4_0_0/Binary/$merge')
+            .send(buildBinary({ id, data: ALT_LARGE_DATA }))
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        const docV2 = await readBinaryFromMongo(container, id);
+        const keyV2 = liveKeyOf(docV2);
+
+        // New live object holds the new bytes at a fresh key...
+        expect(keyV2).not.toBe(keyV1);
+        expect(liveClient.uploadedData[keyV2]).toBe(ALT_LARGE_DATA);
+        // ...and the superseded live object is gone (the bug: it used to linger orphaned).
+        expect(liveClient.uploadedData[keyV1]).toBeUndefined();
+    });
+
+    test('$merge self-heals when the referenced live object is missing: re-uploads incoming data instead of erroring', async () => {
+        // A prior version externalized `data`, but its live object was lost from S3 (deleted out of
+        // band / TTL expired). RETRIEVE of the current version can't find it — but the incoming
+        // $merge carries fresh `data`, so it must NOT 500: log the miss and let INSERT re-upload.
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-merge-missing-live';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: LARGE_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const docV1 = await readBinaryFromMongo(container, id);
+        const keyV1 = liveKeyOf(docV1);
+        expect(liveClient.uploadedData[keyV1]).toBe(LARGE_DATA);
+
+        // Simulate the live object vanishing from S3.
+        delete liveClient.uploadedData[keyV1];
+
+        // $merge new above-threshold data — must succeed despite the missing current live object.
+        await request
+            .post('/4_0_0/Binary/$merge')
+            .send(buildBinary({ id, data: ALT_LARGE_DATA }))
+            .set(getHeaders())
+            .expect(200);
+        await drainPostRequest(container);
+
+        // Self-healed: fresh live object holds the incoming bytes, sidecar points at it, and the
+        // stale (missing) key is not referenced.
+        const docV2 = await readBinaryFromMongo(container, id);
+        expect(docV2._blobMeta).toBeDefined();
+        const keyV2 = liveKeyOf(docV2);
+        expect(keyV2).not.toBe(keyV1);
+        expect(liveClient.uploadedData[keyV2]).toBe(ALT_LARGE_DATA);
+    });
+
     test('PUT without /data field deletes the orphaned live S3 object and clears _blobMeta', async () => {
         const request = await createTestRequest(registerMockClients);
         const container = getTestContainer();

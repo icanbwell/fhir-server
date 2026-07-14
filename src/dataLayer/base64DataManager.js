@@ -95,8 +95,8 @@ class Base64DataManager {
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - enables the preSave
      *        `_uuid` step (INSERT) and the per-request stashes; RETRIEVE still works without it.
      * @param {{alwaysCreateNew?: boolean}} [options] - INSERT-only. `alwaysCreateNew: true` (PUT/PATCH,
-     *        which have no version check) always uploads a fresh live object and stashes the prior
-     *        `_blobMeta` for post-commit cleanup, instead of skipping on unchanged content.
+     *        which have no version check) always uploads a fresh live object instead of skipping on
+     *        unchanged content. (Superseded-key cleanup is recorded on any rotation, not just here.)
      * @returns {Promise<import('../fhir/classes/4_0_0/resources/resource')>} the same `resource`.
      */
     async transformAsync (resource, operation, requestInfo, options = {}) {
@@ -187,8 +187,8 @@ class Base64DataManager {
      * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place.
      * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - keys the per-request stashes.
-     * @param {boolean} [alwaysCreateNew] - PUT/PATCH mode: skip the hash-unchanged/self-heal branch,
-     *        always upload, and stash the prior `_blobMeta.lastUpdated` as `previousLastUpdated` for cleanup.
+     * @param {boolean} [alwaysCreateNew] - PUT/PATCH mode: skip the hash-unchanged/self-heal branch and
+     *        always upload. (The upload branch records the superseded key for cleanup regardless.)
      * @returns {Promise<void>}
      * @private
      */
@@ -254,10 +254,11 @@ class Base64DataManager {
             const rawSize = Math.ceil(byteLength / 1024);
 
             // Stash our key info + bytes so conflict reconciliation can reuse or re-upload without
-            // copying the whole incoming resource.
+            // copying the whole incoming resource. `previousLastUpdated` records the superseded live
+            // key so the post-commit cleanup deletes it
             this._stashOriginalData(requestInfo, resource._uuid, dataSegments, indices, {
                 hash, content: value, changed: true, lastUpdated: new Date(candidateMs), rawSize,
-                previousLastUpdated: alwaysCreateNew && priorBlobMeta ? priorBlobMeta.lastUpdated : undefined
+                previousLastUpdated: priorBlobMeta ? priorBlobMeta.lastUpdated : undefined
             });
             // Plain sidecar object, never a `BlobMeta`: the $merge flow uses plain objects, and the
             // class flow's `_blobMeta` setter wraps this into a `BlobMeta` itself.
@@ -313,10 +314,11 @@ class Base64DataManager {
     }
 
     /**
-     * Delete the live object an `alwaysCreateNew` INSERT (PUT/PATCH) superseded: reads the
-     * `previousLastUpdated` stashed by `_processEntry` per leaf and deletes it if it differs from the
-     * resource's post-write `_blobMeta`. Read-free — a live key is never regenerated, so this can't
-     * resurrect anything. No-op when nothing was stashed (a `$merge` INSERT or a fresh create).
+     * Delete the live object this write superseded: reads the `previousLastUpdated` stashed by
+     * `_processEntry` per leaf and deletes it if it differs from the resource's post-write
+     * `_blobMeta`. Applies to any data-change rotation — PUT/PATCH (`alwaysCreateNew`) and a `$merge`
+     * that changes an already-externalized payload. Read-free — a live key is never regenerated, so
+     * this can't resurrect anything. No-op when nothing was stashed (unchanged data or a fresh create).
      * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - the just-written
      *        doc, carrying this request's new `_blobMeta`.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo - keys the stash.
@@ -644,11 +646,12 @@ class Base64DataManager {
                         });
                     }
                     if (downloaded === null || downloaded === undefined) {
-                        // Sidecar references a missing object — fail loudly rather than silently
-                        // writing back an erased `data`.
-                        throw new RethrownError({
-                            message: `Base64 payload missing in cloud storage for ${resource.resourceType}/${resource.id} at ${entry.dataPath} (key ${liveKey})`,
-                            error: new Error('NoSuchKey'),
+                        // The live object our sidecar references is gone (deleted out of band, TTL
+                        // expired, or never persisted). Don't fail the request: log for observability
+                        // and skip hydration for this leaf. On a WRITE that carries `data`, the diff
+                        // then sees `data` as changed and the INSERT re-uploads it to a fresh key
+                        // (self-heal); on a read, the response simply omits the unrecoverable payload.
+                        logError(`Base64 payload missing in cloud storage for ${resource.resourceType}/${resource.id} at ${entry.dataPath}`, {
                             source: 'Base64DataManager',
                             args: {
                                 resourceType: resource.resourceType,
@@ -657,6 +660,7 @@ class Base64DataManager {
                                 key: liveKey
                             }
                         });
+                        return;
                     }
                     content = downloaded;
                     // Keep `_blobMeta` in place: INSERT's orphan-cleanup branch reads it to detect
