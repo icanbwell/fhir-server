@@ -38,15 +38,23 @@ class CloudStorageClient {
      * @typedef {Object} UploadAsyncParams
      * @property {string} filePath
      * @property {string|Buffer} data
-     * @property {string} [ifMatch] - when set, the write is conditional (If-Match on the object's
-     *          current ETag); it succeeds only if the object is unchanged since that ETag.
+     * @property {boolean} [ifNoneMatch] - when truthy, the write is a conditional create
+     *          (If-None-Match: '*'); it succeeds only if the object does not already exist.
      *
      * @param {UploadAsyncParams}
-     * @returns {Promise<object|null>} the provider's raw upload response (which carries the
-     *          object's ETag) on success, or null when a conditional `ifMatch` precondition
-     *          failed (object changed since the ETag was captured).
+     * @returns {Promise<object|null>} the provider's raw upload response on success, or null when a
+     *          conditional `ifNoneMatch` precondition failed (the object already exists).
      */
-    async uploadAsync({ filePath, data, ifMatch }) {
+    async uploadAsync({ filePath, data, ifNoneMatch }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
+     * Whether an object exists at the given path. Cheap existence probe — no body is transferred.
+     * @param {string} filePath
+     * @returns {Promise<boolean>}
+     */
+    async existsAsync(filePath) {
         throw Error('Not Implemented');
     }
 

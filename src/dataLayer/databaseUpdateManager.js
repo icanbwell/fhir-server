@@ -13,10 +13,11 @@ const { ReadPreference } = require('mongodb');
 const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
 const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { RethrownError } = require('../utils/rethrownError');
+const { Base64DataManager } = require('./base64DataManager');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
-const { logInfo, logError } = require('../operations/common/logging');
+const { logInfo } = require('../operations/common/logging');
 
 class DatabaseUpdateManager {
     /**
@@ -84,11 +85,12 @@ class DatabaseUpdateManager {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
-         * Used to re-upload changed base64 payloads to the live key before each retry commit,
-         * so concurrent writes to the same resource converge (see Base64DataManager §17).
-         * @type {import('./base64DataManager').Base64DataManager|undefined}
+         * Used to reconcile this request's own externalized base64 payload change against the
+         * generic merge/diff, and to clean up superseded/orphaned live-bucket objects.
+         * @type {Base64DataManager}
          */
         this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
     }
 
     /**
@@ -154,7 +156,6 @@ class DatabaseUpdateManager {
     async replaceOneAsync ({ base_version, requestInfo, doc, smartMerge = true }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         assertTypeEquals(doc, Resource);
-        const originalDoc = doc.clone();
         const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
         doc = await this.preSaveManager.preSaveAsync({ resource: doc, options: preSaveOptions });
 
@@ -181,6 +182,11 @@ class DatabaseUpdateManager {
             let resourceInDatabase = await databaseQueryManager.findOneAsync({
                 query: { _uuid: doc._uuid }, options: findQueryOptions
             });
+            // Snapshot the live-object refs of the version we're about to supersede so the
+            // post-commit cleanup deletes the right objects (path-aware, per configured leaf).
+            // Re-captured on each retry re-read so a concurrent writer moving the DB forward doesn't
+            // leave us cleaning up a stale version.
+            let previousLiveRefs = this.base64DataManager.getLiveObjectRefs(resourceInDatabase);
             await logTraceSystemEventAsync(
                 {
                     event: 'replaceOneAsync' + `_${doc.resourceType}`,
@@ -209,16 +215,11 @@ class DatabaseUpdateManager {
                     smartMerge
                 }
             );
+            updatedResource = await this.base64DataManager.resolveWriteForExternalizedDataChange(
+                updatedResource, resourceInDatabase, requestInfo, this._forceBase64Write
+            );
             if (!updatedResource) {
-                // The diff can't see an externalized base64 payload change (the `_blobMeta`
-                // sidecar is stripped during normalization), so a payload-only concurrent update
-                // would otherwise collapse to a no-op and be silently dropped. If this request
-                // did change the payload, force it through (last-writer-wins) rebased onto current.
-                updatedResource = this._forceBase64UpdateIfChanged(resourceInDatabase, doc, requestInfo);
-                if (!updatedResource) {
-                    return { savedResource: null, patches: null }; // nothing to do
-                }
-                patches = null;
+                return { savedResource: null, patches: null };
             }
             doc = updatedResource;
             /**
@@ -232,11 +233,6 @@ class DatabaseUpdateManager {
                 const filter = previousVersionId > 0
                     ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
                     : { _uuid: updatedDoc._uuid };
-                // Re-upload any base64 payload this request is changing so the live object holds
-                // our bytes at commit time (converges concurrent writes on the shared live key).
-                if (this.base64DataManager) {
-                    await this.base64DataManager.reuploadChangedToLiveAsync(updatedDoc, requestInfo);
-                }
                 const updateResult = await collection.replaceOne(filter, updatedDoc.toJSONInternal());
                 logInfo("Retrying resource merge due to concurrent update request", {
                     id: updatedDoc.id,
@@ -271,6 +267,9 @@ class DatabaseUpdateManager {
                     resourceInDatabase = await databaseQueryManager.findOneAsync({
                         query: { _uuid: doc._uuid }, options: findQueryOptions
                     });
+                    // A concurrent writer moved the DB forward — refresh the snapshot so we clean up
+                    // the version the next attempt actually supersedes.
+                    previousLiveRefs = this.base64DataManager.getLiveObjectRefs(resourceInDatabase);
 
                     if (resourceInDatabase === null) {
                         throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
@@ -285,10 +284,9 @@ class DatabaseUpdateManager {
                                 }
                             )
                         );
-                        if (!updatedResource) {
-                            // Payload-only change invisible to the diff — force it through (see above).
-                            updatedResource = this._forceBase64UpdateIfChanged(resourceInDatabase, doc, requestInfo);
-                        }
+                        updatedResource = await this.base64DataManager.resolveWriteForExternalizedDataChange(
+                            updatedResource, resourceInDatabase, requestInfo, this._forceBase64Write
+                        );
                         if (updatedResource) {
                             doc = updatedResource;
                         } else {
@@ -298,11 +296,7 @@ class DatabaseUpdateManager {
                     runsLeft -= 1;
                     await logTraceSystemEventAsync({
                         event: 'replaceOneAsync',
-                        message: 'retry',
-                        args: {
-                            originalDoc,
-                            doc
-                        }
+                        message: 'retry'
                     });
                 } else { // save was successful
                     await logTraceSystemEventAsync(
@@ -322,6 +316,7 @@ class DatabaseUpdateManager {
                             }
                         }
                     );
+                    await this.base64DataManager.deleteSupersededLiveObjectsAsync(doc, previousLiveRefs);
                     return { savedResource: doc, patches };
                 }
             }
@@ -332,19 +327,10 @@ class DatabaseUpdateManager {
                 )
             }
         } catch (e) {
-            // The Mongo write failed (retry exhaustion or hard error) after we may have written
-            // this request's payload to the live bucket. Roll it back — the revert is ETag-gated
-            // (If-Match on what we wrote), so it only undoes our own write and never clobbers a
-            // concurrent winner's committed bytes.
-            if (this.base64DataManager) {
-                try {
-                    await this.base64DataManager.revertLiveAsync(doc, requestInfo);
-                } catch (revertErr) {
-                    logError('Failed to revert base64 live object after write failure', {
-                        args: { source: 'DatabaseUpdateManager', error: revertErr }
-                    });
-                }
-            }
+            // Write failed after we may have uploaded fresh live keys. Delete only the keys THIS
+            // request created — never committed, so nothing references them; unchanged leaves still
+            // point at a committed prior version and must be left alone.
+            await this.base64DataManager.deleteOwnUploadedLiveObjectsAsync(doc, requestInfo);
             throw new RethrownError({
                 error: e
             });
@@ -352,29 +338,21 @@ class DatabaseUpdateManager {
     }
 
     /**
-     * When a merge collapsed to a no-op but this request actually changed the base64 payload
-     * (an externalized change the diff can't see), force the incoming doc through as the next
-     * version — the incoming doc carries the new `_blobMeta`, and the retry loop re-uploads the
-     * bytes before committing, so the payload write wins (last-writer-wins) instead of being
-     * silently dropped. Returns the version-rebased doc, or null when there's nothing to force.
+     * Force-write strategy for `resolveWriteForExternalizedDataChange`: a version-bumped copy of the
+     * current DB resource, used when the diff saw no field change but this request's externalized
+     * data still diverges (the divergent leaf is reconciled onto it afterward). Built from
+     * `currentResource` because a null diff means the non-`data` fields already match. Arrow field to
+     * keep `this` bound; uses `updateMeta` + `clone()` (the class-instance flavor).
      * @param {Resource} currentResource
-     * @param {Resource} doc - the incoming (externalized) doc
-     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @returns {Resource|null}
+     * @returns {Resource}
      * @private
      */
-    _forceBase64UpdateIfChanged (currentResource, doc, requestInfo) {
-        if (!this.base64DataManager || !this.base64DataManager.hasChangedContent(doc, requestInfo)) {
-            return null;
-        }
-        const forced = doc.clone();
-        return this.resourceMerger.updateMeta({
-            patched_resource_incoming: forced,
-            currentResource,
-            original_source: forced?.meta?.source,
-            incrementVersion: true
-        });
-    }
+    _forceBase64Write = (currentResource) => this.resourceMerger.updateMeta({
+        patched_resource_incoming: currentResource.clone(),
+        currentResource,
+        original_source: currentResource?.meta?.source,
+        incrementVersion: true
+    });
 
     /**
      * Inserts a history collection for a resource

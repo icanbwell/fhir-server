@@ -450,7 +450,8 @@ class PatchOperation {
 
                 // converting attachment.data to attachment._file_id for the response
                 resource = await this.databaseAttachmentManager.transformAttachments(resource);
-                resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
+                // TODO: remove alwaysCreateNew when this operation is updated to be version aware
+                resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
 
                 // Same as update from this point on
                 // Insert/update our resource record

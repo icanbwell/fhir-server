@@ -8,13 +8,13 @@ BlobMeta
 */
 class BlobMeta {
     /**
-     * @param {string|undefined} [rawReference]
+     * @param {string|undefined} [hash]
      * @param {number|undefined} [rawSize]
      * @param {Date|undefined} [lastUpdated]
      */
     constructor (
         {
-            rawReference,
+            hash,
             rawSize,
             lastUpdated
         } = {}
@@ -24,20 +24,21 @@ class BlobMeta {
         });
 
         /**
-         * @description Reference path within the blob bucket. For live resources this is
-         *              `<_uuid>`; for history entries it is `<_uuid>/<lastUpdated epoch ms>`.
+         * @description Content hash; used for write-time change detection and as the
+         *              history-bucket key `{ResourceType}_4_0_0/{uuid}/{hash}`. The live-bucket key
+         *              uses `lastUpdated` instead (see `Base64DataManager`).
          * @property {string|undefined}
          */
-        Object.defineProperty(this, 'rawReference', {
+        Object.defineProperty(this, 'hash', {
             enumerable: true,
             configurable: true,
-            get: () => this.__data.rawReference,
+            get: () => this.__data.hash,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
-                    this.__data.rawReference = undefined;
+                    this.__data.hash = undefined;
                     return;
                 }
-                this.__data.rawReference = valueProvided;
+                this.__data.hash = valueProvided;
             }
         });
 
@@ -61,10 +62,8 @@ class BlobMeta {
         /**
          * @description Version timestamp of the version where the current content was first
          *              stored. Stored as a BSON Date in Mongo (matching `meta.lastUpdated`).
-         *              Combined with `rawReference` it forms the history bucket key
-         *              `<rawReference>/<epoch ms>`. Distinct from `meta.lastUpdated` (which
-         *              advances on every version) — this only advances when the offloaded
-         *              content itself changes.
+         *              Distinct from `meta.lastUpdated` (which advances on every version) — this
+         *              only advances when the offloaded content itself changes.
          * @property {Date|undefined}
          */
         Object.defineProperty(this, 'lastUpdated', {
@@ -81,7 +80,7 @@ class BlobMeta {
         });
 
         Object.assign(this, {
-            rawReference,
+            hash,
             rawSize,
             lastUpdated
         });
@@ -92,7 +91,7 @@ class BlobMeta {
      */
     toJSON () {
         return removeNull({
-            rawReference: this.rawReference,
+            hash: this.hash,
             rawSize: this.rawSize,
             lastUpdated: this.lastUpdated
         });
@@ -103,7 +102,7 @@ class BlobMeta {
      */
     toJSONInternal () {
         return removeNull({
-            rawReference: this.rawReference,
+            hash: this.hash,
             rawSize: this.rawSize,
             lastUpdated: this.lastUpdated
         });

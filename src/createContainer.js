@@ -583,7 +583,8 @@ const createContainer = function () {
         postRequestProcessor: c.postRequestProcessor,
         cloneResource: (resource) => resource.clone(),
         createUpdateManager: ({resourceType, base_version}) =>
-            c.databaseUpdateFactory.createDatabaseUpdateManager({resourceType, base_version})
+            c.databaseUpdateFactory.createDatabaseUpdateManager({resourceType, base_version}),
+        base64DataManager: c.base64DataManager
     }));
 
     container.register('fastMongoBulkWriteExecutor', (c) => new MongoBulkWriteExecutor({
@@ -593,7 +594,8 @@ const createContainer = function () {
         postRequestProcessor: c.postRequestProcessor,
         cloneResource: (resource) => deepcopy(resource),
         createUpdateManager: ({resourceType, base_version}) =>
-            c.databaseUpdateFactory.createFastDatabaseUpdateManager({resourceType, base_version})
+            c.databaseUpdateFactory.createFastDatabaseUpdateManager({resourceType, base_version}),
+        base64DataManager: c.base64DataManager
     }));
 
     container.register('databaseBulkInserter', (c) => new DatabaseBulkInserter(

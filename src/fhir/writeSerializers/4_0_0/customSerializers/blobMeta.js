@@ -7,7 +7,7 @@ const BaseSerializer = require('./baseSerializer.js');
  */
 class BlobMetaSerializer extends BaseSerializer {
     fhirPropertyToSerializerMap = {
-        rawReference: null,
+        hash: null,
         rawSize: null,
         lastUpdated: null
     };

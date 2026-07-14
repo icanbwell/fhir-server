@@ -8,6 +8,7 @@ const {
     DeleteObjectCommand,
     GetObjectCommand,
     CopyObjectCommand,
+    HeadObjectCommand,
     NoSuchKey
 } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
@@ -53,29 +54,28 @@ class S3Client extends CloudStorageClient {
      * @typedef {Object} UploadAsyncParams
      * @property {string} filePath
      * @property {string|Buffer} data
-     * @property {string} [ifMatch] - when set, performs a conditional write (If-Match on the
-     *          object's current ETag); the write succeeds only if the object is unchanged since
-     *          that ETag was captured.
+     * @property {boolean} [ifNoneMatch] - when truthy, performs a conditional create
+     *          (If-None-Match: '*'); the write succeeds only if the key does not already exist.
      *
      * @param {UploadAsyncParams}
      * @returns {Promise<import('@aws-sdk/client-s3').PutObjectCommandOutput|null>} the raw
-     *          PutObject response (callers read `.ETag` when needed), or null when a conditional
-     *          `ifMatch` precondition failed (object changed/gone since the ETag was captured).
+     *          PutObject response, or null when a conditional `ifNoneMatch` precondition failed
+     *          (the key already existed for a conditional create).
      */
-    async uploadAsync({ filePath, data, ifMatch }) {
+    async uploadAsync({ filePath, data, ifNoneMatch }) {
         try {
             const params = {
                 Bucket: this.bucketName,
                 Key: filePath,
                 Body: data
             };
-            if (ifMatch) {
-                params.IfMatch = ifMatch;
+            if (ifNoneMatch) {
+                params.IfNoneMatch = '*';
             }
             return await this.client.send(new PutObjectCommand(params));
         } catch (err) {
-            if (ifMatch && this._isPreconditionFailed(err)) {
-                // Object changed since `ifMatch` was captured — caller decides to skip.
+            if (ifNoneMatch && this._isPreconditionFailed(err)) {
+                // The key already exists — caller retries with a different key.
                 return null;
             }
             throw new RethrownError({
@@ -97,6 +97,30 @@ class S3Client extends CloudStorageClient {
      */
     _isPreconditionFailed(err) {
         return err?.name === 'PreconditionFailed' || err?.$metadata?.httpStatusCode === 412;
+    }
+
+    /**
+     * Whether an object exists at the given path. Cheap existence probe — no body is transferred.
+     * @param {string} filePath
+     * @returns {Promise<boolean>}
+     */
+    async existsAsync(filePath) {
+        try {
+            await this.client.send(
+                new HeadObjectCommand({ Bucket: this.bucketName, Key: filePath })
+            );
+            return true;
+        } catch (err) {
+            if (err?.name === 'NotFound' || err?.$metadata?.httpStatusCode === 404) {
+                return false;
+            }
+            throw new RethrownError({
+                message: `Error in existsAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: { filePath }
+            });
+        }
     }
 
     /**

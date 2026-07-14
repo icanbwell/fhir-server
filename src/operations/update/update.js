@@ -407,7 +407,8 @@ class UpdateOperation {
                 }
                 // Update attachments after all validations
                 doc = await this.databaseAttachmentManager.transformAttachments(doc);
-                doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo);
+                // TODO: remove alwaysCreateNew when this operation is updated to be version aware
+                doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
 
                 if (data && data.meta) {
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

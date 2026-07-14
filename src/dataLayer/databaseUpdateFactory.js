@@ -6,6 +6,7 @@ const { ResourceMerger } = require('../operations/common/resourceMerger');
 const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { ConfigManager } = require('../utils/configManager');
+const { Base64DataManager } = require('./base64DataManager');
 
 class DatabaseUpdateFactory {
     /**
@@ -15,7 +16,7 @@ class DatabaseUpdateFactory {
      * @param {PreSaveManager} preSaveManager
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
-     * @param {import('./base64DataManager').Base64DataManager} [base64DataManager]
+     * @param {import('./base64DataManager').Base64DataManager} base64DataManager
      */
     constructor (
         {
@@ -58,9 +59,10 @@ class DatabaseUpdateFactory {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
-         * @type {import('./base64DataManager').Base64DataManager|undefined}
+         * @type {Base64DataManager}
          */
         this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
     }
 
     /**
