@@ -536,28 +536,6 @@ module.exports = {
                 options: {
                     name: 'category_coding_code.effectiveDateTime._uuid_1'
                 }
-            },
-            {
-                keys: {
-                    'method.coding.system': 1,
-                    'method.coding.code': 1,
-                    'subject._uuid': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'method.coding.system_1_method.coding.code_1_subject._uuid_1__uuid_1'
-                }
-            },
-            {
-                keys: {
-                    'category.coding.code': 1,
-                    'subject._uuid': 1,
-                    effectiveDateTime: -1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'category.coding.code_1_subject._uuid_1_effectiveDateTime_-1__uuid_1'
-                }
             }
         ],
         Organization_4_0_0: [
@@ -1144,17 +1122,6 @@ module.exports = {
                 }
             }
        ],
-        VerificationResult_4_0_0: [
-            {
-                keys: {
-                    'target._uuid': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'target._uuid_1__uuid_1'
-                }
-            }
-        ],
         Vitals_4_0_0: [
             {
                 keys: {
