@@ -1,4 +1,4 @@
-const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
+const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError, CompressionTypes } = require('kafkajs');
 const { assertIsValid, assertTypeEquals } = require('./assertType');
 const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
 const { RethrownError } = require('./rethrownError');
@@ -95,16 +95,19 @@ class KafkaClientV2 {
      * @param {Object} params
      * @param {string} params.topic
      * @param {import('kafkajs').Message[]} params.messages
+     * @param {import('kafkajs').CompressionTypes} [params.compression] optional
+     *   codec applied to the produced message-set (e.g. CompressionTypes.GZIP);
+     *   omit for no compression (default kafkajs behavior).
      * @return {Promise<void>}
      */
-    async sendCloudEventMessageAsync({ topic, messages }) {
+    async sendCloudEventMessageAsync({ topic, messages, compression }) {
         const maxRetries = parseInt(process.env.KAFKA_MAX_RETRY) || 3;
         let iteration = 1;
         let shouldRetry = false;
         let lastErrorCode = null;
         do {
             try {
-                await this.sendCloudEventMessageHelperAsync({ topic, messages });
+                await this.sendCloudEventMessageHelperAsync({ topic, messages, compression });
                 shouldRetry = false;
                 return;
             } catch (e) {
@@ -147,9 +150,11 @@ class KafkaClientV2 {
      * @param {Object} params
      * @param {string} params.topic
      * @param {import('kafkajs').Message[]} params.messages
+     * @param {import('kafkajs').CompressionTypes} [params.compression] optional
+     *   codec passed through to producer.send; omit for no compression.
      * @return {Promise<void>}
      */
-    async sendCloudEventMessageHelperAsync({ topic, messages }) {
+    async sendCloudEventMessageHelperAsync({ topic, messages, compression }) {
         if (!this.producerConnected) {
             try {
                 await this.producer.connect();
@@ -170,7 +175,7 @@ class KafkaClientV2 {
                     args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl, topic, messages }
                 });
             }
-            const result = await this.producer.send({ topic, messages });
+            const result = await this.producer.send({ topic, messages, compression });
             if (process.env.LOGLEVEL === 'DEBUG') {
                 await logTraceSystemEventAsync({
                     event: 'kafkaClientV2',

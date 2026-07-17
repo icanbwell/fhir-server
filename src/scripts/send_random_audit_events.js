@@ -22,20 +22,28 @@
  * The destination topic is hardcoded to `fhir_server.resource.AuditEvent_4_0_0`
  * (the topic the AuditEvent ClickPipe consumes into fhir.AuditEvent_4_0_0).
  *
+ * Each batch is GZIP-compressed on the wire by default (kafkajs compresses the
+ * whole message-set, so larger --batch-size values compress better). The broker
+ * stores the batch compressed and the ClickPipe consumer decompresses it
+ * transparently. Use --compression none to disable.
+ *
  * Usage:
- *   node src/scripts/send_random_audit_events.js [--count N] [--batch-size N] [--dry-run]
+ *   node src/scripts/send_random_audit_events.js [--count N] [--batch-size N] [--compression gzip|none] [--dry-run]
  *
  * Options:
- *   --count       number of random AuditEvents to send (default: 10)
- *   --batch-size  messages per produce call (default: 100)
- *   --dry-run     print the transformed message JSON to stdout, send nothing
+ *   --count        number of random AuditEvents to send (default: 10)
+ *   --batch-size   messages per produce call (default: 100)
+ *   --compression  message-set codec: gzip (default) or none
+ *   --dry-run      print the transformed message JSON to stdout, send nothing
  *
  * Examples:
  *   node src/scripts/send_random_audit_events.js --count 50
  *   node src/scripts/send_random_audit_events.js --count 5 --dry-run
+ *   node src/scripts/send_random_audit_events.js --count 50 --compression none
  */
 
 const { parseArgs } = require('node:util');
+const { CompressionTypes } = require('kafkajs');
 
 const { KafkaClientV2 } = require('../utils/kafkaClientV2');
 const { ConfigManager } = require('../utils/configManager');
@@ -59,6 +67,32 @@ const log = {
 const TOPIC = 'fhir_server.resource.AuditEvent_4_0_0';
 const DEFAULT_COUNT = 10;
 const DEFAULT_BATCH_SIZE = 100;
+// GZIP is the only codec bundled with kafkajs (snappy/lz4/zstd need extra
+// packages), so it's the safe default for compressing the produced batches.
+const DEFAULT_COMPRESSION = 'gzip';
+
+// Map the --compression CLI value to a kafkajs CompressionTypes constant.
+// `none` (or the default kafkajs behavior) is represented by undefined, which
+// producer.send treats as no compression.
+const COMPRESSION_CODECS = {
+    none: undefined,
+    gzip: CompressionTypes.GZIP
+};
+
+/**
+ * Resolves the --compression CLI value to a kafkajs CompressionTypes constant.
+ * @param {string} value CLI value (defaults to DEFAULT_COMPRESSION)
+ * @returns {import('kafkajs').CompressionTypes | undefined}
+ */
+function parseCompressionArg(value) {
+    const key = (value || DEFAULT_COMPRESSION).toLowerCase();
+    if (!Object.prototype.hasOwnProperty.call(COMPRESSION_CODECS, key)) {
+        throw new Error(
+            `Invalid --compression '${value}'. Supported: ${Object.keys(COMPRESSION_CODECS).join(', ')}`
+        );
+    }
+    return COMPRESSION_CODECS[key];
+}
 
 // recorded is spread over the last week so events land in the current monthly
 // partition and well inside the table's 13-month TTL.
@@ -226,10 +260,19 @@ function buildAuditEventMessage(auditEvent) {
  * @param {string} params.topicName fully-qualified (prefixed) topic name
  * @param {number} params.count
  * @param {number} params.batchSize
+ * @param {import('kafkajs').CompressionTypes} [params.compression] codec applied
+ *   to each produced batch; omit/undefined for no compression.
  * @param {boolean} params.dryRun
  * @returns {Promise<void>}
  */
-async function sendRandomAuditEvents({ configManager, topicName, count, batchSize, dryRun }) {
+async function sendRandomAuditEvents({
+    configManager,
+    topicName,
+    count,
+    batchSize,
+    compression,
+    dryRun
+}) {
     const messages = Array.from({ length: count }, () =>
         buildAuditEventMessage(buildRandomAuditEvent())
     );
@@ -249,15 +292,25 @@ async function sendRandomAuditEvents({ configManager, topicName, count, batchSiz
     try {
         for (let i = 0; i < messages.length; i += batchSize) {
             const batch = messages.slice(i, i + batchSize);
-            await kafkaClientV2.sendCloudEventMessageAsync({ topic: topicName, messages: batch });
+            await kafkaClientV2.sendCloudEventMessageAsync({
+                topic: topicName,
+                messages: batch,
+                compression
+            });
             log.info('Produced batch', {
                 topicName,
                 batchSize: batch.length,
                 sent: Math.min(i + batch.length, messages.length),
-                total: messages.length
+                total: messages.length,
+                // The message key is the generated AuditEvent _uuid.
+                uuids: batch.map((message) => message.key)
             });
         }
-        log.info('Finished producing AuditEvents', { topicName, count: messages.length });
+        log.info('Finished producing AuditEvents', {
+            topicName,
+            count: messages.length,
+            uuids: messages.map((message) => message.key)
+        });
     } finally {
         await kafkaClientV2.disconnect();
     }
@@ -274,12 +327,14 @@ async function main(argv = process.argv.slice(2)) {
         options: {
             count: { type: 'string' },
             'batch-size': { type: 'string' },
+            compression: { type: 'string' },
             'dry-run': { type: 'boolean', default: false }
         }
     });
 
     const count = parseIntArg(values.count, DEFAULT_COUNT, 'count', 1);
     const batchSize = parseIntArg(values['batch-size'], DEFAULT_BATCH_SIZE, 'batch-size', 1);
+    const compression = parseCompressionArg(values.compression);
     const dryRun = values['dry-run'];
 
     const configManager = new ConfigManager();
@@ -289,10 +344,18 @@ async function main(argv = process.argv.slice(2)) {
         topicName: TOPIC,
         count,
         batchSize,
+        compression: values.compression || DEFAULT_COMPRESSION,
         dryRun
     });
 
-    await sendRandomAuditEvents({ configManager, topicName: TOPIC, count, batchSize, dryRun });
+    await sendRandomAuditEvents({
+        configManager,
+        topicName: TOPIC,
+        count,
+        batchSize,
+        compression,
+        dryRun
+    });
 }
 
 // Only auto-run when invoked directly (node src/scripts/send_random_audit_events.js),
@@ -315,8 +378,10 @@ module.exports = {
     buildRandomAuditEvent,
     buildAuditEventMessage,
     sendRandomAuditEvents,
+    parseCompressionArg,
     main,
     TOPIC,
     DEFAULT_COUNT,
-    DEFAULT_BATCH_SIZE
+    DEFAULT_BATCH_SIZE,
+    DEFAULT_COMPRESSION
 };
