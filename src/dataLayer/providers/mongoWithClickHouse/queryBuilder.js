@@ -1,4 +1,5 @@
 const { TABLES, EVENT_TYPES } = require('../../../constants/clickHouseConstants');
+const { ForbiddenError } = require('../../../utils/httpErrors');
 
 /**
  * Query builder for ClickHouse Group member queries
@@ -22,6 +23,9 @@ class QueryBuilder {
      * @param {string} [params.memberReferenceSourceId] - Source ID reference (e.g., "Patient/123")
      * @param {string[]} params.accessTags - Access security tags for filtering
      * @param {string[]} params.ownerTags - Owner security tags for filtering
+     * @param {boolean} [params.hasFullAccess] - True when the caller holds a wildcard
+     *   (access/*.*) scope and legitimately sees every tenant. When true, no tenant
+     *   predicate is applied. See _buildActiveMemberHavingClause.
      * @param {number} params.limit - Page size
      * @param {string|null} params.afterGroupId - Seek cursor (group_id to start after)
      * @param {number} params.skip - Offset for numeric pagination (fallback)
@@ -32,12 +36,18 @@ class QueryBuilder {
         memberReferenceSourceId,
         accessTags = [],
         ownerTags = [],
+        hasFullAccess = false,
         limit,
         afterGroupId = null,
         skip = 0
     }) {
+        // FINAL forces merge-on-read, which the synchronous write path needs for read-after-write
+        // consistency (ClickHouse is the source of truth for membership). Cost caveat: FINAL merges
+        // matching parts at query time, so it can get expensive for a member in very many groups or
+        // under heavy insert pressure; if reverse-lookup latency regresses, revisit with a lighter
+        // deduplicating read.
         const havingClause = this._buildActiveMemberHavingClause(
-            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
+            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId, hasFullAccess
         );
 
         let query;
@@ -94,16 +104,20 @@ class QueryBuilder {
      * @param {string} [params.memberReferenceSourceId] - Source ID reference
      * @param {string[]} params.accessTags - Access security tags for filtering
      * @param {string[]} params.ownerTags - Owner security tags for filtering
+     * @param {boolean} [params.hasFullAccess] - True when the caller holds a wildcard
+     *   (access/*.*) scope and legitimately sees every tenant. When true, no tenant
+     *   predicate is applied. See _buildActiveMemberHavingClause.
      * @returns {{query: string, query_params: Object}}
      */
     static buildCountGroupsByMemberQuery({
         memberReferenceUuid,
         memberReferenceSourceId,
         accessTags = [],
-        ownerTags = []
+        ownerTags = [],
+        hasFullAccess = false
     }) {
         const havingClause = this._buildActiveMemberHavingClause(
-            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
+            accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId, hasFullAccess
         );
 
         const query = `
@@ -208,14 +222,25 @@ class QueryBuilder {
      * entity_reference_uuid and entity_reference_source_id are AggregateFunction columns,
      * so they must be filtered via argMaxMerge() in HAVING, not WHERE.
      *
+     * TENANT ISOLATION (fail-closed, admin-exempt), mirroring SecurityTagManager. Authorization is
+     * decided upstream, not inferred here from whether tags are present:
+     *   - Full-access admin (access/*.*) → empty tags + hasFullAccess: no tenant predicate applied.
+     *   - Scoped caller → filter by the caller's access/owner tags.
+     *   - Unscoped non-admin (no tags, not full access) → ForbiddenError (403). Defense in depth:
+     *     ScopesManager already 403s such a caller before the query is built.
+     *
      * @param {string[]} accessTags - Access security tags
      * @param {string[]} ownerTags - Owner security tags
      * @param {string} [memberReferenceUuid] - UUID reference to match
      * @param {string} [memberReferenceSourceId] - Source ID reference to match
+     * @param {boolean} [hasFullAccess] - True when the caller holds a wildcard scope
      * @returns {string} HAVING clause (without "HAVING" keyword)
+     * @throws {ForbiddenError} When the caller is neither scoped nor full-access
      * @private
      */
-    static _buildActiveMemberHavingClause(accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId) {
+    static _buildActiveMemberHavingClause(
+        accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId, hasFullAccess = false
+    ) {
         const clauses = [
             `argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'`,
             `argMaxMerge(inactive) = 0`
@@ -229,11 +254,30 @@ class QueryBuilder {
             clauses.push(`argMaxMerge(entity_reference_source_id) = {memberReferenceSourceId:String}`);
         }
 
+        const hasAccessTags = Array.isArray(accessTags) && accessTags.length > 0;
+        const hasOwnerTags = Array.isArray(ownerTags) && ownerTags.length > 0;
+
+        // Full/wildcard access: legitimately sees every tenant => no tenant predicate.
+        if (hasFullAccess) {
+            return clauses.join(' AND ');
+        }
+
+        // Genuinely unscoped (no tags and not full access): deny with a 403 rather
+        // than leaking cross-tenant rows. Matches the write path, which throws on
+        // empty tags.
+        if (!hasAccessTags && !hasOwnerTags) {
+            throw new ForbiddenError(
+                'Cannot query Group members without an access scope: the caller has ' +
+                'neither security tags nor full access. Denying to prevent cross-tenant access.'
+            );
+        }
+
+        // Scoped caller: filter on the tags they carry.
         // Security tags are AggregateFunction columns, must filter in HAVING after argMaxMerge
-        if (accessTags.length > 0) {
+        if (hasAccessTags) {
             clauses.push(`hasAny(argMaxMerge(access_tags), {accessTags:Array(String)})`);
         }
-        if (ownerTags.length > 0) {
+        if (hasOwnerTags) {
             clauses.push(`hasAny(argMaxMerge(owner_tags), {ownerTags:Array(String)})`);
         }
 
