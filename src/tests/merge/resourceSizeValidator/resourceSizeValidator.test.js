@@ -1,8 +1,8 @@
 const { describe, beforeAll, afterAll, test, expect } = require('@jest/globals');
-const { ResourceSizeValidator } = require('./resourceSizeValidator');
-const { ResourceValidator } = require('../../common/resourceValidator');
+const { ResourceSizeValidator } = require('../../../operations/merge/validators/resourceSizeValidator');
+const { ResourceValidator } = require('../../../operations/common/resourceValidator');
 const { ConfigManager } = require('../../../utils/configManager');
-const { MergeResultEntry } = require('../../common/mergeResultEntry');
+const { MergeResultEntry } = require('../../../operations/common/mergeResultEntry');
 
 /**
  * Builds a ResourceSizeValidator wired to a real ResourceValidator (so the actual
