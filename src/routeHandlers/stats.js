@@ -81,7 +81,7 @@ async function openMemberClientsAsync (mongoDatabaseManager, hosts) {
  * per-mongod counter, so an index is only a safe "unused" candidate when every member reports 0.
  * @param {string} collection_name
  * @param {{host: string, db: import('mongodb').Db}[]} memberDbs
- * @returns {Promise<{usage: Object[], membersQueried: number, memberCount: number}>}
+ * @returns {Promise<{usage: Object[], membersQueried: number, memberCount: number, error: (string|null)}>}
  */
 async function getIndexUsageAcrossMembersAsync (collection_name, memberDbs) {
     /**
@@ -89,13 +89,22 @@ async function getIndexUsageAcrossMembersAsync (collection_name, memberDbs) {
      */
     const byIndex = {};
     let membersQueried = 0;
+    /**
+     * First per-member failure, surfaced so the caller can report why usage is empty
+     * (e.g. the db user lacks the indexStats privilege) instead of returning a silent [].
+     * @type {string|null}
+     */
+    let error = null;
     for (const member of memberDbs) {
         let indexStats;
         try {
             indexStats = await member.db.collection(collection_name)
                 .aggregate([{ $indexStats: {} }]).toArray();
-        } catch (error) {
-            logInfo(`$indexStats failed on ${member.host} for ${collection_name}: ${error.message}`, {});
+        } catch (e) {
+            if (!error) {
+                error = `${member.host}: ${e.message}`;
+            }
+            logInfo(`$indexStats failed on ${member.host} for ${collection_name}: ${e.message}`, {});
             continue;
         }
         membersQueried += 1;
@@ -118,7 +127,7 @@ async function getIndexUsageAcrossMembersAsync (collection_name, memberDbs) {
         // trustworthy only if every member was reachable and all reported zero
         unusedAcrossMembers: rec.ops === 0 && membersQueried === memberDbs.length && memberDbs.length > 0
     }));
-    return { usage, membersQueried, memberCount: memberDbs.length };
+    return { usage, membersQueried, memberCount: memberDbs.length, error };
 }
 
 /**
@@ -177,10 +186,14 @@ module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
         // secondaryPreferred, so a single node undercounts. 'since' shows the counter window.
         if (memberDbs && memberDbs.length > 0) {
             try {
-                const { usage, membersQueried, memberCount } =
+                const { usage, membersQueried, memberCount, error } =
                     await getIndexUsageAcrossMembersAsync(collection_name, memberDbs);
                 result.indexUsage = usage;
                 result.indexUsageMembers = { queried: membersQueried, total: memberCount };
+                // surface why usage is empty (e.g. missing indexStats privilege) instead of a silent []
+                if (membersQueried === 0 && error) {
+                    result.indexUsageError = error;
+                }
             } catch (error) {
                 result.indexUsageError = error.message;
             }
