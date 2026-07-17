@@ -96,7 +96,7 @@ describe('AccessLogClickHouseRepository', () => {
         expect(mockClickHouseClientManager.insertAsync).toHaveBeenCalledTimes(4);
     });
 
-    test('uses exponential backoff for retry delays', async () => {
+    test('uses jittered exponential backoff for retry delays', async () => {
         const error = new Error('Connection refused');
         mockClickHouseClientManager.insertAsync.mockRejectedValue(error);
 
@@ -106,7 +106,10 @@ describe('AccessLogClickHouseRepository', () => {
         await expect(repository.insertBatchAsync([sampleRow()])).rejects.toThrow();
         const elapsed = Date.now() - start;
 
-        // 50ms + 100ms = 150ms minimum delay (with some tolerance)
-        expect(elapsed).toBeGreaterThanOrEqual(100);
+        // Full-jitter backoff: per-attempt delay is uniform in [0, cap] (cap 50ms then 100ms), so
+        // there is no fixed lower bound; total delay is bounded above by ~150ms. Assert the retries
+        // actually happened (initial + 2) and stayed within the jittered upper bound.
+        expect(mockClickHouseClientManager.insertAsync).toHaveBeenCalledTimes(3);
+        expect(elapsed).toBeLessThanOrEqual(150 + 250);
     });
 });

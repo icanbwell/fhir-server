@@ -22,7 +22,15 @@ class DateTimeFormatter {
             return null;
         }
 
-        let result = isoDate;
+        // Accept Date (FHIR `instant` is a Date in the live pipeline) or anything
+        // with toISOString(); coerce to an ISO string before the string replaces.
+        // Without this, a Date throws "result.replace is not a function" and takes
+        // down the whole Group member write. This is the single ISO->ClickHouse
+        // conversion point, so hardening it here protects every caller.
+        let result = typeof isoDate === 'string'
+            ? isoDate
+            : (typeof isoDate.toISOString === 'function' ? isoDate.toISOString() : String(isoDate));
+
         for (const { from, to } of DATETIME_CONVERSION.ISO_TO_CLICKHOUSE_REPLACEMENTS) {
             result = result.replace(from, to);
         }

@@ -2,7 +2,7 @@ const { EVENT_TYPES } = require('../../constants/clickHouseConstants');
 const { FhirReferenceParser } = require('../../utils/fhir/referenceParser');
 const { SecurityTagExtractor } = require('../../utils/fhir/securityTagExtractor');
 const { logWarn, logError } = require('../../operations/common/logging');
-const { v4: uuidv4 } = require('uuid');
+const { generateUUIDv5 } = require('../../utils/uid.util');
 
 /**
  * Builder class for constructing Group member event objects
@@ -57,6 +57,59 @@ class GroupMemberEventBuilder {
     }
 
     /**
+     * Derives a stable, deterministic event_id for idempotent retries.
+     *
+     * The Group member events table is an append-only MergeTree. A client that
+     * retries a failed write (e.g. after a 500 from a transient ClickHouse
+     * outage) must not create duplicate rows. By deriving event_id as a uuidv5
+     * of (group_id | entity_reference | event_type | correlation_id), a retry
+     * of the SAME logical operation produces the SAME event_id. Combined with a
+     * deterministic event_time (see the handler, which sources it from
+     * meta.lastUpdated) the full row — and thus the MergeTree ORDER BY key —
+     * is identical on retry, so argMax aggregation converges to one logical
+     * member state instead of diverging across duplicate rows.
+     *
+     * @param {string} groupId
+     * @param {string} entityReference
+     * @param {string} eventType
+     * @param {string} correlationId - Stable identifier for the logical operation
+     * @returns {string} Deterministic UUID
+     * @private
+     */
+    static _deriveEventId(groupId, entityReference, eventType, correlationId) {
+        return generateUUIDv5(`${groupId}|${entityReference}|${eventType}|${correlationId}`);
+    }
+
+    /**
+     * Extracts the FHIR meta.versionId as a non-negative integer for causal ordering.
+     *
+     * meta.versionId is server-assigned and increments on every write to the resource, so a
+     * causally-later operation carries a higher version_id. It is the leading term of the
+     * current-state argMax tie-break tuple (version_id, batch_seq, event_time, event_id), so a
+     * later add/remove deterministically wins over an earlier one instead of the tie being decided
+     * by event_id — a content hash, not causal order. A retry of the same committed version reuses
+     * the same version_id, so idempotency is preserved.
+     *
+     * @param {Object} groupResource
+     * @returns {number} versionId as a positive integer, or 0 when missing/unparseable
+     * @private
+     */
+    static _extractVersionId(groupResource) {
+        const parsed = parseInt(groupResource?.meta?.versionId, 10);
+        if (Number.isFinite(parsed) && parsed > 0) {
+            return parsed;
+        }
+        // A committed resource always has meta.versionId >= 1. A 0 here means it was missing or
+        // unparseable — unexpected on the live path. Warn but do not throw: 0 still sorts beneath
+        // any real version, and pre-migration rows legitimately default to 0.
+        logWarn('Group member event has no usable meta.versionId; defaulting version_id to 0', {
+            groupId: groupResource?.id,
+            versionId: groupResource?.meta?.versionId
+        });
+        return 0;
+    }
+
+    /**
      * Creates an event object with all required fields
      * Returns events with ISO timestamps (domain format).
      * Repository layer handles database-specific format conversions.
@@ -67,11 +120,14 @@ class GroupMemberEventBuilder {
         entityReference,
         eventType,
         eventTime,
+        versionId = 0,
+        batchSeq = 0,
         member,
         groupSourceId,
         groupSourceAuthority,
         accessTags,
-        ownerTags
+        ownerTags,
+        correlationId
     }) {
         const sourceAssigningAuthority = this._extractSourceAssigningAuthority(
             ownerTags,
@@ -97,8 +153,13 @@ class GroupMemberEventBuilder {
             );
         }
 
+        // Stable correlation id for the logical operation. Falls back to the
+        // entity reference so a missing correlation still yields a deterministic
+        // (though per-reference-only) id rather than a random one.
+        const effectiveCorrelationId = correlationId || `${groupId}|${entityReference}`;
+
         return {
-            event_id: uuidv4(),
+            event_id: this._deriveEventId(groupId, entityReference, eventType, effectiveCorrelationId),
             group_id: groupId,
             entity_reference: entityReference,
             entity_reference_uuid: entityReferenceUuid,
@@ -106,9 +167,14 @@ class GroupMemberEventBuilder {
             entity_type: FhirReferenceParser.extractEntityType(entityReference),
             event_type: eventType,
             event_time: eventTime,
+            // Causal-ordering tie-break terms: version_id leads, batch_seq disambiguates events
+            // within a single write, both sitting above event_time/event_id in the argMax tuple.
+            version_id: versionId,
+            batch_seq: batchSeq,
             period_start: member?.period?.start || null,
             period_end: member?.period?.end || null,
             inactive: member?.inactive ? 1 : 0,
+            correlation_id: effectiveCorrelationId,
             group_source_id: groupSourceId,
             group_source_assigning_authority: groupSourceAuthority,
             access_tags: accessTags,
@@ -127,6 +193,7 @@ class GroupMemberEventBuilder {
      * @param {Object} [params.member] - FHIR Group.member object (optional, for period/inactive)
      * @param {Object} params.groupResource - Full Group resource for metadata extraction
      * @param {string} [params.eventTime] - ISO timestamp (defaults to now)
+     * @param {string} [params.correlationId] - Stable id for the logical operation (enables idempotent retries)
      *
      * @returns {Object} Event object ready for insertion
      *
@@ -143,7 +210,7 @@ class GroupMemberEventBuilder {
      *   groupResource: { id: '...', meta: { security: [...] }, ... }
      * });
      */
-    static buildEvent({ groupId, entityReference, eventType, member, groupResource, eventTime }) {
+    static buildEvent({ groupId, entityReference, eventType, member, groupResource, eventTime, correlationId }) {
         const timestamp = eventTime || new Date().toISOString();
 
         return this._createEventObject({
@@ -151,11 +218,14 @@ class GroupMemberEventBuilder {
             entityReference,
             eventType,
             eventTime: timestamp,
+            versionId: this._extractVersionId(groupResource),
+            batchSeq: 0,
             member,
             groupSourceId: groupResource._sourceId || '',
             groupSourceAuthority: groupResource._sourceAssigningAuthority || '',
             accessTags: SecurityTagExtractor.extractAccessTags(groupResource),
-            ownerTags: SecurityTagExtractor.extractOwnerTags(groupResource)
+            ownerTags: SecurityTagExtractor.extractOwnerTags(groupResource),
+            correlationId
         });
     }
 
@@ -185,7 +255,7 @@ class GroupMemberEventBuilder {
      *   groupResource: groupDoc
      * });
      */
-    static buildEvents({ groupId, members, eventType, groupResource, eventTime }) {
+    static buildEvents({ groupId, members, eventType, groupResource, eventTime, correlationId, batchSeqOffset = 0 }) {
         if (!members || members.length === 0) {
             return [];
         }
@@ -196,8 +266,12 @@ class GroupMemberEventBuilder {
         const groupSourceAuthority = groupResource._sourceAssigningAuthority || '';
         const accessTags = SecurityTagExtractor.extractAccessTags(groupResource);
         const ownerTags = SecurityTagExtractor.extractOwnerTags(groupResource);
+        // version_id is per-resource-version (same for every event in this write); batch_seq is the
+        // per-event index within the write. batchSeqOffset lets a caller assembling a combined
+        // add+remove batch keep batch_seq globally monotonic across both sub-batches.
+        const versionId = this._extractVersionId(groupResource);
 
-        return members.map(member => {
+        return members.map((member, index) => {
             const entityReference = member.entity.reference;
 
             return this._createEventObject({
@@ -205,11 +279,14 @@ class GroupMemberEventBuilder {
                 entityReference,
                 eventType,
                 eventTime: timestamp,
+                versionId,
+                batchSeq: batchSeqOffset + index,
                 member,
                 groupSourceId,
                 groupSourceAuthority,
                 accessTags,
-                ownerTags
+                ownerTags,
+                correlationId
             });
         });
     }
@@ -225,13 +302,15 @@ class GroupMemberEventBuilder {
      *
      * @returns {Array<Object>} Array of "added" events
      */
-    static buildAddedEvents({ groupId, members, groupResource, eventTime }) {
+    static buildAddedEvents({ groupId, members, groupResource, eventTime, correlationId, batchSeqOffset = 0 }) {
         return this.buildEvents({
             groupId,
             members,
             eventType: EVENT_TYPES.MEMBER_ADDED,
             groupResource,
-            eventTime
+            eventTime,
+            correlationId,
+            batchSeqOffset
         });
     }
 
@@ -246,13 +325,15 @@ class GroupMemberEventBuilder {
      *
      * @returns {Array<Object>} Array of "removed" events
      */
-    static buildRemovedEvents({ groupId, members, groupResource, eventTime }) {
+    static buildRemovedEvents({ groupId, members, groupResource, eventTime, correlationId, batchSeqOffset = 0 }) {
         return this.buildEvents({
             groupId,
             members,
             eventType: EVENT_TYPES.MEMBER_REMOVED,
             groupResource,
-            eventTime
+            eventTime,
+            correlationId,
+            batchSeqOffset
         });
     }
 
@@ -279,7 +360,7 @@ class GroupMemberEventBuilder {
      * });
      * // Returns: { addedEvents: [Patient/2], removedEvents: [Patient/1], totalEvents: 2 }
      */
-    static buildDiffEvents({ groupId, oldMembers, newMembers, groupResource, eventTime }) {
+    static buildDiffEvents({ groupId, oldMembers, newMembers, groupResource, eventTime, correlationId }) {
         const timestamp = eventTime || new Date().toISOString();
 
         // Create sets of references for efficient lookup
@@ -300,18 +381,24 @@ class GroupMemberEventBuilder {
             m => m.entity?.reference && !newRefs.has(m.entity.reference)
         );
 
+        // Keep batch_seq monotonic across the combined batch: additions occupy [0, added), removals
+        // continue at [added, added + removed) so the two sub-batches never collide.
         const addedEvents = this.buildAddedEvents({
             groupId,
             members: addedMembers,
             groupResource,
-            eventTime: timestamp
+            eventTime: timestamp,
+            correlationId,
+            batchSeqOffset: 0
         });
 
         const removedEvents = this.buildRemovedEvents({
             groupId,
             members: removedMembers,
             groupResource,
-            eventTime: timestamp
+            eventTime: timestamp,
+            correlationId,
+            batchSeqOffset: addedMembers.length
         });
 
         return {
