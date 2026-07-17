@@ -23,6 +23,10 @@ async function main() {
                 res.end(JSON.stringify({ status: 'starting' }));
             }
         });
+        healthServer.on('error', (err) => {
+            logError('Health server error', { error: err.message });
+            process.exit(1);
+        });
         healthServer.listen(3000);
 
         logInfo('Starting bulk import orchestrator', { topic, groupId });
@@ -36,6 +40,7 @@ async function main() {
 
         const shutdown = async (signal) => {
             logInfo(`Received ${signal}, shutting down bulk import orchestrator`);
+            isReady = false;
             try {
                 await kafkaClientV2.removeConsumerAsync({ consumer });
             } catch (e) {
