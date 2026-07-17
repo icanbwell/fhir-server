@@ -236,6 +236,13 @@ module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
         // opt-in heavy mode: /stats?sizes=true adds data/index sizes + index usage per collection
         const includeSizes = Boolean(req.query) && (req.query.sizes === 'true' || req.query.sizes === '1');
 
+        // In sizes mode, exclude *_History collections: they live on a separate cluster,
+        // $indexStats is not run against them, and they only add noise to the size ranking.
+        // The default (non-sizes) response is unchanged and still includes history collections.
+        const collectionsToReport = includeSizes
+            ? Array.from(collection_names).filter((name) => !name.includes('_History'))
+            : Array.from(collection_names);
+
         // For cross-member index usage, open a direct connection to each member of the client-db
         // replica set. Only in sizes mode; skipped for standalone (e.g. tests, single host).
         /**
@@ -254,7 +261,7 @@ module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
             // concurrency to avoid a load spike across the (100+) collections.
             const concurrency = includeSizes ? 4 : 25;
             const collection_stats = await async.mapLimit(
-                Array.from(collection_names),
+                collectionsToReport,
                 concurrency,
                 async (collection_name) => {
                     const isHistory = collection_name.includes('_History');
