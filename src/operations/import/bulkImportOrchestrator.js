@@ -1,3 +1,4 @@
+const http = require('http');
 const { createContainer } = require('../../createContainer');
 const { initialize } = require('../../winstonInit');
 const { logInfo, logError } = require('../common/logging');
@@ -11,6 +12,18 @@ async function main() {
         const { kafkaClientV2, configManager, bulkImportOrchestratorRunner } = container;
         const topic = configManager.kafkaBulkImportTaskCreatedTopic;
         const groupId = configManager.bulkImportOrchestratorGroupId;
+
+        let isReady = false;
+        const healthServer = http.createServer((req, res) => {
+            if (isReady) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'ok' }));
+            } else {
+                res.writeHead(503, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'starting' }));
+            }
+        });
+        healthServer.listen(3000);
 
         logInfo('Starting bulk import orchestrator', { topic, groupId });
 
@@ -44,6 +57,7 @@ async function main() {
         });
 
         await joinPromise;
+        isReady = true;
         logInfo('Bulk import orchestrator joined group', { groupId });
     } catch (e) {
         console.error(JSON.stringify({
