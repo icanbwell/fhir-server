@@ -156,6 +156,10 @@ const { GenericClickHouseQueryBuilder } = require('./dataLayer/builders/genericC
 const { GenericClickHouseRepository } = require('./dataLayer/repositories/genericClickHouseRepository');
 const { AccessHistoryClickHouseRepository } = require('./dataLayer/repositories/accessHistoryClickHouseRepository');
 const { AccessHistoryOperation } = require('./operations/accessHistory/accessHistory');
+const { FhirPathEvaluator } = require('./utils/fhirPathEvaluator');
+const { ViewResolver } = require('./operations/sqlOnFhir/viewResolver');
+const { ViewDefinitionValidator } = require('./operations/sqlOnFhir/viewDefinitionValidator');
+const { SqlOnFhirRunOperation } = require('./operations/sqlOnFhir/sqlOnFhirRunOperation');
 const deepcopy = require('deepcopy');
 
 /**
@@ -808,6 +812,18 @@ const createContainer = function () {
         cmsManager: c.cmsManager
     }));
 
+    container.register('fhirPathEvaluator', () => new FhirPathEvaluator());
+    container.register('viewResolver', () => new ViewResolver());
+    container.register('viewDefinitionValidator', () => new ViewDefinitionValidator());
+    container.register('sqlOnFhirRunOperation', (c) => new SqlOnFhirRunOperation({
+        viewResolver: c.viewResolver,
+        viewDefinitionValidator: c.viewDefinitionValidator,
+        fhirPathEvaluator: c.fhirPathEvaluator,
+        searchManager: c.searchManager,
+        databaseQueryFactory: c.databaseQueryFactory,
+        configManager: c.configManager
+    }));
+
     container.register('removeHelper', c => new RemoveHelper({
         databaseBulkInserter: c.databaseBulkInserter,
         resourceLocatorFactory: c.resourceLocatorFactory,
@@ -992,7 +1008,8 @@ const createContainer = function () {
                 accessManager: c.accessManager,
                 cmsManager: c.cmsManager,
                 accessHistoryOperation: c.accessHistoryOperation,
-                customTracer: c.customTracer
+                customTracer: c.customTracer,
+                sqlOnFhirRunOperation: c.sqlOnFhirRunOperation
             }
         )
     );
