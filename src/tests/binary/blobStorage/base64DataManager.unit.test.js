@@ -187,3 +187,230 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         expect(ctx.client.uploadedData[key1]).toBe('committed-prior1'); // committed prior → kept
     });
 });
+
+describe('Base64DataManager — hasExternalizedLeaf', () => {
+    let ctx;
+    beforeEach(() => { ctx = makeManager(); });
+
+    test('true when a configured leaf has _blobMeta set', () => {
+        const resource = {
+            resourceType: 'Binary', id: 'h1', _uuid: 'uuid-h1', meta: {},
+            _blobMeta: { hash: 'h', rawSize: 1, lastUpdated: new Date() }
+        };
+        expect(ctx.mgr.hasExternalizedLeaf(resource)).toBe(true);
+    });
+
+    test('false when the leaf is still inline (no _blobMeta)', () => {
+        const resource = { resourceType: 'Binary', id: 'h2', _uuid: 'uuid-h2', meta: {}, data: 'QQ==' };
+        expect(ctx.mgr.hasExternalizedLeaf(resource)).toBe(false);
+    });
+
+    test('false for an unconfigured resource type', () => {
+        const resource = { resourceType: 'Patient', id: 'h3', _uuid: 'uuid-h3', meta: {} };
+        expect(ctx.mgr.hasExternalizedLeaf(resource)).toBe(false);
+    });
+
+    test('false when the feature is disabled', () => {
+        ctx.mgr.enableBase64FieldCloudStorage = false;
+        const resource = {
+            resourceType: 'Binary', id: 'h4', _uuid: 'uuid-h4', meta: {},
+            _blobMeta: { hash: 'h', rawSize: 1, lastUpdated: new Date() }
+        };
+        expect(ctx.mgr.hasExternalizedLeaf(resource)).toBe(false);
+    });
+});
+
+describe('Base64DataManager — excludeExternalizedLeaves', () => {
+    let ctx;
+    beforeEach(() => { ctx = makeManager(); });
+
+    test('deletes the leaf key from the view when currentResource has _blobMeta', () => {
+        const currentResource = {
+            resourceType: 'Binary', id: 'e1', _uuid: 'uuid-e1', meta: {},
+            _blobMeta: { hash: 'h', rawSize: 1, lastUpdated: new Date() }
+        };
+        const view = { resourceType: 'Binary', id: 'e1', data: 'stale-value', contentType: 'application/pdf' };
+        ctx.mgr.excludeExternalizedLeaves(view, currentResource);
+        expect('data' in view).toBe(false);
+        expect(view.contentType).toBe('application/pdf');
+    });
+
+    test('leaves the view untouched when the leaf is not externalized', () => {
+        const currentResource = { resourceType: 'Binary', id: 'e2', _uuid: 'uuid-e2', meta: {}, data: 'QQ==' };
+        const view = { resourceType: 'Binary', id: 'e2', data: 'QQ==' };
+        ctx.mgr.excludeExternalizedLeaves(view, currentResource);
+        expect(view.data).toBe('QQ==');
+    });
+
+    test('no-op when the feature is disabled', () => {
+        ctx.mgr.enableBase64FieldCloudStorage = false;
+        const currentResource = {
+            resourceType: 'Binary', id: 'e3', _uuid: 'uuid-e3', meta: {},
+            _blobMeta: { hash: 'h', rawSize: 1, lastUpdated: new Date() }
+        };
+        const view = { resourceType: 'Binary', id: 'e3', data: 'stale-value' };
+        ctx.mgr.excludeExternalizedLeaves(view, currentResource);
+        expect(view.data).toBe('stale-value');
+    });
+});
+
+describe('Base64DataManager — clearExternalizedLeaf', () => {
+    let ctx;
+    beforeEach(() => { ctx = makeManager(); });
+
+    test('clears _blobMeta and stashes previousLastUpdated for cleanup', () => {
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        const finalResource = {
+            resourceType: 'Binary', id: 'c1', _uuid: 'uuid-c1', meta: {},
+            _blobMeta: { hash: 'h', rawSize: 1, lastUpdated }
+        };
+        const requestInfo = { requestId: 'clear-req-1' };
+        const entry = ctx.mgr.resourcePaths.Binary[0];
+        ctx.mgr.clearExternalizedLeaf(finalResource, entry, requestInfo);
+        expect(finalResource._blobMeta).toBeUndefined();
+        const stashed = ctx.mgr._readStashedOriginalData(requestInfo, 'uuid-c1', ['data'], []);
+        expect(stashed.previousLastUpdated).toEqual(lastUpdated);
+        expect(stashed.changed).toBe(false);
+    });
+
+    test('no-op when there is no _blobMeta to clear', () => {
+        const finalResource = { resourceType: 'Binary', id: 'c2', _uuid: 'uuid-c2', meta: {} };
+        const requestInfo = { requestId: 'clear-req-2' };
+        const entry = ctx.mgr.resourcePaths.Binary[0];
+        expect(() => ctx.mgr.clearExternalizedLeaf(finalResource, entry, requestInfo)).not.toThrow();
+        expect(finalResource._blobMeta).toBeUndefined();
+    });
+});
+
+describe('Base64DataManager — unchanged-leaf marker', () => {
+    let ctx;
+    beforeEach(() => { ctx = makeManager(); });
+
+    test('_readUnchangedLeafMarker is false until stashed, true after', () => {
+        const requestInfo = { requestId: 'marker-req-1' };
+        expect(ctx.mgr._readUnchangedLeafMarker(requestInfo, 'uuid-m1', ['data'], [])).toBe(false);
+        ctx.mgr._stashUnchangedLeaf(requestInfo, 'uuid-m1', ['data'], []);
+        expect(ctx.mgr._readUnchangedLeafMarker(requestInfo, 'uuid-m1', ['data'], [])).toBe(true);
+    });
+
+    test('marker is scoped per uuid|path, not global', () => {
+        const requestInfo = { requestId: 'marker-req-2' };
+        ctx.mgr._stashUnchangedLeaf(requestInfo, 'uuid-m2', ['data'], []);
+        expect(ctx.mgr._readUnchangedLeafMarker(requestInfo, 'uuid-different', ['data'], [])).toBe(false);
+    });
+});
+
+describe('Base64DataManager — reconcileLeavesAsync', () => {
+    let ctx;
+    beforeEach(() => { ctx = makeManager(); });
+
+    test('literal value present, unchanged: forwards it to finalResource, returns no patch entry, stashes the history-TTL entry', async () => {
+        const data = 'QQ==';
+        const hash = await computeContentHashAsync(data);
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        const currentResource = {
+            resourceType: 'Binary', id: 'r1', _uuid: 'uuid-r1', meta: {},
+            _blobMeta: { hash, rawSize: 1, lastUpdated }
+        };
+        const resourceToMerge = { resourceType: 'Binary', id: 'r1', _uuid: 'uuid-r1', meta: {}, data };
+        const finalResource = { resourceType: 'Binary', id: 'r1', _uuid: 'uuid-r1', meta: {}, _blobMeta: { hash, rawSize: 1, lastUpdated } };
+        const requestInfo = { requestId: 'reconcile-req-1' };
+        const patches = await ctx.mgr.reconcileLeavesAsync(finalResource, currentResource, resourceToMerge, true, requestInfo);
+        expect(finalResource.data).toBe(data);
+        expect(patches).toEqual([]);
+    });
+
+    test('literal value present, changed: forwards it and returns a replace entry', async () => {
+        const oldData = 'QQ==';
+        const newData = 'Qg==';
+        const oldHash = await computeContentHashAsync(oldData);
+        const currentResource = {
+            resourceType: 'Binary', id: 'r2', _uuid: 'uuid-r2', meta: {},
+            _blobMeta: { hash: oldHash, rawSize: 1, lastUpdated: new Date() }
+        };
+        const resourceToMerge = { resourceType: 'Binary', id: 'r2', _uuid: 'uuid-r2', meta: {}, data: newData };
+        const finalResource = { resourceType: 'Binary', id: 'r2', _uuid: 'uuid-r2', meta: {} };
+        const requestInfo = { requestId: 'reconcile-req-2' };
+        const patches = await ctx.mgr.reconcileLeavesAsync(finalResource, currentResource, resourceToMerge, true, requestInfo);
+        expect(finalResource.data).toBe(newData);
+        expect(patches).toEqual([{ op: 'replace', path: '/data', value: newData }]);
+    });
+
+    test('omitted + smartMerge false: clears the sidecar and returns a remove entry', async () => {
+        const currentResource = {
+            resourceType: 'Binary', id: 'r3', _uuid: 'uuid-r3', meta: {},
+            _blobMeta: { hash: 'h', rawSize: 1, lastUpdated: new Date() }
+        };
+        const resourceToMerge = { resourceType: 'Binary', id: 'r3', _uuid: 'uuid-r3', meta: {} };
+        const finalResource = { resourceType: 'Binary', id: 'r3', _uuid: 'uuid-r3', meta: {}, _blobMeta: { hash: 'h', rawSize: 1, lastUpdated: new Date() } };
+        const requestInfo = { requestId: 'reconcile-req-3' };
+        const patches = await ctx.mgr.reconcileLeavesAsync(finalResource, currentResource, resourceToMerge, false, requestInfo);
+        expect(finalResource._blobMeta).toBeUndefined();
+        expect(patches).toEqual([{ op: 'remove', path: '/data' }]);
+    });
+
+    test('omitted + smartMerge true: touches nothing, stashes the unchanged marker AND the history-TTL entry, returns no patch entry', async () => {
+        const currentResource = {
+            resourceType: 'Binary', id: 'r4', _uuid: 'uuid-r4', meta: {},
+            _blobMeta: { hash: 'stable-hash', rawSize: 1, lastUpdated: new Date() }
+        };
+        const resourceToMerge = { resourceType: 'Binary', id: 'r4', _uuid: 'uuid-r4', meta: {} };
+        const finalResource = { resourceType: 'Binary', id: 'r4', _uuid: 'uuid-r4', meta: {}, _blobMeta: { hash: 'stable-hash', rawSize: 1, lastUpdated: new Date() } };
+        const requestInfo = { requestId: 'reconcile-req-4' };
+        const patches = await ctx.mgr.reconcileLeavesAsync(finalResource, currentResource, resourceToMerge, true, requestInfo);
+        expect(finalResource._blobMeta).toBeDefined();
+        expect(finalResource.data).toBeUndefined();
+        expect(patches).toEqual([]);
+        expect(ctx.mgr._readUnchangedLeafMarker(requestInfo, 'uuid-r4', ['data'], [])).toBe(true);
+        const stashed = ctx.mgr._readStashedOriginalData(requestInfo, 'uuid-r4', ['data'], []);
+        expect(stashed).toEqual({ hash: 'stable-hash', changed: false });
+    });
+
+    test('leaf not externalized: returns no patch entry and does not touch finalResource', async () => {
+        const currentResource = { resourceType: 'Binary', id: 'r5', _uuid: 'uuid-r5', meta: {}, data: 'inline' };
+        const resourceToMerge = { resourceType: 'Binary', id: 'r5', _uuid: 'uuid-r5', meta: {}, data: 'inline-2' };
+        const finalResource = { resourceType: 'Binary', id: 'r5', _uuid: 'uuid-r5', meta: {}, data: 'inline-2' };
+        const requestInfo = { requestId: 'reconcile-req-5' };
+        const patches = await ctx.mgr.reconcileLeavesAsync(finalResource, currentResource, resourceToMerge, true, requestInfo);
+        expect(patches).toEqual([]);
+        expect(finalResource.data).toBe('inline-2');
+    });
+});
+
+describe('Base64DataManager — _processEntry marker check and hash-skip source (fix B)', () => {
+    let ctx;
+    beforeEach(() => { ctx = makeManager(); });
+
+    test('marked leaf is skipped entirely: no clear, no upload, _blobMeta untouched', async () => {
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        const resource = {
+            resourceType: 'Binary', id: 'p1', _uuid: 'uuid-p1', meta: {},
+            _blobMeta: { hash: 'stable-hash', rawSize: 1, lastUpdated }
+        };
+        const requestInfo = { requestId: 'process-entry-req-1' };
+        ctx.mgr._stashUnchangedLeaf(requestInfo, 'uuid-p1', ['data'], []);
+        await ctx.mgr.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
+        expect(resource._blobMeta).toEqual({ hash: 'stable-hash', rawSize: 1, lastUpdated });
+        expect(ctx.client.uploadedData).toEqual({});
+    });
+
+    test('hash-skip compares against priorBlobMeta.hash, not a RETRIEVE-populated cache', async () => {
+        // No RETRIEVE ever ran this request, so CURRENT_DATA_CACHE is empty — the old check
+        // (_readCurrentData) would always see "changed" here; fix B must not.
+        const data = 'QQ==';
+        const hash = await computeContentHashAsync(data);
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        const resource = {
+            resourceType: 'Binary', id: 'p2', _uuid: 'uuid-p2', data, meta: {},
+            _blobMeta: { hash, rawSize: 1, lastUpdated }
+        };
+        const requestInfo = { requestId: 'process-entry-req-2' };
+        ctx.client.uploadedData[`Binary_4_0_0/uuid-p2/${lastUpdated.getTime()}`] = data;
+        await ctx.mgr.transformAsync(resource, BLOB_OP.INSERT, requestInfo);
+        // Unchanged: live key must NOT rotate.
+        expect(resource._blobMeta.lastUpdated).toEqual(lastUpdated);
+        expect(ctx.client.uploadedData).toEqual({
+            [`Binary_4_0_0/uuid-p2/${lastUpdated.getTime()}`]: data
+        });
+    });
+});

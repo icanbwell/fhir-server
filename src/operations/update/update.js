@@ -355,11 +355,10 @@ class UpdateOperation {
                     resourceToMerge: resource_incoming,
                     smartMerge: false,
                     databaseAttachmentManager: this.databaseAttachmentManager,
-                    // Pass the base64 manager so RETRIEVE inlines the externalized `data` field
-                    // onto the cloned currentResource before compareObjects runs. Without this,
-                    // a PUT that omits `data` looks identical (via toJSON's public view) to a
-                    // currentResource whose `data` lives only in `_blobMeta`, the diff is empty,
-                    // and the merge no-ops — leaving the live S3 object and `_blobMeta` stale.
+                    // Pass the base64 manager so the merge can exclude the externalized `data`
+                    // field from the generic diff and reconcile it directly by hash, without ever
+                    // downloading it — see Base64DataManager.excludeExternalizedLeaves /
+                    // reconcileLeavesAsync and resourceMerger.mergeResourceAsync.
                     base64DataManager: this.base64DataManager
                 }));
                 doc = updatedResource;
