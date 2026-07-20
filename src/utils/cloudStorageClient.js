@@ -37,11 +37,24 @@ class CloudStorageClient {
      * Upload the data passed to cloud storage
      * @typedef {Object} UploadAsyncParams
      * @property {string} filePath
-     * @property {string} data
+     * @property {string|Buffer} data
+     * @property {boolean} [ifNoneMatch] - when truthy, the write is a conditional create
+     *          (If-None-Match: '*'); it succeeds only if the object does not already exist.
      *
      * @param {UploadAsyncParams}
+     * @returns {Promise<object|null>} the provider's raw upload response on success, or null when a
+     *          conditional `ifNoneMatch` precondition failed (the object already exists).
      */
-    async uploadAsync({ filePath, data }) {
+    async uploadAsync({ filePath, data, ifNoneMatch }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
+     * Whether an object exists at the given path. Cheap existence probe — no body is transferred.
+     * @param {string} filePath
+     * @returns {Promise<boolean>}
+     */
+    async existsAsync(filePath) {
         throw Error('Not Implemented');
     }
 
@@ -90,6 +103,31 @@ class CloudStorageClient {
     async downloadAsync(filePath) {
         throw Error('Not Implemented');
 
+    }
+
+    /**
+     * Delete file from cloud storage at the provided path. Idempotent: deleting a
+     * non-existent key should succeed without error.
+     * @param {string} filePath
+     */
+    async deleteAsync(filePath) {
+        throw Error('Not Implemented');
+    }
+
+    /**
+     * Copy an object within the bucket. When sourcePath === filePath this resets the
+     * object's Last-Modified timestamp, which refreshes any TTL/lifecycle age clock
+     * keyed off Last-Modified.
+     * @typedef {Object} CopyObjectAsyncParams
+     * @property {string} sourcePath
+     * @property {string} filePath
+     *
+     * @param {CopyObjectAsyncParams}
+     * @returns {Promise<boolean>} true if the object was copied, false if the source
+     *          object did not exist (e.g. already expired/deleted).
+     */
+    async copyObjectAsync({ sourcePath, filePath }) {
+        throw Error('Not Implemented');
     }
 
     /**

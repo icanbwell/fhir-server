@@ -1,12 +1,13 @@
 # This file implements the code generator for generating schema and resolvers for FHIR
 # It reads the FHIR XML schema and generates resolvers in the resolvers folder and schema in the schema folder
 
+import json
 import os
 import shutil
 import sys
 from os import path
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 from jinja2 import Environment, FileSystemLoader
 
 # Add the project root to the Python path to resolve imports
@@ -36,6 +37,44 @@ CUSTOM_SERIALIZER_PROPERTIES_CONFIG = {
     ],
     "Attachment": [{"name": "_file_id", "type": "null"}],
 }
+
+# Resolves to BlobMetaSerializer in src/fhir/writeSerializers/4_0_0/customSerializers/.
+# Hand-written there because BlobMeta is not in the FHIR R4B schema.
+_BLOB_META_EXTRA_PROPERTY: Dict[str, Any] = {
+    "name": "_blobMeta",
+    "is_complex": True,
+    "cleaned_type": "BlobMeta",
+    "import_path": "../customSerializers/blobMeta.js",
+}
+
+
+def _load_blob_meta_targets() -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Read src/dataLayer/base64DataResources.json and derive, for each entry, which
+    FHIR class's serializer should include `_blobMeta` in its allPropertyToSerializerMap.
+    Mirrors the resolution logic in generatorScripts/classes/generate_classes.py.
+    """
+    config_path = Path("src/dataLayer/base64DataResources.json")
+    if not config_path.exists():
+        return {}
+    with open(config_path, "r") as f:
+        config: Dict[str, List[Dict[str, str]]] = json.load(f)
+
+    targets: Dict[str, List[Dict[str, Any]]] = {}
+    for resource_type, entries in config.items():
+        for entry in entries:
+            blob_meta_path: str = entry["blobMetaPath"]
+            segments = [s for s in blob_meta_path.split("/") if s and s != "[]"]
+            if segments == ["_blobMeta"]:
+                target_entity = resource_type
+            elif segments[-2:] == ["attachment", "_blobMeta"]:
+                target_entity = "Attachment"
+            else:
+                target_entity = resource_type
+            targets.setdefault(target_entity, [])
+            if _BLOB_META_EXTRA_PROPERTY not in targets[target_entity]:
+                targets[target_entity].append(_BLOB_META_EXTRA_PROPERTY)
+    return targets
 
 
 def main() -> int:
@@ -74,6 +113,8 @@ def main() -> int:
 
     fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
 
+    blob_meta_targets: Dict[str, List[Dict[str, Any]]] = _load_blob_meta_targets()
+
     # now print the result
     for fhir_entity in fhir_entities:
         # use template to generate new code files
@@ -84,9 +125,10 @@ def main() -> int:
             fhir_entity.cleaned_name, serializer_template_file_name
         )
 
-        # Check if there are extra properties to be added to the serializer for this entity
-        extra_properties = CUSTOM_SERIALIZER_PROPERTIES_CONFIG.get(
-            fhir_entity.cleaned_name, []
+        # Check if there are extra properties to be added to the serializer for this entity.
+        # Copy so we can append blob_meta entries without mutating the shared config.
+        extra_properties = list(
+            CUSTOM_SERIALIZER_PROPERTIES_CONFIG.get(fhir_entity.cleaned_name, [])
         )
         output_folder = serializers_resources_folder
 
@@ -95,7 +137,9 @@ def main() -> int:
 
         elif fhir_entity.is_resource:
             if not extra_properties:
-                extra_properties = CUSTOM_SERIALIZER_PROPERTIES_CONFIG.get("Resource", [])
+                extra_properties = list(
+                    CUSTOM_SERIALIZER_PROPERTIES_CONFIG.get("Resource", [])
+                )
             output_folder = serializers_resources_folder
 
         elif fhir_entity.type_ == "BackboneElement" or fhir_entity.is_back_bone_element:
@@ -112,6 +156,9 @@ def main() -> int:
                 f"Skipping {fhir_entity.cleaned_name} as it is not a resource, backbone element, extension, or complex type."
             )
             continue
+
+        # Inject _blobMeta entries for any entity targeted by base64DataResources.json
+        extra_properties.extend(blob_meta_targets.get(fhir_entity.cleaned_name, []))
 
         file_path = output_folder.joinpath(f"{entity_file_name}.js")
         print(f"Writing: {entity_file_name} to {file_path}...")
