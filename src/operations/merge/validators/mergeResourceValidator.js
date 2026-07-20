@@ -84,11 +84,14 @@ class MergeResourceValidator extends BaseValidator {
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
     async validate({ requestInfo, incomingResources, base_version, effectiveSmartMerge }) {
-        // Merge duplicate resources from the incomingObjects array
-        incomingResources = this.customTracer.traceSync({
+        // Merge duplicate resources from the incomingObjects array. combinedResources are the
+        // outputs formed by combining 2+ same-key entries -- the only resources whose size can
+        // differ from the raw inputs (used by the size guard below).
+        const { mergedResources, combinedResources } = this.customTracer.traceSync({
             name: 'MergeResourceValidator.mergeDuplicateResourceEntries',
             func: () => this.mergeManager.mergeDuplicateResourceEntries(incomingResources)
         });
+        incomingResources = mergedResources;
         /**
          * @type {boolean}
          */
@@ -105,6 +108,46 @@ class MergeResourceValidator extends BaseValidator {
             return resource;
         });
 
+        // Defense-in-depth size guard, applied ONLY to resources that dedup actually combined.
+        // ResourceSizeValidator already bounded every raw incoming resource before this validator
+        // ran, so a resource that was NOT combined is byte-identical to what it checked and
+        // re-checking it would be wasted work. But mergeDuplicateResourceEntries (above) can
+        // concatenate several same-id AuditEvents into one combined resource larger than any
+        // individual input -- and larger than the limit -- which would otherwise be persisted
+        // unchecked. Re-check just the combined resources here (still before enrichment) and reject
+        // an oversized one as a per-resource merge error rather than writing it.
+        /**
+         * @type {MergeResultEntry[]}
+         */
+        const sizePreCheckErrors = [];
+        if (combinedResources.length > 0) {
+            const oversizedCombined = new Set();
+            for (const resource of combinedResources) {
+                const sizeOperationOutcome = this.resourceValidator.validateResourceSizeSync({
+                    resource,
+                    resourceType: resource && resource.resourceType
+                });
+                if (sizeOperationOutcome) {
+                    oversizedCombined.add(resource);
+                    sizePreCheckErrors.push(new MergeResultEntry({
+                        id: resource && resource.id,
+                        uuid: resource && resource._uuid,
+                        sourceAssigningAuthority: resource && resource._sourceAssigningAuthority,
+                        resourceType: resource && resource.resourceType,
+                        created: false,
+                        updated: false,
+                        issue: (sizeOperationOutcome.issue && sizeOperationOutcome.issue.length > 0)
+                            ? sizeOperationOutcome.issue[0]
+                            : null,
+                        operationOutcome: sizeOperationOutcome
+                    }));
+                }
+            }
+            if (oversizedCombined.size > 0) {
+                resourcesIncomingArray = resourcesIncomingArray.filter((resource) => !oversizedCombined.has(resource));
+            }
+        }
+
         let { /** @type {MergeResultEntry[]} */ mergePreCheckErrors, /** @type {Resource[]} */ validResources } =
             await this.customTracer.trace({
                 name: 'MergeResourceValidator.preMergeChecksMultipleAsync',
@@ -114,6 +157,10 @@ class MergeResourceValidator extends BaseValidator {
                         resourcesToMerge: resourcesIncomingArray
                     })
             });
+        // fold the size rejections in with the other pre-check errors
+        if (sizePreCheckErrors.length > 0) {
+            mergePreCheckErrors.push(...sizePreCheckErrors);
+        }
 
         // process only the resources that are valid
         resourcesIncomingArray = validResources;

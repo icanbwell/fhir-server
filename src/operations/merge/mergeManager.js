@@ -430,11 +430,15 @@ class MergeManager {
     /**
      * merges duplicate resources present in the list
      * @param {Object[]} resources
-     * @returns {Object[]}
+     * @returns {{mergedResources: (Object[]|Object), combinedResources: Object[]}}
+     *          mergedResources: the de-duplicated list (or the original value if not an array).
+     *          combinedResources: only the resources produced by combining 2+ same-key entries.
+     *          These are the only outputs whose size can differ from the raw inputs, so a caller
+     *          that size-guards the raw inputs elsewhere needs to re-check only these.
      */
     mergeDuplicateResourceEntries (resources) {
         if (!Array.isArray(resources)) {
-            return resources;
+            return { mergedResources: resources, combinedResources: [] };
         }
         /**
          * @type {{string: Object[]}}
@@ -464,6 +468,10 @@ class MergeManager {
          * @type {Object[]}
          */
         const mergedResources = [];
+        /**
+         * @type {Object[]}
+         */
+        const combinedResources = [];
         Object.values(resourceGroups).forEach((duplicateResourceArray) => {
             if (duplicateResourceArray.length > 1) {
                 duplicateResources.push(duplicateResourceArray[0].id);
@@ -471,7 +479,9 @@ class MergeManager {
                     (mergedResource, resource) => mergeObject(mergedResource, resource),
                     {}
                 );
-                mergedResources.push(FhirResourceWriteSerializer.serialize({obj: mergedResource}));
+                const serializedResource = FhirResourceWriteSerializer.serialize({obj: mergedResource});
+                combinedResources.push(serializedResource);
+                mergedResources.push(serializedResource);
             } else {
                 mergedResources.push(duplicateResourceArray[0]);
             }
@@ -484,7 +494,7 @@ class MergeManager {
             );
         }
 
-        return mergedResources;
+        return { mergedResources, combinedResources };
     }
 
     /**
