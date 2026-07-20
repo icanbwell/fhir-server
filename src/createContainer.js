@@ -486,6 +486,7 @@ const createContainer = function () {
                 queryRewriterManager: c.queryRewriterManager,
                 scopesManager: c.scopesManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
@@ -685,6 +686,7 @@ const createContainer = function () {
                 enrichmentManager: c.enrichmentManager,
                 r4ArgsParser: c.r4ArgsParser,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
                 searchParametersManager: c.searchParametersManager,
                 removeHelper: c.removeHelper,
                 auditLogger: c.auditLogger,
@@ -702,6 +704,7 @@ const createContainer = function () {
         enrichmentManager: c.enrichmentManager,
         r4ArgsParser: c.r4ArgsParser,
         databaseAttachmentManager: c.databaseAttachmentManager,
+        base64DataManager: c.base64DataManager,
         searchParametersManager: c.searchParametersManager,
         everythingRelatedResourceMapper: c.everythingRelatedResourceMapper,
         customTracer: c.customTracer,
@@ -726,7 +729,6 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager,
                 postRequestProcessor: c.postRequestProcessor
             }
         )
@@ -756,6 +758,7 @@ const createContainer = function () {
             enrichmentManager: c.enrichmentManager,
             configManager: c.configManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
             postRequestProcessor: c.postRequestProcessor
         }
     ));
