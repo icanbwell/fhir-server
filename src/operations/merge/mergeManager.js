@@ -430,15 +430,11 @@ class MergeManager {
     /**
      * merges duplicate resources present in the list
      * @param {Object[]} resources
-     * @returns {{mergedResources: (Object[]|Object), combinedResources: Object[]}}
-     *          mergedResources: the de-duplicated list (or the original value if not an array).
-     *          combinedResources: only the resources produced by combining 2+ same-key entries.
-     *          These are the only outputs whose size can differ from the raw inputs, so a caller
-     *          that size-guards the raw inputs elsewhere needs to re-check only these.
+     * @returns {Object[]}
      */
     mergeDuplicateResourceEntries (resources) {
         if (!Array.isArray(resources)) {
-            return { mergedResources: resources, combinedResources: [] };
+            return resources;
         }
         /**
          * @type {{string: Object[]}}
@@ -468,10 +464,6 @@ class MergeManager {
          * @type {Object[]}
          */
         const mergedResources = [];
-        /**
-         * @type {Object[]}
-         */
-        const combinedResources = [];
         Object.values(resourceGroups).forEach((duplicateResourceArray) => {
             if (duplicateResourceArray.length > 1) {
                 duplicateResources.push(duplicateResourceArray[0].id);
@@ -479,9 +471,7 @@ class MergeManager {
                     (mergedResource, resource) => mergeObject(mergedResource, resource),
                     {}
                 );
-                const serializedResource = FhirResourceWriteSerializer.serialize({obj: mergedResource});
-                combinedResources.push(serializedResource);
-                mergedResources.push(serializedResource);
+                mergedResources.push(FhirResourceWriteSerializer.serialize({obj: mergedResource}));
             } else {
                 mergedResources.push(duplicateResourceArray[0]);
             }
@@ -494,7 +484,7 @@ class MergeManager {
             );
         }
 
-        return { mergedResources, combinedResources };
+        return mergedResources;
     }
 
     /**
@@ -847,9 +837,33 @@ class MergeManager {
                 );
                 if (mergeResult) {
                     mergePreCheckErrors.push(mergeResult);
-                } else {
-                    validResources.push(r);
+                    continue;
                 }
+
+                // Reject oversized resources (currently only AuditEvent) as a per-resource merge
+                // error, after all other pre-checks have passed. This runs post-dedup -- so a
+                // resource formed by combining several same-id entries is measured at its true
+                // persisted size -- but before enrichment (_uuid / _sourceAssigningAuthority /
+                // reference rewriting), keeping parity with create.
+                const sizeOperationOutcome = this.resourceValidator.validateResourceSizeSync({
+                    resource: r,
+                    resourceType: r.resourceType
+                });
+                if (sizeOperationOutcome) {
+                    mergePreCheckErrors.push(new MergeResultEntry({
+                        id: r.id,
+                        uuid: r._uuid,
+                        sourceAssigningAuthority: r._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue: sizeOperationOutcome.issue?.[0] || null,
+                        operationOutcome: sizeOperationOutcome,
+                        resourceType: r.resourceType
+                    }));
+                    continue;
+                }
+
+                validResources.push(r);
             }
             return { mergePreCheckErrors, validResources };
         } catch (e) {

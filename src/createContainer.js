@@ -100,7 +100,6 @@ const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
 const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
 const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
-const {ResourceSizeValidator} = require('./operations/merge/validators/resourceSizeValidator');
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
 const {PostSaveHandlerFactory} = require('./dataLayer/postSaveHandlers/postSaveHandlerFactory');
@@ -525,12 +524,6 @@ const createContainer = function () {
             validators: [
                 new BundleResourceValidator(),
                 new ParametersResourceValidator(),
-                // Runs before MergeResourceValidator so the size limit is enforced on the raw
-                // client payload, before _uuid / _sourceAssigningAuthority and reference
-                // enrichment inflate it (parity with create).
-                new ResourceSizeValidator({
-                    resourceValidator: c.resourceValidator
-                }),
                 new MergeResourceValidator({
                     mergeManager: c.mergeManager,
                     databaseBulkLoader: c.databaseBulkLoader,

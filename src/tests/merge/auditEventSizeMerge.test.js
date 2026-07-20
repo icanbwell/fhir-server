@@ -84,7 +84,7 @@ describe('AuditEvent merge size limit', () => {
         expect(auditEventErrorCalls[0].errorCode).toBe(413);
     });
 
-    test('rejects the combined resource when same-id AuditEvents merge into an oversized entity[] (defense in depth)', async () => {
+    test('rejects the combined resource when same-id AuditEvents merge into an oversized entity[]', async () => {
         const request = await createTestRequest();
 
         // Two AuditEvents sharing an id, each with DISTINCT entity[] content so
@@ -100,8 +100,8 @@ describe('AuditEvent merge size limit', () => {
         const first = withEntities('a');
         const second = withEntities('b');
 
-        // Cap set just above a single payload: each incoming resource passes the per-resource
-        // ResourceSizeValidator, but the concatenated (roughly double) resource exceeds it.
+        // Cap set just above a single payload: each incoming resource is individually under the
+        // limit, but the concatenated (roughly double) resource formed by dedup exceeds it.
         const singleSize = Buffer.byteLength(JSON.stringify(first), 'utf8');
         process.env.AUDIT_EVENT_MAX_SIZE_BYTES = String(singleSize + 20);
 
