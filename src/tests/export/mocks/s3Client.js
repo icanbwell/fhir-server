@@ -6,6 +6,10 @@ class MockS3Client extends S3Client {
     // Records every copyObjectAsync target key so tests can assert TTL-refresh (touch) calls.
     copyCalls = []
 
+    // Parts uploaded via uploadPartAsync, keyed by filePath then partNumber, so
+    // completeMultiPartUploadAsync can assemble them in order like a real multipart upload.
+    uploadedParts = {}
+
     uploadAsync({ filePath, data, ifNoneMatch }) {
         if (ifNoneMatch && this.uploadedData[filePath] !== undefined) {
             // Conditional create precondition failed — the key already exists.
@@ -35,16 +39,22 @@ class MockS3Client extends S3Client {
         return 'test';
     }
 
-    async uploadPartAsync() {
-        // do nothing
+    async uploadPartAsync({ filePath, data, partNumber }) {
+        if (!this.uploadedParts[filePath]) {
+            this.uploadedParts[filePath] = {};
+        }
+        this.uploadedParts[filePath][partNumber] = data;
+        return { ETag: `"mock-etag-${partNumber}"`, PartNumber: partNumber };
     }
 
     async uploadEmptyFileAsync() {
         // do nothing
     }
 
-    async completeMultiPartUploadAsync() {
-        // do nothing
+    async completeMultiPartUploadAsync({ filePath }) {
+        const parts = this.uploadedParts[filePath] || {};
+        const partNumbers = Object.keys(parts).map(Number).sort((a, b) => a - b);
+        this.uploadedData[filePath] = partNumbers.map((partNumber) => parts[partNumber]).join('\n');
     }
 
     async abortMultiPartUploadAsync() {

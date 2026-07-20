@@ -5,6 +5,7 @@ const ExportStatusEntry = require('../../../fhir/classes/4_0_0/custom_resources/
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { DatabaseAttachmentManager } = require('../../../dataLayer/databaseAttachmentManager');
+const { Base64DataManager } = require('../../../dataLayer/base64DataManager');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
 const { EnrichmentManager } = require('../../../enrich/enrich');
@@ -20,6 +21,7 @@ const { isUuid } = require('../../../utils/uid.util');
 const { logInfo, logError, logDebug } = require('../../common/logging');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const {
+    BLOB_OP,
     COLLECTION,
     GRIDFS,
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM,
@@ -42,6 +44,7 @@ class BulkDataExportRunner {
      * @property {DatabaseExportManager} databaseExportManager
      * @property {PatientFilterManager} patientFilterManager
      * @property {DatabaseAttachmentManager} databaseAttachmentManager
+     * @property {Base64DataManager} base64DataManager
      * @property {R4SearchQueryCreator} r4SearchQueryCreator
      * @property {PatientQueryCreator} patientQueryCreator
      * @property {EnrichmentManager} enrichmentManager
@@ -64,6 +67,7 @@ class BulkDataExportRunner {
         databaseExportManager,
         patientFilterManager,
         databaseAttachmentManager,
+        base64DataManager,
         r4SearchQueryCreator,
         patientQueryCreator,
         enrichmentManager,
@@ -102,6 +106,12 @@ class BulkDataExportRunner {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {R4SearchQueryCreator}
@@ -722,6 +732,7 @@ class BulkDataExportRunner {
                         resource: doc,
                         operation: GRIDFS.RETRIEVE
                     });
+                    doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE);
                     doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
@@ -833,6 +844,7 @@ class BulkDataExportRunner {
                         resource: doc,
                         operation: GRIDFS.RETRIEVE
                     });
+                    doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.RETRIEVE);
                     doc = FhirResourceSerializer.serialize(doc.toJSONInternal());
                     currentBatch[currentBatchSize++] = JSON.stringify(doc);
                 }
