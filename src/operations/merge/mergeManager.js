@@ -263,16 +263,6 @@ class MergeManager {
             return validationOperationOutcome;
         }
 
-        // Reject oversized AuditEvents (bounds document size / avoids write-path
-        // memory pressure) as a per-resource merge error.
-        const sizeOperationOutcome = this.resourceValidator.validateResourceSizeSync({
-            resource: resourceToMerge,
-            resourceType: resourceToMerge.resourceType
-        });
-        if (sizeOperationOutcome) {
-            return sizeOperationOutcome;
-        }
-
         await this.performMergeDbInsertAsync({
             base_version,
             requestInfo,
@@ -847,9 +837,33 @@ class MergeManager {
                 );
                 if (mergeResult) {
                     mergePreCheckErrors.push(mergeResult);
-                } else {
-                    validResources.push(r);
+                    continue;
                 }
+
+                // Reject oversized resources (currently only AuditEvent) as a per-resource merge
+                // error, after all other pre-checks have passed. This runs post-dedup -- so a
+                // resource formed by combining several same-id entries is measured at its true
+                // persisted size -- but before enrichment (_uuid / _sourceAssigningAuthority /
+                // reference rewriting), keeping parity with create.
+                const sizeOperationOutcome = this.resourceValidator.validateResourceSizeSync({
+                    resource: r,
+                    resourceType: r.resourceType
+                });
+                if (sizeOperationOutcome) {
+                    mergePreCheckErrors.push(new MergeResultEntry({
+                        id: r.id,
+                        uuid: r._uuid,
+                        sourceAssigningAuthority: r._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue: sizeOperationOutcome.issue?.[0] || null,
+                        operationOutcome: sizeOperationOutcome,
+                        resourceType: r.resourceType
+                    }));
+                    continue;
+                }
+
+                validResources.push(r);
             }
             return { mergePreCheckErrors, validResources };
         } catch (e) {
