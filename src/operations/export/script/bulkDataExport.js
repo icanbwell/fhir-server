@@ -55,6 +55,7 @@ async function main() {
                 databaseExportManager: c.databaseExportManager,
                 patientFilterManager: c.patientFilterManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
+                base64DataManager: c.base64DataManager,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 patientQueryCreator: c.patientQueryCreator,
                 enrichmentManager: c.enrichmentManager,
