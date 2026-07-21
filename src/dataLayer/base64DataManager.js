@@ -19,6 +19,12 @@ const ORIGINAL_DATA_CACHE_NAME = 'base64DataManager.originalData';
 // detect an unchanged payload and reuse the existing history object.
 const CURRENT_DATA_CACHE_NAME = 'base64DataManager.currentData';
 
+// Request-scoped marker: a leaf explicitly determined to be untouched this request (an omitted
+// `$merge` field under smartMerge, or a PATCH that never touches a configured path at all) — no
+// bytes are available and none are needed; _processEntry must skip it rather than infer a removal
+// from mere absence.
+const UNCHANGED_LEAF_CACHE_NAME = 'base64DataManager.unchangedLeaf';
+
 /**
  * @classdesc Offloads large base64 payloads (e.g. `Binary.data`) out of MongoDB into cloud storage
  *            so documents stay small. The fields to externalize are driven by
@@ -94,9 +100,12 @@ class Base64DataManager {
      * @param {string} operation - `BLOB_OP.INSERT` / `BLOB_OP.RETRIEVE`; any other value is a no-op.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - enables the preSave
      *        `_uuid` step (INSERT) and the per-request stashes; RETRIEVE still works without it.
-     * @param {{alwaysCreateNew?: boolean}} [options] - INSERT-only. `alwaysCreateNew: true` (PUT/PATCH,
-     *        which have no version check) always uploads a fresh live object instead of skipping on
-     *        unchanged content. (Superseded-key cleanup is recorded on any rotation, not just here.)
+     * @param {{alwaysCreateNew?: boolean, historyRead?: boolean}} [options] - `alwaysCreateNew: true`
+     *        (INSERT; PUT/PATCH, which have no version check) always uploads a fresh live object
+     *        instead of skipping on unchanged content (superseded-key cleanup is recorded on any
+     *        rotation). `historyRead: true` (RETRIEVE; history/version reads) hydrates each version's
+     *        bytes from the history bucket keyed by `_blobMeta.hash`, bypassing the live bucket and
+     *        the per-request stash.
      * @returns {Promise<import('../fhir/classes/4_0_0/resources/resource')>} the same `resource`.
      */
     async transformAsync (resource, operation, requestInfo, options = {}) {
@@ -121,10 +130,176 @@ class Base64DataManager {
             }
         } else if (operation === BLOB_OP.RETRIEVE) {
             for (const entry of entries) {
-                await this._processRetrieveEntry(resource, entry, requestInfo);
+                await this._processRetrieveEntry(resource, entry, requestInfo, options.historyRead === true);
             }
         }
         return resource;
+    }
+
+    /**
+     * True if any configured leaf for `resource.resourceType` currently has `_blobMeta` set on
+     * `resource` — i.e. is externalized. Used to decide whether a naive full-object equality check
+     * is safe to run as-is (it isn't, once a leaf is externalized — see resourceMerger).
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @returns {boolean}
+     */
+    hasExternalizedLeaf (resource) {
+        if (!resource || !this.enableBase64FieldCloudStorage) {
+            return false;
+        }
+        const entries = this.resourcePaths[resource.resourceType];
+        if (!entries) {
+            return false;
+        }
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            let found = false;
+            this._processPathsSync(resource, dataSegments, [], ({ parent }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (blobMeta && blobMeta.hash) {
+                    found = true;
+                }
+            });
+            if (found) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Mutates `view` — a plain-object diff snapshot (e.g. a `.toJSON()` copy), NEVER
+     * `currentResource` itself — deleting each configured leaf key wherever `currentResource` has
+     * it externalized (`_blobMeta` present). Lets the generic diff run without ever seeing the leaf,
+     * so it needs no help understanding hash/presence semantics. No-op for a leaf that's still
+     * inline (never externalized) — the generic diff already handles that correctly with real
+     * values, at zero download cost.
+     * @param {Object} view - mutated in place.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} currentResource
+     * @returns {void}
+     */
+    excludeExternalizedLeaves (view, currentResource) {
+        if (!view || !this.enableBase64FieldCloudStorage) {
+            return;
+        }
+        const entries = this.resourcePaths[currentResource.resourceType];
+        if (!entries) {
+            return;
+        }
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            const leafKey = dataSegments[dataSegments.length - 1];
+            this._processPathsSync(currentResource, dataSegments, [], ({ parent, indices }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (!blobMeta || !blobMeta.hash) {
+                    return;
+                }
+                const viewParent = this._parentAt(view, dataSegments, indices);
+                if (viewParent) {
+                    this._clearField(viewParent, leafKey);
+                }
+            });
+        }
+    }
+
+    /**
+     * Explicitly clears one configured leaf's sidecar on `finalResource` — the same stash-and-clear
+     * `_processEntry`'s "below threshold, clear the stale sidecar" branch already performs, invoked
+     * directly for a write that's known for certain to remove this leaf (never inferred from mere
+     * absence). Stashes `previousLastUpdated` so the live object gets cleaned up post-commit, same
+     * as today.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} finalResource - mutated in place.
+     * @param {{dataPath: string, blobMetaPath: string}} entry
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @returns {void}
+     */
+    clearExternalizedLeaf (finalResource, entry, requestInfo) {
+        const dataSegments = this._parseJsonPointer(entry.dataPath);
+        const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+        const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+        this._processPathsSync(finalResource, dataSegments, [], ({ parent, indices }) => {
+            const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+            if (!blobMeta) {
+                return;
+            }
+            if (blobMeta.lastUpdated) {
+                this._stashOriginalData(requestInfo, finalResource._uuid, dataSegments, indices, {
+                    changed: false, previousLastUpdated: blobMeta.lastUpdated
+                });
+            }
+            this._clearField(parent, blobMetaLeaf);
+        });
+    }
+
+    /**
+     * Decides and directly performs whatever this write does to each configured leaf, entirely
+     * outside the generic diff — hash-comparing the incoming value (if any) against the committed
+     * `_blobMeta.hash`. Mutates `finalResource` directly for a changed or removed leaf; touches
+     * nothing for an leaf that's unchanged or (`smartMerge: true`) omitted. Returns a plain
+     * `{op, path, value?}` entry per leaf that actually changed or was removed, for the caller to
+     * append to its returned `patches` (history diagnostics) — empty when nothing did.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} finalResource - mutated in place.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} currentResource
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resourceToMerge
+     * @param {boolean} smartMerge - true: deepmerge semantics (omission keeps the old value); false:
+     *        literal-replace semantics (omission means removal).
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @returns {Promise<Array<{op: string, path: string, value?: *}>>}
+     */
+    async reconcileLeavesAsync (finalResource, currentResource, resourceToMerge, smartMerge, requestInfo) {
+        if (!finalResource || !this.enableBase64FieldCloudStorage) {
+            return [];
+        }
+        const entries = this.resourcePaths[currentResource.resourceType];
+        if (!entries) {
+            return [];
+        }
+        const patches = [];
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            const leafKey = dataSegments[dataSegments.length - 1];
+            await this._processPaths(currentResource, dataSegments, [], async ({ parent, indices }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (!blobMeta || !blobMeta.hash) {
+                    return; // not externalized — nothing to reconcile
+                }
+                const incomingParent = this._parentAt(resourceToMerge, dataSegments, indices);
+                const incomingValue = incomingParent ? incomingParent[leafKey] : undefined;
+                const resolvedPath = `/${this._substituteIndices(dataSegments, indices)}`;
+                if (typeof incomingValue === 'string') {
+                    const finalParent = this._parentAt(finalResource, dataSegments, indices);
+                    if (finalParent) {
+                        finalParent[leafKey] = incomingValue;
+                    }
+                    const hash = await computeContentHashAsync(incomingValue);
+                    if (hash !== blobMeta.hash) {
+                        patches.push({ op: 'replace', path: resolvedPath, value: incomingValue });
+                    }
+                    return;
+                }
+                // Omitted: no literal value anywhere to hand _processEntry.
+                if (!smartMerge) {
+                    this.clearExternalizedLeaf(finalResource, entry, requestInfo);
+                    patches.push({ op: 'remove', path: resolvedPath });
+                    return;
+                }
+                // smartMerge: true — deepmerge keeps the old value. Leave the leaf untouched, but
+                // keep the history-object TTL refresh alive without downloading anything: mark it
+                // so _processEntry skips it, and stash the same {hash, changed:false} entry
+                // _processEntry's own unchanged branch would have written.
+                this._stashUnchangedLeaf(requestInfo, finalResource._uuid, dataSegments, indices);
+                this._stashOriginalData(requestInfo, finalResource._uuid, dataSegments, indices, {
+                    hash: blobMeta.hash, changed: false
+                });
+            });
+        }
+        return patches;
     }
 
     /**
@@ -199,6 +374,10 @@ class Base64DataManager {
         const thresholdBytes = this.base64FieldDataThresholdKB * 1024;
 
         await this._processPaths(resource, dataSegments, [], async ({ parent, key, value, indices }) => {
+            if (this._readUnchangedLeafMarker(requestInfo, resource._uuid, dataSegments, indices)) {
+                return; // explicitly marked untouched this request — see reconcileLeavesAsync /
+                         // prepareForPatchAsync. No value to act on, and none needed.
+            }
             const byteLength = typeof value === 'string' ? Buffer.byteLength(value, 'utf8') : 0;
             const exceedsThreshold = byteLength > thresholdBytes;
             if (!exceedsThreshold) {
@@ -221,8 +400,10 @@ class Base64DataManager {
 
             if (!alwaysCreateNew) {
                 // $merge path: hash-skip unchanged content, self-healing a missing live object.
-                const currentData = this._readCurrentData(requestInfo, resource._uuid, dataSegments, indices);
-                const unchanged = !!currentData && currentData.hash === hash;
+                // Compares directly against the committed sidecar's hash — the ground truth for
+                // "what's currently committed" whether or not a download happened, since nothing else
+                // touches _blobMeta between currentResource and this document.
+                const unchanged = !!priorBlobMeta && priorBlobMeta.hash === hash;
 
                 if (unchanged && priorBlobMeta && priorBlobMeta.lastUpdated) {
                     // Content unchanged, but confirm the live object our sidecar references still
@@ -592,15 +773,18 @@ class Base64DataManager {
 
     /**
      * Reconstruct an externalized payload onto the resource: for each leaf with a `_blobMeta`
-     * sidecar, download the live bytes, set `data`, and leave the sidecar in place. Afterward the
+     * sidecar, download the bytes, set `data`, and leave the sidecar in place. Afterward the
      * resource looks freshly inlined, so resourceMerger can diff against real content.
      * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place.
      * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - keys the per-request stashes.
+     * @param {boolean} [historyRead] - history/version read: fetch each version's bytes from the
+     *        history bucket (keyed by `_blobMeta.hash`) and bypass the live bucket + per-request stash,
+     *        so hydrating several versions of one resource in a single request never cross-contaminates.
      * @returns {Promise<void>}
      * @private
      */
-    async _processRetrieveEntry (resource, entry, requestInfo) {
+    async _processRetrieveEntry (resource, entry, requestInfo, historyRead = false) {
         const dataSegments = this._parseJsonPointer(entry.dataPath);
         const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
         const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
@@ -618,20 +802,27 @@ class Base64DataManager {
             if (typeof parent[key] === 'string' && parent[key].length > 0) {
                 content = parent[key];
             } else {
-                // Stash hit: reuse the bytes this request already has (INSERT or an earlier
-                // RETRIEVE) instead of round-tripping S3.
-                const cached = this._readRequestContent(
-                    requestInfo, resource._uuid, dataSegments, indices
-                );
+                // Stash hit (live reads only): reuse the bytes this request already has (INSERT or an
+                // earlier RETRIEVE) instead of round-tripping S3. History reads skip the stash so each
+                // version fetches its own bytes.
+                const cached = historyRead
+                    ? null
+                    : this._readRequestContent(requestInfo, resource._uuid, dataSegments, indices);
                 if (cached) {
                     content = cached;
                     parent[key] = content;
                 } else {
-                    const liveMs = this._toEpochMs(blobMeta.lastUpdated);
-                    const liveKey = this._buildLiveKey(resource.resourceType, resource._uuid, liveMs);
+                    // Live reads hit the live bucket (timestamp key); history/version reads hit the
+                    // history bucket at the content-hash key `transformHistoryAsync` wrote.
+                    const s3Key = historyRead
+                        ? this._buildHistoryKey(resource.resourceType, resource._uuid, blobMeta.hash)
+                        : this._buildLiveKey(resource.resourceType, resource._uuid, this._toEpochMs(blobMeta.lastUpdated));
+                    const client = historyRead
+                        ? this.historyResourceCloudStorageClient
+                        : this.base64FieldCloudStorageClient;
                     let downloaded;
                     try {
-                        downloaded = await this.base64FieldCloudStorageClient.downloadAsync(liveKey);
+                        downloaded = await client.downloadAsync(s3Key);
                     } catch (err) {
                         throw new RethrownError({
                             message: `Failed to download base64 payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
@@ -641,23 +832,23 @@ class Base64DataManager {
                                 resourceType: resource.resourceType,
                                 resourceId: resource.id,
                                 dataPath: entry.dataPath,
-                                key: liveKey
+                                key: s3Key
                             }
                         });
                     }
                     if (downloaded === null || downloaded === undefined) {
-                        // The live object our sidecar references is gone (deleted out of band, TTL
-                        // expired, or never persisted). Don't fail the request: log for observability
-                        // and skip hydration for this leaf. On a WRITE that carries `data`, the diff
-                        // then sees `data` as changed and the INSERT re-uploads it to a fresh key
-                        // (self-heal); on a read, the response simply omits the unrecoverable payload.
+                        // The object our sidecar references is gone (deleted out of band, TTL expired,
+                        // or never persisted). Don't fail the request: log for observability and skip
+                        // hydration for this leaf. On a WRITE that carries `data`, the diff then sees
+                        // `data` as changed and the INSERT re-uploads it (self-heal); on a read, the
+                        // response simply omits the unrecoverable payload rather than surfacing a 5xx.
                         logError(`Base64 payload missing in cloud storage for ${resource.resourceType}/${resource.id} at ${entry.dataPath}`, {
                             source: 'Base64DataManager',
                             args: {
                                 resourceType: resource.resourceType,
                                 resourceId: resource.id,
                                 dataPath: entry.dataPath,
-                                key: liveKey
+                                key: s3Key
                             }
                         });
                         return;
@@ -670,8 +861,12 @@ class Base64DataManager {
                     parent[key] = content;
                 }
             }
-            // Stash the current content + hash so a later INSERT this request can detect an
-            // unchanged payload and reuse the history object. Harmless post-INSERT.
+            // Stash the current content + hash so a later INSERT this request can detect an unchanged
+            // payload and reuse the history object. Live reads only — a history/version read must not
+            // populate the live stash, or hydrating multiple versions in one request cross-contaminates.
+            if (historyRead) {
+                return;
+            }
             this._stashCurrentData(requestInfo, resource._uuid, dataSegments, indices, {
                 content, hash: blobMeta.hash
             });
@@ -904,6 +1099,81 @@ class Base64DataManager {
     }
 
     /**
+     * Read-time counterpart to `_sanitizeHistoryPatches`. Mongo stores `<data_value>` in the patch
+     * diagnostics of externalized versions to keep history docs small, but an API consumer should
+     * see the same diagnostic shape whether the version was inline or externalized. After a
+     * history read has hydrated `historyEntry.resource.data` from S3, walk the entry's JSON-Patch
+     * diagnostics and replace each placeholder with the real value resolved off the now-inlined
+     * resource. Operates IN PLACE, synchronously (no I/O). No-op when disabled, the resource type is
+     * unconfigured, or nothing matches.
+     * @param {Object} historyEntry - bundle entry with `.resource` and `.response.outcome.issue[]`.
+     * @returns {void}
+     */
+    rehydrateHistoryDiagnostics (historyEntry) {
+        if (!this.enableBase64FieldCloudStorage || !historyEntry || !historyEntry.resource) {
+            return;
+        }
+        const entries = this.resourcePaths[historyEntry.resource.resourceType];
+        if (!entries) {
+            return;
+        }
+        const issues = historyEntry.response
+            && historyEntry.response.outcome
+            && historyEntry.response.outcome.issue;
+        if (!Array.isArray(issues) || issues.length === 0) {
+            return;
+        }
+        const patchPathPatterns = entries.map(entry => this._buildPathPattern(entry.dataPath));
+        const resource = historyEntry.resource;
+        for (const issue of issues) {
+            if (!issue || typeof issue.diagnostics !== 'string') {
+                continue;
+            }
+            let patch;
+            try {
+                patch = JSON.parse(issue.diagnostics);
+            } catch (e) {
+                continue;
+            }
+            // Only touch the placeholder we ourselves wrote for a configured path.
+            if (!patch || typeof patch.path !== 'string' || patch.value !== BINARY_DATA_VALUE_PLACEHOLDER) {
+                continue;
+            }
+            if (!patchPathPatterns.some(pattern => pattern.test(patch.path))) {
+                continue;
+            }
+            const resolvedValue = this._resolveSegments(resource, this._parseJsonPointer(patch.path));
+            // The read path just inlined the real bytes, so this should resolve to a non-empty
+            // string; if it doesn't, leave the placeholder rather than write garbage.
+            if (typeof resolvedValue !== 'string' || resolvedValue.length === 0) {
+                continue;
+            }
+            patch.value = resolvedValue;
+            issue.diagnostics = JSON.stringify(patch);
+        }
+    }
+
+    /**
+     * Sync walker over concrete path segments; returns the resolved node or undefined. Distinct from
+     * `_processPaths` (async, expands `[]`) — patch paths already carry concrete array indices, so a
+     * straight property-chain walk suffices (`arr['0']` === `arr[0]`).
+     * @param {Object} node
+     * @param {string[]} segments
+     * @returns {*}
+     * @private
+     */
+    _resolveSegments (node, segments) {
+        let current = node;
+        for (const seg of segments) {
+            if (current === null || current === undefined) {
+                return undefined;
+            }
+            current = current[seg];
+        }
+        return current;
+    }
+
+    /**
      * Build a regex that matches the JSON-Pointer paths a JSON-Patch op could carry
      * for the configured dataPath. `[]` placeholders become `\d+` array indices and
      * literal segments are regex-escaped.
@@ -1013,6 +1283,47 @@ class Base64DataManager {
             name: ORIGINAL_DATA_CACHE_NAME
         });
         return map.get(this._stashKey(uuid, dataSegments, indices)) || null;
+    }
+
+    /**
+     * Mark a leaf as explicitly untouched this request — no bytes available, none needed, and
+     * `_processEntry` must not infer a removal from its absence. No-op without a requestId.
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {string} uuid
+     * @param {string[]} dataSegments
+     * @param {number[]} indices
+     * @returns {void}
+     * @private
+     */
+    _stashUnchangedLeaf (requestInfo, uuid, dataSegments, indices) {
+        if (!requestInfo || !requestInfo.requestId) {
+            return;
+        }
+        const map = this.requestSpecificCache.getMap({
+            requestId: requestInfo.requestId,
+            name: UNCHANGED_LEAF_CACHE_NAME
+        });
+        map.set(this._stashKey(uuid, dataSegments, indices), true);
+    }
+
+    /**
+     * Read the "unchanged leaf" marker. False on miss or without a requestId.
+     * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {string} uuid
+     * @param {string[]} dataSegments
+     * @param {number[]} indices
+     * @returns {boolean}
+     * @private
+     */
+    _readUnchangedLeafMarker (requestInfo, uuid, dataSegments, indices) {
+        if (!requestInfo || !requestInfo.requestId) {
+            return false;
+        }
+        const map = this.requestSpecificCache.getMap({
+            requestId: requestInfo.requestId,
+            name: UNCHANGED_LEAF_CACHE_NAME
+        });
+        return map.get(this._stashKey(uuid, dataSegments, indices)) === true;
     }
 
     /**

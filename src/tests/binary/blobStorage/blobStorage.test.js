@@ -22,6 +22,8 @@ const {
 } = require('../../common');
 const { MockS3Client } = require('../../export/mocks/s3Client');
 const { CLOUD_STORAGE_CLIENTS, BLOB_OP } = require('../../../constants');
+const expectedBinaryHistoryListResponse = require('./fixtures/expected/expectedBinaryHistoryList.json');
+const expectedBinaryTypeHistoryResponse = require('./fixtures/expected/expectedBinaryTypeHistory.json');
 
 // 80 KB string — exceeds the 64 KB default threshold and triggers S3 offload.
 const LARGE_DATA = 'A'.repeat(80 * 1024);
@@ -1264,5 +1266,416 @@ describe('Binary base64 S3 offload — write paths', () => {
             expect(resp.body.data).toBeUndefined();
             expect(resp.body._blobMeta).toBeUndefined();
         });
+    });
+
+    // History/version reads pull each version's bytes from the HISTORY bucket (content-hash keyed
+    // `{Type}/{uuid}/{hash}`), never the live bucket, and bypass the per-request stash so distinct
+    // versions in one response don't cross-contaminate.
+    describe('history reads — each version hydrates from the history bucket', () => {
+        const historyKeyOf = (uuid, snapshot) => `Binary_4_0_0/${uuid}/${snapshot.resource._blobMeta.hash}`;
+        // toHaveResponse walks `data` char-by-char and FHIR-validates the body — pathologically slow
+        // on an 80 KB payload. Swap the real payloads for short, distinct placeholders on BOTH the
+        // response and the fixture before the whole-response compare (the real bytes are asserted
+        // separately with a direct string compare). `data` inside the stringified diagnostics is
+        // swapped too, so the rehydrated patch value is verified against the fixture.
+        const LARGE_PH = 'AAAA';
+        const ALT_PH = 'CCCC';
+        const withPlaceholders = (resp) => {
+            resp.body = JSON.parse(
+                JSON.stringify(resp.body).split(LARGE_DATA).join(LARGE_PH).split(ALT_LARGE_DATA).join(ALT_PH)
+            );
+            return resp;
+        };
+        const fillFixture = (fixture, subs) =>
+            JSON.parse(Object.entries(subs).reduce((s, [k, v]) => s.split(k).join(v), JSON.stringify(fixture)));
+
+        test('GET /_history/{vid} hydrates that version from the history bucket, not the live bucket', async () => {
+            const request = await createTestRequest(registerMockClients);
+            const container = getTestContainer();
+            const liveClient = container.base64FieldCloudStorageClient;
+            const historyClient = container.historyResourceCloudStorageClient;
+            const id = 'binary-hist-version';
+
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+            await drainPostRequest(container);
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
+            await drainPostRequest(container);
+
+            const uuid = (await readBinaryFromMongo(container, id))._uuid;
+            const v1 = (await readBinaryHistoryFromMongo(container)).find(
+                d => d.resource._uuid === uuid && d.resource.meta.versionId === '1'
+            );
+            expect(v1.resource._blobMeta).toBeDefined();
+
+            const liveSpy = jest.spyOn(liveClient, 'downloadAsync');
+            const historySpy = jest.spyOn(historyClient, 'downloadAsync');
+            try {
+                const resp = await request.get(`/4_0_0/Binary/${id}/_history/1`).set(getHeaders()).expect(200);
+                // Real bytes + history-bucket dispatch (observable only via the spies).
+                expect(resp.body.data).toBe(LARGE_DATA);
+                expect(historySpy).toHaveBeenCalledWith(historyKeyOf(uuid, v1));
+                expect(liveSpy).not.toHaveBeenCalled();
+                // Complete-response shape (data swapped for a placeholder; `_blobMeta` absent).
+                withPlaceholders(resp);
+                expect(resp).toHaveResponse(buildExpectedBinary({ id, data: LARGE_PH, versionId: '1' }));
+            } finally {
+                liveSpy.mockRestore();
+                historySpy.mockRestore();
+            }
+        });
+
+        test('GET /_history returns the complete versioned bundle, each version hydrated from history', async () => {
+            const request = await createTestRequest(registerMockClients);
+            const container = getTestContainer();
+            const liveClient = container.base64FieldCloudStorageClient;
+            const historyClient = container.historyResourceCloudStorageClient;
+            const id = 'binary-history-list'; // matches the fixture's embedded resource id
+
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+            await drainPostRequest(container);
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
+            await drainPostRequest(container);
+
+            const uuid = (await readBinaryFromMongo(container, id))._uuid;
+
+            const liveSpy = jest.spyOn(liveClient, 'downloadAsync');
+            const historySpy = jest.spyOn(historyClient, 'downloadAsync');
+            try {
+                const resp = await request.get(`/4_0_0/Binary/${id}/_history`).set(getHeaders()).expect(200);
+                expect(historySpy).toHaveBeenCalledTimes(2);
+                expect(liveSpy).not.toHaveBeenCalled();
+                // Complete response: both versions' data hydrated AND the v2 patch diagnostic
+                // rehydrated from the `<data_value>` placeholder to the real payload.
+                withPlaceholders(resp);
+                expect(resp).toHaveResponse(fillFixture(expectedBinaryHistoryListResponse, {
+                    __BINARY_UUID__: uuid,
+                    __LARGE_DATA__: LARGE_PH,
+                    __ALT_LARGE_DATA__: ALT_PH
+                }));
+            } finally {
+                liveSpy.mockRestore();
+                historySpy.mockRestore();
+            }
+        });
+
+        test('GET /Binary/_history returns the complete type-level bundle, hydrated across Binaries', async () => {
+            const request = await createTestRequest(registerMockClients);
+            const container = getTestContainer();
+            const liveClient = container.base64FieldCloudStorageClient;
+            const historyClient = container.historyResourceCloudStorageClient;
+            const idA = 'binary-history-type-A'; // ids match the fixture
+            const idB = 'binary-history-type-B';
+
+            await request.put(`/4_0_0/Binary/${idA}`).send(buildBinary({ id: idA, data: LARGE_DATA })).set(getHeaders()).expect(201);
+            await drainPostRequest(container);
+            await request.put(`/4_0_0/Binary/${idB}`).send(buildBinary({ id: idB, data: ALT_LARGE_DATA })).set(getHeaders()).expect(201);
+            await drainPostRequest(container);
+
+            const uuidA = (await readBinaryFromMongo(container, idA))._uuid;
+            const uuidB = (await readBinaryFromMongo(container, idB))._uuid;
+
+            const liveSpy = jest.spyOn(liveClient, 'downloadAsync');
+            const historySpy = jest.spyOn(historyClient, 'downloadAsync');
+            try {
+                const resp = await request.get('/4_0_0/Binary/_history').set(getHeaders()).expect(200);
+                expect(historySpy).toHaveBeenCalledTimes(2);
+                expect(liveSpy).not.toHaveBeenCalled();
+                withPlaceholders(resp);
+                expect(resp).toHaveResponse(fillFixture(expectedBinaryTypeHistoryResponse, {
+                    __BINARY_A_UUID__: uuidA,
+                    __BINARY_B_UUID__: uuidB,
+                    __LARGE_DATA__: LARGE_PH,
+                    __ALT_LARGE_DATA__: ALT_PH
+                }));
+            } finally {
+                liveSpy.mockRestore();
+                historySpy.mockRestore();
+            }
+        });
+    });
+
+    test('PUT with unchanged data, other field changed: zero downloads (content still re-uploads — alwaysCreateNew is unaffected by this design)', async () => {
+        // PUT's INSERT call uses alwaysCreateNew: true, which bypasses the hash-skip branch
+        // entirely and always uploads to a fresh key — that wasteful-but-documented behavior is
+        // explicitly out of scope for this design (see the TODO in update.js). What this design
+        // changes is only that the MERGE/DIFF step doesn't download to discover the hash match —
+        // it still correctly finds "unchanged" (no patch entry emitted) even though the upload
+        // still happens afterward, unconditionally, exactly as today.
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-put-unchanged-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+        const seeded = await readBinaryFromMongo(container, id);
+        const seededKey = liveKeyOf(seeded);
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            await request
+                .put(`/4_0_0/Binary/${id}`)
+                .send({ ...buildBinary({ id, data: LARGE_DATA }), contentType: 'application/xml' })
+                .set(getHeaders())
+                .expect(200);
+            expect(downloadSpy).not.toHaveBeenCalled();
+            await drainPostRequest(container);
+            const doc = await readBinaryFromMongo(container, id);
+            expect(doc.contentType).toBe('application/xml');
+            // Content is byte-identical, but the key still rotates (alwaysCreateNew, unaffected by
+            // this design) — the old key is cleaned up, the new one holds the same bytes.
+            const newKey = liveKeyOf(doc);
+            expect(newKey).not.toBe(seededKey);
+            expect(liveClient.uploadedData[seededKey]).toBeUndefined();
+            expect(liveClient.uploadedData[newKey]).toBe(LARGE_DATA);
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('PUT with changed data: zero downloads, real content persisted', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-put-changed-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
+            expect(downloadSpy).not.toHaveBeenCalled();
+            await drainPostRequest(container);
+            const doc = await readBinaryFromMongo(container, id);
+            expect(liveClient.uploadedData[liveKeyOf(doc)]).toBe(ALT_LARGE_DATA);
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('PUT omitting data only, nothing else changed: zero downloads, write is NOT a no-op (removal)', async () => {
+        // Regression guard for the fast-path skip: without it, this exact scenario would slip
+        // through the naive deepEqual and incorrectly no-op instead of removing the data.
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-put-omit-only-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+        const seeded = await readBinaryFromMongo(container, id);
+        const liveKey = liveKeyOf(seeded);
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const incomingWithoutData = buildBinary({ id, data: 'placeholder' });
+            delete incomingWithoutData.data;
+            await request.put(`/4_0_0/Binary/${id}`).send(incomingWithoutData).set(getHeaders()).expect(200);
+            expect(downloadSpy).not.toHaveBeenCalled();
+            await drainPostRequest(container);
+            const doc = await readBinaryFromMongo(container, id);
+            expect(doc.data).toBeUndefined();
+            expect(doc._blobMeta).toBeUndefined();
+            expect(liveClient.uploadedData[liveKey]).toBeUndefined();
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('PUT omitting data, other field changed: persisted patches include an explicit remove entry', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-put-omit-mixed-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const incomingWithoutData = buildBinary({ id, data: 'placeholder' });
+            delete incomingWithoutData.data;
+            incomingWithoutData.contentType = 'application/xml';
+            await request.put(`/4_0_0/Binary/${id}`).send(incomingWithoutData).set(getHeaders()).expect(200);
+            expect(downloadSpy).not.toHaveBeenCalled();
+            await drainPostRequest(container);
+
+            const doc = await readBinaryFromMongo(container, id);
+            expect(doc._blobMeta).toBeUndefined();
+            expect(doc.contentType).toBe('application/xml');
+
+            const historyDocs = await readBinaryHistoryFromMongo(container);
+            const matched = historyDocs.filter(d => d.resource && d.resource._uuid === doc._uuid);
+            const diagnosticsPatches = matched
+                .map(d => d.response && d.response.outcome && d.response.outcome.issue)
+                .filter(Array.isArray)
+                .flat()
+                .map(issue => issue.diagnostics)
+                .filter(Boolean)
+                .map(s => { try { return JSON.parse(s); } catch (e) { return null; } })
+                .filter(Boolean);
+            expect(diagnosticsPatches.some(p => p.path === '/data' && p.op === 'remove')).toBe(true);
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('$merge (smartMerge:false) omitting data, other field changed: data IS removed', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-merge-nonsmart-omit-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+        const seeded = await readBinaryFromMongo(container, id);
+        const liveKey = liveKeyOf(seeded);
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const incomingWithoutData = buildBinary({ id, data: 'placeholder' });
+            delete incomingWithoutData.data;
+            incomingWithoutData.contentType = 'application/xml';
+            await request
+                .post('/4_0_0/Binary/$merge?smartMerge=false')
+                .send(incomingWithoutData)
+                .set(getHeaders())
+                .expect(200);
+            expect(downloadSpy).not.toHaveBeenCalled();
+            await drainPostRequest(container);
+            const doc = await readBinaryFromMongo(container, id);
+            expect(doc.data).toBeUndefined();
+            expect(doc._blobMeta).toBeUndefined();
+            expect(liveClient.uploadedData[liveKey]).toBeUndefined();
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('$merge (smartMerge:true default) omitting data, other field changed: data untouched, history TTL still refreshes', async () => {
+        // The regression this design must not (re-)introduce: deepmerge keeps the old value for a
+        // key the incoming object doesn't define, AND the history TTL refresh must survive without
+        // ever downloading anything.
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const historyClient = container.historyResourceCloudStorageClient;
+        const id = 'binary-merge-smart-omit-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+        const seeded = await readBinaryFromMongo(container, id);
+        const liveKey = liveKeyOf(seeded);
+        const historyKey = `Binary_4_0_0/${seeded._uuid}/${seeded._blobMeta.hash}`;
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const copySpy = jest.spyOn(historyClient, 'copyObjectAsync');
+        try {
+            const incomingWithoutData = buildBinary({ id, data: 'placeholder' });
+            delete incomingWithoutData.data;
+            incomingWithoutData.contentType = 'application/xml';
+            await request
+                .post('/4_0_0/Binary/$merge')
+                .send(incomingWithoutData)
+                .set(getHeaders())
+                .expect(200);
+            expect(downloadSpy).not.toHaveBeenCalled();
+            // History writes (and the TTL-refresh copy) run via the post-request processor, not
+            // synchronously within the request — drain it before checking copySpy, matching the
+            // pattern the existing TTL-refresh test at blobStorage.test.js:790 already uses.
+            await drainPostRequest(container);
+
+            const doc = await readBinaryFromMongo(container, id);
+            expect(doc._blobMeta).toBeDefined();
+            expect(doc._blobMeta.hash).toBe(seeded._blobMeta.hash);
+            expect(doc._blobMeta.lastUpdated).toEqual(seeded._blobMeta.lastUpdated);
+            expect(doc.contentType).toBe('application/xml');
+            expect(liveClient.uploadedData[liveKey]).toBe(LARGE_DATA);
+
+            expect(copySpy).toHaveBeenCalledWith(expect.objectContaining({ sourcePath: historyKey, filePath: historyKey }));
+        } finally {
+            downloadSpy.mockRestore();
+            copySpy.mockRestore();
+        }
+    });
+
+    test('$merge with changed data: zero downloads', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-merge-changed-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            await request.post('/4_0_0/Binary/$merge').send(buildBinary({ id, data: ALT_LARGE_DATA })).set(getHeaders()).expect(200);
+            expect(downloadSpy).not.toHaveBeenCalled();
+            await drainPostRequest(container);
+            const doc = await readBinaryFromMongo(container, id);
+            expect(liveClient.uploadedData[liveKeyOf(doc)]).toBe(ALT_LARGE_DATA);
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('PUT with inline (below-threshold) data unchanged: still a no-op, no exclusion logic engaged', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-put-inline-unchanged-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: SMALL_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        try {
+            const resp = await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: SMALL_DATA })).set(getHeaders()).expect(200);
+            expect(downloadSpy).not.toHaveBeenCalled();
+            expect(resp.body.data).toBe(SMALL_DATA);
+            await drainPostRequest(container);
+            const doc = await readBinaryFromMongo(container, id);
+            expect(doc._blobMeta).toBeUndefined();
+        } finally {
+            downloadSpy.mockRestore();
+        }
+    });
+
+    test('PUT with inline data omitted: real-value remove, no exclusion logic engaged', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const id = 'binary-put-inline-omit-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: SMALL_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+
+        const incomingWithoutData = buildBinary({ id, data: 'placeholder' });
+        delete incomingWithoutData.data;
+        await request.put(`/4_0_0/Binary/${id}`).send(incomingWithoutData).set(getHeaders()).expect(200);
+        await drainPostRequest(container);
+
+        const doc = await readBinaryFromMongo(container, id);
+        expect(doc.data).toBeUndefined();
+        expect(doc._blobMeta).toBeUndefined();
+    });
+
+    test('PUT with inline data crossing the threshold for the first time: externalizes on INSERT', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-put-inline-cross-v2';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: SMALL_DATA })).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary({ id, data: LARGE_DATA })).set(getHeaders()).expect(200);
+        await drainPostRequest(container);
+
+        const doc = await readBinaryFromMongo(container, id);
+        expect(doc.data).toBeUndefined();
+        expect(doc._blobMeta).toBeDefined();
+        expect(liveClient.uploadedData[liveKeyOf(doc)]).toBe(LARGE_DATA);
     });
 });

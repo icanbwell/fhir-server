@@ -308,7 +308,7 @@ class FhirResponseWriter {
             return;
         }
         const fhirVersion = req.params.base_version;
-        if (!res.header("Content-Type")) {
+        if (!res.get("Content-Type")) {
             const contentType = this.getContentType(fhirVersion);
             res.type(contentType);
         }

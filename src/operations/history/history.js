@@ -12,7 +12,8 @@ const { ResourceManager } = require('../common/resourceManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryItem } = require('../graph/queryItem');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY, DB_SEARCH_LIMIT } = require('../../constants');
+const { Base64DataManager } = require('../../dataLayer/base64DataManager');
+const { GRIDFS: { RETRIEVE }, BLOB_OP, OPERATIONS: { READ }, RESOURCE_CLOUD_STORAGE_PATH_KEY, DB_SEARCH_LIMIT } = require('../../constants');
 const { CloudStorageClient } = require('../../utils/cloudStorageClient');
 const { ScopesManager } = require('../security/scopesManager');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -32,6 +33,7 @@ class BaseHistoryOperationProcessor {
      * @param {SearchManager} searchManager
      * @param {ResourceManager} resourceManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {Base64DataManager} base64DataManager
      * @param {ScopesManager} scopesManager
      * @param {CloudStorageClient | null} historyResourceCloudStorageClient
      * @param {IdentifierEnrichmentProvider} identifierEnrichmentProvider
@@ -48,6 +50,7 @@ class BaseHistoryOperationProcessor {
             searchManager,
             resourceManager,
             databaseAttachmentManager,
+            base64DataManager,
             scopesManager,
             historyResourceCloudStorageClient,
             identifierEnrichmentProvider,
@@ -103,6 +106,12 @@ class BaseHistoryOperationProcessor {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {Base64DataManager}
+         */
+        this.base64DataManager = base64DataManager;
+        assertTypeEquals(base64DataManager, Base64DataManager);
 
         /**
          * @type {ScopesManager}
@@ -332,9 +341,10 @@ class BaseHistoryOperationProcessor {
             });
         }
 
-        // If doc is not BundleEntry then wrap it in a bundle entry
-        const entries = []
-        await Promise.all(
+        // If doc is not BundleEntry then wrap it in a bundle entry.
+        // Use the Promise.all return value (not push-in-callback) so the lastUpdated-desc
+        // order set by the Mongo query is preserved even when S3 fetches finish out of order.
+        const entries = await Promise.all(
             historyResources.map(async (historyResource) => {
                 const downloadedResourceData =
                     downloadedData[
@@ -364,7 +374,11 @@ class BaseHistoryOperationProcessor {
                     historyResource.resource,
                     RETRIEVE
                 );
-                entries.push(historyResource);
+                historyResource.resource = await this.base64DataManager.transformAsync(
+                    historyResource.resource, BLOB_OP.RETRIEVE, undefined, { historyRead: true }
+                );
+                this.base64DataManager.rehydrateHistoryDiagnostics(historyResource);
+                return historyResource;
             })
         );
 

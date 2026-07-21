@@ -852,6 +852,7 @@ const createContainer = function () {
             configManager: c.configManager,
             searchManager: c.searchManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider
         }
@@ -868,6 +869,7 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
@@ -885,6 +887,7 @@ const createContainer = function () {
             searchManager: c.searchManager,
             resourceManager: c.resourceManager,
             databaseAttachmentManager: c.databaseAttachmentManager,
+            base64DataManager: c.base64DataManager,
             historyResourceCloudStorageClient: c.historyResourceCloudStorageClient,
             identifierEnrichmentProvider: c.identifierEnrichmentProvider,
             compositionSectionFilterEnrichmentProvider: c.compositionSectionFilterEnrichmentProvider
