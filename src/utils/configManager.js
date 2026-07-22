@@ -1331,7 +1331,7 @@ class ConfigManager {
      * @return {string}
      */
     get kafkaBulkImportTaskCreatedTopic() {
-        return env.KAFKA_BULK_IMPORT_TASK_CREATED_TOPIC || 'fhir.bulk_import.task_created';
+        return env.KAFKA_BULK_IMPORT_TASK_CREATED_TOPIC || 'fhir_server.bulk_import.requested';
     }
 
     /**
