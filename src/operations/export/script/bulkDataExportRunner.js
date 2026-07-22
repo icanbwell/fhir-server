@@ -13,6 +13,7 @@ const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 const { PatientQueryCreator } = require('../../common/patientQueryCreator');
 const { ReferenceParser } = require('../../../utils/referenceParser');
 const { RethrownError } = require('../../../utils/rethrownError');
+const { BadRequestError } = require('../../../utils/httpErrors');
 const { R4ArgsParser } = require('../../query/r4ArgsParser');
 const { R4SearchQueryCreator } = require('../../query/r4');
 const { S3Client } = require('../../../utils/s3Client');
@@ -35,6 +36,8 @@ const { S3MultiPartContext } = require('./s3MultiPartContext');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 const { FhirResourceSerializer } = require('../../../fhir/fhirResourceSerializer');
+const { StorageProviderFactory } = require('../../../dataLayer/providers/storageProviderFactory');
+const { hasExternalStorageMemberTag } = require('../../../utils/clickHouseGroupPreSave');
 
 class BulkDataExportRunner {
     /**
@@ -53,6 +56,7 @@ class BulkDataExportRunner {
      * @property {SearchManager} searchManager
      * @property {PostSaveProcessor} postSaveProcessor
      * @property {BulkExportEventProducer} bulkExportEventProducer
+     * @property {StorageProviderFactory} storageProviderFactory
      * @property {string} exportStatusId
      * @property {number} patientReferenceBatchSize
      * @property {number} fetchResourceBatchSize
@@ -76,6 +80,7 @@ class BulkDataExportRunner {
         searchManager,
         postSaveProcessor,
         bulkExportEventProducer,
+        storageProviderFactory,
         exportStatusId,
         patientReferenceBatchSize,
         fetchResourceBatchSize,
@@ -194,6 +199,12 @@ class BulkDataExportRunner {
         assertTypeEquals(bulkExportEventProducer, BulkExportEventProducer);
 
         /**
+         * @type {StorageProviderFactory}
+         */
+        this.storageProviderFactory = storageProviderFactory;
+        assertTypeEquals(storageProviderFactory, StorageProviderFactory);
+
+        /**
          * @type {string}
          */
         this.requestId = requestId;
@@ -272,7 +283,24 @@ class BulkDataExportRunner {
                         this.patientFilterManager.getAllPatientOrPersonRelatedResources()
                 });
 
-                if (pathname.startsWith('/4_0_0/Patient/$export')) {
+                const groupMatch = pathname.match(/^\/4_0_0\/Group\/([^/]+)\/\$export$/);
+                if (groupMatch) {
+                    // Group-level export: resolve the member Patient references, then
+                    // reuse the patient-compartment export for each requested resource.
+                    const memberPatientReferences = await this.getGroupMemberPatientReferencesAsync({
+                        groupId: decodeURIComponent(groupMatch[1]),
+                        query
+                    });
+                    for (const resourceType of requestedResources) {
+                        await this.handlePatientExportAsync({
+                            searchParams,
+                            query,
+                            resourceType,
+                            memberPatientReferences,
+                            isGroupExport: true
+                        });
+                    }
+                } else if (pathname.startsWith('/4_0_0/Patient/$export')) {
                     for (const resourceType of requestedResources) {
                         await this.handlePatientExportAsync({
                             searchParams,
@@ -549,19 +577,160 @@ class BulkDataExportRunner {
     }
 
     /**
+     * Derives the caller tenant scope for the export from the stored scope.
+     * Reuses the same seam the base export query uses (SecurityTagManager /
+     * ScopesManager on the injected searchManager), so roster tenant filtering
+     * matches the MongoDB compartment filtering. `hasFullAccess` is the `*`
+     * access code (never hardcoded); access tags are the concrete codes.
+     *
+     * @returns {{accessTags: string[], ownerTags: string[], hasFullAccess: boolean}}
+     */
+    getExportSecurityContext() {
+        const user = this.exportStatusResource.user;
+        const scope = this.exportStatusResource.scope;
+        const accessCodes = this.searchManager.scopesManager.getAccessCodesFromScopes('read', user, scope);
+        const hasFullAccess = accessCodes.includes('*');
+        // getSecurityTagsFromScope returns [] for full-access (`*`) scopes and the
+        // concrete access codes otherwise. Owner tags are not encoded in scopes.
+        const accessTags = this.searchManager.securityTagManager.getSecurityTagsFromScope({
+            user, scope, accessRequested: 'read'
+        });
+        return { accessTags, ownerTags: [], hasFullAccess };
+    }
+
+    /**
+     * Loads the Group and resolves its member Patient references for export.
+     * Hybrid Groups (ClickHouse roster) are paged via the storage provider with the
+     * caller tenant scope; normal Groups read inline Group.member[]. Returns [] when
+     * the caller cannot see the Group (no leak).
+     *
+     * @typedef {Object} GetGroupMemberPatientReferencesAsyncParams
+     * @property {string} groupId
+     * @property {Object} query - Tenant-scoped base export query
+     *
+     * @param {GetGroupMemberPatientReferencesAsyncParams}
+     * @returns {Promise<string[]>}
+     */
+    async getGroupMemberPatientReferencesAsync({ groupId, query }) {
+        // The group id arrives from the request URL. Derive the value used in the datastore query
+        // from a validating regex match (a bounded FHIR id/uuid token) rather than the raw input,
+        // so an operator-object can never reach findOne (fail fast on anything else).
+        const groupIdMatch = typeof groupId === 'string' && groupId.match(/^[A-Za-z0-9\-.]{1,64}$/);
+        if (!groupIdMatch) {
+            throw new BadRequestError(new Error('Invalid Group id for $export'));
+        }
+        const safeGroupId = groupIdMatch[0];
+
+        // Load the Group with the export's tenant scope so an unauthorized caller sees nothing.
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+            resourceType: 'Group',
+            base_version: '4_0_0'
+        });
+        const collection = await resourceLocator.getCollectionAsync({});
+        const groupQuery = this.r4SearchQueryCreator.appendAndSimplifyQuery({
+            query: deepcopy(query),
+            andQuery: { $or: [{ _uuid: safeGroupId }, { _sourceId: safeGroupId }] }
+        });
+        // Reviewed false positive: groupId is a URL path segment (always a string), validated and
+        // derived from a bounded FHIR-id regex match above, so a NoSQL operator-object cannot reach
+        // this query. Aikido's taint engine flags the URL->findOne flow regardless of that. See EA-2331.
+        const groupDoc = await collection.findOne(groupQuery); // nosec
+
+        if (!groupDoc) {
+            logInfo(`Group not found or not authorized for export: ${groupId}`);
+            return [];
+        }
+
+        const hasExternalMembers = hasExternalStorageMemberTag(groupDoc);
+        const clickHouseGroupsEnabled =
+            this.searchManager.configManager.enableClickHouse &&
+            this.searchManager.configManager.mongoWithClickHouseResources.includes('Group');
+
+        // Roster lives in ClickHouse but ClickHouse is off: the inline member[] was stripped,
+        // so falling through would silently export nothing. Fail loudly instead.
+        if (hasExternalMembers && !clickHouseGroupsEnabled) {
+            throw new Error(
+                `Group ${groupId} has externally-stored membership but ClickHouse is disabled; ` +
+                'cannot resolve members for export.'
+            );
+        }
+
+        if (!hasExternalMembers) {
+            // Normal Group: members are inline in Mongo.
+            return (groupDoc.member || [])
+                .map(m => m?.entity?.reference)
+                .filter(ref => ref && ref.startsWith('Patient/'));
+        }
+
+        // Hybrid Group: page the ClickHouse roster with the caller tenant scope.
+        const securityContext = this.getExportSecurityContext();
+        const groupProvider = this.storageProviderFactory.createProvider({
+            resourceType: 'Group',
+            base_version: '4_0_0'
+        });
+
+        const references = [];
+        const pageSize = this.patientReferenceBatchSize || 100;
+        let afterReference = null;
+        // Roster events are keyed on the Group's resource id (see clickHouseGroupHandler).
+        const rosterGroupId = groupDoc.id;
+        // Seek pagination over the roster (members-only page, no per-page count); keep Patient members.
+        for (;;) {
+            const members = await groupProvider.getActiveMembersPageAsync(
+                rosterGroupId,
+                { limit: pageSize, afterReference },
+                securityContext
+            );
+            if (!members || members.length === 0) {
+                break;
+            }
+            for (const member of members) {
+                if (member.entity_type === 'Patient' && member.entity_reference) {
+                    references.push(member.entity_reference);
+                }
+            }
+            if (members.length < pageSize) {
+                break;
+            }
+            afterReference = members[members.length - 1].entity_reference;
+        }
+
+        return references;
+    }
+
+    /**
      * @typedef {Object} HandlePatientExportAsyncParams
      * @property {URLSearchParams} searchParams
      * @property {Object} query
      * @property {string} resourceType
+     * @property {string[]} [memberPatientReferences] - When provided (Group export), scopes
+     *   the export to these Patient references instead of the `patient` search param.
+     * @property {boolean} [isGroupExport] - True for Group-level exports. An empty member
+     *   set then yields an empty output (never a tenant-wide fallback).
      *
      * @param {HandlePatientExportAsyncParams}
      */
-    async handlePatientExportAsync({ searchParams, query, resourceType }) {
+    async handlePatientExportAsync({ searchParams, query, resourceType, memberPatientReferences, isGroupExport = false }) {
         try {
             logInfo(`Starting export for resource: ${resourceType}`);
+
+            // Group export with no resolvable members: write an empty file and stop.
+            // Falling through would drop the patient filter and export the whole tenant.
+            if (isGroupExport && (!memberPatientReferences || memberPatientReferences.length === 0)) {
+                const emptyFilePath = `${this.baseS3Folder}/${resourceType}.ndjson`;
+                await this.s3Client.uploadEmptyFileAsync({ filePath: emptyFilePath });
+                this.exportStatusResource.output.push(
+                    new ExportStatusEntry({
+                        type: resourceType,
+                        url: this.s3Client.getPublicFilePath(emptyFilePath)
+                    })
+                );
+                return;
+            }
+
             // Create patient query and get cursor to process patients batchwise
             const patientQuery = this.addPatientFiltersToQuery({
-                patientReferences: searchParams.get('patient')?.split(','),
+                patientReferences: memberPatientReferences || searchParams.get('patient')?.split(','),
                 query: deepcopy(query),
                 resourceType: 'Patient'
             });
