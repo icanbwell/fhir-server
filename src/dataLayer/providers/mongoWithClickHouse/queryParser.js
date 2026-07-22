@@ -137,6 +137,74 @@ class QueryParser {
     }
 
     /**
+     * Extracts requested resource id constraints from a MongoDB query.
+     *
+     * A `_id` search parameter is rewritten upstream into one of several field
+     * shapes before it reaches this provider:
+     * - `_uuid` (when the id is a uuid)
+     * - `_sourceId` (when the id is a plain source id)
+     * - `id` (raw id field)
+     * - `_id` (Mongo document id)
+     * each as an equality (`{ field: value }` or `{ field: { $eq } }`) or an
+     * `$in` (`{ field: { $in: [...] } }`), possibly nested inside `$and`/`$or`.
+     *
+     * All matching values are collected so the caller can intersect them with
+     * the group ids returned by ClickHouse. Returns null when no id constraint
+     * is present (so callers can leave behavior unchanged).
+     *
+     * @param {Object} query - MongoDB query object
+     * @returns {string[]|null} Requested ids, or null if none were specified
+     */
+    static extractRequestedIds(query) {
+        const idFields = new Set(['id', '_id', '_uuid', '_sourceId']);
+        const ids = new Set();
+
+        /**
+         * Collects id value(s) from a single field value (equality or $in)
+         * @param {*} value - The field value to collect from
+         */
+        const collectFromValue = (value) => {
+            if (value && typeof value === 'object') {
+                if (Array.isArray(value.$in)) {
+                    value.$in.forEach((v) => ids.add(v));
+                    return;
+                }
+                if (value.$eq !== undefined) {
+                    ids.add(value.$eq);
+                    return;
+                }
+                // Unsupported operator shape (e.g. $gt cursor) - ignore
+                return;
+            }
+            if (value !== undefined && value !== null) {
+                ids.add(value);
+            }
+        };
+
+        /**
+         * Recursively walks the query, collecting id constraints
+         * @param {Object} obj - Query object to search
+         */
+        const walk = (obj) => {
+            if (!obj || typeof obj !== 'object') {
+                return;
+            }
+
+            for (const [key, value] of Object.entries(obj)) {
+                if (idFields.has(key)) {
+                    collectFromValue(value);
+                } else if ((key === '$and' || key === '$or') && Array.isArray(value)) {
+                    value.forEach(walk);
+                }
+            }
+        };
+
+        walk(query);
+
+        return ids.size > 0 ? [...ids] : null;
+    }
+
+    /**
      * Extracts security tags from MongoDB query for ClickHouse filtering
      *
      * Security tags in MongoDB queries look like:
