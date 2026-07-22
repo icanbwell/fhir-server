@@ -405,6 +405,12 @@ class DataSharingManager {
          * */
         const updatedParsedArgs = parsedArgs.clone();
 
+        // Becomes true if a patient-reference filter had values originally but none of them
+        // survived the allowedPatientIds restriction. Dropping such a filter (rather than
+        // rebuilding it as an unsatisfiable one) would leave this resourceType's query with
+        // no patient scoping at all, so the whole connection-type branch must be discarded.
+        let patientFilterEmptied = false;
+
         updatedParsedArgs
             .parsedArgItems
             .forEach((/** @type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
@@ -430,6 +436,10 @@ class DataSharingManager {
                         }
                     });
 
+                    if (item.references.length > 0 && newQueryParameterValues.length === 0) {
+                        patientFilterEmptied = true;
+                    }
+
                     // rebuild the query value
                     const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
                     const newQueryParameterValue = new QueryParameterValue({
@@ -452,6 +462,10 @@ class DataSharingManager {
                         }
                     });
 
+                    if (item.queryParameterValue.values.length > 0 && newQueryParameterValues.length === 0) {
+                        patientFilterEmptied = true;
+                    }
+
                     const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
                     item.queryParameterValue = new QueryParameterValue({
                         value: newValue,
@@ -459,6 +473,13 @@ class DataSharingManager {
                     });
                 }
             });
+
+        // None of the referenced patients survived the connection-type restriction for at
+        // least one patient-scoped filter — this branch would otherwise match this resourceType
+        // with no patient scoping at all (see getConnectionTypeFilteredQuery caller), so skip it.
+        if (patientFilterEmptied) {
+            return null;
+        }
 
         /**
          * Reconstructed query.
