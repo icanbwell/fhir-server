@@ -1202,6 +1202,25 @@ class ConfigManager {
     }
 
     /**
+     * Whether AuditEvent writes are routed through the KAFKA_CLICKPIPE strategy
+     * (async produce to Kafka -> ClickPipes -> ClickHouse) instead of a
+     * synchronous direct ClickHouse insert.
+     *
+     * Default false. AuditEvent is only routed to the Kafka path when it also has
+     * a ClickHouse schema registered (see clickHouseOnlyResources) and Kafka events
+     * are enabled (ENABLE_EVENTS_KAFKA) — a disabled Kafka client would silently
+     * drop audits. Rollback = set this flag false (reverts to SYNC_DIRECT).
+     *
+     * Configuration:
+     * ENABLE_AUDIT_EVENT_CLICKPIPE=1
+     *
+     * @return {boolean}
+     */
+    get enableAuditEventClickPipe() {
+        return isTrue(env.ENABLE_AUDIT_EVENT_CLICKPIPE);
+    }
+
+    /**
      * Maximum number of members allowed in Group.member array for CREATE/PUT operations
      * Default: 50000 (can be overridden in production based on infrastructure)
      * PATCH operations bypass this limit (they append events, not full arrays)
