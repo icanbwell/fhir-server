@@ -421,22 +421,35 @@ class DataSharingManager {
                     /** @type {string[]} */
                     const newQueryParameterValues = [];
 
+                    // Mixed-target params (e.g. Observation.performer, which also targets
+                    // Practitioner/Organization/...) can carry non-Patient references; only
+                    // Patient-typed (or typeless) ones are ever rebuilt below, so only these
+                    // should count toward "was the patient scoping genuinely emptied".
+                    const patientTypedReferences = item.references.filter(
+                        (ref) => !ref.resourceType || ref.resourceType === 'Patient'
+                    );
+
                     // update the query-param values
-                    item.references.forEach((ref) => {
-                        if (!ref.resourceType || ref.resourceType === 'Patient') {
-                            // Check if ref.id is uuid or sourceId.
-                            if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
-                                newQueryParameterValues.push(`Patient/${ref.id}`);
-                            } else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
-                                const refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
-                                if (refUUID && allowedPatientIds.has(refUUID)) {
-                                    newQueryParameterValues.push(`Patient/${refUUID}`);
-                                }
+                    patientTypedReferences.forEach((ref) => {
+                        // Check if ref.id is uuid or sourceId.
+                        if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
+                            newQueryParameterValues.push(`Patient/${ref.id}`);
+                        } else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
+                            const refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
+                            if (refUUID && allowedPatientIds.has(refUUID)) {
+                                newQueryParameterValues.push(`Patient/${refUUID}`);
                             }
                         }
                     });
 
-                    if (item.references.length > 0 && newQueryParameterValues.length === 0) {
+                    // A 'not'-modified filter rebuilds into an exclusion ($nor) clause, where an
+                    // empty result just excludes nothing extra (a safe no-op) rather than making
+                    // the branch unsatisfiable, so it must not trip this check.
+                    if (
+                        !item.modifiers.includes('not') &&
+                        patientTypedReferences.length > 0 &&
+                        newQueryParameterValues.length === 0
+                    ) {
                         patientFilterEmptied = true;
                     }
 
@@ -462,7 +475,11 @@ class DataSharingManager {
                         }
                     });
 
-                    if (item.queryParameterValue.values.length > 0 && newQueryParameterValues.length === 0) {
+                    if (
+                        !item.modifiers.includes('not') &&
+                        item.queryParameterValue.values.length > 0 &&
+                        newQueryParameterValues.length === 0
+                    ) {
                         patientFilterEmptied = true;
                     }
 
