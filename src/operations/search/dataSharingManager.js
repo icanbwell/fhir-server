@@ -101,10 +101,12 @@ class DataSharingManager {
     /**
      * Returns data sharing manager.
      * @param {string} requestId
-     * @returns {Map<string, Resource[]>}
+     * @param {number|undefined} everythingChunkIndex
+     * @returns {Map<string, *>}
      */
-    getDataSharingManagerCache ({ requestId }) {
-        return this.requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
+    getDataSharingManagerCache ({ requestId, everythingChunkIndex }) {
+        const name = everythingChunkIndex !== undefined ? `dataSharingManager_${everythingChunkIndex}` : 'dataSharingManager';
+        return this.requestSpecificCache.getMap({ requestId, name });
     }
 
     /**
@@ -119,6 +121,7 @@ class DataSharingManager {
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {boolean} isUser whether request is with patient scope
      * @property {boolean} allowConsentedProaDataAccess whether to allow consented PROA data access
+     * @property {number|undefined} everythingChunkIndex
      * @param {RewriteDataSharingQuery} param
      */
     async updateQueryConsideringDataSharing({
@@ -130,12 +133,13 @@ class DataSharingManager {
         useHistoryTable,
         requestId,
         isUser,
-        allowConsentedProaDataAccess
+        allowConsentedProaDataAccess,
+        everythingChunkIndex
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let everythingCacheMap;
         if (requestId) {
-            everythingCacheMap = this.getDataSharingManagerCache({ requestId });
+            everythingCacheMap = this.getDataSharingManagerCache({ requestId, everythingChunkIndex });
         }
         let patientIdToImmediatePersonUuid;
         let patientsList;
