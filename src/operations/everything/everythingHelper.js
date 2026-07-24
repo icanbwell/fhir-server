@@ -1381,15 +1381,7 @@ class EverythingHelper {
                     });
                 }
 
-                if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED)) {
-                    if (!query.$or?.length > 0 || !query.$or.every(q => q.$and?.length > 0)) {
-                        logError(
-                            `Expected $or operator in query for resource ${relatedResourceType} when consented PROA data is accessed.`,
-                            { query, relatedResourceType }
-                        );
-                        query = { _uuid: '__invalid__' };
-                        continue;
-                    }
+                if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED) && query.$or?.length > 0 && query.$or.every(q => q.$and?.length > 0)) {
                     for (const orQuery of query.$or) {
                         if (customParentQuery.length == 1) {
                             orQuery.$and.push(customParentQuery[0]);
