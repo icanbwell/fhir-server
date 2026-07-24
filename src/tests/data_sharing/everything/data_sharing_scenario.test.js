@@ -624,7 +624,6 @@ describe('Data sharing test cases for different scenarios', () => {
                 .get(`/4_0_0/Person/${PERSON_ID}/$everything?_type=Patient`)
                 .set({ ...headers, prefer: 'global_id=false' });
 
-            console.log(resp.body.entry);
             // Expect 16 total patient excluding 5 unlinked IAS and PROA
             const phase2PatientCount = resp.body.entry?.filter(
                 (e) => e.resource?.resourceType === 'Patient'
