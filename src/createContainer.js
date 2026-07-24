@@ -151,6 +151,8 @@ const { DelegatedAccessRulesManager } = require('./utils/delegatedAccessRulesMan
 const { DelegatedAccessScopeManager } = require('./operations/security/delegatedAccessScopeManager');
 const { MongoBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/mongoBulkWriteExecutor');
 const { ClickHouseBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
+const { KafkaClickPipeBulkWriteExecutor } = require('./dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
+const { WRITE_STRATEGIES, KAFKA_TOPICS } = require('./constants/clickHouseConstants');
 const { ClickHouseSchemaRegistry } = require('./dataLayer/clickHouse/schemaRegistry');
 const { GenericClickHouseQueryParser } = require('./dataLayer/clickHouse/genericClickHouseQueryParser');
 const { GenericClickHouseQueryBuilder } = require('./dataLayer/builders/genericClickHouseQueryBuilder');
@@ -552,7 +554,15 @@ const createContainer = function () {
         const registry = new ClickHouseSchemaRegistry();
         if (c.configManager.clickHouseOnlyResources.includes('AuditEvent')) {
             const { getAuditEventClickHouseSchema } = require('./dataLayer/clickHouse/auditEventClickHouseSchema');
-            registry.registerSchema('AuditEvent', getAuditEventClickHouseSchema());
+            // Route AuditEvent writes through Kafka -> ClickPipes only when the flag is on
+            // and the V2 Kafka cluster is enabled. Otherwise the strategy stays SYNC_DIRECT
+            // (a disabled Kafka client would silently drop audits).
+            const useClickPipe = c.configManager.enableAuditEventClickPipe
+                && c.configManager.kafkaV2EnableEvents;
+            registry.registerSchema('AuditEvent', getAuditEventClickHouseSchema({
+                writeStrategy: useClickPipe ? WRITE_STRATEGIES.KAFKA_CLICKPIPE : WRITE_STRATEGIES.SYNC_DIRECT,
+                kafkaTopic: useClickPipe ? KAFKA_TOPICS.AUDIT_EVENT : null
+            }));
         }
         return registry;
     });
@@ -574,6 +584,19 @@ const createContainer = function () {
             genericClickHouseRepository: c.genericClickHouseRepository,
             schemaRegistry: c.clickHouseSchemaRegistry,
             postSaveProcessor: c.postSaveProcessor,
+            fallbackExecutor: c.mongoBulkWriteExecutor
+        });
+    });
+
+    container.register('kafkaClickPipeBulkWriteExecutor', (c) => {
+        // Only meaningful when the V2 Kafka cluster (ClickPipes source) is enabled;
+        // a DummyKafkaClientV2 would silently succeed and drop writes. When disabled
+        // this resolves to null and is filtered out of the executor arrays (no schema
+        // uses KAFKA_CLICKPIPE anyway).
+        if (!c.configManager.kafkaV2EnableEvents) return null;
+        return new KafkaClickPipeBulkWriteExecutor({
+            kafkaClientV2: c.kafkaClientV2,
+            schemaRegistry: c.clickHouseSchemaRegistry,
             fallbackExecutor: c.mongoBulkWriteExecutor
         });
     });
@@ -613,7 +636,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                bulkWriteExecutors: [c.clickHouseBulkWriteExecutor, c.mongoBulkWriteExecutor].filter(Boolean)
+                bulkWriteExecutors: [c.kafkaClickPipeBulkWriteExecutor, c.clickHouseBulkWriteExecutor, c.mongoBulkWriteExecutor].filter(Boolean)
             }
         )
     );
@@ -631,7 +654,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 base64DataManager: c.base64DataManager,
-                bulkWriteExecutors: [c.clickHouseBulkWriteExecutor, c.fastMongoBulkWriteExecutor].filter(Boolean),
+                bulkWriteExecutors: [c.kafkaClickPipeBulkWriteExecutor, c.clickHouseBulkWriteExecutor, c.fastMongoBulkWriteExecutor].filter(Boolean),
                 customTracer: c.customTracer
             }
         )

@@ -25,9 +25,17 @@ const { AuditEventFieldExtractor } = require('./auditEventFieldExtractor');
  *   agent.who._sourceId  → resource.agent[].who._sourceId
  *   entity.what._sourceId → resource.entity[].what._sourceId
  *
+ * @param {Object} [params]
+ * @param {string} [params.writeStrategy] - Write strategy for this resource
+ *   (WRITE_STRATEGIES.SYNC_DIRECT or WRITE_STRATEGIES.KAFKA_CLICKPIPE). Defaults to SYNC_DIRECT.
+ * @param {string|null} [params.kafkaTopic] - Kafka topic for the KAFKA_CLICKPIPE strategy.
+ *   Required (non-empty) when writeStrategy is KAFKA_CLICKPIPE; ignored otherwise.
  * @returns {Object} Schema definition for ClickHouseSchemaRegistry
  */
-function getAuditEventClickHouseSchema () {
+function getAuditEventClickHouseSchema ({
+    writeStrategy = WRITE_STRATEGIES.SYNC_DIRECT,
+    kafkaTopic = null
+} = {}) {
     return {
         tableName: TABLES.AUDIT_EVENT,
         engine: ENGINE_TYPES.MERGE_TREE,
@@ -57,7 +65,8 @@ function getAuditEventClickHouseSchema () {
         },
         requiredFilters: ['recorded'],
         maxRangeDays: 30,
-        writeStrategy: WRITE_STRATEGIES.SYNC_DIRECT,
+        writeStrategy,
+        kafkaTopic,
         fireChangeEvents: false,
         fieldExtractor: new AuditEventFieldExtractor()
     };

@@ -5,7 +5,13 @@
  * storage layer to improve maintainability and prevent errors.
  */
 
+// Common prefix for all ClickPipe Kafka topics produced by the FHIR server.
+// Topics follow the pattern `${CLICKPIPE_KAFKA_TOPIC_PREFIX}.resource.<ResourceType>_<version>`.
+const CLICKPIPE_KAFKA_TOPIC_PREFIX = 'fhir_server';
+
 module.exports = {
+    CLICKPIPE_KAFKA_TOPIC_PREFIX,
+
     // Table names
     TABLES: {
         GROUP_MEMBER_EVENTS: 'fhir.Group_4_0_0_MemberEvents',
@@ -73,7 +79,14 @@ module.exports = {
     // live in the executor layer and are selected by DI container wiring.
     // MongoDB is not listed — it's the default when no ClickHouse schema exists.
     WRITE_STRATEGIES: {
-        SYNC_DIRECT: 'sync-direct'       // Synchronous write via clickHouseClientManager
+        SYNC_DIRECT: 'sync-direct',      // Synchronous write via clickHouseClientManager
+        KAFKA_CLICKPIPE: 'kafka-clickpipe' // Async produce to Kafka (MSK) -> ClickPipes -> ClickHouse
+    },
+
+    // Kafka topics for the KAFKA_CLICKPIPE write strategy (one topic per resource -> table).
+    // The ClickPipes source consumes these topics and inserts into the mapped table.
+    KAFKA_TOPICS: {
+        AUDIT_EVENT: `${CLICKPIPE_KAFKA_TOPIC_PREFIX}.resource.AuditEvent_4_0_0`
     },
 
     // Supported ClickHouse engine types for schema validation

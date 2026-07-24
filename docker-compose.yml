@@ -52,6 +52,10 @@ services:
       KAFKA_CLIENT_ID: 'fhir-server'
       KAFKA_URLS: 'kafka:9092'
       KAFKA_MAX_RETRY: 3
+      # Kafka V2 cluster (the ClickPipes source cluster) — pointed at the local broker
+      ENABLE_EVENTS_KAFKA_V2: '1'
+      KAFKA_V2_URLS: 'kafka:9092'
+      KAFKA_V2_CLIENT_ID: 'fhir-server'
       AUTH_CUSTOM_USERNAME: "cognito:username,preferred_username"
       AUTH_CUSTOM_GROUP: "cognito:groups,groups"
       AUTH_CUSTOM_SCOPE: "custom:scope"
@@ -112,6 +116,7 @@ services:
       MONGO_WITH_CLICKHOUSE_RESOURCES: 'Group'
       ENABLE_ACCESS_AUDIT_EVENT: '1'
       CLICKHOUSE_ONLY_RESOURCES: 'AuditEvent'
+      ENABLE_AUDIT_EVENT_CLICKPIPE: '0'
       ENABLE_ACCESS_LOGS_CLICKHOUSE: '1'
       ENABLE_ACCESS_LOGS_MONGODB: '0'
       AUDIT_EVENT_MAX_SIZE_BYTES: '1048576'

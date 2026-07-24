@@ -2,6 +2,7 @@
 
 const { describe, test, beforeEach, expect, jest: jestGlobal } = require('@jest/globals');
 const { ClickHouseBulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor');
+const { KafkaClickPipeBulkWriteExecutor } = require('../../../../dataLayer/bulkWriteExecutors/kafkaClickPipeBulkWriteExecutor');
 const { ClickHouseSchemaRegistry } = require('../../../../dataLayer/clickHouse/schemaRegistry');
 const {
     WRITE_STRATEGIES,
@@ -111,6 +112,57 @@ describe('Executor routing', () => {
             expect(executors.find(e => e.canHandle('Patient'))).toBe(mongoCatchAll);
             expect(executors.find(e => e.canHandle('Observation'))).toBe(mongoCatchAll);
             expect(executors.find(e => e.canHandle('AuditEvent'))).toBe(mongoCatchAll);
+        });
+    });
+
+    describe('KAFKA_CLICKPIPE routing', () => {
+        let kafkaExecutor;
+
+        beforeEach(() => {
+            // Register a resource with the Kafka/ClickPipe strategy alongside the
+            // SYNC_DIRECT ScaffoldingTestResource from the outer beforeEach.
+            schemaRegistry.registerSchema('KafkaTestResource', {
+                tableName: 'fhir.fhir_kafka_test',
+                engine: ENGINE_TYPES.MERGE_TREE,
+                versionColumn: null,
+                dedupKey: null,
+                seekKey: ['recorded', 'id'],
+                fhirResourceColumn: '_fhir_resource',
+                fhirResourceColumnType: RESOURCE_COLUMN_TYPES.STRING,
+                fieldMappings: {
+                    recorded: { column: 'recorded', type: 'datetime' }
+                },
+                securityMappings: { accessTags: 'access_tags' },
+                requiredFilters: [],
+                maxRangeDays: null,
+                writeStrategy: WRITE_STRATEGIES.KAFKA_CLICKPIPE,
+                kafkaTopic: 'fhir.kafka.test.stream',
+                fireChangeEvents: false,
+                fieldExtractor: { extract: () => ({}) }
+            });
+
+            kafkaExecutor = new KafkaClickPipeBulkWriteExecutor({
+                kafkaClientV2: { sendCloudEventMessageAsync: jestGlobal.fn() },
+                schemaRegistry
+            });
+        });
+
+        test('kafka executor claims KAFKA_CLICKPIPE resource, declines SYNC_DIRECT', () => {
+            expect(kafkaExecutor.canHandle('KafkaTestResource')).toBe(true);
+            expect(kafkaExecutor.canHandle('ScaffoldingTestResource')).toBe(false);
+        });
+
+        test('clickhouse executor declines KAFKA_CLICKPIPE resource', () => {
+            expect(clickHouseExecutor.canHandle('KafkaTestResource')).toBe(false);
+        });
+
+        test('[kafka, clickhouse, mongo] array routes each strategy to its executor', () => {
+            const mongoCatchAll = { canHandle: () => true };
+            const executors = [kafkaExecutor, clickHouseExecutor, mongoCatchAll];
+
+            expect(executors.find(e => e.canHandle('KafkaTestResource'))).toBe(kafkaExecutor);
+            expect(executors.find(e => e.canHandle('ScaffoldingTestResource'))).toBe(clickHouseExecutor);
+            expect(executors.find(e => e.canHandle('Patient'))).toBe(mongoCatchAll);
         });
     });
 });
