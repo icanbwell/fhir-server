@@ -1207,8 +1207,10 @@ class ConfigManager {
      * synchronous direct ClickHouse insert.
      *
      * Default false. AuditEvent is only routed to the Kafka path when it also has
-     * a ClickHouse schema registered (see clickHouseOnlyResources) and Kafka events
-     * are enabled (ENABLE_EVENTS_KAFKA) — a disabled Kafka client would silently
+     * a ClickHouse schema registered (see clickHouseOnlyResources) and the V2 Kafka
+     * cluster is enabled (ENABLE_EVENTS_KAFKA_V2, i.e. configManager.kafkaV2EnableEvents)
+     * — this is the separate MSK cluster that ClickPipes reads from, NOT the legacy
+     * ENABLE_EVENTS_KAFKA flag. A disabled V2 client (DummyKafkaClientV2) would silently
      * drop audits. Rollback = set this flag false (reverts to SYNC_DIRECT).
      *
      * Configuration:
