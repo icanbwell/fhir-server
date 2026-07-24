@@ -203,7 +203,8 @@ class SearchManager {
             applyPatientFilter = true,
             addPersonOwnerToContext = false,
             allowConsentedProaDataAccess = false,
-            actor
+            actor,
+            everythingChunkIndex
         }
     ) {
         try {
@@ -299,7 +300,8 @@ class SearchManager {
                         useHistoryTable,
                         requestId,
                         isUser,
-                        allowConsentedProaDataAccess
+                        allowConsentedProaDataAccess,
+                        everythingChunkIndex
                     });
                 }
             }

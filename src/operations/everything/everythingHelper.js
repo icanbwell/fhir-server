@@ -435,6 +435,7 @@ class EverythingHelper {
                 }
             }
             if (!readFromCache || fallbackToMongo) {
+                let everythingChunkIndex = 0;
                 for (const idChunk of idChunks) {
                     const parsedArgsForChunk = parsedArgs.clone();
                     parsedArgsForChunk.id = idChunk;
@@ -478,7 +479,8 @@ class EverythingHelper {
                             responseStreamer,
                             includeNonClinicalResources,
                             proxyPatientIds,
-                            cachedStreamer
+                            cachedStreamer,
+                            everythingChunkIndex: everythingChunkIndex++
                         }
                     );
 
@@ -628,7 +630,8 @@ class EverythingHelper {
         bundleEntryIdsProcessedTracker,
         includeNonClinicalResources = false,
         proxyPatientIds = [],
-        cachedStreamer = null
+        cachedStreamer = null,
+        everythingChunkIndex
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -722,7 +725,8 @@ class EverythingHelper {
                     requestInfo,
                     useUuidProjection,
                     resourceMapper,
-                    cachedStreamer
+                    cachedStreamer,
+                    everythingChunkIndex
                 });
 
                 optionsForQueries = baseResult.options;
@@ -806,7 +810,8 @@ class EverythingHelper {
                     useUuidProjection,
                     resourceToExcludeIdsMap,
                     resourceMapper,
-                    cachedStreamer
+                    cachedStreamer,
+                    everythingChunkIndex
                 });
 
                 if (!responseStreamer) {
@@ -895,7 +900,8 @@ class EverythingHelper {
                                 nonClinicalReferencesExtractor: referenceExtractorForNextLevel,
                                 everythingRelatedResourceManager,
                                 resourceMapper,
-                                cachedStreamer
+                                cachedStreamer,
+                                everythingChunkIndex
                             });
 
                             depthParallelProcess.push(result);
@@ -1018,7 +1024,8 @@ class EverythingHelper {
         useUuidProjection = false,
         applyPatientFilter = true,
         resourceMapper = new ResourceMapper(),
-        cachedStreamer = null
+        cachedStreamer = null,
+        everythingChunkIndex
     }) {
 
         /**
@@ -1064,7 +1071,8 @@ class EverythingHelper {
                 accessRequested: (requestInfo.method.toLowerCase() === 'delete' ? 'write' : 'read'),
                 addPersonOwnerToContext: requestInfo.isUser,
                 applyPatientFilter,
-                allowConsentedProaDataAccess: true
+                allowConsentedProaDataAccess: true,
+                everythingChunkIndex
             });
 
 
@@ -1174,6 +1182,7 @@ class EverythingHelper {
      * @property {{_uuid: string, resourceType: string}[]} streamedResources
      * @property {ResourceMapper} resourceMapper
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
+     * @property {number|undefined} [everythingChunkIndex]
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
@@ -1194,6 +1203,7 @@ class EverythingHelper {
         everythingRelatedResourceManager,
         nonClinicalReferencesExtractor,
         useUuidProjection = false,
+        everythingChunkIndex,
         resourceToExcludeIdsMap,
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null
@@ -1320,7 +1330,8 @@ class EverythingHelper {
                 applyPatientFilter:
                     requestInfo.isUser &&
                     this.relatedResourceNeedingPatientScopeFilter[parentResourceType].includes(relatedResourceType),
-                allowConsentedProaDataAccess: true
+                allowConsentedProaDataAccess: true,
+                everythingChunkIndex
             });
 
             if (filterTemplateCustomQuery) {
@@ -1360,15 +1371,7 @@ class EverythingHelper {
                     });
                 }
 
-                if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED)) {
-                    if (!query.$or?.length > 0 || !query.$or.every(q => q.$and?.length > 0)) {
-                        logError(
-                            `Expected $or operator in query for resource ${relatedResourceType} when consented PROA data is accessed.`,
-                            { query, relatedResourceType }
-                        );
-                        query = { _uuid: '__invalid__' };
-                        continue;
-                    }
+                if (httpContext.get(HTTP_CONTEXT_KEYS.CONSENTED_PROA_DATA_ACCESSED) && query.$or?.length > 0 && query.$or.every(q => q.$and?.length > 0)) {
                     for (const orQuery of query.$or) {
                         if (customParentQuery.length == 1) {
                             orQuery.$and.push(customParentQuery[0]);
