@@ -397,5 +397,122 @@ describe('Data sharing test cases for different scenarios', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse11Resource);
         });
+
+        test('With consent given and batch size 1, each chunk query is scoped to patient UUIDs — not unbounded', async () => {
+            // Force batch size = 1 so each patient is processed in its own chunk.
+            // This exercises the everythingChunkIndex cache-scoping fix.
+            // Without the fix, chunks 2+ reuse chunk 1's allowedPatientIds, producing
+            // a bare { meta.tag: NOT hidden, connectionType: proa } query with no patient scoping.
+            // With the fix, every $or arm must contain patient-specific filters.
+            const request = await createTestRequest((c) => {
+                Object.defineProperty(c.configManager, 'everythingBatchSize', {
+                    get: () => 1,
+                    configurable: true
+                });
+                return c;
+            });
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
+                    clientObservationResource, client1PersonResource, client1PatientResource, client1ObservationResource,
+                    proaPatient1Resource, proaObservation1Resource, proaPatient2Resource, proaObservation2Resource,
+                    hieTreatmentPatientResource, hieTreatmentObservationResource, clientConsentGivenResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .get('/4_0_0/Person/c12345/$everything?_debug=true')
+                .set({
+                    ...headers,
+                    prefer: 'global_id=false'
+                });
+
+            expect(resp.status).toBe(200);
+
+            // Extract all query strings from debug meta tags
+            const metaTags = resp.body?.meta?.tag || [];
+            const queryDisplays = metaTags
+                .filter((t) => t.system === 'https://www.icanbwell.com/query')
+                .flatMap((t) => t.display.split('|'));
+
+            // Every $or query must have at least one arm that scopes to patient UUIDs or connectionType.
+            // A bare { meta.tag: NOT hidden } only query (no _uuid, no connectionType) indicates
+            // the unbounded scan bug is present.
+            for (const queryStr of queryDisplays) {
+                let parsedQuery;
+                try {
+                    const firstParen = queryStr.indexOf('(');
+                    const lastCommaOutside = (() => {
+                        let depth = 0, last = -1;
+                        for (let i = firstParen + 1; i < queryStr.length; i++) {
+                            if (queryStr[i] === '{') depth++;
+                            else if (queryStr[i] === '}') depth--;
+                            else if (queryStr[i] === ',' && depth === 0) last = i;
+                        }
+                        return last;
+                    })();
+                    parsedQuery = JSON.parse(
+                        queryStr.substring(firstParen + 1, lastCommaOutside).replace(/'/g, '"')
+                    );
+                } catch {
+                    continue;
+                }
+                if (!parsedQuery?.$or) {
+                    continue;
+                }
+                // Each arm of the $or must contain something beyond just meta.tag
+                for (const arm of parsedQuery.$or) {
+                    const armStr = JSON.stringify(arm);
+                    const hasPatientScope = armStr.includes('_uuid');
+                    expect(hasPatientScope).toBe(true);
+                }
+            }
+        });
+
+        test('Without consent and batch size 1, PROA observations do not appear from any chunk', async () => {
+            // Force batch size = 1 so each patient is its own chunk.
+            // Without consent, the patientFilterEmptied guard must return null for PROA arms
+            // in every chunk — no PROA observations should leak across chunk boundaries.
+            const request = await createTestRequest((c) => {
+                Object.defineProperty(c.configManager, 'everythingBatchSize', {
+                    get: () => 1,
+                    configurable: true
+                });
+                return c;
+            });
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
+                    clientObservationResource, proaPatient1Resource, proaObservation1Resource,
+                    proaPatient2Resource, proaObservation2Resource,
+                    hieTreatmentPatientResource, hieTreatmentObservationResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
+                .get('/4_0_0/Person/c12345/$everything')
+                .set({
+                    ...headers,
+                    prefer: 'global_id=false'
+                });
+
+            expect(resp.status).toBe(200);
+
+            const entries = resp.body.entry || [];
+            const observationIds = entries
+                .filter((e) => e.resource?.resourceType === 'Observation')
+                .map((e) => e.resource.id);
+
+            // PROA observations must not appear without consent — in any chunk
+            expect(observationIds).not.toContain(proaObservation1Resource.id);
+            expect(observationIds).not.toContain(proaObservation2Resource.id);
+
+            // Client observation must still be returned
+            expect(observationIds).toContain(clientObservationResource.id);
+        });
     });
 });
