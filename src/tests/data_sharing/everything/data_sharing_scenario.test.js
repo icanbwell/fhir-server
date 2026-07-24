@@ -398,10 +398,23 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse11Resource);
         });
 
-        test('PROA data sharing flow: Person with 16 linked patients (15 health-service + 1 client with consent), should return 16 Patients after adding 5 unlinked PROA and 5 unlinked IAS patients', async () => {
+        describe('PROA data sharing flow with connectionType-based consent', () => {
+            let originalConsentConnectionTypesList;
 
-            const originalConsentConnectionTypesList = process.env.CONSENT_CONNECTION_TYPES_LIST;
-            process.env.CONSENT_CONNECTION_TYPES_LIST = 'proa,ias';
+            beforeEach(() => {
+                originalConsentConnectionTypesList = process.env.CONSENT_CONNECTION_TYPES_LIST;
+                process.env.CONSENT_CONNECTION_TYPES_LIST = 'proa,ias';
+            });
+
+            afterEach(() => {
+                if (originalConsentConnectionTypesList === undefined) {
+                    delete process.env.CONSENT_CONNECTION_TYPES_LIST;
+                } else {
+                    process.env.CONSENT_CONNECTION_TYPES_LIST = originalConsentConnectionTypesList;
+                }
+            });
+
+            test('PROA data sharing flow: Person with 16 linked patients (15 health-service + 1 client with consent), should return 16 Patients after adding 5 unlinked PROA and 5 unlinked IAS patients', async () => {
             const request = await createTestRequest((c) => c);
 
             // UUIDs for all resources in this test
@@ -629,8 +642,7 @@ describe('Data sharing test cases for different scenarios', () => {
                 (e) => e.resource?.resourceType === 'Patient'
             ).length;
             expect(phase2PatientCount).toEqual(16);
-
-            process.env.CONSENT_CONNECTION_TYPES_LIST = originalConsentConnectionTypesList;
+            });
         });
     });
 });
