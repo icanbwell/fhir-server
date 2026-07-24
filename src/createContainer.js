@@ -87,6 +87,7 @@ const {K8sClient} = require('./utils/k8sClient');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
+const {QuestionnaireReferenceNormalizationHandler} = require('./preSaveHandlers/handlers/questionnaireReferenceNormalizationHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {ProaConsentManager} = require('./operations/search/proaConsentManager');
@@ -220,6 +221,8 @@ const createContainer = function () {
         preSaveHandlers: [
             // Validate Group invariants early (fail fast)
             new GroupInvariantHandler({ configManager: c.configManager }),
+            // Normalize legacy human-readable questionnaire references to UUIDs (PAY-2630)
+            new QuestionnaireReferenceNormalizationHandler(),
             // Note: Group.member array stripping is now handled in databaseBulkInserter
             // before preSaveManager is called, to ensure proper write ordering with ClickHouse
             new DateColumnHandler(),
