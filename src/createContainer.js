@@ -552,13 +552,16 @@ const createContainer = function () {
     // ClickHouse-only resource infrastructure
     container.register('clickHouseSchemaRegistry', (c) => {
         const registry = new ClickHouseSchemaRegistry();
-        if (c.configManager.clickHouseOnlyResources.includes('AuditEvent')) {
+        // Route AuditEvent writes through Kafka -> ClickPipes when the flag is on and the
+        // V2 Kafka cluster is enabled. This is driven solely by ENABLE_AUDIT_EVENT_CLICKPIPE
+        // and is independent of CLICKHOUSE_ONLY_RESOURCES (which only governs the direct
+        // SYNC_DIRECT write path and the ClickHouse read path). A disabled V2 client would
+        // silently drop audits, hence the kafkaV2EnableEvents guard.
+        const useClickPipe = c.configManager.enableAuditEventClickPipe
+            && c.configManager.kafkaV2EnableEvents;
+        const useSyncDirect = c.configManager.clickHouseOnlyResources.includes('AuditEvent');
+        if (useClickPipe || useSyncDirect) {
             const { getAuditEventClickHouseSchema } = require('./dataLayer/clickHouse/auditEventClickHouseSchema');
-            // Route AuditEvent writes through Kafka -> ClickPipes only when the flag is on
-            // and the V2 Kafka cluster is enabled. Otherwise the strategy stays SYNC_DIRECT
-            // (a disabled Kafka client would silently drop audits).
-            const useClickPipe = c.configManager.enableAuditEventClickPipe
-                && c.configManager.kafkaV2EnableEvents;
             registry.registerSchema('AuditEvent', getAuditEventClickHouseSchema({
                 writeStrategy: useClickPipe ? WRITE_STRATEGIES.KAFKA_CLICKPIPE : WRITE_STRATEGIES.SYNC_DIRECT,
                 kafkaTopic: useClickPipe ? KAFKA_TOPICS.AUDIT_EVENT : null
