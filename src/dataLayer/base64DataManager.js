@@ -377,18 +377,26 @@ class Base64DataManager {
             });
             return;
         }
-        for (const key of keys) {
+        const keysToDelete = keys.filter((key) => {
             const keyMs = this._parseLiveKeyTimestamp(key, prefix);
-            if (keyMs === null || keyMs > ms) {
-                continue; // unparseable (foreign key under this prefix) or strictly newer — never touch
-            }
-            try {
-                await this.base64FieldCloudStorageClient.deleteAsync(key);
-            } catch (err) {
+            return keyMs !== null && keyMs <= ms; // unparseable (foreign key) or strictly newer — never touch
+        });
+        if (keysToDelete.length === 0) {
+            return;
+        }
+        try {
+            const { errors } = await this.base64FieldCloudStorageClient.deleteObjectsAsync({
+                filePaths: keysToDelete
+            });
+            for (const error of errors) {
                 logError(`Failed to delete base64 live object for ${resourceType}/${uuid}`, {
-                    err, source: 'Base64DataManager', key
+                    err: error, source: 'Base64DataManager', key: error.Key
                 });
             }
+        } catch (err) {
+            logError(`Failed to delete base64 live objects for ${resourceType}/${uuid}`, {
+                err, source: 'Base64DataManager', keys: keysToDelete
+            });
         }
     }
 

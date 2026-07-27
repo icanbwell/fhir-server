@@ -598,17 +598,24 @@ describe('Base64DataManager — deleteLiveObjectAsync (live-folder sweep)', () =
         expect(ctx.client.uploadedData[foreignKey]).toBe('unrelated-object');
     });
 
-    test("one key's deleteAsync failure doesn't prevent other keys in the same sweep from being deleted", async () => {
+    test("one key's delete failure doesn't prevent other keys in the same sweep from being deleted", async () => {
         const uuid = 'uuid-sweep-3';
         const staleKey = `Binary_4_0_0/${uuid}/1000`;
         const targetKey = `Binary_4_0_0/${uuid}/2000`;
         ctx.client.uploadedData[staleKey] = 'stale-orphan';
         ctx.client.uploadedData[targetKey] = 'target';
-        jest.spyOn(ctx.client, 'deleteAsync').mockImplementation(async (filePath) => {
-            if (filePath === targetKey) {
-                throw new Error('S3 outage');
+        jest.spyOn(ctx.client, 'deleteObjectsAsync').mockImplementation(async ({ filePaths }) => {
+            const deletedKeys = [];
+            const errors = [];
+            for (const filePath of filePaths) {
+                if (filePath === targetKey) {
+                    errors.push({ Key: filePath, Code: 'InternalError', Message: 'S3 outage' });
+                    continue;
+                }
+                delete ctx.client.uploadedData[filePath];
+                deletedKeys.push(filePath);
             }
-            delete ctx.client.uploadedData[filePath];
+            return { deletedKeys, errors };
         });
 
         await expect(ctx.mgr.deleteLiveObjectAsync('Binary', uuid, new Date(2000))).resolves.toBeUndefined();
@@ -618,7 +625,7 @@ describe('Base64DataManager — deleteLiveObjectAsync (live-folder sweep)', () =
 
     test('a listObjectsAsync failure is caught and logged: never throws and never attempts a delete', async () => {
         jest.spyOn(ctx.client, 'listObjectsAsync').mockRejectedValue(new Error('S3 outage'));
-        const deleteSpy = jest.spyOn(ctx.client, 'deleteAsync');
+        const deleteSpy = jest.spyOn(ctx.client, 'deleteObjectsAsync');
 
         await expect(ctx.mgr.deleteLiveObjectAsync('Binary', 'uuid-sweep-4', new Date(2000))).resolves.toBeUndefined();
 

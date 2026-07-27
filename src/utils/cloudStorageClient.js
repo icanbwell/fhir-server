@@ -127,6 +127,20 @@ class CloudStorageClient {
     }
 
     /**
+     * Batch-delete multiple keys from cloud storage in as few round-trips as the provider allows.
+     * Best-effort per key: a failure deleting one key must not prevent the others from being
+     * attempted. Idempotent: a non-existent key is not reported as an error.
+     * @typedef {Object} DeleteObjectsAsyncParams
+     * @property {string[]} filePaths
+     *
+     * @param {DeleteObjectsAsyncParams}
+     * @returns {Promise<{deletedKeys: string[], errors: {Key: string, Code?: string, Message?: string}[]}>}
+     */
+    async deleteObjectsAsync({ filePaths }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
      * Copy an object within the bucket. When sourcePath === filePath this resets the
      * object's Last-Modified timestamp, which refreshes any TTL/lifecycle age clock
      * keyed off Last-Modified.

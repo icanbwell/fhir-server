@@ -85,6 +85,15 @@ class MockS3Client extends S3Client {
     async deleteAsync(filePath) {
         delete this.uploadedData[filePath];
     }
+
+    async deleteObjectsAsync({ filePaths }) {
+        const deletedKeys = [];
+        for (const filePath of filePaths) {
+            delete this.uploadedData[filePath];
+            deletedKeys.push(filePath);
+        }
+        return { deletedKeys, errors: [] };
+    }
 }
 
 module.exports = { MockS3Client };
