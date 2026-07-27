@@ -59,6 +59,18 @@ class CloudStorageClient {
     }
 
     /**
+     * List every object key under a prefix, paginating until the provider reports no more pages.
+     * @typedef {Object} ListObjectsAsyncParams
+     * @property {string} prefix
+     *
+     * @param {ListObjectsAsyncParams}
+     * @returns {Promise<string[]>} every object key under `prefix`.
+     */
+    async listObjectsAsync({ prefix }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
      * Starts a multi-part upload for the file provided
      * @typedef {Object} CreateMultiPartUploadAsyncParams
      * @property {string} filePath
@@ -111,6 +123,20 @@ class CloudStorageClient {
      * @param {string} filePath
      */
     async deleteAsync(filePath) {
+        throw Error('Not Implemented');
+    }
+
+    /**
+     * Batch-delete multiple keys from cloud storage in as few round-trips as the provider allows.
+     * Best-effort per key: a failure deleting one key must not prevent the others from being
+     * attempted. Idempotent: a non-existent key is not reported as an error.
+     * @typedef {Object} DeleteObjectsAsyncParams
+     * @property {string[]} filePaths
+     *
+     * @param {DeleteObjectsAsyncParams}
+     * @returns {Promise<{deletedKeys: string[], errors: {Key: string, Code?: string, Message?: string}[]}>}
+     */
+    async deleteObjectsAsync({ filePaths }) {
         throw Error('Not Implemented');
     }
 

@@ -95,9 +95,13 @@ class Base64DataManager {
      *    the `_blobMeta` sidecar. Bytes are stashed for `transformHistoryAsync`.
      *  - `BLOB_OP.RETRIEVE`: download each sidecar's bytes back onto `data` so merge/patch/response
      *    flows see real content (accurate patches, correct no-op short-circuits).
+     *  - `BLOB_OP.DELETE`: ensure the history bucket holds this version's bytes (checking there
+     *    first, only fetching the live bucket if missing) and leave the resource `_blobMeta`-only,
+     *    ahead of the delete-caused history write.
      * No-op when disabled, the resource type has no configured paths, or nothing matches.
      * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place and returned.
-     * @param {string} operation - `BLOB_OP.INSERT` / `BLOB_OP.RETRIEVE`; any other value is a no-op.
+     * @param {string} operation - `BLOB_OP.INSERT` / `BLOB_OP.RETRIEVE` / `BLOB_OP.DELETE`; any
+     *        other value is a no-op.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - enables the preSave
      *        `_uuid` step (INSERT) and the per-request stashes; RETRIEVE still works without it.
      * @param {{alwaysCreateNew?: boolean, historyRead?: boolean}} [options] - `alwaysCreateNew: true`
@@ -131,6 +135,10 @@ class Base64DataManager {
         } else if (operation === BLOB_OP.RETRIEVE) {
             for (const entry of entries) {
                 await this._processRetrieveEntry(resource, entry, requestInfo, options.historyRead === true);
+            }
+        } else if (operation === BLOB_OP.DELETE) {
+            for (const entry of entries) {
+                await this._processDeleteEntry(resource, entry);
             }
         }
         return resource;
@@ -334,9 +342,22 @@ class Base64DataManager {
     }
 
     /**
-     * Best-effort, unconditional delete of the live object at `{uuid}/{epochMsOf(lastUpdated)}`. Safe
-     * without a reference check: a live key is a timestamp that is never regenerated, so nothing can
-     * reference it once superseded. No-op on falsy `lastUpdated`; never throws.
+     * Best-effort delete of every live-bucket object for `{resourceType, uuid}` at or before
+     * `lastUpdated`'s timestamp: lists everything under the uuid's live-folder prefix and deletes
+     * each key whose parsed timestamp is <= the target ms, leaving any strictly newer key (a
+     * concurrent writer's fresh upload) untouched. A live key is never regenerated once superseded,
+     * so anything at-or-below the target is provably safe to delete — either the key the caller asked
+     * for, or an orphan stray left behind by an earlier race or partial failure. Once nothing remains
+     * under the prefix, the folder (a virtual grouping of keys — S3 has no real folder object) stops
+     * appearing in any listing.
+     *
+     * Used by `removeHelper.js` (full resource DELETE), `deleteSupersededLiveObjectsAsync` (PUT/PATCH
+     * supersede), and `cleanupPreviousLiveObjectAsync` ($merge/bulk supersede) — each passes the
+     * timestamp of an OLDER, already-superseded key, so the sweep only reaches backward and never
+     * touches a newer, still-committed key. Do NOT call this from the write-failure rollback path
+     * (`deleteOwnUploadedLiveObjectsAsync`): there the target is THIS request's own (newer) key, so
+     * sweeping backward would also delete a still-committed OLDER version's live object — see
+     * `_deleteExactLiveObjectAsync` for that case. No-op on falsy `lastUpdated`; never throws.
      * @param {string} resourceType
      * @param {string} uuid
      * @param {Date|string|number|null|undefined} lastUpdated
@@ -346,12 +367,35 @@ class Base64DataManager {
         if (!this.enableBase64FieldCloudStorage || !lastUpdated) { return; }
         const ms = this._toEpochMs(lastUpdated);
         if (!ms) { return; }
-        const key = this._buildLiveKey(resourceType, uuid, ms);
+        const prefix = this._buildLiveFolderKey(resourceType, uuid);
+        let keys;
         try {
-            await this.base64FieldCloudStorageClient.deleteAsync(key);
+            keys = await this.base64FieldCloudStorageClient.listObjectsAsync({ prefix });
         } catch (err) {
-            logError(`Failed to delete base64 live object for ${resourceType}/${uuid}`, {
-                err, source: 'Base64DataManager', key
+            logError(`Failed to list base64 live objects for ${resourceType}/${uuid}`, {
+                err, source: 'Base64DataManager', prefix
+            });
+            return;
+        }
+        const keysToDelete = keys.filter((key) => {
+            const keyMs = this._parseLiveKeyTimestamp(key, prefix);
+            return keyMs !== null && keyMs <= ms; // unparseable (foreign key) or strictly newer — never touch
+        });
+        if (keysToDelete.length === 0) {
+            return;
+        }
+        try {
+            const { errors } = await this.base64FieldCloudStorageClient.deleteObjectsAsync({
+                filePaths: keysToDelete
+            });
+            for (const error of errors) {
+                logError(`Failed to delete base64 live object for ${resourceType}/${uuid}`, {
+                    err: error, source: 'Base64DataManager', key: error.Key
+                });
+            }
+        } catch (err) {
+            logError(`Failed to delete base64 live objects for ${resourceType}/${uuid}`, {
+                err, source: 'Base64DataManager', keys: keysToDelete
             });
         }
     }
@@ -608,8 +652,36 @@ class Base64DataManager {
                 const stashed = this._readStashedOriginalData(requestInfo, resource._uuid, dataSegments, indices);
                 const blobMeta = parent[blobMetaLeaf];
                 if (stashed && stashed.changed && blobMeta && blobMeta.lastUpdated) {
-                    await this.deleteLiveObjectAsync(resource.resourceType, resource._uuid, blobMeta.lastUpdated);
+                    await this._deleteExactLiveObjectAsync(resource.resourceType, resource._uuid, blobMeta.lastUpdated);
                 }
+            });
+        }
+    }
+
+    /**
+     * Best-effort, unconditional delete of exactly the live object at `{uuid}/{epochMsOf(lastUpdated)}`
+     * — no sweep of neighboring keys. Used only by `deleteOwnUploadedLiveObjectsAsync` (write-failure
+     * rollback), which must remove nothing but the key THIS request itself created: a committed prior
+     * version's live object (if any) is untouched by a failed write and must survive it.
+     * `deleteLiveObjectAsync`'s broader sweep is unsafe here — it would also delete that still-
+     * committed older key, since it is always at-or-below this request's own (newer) timestamp.
+     * No-op on falsy `lastUpdated`; never throws.
+     * @param {string} resourceType
+     * @param {string} uuid
+     * @param {Date|string|number|null|undefined} lastUpdated
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _deleteExactLiveObjectAsync (resourceType, uuid, lastUpdated) {
+        if (!this.enableBase64FieldCloudStorage || !lastUpdated) { return; }
+        const ms = this._toEpochMs(lastUpdated);
+        if (!ms) { return; }
+        const key = this._buildLiveKey(resourceType, uuid, ms);
+        try {
+            await this.base64FieldCloudStorageClient.deleteAsync(key);
+        } catch (err) {
+            logError(`Failed to delete base64 live object for ${resourceType}/${uuid}`, {
+                err, source: 'Base64DataManager', key
             });
         }
     }
@@ -874,6 +946,120 @@ class Base64DataManager {
     }
 
     /**
+     * BLOB_OP.DELETE processing for one config entry, called ahead of the resource being handed to
+     * `insertOneHistoryAsync` for the delete-caused history entry. For a leaf that is or becomes
+     * externalized, ensures the history bucket holds this version's bytes (see
+     * `_ensureHistoryObjectAsync`) and strips the inline data field so the history snapshot ends up
+     * `_blobMeta`-only — matching the shape a live Mongo document already has, whether or not the
+     * caller (e.g. `$graph`/`$everything` delete) had pre-hydrated `data` for its own purposes. A
+     * leaf that was never externalized and stays under the live-write threshold is left untouched.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place.
+     * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _processDeleteEntry (resource, entry) {
+        const dataSegments = this._parseJsonPointer(entry.dataPath);
+        const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+        const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+        const thresholdBytes = this.base64FieldDataThresholdKB * 1024;
+
+        await this._processPaths(resource, dataSegments, [], async ({ parent, key, value }) => {
+            const blobMeta = parent[blobMetaLeaf];
+            if (blobMeta && blobMeta.hash) {
+                // Already externalized: bytes may already be inlined (graph/$everything
+                // pre-hydration) or may need fetching from the live bucket (REST delete).
+                const bytesProvider = async () => {
+                    if (typeof value === 'string' && value.length > 0) {
+                        return value;
+                    }
+                    const liveKey = this._buildLiveKey(
+                        resource.resourceType, resource._uuid, this._toEpochMs(blobMeta.lastUpdated)
+                    );
+                    return this.base64FieldCloudStorageClient.downloadAsync(liveKey);
+                };
+                await this._ensureHistoryObjectAsync(resource, entry, blobMeta.hash, bytesProvider);
+                this._clearField(parent, key);
+                return;
+            }
+            // Never externalized: only act if this content is over the live-write threshold — e.g.
+            // the feature was disabled when this version was written.
+            const byteLength = typeof value === 'string' ? Buffer.byteLength(value, 'utf8') : 0;
+            if (byteLength <= thresholdBytes) {
+                return; // stays inline — unchanged from today's behavior
+            }
+            const hash = await computeContentHashAsync(value);
+            await this._ensureHistoryObjectAsync(resource, entry, hash, async () => value);
+            const rawSize = Math.ceil(byteLength / 1024);
+            parent[blobMetaLeaf] = {
+                hash, rawSize, lastUpdated: this._normalizeStamp(resource.meta && resource.meta.lastUpdated)
+            };
+            this._clearField(parent, key);
+        });
+    }
+
+    /**
+     * Ensure the history bucket holds an object at `hash`'s key: refresh it via copy-onto-self if it
+     * already exists (no payload transfer), else obtain bytes from `bytesProvider` and upload them.
+     * Throws on any failure — unlike RETRIEVE, a delete cannot self-heal a lost payload by degrading
+     * gracefully, so this must not swallow errors.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @param {{dataPath: string, blobMetaPath: string}} entry - for error diagnostics.
+     * @param {string} hash - the content hash driving the history key.
+     * @param {() => Promise<string|null|undefined>} bytesProvider - resolves the bytes to upload,
+     *        called only when the history bucket doesn't already have them. Resolving null/undefined
+     *        means the source object is definitively gone (self-heal, see below); a thrown error
+     *        means a real fetch failure (fail-closed, see below).
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _ensureHistoryObjectAsync (resource, entry, hash, bytesProvider) {
+        const historyKey = this._buildHistoryKey(resource.resourceType, resource._uuid, hash);
+        try {
+            const refreshed = await this.historyResourceCloudStorageClient.copyObjectAsync({
+                sourcePath: historyKey, filePath: historyKey
+            });
+            if (refreshed) {
+                return;
+            }
+            const bytes = await bytesProvider();
+            if (!bytes) {
+                // The bytes are definitively gone (bytesProvider resolved null/undefined rather
+                // than throwing) — e.g. externalized before this delete-time persistence existed,
+                // and the live object already expired with no history copy ever made. Blocking the
+                // delete wouldn't protect anything (the payload is already unrecoverable either
+                // way), so self-heal like RETRIEVE: log and let the delete proceed rather than
+                // stranding the resource forever.
+                logError(`Base64 payload unrecoverable for delete-time history persist for ${resource.resourceType}/${resource.id} at ${entry.dataPath}`, {
+                    source: 'Base64DataManager',
+                    args: {
+                        resourceType: resource.resourceType,
+                        resourceId: resource.id,
+                        dataPath: entry.dataPath,
+                        key: historyKey
+                    }
+                });
+                return;
+            }
+            await this.historyResourceCloudStorageClient.uploadAsync({
+                filePath: historyKey, data: Buffer.from(bytes, 'utf8')
+            });
+        } catch (err) {
+            throw new RethrownError({
+                message: `Failed to persist base64 delete history payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
+                error: err,
+                source: 'Base64DataManager',
+                args: {
+                    resourceType: resource.resourceType,
+                    resourceId: resource.id,
+                    dataPath: entry.dataPath,
+                    key: historyKey
+                }
+            });
+        }
+    }
+
+    /**
      * Clear a field on a FHIR-class instance or a plain object. On a class the setter nulls
      * `__data[key]` and `toJSONInternal` strips it; on a plain object `delete` removes it before the
      * bulk writer runs (assigning `undefined` alone would be stored as BSON null). Both are safe together.
@@ -941,6 +1127,40 @@ class Base64DataManager {
      */
     _buildLiveKey (resourceType, uuid, lastUpdatedMs) {
         return `${resourceType}_4_0_0/${uuid}/${lastUpdatedMs}`;
+    }
+
+    /**
+     * Live-bucket folder prefix for a uuid: every live key for this resourceType/uuid shares this
+     * prefix (see `_buildLiveKey`). S3 has no real folder object at this key — it's the prefix
+     * `deleteLiveObjectAsync` lists and sweeps to clean up stray/superseded objects.
+     * @param {string} resourceType - e.g. "Binary".
+     * @param {string} uuid - the resource `_uuid`.
+     * @returns {string} the live-bucket folder prefix.
+     * @private
+     */
+    _buildLiveFolderKey (resourceType, uuid) {
+        return `${resourceType}_4_0_0/${uuid}/`;
+    }
+
+    /**
+     * Parse the trailing timestamp segment off a live-bucket key listed under a folder prefix.
+     * Returns null for anything that isn't a pure non-negative integer after the prefix — defends
+     * against a foreign key ever landing under the same prefix; such a key is never deleted.
+     * @param {string} key - a full object key returned by `listObjectsAsync`.
+     * @param {string} prefix - the folder prefix (from `_buildLiveFolderKey`) this key was listed under.
+     * @returns {number|null}
+     * @private
+     */
+    _parseLiveKeyTimestamp (key, prefix) {
+        if (!key.startsWith(prefix)) {
+            return null;
+        }
+        const remainder = key.slice(prefix.length);
+        if (!/^\d+$/.test(remainder)) {
+            return null;
+        }
+        const ms = parseInt(remainder, 10);
+        return Number.isSafeInteger(ms) ? ms : null;
     }
 
     /**
@@ -1057,10 +1277,12 @@ class Base64DataManager {
     }
 
     /**
-     * Rewrite any patch in `response.outcome.issue[*].diagnostics` whose path matches a configured
-     * dataPath, replacing its `value` with the `<data_value>` placeholder (bytes live in the history
-     * bucket). Non-JSON diagnostics and value-less ops (remove/copy/move) are left untouched.
-     * @param {Object} historyDocument - `response.outcome.issue[]` mutated in place.
+     * Rewrite any patch in `response.outcome.issue[*].diagnostics` whose path is a leaf actually
+     * externalized on `historyDocument.resource` (i.e. carries a `_blobMeta.hash`), replacing its
+     * `value` with the `<data_value>` placeholder (bytes live in the history bucket instead).
+     * Below-threshold data was never uploaded, so its patch is left as-is. Non-JSON diagnostics and
+     * value-less ops (remove/copy/move) are also left untouched.
+     * @param {Object} historyDocument - `.resource` (read) and `response.outcome.issue[]` (mutated in place).
      * @param {{dataPath: string, blobMetaPath: string}[]} entries - configured paths for this type.
      * @returns {void}
      * @private
@@ -1071,7 +1293,10 @@ class Base64DataManager {
         if (!Array.isArray(issues) || issues.length === 0) {
             return;
         }
-        const patchPathPatterns = entries.map(entry => this._buildPathPattern(entry.dataPath));
+        const externalizedPaths = this._collectExternalizedPaths(historyDocument.resource, entries);
+        if (externalizedPaths.size === 0) {
+            return; // nothing on this snapshot was externalized — no patch needs a placeholder.
+        }
         for (const issue of issues) {
             if (!issue || typeof issue.diagnostics !== 'string') {
                 continue;
@@ -1091,11 +1316,37 @@ class Base64DataManager {
             if (!('value' in patch)) {
                 continue;
             }
-            if (patchPathPatterns.some(pattern => pattern.test(patch.path))) {
+            if (externalizedPaths.has(patch.path)) {
                 patch.value = BINARY_DATA_VALUE_PLACEHOLDER;
                 issue.diagnostics = JSON.stringify(patch);
             }
         }
+    }
+
+    /**
+     * Concrete JSON-Pointer paths (e.g. "/content/0/attachment/data") of every leaf across `entries`
+     * that carries a `_blobMeta.hash` on `snapshot` — i.e. was actually uploaded to cloud storage
+     * rather than kept inline below threshold. A patch path found in this set is known to be both a
+     * configured leaf AND externalized, with no separate pattern-match step needed.
+     * @param {Object} snapshot - `historyDocument.resource`.
+     * @param {{dataPath: string, blobMetaPath: string}[]} entries
+     * @returns {Set<string>}
+     * @private
+     */
+    _collectExternalizedPaths (snapshot, entries) {
+        const paths = new Set();
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            this._processPathsSync(snapshot, dataSegments, [], ({ parent, indices }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (blobMeta && blobMeta.hash) {
+                    paths.add(`/${this._substituteIndices(dataSegments, indices)}`);
+                }
+            });
+        }
+        return paths;
     }
 
     /**

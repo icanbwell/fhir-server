@@ -24,6 +24,10 @@ class MockS3Client extends S3Client {
         return this.uploadedData[filePath] !== undefined;
     }
 
+    async listObjectsAsync({ prefix }) {
+        return Object.keys(this.uploadedData).filter((key) => key.startsWith(prefix));
+    }
+
     async copyObjectAsync({ sourcePath, filePath }) {
         this.copyCalls.push(filePath);
         if (this.uploadedData[sourcePath] === undefined) {
@@ -80,6 +84,15 @@ class MockS3Client extends S3Client {
 
     async deleteAsync(filePath) {
         delete this.uploadedData[filePath];
+    }
+
+    async deleteObjectsAsync({ filePaths }) {
+        const deletedKeys = [];
+        for (const filePath of filePaths) {
+            delete this.uploadedData[filePath];
+            deletedKeys.push(filePath);
+        }
+        return { deletedKeys, errors: [] };
     }
 }
 

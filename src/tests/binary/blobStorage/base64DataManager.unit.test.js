@@ -186,6 +186,29 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         expect(ctx.client.uploadedData[key0]).toBeUndefined(); // this request's orphan → deleted
         expect(ctx.client.uploadedData[key1]).toBe('committed-prior1'); // committed prior → kept
     });
+
+    test("deleteOwnUploadedLiveObjectsAsync must NOT sweep an older, still-committed live object under the same uuid prefix", async () => {
+        // Regression test: deleteOwnUploadedLiveObjectsAsync must delegate to the narrow, exact-key
+        // _deleteExactLiveObjectAsync — never to the sweeping deleteLiveObjectAsync, which deletes
+        // everything at-or-below the target timestamp under the prefix, including a still-committed
+        // OLDER version's live object that this rollback path must never touch.
+        const requestInfo = { requestId: 'r-rollback-sweep-guard' };
+        const uuid = 'uuid-rollback-guard';
+        const dataSegments = ['content', '[]', 'attachment', 'data'];
+        const committedLu = new Date('2026-07-10T00:00:00.000Z'); // still-committed prior version
+        const ownUploadedLu = new Date('2026-07-10T00:00:05.000Z'); // this failed request's own key (newer)
+        const committedKey = `DocRefFake_4_0_0/${uuid}/${committedLu.getTime()}`;
+        const ownUploadedKey = `DocRefFake_4_0_0/${uuid}/${ownUploadedLu.getTime()}`;
+        ctx.client.uploadedData[committedKey] = 'still-committed-v1';
+        ctx.client.uploadedData[ownUploadedKey] = 'this-failed-requests-own-upload';
+        // Leaf 0 is what this failed request uploaded (changed:true); the doc's CURRENT sidecar
+        // (as of the failed write attempt) points at the failed request's own key.
+        ctx.mgr._stashOriginalData(requestInfo, uuid, dataSegments, [0], { changed: true });
+        const doc = makeDoc(uuid, { lastUpdated: ownUploadedLu }, undefined);
+        await ctx.mgr.deleteOwnUploadedLiveObjectsAsync(doc, requestInfo);
+        expect(ctx.client.uploadedData[ownUploadedKey]).toBeUndefined(); // this request's own orphan → deleted
+        expect(ctx.client.uploadedData[committedKey]).toBe('still-committed-v1'); // still-committed prior → MUST survive
+    });
 });
 
 describe('Base64DataManager — hasExternalizedLeaf', () => {
@@ -412,5 +435,200 @@ describe('Base64DataManager — _processEntry marker check and hash-skip source 
         expect(ctx.client.uploadedData).toEqual({
             [`Binary_4_0_0/uuid-p2/${lastUpdated.getTime()}`]: data
         });
+    });
+});
+
+describe('Base64DataManager — BLOB_OP.DELETE (unit-only)', () => {
+    // makeManager() (used by the describes above) points live and history at the SAME client
+    // instance, which would hide exactly the live-vs-history distinction these tests assert.
+    function makeManagerWithSeparateBuckets() {
+        const liveClient = new MockS3Client({ bucketName: 'live', region: 'us-east-1' });
+        const historyClient = new MockS3Client({ bucketName: 'history', region: 'us-east-1' });
+        process.env.BASE64_FIELD_CLOUD_STORAGE_ENABLED = '1';
+        process.env.BASE64_FIELD_DATA_THRESHOLD_KB = '64';
+        const configManager = new ConfigManager();
+        const requestSpecificCache = new RequestSpecificCache();
+        const preSaveManager = new PreSaveManager({ preSaveHandlers: [] });
+        const mgr = new Base64DataManager({
+            base64FieldCloudStorageClient: liveClient, historyResourceCloudStorageClient: historyClient,
+            configManager, requestSpecificCache, preSaveManager
+        });
+        return { mgr, liveClient, historyClient };
+    }
+
+    test('already externalized, data absent: fetches from the live bucket and uploads to history bucket', async () => {
+        const { mgr, liveClient, historyClient } = makeManagerWithSeparateBuckets();
+        const data = 'QQ==';
+        const hash = await computeContentHashAsync(data);
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        liveClient.uploadedData[`Binary_4_0_0/uuid-d1/${lastUpdated.getTime()}`] = data;
+        const resource = {
+            resourceType: 'Binary', id: 'd1', _uuid: 'uuid-d1', meta: { lastUpdated },
+            _blobMeta: { hash, rawSize: 1, lastUpdated }
+        };
+        await mgr.transformAsync(resource, BLOB_OP.DELETE);
+        expect(historyClient.uploadedData[`Binary_4_0_0/uuid-d1/${hash}`]).toBe(data);
+        expect(resource.data).toBeUndefined();
+        expect(resource._blobMeta).toEqual({ hash, rawSize: 1, lastUpdated });
+    });
+
+    test('already externalized, data already inlined ($graph/$everything shape): uses in-memory bytes without touching the live bucket', async () => {
+        const { mgr, liveClient, historyClient } = makeManagerWithSeparateBuckets();
+        const data = 'QQ==';
+        const hash = await computeContentHashAsync(data);
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const resource = {
+            resourceType: 'Binary', id: 'd2', _uuid: 'uuid-d2', meta: { lastUpdated }, data,
+            _blobMeta: { hash, rawSize: 1, lastUpdated }
+        };
+        await mgr.transformAsync(resource, BLOB_OP.DELETE);
+        expect(downloadSpy).not.toHaveBeenCalled();
+        expect(historyClient.uploadedData[`Binary_4_0_0/uuid-d2/${hash}`]).toBe(data);
+        expect(resource.data).toBeUndefined();
+    });
+
+    test('history object already exists: refreshes via copy-onto-self, never touches the live bucket', async () => {
+        const { mgr, liveClient, historyClient } = makeManagerWithSeparateBuckets();
+        const data = 'QQ==';
+        const hash = await computeContentHashAsync(data);
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        const historyKey = `Binary_4_0_0/uuid-d3/${hash}`;
+        // Seeded — simulates an earlier version with identical content already persisted to history.
+        historyClient.uploadedData[historyKey] = data;
+        const downloadSpy = jest.spyOn(liveClient, 'downloadAsync');
+        const resource = {
+            resourceType: 'Binary', id: 'd3', _uuid: 'uuid-d3', meta: { lastUpdated },
+            _blobMeta: { hash, rawSize: 1, lastUpdated }
+        };
+        await mgr.transformAsync(resource, BLOB_OP.DELETE);
+        expect(historyClient.copyCalls).toContain(historyKey);
+        expect(downloadSpy).not.toHaveBeenCalled();
+        expect(resource.data).toBeUndefined();
+    });
+
+    test('never externalized, over threshold (feature was off when this version was written): computes hash, uploads to history, sets _blobMeta', async () => {
+        const { mgr, historyClient } = makeManagerWithSeparateBuckets();
+        mgr.base64FieldDataThresholdKB = 1; // 1 KB threshold for this test
+        const data = 'A'.repeat(2048); // 2 KB — over threshold
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        const resource = { resourceType: 'Binary', id: 'd4', _uuid: 'uuid-d4', meta: { lastUpdated }, data };
+        await mgr.transformAsync(resource, BLOB_OP.DELETE);
+        const hash = await computeContentHashAsync(data);
+        expect(historyClient.uploadedData[`Binary_4_0_0/uuid-d4/${hash}`]).toBe(data);
+        expect(resource.data).toBeUndefined();
+        expect(resource._blobMeta).toEqual({ hash, rawSize: 2, lastUpdated });
+    });
+
+    test('never externalized, under threshold: no-op, no S3 traffic', async () => {
+        const { mgr, liveClient, historyClient } = makeManagerWithSeparateBuckets();
+        const data = 'QQ==';
+        const resource = { resourceType: 'Binary', id: 'd5', _uuid: 'uuid-d5', meta: {}, data };
+        await mgr.transformAsync(resource, BLOB_OP.DELETE);
+        expect(resource.data).toBe(data);
+        expect(resource._blobMeta).toBeUndefined();
+        expect(Object.keys(liveClient.uploadedData)).toHaveLength(0);
+        expect(Object.keys(historyClient.uploadedData)).toHaveLength(0);
+    });
+
+    test('already externalized, payload unrecoverable (neither live nor history bucket has it): logs and lets the delete proceed rather than throwing', async () => {
+        const { mgr, historyClient } = makeManagerWithSeparateBuckets();
+        const hash = 'unrecoverable-hash';
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        // Neither bucket has an object at the relevant key — simulates a payload externalized
+        // before delete-time history persistence existed, whose live object already expired with
+        // no history copy ever made.
+        const resource = {
+            resourceType: 'Binary', id: 'd7', _uuid: 'uuid-d7', meta: { lastUpdated },
+            _blobMeta: { hash, rawSize: 1, lastUpdated }
+        };
+        await expect(mgr.transformAsync(resource, BLOB_OP.DELETE)).resolves.toBe(resource);
+        expect(Object.keys(historyClient.uploadedData)).toHaveLength(0);
+        expect(resource.data).toBeUndefined();
+    });
+
+    test('S3 failure while persisting to history: throws, does not swallow the error', async () => {
+        const { mgr, historyClient } = makeManagerWithSeparateBuckets();
+        const data = 'QQ==';
+        const hash = await computeContentHashAsync(data);
+        const lastUpdated = new Date('2026-07-10T00:00:00.000Z');
+        jest.spyOn(historyClient, 'copyObjectAsync').mockRejectedValue(new Error('S3 outage'));
+        const resource = {
+            resourceType: 'Binary', id: 'd6', _uuid: 'uuid-d6', meta: { lastUpdated }, data,
+            _blobMeta: { hash, rawSize: 1, lastUpdated }
+        };
+        await expect(mgr.transformAsync(resource, BLOB_OP.DELETE))
+            .rejects.toThrow(/Failed to persist base64 delete history payload/);
+    });
+});
+
+describe('Base64DataManager — deleteLiveObjectAsync (live-folder sweep)', () => {
+    let ctx;
+    beforeEach(() => { ctx = makeManager(); });
+
+    test('deletes every key at-or-below the target timestamp under the prefix and preserves a strictly newer key', async () => {
+        const uuid = 'uuid-sweep-1';
+        const staleKey = `Binary_4_0_0/${uuid}/1000`;
+        const targetKey = `Binary_4_0_0/${uuid}/2000`;
+        const newerKey = `Binary_4_0_0/${uuid}/3000`;
+        ctx.client.uploadedData[staleKey] = 'stale-orphan';
+        ctx.client.uploadedData[targetKey] = 'target';
+        ctx.client.uploadedData[newerKey] = 'newer-concurrent-write';
+
+        await ctx.mgr.deleteLiveObjectAsync('Binary', uuid, new Date(2000));
+
+        expect(ctx.client.uploadedData[staleKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[targetKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[newerKey]).toBe('newer-concurrent-write');
+    });
+
+    test('skips an unparseable/foreign key under the prefix without deleting it', async () => {
+        const uuid = 'uuid-sweep-2';
+        const staleKey = `Binary_4_0_0/${uuid}/1000`;
+        const targetKey = `Binary_4_0_0/${uuid}/2000`;
+        const foreignKey = `Binary_4_0_0/${uuid}/not-a-timestamp`;
+        ctx.client.uploadedData[staleKey] = 'stale-orphan';
+        ctx.client.uploadedData[targetKey] = 'target';
+        ctx.client.uploadedData[foreignKey] = 'unrelated-object';
+
+        await ctx.mgr.deleteLiveObjectAsync('Binary', uuid, new Date(2000));
+
+        expect(ctx.client.uploadedData[staleKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[targetKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[foreignKey]).toBe('unrelated-object');
+    });
+
+    test("one key's delete failure doesn't prevent other keys in the same sweep from being deleted", async () => {
+        const uuid = 'uuid-sweep-3';
+        const staleKey = `Binary_4_0_0/${uuid}/1000`;
+        const targetKey = `Binary_4_0_0/${uuid}/2000`;
+        ctx.client.uploadedData[staleKey] = 'stale-orphan';
+        ctx.client.uploadedData[targetKey] = 'target';
+        jest.spyOn(ctx.client, 'deleteObjectsAsync').mockImplementation(async ({ filePaths }) => {
+            const deletedKeys = [];
+            const errors = [];
+            for (const filePath of filePaths) {
+                if (filePath === targetKey) {
+                    errors.push({ Key: filePath, Code: 'InternalError', Message: 'S3 outage' });
+                    continue;
+                }
+                delete ctx.client.uploadedData[filePath];
+                deletedKeys.push(filePath);
+            }
+            return { deletedKeys, errors };
+        });
+
+        await expect(ctx.mgr.deleteLiveObjectAsync('Binary', uuid, new Date(2000))).resolves.toBeUndefined();
+
+        expect(ctx.client.uploadedData[staleKey]).toBeUndefined();
+    });
+
+    test('a listObjectsAsync failure is caught and logged: never throws and never attempts a delete', async () => {
+        jest.spyOn(ctx.client, 'listObjectsAsync').mockRejectedValue(new Error('S3 outage'));
+        const deleteSpy = jest.spyOn(ctx.client, 'deleteObjectsAsync');
+
+        await expect(ctx.mgr.deleteLiveObjectAsync('Binary', 'uuid-sweep-4', new Date(2000))).resolves.toBeUndefined();
+
+        expect(deleteSpy).not.toHaveBeenCalled();
     });
 });

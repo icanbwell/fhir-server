@@ -6,9 +6,11 @@ const {
     AbortMultipartUploadCommand,
     CompleteMultipartUploadCommand,
     DeleteObjectCommand,
+    DeleteObjectsCommand,
     GetObjectCommand,
     CopyObjectCommand,
     HeadObjectCommand,
+    ListObjectsV2Command,
     NoSuchKey
 } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
@@ -124,6 +126,43 @@ class S3Client extends CloudStorageClient {
     }
 
     /**
+     * List every object key under a prefix, paginating through `ListObjectsV2` until the provider
+     * reports `IsTruncated: false`.
+     * @typedef {Object} ListObjectsAsyncParams
+     * @property {string} prefix
+     *
+     * @param {ListObjectsAsyncParams}
+     * @returns {Promise<string[]>} every object key under `prefix`, across all pages.
+     */
+    async listObjectsAsync({ prefix }) {
+        const keys = [];
+        let continuationToken;
+        try {
+            do {
+                const response = await this.client.send(
+                    new ListObjectsV2Command({
+                        Bucket: this.bucketName,
+                        Prefix: prefix,
+                        ContinuationToken: continuationToken
+                    })
+                );
+                for (const object of response.Contents ?? []) {
+                    keys.push(object.Key);
+                }
+                continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+            } while (continuationToken);
+            return keys;
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in listObjectsAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: { prefix }
+            });
+        }
+    }
+
+    /**
      * Download file from s3 for provided path
      * @param {string} filePath
      * @returns {object|null}
@@ -170,6 +209,55 @@ class S3Client extends CloudStorageClient {
                 source: 'S3Client',
                 args: {
                     filePath
+                }
+            });
+        }
+    }
+
+    /**
+     * Batch-delete keys via S3's DeleteObjects, chunking at 1000 keys per call (the API's hard
+     * limit). A per-key failure is reported back in `errors` rather than thrown, so one bad key
+     * in a chunk never blocks the rest of that chunk or later chunks.
+     * @typedef {Object} DeleteObjectsAsyncParams
+     * @property {string[]} filePaths
+     *
+     * @param {DeleteObjectsAsyncParams}
+     * @returns {Promise<{deletedKeys: string[], errors: {Key: string, Code?: string, Message?: string}[]}>}
+     */
+    async deleteObjectsAsync({ filePaths }) {
+        if (!filePaths || filePaths.length === 0) {
+            return { deletedKeys: [], errors: [] };
+        }
+        const deletedKeys = [];
+        const errors = [];
+        const maxKeysPerRequest = 1000; // S3 DeleteObjects hard limit
+        try {
+            for (let i = 0; i < filePaths.length; i += maxKeysPerRequest) {
+                const batchKeys = filePaths.slice(i, i + maxKeysPerRequest);
+                const response = await this.client.send(
+                    new DeleteObjectsCommand({
+                        Bucket: this.bucketName,
+                        Delete: {
+                            Objects: batchKeys.map((Key) => ({ Key })),
+                            Quiet: false
+                        }
+                    })
+                );
+                for (const deleted of response.Deleted ?? []) {
+                    deletedKeys.push(deleted.Key);
+                }
+                for (const error of response.Errors ?? []) {
+                    errors.push(error);
+                }
+            }
+            return { deletedKeys, errors };
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in deleteObjectsAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: {
+                    filePaths
                 }
             });
         }
