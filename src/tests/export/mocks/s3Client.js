@@ -24,6 +24,10 @@ class MockS3Client extends S3Client {
         return this.uploadedData[filePath] !== undefined;
     }
 
+    async listObjectsAsync({ prefix }) {
+        return Object.keys(this.uploadedData).filter((key) => key.startsWith(prefix));
+    }
+
     async copyObjectAsync({ sourcePath, filePath }) {
         this.copyCalls.push(filePath);
         if (this.uploadedData[sourcePath] === undefined) {

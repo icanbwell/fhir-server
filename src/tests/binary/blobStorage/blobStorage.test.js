@@ -31,6 +31,8 @@ const LARGE_DATA = 'A'.repeat(80 * 1024);
 const SMALL_DATA = 'B'.repeat(1024);
 // 70 KB replacement payload — also above threshold, used to test PUT-overwriting an externalized Binary.
 const ALT_LARGE_DATA = 'C'.repeat(70 * 1024);
+// 1 KB replacement payload — also below threshold, used to test PATCH on a never-externalized Binary.
+const ALT_SMALL_DATA = 'D'.repeat(1024);
 // Short, valid base64 stand-in swapped over the real `data` before a whole-resource
 // toHaveResponse comparison. The matcher walks the `data` string char-by-char and
 // FHIR-validates the body, which is pathologically slow on an 80 KB payload; the real
@@ -341,6 +343,58 @@ describe('Binary base64 S3 offload — write paths', () => {
         expect(dataPatchDiagnostics.length).toBeGreaterThan(0);
         for (const patch of dataPatchDiagnostics) {
             expect(patch.value).toBe('<data_value>');
+        }
+    });
+
+    test('PATCH /data below threshold leaves patch diagnostics with the real value (never externalized)', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-patch-below-threshold-target';
+
+        await request
+            .put(`/4_0_0/Binary/${id}`)
+            .send(buildBinary({ id, data: SMALL_DATA }))
+            .set(getHeaders())
+            .expect(201);
+        await drainPostRequest(container);
+
+        const mongoDocAfterCreate = await readBinaryFromMongo(container, id);
+        expect(mongoDocAfterCreate).toBeDefined();
+        expect(mongoDocAfterCreate._blobMeta).toBeUndefined();
+
+        // Patch the data field with a different below-threshold payload — never uploaded to S3.
+        await request
+            .patch(`/4_0_0/Binary/${id}`)
+            .send([{ op: 'replace', path: '/data', value: ALT_SMALL_DATA }])
+            .set({ ...getHeaders(), 'Content-Type': 'application/json-patch+json' })
+            .expect(200);
+        await drainPostRequest(container);
+
+        const docAfterPatch = await readBinaryFromMongo(container, id);
+        expect(docAfterPatch.data).toBe(ALT_SMALL_DATA);
+        expect(docAfterPatch._blobMeta).toBeUndefined();
+        expect(Object.keys(liveClient.uploadedData)).toHaveLength(0);
+
+        // History entry's diagnostics must keep the real value — sanitizing it to `<data_value>`
+        // would be wrong here since the bytes were never externalized to the history bucket.
+        const historyDocs = await readBinaryHistoryFromMongo(container);
+        const matchedSnapshots = historyDocs.filter(d => d.resource && d.resource._uuid === mongoDocAfterCreate._uuid);
+        const patchEntries = matchedSnapshots
+            .map(d => d.response && d.response.outcome && d.response.outcome.issue)
+            .filter(Array.isArray)
+            .flat();
+        const dataPatchDiagnostics = patchEntries
+            .map(issue => issue.diagnostics)
+            .filter(Boolean)
+            .map(s => {
+                try { return JSON.parse(s); } catch (e) { return null; }
+            })
+            .filter(p => p && p.path === '/data');
+
+        expect(dataPatchDiagnostics.length).toBeGreaterThan(0);
+        for (const patch of dataPatchDiagnostics) {
+            expect(patch.value).toBe(ALT_SMALL_DATA);
         }
     });
 

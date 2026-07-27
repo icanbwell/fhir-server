@@ -99,6 +99,9 @@ describe('Binary delete — S3 history persistence', () => {
 
     const liveKeyOf = (doc) => `Binary_4_0_0/${doc._uuid}/${doc._blobMeta.lastUpdated.getTime()}`;
     const historyKeyOf = (doc) => `Binary_4_0_0/${doc._uuid}/${doc._blobMeta.hash}`;
+    const liveFolderPrefixOf = (doc) => `Binary_4_0_0/${doc._uuid}/`;
+    const keysUnderLiveFolder = (liveClient, doc) => Object.keys(liveClient.uploadedData)
+        .filter((key) => key.startsWith(liveFolderPrefixOf(doc)));
 
     test('REST DELETE of an externalized Binary persists its data to the history bucket and cleans up the live object', async () => {
         const request = await createTestRequest(registerMockClients);
@@ -117,12 +120,35 @@ describe('Binary delete — S3 history persistence', () => {
         expect(await readBinaryFromMongo(container, id)).toBeUndefined();
         expect(historyClient.uploadedData[historyKeyOf(doc)]).toBe(LARGE_DATA);
         expect(liveClient.uploadedData[liveKeyOf(doc)]).toBeUndefined();
+        expect(keysUnderLiveFolder(liveClient, doc)).toEqual([]);
 
         const historyDocs = await readBinaryHistoryFromMongo(container);
         const deleteHistoryEntry = historyDocs.find((h) => h.request && h.request.method === 'DELETE');
         expect(deleteHistoryEntry).toBeDefined();
         expect(deleteHistoryEntry.resource.data).toBeUndefined();
         expect(deleteHistoryEntry.resource._blobMeta.hash).toBe(doc._blobMeta.hash);
+    });
+
+    test('a PATCH that drops Binary.data below the externalization threshold cleans up every live object under the uuid prefix', async () => {
+        const request = await createTestRequest(registerMockClients);
+        const container = getTestContainer();
+        const liveClient = container.base64FieldCloudStorageClient;
+        const id = 'binary-delete-below-threshold';
+
+        await request.put(`/4_0_0/Binary/${id}`).send(buildBinary(id, LARGE_DATA)).set(getHeaders()).expect(201);
+        await drainPostRequest(container);
+        const docV1 = await readBinaryFromMongo(container, id);
+        expect(liveClient.uploadedData[liveKeyOf(docV1)]).toBe(LARGE_DATA);
+
+        await request.patch(`/4_0_0/Binary/${id}`)
+            .send([{ op: 'replace', path: '/data', value: SMALL_DATA }])
+            .set({ ...getHeaders(), 'Content-Type': 'application/json-patch+json' })
+            .expect(200);
+
+        const docV2 = await readBinaryFromMongo(container, id);
+        expect(docV2._blobMeta).toBeUndefined();
+        expect(docV2.data).toBe(SMALL_DATA);
+        expect(keysUnderLiveFolder(liveClient, docV1)).toEqual([]);
     });
 
     test('REST DELETE of a never-externalized (small) Binary is unchanged: no S3 traffic', async () => {

@@ -59,6 +59,18 @@ class CloudStorageClient {
     }
 
     /**
+     * List every object key under a prefix, paginating until the provider reports no more pages.
+     * @typedef {Object} ListObjectsAsyncParams
+     * @property {string} prefix
+     *
+     * @param {ListObjectsAsyncParams}
+     * @returns {Promise<string[]>} every object key under `prefix`.
+     */
+    async listObjectsAsync({ prefix }) {
+        throw Error('Not Implemented');
+    }
+
+    /**
      * Starts a multi-part upload for the file provided
      * @typedef {Object} CreateMultiPartUploadAsyncParams
      * @property {string} filePath

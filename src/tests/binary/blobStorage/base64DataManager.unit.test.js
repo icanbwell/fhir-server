@@ -186,6 +186,29 @@ describe('Base64DataManager — path-aware live-object helpers (nested/array con
         expect(ctx.client.uploadedData[key0]).toBeUndefined(); // this request's orphan → deleted
         expect(ctx.client.uploadedData[key1]).toBe('committed-prior1'); // committed prior → kept
     });
+
+    test("deleteOwnUploadedLiveObjectsAsync must NOT sweep an older, still-committed live object under the same uuid prefix", async () => {
+        // Regression test: deleteOwnUploadedLiveObjectsAsync must delegate to the narrow, exact-key
+        // _deleteExactLiveObjectAsync — never to the sweeping deleteLiveObjectAsync, which deletes
+        // everything at-or-below the target timestamp under the prefix, including a still-committed
+        // OLDER version's live object that this rollback path must never touch.
+        const requestInfo = { requestId: 'r-rollback-sweep-guard' };
+        const uuid = 'uuid-rollback-guard';
+        const dataSegments = ['content', '[]', 'attachment', 'data'];
+        const committedLu = new Date('2026-07-10T00:00:00.000Z'); // still-committed prior version
+        const ownUploadedLu = new Date('2026-07-10T00:00:05.000Z'); // this failed request's own key (newer)
+        const committedKey = `DocRefFake_4_0_0/${uuid}/${committedLu.getTime()}`;
+        const ownUploadedKey = `DocRefFake_4_0_0/${uuid}/${ownUploadedLu.getTime()}`;
+        ctx.client.uploadedData[committedKey] = 'still-committed-v1';
+        ctx.client.uploadedData[ownUploadedKey] = 'this-failed-requests-own-upload';
+        // Leaf 0 is what this failed request uploaded (changed:true); the doc's CURRENT sidecar
+        // (as of the failed write attempt) points at the failed request's own key.
+        ctx.mgr._stashOriginalData(requestInfo, uuid, dataSegments, [0], { changed: true });
+        const doc = makeDoc(uuid, { lastUpdated: ownUploadedLu }, undefined);
+        await ctx.mgr.deleteOwnUploadedLiveObjectsAsync(doc, requestInfo);
+        expect(ctx.client.uploadedData[ownUploadedKey]).toBeUndefined(); // this request's own orphan → deleted
+        expect(ctx.client.uploadedData[committedKey]).toBe('still-committed-v1'); // still-committed prior → MUST survive
+    });
 });
 
 describe('Base64DataManager — hasExternalizedLeaf', () => {
@@ -536,5 +559,69 @@ describe('Base64DataManager — BLOB_OP.DELETE (unit-only)', () => {
         };
         await expect(mgr.transformAsync(resource, BLOB_OP.DELETE))
             .rejects.toThrow(/Failed to persist base64 delete history payload/);
+    });
+});
+
+describe('Base64DataManager — deleteLiveObjectAsync (live-folder sweep)', () => {
+    let ctx;
+    beforeEach(() => { ctx = makeManager(); });
+
+    test('deletes every key at-or-below the target timestamp under the prefix and preserves a strictly newer key', async () => {
+        const uuid = 'uuid-sweep-1';
+        const staleKey = `Binary_4_0_0/${uuid}/1000`;
+        const targetKey = `Binary_4_0_0/${uuid}/2000`;
+        const newerKey = `Binary_4_0_0/${uuid}/3000`;
+        ctx.client.uploadedData[staleKey] = 'stale-orphan';
+        ctx.client.uploadedData[targetKey] = 'target';
+        ctx.client.uploadedData[newerKey] = 'newer-concurrent-write';
+
+        await ctx.mgr.deleteLiveObjectAsync('Binary', uuid, new Date(2000));
+
+        expect(ctx.client.uploadedData[staleKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[targetKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[newerKey]).toBe('newer-concurrent-write');
+    });
+
+    test('skips an unparseable/foreign key under the prefix without deleting it', async () => {
+        const uuid = 'uuid-sweep-2';
+        const staleKey = `Binary_4_0_0/${uuid}/1000`;
+        const targetKey = `Binary_4_0_0/${uuid}/2000`;
+        const foreignKey = `Binary_4_0_0/${uuid}/not-a-timestamp`;
+        ctx.client.uploadedData[staleKey] = 'stale-orphan';
+        ctx.client.uploadedData[targetKey] = 'target';
+        ctx.client.uploadedData[foreignKey] = 'unrelated-object';
+
+        await ctx.mgr.deleteLiveObjectAsync('Binary', uuid, new Date(2000));
+
+        expect(ctx.client.uploadedData[staleKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[targetKey]).toBeUndefined();
+        expect(ctx.client.uploadedData[foreignKey]).toBe('unrelated-object');
+    });
+
+    test("one key's deleteAsync failure doesn't prevent other keys in the same sweep from being deleted", async () => {
+        const uuid = 'uuid-sweep-3';
+        const staleKey = `Binary_4_0_0/${uuid}/1000`;
+        const targetKey = `Binary_4_0_0/${uuid}/2000`;
+        ctx.client.uploadedData[staleKey] = 'stale-orphan';
+        ctx.client.uploadedData[targetKey] = 'target';
+        jest.spyOn(ctx.client, 'deleteAsync').mockImplementation(async (filePath) => {
+            if (filePath === targetKey) {
+                throw new Error('S3 outage');
+            }
+            delete ctx.client.uploadedData[filePath];
+        });
+
+        await expect(ctx.mgr.deleteLiveObjectAsync('Binary', uuid, new Date(2000))).resolves.toBeUndefined();
+
+        expect(ctx.client.uploadedData[staleKey]).toBeUndefined();
+    });
+
+    test('a listObjectsAsync failure is caught and logged: never throws and never attempts a delete', async () => {
+        jest.spyOn(ctx.client, 'listObjectsAsync').mockRejectedValue(new Error('S3 outage'));
+        const deleteSpy = jest.spyOn(ctx.client, 'deleteAsync');
+
+        await expect(ctx.mgr.deleteLiveObjectAsync('Binary', 'uuid-sweep-4', new Date(2000))).resolves.toBeUndefined();
+
+        expect(deleteSpy).not.toHaveBeenCalled();
     });
 });

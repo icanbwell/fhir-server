@@ -9,6 +9,7 @@ const {
     GetObjectCommand,
     CopyObjectCommand,
     HeadObjectCommand,
+    ListObjectsV2Command,
     NoSuchKey
 } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
@@ -119,6 +120,43 @@ class S3Client extends CloudStorageClient {
                 error: err,
                 source: 'S3Client',
                 args: { filePath }
+            });
+        }
+    }
+
+    /**
+     * List every object key under a prefix, paginating through `ListObjectsV2` until the provider
+     * reports `IsTruncated: false`.
+     * @typedef {Object} ListObjectsAsyncParams
+     * @property {string} prefix
+     *
+     * @param {ListObjectsAsyncParams}
+     * @returns {Promise<string[]>} every object key under `prefix`, across all pages.
+     */
+    async listObjectsAsync({ prefix }) {
+        const keys = [];
+        let continuationToken;
+        try {
+            do {
+                const response = await this.client.send(
+                    new ListObjectsV2Command({
+                        Bucket: this.bucketName,
+                        Prefix: prefix,
+                        ContinuationToken: continuationToken
+                    })
+                );
+                for (const object of response.Contents ?? []) {
+                    keys.push(object.Key);
+                }
+                continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+            } while (continuationToken);
+            return keys;
+        } catch (err) {
+            throw new RethrownError({
+                message: `Error in listObjectsAsync: ${err.message}`,
+                error: err,
+                source: 'S3Client',
+                args: { prefix }
             });
         }
     }

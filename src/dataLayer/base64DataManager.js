@@ -342,9 +342,22 @@ class Base64DataManager {
     }
 
     /**
-     * Best-effort, unconditional delete of the live object at `{uuid}/{epochMsOf(lastUpdated)}`. Safe
-     * without a reference check: a live key is a timestamp that is never regenerated, so nothing can
-     * reference it once superseded. No-op on falsy `lastUpdated`; never throws.
+     * Best-effort delete of every live-bucket object for `{resourceType, uuid}` at or before
+     * `lastUpdated`'s timestamp: lists everything under the uuid's live-folder prefix and deletes
+     * each key whose parsed timestamp is <= the target ms, leaving any strictly newer key (a
+     * concurrent writer's fresh upload) untouched. A live key is never regenerated once superseded,
+     * so anything at-or-below the target is provably safe to delete — either the key the caller asked
+     * for, or an orphan stray left behind by an earlier race or partial failure. Once nothing remains
+     * under the prefix, the folder (a virtual grouping of keys — S3 has no real folder object) stops
+     * appearing in any listing.
+     *
+     * Used by `removeHelper.js` (full resource DELETE), `deleteSupersededLiveObjectsAsync` (PUT/PATCH
+     * supersede), and `cleanupPreviousLiveObjectAsync` ($merge/bulk supersede) — each passes the
+     * timestamp of an OLDER, already-superseded key, so the sweep only reaches backward and never
+     * touches a newer, still-committed key. Do NOT call this from the write-failure rollback path
+     * (`deleteOwnUploadedLiveObjectsAsync`): there the target is THIS request's own (newer) key, so
+     * sweeping backward would also delete a still-committed OLDER version's live object — see
+     * `_deleteExactLiveObjectAsync` for that case. No-op on falsy `lastUpdated`; never throws.
      * @param {string} resourceType
      * @param {string} uuid
      * @param {Date|string|number|null|undefined} lastUpdated
@@ -354,13 +367,28 @@ class Base64DataManager {
         if (!this.enableBase64FieldCloudStorage || !lastUpdated) { return; }
         const ms = this._toEpochMs(lastUpdated);
         if (!ms) { return; }
-        const key = this._buildLiveKey(resourceType, uuid, ms);
+        const prefix = this._buildLiveFolderKey(resourceType, uuid);
+        let keys;
         try {
-            await this.base64FieldCloudStorageClient.deleteAsync(key);
+            keys = await this.base64FieldCloudStorageClient.listObjectsAsync({ prefix });
         } catch (err) {
-            logError(`Failed to delete base64 live object for ${resourceType}/${uuid}`, {
-                err, source: 'Base64DataManager', key
+            logError(`Failed to list base64 live objects for ${resourceType}/${uuid}`, {
+                err, source: 'Base64DataManager', prefix
             });
+            return;
+        }
+        for (const key of keys) {
+            const keyMs = this._parseLiveKeyTimestamp(key, prefix);
+            if (keyMs === null || keyMs > ms) {
+                continue; // unparseable (foreign key under this prefix) or strictly newer — never touch
+            }
+            try {
+                await this.base64FieldCloudStorageClient.deleteAsync(key);
+            } catch (err) {
+                logError(`Failed to delete base64 live object for ${resourceType}/${uuid}`, {
+                    err, source: 'Base64DataManager', key
+                });
+            }
         }
     }
 
@@ -616,8 +644,36 @@ class Base64DataManager {
                 const stashed = this._readStashedOriginalData(requestInfo, resource._uuid, dataSegments, indices);
                 const blobMeta = parent[blobMetaLeaf];
                 if (stashed && stashed.changed && blobMeta && blobMeta.lastUpdated) {
-                    await this.deleteLiveObjectAsync(resource.resourceType, resource._uuid, blobMeta.lastUpdated);
+                    await this._deleteExactLiveObjectAsync(resource.resourceType, resource._uuid, blobMeta.lastUpdated);
                 }
+            });
+        }
+    }
+
+    /**
+     * Best-effort, unconditional delete of exactly the live object at `{uuid}/{epochMsOf(lastUpdated)}`
+     * — no sweep of neighboring keys. Used only by `deleteOwnUploadedLiveObjectsAsync` (write-failure
+     * rollback), which must remove nothing but the key THIS request itself created: a committed prior
+     * version's live object (if any) is untouched by a failed write and must survive it.
+     * `deleteLiveObjectAsync`'s broader sweep is unsafe here — it would also delete that still-
+     * committed older key, since it is always at-or-below this request's own (newer) timestamp.
+     * No-op on falsy `lastUpdated`; never throws.
+     * @param {string} resourceType
+     * @param {string} uuid
+     * @param {Date|string|number|null|undefined} lastUpdated
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _deleteExactLiveObjectAsync (resourceType, uuid, lastUpdated) {
+        if (!this.enableBase64FieldCloudStorage || !lastUpdated) { return; }
+        const ms = this._toEpochMs(lastUpdated);
+        if (!ms) { return; }
+        const key = this._buildLiveKey(resourceType, uuid, ms);
+        try {
+            await this.base64FieldCloudStorageClient.deleteAsync(key);
+        } catch (err) {
+            logError(`Failed to delete base64 live object for ${resourceType}/${uuid}`, {
+                err, source: 'Base64DataManager', key
             });
         }
     }
@@ -1066,6 +1122,40 @@ class Base64DataManager {
     }
 
     /**
+     * Live-bucket folder prefix for a uuid: every live key for this resourceType/uuid shares this
+     * prefix (see `_buildLiveKey`). S3 has no real folder object at this key — it's the prefix
+     * `deleteLiveObjectAsync` lists and sweeps to clean up stray/superseded objects.
+     * @param {string} resourceType - e.g. "Binary".
+     * @param {string} uuid - the resource `_uuid`.
+     * @returns {string} the live-bucket folder prefix.
+     * @private
+     */
+    _buildLiveFolderKey (resourceType, uuid) {
+        return `${resourceType}_4_0_0/${uuid}/`;
+    }
+
+    /**
+     * Parse the trailing timestamp segment off a live-bucket key listed under a folder prefix.
+     * Returns null for anything that isn't a pure non-negative integer after the prefix — defends
+     * against a foreign key ever landing under the same prefix; such a key is never deleted.
+     * @param {string} key - a full object key returned by `listObjectsAsync`.
+     * @param {string} prefix - the folder prefix (from `_buildLiveFolderKey`) this key was listed under.
+     * @returns {number|null}
+     * @private
+     */
+    _parseLiveKeyTimestamp (key, prefix) {
+        if (!key.startsWith(prefix)) {
+            return null;
+        }
+        const remainder = key.slice(prefix.length);
+        if (!/^\d+$/.test(remainder)) {
+            return null;
+        }
+        const ms = parseInt(remainder, 10);
+        return Number.isSafeInteger(ms) ? ms : null;
+    }
+
+    /**
      * Replace each "[]" in `segments` with the next `indices` value and join with '/'. Builds the
      * concrete resource path (also used as the per-leaf stash key).
      * @param {string[]} segments - parsed path segments.
@@ -1179,10 +1269,12 @@ class Base64DataManager {
     }
 
     /**
-     * Rewrite any patch in `response.outcome.issue[*].diagnostics` whose path matches a configured
-     * dataPath, replacing its `value` with the `<data_value>` placeholder (bytes live in the history
-     * bucket). Non-JSON diagnostics and value-less ops (remove/copy/move) are left untouched.
-     * @param {Object} historyDocument - `response.outcome.issue[]` mutated in place.
+     * Rewrite any patch in `response.outcome.issue[*].diagnostics` whose path is a leaf actually
+     * externalized on `historyDocument.resource` (i.e. carries a `_blobMeta.hash`), replacing its
+     * `value` with the `<data_value>` placeholder (bytes live in the history bucket instead).
+     * Below-threshold data was never uploaded, so its patch is left as-is. Non-JSON diagnostics and
+     * value-less ops (remove/copy/move) are also left untouched.
+     * @param {Object} historyDocument - `.resource` (read) and `response.outcome.issue[]` (mutated in place).
      * @param {{dataPath: string, blobMetaPath: string}[]} entries - configured paths for this type.
      * @returns {void}
      * @private
@@ -1193,7 +1285,10 @@ class Base64DataManager {
         if (!Array.isArray(issues) || issues.length === 0) {
             return;
         }
-        const patchPathPatterns = entries.map(entry => this._buildPathPattern(entry.dataPath));
+        const externalizedPaths = this._collectExternalizedPaths(historyDocument.resource, entries);
+        if (externalizedPaths.size === 0) {
+            return; // nothing on this snapshot was externalized — no patch needs a placeholder.
+        }
         for (const issue of issues) {
             if (!issue || typeof issue.diagnostics !== 'string') {
                 continue;
@@ -1213,11 +1308,37 @@ class Base64DataManager {
             if (!('value' in patch)) {
                 continue;
             }
-            if (patchPathPatterns.some(pattern => pattern.test(patch.path))) {
+            if (externalizedPaths.has(patch.path)) {
                 patch.value = BINARY_DATA_VALUE_PLACEHOLDER;
                 issue.diagnostics = JSON.stringify(patch);
             }
         }
+    }
+
+    /**
+     * Concrete JSON-Pointer paths (e.g. "/content/0/attachment/data") of every leaf across `entries`
+     * that carries a `_blobMeta.hash` on `snapshot` — i.e. was actually uploaded to cloud storage
+     * rather than kept inline below threshold. A patch path found in this set is known to be both a
+     * configured leaf AND externalized, with no separate pattern-match step needed.
+     * @param {Object} snapshot - `historyDocument.resource`.
+     * @param {{dataPath: string, blobMetaPath: string}[]} entries
+     * @returns {Set<string>}
+     * @private
+     */
+    _collectExternalizedPaths (snapshot, entries) {
+        const paths = new Set();
+        for (const entry of entries) {
+            const dataSegments = this._parseJsonPointer(entry.dataPath);
+            const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+            const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+            this._processPathsSync(snapshot, dataSegments, [], ({ parent, indices }) => {
+                const blobMeta = parent ? parent[blobMetaLeaf] : undefined;
+                if (blobMeta && blobMeta.hash) {
+                    paths.add(`/${this._substituteIndices(dataSegments, indices)}`);
+                }
+            });
+        }
+        return paths;
     }
 
     /**
