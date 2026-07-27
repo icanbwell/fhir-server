@@ -7,6 +7,7 @@ const { MergeResultEntry } = require('../../operations/common/mergeResultEntry')
 const { BulkWriteExecutor } = require('./bulkWriteExecutor');
 const { WRITE_STRATEGIES } = require('../../constants/clickHouseConstants');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { retryWithBackoff } = require('../../utils/retryWithBackoff');
 
 /**
  * Executes bulk write operations by producing to Kafka (AWS MSK, V2 cluster) for
@@ -21,9 +22,10 @@ const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
  * The message body is the raw flat-row JSON (not a CloudEvent envelope) so
  * ClickPipes can map JSON keys directly to table columns.
  *
- * On Kafka failure the entire batch is delegated to the fallbackExecutor
- * (the existing MongoDB write path), mirroring how ClickHouseBulkWriteExecutor
- * falls back. Append-only: no history writes; change events controlled by
+ * On Kafka failure the produce is retried with backoff, then the entire batch
+ * is delegated to the fallbackExecutor (the existing MongoDB write path) —
+ * mirroring how ClickHouseBulkWriteExecutor retries before falling back.
+ * Append-only: no history writes; change events controlled by
  * schema.fireChangeEvents.
  */
 class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
@@ -32,11 +34,15 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
      * @param {import('../../utils/kafkaClientV2').KafkaClientV2} params.kafkaClientV2
      * @param {import('../clickHouse/schemaRegistry').ClickHouseSchemaRegistry} params.schemaRegistry
      * @param {import('./bulkWriteExecutor').BulkWriteExecutor|null} [params.fallbackExecutor] - Executor to use if the Kafka produce fails
+     * @param {number} [params.maxRetries=3] - Maximum retry attempts before fallback
+     * @param {number} [params.initialRetryDelayMs=2000] - Initial delay in ms (doubles each retry)
      */
     constructor ({
         kafkaClientV2,
         schemaRegistry,
-        fallbackExecutor = null
+        fallbackExecutor = null,
+        maxRetries = 3,
+        initialRetryDelayMs = 2000
     }) {
         super();
         this.kafkaClientV2 = kafkaClientV2;
@@ -47,6 +53,10 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
         if (fallbackExecutor) {
             assertTypeEquals(fallbackExecutor, BulkWriteExecutor, 'fallbackExecutor must be a BulkWriteExecutor');
         }
+        this.maxRetries = maxRetries;
+        assertIsValid(maxRetries != null, 'maxRetries is required');
+        this.initialRetryDelayMs = initialRetryDelayMs;
+        assertIsValid(initialRetryDelayMs != null, 'initialRetryDelayMs is required');
     }
 
     /**
@@ -66,9 +76,8 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
     /**
      * Executes bulk write by producing one Kafka message per resource.
      *
-     * All-or-nothing per batch: if the produce fails, the whole batch is retried
-     * by the fallback executor (Kafka's own client handles produce-level retries,
-     * so no extra retry wrapper here).
+     * All-or-nothing per batch: the produce is retried with backoff, and only once
+     * retries are exhausted is the whole batch handed to the fallback executor.
      *
      * @param {Object} params
      * @param {string} params.resourceType
@@ -113,7 +122,21 @@ class KafkaClickPipeBulkWriteExecutor extends BulkWriteExecutor {
                 requestId: requestInfo.requestId
             });
 
-            await this.kafkaClientV2.sendCloudEventMessageAsync({ topic: schema.kafkaTopic, messages });
+            await retryWithBackoff({
+                fn: () => this.kafkaClientV2.sendCloudEventMessageAsync({ topic: schema.kafkaTopic, messages }),
+                maxRetries: this.maxRetries,
+                initialDelayMs: this.initialRetryDelayMs,
+                onRetry: ({ attempt, delay }) => {
+                    logWarn('KafkaClickPipeBulkWriteExecutor: retrying produce', {
+                        attempt,
+                        maxRetries: this.maxRetries,
+                        resourceType,
+                        count: messages.length,
+                        requestId: requestInfo.requestId,
+                        delay
+                    });
+                }
+            });
 
             for (const entry of operations) {
                 mergeResultEntries.push(new MergeResultEntry({
