@@ -1,17 +1,26 @@
 #!/usr/bin/env node
 /**
- * Copy AuditEvent documents from MongoDB to ClickHouse, oldest first, and delete
- * each batch from MongoDB after the ClickHouse insert succeeds.
+ * Copy AuditEvent documents from MongoDB to ClickHouse (via Kafka + ClickPipes),
+ * oldest first, and delete each batch from MongoDB after the Kafka publish
+ * succeeds.
  *
  * The live MongoDB collection is itself the progress ledger — documents that
- * remain have not yet been copied. A crash between the ClickHouse insert and
+ * remain have not yet been copied. A crash between the Kafka publish and
  * the Mongo delete leaves at most one batch of duplicates in ClickHouse on
  * re-run; this is accepted.
  *
- * MongoDB and ClickHouse connections are obtained from the shared IoC container
- * (`createContainer`), so this script honours the same environment variables the
- * rest of the FHIR server uses — including `AUDIT_EVENT_MONGO_URL` when audit
- * events live on a dedicated cluster.
+ * Documents are published to the same Kafka topic and in the same message
+ * shape (key/value/headers) as the live AuditEvent write path
+ * (`KafkaClickPipeBulkWriteExecutor`), so ClickPipes ingests backfilled rows
+ * identically to live traffic. A resolved publish call means the Kafka
+ * brokers acked the message; ClickPipes then lands it in ClickHouse
+ * asynchronously.
+ *
+ * MongoDB and Kafka connections are obtained from the shared IoC container
+ * (`createContainer`), so this script honours the same environment variables
+ * the rest of the FHIR server uses — including `AUDIT_EVENT_MONGO_URL` when
+ * audit events live on a dedicated cluster, and `ENABLE_EVENTS_KAFKA_V2` /
+ * `KAFKA_V2_*` for the Kafka connection.
  *
  * Usage:
  *   node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
@@ -19,19 +28,20 @@
 
 const { createContainer } = require('../../createContainer');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
+const { KAFKA_TOPICS } = require('../../constants/clickHouseConstants');
 const { logInfo, logError, logWarn } = require('../../operations/common/logging');
 
 const USAGE = `
 Usage: node src/admin/scripts/migrateAuditEventsToClickhouse.js [options]
 
-MongoDB and ClickHouse connections are read from the standard FHIR server
-environment (see src/config.js). Ensure ENABLE_CLICKHOUSE=1 and the
-appropriate MONGO_*/AUDIT_EVENT_MONGO_*/CLICKHOUSE_* variables are set for
-the target environment.
+MongoDB and Kafka connections are read from the standard FHIR server
+environment (see src/config.js). Ensure ENABLE_EVENTS_KAFKA_V2=1, the
+appropriate KAFKA_V2_* variables, and the MONGO_*/AUDIT_EVENT_MONGO_*
+variables are set for the target environment.
 
 Options:
   --collection <name>  Source collection (default: AuditEvent_4_0_0)
-  --batch-size <n>     Docs per ClickHouse insert + Mongo delete (default: 10000)
+  --batch-size <n>     Docs per Kafka publish + Mongo delete (default: 10000)
   --help, -h           Show this help
 `;
 
@@ -95,89 +105,96 @@ function formatElapsed(ms) {
 }
 
 /**
- * Insert rows into ClickHouse with retry. On a size-related failure, recursively
- * splits the batch in half; on other failures, retries with exponential backoff
- * up to maxRetries.
+ * Whether the server is configured to actually deliver Kafka messages.
+ * If this is false, `container.kafkaClientV2` resolves to a dummy client
+ * whose publish call silently no-ops — this script must never run against it.
+ * @param {import('../../config').ConfigManager} configManager
+ * @returns {boolean}
+ */
+function isKafkaPublishEnabled(configManager) {
+    return !!configManager.kafkaV2EnableEvents;
+}
+
+/**
+ * Publish a batch of Kafka messages with retry. Retries with exponential
+ * backoff up to maxAttempts; oversized or otherwise unpublishable messages
+ * simply exhaust their retries and abort the batch.
  *
- * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} clickHouseClientManager
- * @param {Object[]} rows
+ * @param {import('../../utils/kafkaClientV2').KafkaClientV2} kafkaClientV2
+ * @param {string} topic
+ * @param {Object[]} messages
  * @returns {Promise<void>}
  */
-async function insertWithRetryAsync(clickHouseClientManager, rows) {
-    const MIN_CHUNK_SIZE = 1000;
+async function publishWithRetryAsync(kafkaClientV2, topic, messages) {
+    const maxAttempts = 3;
+    let delay = 2000;
 
-    try {
-        await clickHouseClientManager.insertAsync({
-            table: 'fhir.AuditEvent_4_0_0',
-            values: rows,
-            format: 'JSONEachRow'
-        });
-    } catch (error) {
-        const errorMsg = error.original_error?.message || error.nested?.message || error.message;
-        const isSizeError =
-            errorMsg === 'Invalid string length' ||
-            errorMsg.includes('string length') ||
-            errorMsg.includes('allocation failed');
-
-        if (isSizeError && rows.length > MIN_CHUNK_SIZE) {
-            const mid = Math.ceil(rows.length / 2);
-            logWarn('ClickHouse insert failed due to payload size, splitting batch', {
-                originalSize: rows.length,
-                newSize: mid,
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            await kafkaClientV2.sendCloudEventMessageAsync({ topic, messages });
+            return;
+        } catch (error) {
+            if (attempt === maxAttempts) {
+                throw new Error(
+                    `Kafka publish failed after ${maxAttempts} attempts (batch size ${messages.length}): ${error.message}`
+                );
+            }
+            logWarn('Kafka publish failed, retrying', {
+                attempt,
+                batchSize: messages.length,
+                delay,
                 error: error.message
             });
-            await insertWithRetryAsync(clickHouseClientManager, rows.slice(0, mid));
-            await insertWithRetryAsync(clickHouseClientManager, rows.slice(mid));
-            return;
-        }
-
-        const maxRetries = 3;
-        let delay = 2000;
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                await clickHouseClientManager.insertAsync({
-                    table: 'fhir.AuditEvent_4_0_0',
-                    values: rows,
-                    format: 'JSONEachRow'
-                });
-                return;
-            } catch (retryError) {
-                if (attempt === maxRetries) {
-                    throw new Error(
-                        `ClickHouse insert failed after ${maxRetries} attempts (batch size ${rows.length}): ${retryError.message}`
-                    );
-                }
-                logWarn('ClickHouse insert failed, retrying', {
-                    attempt,
-                    batchSize: rows.length,
-                    delay,
-                    error: retryError.message
-                });
-                await new Promise((resolve) => setTimeout(resolve, delay));
-                delay *= 2;
-            }
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            delay *= 2;
         }
     }
 }
 
 /**
- * Transform docs, insert the rows into ClickHouse, then delete the batch's
+ * `_uuid` and `recorded` are non-nullable ORDER BY/PARTITION BY columns in
+ * clickhouse-init/02-audit-event.sql. The old direct-ClickHouse-insert path
+ * relied on ClickHouse to reject a row missing either one; Kafka does not
+ * validate message content at all (e.g. an undefined key just means "no
+ * key"), so a malformed row would otherwise publish successfully and its
+ * Mongo source would be deleted. Validate explicitly instead.
+ * @param {Object} row
+ * @throws {Error} if a required column is missing
+ */
+function assertValidRow(row) {
+    if (!row._uuid || !row.recorded) {
+        throw new Error(
+            `AuditEvent row is missing a required field (_uuid=${row._uuid}, recorded=${row.recorded})`
+        );
+    }
+}
+
+/**
+ * Transform docs, publish the rows to Kafka, then delete the batch's
  * source docs from Mongo by _id. A malformed source doc (missing `_uuid` or
- * `recorded`) causes the ClickHouse insert to fail, which aborts the whole
- * run — no Mongo delete runs for a batch that didn't land.
+ * `recorded`) fails validation before anything is published, which aborts
+ * the whole run — no Mongo delete runs for a batch that didn't land.
  *
  * @param {Object} params
  * @param {Object[]} params.docs
  * @param {import('mongodb').Collection} params.collection
- * @param {import('../../utils/clickHouseClientManager').ClickHouseClientManager} params.clickHouseClientManager
+ * @param {import('../../utils/kafkaClientV2').KafkaClientV2} params.kafkaClientV2
+ * @param {string} params.topic
  * @param {AuditEventTransformer} params.transformer
+ * @param {number} params.batchNo
  * @returns {Promise<{inserted: number, deleted: number}>}
  */
-async function processBatchAsync({ docs, collection, clickHouseClientManager, transformer }) {
+async function processBatchAsync({ docs, collection, kafkaClientV2, topic, transformer, batchNo }) {
     const { rows } = transformer.transformBatch(docs);
+    rows.forEach(assertValidRow);
+    const messages = rows.map((row) => ({
+        key: row._uuid,
+        value: JSON.stringify(row),
+        headers: { version: 'R4', requestId: `migration-batch-${batchNo}` }
+    }));
 
-    if (rows.length > 0) {
-        await insertWithRetryAsync(clickHouseClientManager, rows);
+    if (messages.length > 0) {
+        await publishWithRetryAsync(kafkaClientV2, topic, messages);
     }
 
     const ids = docs.map((doc) => doc._id);
@@ -199,15 +216,25 @@ async function processBatchAsync({ docs, collection, clickHouseClientManager, tr
 async function main() {
     const options = parseArgs();
 
-    logInfo('AuditEvent Migration: MongoDB -> ClickHouse', {
+    logInfo('AuditEvent Migration: MongoDB -> Kafka/ClickPipes', {
         collection: options.collection,
         batchSize: options.batchSize
     });
 
     const container = createContainer();
     const mongoDatabaseManager = container.mongoDatabaseManager;
-    const clickHouseClientManager = container.clickHouseClientManager;
+    const kafkaClientV2 = container.kafkaClientV2;
     const transformer = new AuditEventTransformer();
+    const topic = KAFKA_TOPICS.AUDIT_EVENT;
+
+    if (!isKafkaPublishEnabled(container.configManager)) {
+        logError(
+            'Kafka publishing is disabled (ENABLE_EVENTS_KAFKA_V2 is not set); ' +
+            'refusing to run since messages would be silently dropped. Set ' +
+            'ENABLE_EVENTS_KAFKA_V2=1 and the KAFKA_V2_* connection variables.'
+        );
+        return 1;
+    }
 
     const abortFlag = { aborted: false };
     const onSignal = (signal) => {
@@ -228,10 +255,6 @@ async function main() {
         const auditDb = await mongoDatabaseManager.getAuditDbAsync();
         logInfo('Connected to MongoDB', { db: auditDb.databaseName });
 
-        logInfo('Connecting to ClickHouse');
-        await clickHouseClientManager.getClientAsync();
-        logInfo('Connected to ClickHouse');
-
         const collection = auditDb.collection(options.collection);
         // Sort ascending on `recorded` (with `_id` as a stable tiebreaker for ties)
         // so the oldest events are evacuated first. Re-runs after a crash pick up
@@ -247,8 +270,10 @@ async function main() {
                 const result = await processBatchAsync({
                     docs,
                     collection,
-                    clickHouseClientManager,
-                    transformer
+                    kafkaClientV2,
+                    topic,
+                    transformer,
+                    batchNo
                 });
                 totalInserted += result.inserted;
                 totalDeleted += result.deleted;
@@ -306,7 +331,7 @@ async function main() {
         process.removeListener('SIGINT', onSignal);
         process.removeListener('SIGTERM', onSignal);
         await mongoDatabaseManager.disconnectAsync();
-        await clickHouseClientManager.closeAsync();
+        await kafkaClientV2.disconnect();
     }
 }
 
@@ -324,6 +349,7 @@ if (require.main === module) {
 module.exports = {
     parsePositiveInt,
     formatElapsed,
-    insertWithRetryAsync,
+    isKafkaPublishEnabled,
+    publishWithRetryAsync,
     processBatchAsync
 };
