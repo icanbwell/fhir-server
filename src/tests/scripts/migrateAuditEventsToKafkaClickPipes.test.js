@@ -10,10 +10,10 @@ const {
     isKafkaPublishEnabled,
     publishWithRetryAsync,
     processBatchAsync
-} = require('../../admin/scripts/migrateAuditEventsToClickhouse');
+} = require('../../admin/scripts/migrateAuditEventsToKafkaClickPipes');
 const { AuditEventTransformer } = require('../../dataLayer/clickHouse/auditEventTransformer');
 
-describe('migrateAuditEventsToClickhouse script', () => {
+describe('migrateAuditEventsToKafkaClickPipes script', () => {
     describe('isKafkaPublishEnabled', () => {
         test('returns false when kafkaV2EnableEvents is off', () => {
             expect(isKafkaPublishEnabled({ kafkaV2EnableEvents: false })).toBe(false);
