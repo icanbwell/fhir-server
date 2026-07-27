@@ -95,9 +95,13 @@ class Base64DataManager {
      *    the `_blobMeta` sidecar. Bytes are stashed for `transformHistoryAsync`.
      *  - `BLOB_OP.RETRIEVE`: download each sidecar's bytes back onto `data` so merge/patch/response
      *    flows see real content (accurate patches, correct no-op short-circuits).
+     *  - `BLOB_OP.DELETE`: ensure the history bucket holds this version's bytes (checking there
+     *    first, only fetching the live bucket if missing) and leave the resource `_blobMeta`-only,
+     *    ahead of the delete-caused history write.
      * No-op when disabled, the resource type has no configured paths, or nothing matches.
      * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place and returned.
-     * @param {string} operation - `BLOB_OP.INSERT` / `BLOB_OP.RETRIEVE`; any other value is a no-op.
+     * @param {string} operation - `BLOB_OP.INSERT` / `BLOB_OP.RETRIEVE` / `BLOB_OP.DELETE`; any
+     *        other value is a no-op.
      * @param {import('../utils/fhirRequestInfo').FhirRequestInfo} [requestInfo] - enables the preSave
      *        `_uuid` step (INSERT) and the per-request stashes; RETRIEVE still works without it.
      * @param {{alwaysCreateNew?: boolean, historyRead?: boolean}} [options] - `alwaysCreateNew: true`
@@ -131,6 +135,10 @@ class Base64DataManager {
         } else if (operation === BLOB_OP.RETRIEVE) {
             for (const entry of entries) {
                 await this._processRetrieveEntry(resource, entry, requestInfo, options.historyRead === true);
+            }
+        } else if (operation === BLOB_OP.DELETE) {
+            for (const entry of entries) {
+                await this._processDeleteEntry(resource, entry);
             }
         }
         return resource;
@@ -871,6 +879,120 @@ class Base64DataManager {
                 content, hash: blobMeta.hash
             });
         });
+    }
+
+    /**
+     * BLOB_OP.DELETE processing for one config entry, called ahead of the resource being handed to
+     * `insertOneHistoryAsync` for the delete-caused history entry. For a leaf that is or becomes
+     * externalized, ensures the history bucket holds this version's bytes (see
+     * `_ensureHistoryObjectAsync`) and strips the inline data field so the history snapshot ends up
+     * `_blobMeta`-only — matching the shape a live Mongo document already has, whether or not the
+     * caller (e.g. `$graph`/`$everything` delete) had pre-hydrated `data` for its own purposes. A
+     * leaf that was never externalized and stays under the live-write threshold is left untouched.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource - mutated in place.
+     * @param {{dataPath: string, blobMetaPath: string}} entry - JSON-Pointers to the base64 field and its sidecar.
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _processDeleteEntry (resource, entry) {
+        const dataSegments = this._parseJsonPointer(entry.dataPath);
+        const blobMetaSegments = this._parseJsonPointer(entry.blobMetaPath);
+        const blobMetaLeaf = blobMetaSegments[blobMetaSegments.length - 1];
+        const thresholdBytes = this.base64FieldDataThresholdKB * 1024;
+
+        await this._processPaths(resource, dataSegments, [], async ({ parent, key, value }) => {
+            const blobMeta = parent[blobMetaLeaf];
+            if (blobMeta && blobMeta.hash) {
+                // Already externalized: bytes may already be inlined (graph/$everything
+                // pre-hydration) or may need fetching from the live bucket (REST delete).
+                const bytesProvider = async () => {
+                    if (typeof value === 'string' && value.length > 0) {
+                        return value;
+                    }
+                    const liveKey = this._buildLiveKey(
+                        resource.resourceType, resource._uuid, this._toEpochMs(blobMeta.lastUpdated)
+                    );
+                    return this.base64FieldCloudStorageClient.downloadAsync(liveKey);
+                };
+                await this._ensureHistoryObjectAsync(resource, entry, blobMeta.hash, bytesProvider);
+                this._clearField(parent, key);
+                return;
+            }
+            // Never externalized: only act if this content is over the live-write threshold — e.g.
+            // the feature was disabled when this version was written.
+            const byteLength = typeof value === 'string' ? Buffer.byteLength(value, 'utf8') : 0;
+            if (byteLength <= thresholdBytes) {
+                return; // stays inline — unchanged from today's behavior
+            }
+            const hash = await computeContentHashAsync(value);
+            await this._ensureHistoryObjectAsync(resource, entry, hash, async () => value);
+            const rawSize = Math.ceil(byteLength / 1024);
+            parent[blobMetaLeaf] = {
+                hash, rawSize, lastUpdated: this._normalizeStamp(resource.meta && resource.meta.lastUpdated)
+            };
+            this._clearField(parent, key);
+        });
+    }
+
+    /**
+     * Ensure the history bucket holds an object at `hash`'s key: refresh it via copy-onto-self if it
+     * already exists (no payload transfer), else obtain bytes from `bytesProvider` and upload them.
+     * Throws on any failure — unlike RETRIEVE, a delete cannot self-heal a lost payload by degrading
+     * gracefully, so this must not swallow errors.
+     * @param {import('../fhir/classes/4_0_0/resources/resource')|Object} resource
+     * @param {{dataPath: string, blobMetaPath: string}} entry - for error diagnostics.
+     * @param {string} hash - the content hash driving the history key.
+     * @param {() => Promise<string|null|undefined>} bytesProvider - resolves the bytes to upload,
+     *        called only when the history bucket doesn't already have them. Resolving null/undefined
+     *        means the source object is definitively gone (self-heal, see below); a thrown error
+     *        means a real fetch failure (fail-closed, see below).
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _ensureHistoryObjectAsync (resource, entry, hash, bytesProvider) {
+        const historyKey = this._buildHistoryKey(resource.resourceType, resource._uuid, hash);
+        try {
+            const refreshed = await this.historyResourceCloudStorageClient.copyObjectAsync({
+                sourcePath: historyKey, filePath: historyKey
+            });
+            if (refreshed) {
+                return;
+            }
+            const bytes = await bytesProvider();
+            if (!bytes) {
+                // The bytes are definitively gone (bytesProvider resolved null/undefined rather
+                // than throwing) — e.g. externalized before this delete-time persistence existed,
+                // and the live object already expired with no history copy ever made. Blocking the
+                // delete wouldn't protect anything (the payload is already unrecoverable either
+                // way), so self-heal like RETRIEVE: log and let the delete proceed rather than
+                // stranding the resource forever.
+                logError(`Base64 payload unrecoverable for delete-time history persist for ${resource.resourceType}/${resource.id} at ${entry.dataPath}`, {
+                    source: 'Base64DataManager',
+                    args: {
+                        resourceType: resource.resourceType,
+                        resourceId: resource.id,
+                        dataPath: entry.dataPath,
+                        key: historyKey
+                    }
+                });
+                return;
+            }
+            await this.historyResourceCloudStorageClient.uploadAsync({
+                filePath: historyKey, data: Buffer.from(bytes, 'utf8')
+            });
+        } catch (err) {
+            throw new RethrownError({
+                message: `Failed to persist base64 delete history payload for ${resource.resourceType}/${resource.id} at ${entry.dataPath}: ${err.message}`,
+                error: err,
+                source: 'Base64DataManager',
+                args: {
+                    resourceType: resource.resourceType,
+                    resourceId: resource.id,
+                    dataPath: entry.dataPath,
+                    key: historyKey
+                }
+            });
+        }
     }
 
     /**

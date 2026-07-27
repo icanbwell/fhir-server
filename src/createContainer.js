@@ -826,7 +826,8 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory,
         databaseAttachmentManager: c.databaseAttachmentManager,
         postRequestProcessor: c.postRequestProcessor,
-        postSaveProcessor: c.postSaveProcessor
+        postSaveProcessor: c.postSaveProcessor,
+        base64DataManager: c.base64DataManager
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(
