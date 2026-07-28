@@ -322,6 +322,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             // Parse and validate member criteria
             const memberCriteria = QueryParser.extractMemberCriteria(query);
             const securityTags = QueryParser.extractSecurityTags(query);
+            const groupIds = QueryParser.extractGroupIdFilter(query);
             const validation = QueryParser.validateMemberCriteria(memberCriteria);
 
             if (!validation.valid) {
@@ -332,6 +333,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
 
             // Build ClickHouse count query
             const queryDef = QueryBuilder.buildCountGroupsByMemberQuery({
+                groupIds,
                 memberReferenceUuid: validation.entityReferenceUuid,
                 memberReferenceSourceId: validation.entityReferenceSourceId,
                 accessTags: securityTags.accessTags,
@@ -432,6 +434,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             // Extract criteria
             const memberCriteria = QueryParser.extractMemberCriteria(cleanQuery);
             const securityTags = QueryParser.extractSecurityTags(query);
+            const groupIds = QueryParser.extractGroupIdFilter(cleanQuery);
 
             // Validate criteria
             const validation = QueryParser.validateMemberCriteria(memberCriteria);
@@ -442,6 +445,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
 
             // Build ClickHouse query
             const queryDef = QueryBuilder.buildFindGroupsByMemberQuery({
+                groupIds,
                 memberReferenceUuid: validation.entityReferenceUuid,
                 memberReferenceSourceId: validation.entityReferenceSourceId,
                 accessTags: securityTags.accessTags,

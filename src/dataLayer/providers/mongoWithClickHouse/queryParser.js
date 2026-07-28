@@ -246,6 +246,83 @@ class QueryParser {
     }
 
     /**
+     * Extracts group ID filters from MongoDB query
+     * Handles id, _id fields and $in arrays for filtering by specific group IDs
+     *
+     * @param {Object} query - MongoDB query object
+     * @returns {string[]} Array of group IDs to filter by (empty if no filter)
+     */
+    static extractGroupIdFilter(query) {
+        const groupIds = [];
+
+        /**
+         * Unwraps MongoDB operators to get actual values
+         * @param {*} value - The value to unwrap
+         * @returns {string[]} Array of values
+         */
+        const unwrapValues = (value) => {
+            if (!value) return [];
+
+            // Handle $in operator - array of values
+            if (value.$in && Array.isArray(value.$in)) {
+                return value.$in;
+            }
+
+            // Handle $eq operator
+            if (value.$eq !== undefined) {
+                return [value.$eq];
+            }
+
+            // Direct string value
+            if (typeof value === 'string') {
+                return [value];
+            }
+
+            return [];
+        };
+
+        /**
+         * Recursively extract group IDs from query structure
+         * @param {Object} obj - Query object to search
+         */
+        const extractRecursive = (obj) => {
+            if (!obj || typeof obj !== 'object') {
+                return;
+            }
+
+            // Extract from direct id/_id fields
+            if (obj.id) {
+                groupIds.push(...unwrapValues(obj.id));
+            }
+            if (obj._id) {
+                groupIds.push(...unwrapValues(obj._id));
+            }
+
+            // Recurse into $and arrays
+            if (obj.$and && Array.isArray(obj.$and)) {
+                obj.$and.forEach(extractRecursive);
+            }
+
+            // Recurse into $or arrays
+            if (obj.$or && Array.isArray(obj.$or)) {
+                obj.$or.forEach(extractRecursive);
+            }
+        };
+
+        extractRecursive(query);
+
+        // Deduplicate and filter out empty strings
+        const uniqueIds = [...new Set(groupIds)].filter(id => id && typeof id === 'string');
+
+        logDebug('Extracted group ID filter', {
+            query: JSON.stringify(query),
+            groupIds: uniqueIds
+        });
+
+        return uniqueIds;
+    }
+
+    /**
      * Validates extracted member criteria and maps to ClickHouse columns
      *
      * ReferenceQueryRewriter transforms references before they reach us:

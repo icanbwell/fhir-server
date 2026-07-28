@@ -12,12 +12,13 @@ const { TABLES, EVENT_TYPES } = require('../../../constants/clickHouseConstants'
 class QueryBuilder {
     /**
      * Builds query to find Groups containing a specific member
-     * Supports pagination (seek cursor or offset) and security tag filtering
+     * Supports pagination (seek cursor or offset), group ID filtering, and security tag filtering
      *
      * Searches on entity_reference_uuid or entity_reference_source_id columns,
      * which are AggregateFunction columns filtered via HAVING with argMaxMerge().
      *
      * @param {Object} params
+     * @param {string[]} [params.groupIds] - Optional array of group IDs to filter by
      * @param {string} [params.memberReferenceUuid] - UUID reference (e.g., "Patient/<uuidv5>")
      * @param {string} [params.memberReferenceSourceId] - Source ID reference (e.g., "Patient/123")
      * @param {string[]} params.accessTags - Access security tags for filtering
@@ -28,6 +29,7 @@ class QueryBuilder {
      * @returns {{query: string, query_params: Object}}
      */
     static buildFindGroupsByMemberQuery({
+        groupIds = [],
         memberReferenceUuid,
         memberReferenceSourceId,
         accessTags = [],
@@ -40,11 +42,24 @@ class QueryBuilder {
             accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
         );
 
+        // Build WHERE clause for group_id filtering
+        const whereConditions = [];
+        if (groupIds.length > 0) {
+            whereConditions.push('group_id IN {groupIds:Array(String)}');
+        }
+        if (afterGroupId) {
+            whereConditions.push('group_id > {afterGroupId:String}');
+        }
+        const whereClause = whereConditions.length > 0
+            ? `WHERE ${whereConditions.join(' AND ')}`
+            : '';
+
         let query;
         const query_params = {
             memberReferenceUuid: memberReferenceUuid || '',
             memberReferenceSourceId: memberReferenceSourceId || '',
             limit,
+            ...(groupIds.length > 0 && { groupIds }),
             ...(accessTags.length > 0 && { accessTags }),
             ...(ownerTags.length > 0 && { ownerTags })
         };
@@ -53,7 +68,7 @@ class QueryBuilder {
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                WHERE group_id > {afterGroupId:String}
+                ${whereClause}
                 GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
@@ -64,6 +79,7 @@ class QueryBuilder {
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
+                ${whereClause}
                 GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
@@ -75,6 +91,7 @@ class QueryBuilder {
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
+                ${whereClause}
                 GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
                 ORDER BY group_id
@@ -90,6 +107,7 @@ class QueryBuilder {
      * Matches filtering logic from findGroupsByMemberQuery
      *
      * @param {Object} params
+     * @param {string[]} [params.groupIds] - Optional array of group IDs to filter by
      * @param {string} [params.memberReferenceUuid] - UUID reference
      * @param {string} [params.memberReferenceSourceId] - Source ID reference
      * @param {string[]} params.accessTags - Access security tags for filtering
@@ -97,6 +115,7 @@ class QueryBuilder {
      * @returns {{query: string, query_params: Object}}
      */
     static buildCountGroupsByMemberQuery({
+        groupIds = [],
         memberReferenceUuid,
         memberReferenceSourceId,
         accessTags = [],
@@ -106,11 +125,17 @@ class QueryBuilder {
             accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
         );
 
+        // Build WHERE clause for group_id filtering
+        const whereClause = groupIds.length > 0
+            ? 'WHERE group_id IN {groupIds:Array(String)}'
+            : '';
+
         const query = `
             SELECT count() as total
             FROM (
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
+                ${whereClause}
                 GROUP BY group_id, entity_reference
                 HAVING ${havingClause}
             )
@@ -119,6 +144,7 @@ class QueryBuilder {
         const query_params = {
             memberReferenceUuid: memberReferenceUuid || '',
             memberReferenceSourceId: memberReferenceSourceId || '',
+            ...(groupIds.length > 0 && { groupIds }),
             ...(accessTags.length > 0 && { accessTags }),
             ...(ownerTags.length > 0 && { ownerTags })
         };
