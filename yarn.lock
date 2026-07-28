@@ -2864,7 +2864,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation-aws-sdk@npm:^0.74.0":
+"@opentelemetry/instrumentation-aws-sdk@npm:0.74.0, @opentelemetry/instrumentation-aws-sdk@npm:^0.74.0":
   version: 0.74.0
   resolution: "@opentelemetry/instrumentation-aws-sdk@npm:0.74.0"
   dependencies:
@@ -5575,6 +5575,7 @@ __metadata:
     "@opentelemetry/exporter-metrics-otlp-grpc": "npm:0.219.0"
     "@opentelemetry/exporter-trace-otlp-grpc": "npm:0.219.0"
     "@opentelemetry/instrumentation": "npm:0.219.0"
+    "@opentelemetry/instrumentation-aws-sdk": "npm:0.74.0"
     "@opentelemetry/instrumentation-dataloader": "npm:0.35.0"
     "@opentelemetry/instrumentation-express": "npm:0.66.0"
     "@opentelemetry/instrumentation-graphql": "npm:0.66.0"
