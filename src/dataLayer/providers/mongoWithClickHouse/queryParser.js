@@ -247,7 +247,12 @@ class QueryParser {
 
     /**
      * Extracts group ID filters from MongoDB query
-     * Handles id, _id fields and $in arrays for filtering by specific group IDs
+     *
+     * FilterById transforms FHIR _id parameters into MongoDB _uuid/_sourceId fields:
+     * - UUID values → { _uuid: { $in: [...] } }
+     * - Non-UUID values → { _sourceId: { $in: [...] } }
+     *
+     * This method extracts those values to filter ClickHouse queries by group_id.
      *
      * @param {Object} query - MongoDB query object
      * @returns {string[]} Array of group IDs to filter by (empty if no filter)
@@ -290,12 +295,14 @@ class QueryParser {
                 return;
             }
 
-            // Extract from direct id/_id fields
-            if (obj.id) {
-                groupIds.push(...unwrapValues(obj.id));
+            // Extract from _uuid field (UUID-based IDs from FilterById)
+            if (obj._uuid) {
+                groupIds.push(...unwrapValues(obj._uuid));
             }
-            if (obj._id) {
-                groupIds.push(...unwrapValues(obj._id));
+
+            // Extract from _sourceId field (non-UUID IDs from FilterById)
+            if (obj._sourceId) {
+                groupIds.push(...unwrapValues(obj._sourceId));
             }
 
             // Recurse into $and arrays

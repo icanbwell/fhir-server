@@ -4,6 +4,7 @@
 const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../common');
 const { QueryParser } = require('../../dataLayer/providers/mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('../../dataLayer/providers/mongoWithClickHouse/queryBuilder');
+const { FilterById } = require('../../operations/query/filters/id');
 
 describe('Group ID with Member Filter Tests', () => {
     beforeEach(async () => {
@@ -15,39 +16,78 @@ describe('Group ID with Member Filter Tests', () => {
     });
 
     describe('QueryParser.extractGroupIdFilter', () => {
-        test('extracts single group ID from id field', () => {
-            const query = { id: 'test-group-1' };
+        test('extracts single group ID from _sourceId field (non-UUID)', () => {
+            // Real query structure from FilterById for non-UUID IDs
+            const query = { _sourceId: { $in: ['test-group-1'] } };
             const result = QueryParser.extractGroupIdFilter(query);
             expect(result).toEqual(['test-group-1']);
         });
 
-        test('extracts single group ID from _id field', () => {
-            const query = { _id: 'test-group-1' };
+        test('extracts single group ID from _uuid field (UUID)', () => {
+            // Real query structure from FilterById for UUID IDs
+            const uuidValue = '550e8400-e29b-41d4-a716-446655440000';
+            const query = { _uuid: { $in: [uuidValue] } };
             const result = QueryParser.extractGroupIdFilter(query);
-            expect(result).toEqual(['test-group-1']);
+            expect(result).toEqual([uuidValue]);
         });
 
         test('extracts multiple group IDs from $in operator', () => {
-            const query = { id: { $in: ['group-1', 'group-2', 'group-3'] } };
+            const query = { _sourceId: { $in: ['group-1', 'group-2', 'group-3'] } };
             const result = QueryParser.extractGroupIdFilter(query);
             expect(result).toEqual(['group-1', 'group-2', 'group-3']);
         });
 
         test('extracts group ID from $eq operator', () => {
-            const query = { id: { $eq: 'test-group' } };
+            const query = { _sourceId: { $eq: 'test-group' } };
             const result = QueryParser.extractGroupIdFilter(query);
             expect(result).toEqual(['test-group']);
         });
 
-        test('extracts group ID from nested $and', () => {
+        test('extracts group ID from nested $or (real FilterById structure)', () => {
+            // Real query structure from FilterById.getListFilter(['test-group'])
+            const query = {
+                $or: [
+                    { _sourceId: { $in: ['test-group'] } }
+                ]
+            };
+            const result = QueryParser.extractGroupIdFilter(query);
+            expect(result).toEqual(['test-group']);
+        });
+
+        test('extracts mixed UUID and non-UUID IDs from $or', () => {
+            // Real query structure when both UUID and non-UUID IDs are provided
+            const uuidValue = '550e8400-e29b-41d4-a716-446655440000';
+            const query = {
+                $or: [
+                    { _uuid: { $in: [uuidValue] } },
+                    { _sourceId: { $in: ['non-uuid-group'] } }
+                ]
+            };
+            const result = QueryParser.extractGroupIdFilter(query);
+            expect(result).toEqual([uuidValue, 'non-uuid-group']);
+        });
+
+        test('extracts from nested $and with $or (realistic search query)', () => {
+            // Simulates GET /Group?_id=test-group&member=Patient/123
             const query = {
                 $and: [
-                    { id: 'test-group' },
+                    {
+                        $or: [
+                            { _sourceId: { $in: ['test-group'] } }
+                        ]
+                    },
                     { 'member.entity._uuid': 'Patient/123' }
                 ]
             };
             const result = QueryParser.extractGroupIdFilter(query);
             expect(result).toEqual(['test-group']);
+        });
+
+        test('uses FilterById.getListFilter to generate real query', () => {
+            // Test with actual FilterById output
+            const query = FilterById.getListFilter(['test-group-1', 'test-group-2']);
+            const result = QueryParser.extractGroupIdFilter(query);
+            expect(result).toEqual(['test-group-1', 'test-group-2']);
         });
 
         test('returns empty array when no id fields present', () => {
@@ -59,8 +99,8 @@ describe('Group ID with Member Filter Tests', () => {
         test('deduplicates group IDs', () => {
             const query = {
                 $and: [
-                    { id: 'test-group' },
-                    { _id: 'test-group' }
+                    { _sourceId: { $in: ['test-group'] } },
+                    { _sourceId: { $in: ['test-group'] } }
                 ]
             };
             const result = QueryParser.extractGroupIdFilter(query);
