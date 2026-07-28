@@ -1294,7 +1294,7 @@ const createContainer = function () {
     // Cloud storage client for current (live) FHIR resource payloads externalized
     // via base64DataResources.json. History versions reuse historyResourceCloudStorageClient above.
     container.register('base64FieldCloudStorageClient', (c) => {
-        if (c.configManager.base64FieldCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT) {
+        if (c.configManager.enableBase64FieldCloudStorage && c.configManager.base64FieldCloudStorageClient === CLOUD_STORAGE_CLIENTS.S3_CLIENT) {
             return new S3Client({
                 bucketName: c.configManager.resourceBucketName,
                 region: c.configManager.awsRegion,
