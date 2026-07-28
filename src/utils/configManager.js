@@ -1300,7 +1300,7 @@ class ConfigManager {
      * @return {string}
      */
     get kafkaBulkImportEventTopic() {
-        return env.KAFKA_BULK_IMPORT_EVENT_TOPIC || 'fhir.bulk_import.events';
+        return env.KAFKA_BULK_IMPORT_EVENT_TOPIC || 'fhir_server.bulk_import.events';
     }
 
     /**
