@@ -7,7 +7,7 @@
 process.env.ENABLE_CLICKHOUSE = '1';
 
 const path = require('path');
-const { describe, test, beforeAll, beforeEach, afterAll, expect } = require('@jest/globals');
+const { describe, test, beforeAll, beforeEach, afterAll, expect, jest } = require('@jest/globals');
 
 const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager');
 const { ConfigManager } = require('../../utils/configManager');
@@ -43,14 +43,23 @@ const DROP_ORDER = [
     'fhir.AUDIT_ACCESS_AGG'
 ];
 
-function makeRunner({ clickHouseClientManager, mongoDatabaseManager, dir, file, dryRun }) {
+function makeRunner({
+    clickHouseClientManager,
+    mongoDatabaseManager,
+    dir,
+    file,
+    dryRun,
+    skipDatabaseCreation,
+    adminLogger = new AdminLogger()
+}) {
     return new ApplyClickHouseDDLRunner({
-        adminLogger: new AdminLogger(),
+        adminLogger,
         mongoDatabaseManager,
         clickHouseClientManager,
         dir,
         file,
-        dryRun
+        dryRun,
+        skipDatabaseCreation
     });
 }
 
@@ -170,4 +179,27 @@ describe('applyClickHouseDDL admin runner', () => {
             expect(await clickHouseClientManager.tableExistsAsync(table)).toBe(false);
         }
     }, 120000);
+
+    test('--skip-database-creation skips CREATE DATABASE statements but still applies the rest', async () => {
+        const adminLogger = new AdminLogger();
+        const logInfoSpy = jest.spyOn(adminLogger, 'logInfo');
+
+        const runner = makeRunner({
+            clickHouseClientManager,
+            mongoDatabaseManager,
+            dir: DDL_DIR,
+            skipDatabaseCreation: true,
+            adminLogger
+        });
+        await runner.processAsync();
+
+        expect(logInfoSpy).toHaveBeenCalledWith(
+            'Skipping CREATE DATABASE statement(s)',
+            expect.objectContaining({ file: '01-init-schema.sql' })
+        );
+
+        for (const table of EXPECTED_TABLES) {
+            expect(await clickHouseClientManager.tableExistsAsync(table)).toBe(true);
+        }
+    }, 60000);
 });

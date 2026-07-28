@@ -571,6 +571,16 @@ Only Groups with matching `access` or `owner` tags are returned in search result
 
 The Makefile runs all `clickhouse-init/*.sql` files in alphabetical order. If the volume persists from an older schema, `02-add-entity-reference-columns.sql` applies the migration.
 
+### Applying the Schema Without CREATE DATABASE Privileges
+
+In shared environments (e.g. dev/staging), the ClickHouse user configured for the app often only has grants on the existing `fhir` database, not `CREATE DATABASE`. Running `applyClickHouseDDL.js` there fails on the `CREATE DATABASE IF NOT EXISTS fhir;` statement in `clickhouse-init/01-init-schema.sql`.
+
+Pass `--skip-database-creation` to filter out `CREATE DATABASE` statements and apply only the `CREATE TABLE` / `CREATE MATERIALIZED VIEW` statements:
+
+```bash
+node src/admin/scripts/applyClickHouseDDL.js --dir clickhouse-init --skip-database-creation
+```
+
 ### Groups Not Appearing in Member Search
 
 **Symptom:** `GET /Group?member=Patient/X` returns empty results
