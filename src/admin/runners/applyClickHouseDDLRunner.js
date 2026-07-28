@@ -7,7 +7,9 @@ const { ClickHouseClientManager } = require('../../utils/clickHouseClientManager
 /**
  * @classdesc Applies ClickHouse DDL (CREATE DATABASE / CREATE TABLE / CREATE MATERIALIZED VIEW)
  * from .sql files to the configured ClickHouse instance. Idempotent when the DDL uses
- * `IF NOT EXISTS`.
+ * `IF NOT EXISTS`. Pass `skipDatabaseCreation: true` in environments (e.g. dev/staging)
+ * where the configured ClickHouse user lacks `CREATE DATABASE` privileges and the
+ * target database is expected to already exist.
  */
 class ApplyClickHouseDDLRunner extends BaseScriptRunner {
     /**
@@ -17,10 +19,19 @@ class ApplyClickHouseDDLRunner extends BaseScriptRunner {
      *   clickHouseClientManager: ClickHouseClientManager | null,
      *   dir?: string,
      *   file?: string,
-     *   dryRun?: boolean
+     *   dryRun?: boolean,
+     *   skipDatabaseCreation?: boolean
      * }} params
      */
-    constructor({ adminLogger, mongoDatabaseManager, clickHouseClientManager, dir, file, dryRun = false }) {
+    constructor({
+        adminLogger,
+        mongoDatabaseManager,
+        clickHouseClientManager,
+        dir,
+        file,
+        dryRun = false,
+        skipDatabaseCreation = false
+    }) {
         super({ adminLogger, mongoDatabaseManager });
 
         if (clickHouseClientManager) {
@@ -31,6 +42,7 @@ class ApplyClickHouseDDLRunner extends BaseScriptRunner {
         this.dir = dir;
         this.file = file;
         this.dryRun = Boolean(dryRun);
+        this.skipDatabaseCreation = Boolean(skipDatabaseCreation);
     }
 
     async processAsync() {
@@ -99,8 +111,19 @@ class ApplyClickHouseDDLRunner extends BaseScriptRunner {
      */
     async _applyFile(filePath) {
         const sqlText = fs.readFileSync(filePath, 'utf8');
-        const statements = this._parseStatements(sqlText);
+        let statements = this._parseStatements(sqlText);
         const name = path.basename(filePath);
+
+        if (this.skipDatabaseCreation) {
+            const skipped = statements.filter((stmt) => /^CREATE\s+DATABASE\b/i.test(stmt));
+            if (skipped.length > 0) {
+                statements = statements.filter((stmt) => !/^CREATE\s+DATABASE\b/i.test(stmt));
+                this.adminLogger.logInfo('Skipping CREATE DATABASE statement(s)', {
+                    file: name,
+                    count: skipped.length
+                });
+            }
+        }
 
         this.adminLogger.logInfo('Applying DDL file', { file: name, statements: statements.length });
 
