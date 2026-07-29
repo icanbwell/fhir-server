@@ -241,6 +241,7 @@ module.exports = {
         'in-progress': 'ExportStatusUpdated',
         'entered-in-error': 'ExportCompleted'
     },
+    SUBSCRIPTION_RESOURCE_TYPES: ['Subscription', 'SubscriptionStatus', 'SubscriptionTopic'],
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS: ['extension', 'identifier'],
     SUBSCRIPTION_RESOURCES_REFERENCE_SYSTEM: {
         patient: 'https://icanbwell.com/codes/source_patient_id',

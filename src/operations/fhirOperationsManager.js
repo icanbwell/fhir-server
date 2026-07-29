@@ -326,7 +326,7 @@ class FhirOperationsManager {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, operation
+                base_version, parsedArgs, resourceType, operation, requestInfo
             }
         );
         if (headers) {
