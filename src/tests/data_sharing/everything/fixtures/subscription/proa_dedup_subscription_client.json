@@ -1,0 +1,27 @@
+{
+    "resourceType": "Subscription",
+    "id": "95acfe97-a216-485d-9878-9cf01eb19b1a",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "client" },
+            { "system": "https://www.icanbwell.com/connectionType", "code": "proa" }
+        ]
+    },
+    "status": "active",
+    "channel": {
+        "type": "rest-hook",
+        "endpoint": "https://www.icanbwell.com/Subscription/123"
+    },
+    "reason": "Monitor all changes to the Topic",
+    "criteria": "Topic/123",
+    "extension": [
+        { "url": "https://icanbwell.com/codes/client_person_id", "valueString": "acd0945a-3eab-4372-823c-6e4c896582e2" },
+        { "url": "https://icanbwell.com/codes/source_patient_id", "valueString": "commonProaPatientClient1" },
+        { "url": "https://icanbwell.com/codes/connection_type", "valueString": "proa" },
+        { "url": "https://icanbwell.com/codes/connection_name", "valueString": "Emory Healthcare" },
+        { "url": "https://icanbwell.com/codes/service_slug", "valueString": "health-service" }
+    ]
+}

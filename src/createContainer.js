@@ -450,7 +450,10 @@ const createContainer = function () {
         indexProvider: c.indexProvider
     }));
     container.register('personToPatientIdsExpander', (c) => new PersonToPatientIdsExpander({
-        databaseQueryFactory: c.databaseQueryFactory
+        databaseQueryFactory: c.databaseQueryFactory,
+        scopesManager: c.scopesManager,
+        securityTagManager: c.securityTagManager,
+        configManager: c.configManager
     }));
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({

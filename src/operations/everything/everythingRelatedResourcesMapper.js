@@ -14,6 +14,7 @@
  *      includeProxyPatient: boolean|undefined
  *      proxyPatientQuery: string|undefined
  *      proxyPatientRequiredValues: string[]|undefined
+ *      matchPerson: boolean|undefined
  *  } | undefined
  *  } customQuery custom query for the target
  */
@@ -375,7 +376,8 @@ const RelatedResourceMap = {
             customQuery: {
                 query: `{"$and":[{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/source_patient_id","valueString":"{_sourceId}"}}},{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/service_slug","valueString":"{_sourceAssigningAuthority}"}}}]}`,
                 requiredValues: ["_sourceId", "_sourceAssigningAuthority"],
-                fieldForParentLookup: "extension"
+                fieldForParentLookup: "extension",
+                matchPerson: true
             },
             indexHintName: "extension.url_1_extension.valueString_1_uuid_1"
         },
@@ -384,7 +386,8 @@ const RelatedResourceMap = {
             customQuery: {
                 query: `{"$and":[{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/source_patient_id","valueString":"{_sourceId}"}}},{"extension":{"$elemMatch":{"url":"https://icanbwell.com/codes/service_slug","valueString":"{_sourceAssigningAuthority}"}}}]}`,
                 requiredValues: ["_sourceId", "_sourceAssigningAuthority"],
-                fieldForParentLookup: "extension"
+                fieldForParentLookup: "extension",
+                matchPerson: true
             },
             indexHintName: "extension.url_1_extension.valueString_1_uuid_1"
         },
@@ -393,7 +396,8 @@ const RelatedResourceMap = {
             customQuery: {
                 query: `{"$and":[{"identifier":{"$elemMatch":{"system":"https://icanbwell.com/codes/source_patient_id","value":"{_sourceId}"}}},{"identifier":{"$elemMatch":{"system":"https://icanbwell.com/codes/service_slug","value":"{_sourceAssigningAuthority}"}}}]}`,
                 requiredValues: ["_sourceId", "_sourceAssigningAuthority"],
-                fieldForParentLookup: "identifier"
+                fieldForParentLookup: "identifier",
+                matchPerson: true
             },
             indexHintName: "identifier.system_1_identifier.value_1_uuid_1"
         },
