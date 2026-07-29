@@ -31,6 +31,7 @@ const {CreateOperation} = require('./operations/create/create');
 const {UpdateOperation} = require('./operations/update/update');
 const {MergeOperation} = require('./operations/merge/merge');
 const {EverythingOperation} = require('./operations/everything/everything');
+const {MembersOperation} = require('./operations/members/members');
 const {RemoveOperation} = require('./operations/remove/remove');
 const {SearchByVersionIdOperation} = require('./operations/searchByVersionId/searchByVersionId');
 const {HistoryByIdOperation} = require('./operations/historyById/historyById');
@@ -846,6 +847,12 @@ const createContainer = function () {
         cmsManager: c.cmsManager
     }));
 
+    container.register('membersOperation', (c) => new MembersOperation({
+        fhirLoggingManager: c.fhirLoggingManager,
+        scopesValidator: c.scopesValidator,
+        storageProviderFactory: c.storageProviderFactory
+    }));
+
     container.register('removeHelper', c => new RemoveHelper({
         databaseBulkInserter: c.databaseBulkInserter,
         resourceLocatorFactory: c.resourceLocatorFactory,
@@ -1017,6 +1024,7 @@ const createContainer = function () {
                 updateOperation: c.updateOperation,
                 mergeOperation: c.mergeOperation,
                 everythingOperation: c.everythingOperation,
+                membersOperation: c.membersOperation,
                 removeOperation: c.removeOperation,
                 searchByVersionIdOperation: c.searchByVersionIdOperation,
                 historyOperation: c.historyOperation,
