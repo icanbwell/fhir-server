@@ -6,6 +6,7 @@ const {CreateOperation} = require('./create/create');
 const {UpdateOperation} = require('./update/update');
 const {MergeOperation} = require('./merge/merge');
 const {EverythingOperation} = require('./everything/everything');
+const {MembersOperation} = require('./members/members');
 const {RemoveOperation} = require('./remove/remove');
 const {SearchByVersionIdOperation} = require('./searchByVersionId/searchByVersionId');
 const {HistoryOperation} = require('./history/history');
@@ -55,6 +56,7 @@ class FhirOperationsManager {
      * @param updateOperation
      * @param mergeOperation
      * @param everythingOperation
+     * @param membersOperation
      * @param summaryOperation
      * @param removeOperation
      * @param searchByVersionIdOperation
@@ -84,6 +86,7 @@ class FhirOperationsManager {
             updateOperation,
             mergeOperation,
             everythingOperation,
+            membersOperation,
             summaryOperation,
             removeOperation,
             searchByVersionIdOperation,
@@ -140,6 +143,11 @@ class FhirOperationsManager {
          */
         this.everythingOperation = everythingOperation;
         assertTypeEquals(everythingOperation, EverythingOperation);
+        /**
+         * @type {MembersOperation}
+         */
+        this.membersOperation = membersOperation;
+        assertTypeEquals(membersOperation, MembersOperation);
         /**
          * @type {SummaryOperation}
          */
@@ -792,6 +800,47 @@ class FhirOperationsManager {
                 });
             return result;
         }
+    }
+
+    /**
+     * does a FHIR $members operation for Group resources
+     * @param {string[]} args
+     * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
+     * @param {string} resourceType
+     * @returns {Promise<Bundle | undefined>}
+     */
+    async members(args, { req, res }, resourceType) {
+        const requestInfo = this.getRequestInfo(req);
+        this.accessManager.verifyAccess({ requestInfo, resourceType, operation: 'read' });
+
+        // $members only supported for Group resources
+        if (resourceType !== 'Group') {
+            throw new Error('$members operation is only supported for Group resources');
+        }
+
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+        combined_args = this.parseParametersFromBody({ req, combined_args });
+
+        const id = combined_args.id;
+        if (!id) {
+            throw new Error('$members operation requires a Group ID');
+        }
+
+        const result = await this.membersOperation.processAsync({
+            base_version: combined_args.base_version || requestInfo.base_version,
+            requestInfo,
+            id,
+            args: combined_args,
+            req,
+            res
+        });
+
+        return result;
     }
 
     /**
