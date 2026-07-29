@@ -168,7 +168,7 @@ describe('ClickHouseBulkWriteExecutor — Bug Detection', () => {
          * The result returned to the caller shows success (error: null),
          * even though some post-save operations failed.
          */
-        test('post-save failure is swallowed — caller sees success', async () => {
+        test('post-save failure should propagate error to caller', async () => {
             mockPostSaveProcessor.afterSaveAsync.mockRejectedValue(
                 new Error('Kafka broker unavailable')
             );
@@ -186,11 +186,11 @@ describe('ClickHouseBulkWriteExecutor — Bug Detection', () => {
                 base_version: '4_0_0'
             });
 
-            // BUG: Despite post-save failure, result shows success
-            expect(result.error).toBeNull();
-            expect(result.mergeResultEntries).toHaveLength(2);
-            expect(result.mergeResultEntries[0].created).toBe(true);
-            // The error was only logged, never surfaced
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Post-save failures should NOT be silently swallowed.
+            // The error should be propagated to the caller so downstream systems
+            // (Kafka consumers, audit logs) are aware of the failure.
+            expect(result.error).not.toBeNull();
             expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledTimes(2);
         });
 
@@ -228,7 +228,7 @@ describe('ClickHouseBulkWriteExecutor — Bug Detection', () => {
          *
          * This is a design concern more than a clear bug, but worth testing the flow.
          */
-        test('fallback receives full operation set after ClickHouse timeout', async () => {
+        test('fallback should only receive uncommitted operations after ClickHouse timeout', async () => {
             // Simulate: ClickHouse timeout (server may have committed)
             mockRepository.insertAsync.mockRejectedValue(new Error('ETIMEDOUT'));
 
@@ -257,14 +257,13 @@ describe('ClickHouseBulkWriteExecutor — Bug Detection', () => {
                 base_version: '4_0_0'
             });
 
-            // Fallback is invoked with full operations — potential duplicate if CH committed
-            expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledTimes(1);
-            expect(mockFallbackExecutor.executeBulkAsync).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    operations,
-                    resourceType: 'TestResource'
-                })
-            );
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Fallback should NOT receive operations that may have already been committed.
+            // On timeout, ClickHouse may have committed the data. Sending all ops to fallback
+            // risks duplicates. The fallback should either:
+            // - Not be called (and instead return an error to the caller), OR
+            // - Only receive operations verified as uncommitted
+            expect(mockFallbackExecutor.executeBulkAsync).not.toHaveBeenCalled();
         });
     });
 });

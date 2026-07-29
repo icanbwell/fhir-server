@@ -259,27 +259,27 @@ describe('UpdateCollectionsRunner', () => {
             const targetLastUpdated = moment('2024-01-20T10:00:00Z').format('YYYY-MM-DDTHH:mm:ssZ');
             const updatedBeforeMoment = moment('2024-01-15T00:00:00Z');
 
-            // This is the buggy comparison from line 274:
-            // eslint-disable-next-line no-compare-neg-zero
-            const buggyResult = targetLastUpdated > updatedBeforeMoment;
-            expect(buggyResult).toBe(false); // BUG: should be true
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // The comparison should correctly determine that target date is after updatedBefore
+            const comparisonResult = targetLastUpdated > updatedBeforeMoment;
+            expect(comparisonResult).toBe(true);
 
-            // Correct comparison:
+            // Correct comparison for reference:
             const correctResult = moment(targetLastUpdated).isAfter(updatedBeforeMoment);
             expect(correctResult).toBe(true);
         });
 
-        test('BUG: targetLastUpdated < this.updatedBefore also fails with string vs moment', () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('targetLastUpdated < this.updatedBefore should work with string vs moment', () => {
             // Line 285: targetLastUpdated < this.updatedBefore
-            // When targetLastUpdated is a string, this comparison also fails.
+            // The comparison should correctly determine that target date is before updatedBefore
             const targetLastUpdated = moment('2024-01-10T10:00:00Z').format('YYYY-MM-DDTHH:mm:ssZ');
             const updatedBeforeMoment = moment('2024-01-15T00:00:00Z');
 
-            // The buggy comparison from line 285:
-            const buggyResult = targetLastUpdated < updatedBeforeMoment;
-            expect(buggyResult).toBe(false); // BUG: should be true
+            const comparisonResult = targetLastUpdated < updatedBeforeMoment;
+            expect(comparisonResult).toBe(true);
 
-            // Correct comparison:
+            // Correct comparison for reference:
             const correctResult = moment(targetLastUpdated).isBefore(updatedBeforeMoment);
             expect(correctResult).toBe(true);
         });
@@ -317,11 +317,12 @@ describe('UpdateCollectionsRunner', () => {
 
             // Line 274: should be true? No, target is BEFORE updatedBefore, so expected false → ok
             // But what about when target IS after updatedBefore?
+            // EXPECTED: correct behavior (will fail until bug is fixed)
             const targetAfterStr = moment('2024-01-20T10:00:00Z').format('YYYY-MM-DDTHH:mm:ssZ');
-            expect(targetAfterStr > updatedBeforeMoment).toBe(false); // BUG: should be true
+            expect(targetAfterStr > updatedBeforeMoment).toBe(true);
 
             // Line 285 check: targetDateStr < updatedBeforeMoment
-            expect(targetDateStr < updatedBeforeMoment).toBe(false); // BUG: should be true
+            expect(targetDateStr < updatedBeforeMoment).toBe(true);
 
             // The real consequence: target SHOULD be updated (target is older than both
             // updatedBefore and source), but it never gets updated because line 285 is always false.

@@ -208,7 +208,7 @@ describe('SearchByIdOperation', () => {
          * value is NOT assigned back to `resource`. The method returns a serialized copy but the
          * original unserialized resource is returned to the caller.
          */
-        test('BUG: serializeByResourceType return value is discarded - unserialized resource returned', async () => {
+        test('serializeByResourceType return value should be used - serialized resource returned', async () => {
             const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
 
             const foundResource = {
@@ -247,9 +247,10 @@ describe('SearchByIdOperation', () => {
                 'Patient'
             );
 
-            // BUG: The return value of serializeByResourceType is NOT assigned back.
-            // The returned resource does NOT have the _serializedByType flag that our mock adds.
-            expect(result._serializedByType).toBeUndefined();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // The return value of serializeByResourceType SHOULD be assigned back.
+            // The returned resource should have the _serializedByType flag that our mock adds.
+            expect(result._serializedByType).toBe(true);
         });
 
         test('does not add audit log for AuditEvent resourceType', async () => {

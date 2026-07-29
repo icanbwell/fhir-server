@@ -153,18 +153,22 @@ describe('DatabaseBulkInserter', () => {
             expect(ops[0].operation.replaceOne.filter._uuid).toBe('u0');
         });
 
-        test('merges with pending update in place', async () => {
+        test('merges with pending update in place when first merge has null patches', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc1 = createMockResource({ id: 'obs', _uuid: 'uo', resourceType: 'Observation', versionId: '2' });
-            // Use array for patches (not null) so spread in second merge works
-            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Observation', previousVersionId: '1', doc: doc1, patches: [{ op: 'add', path: '/status', value: 'preliminary' }] });
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // First merge with patches: null should not crash on second merge
+            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Observation', previousVersionId: '1', doc: doc1, patches: null });
 
             inserter._resourceMerger.mergeResourceAsync.mockResolvedValueOnce({
                 updatedResource: createMockResource({ id: 'obs', _uuid: 'uo', resourceType: 'Observation', versionId: '2' }),
                 patches: [{ op: 'replace', path: '/status', value: 'final' }]
             });
             const doc2 = createMockResource({ id: 'obs', _uuid: 'uo', resourceType: 'Observation', versionId: '3' });
-            await inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Observation', previousVersionId: '2', doc: doc2, patches: null });
+            // Should handle null patches gracefully (treat null as empty array), not throw TypeError
+            await expect(
+                inserter.mergeOneAsync({ base_version: '4_0_0', requestInfo, resourceType: 'Observation', previousVersionId: '2', doc: doc2, patches: null })
+            ).resolves.not.toThrow();
             const ops = inserter.getOperationsByResourceTypeMap({ requestId: requestInfo.requestId }).get('Observation');
             expect(ops.length).toBe(1);
         }, 10000);

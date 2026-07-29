@@ -385,9 +385,9 @@ describe('AccessLogger', () => {
             accessLogger.queue = [
                 { doc: { timestamp: new Date() }, requestInfo: { requestId: 'r1' } }
             ];
-            // Line 342: `const mergeResultErrors = mergeResults.filter((m) => m.issue);`
-            // If mergeResults is null, calling .filter() throws TypeError
-            await expect(accessLogger.flushAsync()).rejects.toThrow();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle null mergeResults gracefully without crashing
+            await expect(accessLogger.flushAsync()).resolves.not.toThrow();
         });
 
         // BUG TEST: executeAsync returns undefined
@@ -396,7 +396,9 @@ describe('AccessLogger', () => {
             accessLogger.queue = [
                 { doc: { timestamp: new Date() }, requestInfo: { requestId: 'r1' } }
             ];
-            await expect(accessLogger.flushAsync()).rejects.toThrow();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle undefined mergeResults gracefully without crashing
+            await expect(accessLogger.flushAsync()).resolves.not.toThrow();
         });
 
         // BUG TEST: When clickhouse only mode, queue entries have no requestInfo

@@ -154,24 +154,22 @@ describe('FixConsentRunner', () => {
             expect(result[0].coding[0].code).toBe('data-sharing');
         });
 
-        // BUG TEST: questionnaireItem.code is null/undefined
-        test('crashes when questionnaireItem.code is null', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle questionnaireItem.code being null', async () => {
             const category = [];
             const questionnaireItem = { code: null };
-            // questionnaireItem.code.forEach will throw TypeError
-            await expect(async () => {
-                await runner.lookupCategoryCoding({ resource: {}, category, questionnaireItem });
-            }).rejects.toThrow(TypeError);
+            // Should skip gracefully instead of crashing
+            const result = await runner.lookupCategoryCoding({ resource: {}, category, questionnaireItem });
+            expect(result).toEqual([]);
         });
 
-        // BUG TEST: questionnaireItem.code is undefined
-        test('crashes when questionnaireItem.code is undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle questionnaireItem.code being undefined', async () => {
             const category = [];
             const questionnaireItem = {};
-            // questionnaireItem.code.forEach will throw TypeError
-            await expect(async () => {
-                await runner.lookupCategoryCoding({ resource: {}, category, questionnaireItem });
-            }).rejects.toThrow(TypeError);
+            // Should skip gracefully instead of crashing
+            const result = await runner.lookupCategoryCoding({ resource: {}, category, questionnaireItem });
+            expect(result).toEqual([]);
         });
     });
 
@@ -202,13 +200,13 @@ describe('FixConsentRunner', () => {
             expect(result[0].display).toBe('Vital Signs');
         });
 
-        // BUG TEST: questionnaireItem.code is null/undefined
-        test('crashes when questionnaireItem.code is null', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle questionnaireItem.code being null', async () => {
             const provisionClass = [];
             const questionnaireItem = { code: null };
-            await expect(async () => {
-                await runner.lookupProvisionClass({ resource: {}, provisionClass, questionnaireItem });
-            }).rejects.toThrow(TypeError);
+            // Should skip gracefully instead of crashing
+            const result = await runner.lookupProvisionClass({ resource: {}, provisionClass, questionnaireItem });
+            expect(result).toEqual([]);
         });
     });
 
@@ -238,22 +236,21 @@ describe('FixConsentRunner', () => {
             expect(result).toBe(resource);
         });
 
-        // BUG TEST: categoryItem.coding is null/undefined
-        test('crashes when category item has null coding', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle category item with null coding', async () => {
             const resource = {
                 category: [{ coding: null }],
                 toJSONInternal: () => ({}),
                 clone: () => ({})
             };
-            // category.forEach -> categoryItem.coding.forEach will throw TypeError
-            await expect(async () => {
-                await runner.addCategoryCodingToConsent({
-                    base_version: '4_0_0',
-                    requestInfo: {},
-                    resource,
-                    questionnaireItem: { code: [{ id: 'code-category', code: 'test', display: 'Test' }] }
-                });
-            }).rejects.toThrow(TypeError);
+            // Should skip the null coding gracefully instead of crashing
+            const result = await runner.addCategoryCodingToConsent({
+                base_version: '4_0_0',
+                requestInfo: {},
+                resource,
+                questionnaireItem: { code: [{ id: 'code-category', code: 'test', display: 'Test' }] }
+            });
+            expect(result).toBeDefined();
         });
     });
 

@@ -348,15 +348,14 @@ describe('HistoryOperation', () => {
                 resourceType: 'Patient'
             });
 
-            // The bug: path contains "undefined" because resource._uuid is missing
-            // Verify downloadInBatchAsync was called with a path containing "undefined"
-            expect(mockHistoryResourceCloudStorageClient.downloadInBatchAsync).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    filePaths: expect.arrayContaining([
-                        expect.stringContaining('undefined')
-                    ])
-                })
-            );
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should NOT produce a path containing "undefined" - should either error or use a valid path
+            if (mockHistoryResourceCloudStorageClient.downloadInBatchAsync.mock.calls.length > 0) {
+                const callArgs = mockHistoryResourceCloudStorageClient.downloadInBatchAsync.mock.calls[0][0];
+                for (const filePath of callArgs.filePaths) {
+                    expect(filePath).not.toContain('undefined');
+                }
+            }
         });
     });
 

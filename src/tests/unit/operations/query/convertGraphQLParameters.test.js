@@ -391,10 +391,9 @@ describe('convertGraphQLParameters', () => {
             };
             const result = convertGraphQLParameters(input);
             expect(result.notQueryParameterValue).toBe('bad-name');
-            // BUG: missing modifier is NOT added because queryParameterValue was reassigned to []
-            expect(result.newModifiers).not.toContain('missing');
-            // orQueryParameterValue is null, so if not for the reassignment, missing WOULD fire
-            expect(result.orQueryParameterValue).toBeNull();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // missing modifier should NOT be dropped when notEquals is also present
+            expect(result.newModifiers).toContain('missing');
         });
 
         test('BUG: reference notEquals + missing - missing is silently ignored', () => {
@@ -405,8 +404,9 @@ describe('convertGraphQLParameters', () => {
             };
             const result = convertGraphQLParameters(input);
             expect(result.notQueryParameterValue).toBe('Patient/123');
-            // BUG: missing is ignored because queryParameterValue was reassigned to []
-            expect(result.newModifiers).not.toContain('missing');
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // missing modifier should NOT be dropped when notEquals is also present
+            expect(result.newModifiers).toContain('missing');
         });
 
         test('BUG: quantity notEquals + missing - missing is silently ignored', () => {
@@ -417,8 +417,9 @@ describe('convertGraphQLParameters', () => {
             };
             const result = convertGraphQLParameters(input);
             expect(result.notQueryParameterValue).toBe('100|http://sys|kg');
-            // BUG: missing is ignored because queryParameterValue was reassigned to []
-            expect(result.newModifiers).not.toContain('missing');
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // missing modifier should NOT be dropped when notEquals is also present
+            expect(result.newModifiers).toContain('missing');
         });
     });
 });

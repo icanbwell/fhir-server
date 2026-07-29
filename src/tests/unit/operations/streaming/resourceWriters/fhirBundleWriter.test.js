@@ -154,15 +154,16 @@ describe('FhirBundleWriter', () => {
             });
         });
 
-        test('BUG: null chunk causes TypeError because chunk.id accessed before null check (line 93 vs 95)', () => {
+        test('BUG: null chunk causes TypeError because chunk.id accessed before null check (line 93 vs 95)', (done) => {
             writer.push = jest.fn();
 
-            // The code at line 93 does `const chunkId = chunk.id` BEFORE the null check at line 95
-            // `if (chunk !== null && chunk !== undefined)`. This means a null chunk crashes
-            // the stream with an unhandled TypeError instead of being gracefully skipped.
-            expect(() => {
-                writer._transform(null, 'utf8', () => {});
-            }).toThrow(TypeError);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // A null chunk should be gracefully skipped without throwing
+            writer._transform(null, 'utf8', (err) => {
+                expect(err).toBeUndefined();
+                expect(writer.push).not.toHaveBeenCalled();
+                done();
+            });
         });
     });
 

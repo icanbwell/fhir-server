@@ -49,15 +49,15 @@ describe('GroupMemberEventBuilder - Bug Hunting', () => {
                 { entity: null } // entity is null
             ];
 
-            expect(() => {
-                GroupMemberEventBuilder.buildEvents({
-                    groupId: 'group-1',
-                    members,
-                    eventType: EVENT_TYPES.MEMBER_ADDED,
-                    groupResource: makeGroupResource()
-                });
-            }).toThrow(TypeError);
-            // This proves the bug: no null check on member.entity in buildEvents
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should gracefully skip members with null entity instead of crashing
+            const result = GroupMemberEventBuilder.buildEvents({
+                groupId: 'group-1',
+                members,
+                eventType: EVENT_TYPES.MEMBER_ADDED,
+                groupResource: makeGroupResource()
+            });
+            expect(result).toEqual([]);
         });
 
         test('BUG: crashes with TypeError when member.entity is undefined', () => {
@@ -65,14 +65,15 @@ describe('GroupMemberEventBuilder - Bug Hunting', () => {
                 {} // entity is undefined
             ];
 
-            expect(() => {
-                GroupMemberEventBuilder.buildEvents({
-                    groupId: 'group-1',
-                    members,
-                    eventType: EVENT_TYPES.MEMBER_ADDED,
-                    groupResource: makeGroupResource()
-                });
-            }).toThrow(TypeError);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should gracefully skip members with undefined entity
+            const result = GroupMemberEventBuilder.buildEvents({
+                groupId: 'group-1',
+                members,
+                eventType: EVENT_TYPES.MEMBER_ADDED,
+                groupResource: makeGroupResource()
+            });
+            expect(result).toEqual([]);
         });
 
         test('BUG: crashes when member itself has no entity property', () => {
@@ -80,14 +81,15 @@ describe('GroupMemberEventBuilder - Bug Hunting', () => {
                 { period: { start: '2024-01-01' } } // No entity property at all
             ];
 
-            expect(() => {
-                GroupMemberEventBuilder.buildEvents({
-                    groupId: 'group-1',
-                    members,
-                    eventType: EVENT_TYPES.MEMBER_ADDED,
-                    groupResource: makeGroupResource()
-                });
-            }).toThrow(TypeError);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should gracefully skip members without entity property
+            const result = GroupMemberEventBuilder.buildEvents({
+                groupId: 'group-1',
+                members,
+                eventType: EVENT_TYPES.MEMBER_ADDED,
+                groupResource: makeGroupResource()
+            });
+            expect(result).toEqual([]);
         });
     });
 

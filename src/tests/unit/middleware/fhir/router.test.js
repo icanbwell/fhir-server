@@ -254,10 +254,12 @@ describe('FhirRouter', () => {
             const res = {};
             const next = jest.fn();
 
-            // The unguarded access to `controller[interaction]` crashes
-            await expect(async () => {
-                await middleware(req, res, next);
-            }).rejects.toThrow(TypeError);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should call next with a proper error (e.g., NotFoundError) instead of crashing with TypeError
+            await middleware(req, res, next);
+            expect(next).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.any(String)
+            }));
         });
     });
 

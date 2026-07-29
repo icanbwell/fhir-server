@@ -183,7 +183,7 @@ describe('ChangeSourceAssigningAuthorityRunner', () => {
     });
 
     describe('getQueryFromParameters - startFromId bug', () => {
-        test('BUG: startFromId with existing query loses the date filter due to Object.keys comparison bug', () => {
+        test('startFromId with existing query should preserve date filters alongside _id filter', () => {
             // Setup runner with both afterLastUpdatedDate and startFromId
             const runnerWithStartFromId = new ChangeSourceAssigningAuthorityRunner({
                 oldSourceAssigningAuthority: 'oldAuth',
@@ -213,17 +213,16 @@ describe('ChangeSourceAssigningAuthorityRunner', () => {
 
             const query = runnerWithStartFromId.getQueryFromParameters({ queryPrefix: '' });
 
-            // BUG: Object.keys(query) > 0 compares an array to a number.
-            // Array coerces to string for comparison (e.g., "$and" > 0 is NaN > 0 = false).
-            // So the existing query (date filter) is OVERWRITTEN by just the _id filter.
-            // Expected (correct behavior): should be $and with both date filter AND _id filter.
-            // Actual (bug): only returns { _id: { $gte: 'someStartId' } }
-            expect(query).toEqual({
-                _id: { $gte: 'someStartId' }
-            });
-
-            // This shows the bug: the date filter is lost
-            expect(query.$and).toBeUndefined();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Object.keys(query) > 0 always evaluates to false because it compares
+            // an array to a number. The fix should use Object.keys(query).length > 0.
+            // Correct behavior: both date filter AND _id filter are preserved via $and.
+            expect(query.$and).toBeDefined();
+            expect(query.$and).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ _id: { $gte: 'someStartId' } })
+                ])
+            );
         });
     });
 

@@ -213,10 +213,9 @@ describe('GenericController', () => {
             expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
-        test('BUG: cache leaks if postRequestProcessor.executeAsync throws', async () => {
-            // This test demonstrates a bug: if postRequestProcessor.executeAsync throws,
-            // requestSpecificCache.clearAsync is never called because there is no
-            // nested try/catch inside the finally block.
+        test('BUG #13: cache must be cleared even if postRequestProcessor.executeAsync throws', async () => {
+            // If postRequestProcessor.executeAsync throws, requestSpecificCache.clearAsync
+            // should still be called to prevent memory leaks.
             const postProcessorError = new Error('post processor failed');
             mockPostRequestProcessor.executeAsync = jest.fn().mockRejectedValue(postProcessorError);
 
@@ -225,13 +224,15 @@ describe('GenericController', () => {
 
             const handler = controller.search({}, 'Patient');
 
-            // The handler will throw because finally block doesn't catch postRequestProcessor errors
-            await expect(async () => {
+            // Even if the handler throws, cache should still be cleared
+            try {
                 await handler(mockReq, mockRes, mockNext);
-            }).rejects.toThrow('post processor failed');
+            } catch (e) {
+                // May or may not throw depending on implementation
+            }
 
-            // BUG: Cache is NOT cleared because clearAsync is never reached
-            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(true);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
         test('BUG: when httpContext returns undefined requestId, postRequestProcessor.executeAsync is called with undefined requestId', async () => {
@@ -344,7 +345,7 @@ describe('GenericController', () => {
             expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
-        test('BUG: cache leaks if postRequestProcessor.executeAsync throws during merge', async () => {
+        test('BUG #13: cache must be cleared even if postRequestProcessor.executeAsync throws during merge', async () => {
             const postProcessorError = new Error('post processor failed in merge');
             mockPostRequestProcessor.executeAsync = jest.fn().mockRejectedValue(postProcessorError);
 
@@ -352,12 +353,14 @@ describe('GenericController', () => {
 
             const handler = controller.merge({}, 'Patient');
 
-            await expect(async () => {
+            try {
                 await handler(mockReq, mockRes, mockNext);
-            }).rejects.toThrow('post processor failed in merge');
+            } catch (e) {
+                // May or may not throw depending on implementation
+            }
 
-            // BUG: Cache is NOT cleared
-            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(true);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
     });
 
@@ -526,7 +529,7 @@ describe('GenericController', () => {
             expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
 
-        test('BUG: cache leaks if postRequestProcessor.executeAsync throws during historyById', async () => {
+        test('BUG #13: cache must be cleared even if postRequestProcessor.executeAsync throws during historyById', async () => {
             const postProcessorError = new Error('post processor error');
             mockPostRequestProcessor.executeAsync = jest.fn().mockRejectedValue(postProcessorError);
 
@@ -534,12 +537,14 @@ describe('GenericController', () => {
 
             const handler = controller.historyById({}, 'Patient');
 
-            await expect(async () => {
+            try {
                 await handler(mockReq, mockRes, mockNext);
-            }).rejects.toThrow('post processor error');
+            } catch (e) {
+                // May or may not throw depending on implementation
+            }
 
-            // BUG: Cache is NOT cleared
-            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(true);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            expect(requestSpecificCache.mapCache.has(TEST_REQUEST_ID)).toBe(false);
         });
     });
 

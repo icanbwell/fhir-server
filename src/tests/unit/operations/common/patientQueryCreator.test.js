@@ -157,26 +157,16 @@ describe('PatientQueryCreator', () => {
                 personIds: null
             });
 
-            // BUG: The patientsUuidQuery will be { $or: [] } which is invalid for MongoDB
-            // This happens because patientFilterProperty = [] passes the truthy check
-            // (line 81: if (Array.isArray(patientFilterProperty)))
-            // but the .map() produces an empty $or array
-            // The query with $or: [] will cause a MongoDB error at query time
-            if (result.$and) {
-                const orClauses = result.$and.filter(clause => clause.$or);
-                for (const orClause of orClauses) {
-                    if (orClause.$or) {
-                        // This assertion shows the bug: $or has an empty array
-                        expect(orClause.$or.length).toBeGreaterThan(0);
-                    }
-                }
-            }
-            // The fact that patientsUuidQuery = { $or: [] } is pushed to queries
-            // means it gets used in the final query. Let's verify the shape:
-            // patientsUuidQuery = { $or: [] } -> truthy so queries.push(patientsUuidQuery)
-            // queries.length > 0 so we don't get __invalid__
-            // patientAndPersonQuery = { $or: [{ $or: [] }] } -- nested empty $or!
-            expect(result).not.toEqual({ _uuid: '__invalid__' });
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // When patientFilterProperty is an empty array, should NOT produce {$or: []}
+            // Should either return __invalid__ or skip the empty $or clause
+            const hasEmptyOr = (obj) => {
+                if (!obj) return false;
+                if (obj.$or && obj.$or.length === 0) return true;
+                if (obj.$and) return obj.$and.some(hasEmptyOr);
+                return false;
+            };
+            expect(hasEmptyOr(result)).toBe(false);
         });
 
         it('should apply RESOURCE_RESTRICTION_TAG filter via applyCommonPatientFilters', () => {

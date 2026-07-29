@@ -137,8 +137,8 @@ describe('AuditLogger', () => {
             expect(agents[0].policy).toBeUndefined();
         });
 
-        // BUG TEST: delegatedUser path with null actor
-        test('BUG: delegatedUser with null actor causes crash', () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle delegatedUser with null actor', () => {
             const requestInfo = {
                 isUser: true,
                 user: 'patient-1',
@@ -147,9 +147,11 @@ describe('AuditLogger', () => {
                 remoteIpAddress: '192.168.1.1',
                 actor: null
             };
-            // Line 77: `const consentPolicy = requestInfo.actor.consentPolicy;`
-            // No optional chaining here! Accessing .consentPolicy on null throws.
-            expect(() => auditLogger.buildAgents(requestInfo)).toThrow();
+            // Should handle null actor gracefully without crashing
+            const agents = auditLogger.buildAgents(requestInfo);
+            expect(agents).toHaveLength(2);
+            expect(agents[0].requestor).toBe(false);
+            expect(agents[1].requestor).toBe(true);
         });
     });
 

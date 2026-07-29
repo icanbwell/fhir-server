@@ -434,8 +434,9 @@ describe('MyFHIRServer', () => {
 
                 errorHandler(err, req, res, next);
 
-                // String(null) = 'null' -- this could be unexpected for clients
-                expect(res.setHeader).toHaveBeenCalledWith('X-Request-ID', 'null');
+                // EXPECTED: correct behavior (will fail until bug is fixed)
+                // Should NOT set header to literal string "null" - should either skip or use fallback
+                expect(res.setHeader).not.toHaveBeenCalledWith('X-Request-ID', 'null');
             });
         });
 

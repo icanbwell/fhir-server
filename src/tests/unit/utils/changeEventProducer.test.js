@@ -214,11 +214,11 @@ describe('ChangeEventProducer', () => {
             expect(map.size).toBe(0);
         });
 
-        test('BUG: RethrownError receives e.stack (string) instead of Error object', async () => {
-            // When afterSaveAsync throws, it wraps with RethrownError({error: e.stack})
-            // e.stack is a string, not an Error. RethrownError expects an Error object.
-            // This causes RethrownError.buildStackDescriptor to call nested.stack on a string,
-            // resulting in undefined, and produces malformed error output.
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('RethrownError should receive Error object, not e.stack string', async () => {
+            // When afterSaveAsync throws, it should wrap with RethrownError({error: e})
+            // not RethrownError({error: e.stack}). The Error object preserves the full
+            // error context including stack, message, and any custom properties.
 
             // Force an error by making doc.extension.some throw
             const doc = {
@@ -238,17 +238,10 @@ describe('ChangeEventProducer', () => {
                 // Should not reach here
                 expect(true).toBe(false);
             } catch (e) {
-                // The RethrownError is constructed with error: e.stack (a string)
-                // This is the bug - the nested error loses its Error type
-                // RethrownError constructor line 38: typeof error.statusCode
-                // When error is a string, error.statusCode is undefined
-                // Line 116: nested.stack is undefined for a string
                 expect(e.constructor.name).toBe('RethrownError');
-                // The original_error should be the Error object, but due to the bug
-                // it's the stack trace string
-                expect(typeof e.original_error).toBe('string');
-                // This proves the bug: original_error should be an Error instance
-                expect(e.original_error instanceof Error).toBe(false);
+                // The original_error should be an Error instance, not a string
+                expect(e.originalError instanceof Error).toBe(true);
+                expect(typeof e.originalError).toBe('object');
             }
         });
 

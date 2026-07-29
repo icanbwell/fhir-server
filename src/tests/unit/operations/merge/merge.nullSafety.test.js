@@ -272,18 +272,14 @@ describe('MergeOperation - Null Safety', () => {
             // headers is null - this will throw when accessing headers.prefer
             const requestInfo = makeRequestInfo({ headers: null });
 
-            // Line 291: if (headers.prefer && headers.prefer === 'return=OperationOutcome')
-            // If headers is null, this throws TypeError: Cannot read properties of null (reading 'prefer')
-            await expect(
-                mergeOperation.mergeAsync({
-                    requestInfo,
-                    parsedArgs,
-                    resourceType: 'Patient'
-                })
-            ).rejects.toThrow();
-
-            // This demonstrates a real bug: headers could be null/undefined
-            // and the code at line 291 doesn't guard against it
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle null headers gracefully without throwing
+            const result = await mergeOperation.mergeAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'Patient'
+            });
+            expect(result).toBeDefined();
         });
     });
 
@@ -301,15 +297,16 @@ describe('MergeOperation - Null Safety', () => {
 
             const requestInfo = makeRequestInfo({ headers: {} });
 
-            // Line 370: return wasIncomingAList ? mergeResults : mergeResults[0];
-            // When mergeResults is empty and wasIncomingAList is false, returns undefined
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // When mergeResults is empty and wasIncomingAList is false, should return
+            // a defined value (e.g., null or empty object) rather than undefined
             const result = await mergeOperation.mergeAsync({
                 requestInfo,
                 parsedArgs,
                 resourceType: 'Patient'
             });
 
-            expect(result).toBeUndefined();
+            expect(result).toBeDefined();
         });
     });
 

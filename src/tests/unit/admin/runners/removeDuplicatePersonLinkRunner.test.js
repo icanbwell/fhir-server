@@ -121,22 +121,22 @@ describe('RemoveDuplicatePersonLinkRunner', () => {
             expect(result.link).toHaveLength(2);
         });
 
-        test('BUG: crashes when resource.link is null', async () => {
-            // Line 89: resource.link.reduce(...) - TypeError: Cannot read properties of null
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle resource.link being null', async () => {
             const resource = { link: null };
 
-            await expect(async () => {
-                await runner.removeDuplicateLinks(resource);
-            }).rejects.toThrow(TypeError);
+            // Should handle null link gracefully, returning resource with empty link array
+            const result = await runner.removeDuplicateLinks(resource);
+            expect(result.link).toEqual([]);
         });
 
-        test('BUG: crashes when resource.link is undefined', async () => {
-            // Line 89: resource.link.reduce(...) - TypeError: Cannot read properties of undefined
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle resource.link being undefined', async () => {
             const resource = {};
 
-            await expect(async () => {
-                await runner.removeDuplicateLinks(resource);
-            }).rejects.toThrow(TypeError);
+            // Should handle undefined link gracefully, returning resource with empty link array
+            const result = await runner.removeDuplicateLinks(resource);
+            expect(result.link).toEqual([]);
         });
 
         test('handles empty link array', async () => {
@@ -165,20 +165,20 @@ describe('RemoveDuplicatePersonLinkRunner', () => {
             expect(result.link).toHaveLength(2);
         });
 
-        test('BUG: treats multiple links with null/undefined target._uuid as duplicates', async () => {
-            // When multiple links have no target._uuid, the first undefined gets added to Set,
-            // and subsequent ones are incorrectly treated as duplicates
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should not treat links with undefined _uuid as duplicates', async () => {
+            // When multiple links have no target._uuid, they should be treated as distinct
+            // since they have different references
             const resource = {
                 link: [
                     { target: { reference: 'Person/p1' } },  // _uuid is undefined
-                    { target: { reference: 'Person/p2' } }   // _uuid is undefined - treated as duplicate!
+                    { target: { reference: 'Person/p2' } }   // _uuid is undefined - should NOT be treated as duplicate
                 ]
             };
 
             const result = await runner.removeDuplicateLinks(resource);
-            // BUG: Only one link remains because both have undefined _uuid
-            // which are treated as the same value in the Set
-            expect(result.link).toHaveLength(1);
+            // Both links should remain since they refer to different resources
+            expect(result.link).toHaveLength(2);
         });
     });
 
@@ -229,22 +229,22 @@ describe('RemoveDuplicatePersonLinkRunner', () => {
             expect(result[0].replaceOne.filter).toEqual({ _id: 'doc-1' });
         });
 
-        test('BUG: crashes when doc has no link property (resource.link is undefined)', async () => {
-            // processRecordAsync calls removeDuplicateLinks which accesses resource.link.reduce
-            // If the doc has no link property, this crashes
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle doc with no link property', async () => {
+            // processRecordAsync should handle missing link property gracefully
             const doc = {
                 _id: 'doc-1',
                 resourceType: 'Person',
                 meta: { lastUpdated: '2024-01-01' }
             };
 
-            await expect(async () => {
-                await runner.processRecordAsync({
-                    base_version: '4_0_0',
-                    requestInfo: {},
-                    doc
-                });
-            }).rejects.toThrow(TypeError);
+            const result = await runner.processRecordAsync({
+                base_version: '4_0_0',
+                requestInfo: {},
+                doc
+            });
+            // Should return empty operations since there are no links to deduplicate
+            expect(result).toEqual([]);
         });
     });
 

@@ -191,24 +191,24 @@ describe('PatientPersonDataChangeEventProducer', () => {
     describe('_cleanHeaders', () => {
         test('should remove undefined headers', () => {
             const result = producer._cleanHeaders({
-                'ce_type': 'PatientDataChangeEvent',
-                'ce_source': 'https://www.icanbwell.com/fhir-server',
-                'undefinedHeader': undefined
+                ce_type: 'PatientDataChangeEvent',
+                ce_source: 'https://www.icanbwell.com/fhir-server',
+                undefinedHeader: undefined
             });
             expect(result).toEqual({
-                'ce_type': 'PatientDataChangeEvent',
-                'ce_source': 'https://www.icanbwell.com/fhir-server'
+                ce_type: 'PatientDataChangeEvent',
+                ce_source: 'https://www.icanbwell.com/fhir-server'
             });
         });
 
         test('should keep null and empty string headers', () => {
             const result = producer._cleanHeaders({
-                'nullHeader': null,
-                'emptyHeader': ''
+                nullHeader: null,
+                emptyHeader: ''
             });
             expect(result).toEqual({
-                'nullHeader': null,
-                'emptyHeader': ''
+                nullHeader: null,
+                emptyHeader: ''
             });
         });
 
@@ -485,23 +485,23 @@ describe('PatientPersonDataChangeEventProducer', () => {
             expect(logError).toHaveBeenCalled();
         });
 
-        test('should clear maps even when error occurs - DATA LOSS BUG', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should NOT clear maps when error occurs - data should be preserved for retry', async () => {
             producer.patientDataChangeMap.set('patient-1', ['Observation']);
             mockKafkaClient.sendCloudEventMessageAsync.mockRejectedValue(new Error('Kafka error'));
 
             await producer.flushAsync();
 
-            // BUG DETECTION: Maps are cleared BEFORE processing (line 355), so data is lost on error.
-            // The patientDataChangeMap was cleared before the Kafka send failed at line 362.
-            // The catch block (line 384) only logs but doesn't restore the data.
-            // This means if Kafka is temporarily unavailable, ALL patient/person change events
-            // accumulated in the buffer are permanently lost with no retry mechanism.
-            expect(producer.patientDataChangeMap.size).toBe(0);
-            // The event for 'patient-1' was never successfully sent but is now gone
+            // Maps should NOT be cleared when sending fails - data should be preserved for retry.
+            // Currently maps are cleared BEFORE processing, so data is lost on error.
+            // The correct behavior is to clear maps AFTER successful processing.
+            expect(producer.patientDataChangeMap.size).toBe(1);
+            expect(producer.patientDataChangeMap.get('patient-1')).toEqual(['Observation']);
             expect(mockKafkaClient.sendCloudEventMessageAsync).toHaveBeenCalled();
         });
 
-        test('DATA LOSS: person events lost when patient events succeed but person population fails', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should preserve person events when patient events succeed but person population fails', async () => {
             // Scenario: Patient events are sent successfully, but DB query for person lookup fails
             producer.patientDataChangeMap.set('patient-1', ['Observation']);
             producer.personDataChangeMap.set('person-1', ['Patient']);
@@ -518,9 +518,11 @@ describe('PatientPersonDataChangeEventProducer', () => {
 
             await producer.flushAsync();
 
-            // Both maps are already cleared - person events are lost
+            // Patient map can be cleared (events sent successfully), but person map
+            // should be preserved since the person events were never sent
             expect(producer.patientDataChangeMap.size).toBe(0);
-            expect(producer.personDataChangeMap.size).toBe(0);
+            expect(producer.personDataChangeMap.size).toBe(1);
+            expect(producer.personDataChangeMap.get('person-1')).toEqual(['Patient']);
             expect(logError).toHaveBeenCalled();
         });
     });

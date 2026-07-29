@@ -370,13 +370,9 @@ describe('SearchBundleOperation', () => {
                 useAggregationPipeline: false
             });
 
-            // BUG CONFIRMED: When cursor is undefined, the code still calls readResourcesFromCursorAsync
-            // with {cursor: undefined}, which in production would crash
-            expect(mockSearchManager.readResourcesFromCursorAsync).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    cursor: undefined
-                })
-            );
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // When cursor is undefined, it should be treated the same as null (not call readResourcesFromCursorAsync)
+            expect(mockSearchManager.readResourcesFromCursorAsync).not.toHaveBeenCalled();
         });
     });
 });

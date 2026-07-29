@@ -219,22 +219,20 @@ describe('EverythingOperation - bug hunting', () => {
     });
 
     describe('Person/Patient GET with _type filter on null graph - null dereference bug', () => {
-        test('throws TypeError when _type filter is applied to Person GET (null resource graph)', async () => {
+        test('BUG #12: _type filter on Person GET with null resource should not throw TypeError', async () => {
             const requestInfo = buildRequestInfo({ method: 'GET' });
             // _type filter causes filterGraphResources(deepcopy(null), ...) which crashes
             const parsedArgs = buildParsedArgs({ _type: 'Observation' });
 
-            // BUG: parsedArgs.resource is set to null for Person/GET (line 272),
-            // then at line 289: filterGraphResources(deepcopy(parsedArgs.resource), ...)
-            // deepcopy(null) returns null, then filterGraphResources(null, ...) tries to
-            // access null.link which throws TypeError: Cannot read properties of null
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle null resource gracefully (return empty results or proper error)
             await expect(
                 operation.everythingBundleAsync({
                     requestInfo,
                     parsedArgs,
                     resourceType: 'Person'
                 })
-            ).rejects.toThrow(TypeError);
+            ).resolves.not.toThrow();
         });
     });
 

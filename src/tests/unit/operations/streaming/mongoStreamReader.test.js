@@ -155,10 +155,7 @@ describe('MongoReadableStream', () => {
             expect(collected).toHaveLength(0);
         });
 
-        test('BUG: cursor.next() returns null - TypeError caught internally, stream never terminated', async () => {
-            // When cursor.next() returns null (possible in edge cases with concurrent modification),
-            // accessing resource._uuid throws TypeError internally. The catch block handles it
-            // by pushing an OperationOutcome but never pushes null to terminate the stream.
+        test('BUG #33: cursor.next() returns null - stream must be terminated with push(null)', async () => {
             mockCursor.hasNext.mockResolvedValueOnce(true);
             mockCursor.next.mockResolvedValueOnce(null);
 
@@ -174,9 +171,9 @@ describe('MongoReadableStream', () => {
             // The TypeError from null._uuid is caught and an OperationOutcome is pushed
             expect(captureException).toHaveBeenCalled();
             expect(mockResponse.statusCode).toBe(500);
-            // BUG: No push(null) to terminate the stream - consumer hangs
+            // EXPECTED: correct behavior (will fail until bug is fixed)
             const hasNull = collected.some(c => c === null);
-            expect(hasNull).toBe(false); // Confirms bug: stream not terminated
+            expect(hasNull).toBe(true);
         });
 
         test('should retry on MongoDB timeout error (code 50)', async () => {
@@ -207,10 +204,7 @@ describe('MongoReadableStream', () => {
             expect(collected).toContainEqual(null);
         });
 
-        test('BUG: retry on timeout without lastUUID falls through to error handler', async () => {
-            // When lastUUID is null and error code is 50, the retry condition fails
-            // and falls through to the generic error handler which pushes OperationOutcome
-            // but never pushes null to end stream - potential stream hang
+        test('BUG #33: retry on timeout without lastUUID - stream must be terminated with push(null)', async () => {
             const timeoutError = new Error('cursor timeout');
             timeoutError.code = 50;
 
@@ -226,16 +220,15 @@ describe('MongoReadableStream', () => {
 
             await stream.readCursorAsync({ size: 10 });
 
-            // Error is handled - operationOutcome pushed, but no null pushed to end stream
+            // Error is handled - operationOutcome pushed
             expect(captureException).toHaveBeenCalled();
             expect(convertErrorToOperationOutcome).toHaveBeenCalled();
-            // BUG: stream never gets push(null) after the error outcome, so consumer
-            // never knows stream ended. The stream may hang waiting for more data.
+            // EXPECTED: correct behavior (will fail until bug is fixed)
             const hasNull = collected.some(c => c === null);
-            expect(hasNull).toBe(false); // Confirms the bug: no null terminator
+            expect(hasNull).toBe(true);
         });
 
-        test('BUG: second timeout during retry is unhandled (hasRetried=true path)', async () => {
+        test('BUG #33: second timeout during retry - stream must be terminated with push(null)', async () => {
             // First call: timeout with lastUUID set triggers retry
             const timeoutError = new Error('cursor timeout');
             timeoutError.code = 50;
@@ -264,9 +257,9 @@ describe('MongoReadableStream', () => {
             // which sets response.statusCode = 500 and pushes OperationOutcome
             expect(mockResponse.statusCode).toBe(500);
             expect(collected.length).toBeGreaterThan(0);
-            // BUG: Again, no push(null) after OperationOutcome
+            // EXPECTED: correct behavior (will fail until bug is fixed)
             const hasNull = collected.some(c => c === null);
-            expect(hasNull).toBe(false);
+            expect(hasNull).toBe(true);
         });
 
         test('should apply databaseAttachmentManager transform when available', async () => {
@@ -416,15 +409,7 @@ describe('MongoReadableStream', () => {
             // Let's test a case where the error happens before entering readCursorAsync
         });
 
-        test('BUG: isFetchingData never reset if readAsync throws', async () => {
-            // If readAsync throws, the catch block emits error and pushes null, then returns
-            // BUT isFetchingData is set to false AFTER the try-catch block (line 104)
-            // Wait - looking at the code again:
-            // Line 96: try { await this.readAsync(size); } catch { ... return; }
-            // Line 104: this.isFetchingData = false;
-            // The return in the catch block means isFetchingData is NEVER reset to false
-            // This causes the stream to be permanently stuck
-
+        test('BUG #32: isFetchingData must be reset after readAsync throws', async () => {
             const stream = createStream();
             stream.push = jest.fn(() => true);
 
@@ -436,8 +421,8 @@ describe('MongoReadableStream', () => {
 
             await stream._read(16);
 
-            // After the error, isFetchingData should be reset but the bug prevents it
-            expect(stream.isFetchingData).toBe(true); // BUG: stuck at true due to early return
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            expect(stream.isFetchingData).toBe(false);
         });
     });
 });

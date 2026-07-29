@@ -85,36 +85,38 @@ describe('BulkDataExportRunner - null safety bugs', () => {
     // ========== BUG: addPatientFiltersToQuery crashes when both getPatientPropertyForResource
     // and getPatientPropertyForPersonScopedResource return null (line 539) ==========
     describe('addPatientFiltersToQuery - null patientField crash', () => {
-        test('crashes with TypeError when patientField is null for non-Patient, non-Subscription resource', () => {
+        test('handles null patientField gracefully for non-Patient, non-Subscription resource', () => {
             // Both methods return null (set in beforeEach)
             // This triggers line 539: patientField.replace('.reference', '._uuid')
             // which will throw TypeError: Cannot read properties of null (reading 'replace')
+            // EXPECTED: correct behavior (will fail until bug is fixed)
             expect(() => {
                 runner.addPatientFiltersToQuery({
                     patientReferences: ['Patient/uuid-123'],
                     query: {},
                     resourceType: 'Observation'
                 });
-            }).toThrow(TypeError);
+            }).not.toThrow();
         });
 
-        test('crashes when getPatientPropertyForResource returns null and fallback also returns null', () => {
+        test('handles gracefully when getPatientPropertyForResource returns null and fallback also returns null', () => {
             mocks.patientFilterManager.getPatientPropertyForResource.mockReturnValue(null);
             mocks.patientFilterManager.getPatientPropertyForPersonScopedResource.mockReturnValue(null);
 
+            // EXPECTED: correct behavior (will fail until bug is fixed)
             expect(() => {
                 runner.addPatientFiltersToQuery({
                     patientReferences: ['Patient/some-id'],
                     query: { status: 'active' },
                     resourceType: 'Condition'
                 });
-            }).toThrow(TypeError);
+            }).not.toThrow();
         });
     });
 
     // ========== BUG: processResourceAsync crashes with Infinity batch size when avgObjSize is 0 (line 831) ==========
     describe('processResourceAsync - division by zero on avgObjSize', () => {
-        test('crashes with RangeError when stats.avgObjSize is 0', async () => {
+        test('handles gracefully when stats.avgObjSize is 0', async () => {
             runner.exportStatusResource = { output: [], errors: [] };
             runner.baseS3Folder = 'exports/bwell/export-123';
 
@@ -144,16 +146,17 @@ describe('BulkDataExportRunner - null safety bugs', () => {
 
             // Math.floor(uploadPartSize / 0) = Infinity
             // new Array(Infinity) throws RangeError: Invalid array length
-            // The error is caught and rethrown as RethrownError
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle empty collection gracefully with a safe default batch size
             await expect(
                 runner.processResourceAsync({ resourceType: 'Patient', query: {} })
-            ).rejects.toThrow(/Invalid array length/);
+            ).resolves.not.toThrow();
         });
     });
 
     // ========== BUG: exportPatientDataAsync - Array.concat does not mutate (line 742) ==========
     describe('exportPatientDataAsync - concat does not mutate currentBatch', () => {
-        test('previousBuffer data is lost because concat return value is discarded', async () => {
+        test('previousBuffer data is preserved when concat return value is used', async () => {
             runner.exportStatusResource = { output: [], errors: [] };
             runner.baseS3Folder = 'exports/bwell/export-123';
 
@@ -208,24 +211,18 @@ describe('BulkDataExportRunner - null safety bugs', () => {
                 multipartContext
             });
 
-            // BUG ASSERTION: The concat on line 742 does NOT mutate currentBatch.
+            // The concat on line 742 should mutate or reassign currentBatch properly.
             // After the concat, currentBatchSize is incremented by previousBatchSize (line 743),
-            // making it 3 (1 new + 2 previous). But the actual currentBatch array still only
-            // has 1 element at index 0. When it later does currentBatch.slice(0, currentBatchSize).join('\n'),
-            // it will produce data with undefined entries from the pre-allocated array.
-            //
-            // If the combined size >= minUploadBatchSize, the uploaded data will have "undefined"
-            // in it. If < minUploadBatchSize, previousBuffer is set to currentBatch which
-            // doesn't contain the old data - it's LOST.
+            // making it 3 (1 new + 2 previous). The actual currentBatch array should
+            // contain all 3 elements (the new one + the 2 from previousBuffer).
 
             // Check that previousBuffer was set to currentBatch (since batch < minUploadBatchSize)
-            // The previousBuffer should contain the old data, but due to the bug it doesn't
+            // The previousBuffer should contain ALL the data including the old buffer items
             if (multipartContext.previousBuffer) {
                 // The buffer should contain 3 items (1 new + 2 from previous)
-                // but due to the .concat() bug, the previous items are lost
                 const definedItems = multipartContext.previousBuffer.filter(x => x !== undefined);
-                // BUG: Only 1 item is defined instead of expected 3
-                expect(definedItems.length).toBeLessThan(3);
+                // EXPECTED: correct behavior (will fail until bug is fixed)
+                expect(definedItems.length).toBe(3);
             }
         });
     });

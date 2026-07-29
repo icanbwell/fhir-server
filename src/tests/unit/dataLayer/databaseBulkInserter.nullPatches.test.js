@@ -117,7 +117,7 @@ describe('DatabaseBulkInserter - null patches bug (TIP-7771 equivalent)', () => 
          *
          * This is the SAME bug as TIP-7771 in fastDatabaseBulkInserter.js line 572.
          */
-        test('CRASHES when merging into a pending update that has patches: null', async () => {
+        test('should handle merging into a pending update that has patches: null gracefully', async () => {
             const requestInfo = createMockFhirRequestInfo();
             const doc1 = createMockResource({ id: 'obs1', _uuid: 'uo1', resourceType: 'Observation', versionId: '2' });
 
@@ -146,7 +146,8 @@ describe('DatabaseBulkInserter - null patches bug (TIP-7771 equivalent)', () => 
             // Second merge finds the pending update and tries to spread null patches
             const doc2 = createMockResource({ id: 'obs1', _uuid: 'uo1', resourceType: 'Observation', versionId: '3' });
 
-            // This should crash with "previousUpdate.patches is not iterable"
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle null patches gracefully (treat as empty array), not crash
             await expect(
                 inserter.mergeOneAsync({
                     base_version: '4_0_0',
@@ -156,10 +157,10 @@ describe('DatabaseBulkInserter - null patches bug (TIP-7771 equivalent)', () => 
                     doc: doc2,
                     patches: null
                 })
-            ).rejects.toThrow();
+            ).resolves.not.toThrow();
         });
 
-        test('CRASHES when first merge uses patches:null and second merge produces changes', async () => {
+        test('should handle first merge with patches:null and second merge producing changes gracefully', async () => {
             const requestInfo = createMockFhirRequestInfo();
 
             // Scenario: Resource inserted via insertOneAsync (which sets patches: null),
@@ -186,7 +187,8 @@ describe('DatabaseBulkInserter - null patches bug (TIP-7771 equivalent)', () => 
 
             const doc2 = createMockResource({ id: 'pat1', _uuid: 'up1', resourceType: 'Patient', versionId: '3' });
 
-            // This WILL throw TypeError because [...null, mergePatches] is invalid
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle null patches gracefully (treat as empty array), not throw TypeError
             await expect(
                 inserter.mergeOneAsync({
                     base_version: '4_0_0',
@@ -196,7 +198,7 @@ describe('DatabaseBulkInserter - null patches bug (TIP-7771 equivalent)', () => 
                     doc: doc2,
                     patches: null
                 })
-            ).rejects.toThrow();
+            ).resolves.not.toThrow();
         });
 
         test('works correctly when previousUpdate.patches is a non-null array', async () => {

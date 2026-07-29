@@ -197,16 +197,17 @@ describe('DatabaseAttachmentManager', () => {
 
             mockMongoDatabaseManager.getGridFsBucket.mockResolvedValue({});
 
-            await expect(
-                manager.changeAttachmentWithGridFS({
-                    resource,
-                    resourceId: '1',
-                    metadata: {},
-                    operation: 'INSERT',
-                    path: '',
-                    resourceType: 'Other'
-                })
-            ).rejects.toThrow(TypeError);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle inherited properties gracefully without crashing
+            const result = await manager.changeAttachmentWithGridFS({
+                resource,
+                resourceId: '1',
+                metadata: {},
+                operation: 'INSERT',
+                path: '',
+                resourceType: 'Other'
+            });
+            expect(result).toBeDefined();
         });
     });
 

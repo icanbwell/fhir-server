@@ -216,11 +216,12 @@ describe('DataSharingManager', () => {
             expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).toHaveBeenCalledTimes(1);
         });
 
-        it('second call with same requestId but different securityTags must use cached patientIds', async () => {
+        it('second call with same requestId but different securityTags must NOT use cached patientIds', async () => {
             // This tests the cache bug surface: securityTags is NOT in cache key
+            // CORRECT behavior: different securityTags should invalidate the cache
             const requestId = 'req-shared';
 
-            // Pre-populate cache
+            // Pre-populate cache (simulating first call already happened)
             const cacheMap = requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
             cacheMap.set('patientIdToImmediatePersonUuid', { 'patient-uuid-1': ['person-1'] });
             cacheMap.set('patientsList', [{
@@ -273,8 +274,9 @@ describe('DataSharingManager', () => {
                 allowConsentedProaDataAccess: true
             });
 
-            // Both calls used the same cached patient data - bwellPersonFinder never called
-            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).not.toHaveBeenCalled();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Different securityTags should NOT reuse cache - bwellPersonFinder should be called
+            expect(mockBwellPersonFinder.getImmediatePersonIdsOfPatientsAsync).toHaveBeenCalled();
             // Result2 should contain the query from call 2
             expect(result2.$or).toBeDefined();
             expect(result2.$or[0]).toEqual({ access: 'B' });

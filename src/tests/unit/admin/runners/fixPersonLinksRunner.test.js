@@ -129,34 +129,31 @@ describe('FixPersonLinksRunner', () => {
             expect(runner.isPersonSame(resource, linkedResource)).toBe(false);
         });
 
-        // BUG TEST: name[0].given is null/undefined - causes TypeError
-        test('BUG: crashes when name exists but given is null', () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle name with null given', () => {
             const resource = { name: [{ family: 'Smith', given: null }] };
             const linkedResource = { name: [{ family: 'Smith', given: ['John'] }] };
-            // line 115: currentPersonName.given.join(',') throws TypeError: Cannot read properties of null
-            expect(() => {
-                runner.isPersonSame(resource, linkedResource);
-            }).toThrow(TypeError);
+            // Should not crash - should treat null given as empty array or return false
+            const result = runner.isPersonSame(resource, linkedResource);
+            expect(result).toBe(false);
         });
 
-        // BUG TEST: name[0].given is undefined - causes TypeError
-        test('BUG: crashes when name exists but given is undefined', () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle name with undefined given', () => {
             const resource = { name: [{ family: 'Smith' }] };
             const linkedResource = { name: [{ family: 'Smith', given: ['John'] }] };
-            // line 115: currentPersonName.given.join(',') throws TypeError: Cannot read properties of undefined
-            expect(() => {
-                runner.isPersonSame(resource, linkedResource);
-            }).toThrow(TypeError);
+            // Should not crash - should treat undefined given as empty array or return false
+            const result = runner.isPersonSame(resource, linkedResource);
+            expect(result).toBe(false);
         });
 
-        // BUG TEST: linkedResource name[0].given is undefined
-        test('BUG: crashes when linkedResource name has given undefined', () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle linkedResource name with undefined given', () => {
             const resource = { name: [{ family: 'Smith', given: ['John'] }] };
             const linkedResource = { name: [{ family: 'Smith' }] };
-            // line 115: linkedPersonName.given.join(',') throws TypeError
-            expect(() => {
-                runner.isPersonSame(resource, linkedResource);
-            }).toThrow(TypeError);
+            // Should not crash - should treat undefined given as empty array or return false
+            const result = runner.isPersonSame(resource, linkedResource);
+            expect(result).toBe(false);
         });
     });
 

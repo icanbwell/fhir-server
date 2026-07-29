@@ -207,7 +207,7 @@ describe('GetMasterPatientUsageDataRunner', () => {
             expect(data.maxlastUpdated).toBeUndefined();
         });
 
-        test('BUG: addUsageDataToCsv throws when lastUpdated is undefined because toISOString is called on undefined', async () => {
+        test('addUsageDataToCsv should handle undefined lastUpdated gracefully without throwing', async () => {
             // Setup: store usage data with undefined dates (as happens when meta.lastUpdated is missing)
             runner.usageData.set('Observation', {
                 count: 1,
@@ -217,8 +217,10 @@ describe('GetMasterPatientUsageDataRunner', () => {
                 maxlastUpdated: undefined
             });
 
-            // This will throw: Cannot read properties of undefined (reading 'toISOString')
-            await expect(runner.addUsageDataToCsv()).rejects.toThrow();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // addUsageDataToCsv should handle undefined lastUpdated gracefully
+            // (e.g., use empty string or 'N/A') instead of calling toISOString() on undefined.
+            await expect(runner.addUsageDataToCsv()).resolves.not.toThrow();
         });
     });
 

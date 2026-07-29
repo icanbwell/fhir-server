@@ -384,8 +384,9 @@ describe('FhirLoggingManager', () => {
 
             const logEntry = mockLogger.info.mock.calls[0][0];
             const durationDetail = logEntry.entity[0].detail.find(d => d.type === 'duration');
-            // This is a bug: valuePositiveInt should not be negative
-            expect(durationDetail.valuePositiveInt).toBe(-1000);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // valuePositiveInt should never be negative - should be 0 or absolute value
+            expect(durationDetail.valuePositiveInt).toBeGreaterThanOrEqual(0);
         });
     });
 

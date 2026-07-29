@@ -287,16 +287,16 @@ describe('MongoQuerySimplifier', () => {
                 expect(MongoQuerySimplifier.isEmpty('')).toBe(true);
             });
 
-            test('zero is empty', () => {
-                // BUG: 0 is treated as empty because !0 === true
-                // This could incorrectly remove valid filter values like {count: 0}
-                expect(MongoQuerySimplifier.isEmpty(0)).toBe(true);
+            test('zero is NOT empty', () => {
+                // EXPECTED: correct behavior (will fail until bug is fixed)
+                // 0 is a valid query value (e.g. {count: 0}) and should NOT be treated as empty
+                expect(MongoQuerySimplifier.isEmpty(0)).toBe(false);
             });
 
-            test('false is empty', () => {
-                // BUG: false is treated as empty because !false === true
-                // This could incorrectly remove valid filter values like {active: false}
-                expect(MongoQuerySimplifier.isEmpty(false)).toBe(true);
+            test('false is NOT empty', () => {
+                // EXPECTED: correct behavior (will fail until bug is fixed)
+                // false is a valid query value (e.g. {active: false}) and should NOT be treated as empty
+                expect(MongoQuerySimplifier.isEmpty(false)).toBe(false);
             });
 
             test('empty array is empty', () => {
@@ -393,47 +393,39 @@ describe('MongoQuerySimplifier', () => {
             });
         });
 
-        describe('CRITICAL BUG: isEmpty treats 0 and false as empty, corrupting queries', () => {
-            test('BUG: $or with count:0 and count:1 drops the 0 condition', () => {
-                // This is a data correctness bug!
+        describe('isEmpty must NOT treat 0 and false as empty (correct behavior assertions)', () => {
+            test('$or with count:0 and count:1 preserves the 0 condition', () => {
+                // EXPECTED: correct behavior (will fail until bug is fixed)
                 // Query: "find docs where count is 0 OR count is 1"
-                // Expected result: {count: {$in: [0, 1]}}
-                // Actual result: {count: 1} -- the 0 is silently dropped
+                // 0 is a valid value and must NOT be dropped
                 const filter = { $or: [{ count: 0 }, { count: 1 }] };
                 const result = MongoQuerySimplifier.simplifyFilter({ filter });
-                // BUG: This should be {count: {$in: [0, 1]}} but 0 gets removed
-                expect(result).toEqual({ count: 1 });
-                // The correct result would be:
-                // expect(result).toEqual({ count: { $in: [0, 1] } });
+                expect(result).toEqual({ count: { $in: [0, 1] } });
             });
 
-            test('BUG: $or with active:false and active:true drops the false condition', () => {
+            test('$or with active:false and active:true preserves the false condition', () => {
+                // EXPECTED: correct behavior (will fail until bug is fixed)
                 // Query: "find docs where active is false OR active is true"
-                // Expected result: {active: {$in: [false, true]}}
-                // Actual result: {active: true} -- false is silently dropped
+                // false is a valid value and must NOT be dropped
                 const filter = { $or: [{ active: false }, { active: true }] };
                 const result = MongoQuerySimplifier.simplifyFilter({ filter });
-                // BUG: false gets treated as isEmpty
-                expect(result).toEqual({ active: true });
-                // The correct result would be:
-                // expect(result).toEqual({ active: { $in: [false, true] } });
+                expect(result).toEqual({ active: { $in: [false, true] } });
             });
 
-            test('BUG: $or with value 0 among many values loses the 0', () => {
+            test('$or with value 0 among many values preserves the 0', () => {
+                // EXPECTED: correct behavior (will fail until bug is fixed)
                 const filter = { $or: [{ priority: 0 }, { priority: 1 }, { priority: 2 }] };
                 const result = MongoQuerySimplifier.simplifyFilter({ filter });
-                // BUG: 0 gets removed from $in array
-                expect(result).toEqual({ priority: { $in: [1, 2] } });
-                // The correct result would be:
-                // expect(result).toEqual({ priority: { $in: [0, 1, 2] } });
+                expect(result).toEqual({ priority: { $in: [0, 1, 2] } });
             });
 
-            test('BUG: literal 0 in $and array gets filtered out', () => {
+            test('literal 0 in $and array is preserved', () => {
+                // EXPECTED: correct behavior (will fail until bug is fixed)
                 // Edge case: literal values in $and (unusual but possible from code generation)
                 const filter = { $and: [0, { name: 'test' }] };
                 const result = MongoQuerySimplifier.simplifyFilter({ filter });
-                // 0 gets removed because isEmpty(0) is true, $and with 1 item remains
-                expect(result).toEqual({ $and: [{ name: 'test' }] });
+                // 0 should NOT be removed - it is a valid value
+                expect(result).toEqual({ $and: [0, { name: 'test' }] });
             });
         });
 

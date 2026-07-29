@@ -253,7 +253,7 @@ describe('SearchByVersionIdOperation', () => {
          * assigned back to `historyResource`. The method returns a serialized copy, but
          * the original unserialized resource is returned on line 275.
          */
-        test('BUG: serialize return value is discarded - unserialized resource returned', async () => {
+        test('serialize return value should be used - serialized resource returned', async () => {
             const { FhirResourceSerializer } = require('../../../../fhir/fhirResourceSerializer');
 
             const historyResult = {
@@ -289,9 +289,10 @@ describe('SearchByVersionIdOperation', () => {
             // serialize WAS called
             expect(FhirResourceSerializer.serialize).toHaveBeenCalled();
 
-            // BUG: The return value of serialize is NOT assigned back.
-            // The returned resource does NOT have the _serialized flag that our mock adds.
-            expect(result._serialized).toBeUndefined();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // The return value of serialize SHOULD be assigned back.
+            // The returned resource should have the _serialized flag that our mock adds.
+            expect(result._serialized).toBe(true);
         });
 
         test('appends version query to existing $and clause', async () => {

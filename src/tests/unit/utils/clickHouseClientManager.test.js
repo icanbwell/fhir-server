@@ -110,7 +110,8 @@ describe('ClickHouseClientManager', () => {
     });
 
     describe('queryAsync - null result handling', () => {
-        test('BUG: crashes when resultSet.json() returns null', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should return empty array when resultSet.json() returns null', async () => {
             // Set up connected client
             manager.client = { query: mockQuery, insert: mockInsert, close: mockClose };
             manager.isConnected = true;
@@ -120,15 +121,13 @@ describe('ClickHouseClientManager', () => {
                 json: jest.fn().mockResolvedValue(null)
             });
 
-            // This will throw: "Cannot read properties of null (reading 'data')"
-            // Line 187: `const parsedResult = Array.isArray(result) ? result : (result.data || []);`
-            // When result is null, Array.isArray(null) is false, then result.data throws
-            await expect(
-                manager.queryAsync({ query: 'SELECT 1' })
-            ).rejects.toThrow();
+            // Should handle null result gracefully and return empty array
+            const result = await manager.queryAsync({ query: 'SELECT 1' });
+            expect(result).toEqual([]);
         });
 
-        test('BUG: crashes when resultSet.json() returns undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should return empty array when resultSet.json() returns undefined', async () => {
             manager.client = { query: mockQuery, insert: mockInsert, close: mockClose };
             manager.isConnected = true;
 
@@ -136,10 +135,9 @@ describe('ClickHouseClientManager', () => {
                 json: jest.fn().mockResolvedValue(undefined)
             });
 
-            // Same bug: undefined.data throws TypeError
-            await expect(
-                manager.queryAsync({ query: 'SELECT 1' })
-            ).rejects.toThrow();
+            // Should handle undefined result gracefully and return empty array
+            const result = await manager.queryAsync({ query: 'SELECT 1' });
+            expect(result).toEqual([]);
         });
 
         test('queryAsync handles array result correctly', async () => {
@@ -181,7 +179,8 @@ describe('ClickHouseClientManager', () => {
     });
 
     describe('pingAsync - null result handling', () => {
-        test('BUG: returns null instead of false when resultSet.json() returns null', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should return false (not null) when resultSet.json() returns null', async () => {
             manager.client = { query: mockQuery, insert: mockInsert, close: mockClose };
             manager.isConnected = true;
 
@@ -189,15 +188,9 @@ describe('ClickHouseClientManager', () => {
                 json: jest.fn().mockResolvedValue(null)
             });
 
-            // Line 136: `Array.isArray(null)` is false,
-            // then `(result && result.data && result.data.length > 0)` short-circuits:
-            // `null && ...` evaluates to `null`, not `false`.
-            // So pingAsync returns null instead of the documented boolean.
-            // This is a bug: the return type should always be boolean.
+            // pingAsync should always return a boolean value
             const result = await manager.pingAsync();
-            // BUG ASSERTION: returns null, not false
-            expect(result).toBe(null);
-            // Should be: expect(result).toBe(false);
+            expect(result).toBe(false);
         });
 
         test('pingAsync returns false when client is null', async () => {
@@ -272,12 +265,12 @@ describe('ClickHouseClientManager', () => {
     });
 
     describe('connectAsync - error handling', () => {
-        test('BUG: marks connection as successful even when ping fails', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should NOT mark connection as successful when ping fails', async () => {
             const { createClient } = require('@clickhouse/client');
 
-            // pingAsync swallows its own errors (line 137-139), so even if the query
-            // for SELECT 1 throws, pingAsync returns false instead of propagating.
-            // connectAsync then proceeds to set isConnected = true despite ping failure.
+            // pingAsync returns false when the query fails.
+            // connectAsync should check the ping result and NOT mark as connected.
             const failingQuery = jest.fn().mockRejectedValue(new Error('Connection refused'));
             createClient.mockReturnValue({
                 query: failingQuery,
@@ -285,15 +278,10 @@ describe('ClickHouseClientManager', () => {
                 close: mockClose
             });
 
-            // BUG: connectAsync completes successfully even though ping fails
-            // because pingAsync catches its own errors and returns false.
-            // connectAsync does `await this.pingAsync()` but never checks the return value.
+            // connectAsync should either throw or set isConnected = false when ping fails
             await manager.connectAsync();
 
-            // BUG ASSERTION: isConnected is true even though ping failed!
-            expect(manager.isConnected).toBe(true);
-            // The client is set even though we can't actually reach ClickHouse
-            expect(manager.client).not.toBeNull();
+            expect(manager.isConnected).toBe(false);
         });
 
         test('connectAsync throws when createClient itself throws', async () => {
@@ -384,7 +372,7 @@ describe('ClickHouseClientManager', () => {
             manager.isConnected = true;
 
             mockQuery.mockResolvedValue({
-                json: jest.fn().mockResolvedValue([{ '1': 1 }])
+                json: jest.fn().mockResolvedValue([{ 1: 1 }])
             });
 
             const result = await manager.tableExistsAsync('test_table');

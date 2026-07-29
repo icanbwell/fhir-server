@@ -307,7 +307,7 @@ describe('FhirOperationsManager', () => {
         test('applies default headers without overriding existing', () => {
             mockConfigManager.externalServicesWithRestrictions = { 'ext-svc': '/api/v1' };
             const args = { base_version: '4_0_0' };
-            const headers = { 'origin-service': 'ext-svc', 'prefer': 'existing-val' };
+            const headers = { 'origin-service': 'ext-svc', prefer: 'existing-val' };
             manager.limitReqForExternalServices({ args, headers, requestInfo: {} });
             expect(headers['prefer']).toBe('existing-val'); // not overridden
         });

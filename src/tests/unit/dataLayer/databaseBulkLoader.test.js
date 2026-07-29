@@ -348,23 +348,15 @@ describe('DatabaseBulkLoader', () => {
                 requestedResources: [{ resourceType: 'Patient', id: '2' }]
             });
 
-            // The cache for 'Patient' should now contain the second load's resources
-            // This is a potential BUG: the first load's resources are silently lost
-            const bulkCache = loader.getBulkCache({ requestId: 'req-1' });
-            const cachedPatients = bulkCache.get('Patient');
-
-            // Assert the second call's value overwrote the first
-            // This proves base_version is NOT part of the cache key dimension
-            expect(cachedPatients).not.toBeNull();
-            // The cached array should match the second call's serialized output
-            // This demonstrates the bug: resources from first call are gone
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Different base_versions should get different cache entries
+            // The first load's resource should still be findable
             const foundFirst = loader.getResourceFromExistingList({
                 requestId: 'req-1',
                 resourceType: 'Patient',
                 uuid: 'uuid-1'
             });
-            // BUG: First load's resource is no longer findable!
-            expect(foundFirst).toBeNull();
+            expect(foundFirst).not.toBeNull();
         });
     });
 });

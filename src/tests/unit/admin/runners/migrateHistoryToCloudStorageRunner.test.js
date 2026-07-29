@@ -174,10 +174,11 @@ describe('MigrateHistoryToCloudStorageRunner', () => {
     });
 
     describe('processBatch', () => {
-        test('BUG: bulkWrite called with empty array when all operations return null', async () => {
+        test('processBatch should skip bulkWrite when all operations return null (empty batch)', async () => {
             // When all records in a batch are in old format or fail to upload,
             // all processRecordAsync calls return null. After filtering, we get an empty array.
-            // MongoDB driver throws "Invalid operation, no operations specified" for empty bulkWrite.
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // The code should check for empty operations and skip the bulkWrite call entirely.
             const mockCollection = {
                 bulkWrite: jestGlobal.fn().mockRejectedValue(
                     new Error('Invalid operation, no operations specified')
@@ -192,11 +193,14 @@ describe('MigrateHistoryToCloudStorageRunner', () => {
             ];
             runner.lastBatchDocId = 'old-2';
 
-            // All processRecordAsync calls will return null (old format)
-            // The empty array passed to bulkWrite causes an error
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should not throw — empty batch should be skipped gracefully
             await expect(
                 runner.processBatch(mockCollection, mockSession)
-            ).rejects.toThrow();
+            ).resolves.not.toThrow();
+
+            // bulkWrite should NOT be called with an empty array
+            expect(mockCollection.bulkWrite).not.toHaveBeenCalled();
         });
 
         test('successfully processes batch with valid operations', async () => {

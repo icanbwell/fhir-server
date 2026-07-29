@@ -221,13 +221,15 @@ describe('GraphOperation', () => {
             mockRequestInfo.body = null;
             Object.defineProperty(mockParsedArgs, 'resource', { value: null, configurable: true });
 
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should throw a proper BadRequestError with a descriptive message about missing graph definition
+            // rather than a generic TypeError
             await expect(graphOperation.graph({
                 requestInfo: mockRequestInfo,
                 parsedArgs: mockParsedArgs,
                 resourceType: 'Patient'
-            })).rejects.toThrow();
+            })).rejects.toThrow(/[Gg]raph[Dd]efinition|[Bb]ody|[Rr]equired|[Mm]issing/);
 
-            // The error is caught and logOperationFailureAsync is called
             expect(mockFhirLoggingManager.logOperationFailureAsync).toHaveBeenCalled();
         });
 

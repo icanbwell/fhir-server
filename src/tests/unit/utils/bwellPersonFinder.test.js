@@ -267,10 +267,7 @@ describe('BwellPersonFinder', () => {
     });
 
     describe('getImmediatePersonIdHelperAsync', () => {
-        test('BUG: should return object with expected properties when references is empty, but returns Map instead', async () => {
-            // When references is empty/null, the function returns `new Map()` on line 75
-            // But the caller on line 57-60 destructures { patientReferenceToPersonUuid, personToLinkedPatientsMap }
-            // This causes both to be undefined
+        test('should return object with expected properties when references is empty', async () => {
             const result = await bwellPersonFinder.getImmediatePersonIdHelperAsync({
                 references: [],
                 databaseQueryManager: mockDatabaseQueryManager,
@@ -278,16 +275,15 @@ describe('BwellPersonFinder', () => {
                 securityTags: []
             });
 
-            // BUG CONFIRMED: returns a Map() instead of the expected object shape
-            // The result is a Map, not an object with the expected properties
-            expect(result).toBeInstanceOf(Map);
-            // Destructuring will yield undefined for both properties - this IS the bug
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should return an object with the expected shape, not a Map
+            expect(result).not.toBeInstanceOf(Map);
             const { patientReferenceToPersonUuid, personToLinkedPatientsMap } = result;
-            expect(patientReferenceToPersonUuid).toBeUndefined();
-            expect(personToLinkedPatientsMap).toBeUndefined();
+            expect(patientReferenceToPersonUuid).toBeDefined();
+            expect(personToLinkedPatientsMap).toBeDefined();
         });
 
-        test('BUG: should return object with expected properties when references is null', async () => {
+        test('should return object with expected properties when references is null', async () => {
             const result = await bwellPersonFinder.getImmediatePersonIdHelperAsync({
                 references: null,
                 databaseQueryManager: mockDatabaseQueryManager,
@@ -295,11 +291,12 @@ describe('BwellPersonFinder', () => {
                 securityTags: []
             });
 
-            // BUG CONFIRMED: returns a Map() instead of { patientReferenceToPersonUuid, personToLinkedPatientsMap }
-            expect(result).toBeInstanceOf(Map);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should return { patientReferenceToPersonUuid, personToLinkedPatientsMap }, not a Map
+            expect(result).not.toBeInstanceOf(Map);
             const { patientReferenceToPersonUuid, personToLinkedPatientsMap } = result;
-            expect(patientReferenceToPersonUuid).toBeUndefined();
-            expect(personToLinkedPatientsMap).toBeUndefined();
+            expect(patientReferenceToPersonUuid).toBeDefined();
+            expect(personToLinkedPatientsMap).toBeDefined();
         });
     });
 

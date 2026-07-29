@@ -124,27 +124,34 @@ describe('PartitionAuditEventRunner', () => {
             expect(doc._access).toEqual({ existingClient: 1 });
         });
 
-        test('BUG: throws TypeError when doc.meta is null/undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle doc.meta being null', async () => {
             runner = createRunner();
             const doc = {
                 _id: 'doc1',
                 meta: null
             };
-            // doc.meta.security throws because meta is null
-            await expect(runner.copyRecordAsync(doc)).rejects.toThrow(TypeError);
+            // Should handle null meta gracefully
+            const operations = await runner.copyRecordAsync(doc);
+            expect(operations).toHaveLength(1);
+            expect(operations[0].replaceOne.filter._id).toBe('doc1');
         });
 
-        test('BUG: throws TypeError when doc.meta is undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle doc.meta being undefined', async () => {
             runner = createRunner();
             const doc = {
                 _id: 'doc2'
                 // meta is not defined at all
             };
-            // doc.meta.security throws because meta is undefined
-            await expect(runner.copyRecordAsync(doc)).rejects.toThrow(TypeError);
+            // Should handle undefined meta gracefully
+            const operations = await runner.copyRecordAsync(doc);
+            expect(operations).toHaveLength(1);
+            expect(operations[0].replaceOne.filter._id).toBe('doc2');
         });
 
-        test('BUG: throws TypeError when doc.meta.security is null/undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle doc.meta.security being undefined', async () => {
             runner = createRunner();
             const doc = {
                 _id: 'doc3',
@@ -152,8 +159,10 @@ describe('PartitionAuditEventRunner', () => {
                     // security is not defined
                 }
             };
-            // doc.meta.security.filter throws because security is undefined
-            await expect(runner.copyRecordAsync(doc)).rejects.toThrow(TypeError);
+            // Should handle undefined security gracefully
+            const operations = await runner.copyRecordAsync(doc);
+            expect(operations).toHaveLength(1);
+            expect(operations[0].replaceOne.filter._id).toBe('doc3');
         });
 
         test('handles documents with no access codes', async () => {
@@ -224,16 +233,22 @@ describe('PartitionAuditEventRunner', () => {
             expect(operations).toHaveLength(0);
         });
 
-        test('BUG: throws TypeError when doc.meta is undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle doc.meta being undefined in setAccessIndexRecordAsync', async () => {
             runner = createRunner();
             const doc = { _id: 'doc1' };
-            await expect(runner.setAccessIndexRecordAsync(doc)).rejects.toThrow(TypeError);
+            // Should return empty operations when meta is undefined
+            const operations = await runner.setAccessIndexRecordAsync(doc);
+            expect(operations).toHaveLength(0);
         });
 
-        test('BUG: throws TypeError when doc.meta.security is undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle doc.meta.security being undefined in setAccessIndexRecordAsync', async () => {
             runner = createRunner();
             const doc = { _id: 'doc1', meta: {} };
-            await expect(runner.setAccessIndexRecordAsync(doc)).rejects.toThrow(TypeError);
+            // Should return empty operations when security is undefined
+            const operations = await runner.setAccessIndexRecordAsync(doc);
+            expect(operations).toHaveLength(0);
         });
     });
 

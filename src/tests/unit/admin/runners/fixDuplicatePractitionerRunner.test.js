@@ -225,31 +225,31 @@ describe('FixDuplicatePractitionerRunner', () => {
             expect(result.extension[2].valueString).toBe('Practitioner/new-uuid');
         });
 
-        // BUG TEST: ref.reference is null causes crash at line 274
-        test('BUG: crashes when ref.reference is null', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle ref.reference being null', async () => {
             const ref = {
                 _uuid: 'Practitioner/old-uuid',
                 reference: null,
                 _sourceId: 'Practitioner/old-source'
             };
 
-            // Line 274: ref.reference.startsWith(...) throws TypeError on null
-            await expect(async () => {
-                await runner.substituteOneReference({ ref });
-            }).rejects.toThrow(TypeError);
+            // Should not crash - should handle null reference gracefully
+            const result = await runner.substituteOneReference({ ref });
+            expect(result).toBeDefined();
+            expect(result._uuid).toBe('Practitioner/new-uuid');
         });
 
-        // BUG TEST: ref.reference is undefined causes crash at line 274
-        test('BUG: crashes when ref.reference is undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle ref.reference being undefined', async () => {
             const ref = {
                 _uuid: 'Practitioner/old-uuid',
                 _sourceId: 'Practitioner/old-source'
             };
 
-            // Line 274: ref.reference.startsWith(...) throws TypeError on undefined
-            await expect(async () => {
-                await runner.substituteOneReference({ ref });
-            }).rejects.toThrow(TypeError);
+            // Should not crash - should handle undefined reference gracefully
+            const result = await runner.substituteOneReference({ ref });
+            expect(result).toBeDefined();
+            expect(result._uuid).toBe('Practitioner/new-uuid');
         });
     });
 
@@ -307,8 +307,8 @@ describe('FixDuplicatePractitionerRunner', () => {
             expect(result).toHaveLength(1);
         });
 
-        // BUG TEST: two-level field where subfield is null
-        test('BUG: crashes on two-level field when sub-field is null', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle two-level field when sub-field is null', async () => {
             const doc = {
                 _id: 'doc-1',
                 resourceType: 'Encounter',
@@ -318,19 +318,17 @@ describe('FixDuplicatePractitionerRunner', () => {
                 ]
             };
 
-            // Line 343: const ref = subObj[fields[1]] => ref is null
-            // Line 344: this.dupUuids.includes(ref._uuid) => TypeError: Cannot read properties of null
-            await expect(async () => {
-                await runner.processResourceAsync({
-                    doc,
-                    collectionName: 'Encounter_4_0_0',
-                    field: 'participant.individual'
-                });
-            }).rejects.toThrow();
+            // Should skip null sub-fields gracefully without crashing
+            const result = await runner.processResourceAsync({
+                doc,
+                collectionName: 'Encounter_4_0_0',
+                field: 'participant.individual'
+            });
+            expect(Array.isArray(result)).toBe(true);
         });
 
-        // BUG TEST: two-level field where subfield is undefined
-        test('BUG: crashes on two-level field when sub-field is undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle two-level field when sub-field is undefined', async () => {
             const doc = {
                 _id: 'doc-1',
                 resourceType: 'Encounter',
@@ -340,15 +338,13 @@ describe('FixDuplicatePractitionerRunner', () => {
                 ]
             };
 
-            // Line 343: subObj[fields[1]] => undefined
-            // Line 344: ref._uuid => TypeError
-            await expect(async () => {
-                await runner.processResourceAsync({
-                    doc,
-                    collectionName: 'Encounter_4_0_0',
-                    field: 'participant.individual'
-                });
-            }).rejects.toThrow();
+            // Should skip undefined sub-fields gracefully without crashing
+            const result = await runner.processResourceAsync({
+                doc,
+                collectionName: 'Encounter_4_0_0',
+                field: 'participant.individual'
+            });
+            expect(Array.isArray(result)).toBe(true);
         });
     });
 

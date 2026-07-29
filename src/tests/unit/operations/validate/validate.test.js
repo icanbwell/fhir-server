@@ -94,9 +94,10 @@ describe('ValidateOperation - null safety bugs', () => {
                 resourceType: 'Patient'
             });
 
-            // BUG: result is null because operationOutcome is never assigned when cursor is empty
-            // The caller likely expects an OperationOutcome (e.g., "resource not found")
-            expect(result).toBeNull();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should return an OperationOutcome (e.g., "resource not found") instead of null
+            expect(result).not.toBeNull();
+            expect(result.resourceType).toBe('OperationOutcome');
         });
     });
 

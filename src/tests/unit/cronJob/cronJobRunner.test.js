@@ -160,20 +160,22 @@ describe('CronJobRunner — Bug Detection', () => {
          * - The raw error message may not include sufficient context for debugging
          * - If k8sClient.createJob throws, the remaining collections are skipped silently
          */
-        test('k8sClient.createJob throwing mid-loop skips remaining collections', async () => {
+        test('k8sClient.createJob throwing mid-loop should NOT skip remaining collections', async () => {
             // First call succeeds, second throws
             mockK8sClient.createJob
                 .mockResolvedValueOnce(true)
                 .mockRejectedValueOnce(new Error('K8s API unavailable'));
 
-            // triggerHistoryMigrationJob iterates over ['Binary', 'DocumentReference']
-            // First iteration succeeds, second throws
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // triggerHistoryMigrationJob should have try-catch inside the loop so that
+            // a failure for one collection does not prevent processing remaining collections.
+            // It should NOT throw — it should handle the error and continue.
             await expect(
                 runner.triggerHistoryMigrationJob()
-            ).rejects.toThrow('K8s API unavailable');
+            ).resolves.toBeUndefined();
 
-            // BUG: Only 2 calls were made (Binary succeeded, DocumentReference threw)
-            // The error is NOT caught inside triggerHistoryMigrationJob
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // All collections should be attempted even if one fails.
             expect(mockK8sClient.createJob).toHaveBeenCalledTimes(2);
         });
 
@@ -299,7 +301,7 @@ describe('CronJobRunner — Bug Detection', () => {
          * The resource status is changed to 'entered-in-error' in MongoDB,
          * but the post-save event and Kafka event are lost.
          */
-        test('afterSaveAsync failure after DB update creates inconsistent state', async () => {
+        test('afterSaveAsync failure after DB update should rollback or not commit DB update', async () => {
             const resources = [{ _uuid: 'export-1', status: 'in-progress' }];
             const cursor = createMockCursor(resources);
             mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
@@ -309,16 +311,19 @@ describe('CronJobRunner — Bug Detection', () => {
                 new Error('Post-save handler crash')
             );
 
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // The operation should either:
+            // - Use a transaction so DB update is rolled back on afterSaveAsync failure, OR
+            // - Not throw and instead handle the error gracefully (retry or log and continue)
+            // Currently: DB is updated but afterSaveAsync fails, leaving inconsistent state.
             await expect(
                 runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager })
-            ).rejects.toThrow('Post-save handler crash');
+            ).resolves.toBeUndefined();
 
-            // BUG: MongoDB was updated (status = 'entered-in-error') but:
-            // - afterSaveAsync failed (post-save event lost)
-            // - produce was never called (Kafka event lost)
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // All resources should still be processed (error should be handled per-resource)
             expect(mockDatabaseExportManager.updateExportStatusAsync).toHaveBeenCalledTimes(1);
             expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledTimes(1);
-            expect(mockBulkExportEventProducer.produce).not.toHaveBeenCalled();
         });
     });
 });

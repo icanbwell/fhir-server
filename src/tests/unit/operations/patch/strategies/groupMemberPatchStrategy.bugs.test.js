@@ -62,7 +62,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
          * A PATCH operation on '/memberOf' (a hypothetical field or future FHIR extension)
          * would be incorrectly classified as a member operation.
          */
-        test('paths starting with "/member" but NOT member paths are misclassified as memberOps', () => {
+        test('paths starting with "/member" but NOT member paths should NOT be classified as memberOps', () => {
             const patchContent = [
                 { op: 'replace', path: '/memberOf', value: 'some-value' }
             ];
@@ -73,18 +73,13 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                 requestInfo: requestInfoWithHeader
             });
 
-            // BUG DEMONSTRATION: This should return null (no member operations),
-            // but it incorrectly classifies '/memberOf' as a member operation
-            // because '/memberOf'.startsWith('/member') === true
-            //
-            // Expected: null (not a member operation)
-            // Actual: { memberOps: [...], nonMemberOps: [], hasOnlyMemberOperations: true }
-            expect(result).not.toBeNull(); // proves the bug exists
-            expect(result.memberOps).toHaveLength(1);
-            expect(result.memberOps[0].path).toBe('/memberOf');
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // '/memberOf' is NOT a member operation path — it should not be classified as one.
+            // The prefix check should use '/member/' or exact match, not startsWith('/member').
+            expect(result).toBeNull();
         });
 
-        test('/membership path is also misclassified', () => {
+        test('/membership path should NOT be classified as a member operation', () => {
             const patchContent = [
                 { op: 'add', path: '/membership', value: 'group-A' }
             ];
@@ -95,12 +90,12 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                 requestInfo: requestInfoWithHeader
             });
 
-            // BUG: '/membership'.startsWith('/member') === true
-            expect(result).not.toBeNull();
-            expect(result.memberOps[0].path).toBe('/membership');
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // '/membership' is not a valid member path and should not be classified as one.
+            expect(result).toBeNull();
         });
 
-        test('mixed ops with /memberOf incorrectly splits operations', () => {
+        test('mixed ops with /memberOf should treat /memberOf as a non-member operation', () => {
             const patchContent = [
                 { op: 'replace', path: '/name', value: 'New Name' },
                 { op: 'replace', path: '/memberOf', value: 'other-group' }
@@ -112,13 +107,9 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                 requestInfo: requestInfoWithHeader
             });
 
-            // BUG: '/memberOf' is classified as a member op, '/name' as non-member
-            // This incorrectly sets hasOnlyMemberOperations = false
-            // and routes '/memberOf' through the member event pipeline
-            expect(result).not.toBeNull();
-            expect(result.memberOps).toHaveLength(1);
-            expect(result.nonMemberOps).toHaveLength(1);
-            expect(result.hasOnlyMemberOperations).toBe(false);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Neither '/name' nor '/memberOf' are member operations, so result should be null.
+            expect(result).toBeNull();
         });
     });
 
@@ -132,7 +123,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
          * ClickHouse still has events from "version N". The error propagates up,
          * but the MongoDB write is not rolled back.
          */
-        test('MongoDB commit succeeds but ClickHouse write throws — data inconsistency', async () => {
+        test('MongoDB commit should be rolled back if ClickHouse write fails', async () => {
             const mockGroupHandler = {
                 writeEventsAsync: jestGlobal.fn().mockRejectedValue(new Error('ClickHouse connection refused'))
             };
@@ -142,8 +133,10 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                 { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/1' } } }
             ];
 
-            // MongoDB write succeeds (replaceOneAsync and executeAsync resolve)
-            // But ClickHouse writeEventsAsync throws
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // If ClickHouse write fails, the operation should either:
+            // - Roll back the MongoDB write, OR
+            // - Not commit MongoDB until ClickHouse succeeds (atomic operation)
             await expect(
                 strategy.executeMemberOperations({
                     requestInfo: {},
@@ -161,13 +154,11 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                 })
             ).rejects.toThrow('ClickHouse connection refused');
 
-            // BUG PROOF: MongoDB was already written (replaceOneAsync + executeAsync called)
-            // but ClickHouse failed. The data is now inconsistent:
-            // - MongoDB has versionId incremented
-            // - ClickHouse has NO member event
-            expect(mockDatabaseBulkInserter.replaceOneAsync).toHaveBeenCalledTimes(1);
-            expect(mockDatabaseBulkInserter.executeAsync).toHaveBeenCalledTimes(1);
-            expect(mockGroupHandler.writeEventsAsync).toHaveBeenCalledTimes(1);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // MongoDB should NOT have been committed if ClickHouse failed,
+            // OR MongoDB should have been rolled back after ClickHouse failure.
+            // Either replaceOneAsync should not have been called, or a rollback should occur.
+            expect(mockDatabaseBulkInserter.executeAsync).not.toHaveBeenCalled();
         });
     });
 
@@ -177,7 +168,7 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
          * enrichMemberReferences generates UUIDs with "undefined" in the seed string.
          * This creates non-deterministic/incorrect UUIDs.
          */
-        test('undefined _sourceAssigningAuthority produces UUID with "undefined" seed', async () => {
+        test('undefined _sourceAssigningAuthority should throw or use empty string instead of "undefined"', async () => {
             const mockGroupHandler = {
                 writeEventsAsync: jestGlobal.fn().mockResolvedValue(undefined)
             };
@@ -187,33 +178,26 @@ describe('GroupMemberPatchStrategy — Bug Detection', () => {
                 { op: 'add', path: '/member/-', value: { entity: { reference: 'Patient/abc' } } }
             ];
 
-            await strategy.executeMemberOperations({
-                requestInfo: {},
-                parsedArgs: {},
-                resourceType: 'Group',
-                id: 'group-1',
-                base_version: '4_0_0',
-                memberOperations,
-                foundResource: {
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // When _sourceAssigningAuthority is undefined, the operation should either:
+            // - Throw an error indicating the missing field, OR
+            // - Use an empty string/default value (not the literal string "undefined")
+            // Currently it silently generates a UUID from "abc|undefined" which is data corruption.
+            await expect(
+                strategy.executeMemberOperations({
+                    requestInfo: {},
+                    parsedArgs: {},
+                    resourceType: 'Group',
                     id: 'group-1',
-                    resourceType: 'Group'
-                    // NOTE: _sourceAssigningAuthority is MISSING (undefined)
-                }
-            });
-
-            // The entity should have been enriched
-            const callArgs = mockGroupHandler.writeEventsAsync.mock.calls[0][0];
-            const addedEntity = callArgs.added[0].entity;
-
-            // BUG: When _sourceAssigningAuthority is undefined, enrichMemberReferences
-            // generates UUID from "abc|undefined" (string literal "undefined")
-            // This means the same resource will get different UUIDs depending on whether
-            // _sourceAssigningAuthority was set or not — breaking referential integrity
-            expect(addedEntity._uuid).toBeDefined();
-            expect(addedEntity._sourceId).toBe('Patient/abc');
-            // The UUID is generated from `${referenceId}|${sourceAssigningAuthority}`
-            // where sourceAssigningAuthority is undefined, producing "abc|undefined"
-            // This is a silent data corruption bug
+                    base_version: '4_0_0',
+                    memberOperations,
+                    foundResource: {
+                        id: 'group-1',
+                        resourceType: 'Group'
+                        // NOTE: _sourceAssigningAuthority is MISSING (undefined)
+                    }
+                })
+            ).rejects.toThrow();
         });
     });
 

@@ -72,23 +72,25 @@ describe('S3Client', () => {
     });
 
     describe('downloadAsync - null Body bug', () => {
-        test('BUG: crashes with TypeError when response.Body is null/undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should return null when response.Body is null', async () => {
             // S3 GetObject can return a response with Body=null in edge cases
             // (e.g., zero-byte objects in certain S3 configurations, or mocked responses)
             mockSend.mockResolvedValue({ Body: null });
 
-            // This should handle null Body gracefully but will throw TypeError
-            // "Cannot read properties of null (reading 'transformToString')"
-            await expect(s3Client.downloadAsync('some/path'))
-                .rejects.toThrow();
+            // Should handle null Body gracefully and return null
+            const result = await s3Client.downloadAsync('some/path');
+            expect(result).toBeNull();
         });
 
-        test('BUG: crashes with TypeError when response.Body is undefined', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should return null when response.Body is undefined', async () => {
             // Response with no Body property at all
             mockSend.mockResolvedValue({});
 
-            await expect(s3Client.downloadAsync('some/path'))
-                .rejects.toThrow();
+            // Should handle undefined Body gracefully and return null
+            const result = await s3Client.downloadAsync('some/path');
+            expect(result).toBeNull();
         });
 
         test('downloadAsync handles NoSuchKey error by returning null', async () => {
@@ -109,7 +111,8 @@ describe('S3Client', () => {
     });
 
     describe('downloadInBatchAsync - null Body bug', () => {
-        test('BUG: crashes when one response has null Body', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should handle null Body in batch download gracefully', async () => {
             // First call returns valid Body, second returns null Body
             mockSend
                 .mockResolvedValueOnce({
@@ -117,13 +120,13 @@ describe('S3Client', () => {
                 })
                 .mockResolvedValueOnce({ Body: null });
 
-            // This will throw TypeError in the .then handler
-            await expect(
-                s3Client.downloadInBatchAsync({
-                    filePaths: ['path1', 'path2'],
-                    batch: 5
-                })
-            ).rejects.toThrow();
+            // Should handle null Body gracefully, returning null for that entry
+            const results = await s3Client.downloadInBatchAsync({
+                filePaths: ['path1', 'path2'],
+                batch: 5
+            });
+            expect(results[0]).toBe('content1');
+            expect(results[1]).toBeNull();
         });
     });
 

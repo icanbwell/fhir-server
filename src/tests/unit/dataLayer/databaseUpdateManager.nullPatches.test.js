@@ -211,14 +211,14 @@ describe('DatabaseUpdateManager - null patches paths', () => {
             // First replaceOne succeeds so we reach the log line
             manager._mockCollection.replaceOne.mockResolvedValue({ matchedCount: 1 });
 
-            // This should crash when accessing requestInfo.headers['origin-service']
-            await expect(
-                manager.replaceOneAsync({
-                    base_version: '4_0_0',
-                    requestInfo,
-                    doc
-                })
-            ).rejects.toThrow();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle null headers gracefully without crashing
+            const result = await manager.replaceOneAsync({
+                base_version: '4_0_0',
+                requestInfo,
+                doc
+            });
+            expect(result.savedResource).toBeTruthy();
         });
 
         test('retries on matchedCount=0 and re-merges', async () => {

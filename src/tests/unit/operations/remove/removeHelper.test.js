@@ -355,9 +355,10 @@ describe('RemoveHelper', () => {
                     resources
                 });
 
-                // The set call only includes operationResult, losing streamRequestBody
+                // EXPECTED: correct behavior (will fail until bug is fixed)
+                // The set call should preserve existing fields like streamRequestBody
                 const setCall = httpContext.set.mock.calls[0][1];
-                expect(setCall.streamRequestBody).toBeUndefined(); // BUG: data loss
+                expect(setCall.streamRequestBody).toBe('STREAMED {"id":"1"}');
             });
         });
 

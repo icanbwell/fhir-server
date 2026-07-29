@@ -236,13 +236,10 @@ describe('DelegatedAccessRulesManager', () => {
                 }
             };
 
-            // BUG: This should handle non-array securityLabel gracefully
-            // but the for...of on line 159 will iterate over object keys instead
-            // of throwing, since objects are not iterable by default
-            // Actually - plain objects are NOT iterable, so for...of will throw TypeError
-            expect(() => {
-                manager.parseConsentFilteringRules({ consent });
-            }).toThrow();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should handle non-array securityLabel gracefully (wrap in array or skip)
+            const result = manager.parseConsentFilteringRules({ consent });
+            expect(result.deniedSensitiveCategories).toEqual(['mental-health']);
         });
 
         it('should store deniedSensitiveCategories as non-enumerable', () => {
@@ -510,9 +507,9 @@ describe('DelegatedAccessRulesManager', () => {
             });
 
             expect(result).toBe(true);
-            // BUG: consentPolicy contains "version=undefined" which is malformed
-            // It should either omit the version or handle this case
-            expect(actor.consentPolicy).toBe('Consent/consent-no-meta?version=undefined');
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // consentPolicy should NOT contain "version=undefined" - should omit version or handle gracefully
+            expect(actor.consentPolicy).not.toContain('undefined');
         });
     });
 });

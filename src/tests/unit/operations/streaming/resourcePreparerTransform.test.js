@@ -161,33 +161,16 @@ describe('ResourcePreparerTransform', () => {
             });
         });
 
-        test('BUG: null chunk causes TypeError in error handler - processChunkAsync with null chunk1', async () => {
-            // When chunk is null, Array.isArray(null) is false, so [null] is created as chunks.
-            // Then for chunk1 of [null], processChunkAsync(null) is called.
-            // When prepareResourceAsync rejects, the inner catch on line 91-93 tries to access
-            // chunk1.id where chunk1 is null, throwing:
-            //   TypeError: Cannot read properties of null (reading 'id')
-            // This proves the bug exists - the error handler itself crashes.
+        test('BUG #65: null chunk should be handled gracefully without TypeError', async () => {
+            // When chunk is null, the code should skip it gracefully instead of crashing
+            // when trying to access chunk1.id in the error handler.
             const transform = createTransform();
             transform.push = jest.fn();
             mockResourcePreparer.prepareResourceAsync.mockRejectedValue(new Error('null element'));
 
-            // Directly call processChunkAsync with null to show the bug in the error path
-            // The internal processChunksAsync error handler accesses chunk1.id where chunk1 is null
-            // We can verify by calling processChunkAsync directly - it throws because
-            // prepareResourceAsync is called with null element, and the .then() handler
-            // won't be reached, but the error propagates.
-            await expect(transform.processChunkAsync(null)).rejects.toThrow();
-
-            // The outer _transform wraps this in a try-catch on line 88-128,
-            // but the catch block at line 91 also accesses chunk1.id (null.id) -> TypeError
-            // This TypeError escapes the catch block and becomes an unhandled rejection.
-            // Verify the direct access pattern that would crash:
-            expect(() => {
-                const chunk1 = null;
-                // This is what line 93 does:
-                const msg = `error. id: ${chunk1.id}`;
-            }).toThrow(TypeError);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // processChunkAsync(null) should handle null gracefully, not throw TypeError
+            await expect(transform.processChunkAsync(null)).resolves.not.toThrow();
         });
 
         test('BUG: chunk with undefined id causes "undefined" in error message', (done) => {
@@ -287,26 +270,28 @@ describe('ResourcePreparerTransform', () => {
             expect(pushed).toContainEqual(preparedResource);
         });
 
-        test('BUG: prepareResourceAsync resolving with non-array causes TypeError', async () => {
-            // If prepareResourceAsync returns null or undefined instead of an array,
-            // line 189 `resources.length` will throw TypeError
+        test('BUG #66: prepareResourceAsync resolving with null should be handled gracefully', async () => {
+            // If prepareResourceAsync returns null instead of an array,
+            // the code should handle it gracefully instead of throwing TypeError
             const chunk = { id: 'patient-1', resourceType: 'Patient' };
             mockResourcePreparer.prepareResourceAsync.mockResolvedValue(null);
 
             const transform = createTransform();
             transform.push = jest.fn();
 
-            await expect(transform.processChunkAsync(chunk)).rejects.toThrow();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            await expect(transform.processChunkAsync(chunk)).resolves.not.toThrow();
         });
 
-        test('BUG: prepareResourceAsync resolving with undefined causes TypeError', async () => {
+        test('BUG #66: prepareResourceAsync resolving with undefined should be handled gracefully', async () => {
             const chunk = { id: 'patient-1', resourceType: 'Patient' };
             mockResourcePreparer.prepareResourceAsync.mockResolvedValue(undefined);
 
             const transform = createTransform();
             transform.push = jest.fn();
 
-            await expect(transform.processChunkAsync(chunk)).rejects.toThrow();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            await expect(transform.processChunkAsync(chunk)).resolves.not.toThrow();
         });
     });
 

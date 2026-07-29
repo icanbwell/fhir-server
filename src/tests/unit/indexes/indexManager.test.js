@@ -71,7 +71,7 @@ describe('IndexManager', () => {
                         options: { name: 'id_version_1' }
                     }
                 ],
-                'Patient_4_0_0': [
+                Patient_4_0_0: [
                     {
                         keys: { 'name.family': 1 },
                         options: { name: 'name_family_1' }

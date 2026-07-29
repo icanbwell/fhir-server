@@ -249,24 +249,21 @@ describe('FixDuplicateUuidRunner', () => {
             expect(runner.processedUuids.get('Patient_4_0_0').has('uuid-1')).toBe(true);
         });
 
-        // BUG TEST: Non-numeric versionId causes NaN comparison failure
-        test('BUG: non-numeric versionId causes crash due to NaN comparison', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should gracefully handle non-numeric versionId', async () => {
             runner.metaIdCache.set('uuid-1', [
                 { meta: { versionId: 'abc', lastUpdated: '2023-01-01' }, _id: 'id-a' },
                 { meta: { versionId: 'def', lastUpdated: '2023-01-02' }, _id: 'id-b' }
             ]);
 
-            // When all versionIds are non-numeric, Number() returns NaN.
-            // Math.max(0, NaN) = NaN, so versionIdToKeep = NaN.
-            // Then the filter `Number(res.meta.versionId) === NaN` is always false
-            // (since NaN !== NaN), resulting in resourcesWithMaxVersionId being empty.
-            // Accessing resourcesWithMaxVersionId[0]._id throws TypeError.
-            await expect(
-                runner.processResourceAsync({
-                    uuid: 'uuid-1',
-                    collectionName: 'Patient_4_0_0'
-                })
-            ).rejects.toThrow();
+            // When all versionIds are non-numeric, the function should gracefully
+            // handle this case (e.g., fall back to lastUpdated comparison or return empty)
+            const result = await runner.processResourceAsync({
+                uuid: 'uuid-1',
+                collectionName: 'Patient_4_0_0'
+            });
+            // Should return a valid result without crashing
+            expect(Array.isArray(result)).toBe(true);
         });
 
         // BUG TEST: When lastUpdated is null/undefined in resources with same max versionId
@@ -289,23 +286,45 @@ describe('FixDuplicateUuidRunner', () => {
             expect(result[0].deleteMany.filter._id.$in).toHaveLength(2);
         });
 
-        // BUG TEST: undefined lastUpdated causes Invalid Date
-        test('BUG: undefined lastUpdated produces NaN in date comparison during sort', async () => {
+        // EXPECTED: correct behavior (will fail until bug is fixed)
+        test('should produce same result regardless of input order when lastUpdated is undefined (non-deterministic sort bug)', async () => {
+            // When lastUpdated is undefined, new Date(undefined).getTime() = NaN
+            // NaN - NaN = NaN, so sort comparison is meaningless.
+            // The code should use a fallback tiebreaker (e.g., _id) to ensure determinism.
+            // With the bug, the "winner" depends on insertion order in the array,
+            // which is non-deterministic when data comes from MongoDB.
+
+            // Order 1: id-a comes first
             runner.metaIdCache.set('uuid-1', [
                 { meta: { versionId: '2' }, _id: 'id-a' },
                 { meta: { versionId: '2' }, _id: 'id-b' },
                 { meta: { versionId: '1', lastUpdated: '2023-01-01' }, _id: 'id-c' }
             ]);
 
-            // new Date(undefined).getTime() = NaN
-            // NaN - NaN = NaN, so sort order is unpredictable
-            // This is a data loss risk as the "wrong" resource might be kept
-            const result = await runner.processResourceAsync({
+            const result1 = await runner.processResourceAsync({
                 uuid: 'uuid-1',
                 collectionName: 'Patient_4_0_0'
             });
-            // Doesn't crash, but sort result is unreliable (NaN comparison)
-            expect(result).toHaveLength(1);
+
+            // Order 2: id-b comes first (simulating different MongoDB cursor order)
+            runner.processedUuids.get('Patient_4_0_0').delete('uuid-1');
+            runner.metaIdCache.set('uuid-1', [
+                { meta: { versionId: '2' }, _id: 'id-b' },
+                { meta: { versionId: '2' }, _id: 'id-a' },
+                { meta: { versionId: '1', lastUpdated: '2023-01-01' }, _id: 'id-c' }
+            ]);
+
+            const result2 = await runner.processResourceAsync({
+                uuid: 'uuid-1',
+                collectionName: 'Patient_4_0_0'
+            });
+
+            expect(result1).toHaveLength(1);
+            expect(result2).toHaveLength(1);
+            // Both orderings should produce the same delete set (deterministic behavior)
+            const deleteSet1 = result1[0].deleteMany.filter._id.$in.sort();
+            const deleteSet2 = result2[0].deleteMany.filter._id.$in.sort();
+            expect(deleteSet1).toEqual(deleteSet2);
         });
     });
 });

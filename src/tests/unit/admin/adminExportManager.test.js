@@ -269,12 +269,9 @@ describe('AdminExportManager', () => {
             // FhirResourceSerializer.serialize was called
             expect(FhirResourceSerializer.serialize).toHaveBeenCalledWith(mockResource);
 
-            // BUG: The result does NOT have _serialized property because
-            // the return value of serialize() is discarded
-            expect(result).toBe(mockResource);
-            expect(result._serialized).toBeUndefined();
-            // If serialize return value was used, this would be true:
-            // expect(result._serialized).toBe(true);
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // The result should be the serialized version (serialize return value should be used)
+            expect(result._serialized).toBe(true);
         });
 
         test('BUG: serialize return value is discarded for bundle search', async () => {
@@ -295,9 +292,9 @@ describe('AdminExportManager', () => {
             const result = await manager.getExportStatus({ req, res });
 
             expect(FhirResourceSerializer.serialize).toHaveBeenCalledWith(mockBundle);
-            // BUG: return value not used
-            expect(result).toBe(mockBundle);
-            expect(result._serialized).toBeUndefined();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // The result should be the serialized version (serialize return value should be used)
+            expect(result._serialized).toBe(true);
         });
 
         test('BUG: finally block uses different httpContext key than what was set', async () => {
@@ -323,13 +320,13 @@ describe('AdminExportManager', () => {
 
             await manager.getExportStatus({ req, res });
 
-            // The finally block called executeAsync with undefined requestId
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // The finally block should use the correct requestId (the one that was set)
             expect(mockPostRequestProcessor.executeAsync).toHaveBeenCalledWith({
-                requestId: undefined
+                requestId: 'user-req-123'
             });
-            // The finally block called clearAsync with undefined requestId
             expect(mockRequestSpecificCache.clearAsync).toHaveBeenCalledWith({
-                requestId: undefined
+                requestId: 'user-req-123'
             });
         });
 
@@ -495,12 +492,13 @@ describe('AdminExportManager', () => {
 
             await manager.updateExportStatus({ req, res });
 
-            // BUG: requestId is undefined because the wrong httpContext key is used
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should use the correct requestId (the one that was set) for cleanup
             expect(mockPostRequestProcessor.executeAsync).toHaveBeenCalledWith({
-                requestId: undefined
+                requestId: 'user-req-123'
             });
             expect(mockRequestSpecificCache.clearAsync).toHaveBeenCalledWith({
-                requestId: undefined
+                requestId: 'user-req-123'
             });
         });
     });
@@ -571,10 +569,10 @@ describe('AdminExportManager', () => {
 
             await manager.triggerExportJob({ req, res });
 
-            // No cleanup is performed - postRequestProcessor.executeAsync is never called
-            expect(mockPostRequestProcessor.executeAsync).not.toHaveBeenCalled();
-            // No cache cleanup
-            expect(mockRequestSpecificCache.clearAsync).not.toHaveBeenCalled();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // Should have a finally block that performs cleanup like other methods
+            expect(mockPostRequestProcessor.executeAsync).toHaveBeenCalled();
+            expect(mockRequestSpecificCache.clearAsync).toHaveBeenCalled();
         });
 
         test('does not set req.id like other methods do', async () => {

@@ -465,14 +465,14 @@ describe('R4SearchQueryCreator', () => {
                 resourceType: 'Patient'
             });
 
-            // This would route to FilterByDateTime instead of throwing
-            const result = creator.getColumnsAndSegmentsForParameterType({
-                parsedArg,
-                filterParameters
-            });
-
-            // It matches the dateTime case instead of throwing 'Unknown type'
-            expect(result.andSegments).toBeDefined();
+            // EXPECTED: correct behavior (will fail until bug is fixed)
+            // An undefined type should throw 'Unknown type' instead of silently matching dateTime
+            expect(() => {
+                creator.getColumnsAndSegmentsForParameterType({
+                    parsedArg,
+                    filterParameters
+                });
+            }).toThrow('Unknown type');
         });
 
         test('handles null propertyObj returns empty andSegments', () => {
