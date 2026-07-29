@@ -65,7 +65,10 @@ describe('Person Tests', () => {
             const container = getTestContainer();
 
             container.register('personToPatientIdsExpander', c => new PersonToPatientIdsExpander({
-                databaseQueryFactory: c.databaseQueryFactory
+                databaseQueryFactory: c.databaseQueryFactory,
+                scopesManager: c.scopesManager,
+                securityTagManager: c.securityTagManager,
+                configManager: c.configManager
             }));
 
             const personToPatientIdsExpander = container.personToPatientIdsExpander;
