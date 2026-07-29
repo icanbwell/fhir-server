@@ -1,20 +1,31 @@
 // Test for group_id + member combined filtering in ClickHouse
 // Verifies that _id parameter is properly passed to ClickHouse WHERE clause
 
-const { describe, test, beforeEach, afterEach, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getHeaders } = require('../common');
+const { describe, test, beforeAll, afterAll, beforeEach, expect } = require('@jest/globals');
+const {
+    setupGroupTests,
+    teardownGroupTests,
+    cleanupAllData,
+    getSharedRequest,
+    getTestHeadersWithExternalStorage,
+    syncClickHouseMaterializedViews,
+    waitForData
+} = require('./groupTestSetup');
 const { QueryParser } = require('../../dataLayer/providers/mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('../../dataLayer/providers/mongoWithClickHouse/queryBuilder');
 const { FilterById } = require('../../operations/query/filters/id');
-const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 
 describe('Group ID with Member Filter Tests', () => {
-    beforeEach(async () => {
-        await commonBeforeEach();
+    beforeAll(async () => {
+        await setupGroupTests();
     });
 
-    afterEach(async () => {
-        await commonAfterEach();
+    afterAll(async () => {
+        await teardownGroupTests();
+    });
+
+    beforeEach(async () => {
+        await cleanupAllData();
     });
 
     describe('QueryParser.extractGroupIdFilter', () => {
@@ -183,10 +194,9 @@ describe('Group ID with Member Filter Tests', () => {
 
     describe('Integration: Group ID + Member query', () => {
         test('filters by both group_id and member in ClickHouse', async () => {
-            const container = getTestContainer();
+            const request = getSharedRequest();
 
             // Create test Group with member
-            const request = await createTestRequest();
             const groupResource = {
                 resourceType: 'Group',
                 id: 'DBT5-Denominator-samsung',
@@ -217,27 +227,34 @@ describe('Group ID with Member Filter Tests', () => {
             };
 
             // POST both groups with useExternalStorage header
-            const headers = {
-                ...getHeaders(),
-                [USE_EXTERNAL_STORAGE_HEADER]: 'true'
-            };
-
             let resp = await request
-                .post('/4_0_0/Group/1/$merge?validate=true')
+                .post('/4_0_0/Group')
                 .send(groupResource)
-                .set(headers)
-                .expect(200);
+                .set(getTestHeadersWithExternalStorage())
+                .expect(201);
 
             resp = await request
-                .post('/4_0_0/Group/1/$merge?validate=true')
+                .post('/4_0_0/Group')
                 .send(otherGroupResource)
-                .set(headers)
-                .expect(200);
+                .set(getTestHeadersWithExternalStorage())
+                .expect(201);
+
+            // Wait for ClickHouse data
+            await syncClickHouseMaterializedViews();
+            await waitForData(
+                async () => {
+                    const resp = await request
+                        .get('/4_0_0/Group?member=Patient/test-patient-123')
+                        .set(getTestHeadersWithExternalStorage());
+                    return resp.body?.entry?.length >= 2;
+                },
+                { description: 'both groups with member to be available' }
+            );
 
             // Query with BOTH _id and member parameters
             resp = await request
                 .get('/4_0_0/Group?_id=DBT5-Denominator-samsung&member=Patient/test-patient-123')
-                .set(headers)
+                .set(getTestHeadersWithExternalStorage())
                 .expect(200);
 
             const bundle = resp.body;
@@ -248,13 +265,7 @@ describe('Group ID with Member Filter Tests', () => {
         });
 
         test('returns empty when group_id does not match but member does', async () => {
-            const container = getTestContainer();
-
-            const request = await createTestRequest();
-            const headers = {
-                ...getHeaders(),
-                [USE_EXTERNAL_STORAGE_HEADER]: 'true'
-            };
+            const request = getSharedRequest();
 
             const groupResource = {
                 resourceType: 'Group',
@@ -271,15 +282,27 @@ describe('Group ID with Member Filter Tests', () => {
             };
 
             let resp = await request
-                .post('/4_0_0/Group/1/$merge?validate=true')
+                .post('/4_0_0/Group')
                 .send(groupResource)
-                .set(headers)
-                .expect(200);
+                .set(getTestHeadersWithExternalStorage())
+                .expect(201);
+
+            // Wait for ClickHouse data
+            await syncClickHouseMaterializedViews();
+            await waitForData(
+                async () => {
+                    const resp = await request
+                        .get('/4_0_0/Group?member=Patient/test-patient-456')
+                        .set(getTestHeadersWithExternalStorage());
+                    return resp.body?.entry?.length >= 1;
+                },
+                { description: 'group with member to be available' }
+            );
 
             // Query with _id that doesn't exist but member that does
             resp = await request
                 .get('/4_0_0/Group?_id=non-existent-group&member=Patient/test-patient-456')
-                .set(headers)
+                .set(getTestHeadersWithExternalStorage())
                 .expect(200);
 
             const bundle = resp.body;
