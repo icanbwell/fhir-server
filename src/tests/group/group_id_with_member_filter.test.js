@@ -2,10 +2,11 @@
 // Verifies that _id parameter is properly passed to ClickHouse WHERE clause
 
 const { describe, test, beforeEach, afterEach, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getHeaders } = require('../common');
 const { QueryParser } = require('../../dataLayer/providers/mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('../../dataLayer/providers/mongoWithClickHouse/queryBuilder');
 const { FilterById } = require('../../operations/query/filters/id');
+const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 
 describe('Group ID with Member Filter Tests', () => {
     beforeEach(async () => {
@@ -216,24 +217,27 @@ describe('Group ID with Member Filter Tests', () => {
             };
 
             // POST both groups with useExternalStorage header
+            const headers = {
+                ...getHeaders(),
+                [USE_EXTERNAL_STORAGE_HEADER]: 'true'
+            };
+
             let resp = await request
                 .post('/4_0_0/Group/1/$merge?validate=true')
                 .send(groupResource)
-                .set('Content-Type', 'application/fhir+json')
-                .set('useExternalStorage', 'true')
+                .set(headers)
                 .expect(200);
 
             resp = await request
                 .post('/4_0_0/Group/1/$merge?validate=true')
                 .send(otherGroupResource)
-                .set('Content-Type', 'application/fhir+json')
-                .set('useExternalStorage', 'true')
+                .set(headers)
                 .expect(200);
 
             // Query with BOTH _id and member parameters
             resp = await request
                 .get('/4_0_0/Group?_id=DBT5-Denominator-samsung&member=Patient/test-patient-123')
-                .set('useExternalStorage', 'true')
+                .set(headers)
                 .expect(200);
 
             const bundle = resp.body;
@@ -247,6 +251,11 @@ describe('Group ID with Member Filter Tests', () => {
             const container = getTestContainer();
 
             const request = await createTestRequest();
+            const headers = {
+                ...getHeaders(),
+                [USE_EXTERNAL_STORAGE_HEADER]: 'true'
+            };
+
             const groupResource = {
                 resourceType: 'Group',
                 id: 'existing-group',
@@ -264,14 +273,13 @@ describe('Group ID with Member Filter Tests', () => {
             let resp = await request
                 .post('/4_0_0/Group/1/$merge?validate=true')
                 .send(groupResource)
-                .set('Content-Type', 'application/fhir+json')
-                .set('useExternalStorage', 'true')
+                .set(headers)
                 .expect(200);
 
             // Query with _id that doesn't exist but member that does
             resp = await request
                 .get('/4_0_0/Group?_id=non-existent-group&member=Patient/test-patient-456')
-                .set('useExternalStorage', 'true')
+                .set(headers)
                 .expect(200);
 
             const bundle = resp.body;
