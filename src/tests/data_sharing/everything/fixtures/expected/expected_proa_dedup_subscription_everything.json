@@ -1,194 +1,235 @@
 {
-    "entry": [
-        {
-            "id": "9c25075b-2ac9-4125-a28b-abb2b6787a70",
-            "resource": {
-                "channel": {
-                    "type": "rest-hook",
-                    "endpoint": "https://www.icanbwell.com/Subscription/123"
-                },
-                "criteria": "Topic/123",
-                "extension": [
-                    {
-                        "url": "https://icanbwell.com/codes/client_person_id",
-                        "valueString": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
-                    },
-                    {
-                        "url": "https://icanbwell.com/codes/source_patient_id",
-                        "valueString": "commonProaPatientClient1"
-                    },
-                    {
-                        "url": "https://icanbwell.com/codes/connection_type",
-                        "valueString": "proa"
-                    },
-                    {
-                        "url": "https://icanbwell.com/codes/connection_name",
-                        "valueString": "Emory Healthcare"
-                    },
-                    {
-                        "url": "https://icanbwell.com/codes/service_slug",
-                        "valueString": "health-service"
-                    }
-                ],
-                "id": "9c25075b-2ac9-4125-a28b-abb2b6787a70",
-                "meta": {
-                    "source": "bwell",
-                    "security": [
-                        {
-                            "system": "https://www.icanbwell.com/access",
-                            "code": "bwell"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/owner",
-                            "code": "bwell"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                            "code": "client2"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/connectionType",
-                            "code": "proa"
-                        }
-                    ],
-                    "versionId": "1"
-                },
-                "reason": "Monitor all changes to the Topic",
-                "resourceType": "Subscription",
-                "status": "active"
+  "entry": [
+    {
+      "id": "7e96ddf8-3a67-4152-a66f-2a8caab2d930",
+      "resource": {
+        "id": "7e96ddf8-3a67-4152-a66f-2a8caab2d930",
+        "identifier": [
+          {
+            "system": "https://icanbwell.com/codes/client_person_id",
+            "value": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
+          },
+          {
+            "system": "https://icanbwell.com/codes/source_patient_id",
+            "value": "commonProaPatientClient1"
+          },
+          {
+            "system": "https://icanbwell.com/codes/connection_type",
+            "value": "proa"
+          },
+          {
+            "system": "https://icanbwell.com/codes/service_slug",
+            "value": "health-service"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "7e96ddf8-3a67-4152-a66f-2a8caab2d930"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7e96ddf8-3a67-4152-a66f-2a8caab2d930"
+          }
+        ],
+        "meta": {
+          "source": "bwell",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell",
+              "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell",
+              "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client2",
+              "id": "f2210c92-42d9-5336-af1a-77bfe8998ccf"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa",
+              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9"
             }
+          ],
+          "versionId": "1"
         },
-        {
-            "id": "8b6c1d2e-3f4a-4b5c-9d6e-7f8a9b0c1d2e",
-            "resource": {
-                "extension": [
-                    {
-                        "url": "https://icanbwell.com/codes/client_person_id",
-                        "valueString": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
-                    },
-                    {
-                        "url": "https://icanbwell.com/codes/source_patient_id",
-                        "valueString": "commonProaPatientClient1"
-                    },
-                    {
-                        "url": "https://icanbwell.com/codes/connection_type",
-                        "valueString": "proa"
-                    },
-                    {
-                        "url": "https://icanbwell.com/codes/service_slug",
-                        "valueString": "health-service"
-                    }
-                ],
-                "id": "8b6c1d2e-3f4a-4b5c-9d6e-7f8a9b0c1d2e",
-                "meta": {
-                    "source": "bwell",
-                    "security": [
-                        {
-                            "system": "https://www.icanbwell.com/access",
-                            "code": "bwell"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/owner",
-                            "code": "bwell"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                            "code": "client2"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/connectionType",
-                            "code": "proa"
-                        }
-                    ],
-                    "versionId": "1"
-                },
-                "resourceType": "SubscriptionStatus",
-                "status": "active",
-                "subscription": {
-                    "reference": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70",
-                    "extension": [
-                        {
-                            "id": "sourceId",
-                            "url": "https://www.icanbwell.com/sourceId",
-                            "valueString": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70"
-                        },
-                        {
-                            "id": "uuid",
-                            "url": "https://www.icanbwell.com/uuid",
-                            "valueString": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70"
-                        },
-                        {
-                            "id": "sourceAssigningAuthority",
-                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                            "valueString": "client2"
-                        }
-                    ]
-                },
-                "topic": "SubscriptionTopic/7e96ddf8-3a67-4152-a66f-2a8caab2d930",
-                "type": "query-status"
+        "resourceType": "SubscriptionTopic",
+        "status": "active",
+        "url": "https://fhir-myrecord.example.com/r4/subscription-topic/proa-dedup-client2"
+      }
+    },
+    {
+      "id": "8b6c1d2e-3f4a-4b5c-9d6e-7f8a9b0c1d2e",
+      "resource": {
+        "extension": [
+          {
+            "url": "https://icanbwell.com/codes/client_person_id",
+            "valueString": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
+          },
+          {
+            "url": "https://icanbwell.com/codes/source_patient_id",
+            "valueString": "commonProaPatientClient1"
+          },
+          {
+            "url": "https://icanbwell.com/codes/connection_type",
+            "valueString": "proa"
+          },
+          {
+            "url": "https://icanbwell.com/codes/service_slug",
+            "valueString": "health-service"
+          }
+        ],
+        "id": "8b6c1d2e-3f4a-4b5c-9d6e-7f8a9b0c1d2e",
+        "meta": {
+          "source": "bwell",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell",
+              "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell",
+              "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client2",
+              "id": "f2210c92-42d9-5336-af1a-77bfe8998ccf"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa",
+              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9"
             }
+          ],
+          "versionId": "1"
         },
-        {
-            "id": "7e96ddf8-3a67-4152-a66f-2a8caab2d930",
-            "resource": {
-                "id": "7e96ddf8-3a67-4152-a66f-2a8caab2d930",
-                "identifier": [
-                    {
-                        "system": "https://icanbwell.com/codes/client_person_id",
-                        "value": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
-                    },
-                    {
-                        "system": "https://icanbwell.com/codes/source_patient_id",
-                        "value": "commonProaPatientClient1"
-                    },
-                    {
-                        "system": "https://icanbwell.com/codes/connection_type",
-                        "value": "proa"
-                    },
-                    {
-                        "system": "https://icanbwell.com/codes/service_slug",
-                        "value": "health-service"
-                    },
-                    {
-                        "id": "sourceId",
-                        "system": "https://www.icanbwell.com/sourceId",
-                        "value": "7e96ddf8-3a67-4152-a66f-2a8caab2d930"
-                    },
-                    {
-                        "id": "uuid",
-                        "system": "https://www.icanbwell.com/uuid",
-                        "value": "7e96ddf8-3a67-4152-a66f-2a8caab2d930"
-                    }
-                ],
-                "meta": {
-                    "source": "bwell",
-                    "security": [
-                        {
-                            "system": "https://www.icanbwell.com/access",
-                            "code": "bwell"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/owner",
-                            "code": "bwell"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                            "code": "client2"
-                        },
-                        {
-                            "system": "https://www.icanbwell.com/connectionType",
-                            "code": "proa"
-                        }
-                    ],
-                    "versionId": "1"
-                },
-                "resourceType": "SubscriptionTopic",
-                "status": "active",
-                "url": "https://fhir-myrecord.example.com/r4/subscription-topic/proa-dedup-client2"
+        "resourceType": "SubscriptionStatus",
+        "status": "active",
+        "subscription": {
+          "reference": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "client2"
             }
-        }
-    ],
-    "type": "searchset",
-    "resourceType": "Bundle",
-    "total": 3
+          ]
+        },
+        "topic": "SubscriptionTopic/7e96ddf8-3a67-4152-a66f-2a8caab2d930",
+        "type": "query-status"
+      }
+    },
+    {
+      "id": "9c25075b-2ac9-4125-a28b-abb2b6787a70",
+      "resource": {
+        "channel": {
+          "type": "rest-hook",
+          "endpoint": "https://www.icanbwell.com/Subscription/123"
+        },
+        "criteria": "Topic/123",
+        "extension": [
+          {
+            "url": "https://icanbwell.com/codes/client_person_id",
+            "valueString": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
+          },
+          {
+            "url": "https://icanbwell.com/codes/source_patient_id",
+            "valueString": "commonProaPatientClient1"
+          },
+          {
+            "url": "https://icanbwell.com/codes/connection_type",
+            "valueString": "proa"
+          },
+          {
+            "url": "https://icanbwell.com/codes/connection_name",
+            "valueString": "Emory Healthcare"
+          },
+          {
+            "url": "https://icanbwell.com/codes/service_slug",
+            "valueString": "health-service"
+          }
+        ],
+        "id": "9c25075b-2ac9-4125-a28b-abb2b6787a70",
+        "meta": {
+          "source": "bwell",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell",
+              "id": "2d1e0b6f-56fb-5dd9-bc38-f01b5902fde2"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell",
+              "id": "70ae40c6-f2bd-54a0-aa66-656be4cce72b"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client2",
+              "id": "f2210c92-42d9-5336-af1a-77bfe8998ccf"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa",
+              "id": "2ddb7b9d-413a-59ba-abb6-65774d005ed9"
+            }
+          ],
+          "versionId": "1"
+        },
+        "reason": "Monitor all changes to the Topic",
+        "resourceType": "Subscription",
+        "status": "active"
+      }
+    }
+  ],
+  "type": "searchset",
+  "resourceType": "Bundle",
+  "total": 3,
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'_uuid':{'$in':['54ed40a8-49d1-4471-9afd-c8039f49ed31','aea0e925-48b9-59a2-85ea-64cc7ade059e','person.76e37ad9-128b-495f-aa79-3634e4d5b0a7']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]},{'$and':[{'_uuid':'aea0e925-48b9-59a2-85ea-64cc7ade059e'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa','ias']}}}}]}]}, {'_id':0})  | db.Person_4_0_0.find({'$or':[{'$and':[{'link.target._uuid':{'$in':['Patient/54ed40a8-49d1-4471-9afd-c8039f49ed31','Patient/aea0e925-48b9-59a2-85ea-64cc7ade059e','Patient/person.76e37ad9-128b-495f-aa79-3634e4d5b0a7']}},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}}]},{'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa','ias']}}}},{'link.target._uuid':'Patient/aea0e925-48b9-59a2-85ea-64cc7ade059e'},{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}}]}]}, {'_id':0}) | db.Subscription_4_0_0.find({'$or':[{'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}},{'$or':[{'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'54ed40a8-49d1-4471-9afd-c8039f49ed31'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'client2'}}}]},{'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'commonProaPatientClient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'health-service'}}}]}]}]},{'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa','ias']}}}},{'$or':[{'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'54ed40a8-49d1-4471-9afd-c8039f49ed31'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'client2'}}}]},{'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'commonProaPatientClient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'health-service'}}}]}]}]}],'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'76e37ad9-128b-495f-aa79-3634e4d5b0a7'}}}]}, {'_id':0}) | db.SubscriptionStatus_4_0_0.find({'$or':[{'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}},{'$or':[{'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'54ed40a8-49d1-4471-9afd-c8039f49ed31'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'client2'}}}]},{'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'commonProaPatientClient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'health-service'}}}]}]}]},{'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa','ias']}}}},{'$or':[{'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'54ed40a8-49d1-4471-9afd-c8039f49ed31'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'client2'}}}]},{'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/source_patient_id','valueString':'commonProaPatientClient1'}}},{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/service_slug','valueString':'health-service'}}}]}]}]}],'$and':[{'extension':{'$elemMatch':{'url':'https://icanbwell.com/codes/client_person_id','valueString':'76e37ad9-128b-495f-aa79-3634e4d5b0a7'}}}]}, {'_id':0}) | db.SubscriptionTopic_4_0_0.find({'$or':[{'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client2'}}},{'$or':[{'$and':[{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/source_patient_id','value':'54ed40a8-49d1-4471-9afd-c8039f49ed31'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/service_slug','value':'client2'}}}]},{'$and':[{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/source_patient_id','value':'commonProaPatientClient1'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/service_slug','value':'health-service'}}}]}]}]},{'$and':[{'meta.tag':{'$not':{'$elemMatch':{'system':'https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior','code':'hidden'}}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa','ias']}}}},{'$or':[{'$and':[{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/source_patient_id','value':'54ed40a8-49d1-4471-9afd-c8039f49ed31'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/service_slug','value':'client2'}}}]},{'$and':[{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/source_patient_id','value':'commonProaPatientClient1'}}},{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/service_slug','value':'health-service'}}}]}]}]}],'$and':[{'identifier':{'$elemMatch':{'system':'https://icanbwell.com/codes/client_person_id','value':'76e37ad9-128b-495f-aa79-3634e4d5b0a7'}}}]}, {'_id':0})"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Patient_4_0_0|Person_4_0_0|Subscription_4_0_0|SubscriptionStatus_4_0_0|SubscriptionTopic_4_0_0"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "[{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}},{'projection':{'_id':0}}]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "[]"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  }
 }
