@@ -1,0 +1,65 @@
+{
+    "entry": [
+        {
+            "id": "9c25075b-2ac9-4125-a28b-abb2b6787a70",
+            "resource": {
+                "channel": {
+                    "type": "rest-hook",
+                    "endpoint": "https://www.icanbwell.com/Subscription/123"
+                },
+                "criteria": "Topic/123",
+                "extension": [
+                    {
+                        "url": "https://icanbwell.com/codes/client_person_id",
+                        "valueString": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/source_patient_id",
+                        "valueString": "commonProaPatientClient1"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/connection_type",
+                        "valueString": "proa"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/connection_name",
+                        "valueString": "Emory Healthcare"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/service_slug",
+                        "valueString": "health-service"
+                    }
+                ],
+                "id": "9c25075b-2ac9-4125-a28b-abb2b6787a70",
+                "meta": {
+                    "source": "bwell",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client2"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/connectionType",
+                            "code": "proa"
+                        }
+                    ],
+                    "versionId": "1"
+                },
+                "reason": "Monitor all changes to the Topic",
+                "resourceType": "Subscription",
+                "status": "active"
+            }
+        }
+    ],
+    "type": "searchset",
+    "resourceType": "Bundle",
+    "total": 1
+}
