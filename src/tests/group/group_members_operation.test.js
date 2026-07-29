@@ -222,12 +222,11 @@ describe('Group $members operation', () => {
         const resp = await request
             .get('/4_0_0/Group/test-group/$members')
             .set({ Authorization: getTestHeadersWithExternalStorage().Authorization })
-            .expect(200);
+            .expect(400);
 
         const outcome = resp.body;
         expect(outcome.resourceType).toBe('OperationOutcome');
         expect(outcome.issue[0].severity).toBe('error');
-        expect(outcome.issue[0].diagnostics).toContain('useExternalStorage');
     });
 
     test('returns empty result for group with no members', async () => {

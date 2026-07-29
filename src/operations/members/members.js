@@ -6,6 +6,7 @@ const { ScopesValidator } = require('../security/scopesValidator');
 const { StorageProviderFactory } = require('../../dataLayer/providers/storageProviderFactory');
 const { isTrue } = require('../../utils/isTrue');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
+const { BadRequestError } = require('../../utils/httpErrors');
 
 /**
  * Group $members Operation
@@ -69,13 +70,19 @@ class MembersOperation {
                 args
             });
 
+            // Verify OAuth scopes for Group read access
+            await this.scopesValidator.verifyHasValidScopesAsync({
+                requestInfo,
+                base_version,
+                resourceType: 'Group',
+                accessRequested: 'read'
+            });
+
             // Check if useExternalStorage header is set
             const useExternalStorage = isTrue(req.headers?.[USE_EXTERNAL_STORAGE_HEADER]);
             if (!useExternalStorage) {
-                return this._createErrorResponse(
-                    'bad-request',
-                    '$members operation requires useExternalStorage: true header',
-                    400
+                throw new BadRequestError(
+                    '$members operation requires useExternalStorage: true header'
                 );
             }
 
@@ -91,10 +98,8 @@ class MembersOperation {
 
             // Check if this is a mongo-with-clickhouse provider
             if (typeof storageProvider.getCurrentMembersWithCountAsync !== 'function') {
-                return this._createErrorResponse(
-                    'not-supported',
-                    '$members operation is only available for Groups with ClickHouse external storage',
-                    501
+                throw new BadRequestError(
+                    '$members operation is only available for Groups with ClickHouse external storage'
                 );
             }
 
@@ -210,31 +215,6 @@ class MembersOperation {
         };
     }
 
-    /**
-     * Creates an OperationOutcome error response
-     * @param {string} code - Error code
-     * @param {string} diagnostics - Error message
-     * @param {number} statusCode - HTTP status code
-     * @returns {Object} OperationOutcome
-     * @private
-     */
-    _createErrorResponse(code, diagnostics, statusCode) {
-        const response = {
-            resourceType: 'OperationOutcome',
-            issue: [
-                {
-                    severity: 'error',
-                    code,
-                    diagnostics
-                }
-            ]
-        };
-
-        // Attach status code for middleware to use
-        response._statusCode = statusCode;
-
-        return response;
-    }
 }
 
 module.exports = { MembersOperation };
