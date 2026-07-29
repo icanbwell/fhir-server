@@ -50,11 +50,14 @@ describe('Group $members operation', () => {
             meta: defaultMeta
         };
 
-        await request
+        let createResp = await request
             .post('/4_0_0/Group')
             .send(groupResource)
             .set(getTestHeadersWithExternalStorage())
             .expect(201);
+
+        // Capture the generated UUID (POST ignores the id in the body)
+        const groupId = createResp.body.id;
 
         // Wait for ClickHouse data
         await syncClickHouseMaterializedViews();
@@ -68,9 +71,9 @@ describe('Group $members operation', () => {
             { description: 'group with members to be available' }
         );
 
-        // Call $members operation
+        // Call $members operation with the generated UUID
         const resp = await request
-            .get('/4_0_0/Group/test-group-members/$members')
+            .get(`/4_0_0/Group/${groupId}/$members`)
             .set(getTestHeadersWithExternalStorage())
             .expect(200);
 
@@ -106,11 +109,14 @@ describe('Group $members operation', () => {
             meta: defaultMeta
         };
 
-        await request
+        let createResp = await request
             .post('/4_0_0/Group')
             .send(groupResource)
             .set(getTestHeadersWithExternalStorage())
             .expect(201);
+
+        // Capture the generated UUID
+        const groupId = createResp.body.id;
 
         // Wait for ClickHouse data
         await syncClickHouseMaterializedViews();
@@ -126,7 +132,7 @@ describe('Group $members operation', () => {
 
         // Get first page with _count=3
         const resp = await request
-            .get('/4_0_0/Group/test-group-pagination/$members?_count=3')
+            .get(`/4_0_0/Group/${groupId}/$members?_count=3`)
             .set(getTestHeadersWithExternalStorage())
             .expect(200);
 
@@ -158,11 +164,14 @@ describe('Group $members operation', () => {
             meta: defaultMeta
         };
 
-        await request
+        let createResp = await request
             .post('/4_0_0/Group')
             .send(groupResource)
             .set(getTestHeadersWithExternalStorage())
             .expect(201);
+
+        // Capture the generated UUID
+        const groupId = createResp.body.id;
 
         // Wait for ClickHouse data
         await syncClickHouseMaterializedViews();
@@ -178,7 +187,7 @@ describe('Group $members operation', () => {
 
         // Get first page
         const firstPage = await request
-            .get('/4_0_0/Group/test-group-cursor/$members?_count=2')
+            .get(`/4_0_0/Group/${groupId}/$members?_count=2`)
             .set(getTestHeadersWithExternalStorage())
             .expect(200);
 
@@ -194,7 +203,7 @@ describe('Group $members operation', () => {
 
         // Get second page using cursor
         const secondPage = await request
-            .get(`/4_0_0/Group/test-group-cursor/$members?_count=2&_cursor=${encodeURIComponent(cursor)}`)
+            .get(`/4_0_0/Group/${groupId}/$members?_count=2&_cursor=${encodeURIComponent(cursor)}`)
             .set(getTestHeadersWithExternalStorage())
             .expect(200);
 
@@ -234,17 +243,20 @@ describe('Group $members operation', () => {
             meta: defaultMeta
         };
 
-        await request
+        let createResp = await request
             .post('/4_0_0/Group')
             .send(groupResource)
             .set(getTestHeadersWithExternalStorage())
             .expect(201);
 
+        // Capture the generated UUID
+        const groupId = createResp.body.id;
+
         await syncClickHouseMaterializedViews();
 
         // Call $members operation
         const resp = await request
-            .get('/4_0_0/Group/empty-group/$members')
+            .get(`/4_0_0/Group/${groupId}/$members`)
             .set(getTestHeadersWithExternalStorage())
             .expect(200);
 
@@ -267,11 +279,14 @@ describe('Group $members operation', () => {
             meta: defaultMeta
         };
 
-        await request
+        let createResp = await request
             .post('/4_0_0/Group')
             .send(groupResource)
             .set(getTestHeadersWithExternalStorage())
             .expect(201);
+
+        // Capture the generated UUID
+        const groupId = createResp.body.id;
 
         await syncClickHouseMaterializedViews();
         await waitForData(
@@ -286,7 +301,7 @@ describe('Group $members operation', () => {
 
         // Test with count > max (should cap at 1000)
         const resp = await request
-            .get('/4_0_0/Group/test-group-limits/$members?_count=2000')
+            .get(`/4_0_0/Group/${groupId}/$members?_count=2000`)
             .set(getTestHeadersWithExternalStorage())
             .expect(200);
 
@@ -310,11 +325,14 @@ describe('Group $members operation', () => {
             meta: defaultMeta
         };
 
-        await request
+        let createResp = await request
             .post('/4_0_0/Group')
             .send(groupResource)
             .set(getTestHeadersWithExternalStorage())
             .expect(201);
+
+        // Capture the generated UUID
+        const groupId = createResp.body.id;
 
         await syncClickHouseMaterializedViews();
         await waitForData(
@@ -327,10 +345,10 @@ describe('Group $members operation', () => {
             { description: 'group with members to be available' }
         );
 
-        // Remove one member
+        // Remove one member - must use PUT with the same ID to update
         const updatedGroup = {
             resourceType: 'Group',
-            id: 'test-group-active',
+            id: groupId,
             type: 'person',
             actual: true,
             member: [
@@ -340,10 +358,10 @@ describe('Group $members operation', () => {
         };
 
         await request
-            .post('/4_0_0/Group')
+            .put(`/4_0_0/Group/${groupId}`)
             .send(updatedGroup)
             .set(getTestHeadersWithExternalStorage())
-            .expect(201);
+            .expect(200);
 
         await syncClickHouseMaterializedViews();
         await waitForData(
@@ -351,14 +369,14 @@ describe('Group $members operation', () => {
                 const resp = await request
                     .get('/4_0_0/Group?member=Patient/patient-1')
                     .set(getTestHeadersWithExternalStorage());
-                return resp.body?.total === 1;
+                return resp.body?.entry?.length === 1;
             },
             { description: 'updated group to be available' }
         );
 
         // $members should only return active member
         const resp = await request
-            .get('/4_0_0/Group/test-group-active/$members')
+            .get(`/4_0_0/Group/${groupId}/$members`)
             .set(getTestHeadersWithExternalStorage())
             .expect(200);
 
