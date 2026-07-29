@@ -103,11 +103,17 @@ class MembersOperation {
                 );
             }
 
-            // Get members from ClickHouse
-            const { members, totalCount } = await storageProvider.getCurrentMembersWithCountAsync(
+            // Get members from ClickHouse - fetch limit+1 to detect if more results exist
+            const { members: allMembers, totalCount } = await storageProvider.getCurrentMembersWithCountAsync(
                 id,
-                { limit, afterReference }
+                { limit: limit + 1, afterReference }
             );
+
+            // Check if more results exist (we got limit+1 rows)
+            const hasMore = allMembers.length > limit;
+
+            // Only return the requested limit
+            const members = hasMore ? allMembers.slice(0, limit) : allMembers;
 
             logInfo('$members operation completed', {
                 requestId,
@@ -123,6 +129,7 @@ class MembersOperation {
                 totalCount,
                 limit,
                 afterReference,
+                hasMore,
                 base_version,
                 req
             });
@@ -168,10 +175,11 @@ class MembersOperation {
     /**
      * Builds a Bundle response with member references
      * @param {Object} params
+     * @param {boolean} params.hasMore - Whether more results exist beyond this page
      * @returns {Object} FHIR Bundle
      * @private
      */
-    _buildMembersBundle({ groupId, members, totalCount, limit, afterReference, base_version, req }) {
+    _buildMembersBundle({ groupId, members, totalCount, limit, afterReference, hasMore, base_version, req }) {
         const baseUrl = `${req.protocol}://${req.get('host')}`;
         const selfUrl = `${baseUrl}/${base_version}/Group/${groupId}/$members?_count=${limit}`;
         const selfUrlWithCursor = afterReference
@@ -196,8 +204,8 @@ class MembersOperation {
             }
         ];
 
-        // Add next link if there are more results
-        if (members.length === limit) {
+        // Add next link only if more results actually exist
+        if (hasMore && members.length > 0) {
             const lastReference = members[members.length - 1].entity_reference;
             const nextUrl = `${selfUrl}&_cursor=${encodeURIComponent(lastReference)}`;
             links.push({
