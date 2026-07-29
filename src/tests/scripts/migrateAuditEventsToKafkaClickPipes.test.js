@@ -127,16 +127,16 @@ describe('migrateAuditEventsToKafkaClickPipes script', () => {
             expect(collection.deleteMany).toHaveBeenCalledWith({ _id: { $in: ['mongo-id-1'] } });
         });
 
-        test('aborts without deleting Mongo docs when the Kafka publish fails', async () => {
+        test('does not delete Mongo docs and reports them as failed when the Kafka publish fails, without throwing', async () => {
             const kafkaClientV2 = {
                 sendCloudEventMessageAsync: jest.fn().mockRejectedValue(new Error('publish failed'))
             };
             const collection = makeCollection();
 
-            await expect(
-                processBatchAsync({ docs: [makeDoc()], collection, kafkaClientV2, topic: 't', transformer, batchNo: 1 })
-            ).rejects.toThrow();
+            const result = await processBatchAsync({ docs: [makeDoc()], collection, kafkaClientV2, topic: 't', transformer, batchNo: 1 });
+
             expect(collection.deleteMany).not.toHaveBeenCalled();
+            expect(result).toEqual({ inserted: 0, deleted: 0, failed: 1 });
         });
 
         // _uuid and recorded are non-nullable ORDER BY/PARTITION BY columns in
@@ -144,29 +144,67 @@ describe('migrateAuditEventsToKafkaClickPipes script', () => {
         // path relied on ClickHouse to reject a row missing either one; Kafka
         // does not validate message content at all (an undefined key just
         // means "no key"), so a malformed doc must never reach the point of
-        // being treated as published.
-        test('aborts without publishing or deleting when a doc is missing _uuid', async () => {
+        // being treated as published. It is logged and skipped rather than
+        // aborting the whole run.
+        test('skips publishing and deleting a doc missing _uuid, without throwing', async () => {
             const kafkaClientV2 = { sendCloudEventMessageAsync: jest.fn().mockResolvedValue(undefined) };
             const collection = makeCollection();
             const docs = [makeDoc({ _uuid: undefined })];
 
-            await expect(
-                processBatchAsync({ docs, collection, kafkaClientV2, topic: 't', transformer, batchNo: 1 })
-            ).rejects.toThrow();
+            const result = await processBatchAsync({ docs, collection, kafkaClientV2, topic: 't', transformer, batchNo: 1 });
+
             expect(kafkaClientV2.sendCloudEventMessageAsync).not.toHaveBeenCalled();
             expect(collection.deleteMany).not.toHaveBeenCalled();
+            expect(result).toEqual({ inserted: 0, deleted: 0, failed: 1 });
         });
 
-        test('aborts without publishing or deleting when a doc is missing recorded', async () => {
+        test('skips publishing and deleting a doc missing recorded, without throwing', async () => {
             const kafkaClientV2 = { sendCloudEventMessageAsync: jest.fn().mockResolvedValue(undefined) };
             const collection = makeCollection();
             const docs = [makeDoc({ recorded: undefined })];
 
-            await expect(
-                processBatchAsync({ docs, collection, kafkaClientV2, topic: 't', transformer, batchNo: 1 })
-            ).rejects.toThrow();
+            const result = await processBatchAsync({ docs, collection, kafkaClientV2, topic: 't', transformer, batchNo: 1 });
+
             expect(kafkaClientV2.sendCloudEventMessageAsync).not.toHaveBeenCalled();
             expect(collection.deleteMany).not.toHaveBeenCalled();
+            expect(result).toEqual({ inserted: 0, deleted: 0, failed: 1 });
+        });
+
+        test('publishes and deletes valid docs while skipping an invalid one in the same batch', async () => {
+            const kafkaClientV2 = { sendCloudEventMessageAsync: jest.fn().mockResolvedValue(undefined) };
+            const collection = makeCollection();
+            const docs = [
+                makeDoc({ _id: 'mongo-id-1', _uuid: 'audit-uuid-1' }),
+                makeDoc({ _id: 'mongo-id-2', _uuid: undefined })
+            ];
+
+            const result = await processBatchAsync({ docs, collection, kafkaClientV2, topic: 't', transformer, batchNo: 1 });
+
+            expect(kafkaClientV2.sendCloudEventMessageAsync).toHaveBeenCalledTimes(1);
+            const { messages } = kafkaClientV2.sendCloudEventMessageAsync.mock.calls[0][0];
+            expect(messages).toHaveLength(1);
+            expect(collection.deleteMany).toHaveBeenCalledWith({ _id: { $in: ['mongo-id-1'] } });
+            expect(result).toEqual({ inserted: 1, deleted: 1, failed: 1 });
+        });
+
+        // An over-sized message (e.g. one AuditEvent > Kafka's message.max.bytes)
+        // makes the whole batch's Kafka publish fail. That failure is handled the
+        // same as any other publish failure: log the ids, leave them in Mongo,
+        // and resolve without throwing rather than aborting the migration.
+        test('does not throw and leaves the whole batch in Mongo when the publish fails because a message is too large', async () => {
+            const kafkaClientV2 = {
+                sendCloudEventMessageAsync: jest.fn().mockRejectedValue(new Error('Message size too large'))
+            };
+            const collection = makeCollection();
+            const docs = [
+                makeDoc({ _id: 'mongo-id-1', _uuid: 'audit-uuid-1' }),
+                makeDoc({ _id: 'mongo-id-2', _uuid: 'audit-uuid-2' })
+            ];
+
+            const result = await processBatchAsync({ docs, collection, kafkaClientV2, topic: 't', transformer, batchNo: 1 });
+
+            expect(collection.deleteMany).not.toHaveBeenCalled();
+            expect(result).toEqual({ inserted: 0, deleted: 0, failed: 2 });
         });
     });
 });
