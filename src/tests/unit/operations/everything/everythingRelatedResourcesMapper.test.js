@@ -128,4 +128,41 @@ describe('EverythingRelatedResourcesMapper', () => {
             expect(result[0].type).toBe('Patient');
         });
     });
+
+    describe('INC-332: Cross-tenant SubscriptionStatus exposure', () => {
+        test('BUG: SubscriptionStatus customQuery lacks client_person_id tenant filter', () => {
+            const result = mapper.relatedResources('Patient', null);
+            const subscriptionStatus = result.find(r => r.type === 'SubscriptionStatus');
+
+            // The customQuery matches on source_patient_id + service_slug ONLY.
+            // When two tenants share the same real patient at the same health system,
+            // this query returns BOTH tenants' SubscriptionStatus records — a cross-tenant
+            // data leak. The query SHOULD also filter on client_person_id to isolate tenants.
+            expect(subscriptionStatus.customQuery.query).toContain('client_person_id');
+        });
+
+        test('BUG: Subscription customQuery lacks client_person_id tenant filter', () => {
+            const result = mapper.relatedResources('Patient', null);
+            const subscription = result.find(r => r.type === 'Subscription');
+
+            expect(subscription.customQuery.query).toContain('client_person_id');
+        });
+
+        test('BUG: SubscriptionTopic customQuery lacks client_person_id tenant filter', () => {
+            const result = mapper.relatedResources('Patient', null);
+            const subscriptionTopic = result.find(r => r.type === 'SubscriptionTopic');
+
+            expect(subscriptionTopic.customQuery.query).toContain('client_person_id');
+        });
+
+        test('BUG: SubscriptionStatus requiredValues should include client_person_id', () => {
+            const result = mapper.relatedResources('Patient', null);
+            const subscriptionStatus = result.find(r => r.type === 'SubscriptionStatus');
+
+            // requiredValues only has _sourceId and _sourceAssigningAuthority.
+            // It SHOULD also require a tenant-discriminating value (client_person_id)
+            // so the query can be parameterized with the requesting person's id.
+            expect(subscriptionStatus.customQuery.requiredValues).toContain('_clientPersonId');
+        });
+    });
 });
