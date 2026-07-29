@@ -1,0 +1,8 @@
+{
+  "name": "resolve-route-skill",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "ts-morph": "24.0.0"
+  }
+}
