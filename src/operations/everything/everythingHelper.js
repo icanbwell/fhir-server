@@ -24,6 +24,7 @@ const { PatientEverythingCacheKeyGenerator } = require('./patientEverythingCache
 const {
     GRIDFS: { RETRIEVE },
     OPERATIONS: { READ },
+    SUBSCRIPTION_RESOURCE_TYPES,
     SUBSCRIPTION_RESOURCES_REFERENCE_FIELDS,
     SUBSCRIPTION_RESOURCES_REFERENCE_KEY_MAP,
     PATIENT_REFERENCE_PREFIX,
