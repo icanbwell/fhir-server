@@ -1,0 +1,24 @@
+{
+    "resourceType": "Person",
+    "id": "76e37ad9-128b-495f-aa79-3634e4d5b0a7",
+    "meta": {
+        "source": "client2",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "client2" },
+            { "system": "https://www.icanbwell.com/owner", "code": "client2" }
+        ]
+    },
+    "name": [{ "use": "usual", "family": "PATIENT1", "given": ["SHYLA"] }],
+    "gender": "female",
+    "birthDate": "2017-01-01",
+    "link": [
+        {
+            "target": { "reference": "Patient/54ed40a8-49d1-4471-9afd-c8039f49ed31", "type": "Patient" },
+            "assurance": "level4"
+        },
+        {
+            "target": { "reference": "Patient/commonProaPatientClient1|health-service", "type": "Patient" },
+            "assurance": "level4"
+        }
+    ]
+}

@@ -1,0 +1,194 @@
+{
+    "entry": [
+        {
+            "id": "9c25075b-2ac9-4125-a28b-abb2b6787a70",
+            "resource": {
+                "channel": {
+                    "type": "rest-hook",
+                    "endpoint": "https://www.icanbwell.com/Subscription/123"
+                },
+                "criteria": "Topic/123",
+                "extension": [
+                    {
+                        "url": "https://icanbwell.com/codes/client_person_id",
+                        "valueString": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/source_patient_id",
+                        "valueString": "commonProaPatientClient1"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/connection_type",
+                        "valueString": "proa"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/connection_name",
+                        "valueString": "Emory Healthcare"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/service_slug",
+                        "valueString": "health-service"
+                    }
+                ],
+                "id": "9c25075b-2ac9-4125-a28b-abb2b6787a70",
+                "meta": {
+                    "source": "bwell",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client2"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/connectionType",
+                            "code": "proa"
+                        }
+                    ],
+                    "versionId": "1"
+                },
+                "reason": "Monitor all changes to the Topic",
+                "resourceType": "Subscription",
+                "status": "active"
+            }
+        },
+        {
+            "id": "8b6c1d2e-3f4a-4b5c-9d6e-7f8a9b0c1d2e",
+            "resource": {
+                "extension": [
+                    {
+                        "url": "https://icanbwell.com/codes/client_person_id",
+                        "valueString": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/source_patient_id",
+                        "valueString": "commonProaPatientClient1"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/connection_type",
+                        "valueString": "proa"
+                    },
+                    {
+                        "url": "https://icanbwell.com/codes/service_slug",
+                        "valueString": "health-service"
+                    }
+                ],
+                "id": "8b6c1d2e-3f4a-4b5c-9d6e-7f8a9b0c1d2e",
+                "meta": {
+                    "source": "bwell",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client2"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/connectionType",
+                            "code": "proa"
+                        }
+                    ],
+                    "versionId": "1"
+                },
+                "resourceType": "SubscriptionStatus",
+                "status": "active",
+                "subscription": {
+                    "reference": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70",
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Subscription/9c25075b-2ac9-4125-a28b-abb2b6787a70"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "client2"
+                        }
+                    ]
+                },
+                "topic": "SubscriptionTopic/7e96ddf8-3a67-4152-a66f-2a8caab2d930",
+                "type": "query-status"
+            }
+        },
+        {
+            "id": "7e96ddf8-3a67-4152-a66f-2a8caab2d930",
+            "resource": {
+                "id": "7e96ddf8-3a67-4152-a66f-2a8caab2d930",
+                "identifier": [
+                    {
+                        "system": "https://icanbwell.com/codes/client_person_id",
+                        "value": "76e37ad9-128b-495f-aa79-3634e4d5b0a7"
+                    },
+                    {
+                        "system": "https://icanbwell.com/codes/source_patient_id",
+                        "value": "commonProaPatientClient1"
+                    },
+                    {
+                        "system": "https://icanbwell.com/codes/connection_type",
+                        "value": "proa"
+                    },
+                    {
+                        "system": "https://icanbwell.com/codes/service_slug",
+                        "value": "health-service"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "7e96ddf8-3a67-4152-a66f-2a8caab2d930"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "7e96ddf8-3a67-4152-a66f-2a8caab2d930"
+                    }
+                ],
+                "meta": {
+                    "source": "bwell",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "client2"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/connectionType",
+                            "code": "proa"
+                        }
+                    ],
+                    "versionId": "1"
+                },
+                "resourceType": "SubscriptionTopic",
+                "status": "active",
+                "url": "https://fhir-myrecord.example.com/r4/subscription-topic/proa-dedup-client2"
+            }
+        }
+    ],
+    "type": "searchset",
+    "resourceType": "Bundle",
+    "total": 3
+}
