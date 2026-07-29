@@ -161,10 +161,11 @@ describe('PatientQueryCreator', () => {
             // When patientFilterProperty is an empty array, should NOT produce {$or: []}
             // Should either return __invalid__ or skip the empty $or clause
             const hasEmptyOr = (obj) => {
-                if (!obj) return false;
-                if (obj.$or && obj.$or.length === 0) return true;
-                if (obj.$and) return obj.$and.some(hasEmptyOr);
-                return false;
+                if (!obj || typeof obj !== 'object') return false;
+                if (Array.isArray(obj.$or) && obj.$or.length === 0) return true;
+                if (Array.isArray(obj.$and)) return obj.$and.some(hasEmptyOr);
+                if (Array.isArray(obj.$or)) return obj.$or.some(hasEmptyOr);
+                return Object.values(obj).some(v => typeof v === 'object' && hasEmptyOr(v));
             };
             expect(hasEmptyOr(result)).toBe(false);
         });
