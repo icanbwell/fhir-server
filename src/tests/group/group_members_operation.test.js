@@ -25,6 +25,14 @@ describe('Group $members operation', () => {
         await cleanupAllData();
     });
 
+    const defaultMeta = {
+        source: 'http://test-system.com/Group|test-owner',
+        security: [
+            { system: 'https://www.icanbwell.com/owner', code: 'test-owner' },
+            { system: 'https://www.icanbwell.com/access', code: 'test-access' }
+        ]
+    };
+
     test('returns paginated members from ClickHouse', async () => {
         const request = getSharedRequest();
 
@@ -38,7 +46,8 @@ describe('Group $members operation', () => {
                 { entity: { reference: 'Patient/patient-1' } },
                 { entity: { reference: 'Patient/patient-2' } },
                 { entity: { reference: 'Patient/patient-3' } }
-            ]
+            ],
+            meta: defaultMeta
         };
 
         await request
@@ -93,7 +102,8 @@ describe('Group $members operation', () => {
             id: 'test-group-pagination',
             type: 'person',
             actual: true,
-            member: members
+            member: members,
+            meta: defaultMeta
         };
 
         await request
@@ -144,7 +154,8 @@ describe('Group $members operation', () => {
             id: 'test-group-cursor',
             type: 'person',
             actual: true,
-            member: members
+            member: members,
+            meta: defaultMeta
         };
 
         await request
@@ -219,7 +230,8 @@ describe('Group $members operation', () => {
             id: 'empty-group',
             type: 'person',
             actual: true,
-            member: []
+            member: [],
+            meta: defaultMeta
         };
 
         await request
@@ -251,7 +263,8 @@ describe('Group $members operation', () => {
             id: 'test-group-limits',
             type: 'person',
             actual: true,
-            member: [{ entity: { reference: 'Patient/test' } }]
+            member: [{ entity: { reference: 'Patient/test' } }],
+            meta: defaultMeta
         };
 
         await request
@@ -293,7 +306,8 @@ describe('Group $members operation', () => {
             member: [
                 { entity: { reference: 'Patient/patient-1' } },
                 { entity: { reference: 'Patient/patient-2' } }
-            ]
+            ],
+            meta: defaultMeta
         };
 
         await request
@@ -321,7 +335,8 @@ describe('Group $members operation', () => {
             actual: true,
             member: [
                 { entity: { reference: 'Patient/patient-1' } }
-            ]
+            ],
+            meta: defaultMeta
         };
 
         await request
