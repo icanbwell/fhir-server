@@ -1820,15 +1820,19 @@ class EverythingHelper {
                         await nonClinicalReferencesExtractor.processResource(startResource);
                     }
 
+                    // Collect Person identifiers so the subscription step can match on the Person
+                    // _uuid (client_person_id). This must happen OUTSIDE the bundleEntryIdsProcessedTracker
+                    // guard: that tracker is shared across all id-chunks of the request, while
+                    // personResourcesProcessedTracker is per-chunk. A Person already emitted in an earlier
+                    // chunk would otherwise be skipped here and missing from this chunk's person set, which
+                    // would drop this chunk's subscription results (the matchPerson clause is a mandatory $and).
+                    if (personResourcesProcessedTracker && resourceIdentifier.resourceType === 'Person') {
+                        personResourcesProcessedTracker.add(resourceIdentifier);
+                    }
+
                     if (!bundleEntryIdsProcessedTracker.has(resourceIdentifier)) {
                         if (resourceIdentifiers) {
                             resourceIdentifiers.push(resourceIdentifier);
-                        }
-                        // Collect Person identifiers so the subscription step can match on the Person
-                        // _uuid (client_person_id). Done before the allowedToBeSent gate so Person is
-                        // captured even when it was fetched only to seed the subscription query.
-                        if (personResourcesProcessedTracker && resourceIdentifier.resourceType === 'Person') {
-                            personResourcesProcessedTracker.add(resourceIdentifier);
                         }
                         // check resource is allowed to be sent and either _since filter is not set or
                         // the last updated time of the resource is greater than the since filter
