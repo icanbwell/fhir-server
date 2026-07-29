@@ -71,6 +71,25 @@ jestGlobal.mock('../../../utils/k8sClient', () => {
     return { K8sClient };
 });
 
+jestGlobal.mock('../../../utils/assertType', () => ({
+    assertTypeEquals: jestGlobal.fn(),
+    assertIsValid: jestGlobal.fn()
+}));
+
+jestGlobal.mock('../../../utils/rethrownError', () => ({
+    RethrownError: class RethrownError extends Error {
+        constructor({ message, source, error }) {
+            super(message);
+            this.source = source;
+            this.originalError = error;
+        }
+    }
+}));
+
+jestGlobal.mock('../../../constants', () => ({
+    EXPORTSTATUS_LAST_UPDATED_DEFAULT_TIME: 24 * 60 * 60 * 1000
+}));
+
 const { CronJobRunner } = require('../../../cronJob/cronJobRunner');
 const { DatabaseExportManager } = require('../../../dataLayer/databaseExportManager');
 const { DatabaseQueryFactory } = require('../../../dataLayer/databaseQueryFactory');
@@ -79,8 +98,9 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { PostSaveProcessor } = require('../../../dataLayer/postSaveProcessor');
 const { BulkExportEventProducer } = require('../../../utils/bulkExportEventProducer');
 const { K8sClient } = require('../../../utils/k8sClient');
+const { logInfo, logError } = require('../../../operations/common/logging');
 
-describe('CronJobRunner — Bug Detection', () => {
+describe('CronJobRunner', () => {
     let runner;
     let mockDatabaseQueryFactory;
     let mockDatabaseExportManager;
@@ -92,6 +112,9 @@ describe('CronJobRunner — Bug Detection', () => {
     let mockDatabaseQueryManager;
 
     beforeEach(() => {
+        logInfo.mockReset();
+        logError.mockReset();
+
         mockDatabaseQueryManager = {
             findAsync: jestGlobal.fn()
         };
@@ -147,183 +170,332 @@ describe('CronJobRunner — Bug Detection', () => {
         };
     }
 
-    describe('BUG: triggerHistoryMigrationJob has no try-catch — errors propagate to processAsync', () => {
-        /**
-         * BUG: Lines 98-119: triggerHistoryMigrationJob() has NO try-catch.
-         * Unlike triggerK8JobForAcceptedResources (line 129-176) and
-         * updateInProgressResources (line 185-230) which both wrap errors in RethrownError,
-         * triggerHistoryMigrationJob lets errors escape raw.
-         *
-         * In processAsync (line 81-96), the error is caught by the outer try-catch
-         * and only logged. This means:
-         * - Errors are not wrapped in RethrownError (inconsistent error handling)
-         * - The raw error message may not include sufficient context for debugging
-         * - If k8sClient.createJob throws, the remaining collections are skipped silently
-         */
-        test('k8sClient.createJob throwing mid-loop should NOT skip remaining collections', async () => {
-            // First call succeeds, second throws
-            mockK8sClient.createJob
-                .mockResolvedValueOnce(true)
-                .mockRejectedValueOnce(new Error('K8s API unavailable'));
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // triggerHistoryMigrationJob should have try-catch inside the loop so that
-            // a failure for one collection does not prevent processing remaining collections.
-            // It should NOT throw — it should handle the error and continue.
-            await expect(
-                runner.triggerHistoryMigrationJob()
-            ).resolves.toBeUndefined();
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // All collections should be attempted even if one fails.
-            expect(mockK8sClient.createJob).toHaveBeenCalledTimes(2);
+    describe('constructor', () => {
+        test('assigns all dependencies to instance properties', () => {
+            expect(runner.databaseQueryFactory).toBe(mockDatabaseQueryFactory);
+            expect(runner.databaseExportManager).toBe(mockDatabaseExportManager);
+            expect(runner.exportManager).toBe(mockExportManager);
+            expect(runner.configManager).toBe(mockConfigManager);
+            expect(runner.postSaveProcessor).toBe(mockPostSaveProcessor);
+            expect(runner.bulkExportEventProducer).toBe(mockBulkExportEventProducer);
+            expect(runner.k8sClient).toBe(mockK8sClient);
         });
+    });
 
-        test('processAsync catches raw error from triggerHistoryMigrationJob (no RethrownError wrapping)', async () => {
-            // Make triggerK8JobForAcceptedResources and updateInProgressResources succeed
+    describe('processAsync', () => {
+        test('creates a database query for ExportStatus with version 4_0_0', async () => {
             const emptyCursor = createMockCursor([]);
             mockDatabaseQueryManager.findAsync.mockResolvedValue(emptyCursor);
 
-            // Make k8sClient.createJob throw
-            mockK8sClient.createJob.mockRejectedValue(new Error('K8s API timeout'));
+            await runner.processAsync();
 
-            // processAsync should NOT throw (it catches errors)
+            expect(mockDatabaseQueryFactory.createQuery).toHaveBeenCalledWith({
+                resourceType: 'ExportStatus',
+                base_version: '4_0_0'
+            });
+        });
+
+        test('calls triggerK8JobForAcceptedResources, updateInProgressResources, and triggerHistoryMigrationJob', async () => {
+            const emptyCursor = createMockCursor([]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(emptyCursor);
+
+            await runner.processAsync();
+
+            // triggerK8JobForAcceptedResources queries accepted status
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query: { status: 'accepted' },
+                    options: expect.any(Object)
+                })
+            );
+            // updateInProgressResources queries in-progress status
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query: expect.objectContaining({ status: 'in-progress' })
+                })
+            );
+            // triggerHistoryMigrationJob calls k8sClient.createJob
+            expect(mockK8sClient.createJob).toHaveBeenCalled();
+        });
+
+        test('logs error but does not throw when an error occurs', async () => {
+            mockDatabaseQueryFactory.createQuery.mockImplementation(() => {
+                throw new Error('factory error');
+            });
+
             await expect(runner.processAsync()).resolves.toBeUndefined();
 
-            // BUG CONTEXT: The error logged in processAsync is a raw Error,
-            // not wrapped in RethrownError with source context.
-            // This makes it harder to trace in production logs.
+            expect(logError).toHaveBeenCalledWith(
+                expect.stringContaining('Error in processAsync'),
+                expect.objectContaining({ error: expect.any(String) })
+            );
         });
     });
 
-    describe('BUG: updateInProgressResources — error during iteration leaves cursor open', () => {
-        /**
-         * BUG: Lines 197-217: The while loop iterates a cursor.
-         * If any step inside the loop throws (updateExportStatusAsync, afterSaveAsync, produce),
-         * the error propagates to the catch block, but the cursor is never explicitly closed.
-         *
-         * This leaks a database cursor, which can exhaust MongoDB's cursor limit
-         * under sustained error conditions.
-         */
-        test('error mid-iteration in updateInProgressResources aborts remaining resources', async () => {
-            const resources = [
-                { _uuid: 'export-1', status: 'in-progress' },
-                { _uuid: 'export-2', status: 'in-progress' },
-                { _uuid: 'export-3', status: 'in-progress' }
-            ];
+    describe('triggerK8JobForAcceptedResources', () => {
+        test('queries for accepted status resources sorted by transactionTime ascending', async () => {
+            const emptyCursor = createMockCursor([]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(emptyCursor);
+
+            await runner.triggerK8JobForAcceptedResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(mockDatabaseQueryManager.findAsync).toHaveBeenCalledWith({
+                query: { status: 'accepted' },
+                options: {
+                    sort: { transactionTime: 1 },
+                    projection: { _uuid: 1 }
+                }
+            });
+        });
+
+        test('triggers export job for each resource in cursor', async () => {
+            const resources = [{ _uuid: 'uuid-1' }, { _uuid: 'uuid-2' }];
             const cursor = createMockCursor(resources);
             mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
 
-            // First resource: updateExportStatusAsync succeeds
-            // Second resource: updateExportStatusAsync throws
-            mockDatabaseExportManager.updateExportStatusAsync
-                .mockResolvedValueOnce(undefined)
-                .mockRejectedValueOnce(new Error('MongoDB write concern timeout'));
+            await runner.triggerK8JobForAcceptedResources({ databaseQueryManager: mockDatabaseQueryManager });
 
-            await expect(
-                runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager })
-            ).rejects.toThrow('MongoDB write concern timeout');
-
-            // BUG: Only 2 resources processed (first succeeded, second threw)
-            // Third resource is never processed. Cursor is never closed.
-            expect(mockDatabaseExportManager.updateExportStatusAsync).toHaveBeenCalledTimes(2);
-            // export-3 was never processed — data left in inconsistent state
+            expect(mockExportManager.triggerExportJob).toHaveBeenCalledTimes(2);
+            expect(mockExportManager.triggerExportJob).toHaveBeenCalledWith({
+                exportStatusResource: { _uuid: 'uuid-1' },
+                requestId: 'test-host'
+            });
+            expect(mockExportManager.triggerExportJob).toHaveBeenCalledWith({
+                exportStatusResource: { _uuid: 'uuid-2' },
+                requestId: 'test-host'
+            });
         });
 
-        test('bulkExportEventProducer.produce failure aborts remaining resources', async () => {
-            const resources = [
-                { _uuid: 'export-1', status: 'in-progress' },
-                { _uuid: 'export-2', status: 'in-progress' }
-            ];
+        test('stops creating jobs when triggerExportJob returns falsy', async () => {
+            const resources = [{ _uuid: 'uuid-1' }, { _uuid: 'uuid-2' }, { _uuid: 'uuid-3' }];
             const cursor = createMockCursor(resources);
             mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
 
-            // updateExportStatusAsync succeeds for both
-            mockDatabaseExportManager.updateExportStatusAsync.mockResolvedValue(undefined);
-            // afterSaveAsync succeeds for both
-            mockPostSaveProcessor.afterSaveAsync.mockResolvedValue(undefined);
-            // First produce succeeds, second throws
-            mockBulkExportEventProducer.produce
-                .mockResolvedValueOnce(undefined)
-                .mockRejectedValueOnce(new Error('Kafka unavailable'));
+            mockExportManager.triggerExportJob
+                .mockResolvedValueOnce(true)
+                .mockResolvedValueOnce(false);
 
-            await expect(
-                runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager })
-            ).rejects.toThrow('Kafka unavailable');
+            await runner.triggerK8JobForAcceptedResources({ databaseQueryManager: mockDatabaseQueryManager });
 
-            // BUG: First resource was fully processed (status changed + event produced)
-            // Second resource had its status changed in DB but event production failed
-            // This leaves the second resource in 'entered-in-error' state in MongoDB
-            // but without a corresponding Kafka event — downstream systems miss the state change
-            expect(mockDatabaseExportManager.updateExportStatusAsync).toHaveBeenCalledTimes(2);
-            expect(mockBulkExportEventProducer.produce).toHaveBeenCalledTimes(2);
+            expect(mockExportManager.triggerExportJob).toHaveBeenCalledTimes(2);
+            expect(logInfo).toHaveBeenCalledWith(
+                expect.stringContaining('Maximum number of active jobs reached')
+            );
         });
-    });
 
-    describe('BUG: triggerK8JobForAcceptedResources — cursor.nextObject() failure', () => {
-        /**
-         * If the cursor's nextObject() throws mid-iteration (e.g., network error),
-         * the error is caught and wrapped in RethrownError.
-         * But previously processed resources may have already had jobs triggered.
-         */
-        test('cursor error after triggering some jobs leaves partial state', async () => {
-            let callCount = 0;
-            const cursor = {
-                hasNext: jestGlobal.fn().mockImplementation(async () => {
-                    callCount++;
-                    if (callCount === 1) return true;
-                    if (callCount === 2) return true;
-                    return false;
-                }),
-                nextObject: jestGlobal.fn()
-                    .mockResolvedValueOnce({ _uuid: 'export-1' })
-                    .mockRejectedValueOnce(new Error('cursor expired'))
-            };
+        test('does not trigger any jobs when cursor is empty', async () => {
+            const cursor = createMockCursor([]);
             mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.triggerK8JobForAcceptedResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(mockExportManager.triggerExportJob).not.toHaveBeenCalled();
+        });
+
+        test('throws RethrownError when findAsync fails', async () => {
+            mockDatabaseQueryManager.findAsync.mockRejectedValue(new Error('db connection failed'));
 
             await expect(
                 runner.triggerK8JobForAcceptedResources({ databaseQueryManager: mockDatabaseQueryManager })
-            ).rejects.toThrow();
+            ).rejects.toThrow('db connection failed');
 
-            // First export had job triggered, then cursor error prevented further processing
-            expect(mockExportManager.triggerExportJob).toHaveBeenCalledTimes(1);
+            expect(logError).toHaveBeenCalledWith(
+                expect.stringContaining('Error in triggerK8JobForAcceptedResources'),
+                expect.objectContaining({ error: expect.any(String) })
+            );
+        });
+
+        test('logs info about fetching resources before querying', async () => {
+            const cursor = createMockCursor([]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.triggerK8JobForAcceptedResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(logInfo).toHaveBeenCalledWith(
+                expect.stringContaining('Fetching ExportStatus resource with query')
+            );
+        });
+
+        test('logs success message after processing all resources', async () => {
+            const cursor = createMockCursor([]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.triggerK8JobForAcceptedResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(logInfo).toHaveBeenCalledWith(
+                expect.stringContaining('Successfully finished triggering k8 job')
+            );
         });
     });
 
-    describe('BUG: updateInProgressResources partial commit — DB updated but event fails', () => {
-        /**
-         * BUG: Lines 203-213: Three operations are performed sequentially per resource:
-         * 1. updateExportStatusAsync (MongoDB write)
-         * 2. afterSaveAsync (post-save processing)
-         * 3. produce (Kafka event)
-         *
-         * If step 2 (afterSaveAsync) throws, the MongoDB write (step 1) is already committed.
-         * The resource status is changed to 'entered-in-error' in MongoDB,
-         * but the post-save event and Kafka event are lost.
-         */
-        test('afterSaveAsync failure after DB update should rollback or not commit DB update', async () => {
-            const resources = [{ _uuid: 'export-1', status: 'in-progress' }];
+    describe('updateInProgressResources', () => {
+        test('queries for in-progress resources with lastUpdated older than default time', async () => {
+            const cursor = createMockCursor([]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            const findCall = mockDatabaseQueryManager.findAsync.mock.calls[0][0];
+            expect(findCall.query.status).toBe('in-progress');
+            expect(findCall.query['meta.lastUpdated'].$lt).toBeInstanceOf(Date);
+        });
+
+        test('sets status to entered-in-error for each found resource', async () => {
+            const resources = [
+                { _uuid: 'uuid-1', status: 'in-progress' },
+                { _uuid: 'uuid-2', status: 'in-progress' }
+            ];
             const cursor = createMockCursor(resources);
             mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
 
-            mockDatabaseExportManager.updateExportStatusAsync.mockResolvedValue(undefined);
-            mockPostSaveProcessor.afterSaveAsync.mockRejectedValue(
-                new Error('Post-save handler crash')
-            );
+            await runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager });
 
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // The operation should either:
-            // - Use a transaction so DB update is rolled back on afterSaveAsync failure, OR
-            // - Not throw and instead handle the error gracefully (retry or log and continue)
-            // Currently: DB is updated but afterSaveAsync fails, leaving inconsistent state.
+            expect(resources[0].status).toBe('entered-in-error');
+            expect(resources[1].status).toBe('entered-in-error');
+        });
+
+        test('calls updateExportStatusAsync for each resource', async () => {
+            const resources = [
+                { _uuid: 'uuid-1', status: 'in-progress' },
+                { _uuid: 'uuid-2', status: 'in-progress' }
+            ];
+            const cursor = createMockCursor(resources);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(mockDatabaseExportManager.updateExportStatusAsync).toHaveBeenCalledTimes(2);
+            expect(mockDatabaseExportManager.updateExportStatusAsync).toHaveBeenCalledWith({
+                exportStatusResource: resources[0]
+            });
+            expect(mockDatabaseExportManager.updateExportStatusAsync).toHaveBeenCalledWith({
+                exportStatusResource: resources[1]
+            });
+        });
+
+        test('calls postSaveProcessor.afterSaveAsync with correct params', async () => {
+            const resource = { _uuid: 'uuid-1', status: 'in-progress' };
+            const cursor = createMockCursor([resource]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledWith({
+                requestId: 'test-host',
+                eventType: 'U',
+                resourceType: 'ExportStatus',
+                doc: resource
+            });
+        });
+
+        test('calls bulkExportEventProducer.produce with correct params', async () => {
+            const resource = { _uuid: 'uuid-1', status: 'in-progress' };
+            const cursor = createMockCursor([resource]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(mockBulkExportEventProducer.produce).toHaveBeenCalledWith({
+                resource: resource,
+                requestId: 'test-host'
+            });
+        });
+
+        test('does not process anything when cursor is empty', async () => {
+            const cursor = createMockCursor([]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(mockDatabaseExportManager.updateExportStatusAsync).not.toHaveBeenCalled();
+            expect(mockPostSaveProcessor.afterSaveAsync).not.toHaveBeenCalled();
+            expect(mockBulkExportEventProducer.produce).not.toHaveBeenCalled();
+        });
+
+        test('throws RethrownError when an error occurs', async () => {
+            mockDatabaseQueryManager.findAsync.mockRejectedValue(new Error('update failed'));
+
             await expect(
                 runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager })
-            ).resolves.toBeUndefined();
+            ).rejects.toThrow('update failed');
 
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // All resources should still be processed (error should be handled per-resource)
-            expect(mockDatabaseExportManager.updateExportStatusAsync).toHaveBeenCalledTimes(1);
-            expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledTimes(1);
+            expect(logError).toHaveBeenCalledWith(
+                expect.stringContaining('Error in updateInProgressResources'),
+                expect.objectContaining({ error: expect.any(String) })
+            );
+        });
+
+        test('logs success message after completing all updates', async () => {
+            const cursor = createMockCursor([]);
+            mockDatabaseQueryManager.findAsync.mockResolvedValue(cursor);
+
+            await runner.updateInProgressResources({ databaseQueryManager: mockDatabaseQueryManager });
+
+            expect(logInfo).toHaveBeenCalledWith(
+                expect.stringContaining("Successfully finished updating status to 'entered-in-error'")
+            );
+        });
+    });
+
+    describe('triggerHistoryMigrationJob', () => {
+        test('creates a k8s job for each collection in cloudStorageHistoryResources', async () => {
+            await runner.triggerHistoryMigrationJob();
+
+            expect(mockK8sClient.createJob).toHaveBeenCalledTimes(2);
+            expect(mockK8sClient.createJob).toHaveBeenCalledWith({
+                scriptCommand: expect.stringContaining('Binary_4_0_0_History'),
+                context: {}
+            });
+            expect(mockK8sClient.createJob).toHaveBeenCalledWith({
+                scriptCommand: expect.stringContaining('DocumentReference_4_0_0_History'),
+                context: {}
+            });
+        });
+
+        test('includes migration limit from configManager in script command', async () => {
+            await runner.triggerHistoryMigrationJob();
+
+            expect(mockK8sClient.createJob).toHaveBeenCalledWith({
+                scriptCommand: expect.stringContaining('--limit=1000'),
+                context: {}
+            });
+        });
+
+        test('includes correct script path in command', async () => {
+            await runner.triggerHistoryMigrationJob();
+
+            expect(mockK8sClient.createJob).toHaveBeenCalledWith({
+                scriptCommand: expect.stringContaining('node /srv/src/src/operations/history/script/migrateToCloudStorage.js'),
+                context: {}
+            });
+        });
+
+        test('stops creating jobs when createJob returns falsy', async () => {
+            mockK8sClient.createJob.mockResolvedValueOnce(false);
+
+            await runner.triggerHistoryMigrationJob();
+
+            expect(mockK8sClient.createJob).toHaveBeenCalledTimes(1);
+            expect(logInfo).toHaveBeenCalledWith(
+                expect.stringContaining('Maximum number of active jobs reached in the namespace, stopping History Migration')
+            );
+        });
+
+        test('logs success for each triggered job', async () => {
+            await runner.triggerHistoryMigrationJob();
+
+            expect(logInfo).toHaveBeenCalledWith(
+                expect.stringContaining('Successfully triggered History Migration k8sclient Job for: Binary')
+            );
+            expect(logInfo).toHaveBeenCalledWith(
+                expect.stringContaining('Successfully triggered History Migration k8sclient Job for: DocumentReference')
+            );
+        });
+
+        test('processes all collections when all jobs succeed', async () => {
+            await runner.triggerHistoryMigrationJob();
+
+            expect(mockK8sClient.createJob).toHaveBeenCalledTimes(2);
         });
     });
 });

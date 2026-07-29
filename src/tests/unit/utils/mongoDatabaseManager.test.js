@@ -327,4 +327,129 @@ describe('MongoDatabaseManager', () => {
             expect(client).toBeDefined();
         });
     });
+
+    describe('getGridFsBucket', () => {
+        test('creates and returns a GridFSBucket instance', async () => {
+            // Override getClientDbAsync so we don't need full connection
+            const mockClientDbObj = { name: 'fhir' };
+            manager.getClientDbAsync = jest.fn().mockResolvedValue(mockClientDbObj);
+
+            const { GridFSBucket } = require('mongodb');
+            const bucket = await manager.getGridFsBucket();
+
+            expect(GridFSBucket).toHaveBeenCalledWith(mockClientDbObj);
+            expect(bucket).toBeDefined();
+        });
+    });
+
+    describe('dropDatabasesAsync', () => {
+        test('does nothing (base implementation is a no-op)', async () => {
+            // Base class implementation is intentionally empty for production
+            await expect(manager.dropDatabasesAsync()).resolves.toBeUndefined();
+        });
+    });
+
+    describe('getDatabaseForResourceAsync - additional edge cases', () => {
+        beforeEach(() => {
+            manager.connectAsync = jest.fn().mockResolvedValue(undefined);
+        });
+
+        test('returns client db when extraInfo is empty object', async () => {
+            const mockClientDb = { name: 'client' };
+            manager.getClientDbAsync = jest.fn().mockResolvedValue(mockClientDb);
+
+            const db = await manager.getDatabaseForResourceAsync({
+                resourceType: 'Observation',
+                extraInfo: {}
+            });
+            expect(db).toBe(mockClientDb);
+        });
+
+        test('returns client db when extraInfo is not provided (defaults to {})', async () => {
+            const mockClientDb = { name: 'client' };
+            manager.getClientDbAsync = jest.fn().mockResolvedValue(mockClientDb);
+
+            const db = await manager.getDatabaseForResourceAsync({
+                resourceType: 'Patient'
+            });
+            expect(db).toBe(mockClientDb);
+        });
+
+        test('prefers AuditEvent check over history check', async () => {
+            // If resourceType is AuditEvent AND isHistoryQuery is true,
+            // AuditEvent branch takes priority
+            const mockAuditDb = { name: 'audit' };
+            manager.getAuditDbAsync = jest.fn().mockResolvedValue(mockAuditDb);
+
+            const db = await manager.getDatabaseForResourceAsync({
+                resourceType: 'AuditEvent',
+                extraInfo: { isHistoryQuery: true, currentOperationName: 'create' }
+            });
+            expect(db).toBe(mockAuditDb);
+        });
+
+        test('handles resourceType ending with _History', async () => {
+            const mockHistoryDb = { name: 'history' };
+            manager.getResourceHistoryDbAsync = jest.fn().mockResolvedValue(mockHistoryDb);
+
+            const db = await manager.getDatabaseForResourceAsync({
+                resourceType: 'Observation_History',
+                extraInfo: {}
+            });
+            expect(db).toBe(mockHistoryDb);
+        });
+
+        test('handles null resourceType without crashing', async () => {
+            const mockClientDb = { name: 'client' };
+            manager.getClientDbAsync = jest.fn().mockResolvedValue(mockClientDb);
+
+            const db = await manager.getDatabaseForResourceAsync({
+                resourceType: null,
+                extraInfo: {}
+            });
+            expect(db).toBe(mockClientDb);
+        });
+    });
+
+    describe('config getters', () => {
+        test('getResourceHistoryConfigAsync returns resourceHistoryMongoConfig', async () => {
+            const config = await manager.getResourceHistoryConfigAsync();
+            expect(config.db_name).toBe('resource_history');
+        });
+
+        test('getAuditReadOnlyConfigAsync returns auditEventReadOnlyMongoConfig', async () => {
+            const config = await manager.getAuditReadOnlyConfigAsync();
+            expect(config.db_name).toBe('audit_ro');
+        });
+
+        test('getAccessLogsConfigAsync returns accessLogsMongoConfig', async () => {
+            const config = await manager.getAccessLogsConfigAsync();
+            expect(config.db_name).toBe('access_logs');
+        });
+    });
+
+    describe('createClientAsync - LOG_ALL_MONGO_CALLS enabled', () => {
+        test('sets monitorCommands and registers event listeners when LOG_ALL_MONGO_CALLS is true', async () => {
+            const { isTrue } = require('../../../utils/isTrue');
+            isTrue.mockReturnValue(true);
+            process.env.LOG_ALL_MONGO_CALLS = '1';
+
+            const config = {
+                connection: 'mongodb://user:pass@localhost:27017',
+                db_name: 'testdb',
+                options: { maxPoolSize: 10 }
+            };
+
+            const client = await manager.createClientAsync(config);
+
+            expect(config.options.monitorCommands).toBe(true);
+            expect(mockOn).toHaveBeenCalledWith('commandStarted', expect.any(Function));
+            expect(mockOn).toHaveBeenCalledWith('commandSucceeded', expect.any(Function));
+            expect(mockOn).toHaveBeenCalledWith('commandFailed', expect.any(Function));
+            expect(client).toBeDefined();
+
+            isTrue.mockReturnValue(false);
+            delete process.env.LOG_ALL_MONGO_CALLS;
+        });
+    });
 });

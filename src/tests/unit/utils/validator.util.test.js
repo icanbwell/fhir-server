@@ -2,63 +2,78 @@
 
 const { describe, test, expect, beforeEach, jest } = require('@jest/globals');
 
-// Mock dependencies
-jest.mock('../../../utils/fhirSchemaValidator', () => ({
-    fhirSchemaValidator: {
-        validate: jest.fn()
-    }
-}));
+/**
+ * Unit tests for validateResource in validator.util.js
+ *
+ * Because customMatchers.js (loaded via setupFilesAfterEnv) pre-requires
+ * validator.util.js and its dependencies, we must use jest.resetModules()
+ * in beforeEach to ensure our mocks are used by the freshly-loaded module.
+ */
 
-jest.mock('../../../utils/referenceValidator', () => ({
-    validateReferences: jest.fn(),
-    fastValidateReferences: jest.fn()
-}));
+let validateResource;
+let fhirSchemaValidator;
+let validateReferences;
+let fastValidateReferences;
+let Resource;
 
-jest.mock('../../../fhir/classes/4_0_0/resources/resource', () => {
-    class MockResource {}
-    return MockResource;
-});
+beforeEach(() => {
+    jest.resetModules();
 
-jest.mock('../../../fhir/classes/4_0_0/resources/operationOutcome', () => {
-    return class OperationOutcome {
-        constructor ({ issue }) {
-            this.issue = issue;
-            this.resourceType = 'OperationOutcome';
+    jest.mock('../../../utils/fhirSchemaValidator', () => ({
+        fhirSchemaValidator: {
+            validate: jest.fn()
         }
-    };
-});
+    }));
 
-jest.mock('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue', () => {
-    return class OperationOutcomeIssue {
-        constructor ({ severity, code, details }) {
-            this.severity = severity;
-            this.code = code;
-            this.details = details;
-        }
-    };
-});
+    jest.mock('../../../utils/referenceValidator', () => ({
+        validateReferences: jest.fn(),
+        fastValidateReferences: jest.fn()
+    }));
 
-jest.mock('../../../fhir/classes/4_0_0/complex_types/codeableConcept', () => {
-    return class CodeableConcept {
-        constructor ({ text }) {
-            this.text = text;
-        }
-    };
-});
-
-const { validateResource } = require('../../../utils/validator.util');
-const { fhirSchemaValidator } = require('../../../utils/fhirSchemaValidator');
-const { validateReferences, fastValidateReferences } = require('../../../utils/referenceValidator');
-const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
-
-describe('validateResource', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-        fhirSchemaValidator.validate.mockReturnValue(null);
-        validateReferences.mockReturnValue(null);
-        fastValidateReferences.mockReturnValue(null);
+    jest.mock('../../../fhir/classes/4_0_0/resources/resource', () => {
+        class MockResource {}
+        return MockResource;
     });
 
+    jest.mock('../../../fhir/classes/4_0_0/resources/operationOutcome', () => {
+        return class OperationOutcome {
+            constructor ({ issue }) {
+                this.issue = issue;
+                this.resourceType = 'OperationOutcome';
+            }
+        };
+    });
+
+    jest.mock('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue', () => {
+        return class OperationOutcomeIssue {
+            constructor ({ severity, code, details }) {
+                this.severity = severity;
+                this.code = code;
+                this.details = details;
+            }
+        };
+    });
+
+    jest.mock('../../../fhir/classes/4_0_0/complex_types/codeableConcept', () => {
+        return class CodeableConcept {
+            constructor ({ text }) {
+                this.text = text;
+            }
+        };
+    });
+
+    ({ fhirSchemaValidator } = require('../../../utils/fhirSchemaValidator'));
+    ({ validateReferences, fastValidateReferences } = require('../../../utils/referenceValidator'));
+    Resource = require('../../../fhir/classes/4_0_0/resources/resource');
+    ({ validateResource } = require('../../../utils/validator.util'));
+
+    // Default: no errors
+    fhirSchemaValidator.validate.mockReturnValue(null);
+    validateReferences.mockReturnValue(null);
+    fastValidateReferences.mockReturnValue(null);
+});
+
+describe('validateResource', () => {
     // ==========================================
     // 1. resourceType mismatch checks
     // ==========================================
@@ -127,7 +142,7 @@ describe('validateResource', () => {
     // 2. Schema validation (fhirSchemaValidator)
     // ==========================================
     describe('schema validation', () => {
-        test('returns null when schema validation passes with no errors', () => {
+        test('returns null when schema validation returns null', () => {
             fhirSchemaValidator.validate.mockReturnValue(null);
 
             const result = validateResource({
@@ -763,7 +778,7 @@ describe('validateResource', () => {
             expect(fastValidateReferences).not.toHaveBeenCalled();
         });
 
-        test('resourceType match with exact same string passes', () => {
+        test('resourceType match with exact same string passes validation to schema check', () => {
             fhirSchemaValidator.validate.mockReturnValue(null);
 
             const result = validateResource({
@@ -773,6 +788,7 @@ describe('validateResource', () => {
             });
 
             expect(result).toBeNull();
+            expect(fhirSchemaValidator.validate).toHaveBeenCalled();
         });
 
         test('schema error with null dataPath uses "root"', () => {

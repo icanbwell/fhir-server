@@ -597,5 +597,151 @@ describe('AdminExportManager', () => {
             // req.id is still undefined - triggerExportJob doesn't set it
             expect(req.id).toBeUndefined();
         });
+
+        test('rethrows error from scopesValidator', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const scopeError = new Error('Insufficient scopes');
+            mockScopesValidator.verifyHasValidScopesAsync.mockRejectedValue(scopeError);
+
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                sanitized_args: {},
+                query: {}
+            };
+            const res = {};
+
+            await expect(manager.triggerExportJob({ req, res })).rejects.toThrow('Insufficient scopes');
+        });
+
+        test('rethrows error from exportManager.triggerExportJob', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
+            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
+            mockExportManager.triggerExportJob.mockRejectedValue(new Error('Export job failed'));
+
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                sanitized_args: {},
+                query: {}
+            };
+            const res = {};
+
+            await expect(manager.triggerExportJob({ req, res })).rejects.toThrow('Export job failed');
+        });
+    });
+
+    describe('updateExportStatus - additional coverage', () => {
+        test('rethrows error from scopesValidator', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const scopeError = new Error('Access denied');
+            mockScopesValidator.verifyHasValidScopesAsync.mockRejectedValue(scopeError);
+
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: { resourceType: 'ExportStatus' },
+                sanitized_args: {},
+                query: {}
+            };
+            const res = {};
+
+            await expect(manager.updateExportStatus({ req, res })).rejects.toThrow('Access denied');
+        });
+
+        test('calls postRequestProcessor.add with fnTask that invokes postSaveProcessor', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const existingResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'in-progress' };
+            const updatedResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'completed' };
+            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
+            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource });
+
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: { resourceType: 'ExportStatus', status: 'completed' },
+                sanitized_args: {},
+                query: {}
+            };
+            const res = {};
+
+            await manager.updateExportStatus({ req, res });
+
+            // Verify the fnTask is a function
+            const addCall = mockPostRequestProcessor.add.mock.calls[0][0];
+            expect(addCall.requestId).toBe('user-req-123');
+            expect(typeof addCall.fnTask).toBe('function');
+
+            // Execute the fnTask and verify it calls postSaveProcessor
+            await addCall.fnTask();
+            expect(mockPostSaveProcessor.afterSaveAsync).toHaveBeenCalledWith({
+                requestId: 'user-req-123',
+                eventType: 'U',
+                resourceType: 'ExportStatus',
+                doc: updatedResource
+            });
+        });
+
+        test('calls mergeResourceAsync with correct parameters', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
+            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
+            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource: null });
+
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: { resourceType: 'ExportStatus', status: 'completed' },
+                sanitized_args: {},
+                query: {}
+            };
+            const res = {};
+
+            await manager.updateExportStatus({ req, res });
+
+            expect(mockResourceMerger.mergeResourceAsync).toHaveBeenCalledWith({
+                base_version: '4_0_0',
+                requestInfo: { requestId: 'req-1' },
+                currentResource: existingResource,
+                resourceToMerge: expect.objectContaining({ resourceType: 'ExportStatus' }),
+                smartMerge: false,
+                incrementVersion: false
+            });
+        });
+
+        test('rethrows error from databaseExportManager.updateExportStatusAsync', async () => {
+            httpContext.get.mockReturnValue('system-req-id');
+            const existingResource = { resourceType: 'ExportStatus', id: 'export-1' };
+            const updatedResource = { resourceType: 'ExportStatus', id: 'export-1', status: 'completed' };
+            mockDatabaseExportManager.getExportStatusResourceWithId.mockResolvedValue(existingResource);
+            mockResourceMerger.mergeResourceAsync.mockResolvedValue({ updatedResource });
+            mockDatabaseExportManager.updateExportStatusAsync.mockRejectedValue(
+                new Error('Database write failed')
+            );
+
+            const req = {
+                id: 'user-req-123',
+                header: jestGlobal.fn(),
+                params: { id: 'export-1' },
+                headers: {},
+                body: { resourceType: 'ExportStatus', status: 'completed' },
+                sanitized_args: {},
+                query: {}
+            };
+            const res = {};
+
+            await expect(manager.updateExportStatus({ req, res })).rejects.toThrow('Database write failed');
+        });
     });
 });
