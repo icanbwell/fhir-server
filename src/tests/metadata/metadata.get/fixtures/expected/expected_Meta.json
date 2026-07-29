@@ -19170,6 +19170,13 @@
             "reference": "https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html"
           }
         },
+
+        {
+          "name": "members",
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/group.html"
+          }
+        },
         {
           "name": "members",
           "definition": {
