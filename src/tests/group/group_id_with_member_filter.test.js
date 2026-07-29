@@ -1,6 +1,7 @@
 // Test for group_id + member combined filtering in ClickHouse
 // Verifies that _id parameter is properly passed to ClickHouse WHERE clause
 
+const { describe, test, beforeEach, afterEach, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../common');
 const { QueryParser } = require('../../dataLayer/providers/mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('../../dataLayer/providers/mongoWithClickHouse/queryBuilder');
