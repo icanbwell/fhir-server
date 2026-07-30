@@ -175,7 +175,15 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse3Resource);
         });
 
-        test('Everything operation on client person: Get data only for proa patient when access token of proa patient provided & no consent provided', async () => {
+        test('Everything operation on client person: Get no data when access token does not match the client person & no consent provided', async () => {
+            // The proxy-person-to-patient expansion (personToPatientIdsExpander) applies the
+            // caller's access-scope security tag to the Person lookup itself before resolving its
+            // linked patients (enableProxyPersonScopeCheckForEverything). Since health-service's
+            // scope does not match client person c12345's own access tag ('client'), the Person
+            // lookup returns nothing and the whole $everything call yields no data - even though
+            // c12345 links to a patient (proaPatient1Resource) that health-service does own. This
+            // is by design: resolving a person's linked patients requires read access to the
+            // person record itself.
             const request = await createTestRequest((c) => {
                 return c;
             });
