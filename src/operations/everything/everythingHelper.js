@@ -47,6 +47,7 @@ const { ResourceProccessedTracker } = require('../../fhir/resourceProcessedTrack
 const { NonClinicalReferencesExtractor } = require('./nonClinicalResourceExtractor');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
+const { FilterById } = require('../query/filters/id');
 const { EverythingRelatedResourceManager } = require('./everythingRelatedResourceManager');
 const { isUuid } = require('../../utils/uid.util');
 const { isTrue } = require('../../utils/isTrue');
@@ -342,6 +343,8 @@ class EverythingHelper {
      * @property {ParsedArgs} parsedArgs
      * @property {boolean} supportLegacyId
      * @property {boolean} includeNonClinicalResources
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
      *
      * @param {retriveEverythingAsyncParams}
      * @return {Promise<Bundle>}
@@ -352,7 +355,8 @@ class EverythingHelper {
         resourceType,
         responseStreamer,
         parsedArgs,
-        includeNonClinicalResources = true
+        includeNonClinicalResources = true,
+        scopedPersonIds
     }) {
         if (!this.supportedResources.includes(resourceType)) {
             throw new Error('$everything is not supported for resource: ' + resourceType);
@@ -491,7 +495,8 @@ class EverythingHelper {
                             includeNonClinicalResources,
                             proxyPatientIds,
                             cachedStreamer,
-                            everythingChunkIndex: everythingChunkIndex++
+                            everythingChunkIndex: everythingChunkIndex++,
+                            scopedPersonIds
                         }
                     );
 
@@ -626,6 +631,8 @@ class EverythingHelper {
      * @property {boolean} includeNonClinicalResources
      * @property {string[]} proxyPatientIds
      * @property {CachedFhirResponseStreamer|null} [cachedStreamer]
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
      *
      * @param {RetrieveEverythingMulipleIdsAsyncParams}
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
@@ -642,7 +649,8 @@ class EverythingHelper {
         includeNonClinicalResources = false,
         proxyPatientIds = [],
         cachedStreamer = null,
-        everythingChunkIndex
+        everythingChunkIndex,
+        scopedPersonIds
     }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
@@ -859,7 +867,8 @@ class EverythingHelper {
                     resourceMapper,
                     cachedStreamer,
                     everythingChunkIndex,
-                    personResourcesProcessedTracker
+                    personResourcesProcessedTracker,
+                    scopedPersonIds
                 });
 
                 if (!responseStreamer) {
@@ -1289,6 +1298,8 @@ class EverythingHelper {
      * @property {number|undefined} [everythingChunkIndex]
      * @property {ResourceProccessedTracker|null} [personResourcesProcessedTracker] - when provided, Person resources found are added to it
      * @property {string[]} [personUuidsForCustomQuery] - Person _uuids to include in subscription custom queries (client_person_id match)
+     * @property {string[]|undefined} [scopedPersonIds] - when the original request was Person $everything,
+     *  the requested Person ids, used to restrict returned Person resources to only these ids
      *
      * @param {retriveveRelatedResourcesParallelyAsyncParams}
      * @returns {Promise<{entities: BundleEntry[], queryItems: QueryItem[], optionsForQueries: any[], streamedResources: {_uuid: string, resourceType: string}[]}>}
@@ -1314,7 +1325,8 @@ class EverythingHelper {
         resourceMapper = new ResourceMapper(),
         cachedStreamer = null,
         personResourcesProcessedTracker = null,
-        personUuidsForCustomQuery = []
+        personUuidsForCustomQuery = [],
+        scopedPersonIds
     }
     ) {
 
@@ -1524,6 +1536,15 @@ class EverythingHelper {
                     }
                 }
 
+                query = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            }
+
+            // When the original request was Person $everything, restrict the returned Person
+            // resources to only the ids explicitly requested (the reverse `link.target` search
+            // above can otherwise surface other Person resources linked to the same patient(s)).
+            if (relatedResourceType === 'Person' && scopedPersonIds?.length > 0) {
+                query.$and = query.$and || [];
+                query.$and.push(FilterById.getListFilter(scopedPersonIds));
                 query = MongoQuerySimplifier.simplifyFilter({ filter: query });
             }
 
