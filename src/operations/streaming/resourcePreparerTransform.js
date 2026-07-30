@@ -177,6 +177,9 @@ class ResourcePreparerTransform extends Transform {
      * @returns {Promise<Resource[]>}
      */
     async processChunkAsync (chunk1) {
+        if (!chunk1) {
+            return;
+        }
         return this.resourcePreparer.prepareResourceAsync(
             {
                 parsedArgs: this.parsedArgs,
@@ -186,7 +189,7 @@ class ResourcePreparerTransform extends Transform {
             })
             .then(
                 /** @type {Resource[]} */resources => {
-                    if (resources.length > 0) {
+                    if (resources && resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
                             if (resource) {
                                 if (this.configManager.logStreamSteps) {

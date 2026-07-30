@@ -87,7 +87,13 @@ class ClickHouseClientManager {
             });
 
             // Test connection
-            await this.pingAsync();
+            const pingSuccess = await this.pingAsync();
+            if (!pingSuccess) {
+                this.isConnected = false;
+                this.client = null;
+                logError('ClickHouse ping failed during connect', {});
+                return;
+            }
 
             this.isConnected = true;
 
@@ -132,8 +138,11 @@ class ClickHouseClientManager {
             });
 
             const result = await resultSet.json();
+            if (!result) {
+                return false;
+            }
             // JSONEachRow returns array directly, not {data: [...]}
-            return Array.isArray(result) ? result.length > 0 : (result && result.data && result.data.length > 0);
+            return Array.isArray(result) ? result.length > 0 : !!(result.data && result.data.length > 0);
         } catch (error) {
             logError('ClickHouse ping failed', { error: error.message, stack: error.stack });
             return false;
@@ -184,7 +193,7 @@ class ClickHouseClientManager {
                 });
 
                 const result = await resultSet.json();
-                const parsedResult = Array.isArray(result) ? result : (result.data || []);
+                const parsedResult = Array.isArray(result) ? result : (result && result.data ? result.data : []);
 
                 const duration = Date.now() - startTime;
 

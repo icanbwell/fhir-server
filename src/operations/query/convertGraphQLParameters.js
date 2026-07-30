@@ -12,6 +12,7 @@ function convertGraphQLParameters (queryParameterValue) {
         !Array.isArray(queryParameterValue) &&
         queryParameterValue.searchType
     ) {
+        const originalQueryParameterValue = queryParameterValue;
         let useNotEquals = false;
         switch (queryParameterValue.searchType) {
             case 'string':
@@ -219,9 +220,11 @@ function convertGraphQLParameters (queryParameterValue) {
                 orQueryParameterValue = queryParameterValue;
                 break;
         }
-        if (Object.hasOwn(queryParameterValue, 'missing') && orQueryParameterValue === null) {
+        if (Object.hasOwn(originalQueryParameterValue, 'missing')) {
             modifiers.push('missing');
-            orQueryParameterValue = queryParameterValue.missing;
+            if (orQueryParameterValue === null) {
+                orQueryParameterValue = originalQueryParameterValue.missing;
+            }
         }
     } else {
         orQueryParameterValue = queryParameterValue;

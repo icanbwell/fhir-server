@@ -23,8 +23,9 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
         const preferHeader = parsedArgs.headers &&
             (parsedArgs.headers.prefer || parsedArgs.headers.Prefer);
         if (preferHeader) {
-            const parts = preferHeader.split('=');
-            if (parts[0] === 'global_id' && parts.slice(-1)[0] === 'true') {
+            const directives = preferHeader.split(';').map(d => d.trim());
+            const globalIdDirective = directives.find(d => d.startsWith('global_id='));
+            if (globalIdDirective && globalIdDirective.split('=')[1] === 'true') {
                 for (const resource of resources) {
                     await this._preferGlobalIdInsideSelectedResources(resource);
 

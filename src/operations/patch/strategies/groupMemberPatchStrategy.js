@@ -62,12 +62,12 @@ class GroupMemberPatchStrategy {
             return null;
         }
 
-        const memberOps = patchContent.filter(op =>
-            op.path.startsWith(PATCH_PATHS.MEMBER_PREFIX)
-        );
-        const nonMemberOps = patchContent.filter(op =>
-            !op.path.startsWith(PATCH_PATHS.MEMBER_PREFIX)
-        );
+        const isMemberPath = (path) =>
+            path === PATCH_PATHS.MEMBER_PREFIX ||
+            path.startsWith(PATCH_PATHS.MEMBER_PREFIX + '/') ||
+            path.startsWith(PATCH_PATHS.MEMBER_PREFIX + '-');
+        const memberOps = patchContent.filter(op => isMemberPath(op.path));
+        const nonMemberOps = patchContent.filter(op => !isMemberPath(op.path));
 
         if (memberOps.length === 0) {
             return null;
@@ -224,6 +224,11 @@ class GroupMemberPatchStrategy {
         // PATCH bypasses the normal pre-save pipeline (referenceGlobalIdHandler),
         // so we must enrich references before writing ClickHouse events.
         const sourceAssigningAuthority = foundResource._sourceAssigningAuthority;
+        if (!sourceAssigningAuthority) {
+            throw new Error(
+                `Group ${foundResource.id || foundResource._uuid} has no _sourceAssigningAuthority; cannot enrich member references`
+            );
+        }
         enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
         enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
 

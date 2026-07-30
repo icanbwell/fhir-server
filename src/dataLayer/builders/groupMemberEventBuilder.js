@@ -197,7 +197,7 @@ class GroupMemberEventBuilder {
         const accessTags = SecurityTagExtractor.extractAccessTags(groupResource);
         const ownerTags = SecurityTagExtractor.extractOwnerTags(groupResource);
 
-        return members.map(member => {
+        return members.filter(member => member && member.entity).map(member => {
             const entityReference = member.entity.reference;
 
             return this._createEventObject({

@@ -298,8 +298,9 @@ class MyFHIRServer {
                         // next();
                         res1.end();
                     } else {
-                        if (req.id && !res.headersSent) {
-                            res1.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
+                        const userReqId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
+                        if (req.id && !res.headersSent && userReqId) {
+                            res1.setHeader('X-Request-ID', String(userReqId));
                         }
                         // If there is an error and it is an OperationOutcome
                         if (err && err.resourceType === OperationOutcome.resourceType) {
@@ -377,8 +378,9 @@ class MyFHIRServer {
                     }
                 ]
             });
-            if (req.id && !res.headersSent) {
-                res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
+            const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
+            if (req.id && !res.headersSent && userRequestId) {
+                res.setHeader('X-Request-ID', String(userRequestId));
             }
             res.status(404).json(error);
         });

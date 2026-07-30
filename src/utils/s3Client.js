@@ -175,6 +175,9 @@ class S3Client extends CloudStorageClient {
                     Key: filePath
                 })
             );
+            if (!response.Body) {
+                return null;
+            }
             return await response.Body.transformToString();
         } catch (err) {
             if (err instanceof NoSuchKey) {
@@ -325,7 +328,11 @@ class S3Client extends CloudStorageClient {
                             })
                         )
                         .then(async (data) => {
-                            downloadedData[path] = await data.Body.transformToString();
+                            if (data.Body) {
+                                downloadedData[path] = await data.Body.transformToString();
+                            } else {
+                                downloadedData[path] = null;
+                            }
                         })
                         .catch((error) => {
                             if (error instanceof NoSuchKey) {

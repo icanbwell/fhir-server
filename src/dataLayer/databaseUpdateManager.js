@@ -240,7 +240,7 @@ class DatabaseUpdateManager {
                     versionId: updatedDoc.meta.versionId,
                     resourceType: updatedDoc.resourceType,
                     sourceAssigningAuthority: updatedDoc._sourceAssigningAuthority,
-                    originService: requestInfo.headers['origin-service'] || 'unknown'
+                    originService: (requestInfo.headers && requestInfo.headers['origin-service']) || 'unknown'
                 });
                 await logTraceSystemEventAsync(
                     {

@@ -299,22 +299,15 @@ describe('convertGraphQLParameters', () => {
             expect(result.newModifiers).toEqual(['missing']);
         });
 
-        test('BUG: date with values AND missing - missing is silently ignored', () => {
-            // This is the actual bug scenario: user passes both values AND missing
-            // The values get processed (setting orQueryParameterValue to []),
-            // then the missing check on line 222 fails because orQueryParameterValue !== null
+        test('date with values AND missing - missing modifier is preserved', () => {
             const input = {
                 searchType: 'dateTime',
                 values: [{ equals: '2023-01-01' }],
                 missing: true
             };
             const result = convertGraphQLParameters(input);
-            // After processing values, orQueryParameterValue = ['eq2023-01-01']
-            // The missing check `orQueryParameterValue === null` is false
-            // So missing is silently ignored
             expect(result.orQueryParameterValue).toEqual(['eq2023-01-01']);
-            // Missing modifier is NOT added due to the bug
-            expect(result.newModifiers).not.toContain('missing');
+            expect(result.newModifiers).toContain('missing');
         });
     });
 
