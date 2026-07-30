@@ -1237,7 +1237,9 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory,
         fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
-        s3NdjsonReader: c.s3NdjsonReader
+        s3NdjsonReader: c.s3NdjsonReader,
+        postRequestProcessor: c.postRequestProcessor,
+        requestSpecificCache: c.requestSpecificCache
     }));
 
     container.register('bulkImportOrchestratorRunner', (c) => new BulkImportOrchestratorRunner({

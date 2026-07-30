@@ -1,5 +1,5 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 const makeCloudEvent = (overrides = {}) => {
     const data = {
@@ -278,5 +278,41 @@ describe('BulkImportConsumerRunner', () => {
             .set(getHeaders())
             .expect(200);
         expect(taskResp.body.status).toBe('in-progress');
+    });
+
+    test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-cleanup' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-cleanup-1', name: [{ family: 'Cleanup' }] }
+        ]);
+
+        const executeAsyncSpy = jest.spyOn(container.postRequestProcessor, 'executeAsync');
+        const clearAsyncSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+        const requestIdsBefore = container.requestSpecificCache.getRequestIds().length;
+
+        await runner.handleMessageAsync({
+            key: 'import-consumer-cleanup-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-cleanup' }),
+            headers: []
+        });
+
+        expect(executeAsyncSpy).toHaveBeenCalled();
+        expect(clearAsyncSpy).toHaveBeenCalled();
+        // no leaked requestSpecificCache entry for the per-range requestId
+        expect(container.requestSpecificCache.getRequestIds().length).toBe(requestIdsBefore);
+
+        executeAsyncSpy.mockRestore();
+        clearAsyncSpy.mockRestore();
     });
 });
