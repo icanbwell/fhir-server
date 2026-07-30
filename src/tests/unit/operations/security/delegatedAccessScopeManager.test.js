@@ -17,22 +17,16 @@ describe('DelegatedAccessScopeManager', () => {
     let mockDelegatedAccessRulesManager;
 
     beforeEach(() => {
-        // Reset modules to get fresh mocks
         mockDelegatedAccessRulesManager = {
             hasValidConsentAsync: jestGlobal.fn()
         };
 
-        // Construct the class directly, bypassing assertTypeEquals by monkey-patching
-        // We simulate the class behavior since we can't use jest.mock with injectGlobals: false
-        DelegatedAccessScopeManager = class {
+        const { DelegatedAccessRulesManager } = require('../../../../utils/delegatedAccessRulesManager');
+        const RealDelegatedAccessScopeManager = require('../../../../operations/security/delegatedAccessScopeManager').DelegatedAccessScopeManager;
+
+        DelegatedAccessScopeManager = class extends RealDelegatedAccessScopeManager {
             constructor({ delegatedAccessRulesManager }) {
-                this.delegatedAccessRulesManager = delegatedAccessRulesManager;
-            }
-            async isAccessAllowedAsync({ actor, personIdFromJwtToken }) {
-                return await this.delegatedAccessRulesManager.hasValidConsentAsync({
-                    actor,
-                    personIdFromJwtToken
-                });
+                super({ delegatedAccessRulesManager: Object.setPrototypeOf(delegatedAccessRulesManager, DelegatedAccessRulesManager.prototype) });
             }
         };
     });
