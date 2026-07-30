@@ -54,6 +54,14 @@ const proaDedupSubscriptionTopicClientResource = require('./fixtures/subscriptio
 const proaDedupSubscriptionTopicClient2Resource = require('./fixtures/subscriptionTopic/proa_dedup_subscription_topic_client2.json');
 const expectedProaDedupEverythingResponse = require('./fixtures/expected/expected_proa_dedup_subscription_everything.json');
 
+// Two client persons of the SAME client, each independently linked (via their own sibling Person)
+// to the SAME common PROA-connected patient. Each has its own Subscription/SubscriptionStatus/
+// SubscriptionTopic (client_person_id pointing back to its own sibling Person).
+const sameClientPersonAPayload = require('./fixtures/same_client_person_a_payload.json');
+const sameClientPersonBPayload = require('./fixtures/same_client_person_b_payload.json');
+const expectedSameClientPersonAEverything = require('./fixtures/expected/expected_same_client_person_a_everything.json');
+const expectedSameClientPersonBEverything = require('./fixtures/expected/expected_same_client_person_b_everything.json');
+
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -712,4 +720,55 @@ describe('Data sharing test cases for different scenarios', () => {
             });
         });
     });
+
+    test('Two client person of same client having common connection should ', async () => {
+        const request = await createTestRequest((c) => c);
+
+        // Two DIFFERENT client persons of the SAME client (same owner/access = 'client2'), each
+        // linked (via their own sibling Person) to the SAME common PROA-connected patient. Each has
+        // its own Subscription/SubscriptionStatus/SubscriptionTopic pointing back to its own sibling
+        // Person via client_person_id. The client person id targeted below is the sibling Person's
+        // id (the one holding both the own-patient link and the common-patient link) - i.e. the
+        // resource ending in "3" within each payload.
+        const PERSON_A_CLIENT_ID = '3e89b5be-a773-4aa7-af74-a23e6abedb653';
+        const PERSON_B_CLIENT_ID = '624fa318-ffa8-4c5d-8a27-3c216bc280323';
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(sameClientPersonAPayload)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(sameClientPersonBPayload)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const client2Headers = getHeaders('user/*.read access/client2.*');
+
+        // client2's own Subscription for person A must come back, and person B's Subscription
+        // (a different, sibling client person under the same client) must never leak in - even
+        // though both share the exact same underlying common-connection PROA patient.
+        resp = await request
+            .get(`/4_0_0/Person/${PERSON_A_CLIENT_ID}/$everything?_debug=1`)
+            .set({ ...client2Headers, prefer: 'global_id=false' });
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedSameClientPersonAEverything);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedSameClientPersonAEverything);
+
+        // Symmetric check: person B's own Subscription must come back, person A's must not.
+        resp = await request
+            .get(`/4_0_0/Person/${PERSON_B_CLIENT_ID}/$everything?_debug=1`)
+            .set({ ...client2Headers, prefer: 'global_id=false' });
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedSameClientPersonBEverything);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedSameClientPersonBEverything);
+    })
 });
