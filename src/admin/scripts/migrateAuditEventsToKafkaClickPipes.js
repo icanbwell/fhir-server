@@ -9,6 +9,13 @@
  * the Mongo delete leaves at most one batch of duplicates in ClickHouse on
  * re-run; this is accepted.
  *
+ * A document that fails validation, or a batch whose Kafka publish exhausts
+ * its retries (e.g. an over-sized message), is logged with the offending
+ * Mongo _id(s) and the error, then left in the source collection — the
+ * migration does not abort and moves on to the next batch. These leftover
+ * documents are picked up again (and will likely fail again unless the
+ * underlying cause is fixed) on the next run.
+ *
  * Documents are published to the same Kafka topic and in the same message
  * shape (key/value/headers) as the live AuditEvent write path
  * (`KafkaClickPipeBulkWriteExecutor`), so ClickPipes ingests backfilled rows
@@ -42,6 +49,8 @@ variables are set for the target environment.
 Options:
   --collection <name>  Source collection (default: AuditEvent_4_0_0)
   --batch-size <n>     Docs per Kafka publish + Mongo delete (default: 10000)
+  --start-from <date>  Only migrate AuditEvents with recorded >= this ISO
+                        8601 date/time (default: migrate all, oldest first)
   --help, -h           Show this help
 `;
 
@@ -65,13 +74,33 @@ function parsePositiveInt(flag, raw) {
 }
 
 /**
- * @returns {{collection: string, batchSize: number}}
+ * Parse an ISO 8601 date/time CLI argument, exiting with a clear error on bad input.
+ * @param {string} flag
+ * @param {string|undefined} raw
+ * @returns {Date}
+ */
+function parseDateArg(flag, raw) {
+    if (raw === undefined || raw.startsWith('--')) {
+        logError(`${flag} requires a date/time argument`);
+        process.exit(1);
+    }
+    const value = new Date(raw);
+    if (Number.isNaN(value.getTime())) {
+        logError(`${flag} requires a valid ISO 8601 date/time, got: ${raw}`);
+        process.exit(1);
+    }
+    return value;
+}
+
+/**
+ * @returns {{collection: string, batchSize: number, startFrom: Date|undefined}}
  */
 function parseArgs() {
     const args = process.argv.slice(2);
     const options = {
         collection: 'AuditEvent_4_0_0',
-        batchSize: 10000
+        batchSize: 10000,
+        startFrom: undefined
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -81,6 +110,9 @@ function parseArgs() {
                 break;
             case '--batch-size':
                 options.batchSize = parsePositiveInt('--batch-size', args[++i]);
+                break;
+            case '--start-from':
+                options.startFrom = parseDateArg('--start-from', args[++i]);
                 break;
             case '--help':
             case '-h':
@@ -170,10 +202,13 @@ function assertValidRow(row) {
 }
 
 /**
- * Transform docs, publish the rows to Kafka, then delete the batch's
- * source docs from Mongo by _id. A malformed source doc (missing `_uuid` or
- * `recorded`) fails validation before anything is published, which aborts
- * the whole run — no Mongo delete runs for a batch that didn't land.
+ * Transform docs, publish the valid rows to Kafka, then delete from Mongo
+ * only the docs that were actually published. A doc that fails validation
+ * (missing `_uuid` or `recorded`) is logged and excluded before publishing;
+ * if the batch's Kafka publish exhausts its retries, none of the batch's
+ * docs are deleted. Either way the affected doc(s) are logged with their
+ * Mongo _id and the error, and are simply left in Mongo — this function
+ * never throws for these cases, so a bad batch does not abort the run.
  *
  * @param {Object} params
  * @param {Object[]} params.docs
@@ -182,31 +217,69 @@ function assertValidRow(row) {
  * @param {string} params.topic
  * @param {AuditEventTransformer} params.transformer
  * @param {number} params.batchNo
- * @returns {Promise<{inserted: number, deleted: number}>}
+ * @returns {Promise<{inserted: number, deleted: number, failed: number}>}
  */
 async function processBatchAsync({ docs, collection, kafkaClientV2, topic, transformer, batchNo }) {
-    const { rows } = transformer.transformBatch(docs);
-    rows.forEach(assertValidRow);
-    const messages = rows.map((row) => ({
-        key: row._uuid,
-        value: JSON.stringify(row),
-        headers: { version: 'R4', requestId: `migration-batch-${batchNo}` }
-    }));
+    let failedCount = 0;
+    const publishable = [];
+    // Transform docs one at a time (rather than transformer.transformBatch, which
+    // maps the whole array in one shot) so a single doc that throws during
+    // transformation — e.g. a missing `recorded` blowing up toClickHouseDateTime —
+    // doesn't abort every other doc's transform along with it.
+    docs.forEach((doc) => {
+        try {
+            const row = transformer.transformDocument(doc);
+            assertValidRow(row);
+            publishable.push({
+                id: doc._id,
+                message: {
+                    key: row._uuid,
+                    value: JSON.stringify(row),
+                    headers: { version: 'R4', requestId: `migration-batch-${batchNo}` }
+                }
+            });
+        } catch (error) {
+            failedCount++;
+            logError('AuditEvent failed transformation/validation; leaving in Mongo, not migrated', {
+                batchNo,
+                auditEventId: doc._id,
+                error: error.message
+            });
+        }
+    });
 
-    if (messages.length > 0) {
-        await publishWithRetryAsync(kafkaClientV2, topic, messages);
+    let deletableIds = publishable.map((p) => p.id);
+    let publishedCount = 0;
+
+    if (publishable.length > 0) {
+        try {
+            await publishWithRetryAsync(kafkaClientV2, topic, publishable.map((p) => p.message));
+            publishedCount = publishable.length;
+        } catch (error) {
+            failedCount += publishable.length;
+            logError('Kafka publish failed for batch after retries; leaving AuditEvents in Mongo, not migrated', {
+                batchNo,
+                batchSize: publishable.length,
+                auditEventIds: deletableIds,
+                error: error.message
+            });
+            deletableIds = [];
+        }
     }
 
-    const ids = docs.map((doc) => doc._id);
-    const deleteResult = await collection.deleteMany({ _id: { $in: ids } });
-    if (deleteResult.deletedCount !== ids.length) {
-        logWarn('Source deleteMany returned fewer deletions than requested', {
-            requested: ids.length,
-            deleted: deleteResult.deletedCount
-        });
+    let deletedCount = 0;
+    if (deletableIds.length > 0) {
+        const deleteResult = await collection.deleteMany({ _id: { $in: deletableIds } });
+        deletedCount = deleteResult.deletedCount;
+        if (deletedCount !== deletableIds.length) {
+            logWarn('Source deleteMany returned fewer deletions than requested', {
+                requested: deletableIds.length,
+                deleted: deletedCount
+            });
+        }
     }
 
-    return { inserted: rows.length, deleted: deleteResult.deletedCount };
+    return { inserted: publishedCount, deleted: deletedCount, failed: failedCount };
 }
 
 /**
@@ -218,7 +291,8 @@ async function main() {
 
     logInfo('AuditEvent Migration: MongoDB -> Kafka/ClickPipes', {
         collection: options.collection,
-        batchSize: options.batchSize
+        batchSize: options.batchSize,
+        startFrom: options.startFrom ? options.startFrom.toISOString() : undefined
     });
 
     const container = createContainer();
@@ -248,6 +322,7 @@ async function main() {
     const startTime = Date.now();
     let totalInserted = 0;
     let totalDeleted = 0;
+    let totalFailed = 0;
     let batchNo = 0;
 
     try {
@@ -256,11 +331,15 @@ async function main() {
         logInfo('Connected to MongoDB', { db: auditDb.databaseName });
 
         const collection = auditDb.collection(options.collection);
+        // `recorded` is stored as a native Date (see DateColumnHandler in the
+        // preSave pipeline), so --start-from is compared against a Date, not
+        // a string.
+        const filter = options.startFrom ? { recorded: { $gte: options.startFrom } } : {};
         // Sort ascending on `recorded` (with `_id` as a stable tiebreaker for ties)
         // so the oldest events are evacuated first. Re-runs after a crash pick up
         // from wherever the collection currently starts.
         const cursor = collection
-            .find({})
+            .find(filter)
             .sort({ recorded: 1, _id: 1 })
             .batchSize(options.batchSize);
 
@@ -277,22 +356,29 @@ async function main() {
                 });
                 totalInserted += result.inserted;
                 totalDeleted += result.deleted;
+                totalFailed += result.failed;
                 logInfo('Batch copied', {
                     batchNo,
                     inserted: result.inserted,
                     deleted: result.deleted,
+                    failed: result.failed,
                     cumulativeInserted: totalInserted,
+                    cumulativeFailed: totalFailed,
                     elapsed: formatElapsed(Date.now() - startTime)
                 });
             } catch (error) {
-                // Log batch context before the error unwinds so operators know
-                // exactly where the run stopped. Then re-throw to halt the
-                // migration — no Mongo source docs are deleted for this batch.
+                // processBatchAsync only throws for unexpected infra errors
+                // (e.g. Mongo deleteMany failing) — per-doc validation
+                // failures and Kafka publish failures are handled and logged
+                // inside it without throwing. Log batch context before the
+                // error unwinds so operators know exactly where the run
+                // stopped, then re-throw to halt the migration.
                 logError('Batch failed; aborting migration', {
                     batchNo,
                     batchSize: docs.length,
                     cumulativeInserted: totalInserted,
                     cumulativeDeleted: totalDeleted,
+                    cumulativeFailed: totalFailed,
                     elapsed: formatElapsed(Date.now() - startTime),
                     error: error.message
                 });
@@ -322,6 +408,7 @@ async function main() {
             totalBatches: batchNo,
             totalInserted,
             totalDeleted,
+            totalFailed,
             elapsed: formatElapsed(Date.now() - startTime),
             aborted: abortFlag.aborted
         });
@@ -348,6 +435,7 @@ if (require.main === module) {
 
 module.exports = {
     parsePositiveInt,
+    parseDateArg,
     formatElapsed,
     isKafkaPublishEnabled,
     publishWithRetryAsync,
