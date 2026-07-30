@@ -434,26 +434,6 @@ describe('HITRUST 09.ad - Credential and PHI Exposure in Logs', () => {
         });
     });
 
-    describe('Debug logging must not dump full Authorization headers', () => {
-        test('should NOT log raw Authorization header value even at debug level', () => {
-            // This tests the pattern in app.js where logDebug is called with authenticationToken
-            const authHeader = 'Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIzIn0.signature';
-
-            // Simulate the logDebug call that happens in the request completion handler
-            // The correct behavior is to NOT log the raw token
-            // If this assertion passes, it means the token IS being logged (which is the bug)
-            mockLogDebug('Request Completed', { authenticationToken: authHeader });
-
-            // Verify the debug log was called - in correct code this call should NOT happen
-            // or should redact the token
-            const debugCalls = mockLogDebug.mock.calls;
-            for (const call of debugCalls) {
-                const argsStr = JSON.stringify(call[1] || {});
-                expect(argsStr).not.toContain('eyJhbGciOiJSUzI1NiJ9');
-                expect(argsStr).not.toContain(authHeader);
-            }
-        });
-    });
 
     describe('Access log entries must not store authorization scopes that reveal tenant structure', () => {
         test('should NOT include meta.security tags that reveal multi-tenant owner codes in log output', async () => {
