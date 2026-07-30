@@ -23,6 +23,9 @@ function findInternalFieldInPath(path) {
         if (normalizedPath === protectedPath || normalizedPath.startsWith(protectedPath + '/')) {
             return protectedPath;
         }
+        if (protectedPath.startsWith(normalizedPath + '/')) {
+            return protectedPath;
+        }
     }
     const segments = path.split('/');
     for (const segment of segments) {

@@ -134,6 +134,9 @@ describe('Write Operation Authorization Bypass Vulnerabilities', () => {
                         return mockPatientFilterManager.canAccessResourceWithPatientScope({ resourceType }) &&
                             scope.includes('patient/');
                     }
+                ),
+                hasPatientScope: jestGlobal.fn().mockImplementation(
+                    ({ scope }) => scope.includes('patient/')
                 )
             };
 

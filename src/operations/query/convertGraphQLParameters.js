@@ -220,11 +220,9 @@ function convertGraphQLParameters (queryParameterValue) {
                 orQueryParameterValue = queryParameterValue;
                 break;
         }
-        if (Object.hasOwn(originalQueryParameterValue, 'missing')) {
+        if (Object.hasOwn(originalQueryParameterValue, 'missing') && orQueryParameterValue === null) {
             modifiers.push('missing');
-            if (orQueryParameterValue === null) {
-                orQueryParameterValue = originalQueryParameterValue.missing;
-            }
+            orQueryParameterValue = originalQueryParameterValue.missing;
         }
     } else {
         orQueryParameterValue = queryParameterValue;

@@ -299,7 +299,7 @@ describe('convertGraphQLParameters', () => {
             expect(result.newModifiers).toEqual(['missing']);
         });
 
-        test('date with values AND missing - missing modifier is preserved', () => {
+        test('date with values AND missing - value takes precedence over missing', () => {
             const input = {
                 searchType: 'dateTime',
                 values: [{ equals: '2023-01-01' }],
@@ -307,7 +307,7 @@ describe('convertGraphQLParameters', () => {
             };
             const result = convertGraphQLParameters(input);
             expect(result.orQueryParameterValue).toEqual(['eq2023-01-01']);
-            expect(result.newModifiers).toContain('missing');
+            expect(result.newModifiers).not.toContain('missing');
         });
     });
 

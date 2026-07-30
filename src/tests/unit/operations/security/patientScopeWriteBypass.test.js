@@ -55,6 +55,9 @@ describe('PatientScopeManager.canWriteResourceAsync — Non-Patient-Filterable B
                     return patientFilterManager.canAccessResourceWithPatientScope({ resourceType }) &&
                         scope.includes('patient/');
                 }
+            ),
+            hasPatientScope: jestGlobal.fn().mockImplementation(
+                ({ scope }) => scope.includes('patient/')
             )
         };
 

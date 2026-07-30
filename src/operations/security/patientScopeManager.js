@@ -283,10 +283,11 @@ class PatientScopeManager {
     }) {
         assertIsValid(scope, 'scope is required');
         assertIsValid(resource, 'resource is required');
-        if (!this.scopesManager.isAccessAllowedByPatientScopes({
-            scope,
-            resourceType: resource.resourceType
-        })) {
+        const hasPatientScope = this.scopesManager.hasPatientScope({ scope });
+        if (!hasPatientScope) {
+            return true;
+        }
+        if (!this.patientFilterManager.canAccessResourceWithPatientScope({ resourceType: resource.resourceType })) {
             return false;
         }
 
