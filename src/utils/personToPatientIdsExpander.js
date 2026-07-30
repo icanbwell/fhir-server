@@ -16,6 +16,18 @@ const personProxyPrefix = 'person.';
 const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${personProxyPrefix}`;
 const maximumRecursionDepth = 4;
 
+/**
+ * @param {{meta?: {security?: {system: string, code: string}[]}}} person
+ * @return {string|undefined} the resource's owner security tag code, or undefined if it has none
+ */
+function getOwnerSecurityCode (person) {
+    const security = person?.meta?.security;
+    if (!security || security.length === 0) {
+        return undefined;
+    }
+    return security.find((tag) => tag.system === SecurityTagSystem.owner)?.code;
+}
+
 class PersonToPatientIdsExpander {
     /**
      * constructor
@@ -190,12 +202,15 @@ class PersonToPatientIdsExpander {
      * @property {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
      * @property {boolean} addPersonOwnerToContext If true then add person owner to context
      * @property {FhirRequestInfo} requestInfo
+     * @property {Map<string, string>} [parentOwnerTagByPersonId] Maps a personId being fetched at this
+     * level to the owner security tag of the Person whose link led us here. Used to detect a
+     * Person.link hop that never leaves the requester's own tenant.
      *
      * @param {getPatientIdsFromPersonAsyncArgs}
      * @return {Promise<string[] | Map<string, Set<string>>>} Will return an array if toMap is false else return an map. By default toMap is false
      */
     async getPatientIdsFromPersonAsync ({
-        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false, addPersonOwnerToContext = false, requestInfo
+        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false, addPersonOwnerToContext = false, requestInfo, parentOwnerTagByPersonId
     }) {
         /**
          * Final result to return
@@ -204,11 +219,10 @@ class PersonToPatientIdsExpander {
          */
         const personToLinkedPatient = new Map();
 
-        const projectionsMap = { id: 1, link: 1, _id: 0, _uuid: 1, _sourceId: 1 }
-
-        if(addPersonOwnerToContext) {
-            projectionsMap.meta = 1
-        }
+        // meta.security is always needed (not just when addPersonOwnerToContext is set) so that
+        // getOwnerSecurityCode can compare each fetched Person's owner tag against the tag of
+        // whoever linked to it, to detect a same-tenant Person.link hop.
+        const projectionsMap = { id: 1, link: 1, _id: 0, _uuid: 1, _sourceId: 1, meta: 1 }
 
         let query = FilterById.getListFilter(personIds);
 
@@ -259,15 +273,48 @@ class PersonToPatientIdsExpander {
          */
         let patientIds = [];
         let personIdsToRecurse = [];
+        /**
+         * Owner security tag of the Person being expanded, keyed by the personId of each of
+         * ITS linked Persons - passed to the next recursion level so it can tell whether that
+         * hop stayed within the same tenant.
+         * @type {Map<string, string>}
+         */
+        const nextLevelParentOwnerTagByPersonId = new Map();
         while (await personResourceCursor.hasNext()) {
             const person = await personResourceCursor.nextObject();
             let personId = person._uuid;
-            patientIds.push(`${personProxyPrefix}${personId}`);
+
+            const currentOwnerTag = getOwnerSecurityCode(person);
+            const parentOwnerTag = parentOwnerTagByPersonId?.get(person._uuid);
+            const isSameTenantHopFromParent = parentOwnerTag !== undefined && parentOwnerTag === currentOwnerTag;
+
             // at first call only, returnOriginalPersonId can be true so that we return the id map for passed personIds not their uuids
             // also, this is only have significance when we want to return map
             if (returnOriginalPersonId && toMap) {
                 personId = personIds.find((id) => id === person._uuid || id === person._sourceId);
             }
+
+            if (addPersonOwnerToContext && person.meta && person.meta.security && person.meta.security.length > 0) {
+                person.meta.security.forEach((security) => {
+                    if (security.system === SecurityTagSystem.owner) {
+                        httpContext.set(
+                            `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personId}`,
+                            security.code
+                        );
+                    }
+                });
+            }
+
+            // A Person reached only via a Person.link hop that never leaves the tenant of
+            // whoever linked to it is a duplicate/sibling account, not the legitimate
+            // cross-org consolidation case (see RNGR-38) - treat it as a dead end: don't
+            // surface its own proxy patient or linked patients, and don't recurse into its
+            // own Person links.
+            if (isSameTenantHopFromParent) {
+                continue;
+            }
+
+            patientIds.push(`${personProxyPrefix}${personId}`);
             const uuidKey = '_uuid';
 
             if (person && person.link && person.link.length > 0 && !totalProcessedPersonIds.has(personId)) {
@@ -296,20 +343,12 @@ class PersonToPatientIdsExpander {
                     });
 
                 personIdsToRecurse = personIdsToRecurse.concat(personResourceWithPersonReferenceLink);
+                personResourceWithPersonReferenceLink.forEach((linkedPersonId) => {
+                    nextLevelParentOwnerTagByPersonId.set(linkedPersonId, currentOwnerTag);
+                });
 
                 // finally update the sets
                 personToLinkedPatient.set(personId, linkedPatients);
-            }
-
-            if (addPersonOwnerToContext && person.meta && person.meta.security && person.meta.security.length > 0) {
-                person.meta.security.forEach((security) => {
-                    if (security.system === SecurityTagSystem.owner) {
-                        httpContext.set(
-                            `${HTTP_CONTEXT_KEYS.PERSON_OWNER_PREFIX}${personId}`,
-                            security.code
-                        );
-                    }
-                });
             }
         }
 
@@ -334,7 +373,8 @@ class PersonToPatientIdsExpander {
                     level: level + 1,
                     toMap,
                     returnOriginalPersonId: false, // always return _uuid map for it
-                    requestInfo
+                    requestInfo,
+                    parentOwnerTagByPersonId: nextLevelParentOwnerTagByPersonId
                 });
 
                 // add all patients to current person
@@ -355,7 +395,8 @@ class PersonToPatientIdsExpander {
                 databaseQueryManager,
                 level: level + 1,
                 toMap,
-                requestInfo
+                requestInfo,
+                parentOwnerTagByPersonId: nextLevelParentOwnerTagByPersonId
             });
             return patientIds.concat(patientIdsFromPersons);
         }

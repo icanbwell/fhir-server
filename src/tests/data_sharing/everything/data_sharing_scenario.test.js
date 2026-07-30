@@ -711,5 +711,98 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp.body.entry ?? []).toHaveLength(0);
             });
         });
+
+        describe('Same-tenant sibling Person consolidation via shared master', () => {
+            test('Person $everything must not include a sibling Person\'s patient when both share the same tenant via a common master', async () => {
+                const request = await createTestRequest((c) => c);
+
+                const MASTER_PERSON_ID = 'b5f6f6d2-6b7e-4b8b-9b3a-1a2b3c4d5e6f';
+                const PERSON_ALICE_1_ID = 'b7a1a111-1111-1111-1111-111111111111';
+                const PERSON_ALICE_2_ID = 'b7a2a222-2222-2222-2222-222222222222';
+                const PATIENT_ALICE_1_ID = 'b7a1p111-1111-1111-1111-111111111111';
+                const PATIENT_ALICE_2_ID = 'b7a2p222-2222-2222-2222-222222222222';
+
+                const ownerSecurity = [
+                    { system: 'https://www.icanbwell.com/access', code: 'client' },
+                    { system: 'https://www.icanbwell.com/owner', code: 'client' }
+                ];
+
+                // A "master" Person consolidating what person-matching believes are the same
+                // real-world identity - but both sibling Persons below belong to the SAME
+                // tenant (owner: client), so this is a duplicate-account scenario, not the
+                // legitimate cross-org consolidation case (which spans different owner tags).
+                const masterPerson = {
+                    resourceType: 'Person',
+                    id: MASTER_PERSON_ID,
+                    meta: { source: 'client', security: ownerSecurity },
+                    name: [{ use: 'usual', family: 'Hackett', given: ['Allison'] }],
+                    link: [
+                        { target: { reference: `Person/${PERSON_ALICE_1_ID}`, type: 'Person' }, assurance: 'level4' },
+                        { target: { reference: `Person/${PERSON_ALICE_2_ID}`, type: 'Person' }, assurance: 'level4' }
+                    ]
+                };
+
+                const personAlice1 = {
+                    resourceType: 'Person',
+                    id: PERSON_ALICE_1_ID,
+                    meta: { source: 'client', security: ownerSecurity },
+                    name: [{ use: 'usual', family: 'Hackett', given: ['Allison'] }],
+                    link: [
+                        { target: { reference: `Person/${MASTER_PERSON_ID}`, type: 'Person' }, assurance: 'level4' },
+                        { target: { reference: `Patient/${PATIENT_ALICE_1_ID}`, type: 'Patient' }, assurance: 'level4' }
+                    ]
+                };
+
+                const personAlice2 = {
+                    resourceType: 'Person',
+                    id: PERSON_ALICE_2_ID,
+                    meta: { source: 'client', security: ownerSecurity },
+                    name: [{ use: 'usual', family: 'Hackett', given: ['Allison'] }],
+                    link: [
+                        { target: { reference: `Person/${MASTER_PERSON_ID}`, type: 'Person' }, assurance: 'level4' },
+                        { target: { reference: `Patient/${PATIENT_ALICE_2_ID}`, type: 'Patient' }, assurance: 'level4' }
+                    ]
+                };
+
+                const patientAlice1 = {
+                    resourceType: 'Patient',
+                    id: PATIENT_ALICE_1_ID,
+                    meta: { source: 'client', security: ownerSecurity },
+                    name: [{ use: 'usual', family: 'Hackett', given: ['Allison'] }],
+                    gender: 'female',
+                    birthDate: '1990-01-01'
+                };
+
+                const patientAlice2 = {
+                    resourceType: 'Patient',
+                    id: PATIENT_ALICE_2_ID,
+                    meta: { source: 'client', security: ownerSecurity },
+                    name: [{ use: 'usual', family: 'Hackett', given: ['Allison'] }],
+                    gender: 'female',
+                    birthDate: '1990-01-01'
+                };
+
+                let resp = await request
+                    .post('/4_0_0/Person/1/$merge')
+                    .send([masterPerson, personAlice1, personAlice2, patientAlice1, patientAlice2])
+                    .set(getHeaders());
+                // noinspection JSUnresolvedFunction
+                expect(resp).toHaveMergeResponse({ created: true });
+
+                resp = await request
+                    .get(`/4_0_0/Person/${PERSON_ALICE_1_ID}/$everything?_type=Patient`)
+                    .set({ ...headers, prefer: 'global_id=false' });
+
+                const patientIds = (resp.body.entry ?? [])
+                    .filter((e) => e.resource?.resourceType === 'Patient')
+                    .map((e) => e.resource.id);
+
+                // Alice's own patient must be present ...
+                expect(patientIds).toContain(PATIENT_ALICE_1_ID);
+                // ... but her sibling account's patient (reached only via the shared,
+                // same-tenant master Person) must NOT be.
+                expect(patientIds).not.toContain(PATIENT_ALICE_2_ID);
+            });
+        });
     });
 });
