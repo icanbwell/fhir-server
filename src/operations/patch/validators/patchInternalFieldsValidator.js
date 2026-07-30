@@ -8,13 +8,22 @@ function isInternalField(segment) {
     return segment.startsWith('_');
 }
 
+const protectedMetaPaths = ['meta/security', 'meta/source', 'meta/versionId', 'meta/lastUpdated'];
+
 /**
  * Checks if a JSON Patch path contains a segment targeting an internal field.
  * Internal fields start with _ and are used for authorization/tenant isolation.
+ * Also blocks paths targeting server-managed meta fields (security, source, versionId, lastUpdated).
  * @param {string} path
  * @returns {string|null} The offending field name, or null if path is clean
  */
 function findInternalFieldInPath(path) {
+    const normalizedPath = path.startsWith('/') ? path.slice(1) : path;
+    for (const protectedPath of protectedMetaPaths) {
+        if (normalizedPath === protectedPath || normalizedPath.startsWith(protectedPath + '/')) {
+            return protectedPath;
+        }
+    }
     const segments = path.split('/');
     for (const segment of segments) {
         if (isInternalField(segment)) {

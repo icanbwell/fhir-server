@@ -569,7 +569,7 @@ class FastDatabaseBulkInserter extends EventEmitter {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc;
-                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                    previousUpdate.patches = [...(previousUpdate.patches || []), mergePatches];
                 } else {
                     // no change so ignore
                 }

@@ -669,7 +669,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
-                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                    previousUpdate.patches = [...(previousUpdate.patches || []), mergePatches];
                 } else {
                     // no change so ignore
                 }

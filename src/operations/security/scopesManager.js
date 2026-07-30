@@ -126,18 +126,21 @@ class ScopesManager {
      * @return {boolean}
      */
     isAccessToResourceAllowedBySecurityTags ({ resource, user, scope, accessRequested = 'read' }) {
-        const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
-            scope, resourceType: resource.resourceType
-        });
-        if (accessViaPatientScopes) {
-            return true; // TODO: should double check here that the resources belong to this patient
-        }
         // add any access codes from scopes
         /**
          * @type {string[]}
          */
         const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
         if (!accessCodes || accessCodes.length === 0) {
+            const accessViaPatientScopes = this.isAccessAllowedByPatientScopes({
+                scope, resourceType: resource.resourceType
+            });
+            if (accessViaPatientScopes) {
+                if (!this.doesResourceHaveAccessTags(resource)) {
+                    return true;
+                }
+                return false;
+            }
             const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);
         }

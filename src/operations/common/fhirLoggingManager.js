@@ -177,7 +177,7 @@ class FhirLoggingManager {
             /**
              * @type {number}
              */
-            const elapsedMilliSeconds = stopTime - startTime;
+            const elapsedMilliSeconds = Math.max(0, stopTime - startTime);
             detail.push({
                 type: 'duration',
                 valuePositiveInt: elapsedMilliSeconds

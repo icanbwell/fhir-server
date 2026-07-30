@@ -133,6 +133,9 @@ class GraphOperation {
             if (parsedArgs.get("graph")) {
                 graphDefinitionRaw = typeof parsedArgs.graph === 'object' ? parsedArgs.graph : JSON.parse(parsedArgs.graph);
             }
+            if (!graphDefinitionRaw) {
+                throw new BadRequestError({ message: 'Missing required GraphDefinition in request body' });
+            }
             if (graphDefinitionRaw.resourceType === 'Parameters') {
                 // check if this is a Parameters resourceType
                 // Unfortunately our FHIR schema resource creator does not support Parameters

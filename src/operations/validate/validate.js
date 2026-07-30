@@ -173,6 +173,17 @@ class ValidateOperation {
                         operationOutcome = operationOutcomeForResource;
                     }
                 }
+                if (!operationOutcome) {
+                    return new OperationOutcome({
+                        issue: [new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'not-found',
+                            details: new CodeableConcept({
+                                text: `Resource ${resourceType} with id ${parsedArgs.id} not found`
+                            })
+                        })]
+                    });
+                }
                 return operationOutcome;
             }
             if (resource) {
