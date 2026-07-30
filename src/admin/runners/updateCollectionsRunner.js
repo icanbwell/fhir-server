@@ -264,17 +264,21 @@ class UpdateCollectionsRunner {
 
                         if (!(targetLastUpdated instanceof Date)) {
                             targetLastUpdated =
-                                moment(targetLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
+                                moment(targetLastUpdated);
+                        } else {
+                            targetLastUpdated = moment(targetLastUpdated);
                         }
                         if (!(sourceLastUpdated instanceof Date)) {
                             sourceLastUpdated =
-                                moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
+                                moment(sourceLastUpdated);
+                        } else {
+                            sourceLastUpdated = moment(sourceLastUpdated);
                         }
 
-                        if (targetLastUpdated > this.updatedBefore) {
+                        if (targetLastUpdated.isAfter(this.updatedBefore)) {
                             targetLastUpdatedGreaterThanUpdatedBefore += 1;
                             continue;
-                        } else if (targetLastUpdated > sourceLastUpdated) {
+                        } else if (targetLastUpdated.isAfter(sourceLastUpdated)) {
                             targetLastUpdatedGreaterThanSource += 1;
                             continue;
                         }
@@ -282,8 +286,8 @@ class UpdateCollectionsRunner {
                         try {
                             if (
                                 targetDocument &&
-                                targetLastUpdated < this.updatedBefore &&
-                                targetLastUpdated < sourceLastUpdated
+                                targetLastUpdated.isBefore(this.updatedBefore) &&
+                                targetLastUpdated.isBefore(sourceLastUpdated)
                             ) {
                                 // Updating the document in targetDatabase.
                                 result = await targetDatabaseCollection.updateOne(

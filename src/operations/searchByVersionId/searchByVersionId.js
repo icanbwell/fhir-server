@@ -270,7 +270,7 @@ class SearchByVersionIdOperation {
                 });
 
                 // serialize the resource
-                FhirResourceSerializer.serialize(historyResource);
+                historyResource = FhirResourceSerializer.serialize(historyResource);
 
                 return historyResource;
             } else {

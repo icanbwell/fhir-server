@@ -282,7 +282,7 @@ class SearchByIdOperation {
 
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
                 resource = await this.base64DataManager.transformAsync(resource, BLOB_OP.RETRIEVE);
-                FhirResourceSerializer.serializeByResourceType(resource, resourceType);
+                resource = FhirResourceSerializer.serializeByResourceType(resource, resourceType);
                 return resource;
             } else {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);
