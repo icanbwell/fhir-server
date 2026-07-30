@@ -350,35 +350,29 @@ class PatientPersonDataChangeEventProducer extends BasePostSaveHandler {
 
         await mutex.runExclusive(async () => {
             try {
-                // Move current data to processing buffers
                 const patientDataChangeMapBuffer = new Map(this.patientDataChangeMap);
-                this.patientDataChangeMap.clear();
-
                 const personDataChangeMapBuffer = new Map(this.personDataChangeMap);
-                this.personDataChangeMap.clear();
 
                 if (this.enablePatientDataChangeEvents) {
-                    // Process patient data change events
                     await this._processDataChangeEvents({
                         topic: this.patientDataChangeEventTopic,
                         dataChangeMap: patientDataChangeMapBuffer,
                         resourceType: 'Patient'
                     });
                 }
+                this.patientDataChangeMap.clear();
 
                 if (this.enablePersonDataChangeEvents) {
-                    // Populate person data change map from patient data change map
                     await this._populatePersonDataChangeMapAsync(patientDataChangeMapBuffer, personDataChangeMapBuffer);
 
-                    // Process person data change events
                     await this._processDataChangeEvents({
                         topic: this.personDataChangeEventTopic,
                         dataChangeMap: personDataChangeMapBuffer,
                         resourceType: 'Person'
                     });
                 }
+                this.personDataChangeMap.clear();
 
-                // Clear processing buffers
                 patientDataChangeMapBuffer.clear();
                 personDataChangeMapBuffer.clear();
             } catch (e) {

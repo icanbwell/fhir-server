@@ -287,7 +287,7 @@ class PatientScopeManager {
             scope,
             resourceType: resource.resourceType
         })) {
-            return true;
+            return false;
         }
 
         let personProperty = this.patientFilterManager.getPersonPropertyForResource({resourceType: resource.resourceType});
