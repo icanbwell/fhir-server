@@ -1236,6 +1236,7 @@ const createContainer = function () {
         configManager: c.configManager,
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory,
+        fastDatabaseBulkInserter: c.fastDatabaseBulkInserter,
         s3NdjsonReader: c.s3NdjsonReader
     }));
 
