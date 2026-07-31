@@ -30,7 +30,8 @@ describe('ClickHouseGroupHandler', () => {
         };
 
         mockGroupMemberRepository = {
-            appendEvents: jest.fn().mockResolvedValue({ success: true })
+            appendEvents: jest.fn().mockResolvedValue({ success: true }),
+            getActiveMembers: jest.fn().mockResolvedValue([])
         };
 
         handler = new ClickHouseGroupHandler({
@@ -235,6 +236,139 @@ describe('ClickHouseGroupHandler', () => {
 
         test('returns false for non-enabled resources', () => {
             expect(handler.canHandle('Patient')).toBe(false);
+        });
+    });
+
+    describe('UPDATE operations', () => {
+        test('should skip member processing when member field is undefined (not provided)', async () => {
+            // This tests the fix: PUT without member field should preserve existing members
+            await handler.afterSaveAsync({
+                requestId: 'req-1',
+                eventType: OPERATION_TYPES.UPDATE,
+                resourceType: 'Group',
+                doc: {
+                    id: 'group-1',
+                    _uuid: 'uuid-1',
+                    member: [],
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'owner1' }
+                        ],
+                        versionId: '2',
+                        lastUpdated: '2024-01-01T00:00:00Z'
+                    }
+                },
+                contextData: {
+                    useExternalStorage: true,
+                    groupMembers: undefined,  // Member field was not provided in PUT
+                    resourceType: 'Group',
+                    resourceId: 'group-1'
+                }
+            });
+
+            // Should NOT call appendEvents - members are preserved
+            expect(mockGroupMemberRepository.appendEvents).not.toHaveBeenCalled();
+        });
+
+        test('should process member deletions when member field is explicitly empty array', async () => {
+            // This tests: PUT with member: [] should delete all members
+            mockGroupMemberRepository.getActiveMembers.mockResolvedValue([
+                'Patient/existing-1',
+                'Patient/existing-2'
+            ]);
+
+            await handler.afterSaveAsync({
+                requestId: 'req-1',
+                eventType: OPERATION_TYPES.UPDATE,
+                resourceType: 'Group',
+                doc: {
+                    id: 'group-1',
+                    _uuid: 'uuid-1',
+                    member: [],
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'owner1' }
+                        ],
+                        versionId: '2',
+                        lastUpdated: '2024-01-01T00:00:00Z'
+                    }
+                },
+                contextData: {
+                    useExternalStorage: true,
+                    groupMembers: [],  // Explicitly empty - delete all members
+                    resourceType: 'Group',
+                    resourceId: 'group-1'
+                }
+            });
+
+            // Should call appendEvents to process removals
+            expect(mockGroupMemberRepository.appendEvents).toHaveBeenCalled();
+        });
+
+        test('should process member updates when member field is provided with values', async () => {
+            // This tests: PUT with member: [...] should update members
+            const newMembers = [
+                {
+                    entity: {
+                        reference: 'Patient/new-1',
+                        _uuid: 'Patient/uuid-new-1',
+                        _sourceId: 'Patient/new-1'
+                    }
+                }
+            ];
+
+            mockGroupMemberRepository.getActiveMembers.mockResolvedValue([
+                'Patient/existing-1'
+            ]);
+
+            await handler.afterSaveAsync({
+                requestId: 'req-1',
+                eventType: OPERATION_TYPES.UPDATE,
+                resourceType: 'Group',
+                doc: {
+                    id: 'group-1',
+                    _uuid: 'uuid-1',
+                    member: [],
+                    meta: {
+                        security: [
+                            { system: 'https://www.icanbwell.com/owner', code: 'owner1' }
+                        ],
+                        versionId: '2',
+                        lastUpdated: '2024-01-01T00:00:00Z'
+                    }
+                },
+                contextData: {
+                    useExternalStorage: true,
+                    groupMembers: newMembers,  // New members provided - update
+                    resourceType: 'Group',
+                    resourceId: 'group-1'
+                }
+            });
+
+            // Should call appendEvents to process additions and removals
+            expect(mockGroupMemberRepository.appendEvents).toHaveBeenCalled();
+        });
+
+        test('should skip processing when useExternalStorage is false', async () => {
+            await handler.afterSaveAsync({
+                requestId: 'req-1',
+                eventType: OPERATION_TYPES.UPDATE,
+                resourceType: 'Group',
+                doc: {
+                    id: 'group-1',
+                    _uuid: 'uuid-1',
+                    member: [],
+                    meta: { security: [], versionId: '2', lastUpdated: '2024-01-01T00:00:00Z' }
+                },
+                contextData: {
+                    useExternalStorage: false,
+                    groupMembers: undefined,
+                    resourceType: 'Group',
+                    resourceId: 'group-1'
+                }
+            });
+
+            expect(mockGroupMemberRepository.appendEvents).not.toHaveBeenCalled();
         });
     });
 
