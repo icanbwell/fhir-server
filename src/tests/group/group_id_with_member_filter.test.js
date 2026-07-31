@@ -28,6 +28,14 @@ describe('Group ID with Member Filter Tests', () => {
         await cleanupAllData();
     });
 
+    const defaultMeta = {
+        source: 'http://test-system.com/Group|test-owner',
+        security: [
+            { system: 'https://www.icanbwell.com/owner', code: 'test-owner' },
+            { system: 'https://www.icanbwell.com/access', code: 'test-access' }
+        ]
+    };
+
     describe('QueryParser.extractGroupIdFilter', () => {
         test('extracts single group ID from _sourceId field (non-UUID)', () => {
             // Real query structure from FilterById for non-UUID IDs
@@ -208,7 +216,8 @@ describe('Group ID with Member Filter Tests', () => {
                             reference: 'Patient/test-patient-123'
                         }
                     }
-                ]
+                ],
+                meta: defaultMeta
             };
 
             // Create another Group with same member (to test filtering works)
@@ -223,7 +232,8 @@ describe('Group ID with Member Filter Tests', () => {
                             reference: 'Patient/test-patient-123'
                         }
                     }
-                ]
+                ],
+                meta: defaultMeta
             };
 
             // POST both groups with useExternalStorage header
@@ -278,7 +288,8 @@ describe('Group ID with Member Filter Tests', () => {
                             reference: 'Patient/test-patient-456'
                         }
                     }
-                ]
+                ],
+                meta: defaultMeta
             };
 
             let resp = await request
