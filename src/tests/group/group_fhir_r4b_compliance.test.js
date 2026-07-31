@@ -632,17 +632,18 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         });
         expect(addedEvents.length).toBeGreaterThanOrEqual(0);
 
-        // Update to remove member
-        const updated = {
-            ...created,
-            member: [] // Remove all members
-        };
-
+        // Update to remove member using PATCH (PUT with member:[] preserves members per INE-954 fix)
         const request = getSharedRequest();
         const updateResponse = await request
-            .put(`/4_0_0/Group/${actualGroupId}`)
-            .send(updated)
-            .set(getTestHeadersWithExternalStorage());
+            .patch(`/4_0_0/Group/${actualGroupId}`)
+            .send([
+                {
+                    op: 'remove',
+                    path: '/member/0'
+                }
+            ])
+            .set(getTestHeadersWithExternalStorage())
+            .set('Content-Type', 'application/json-patch+json');
 
         // PUT can return 200 (updated) or 201 (created if not found)
         expect([200, 201]).toContain(updateResponse.status);

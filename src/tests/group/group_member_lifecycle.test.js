@@ -122,6 +122,30 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     }
 
     /**
+     * Helper to remove all members from a Group using PATCH
+     * (PUT with member:[] preserves members per INE-954 fix)
+     */
+    async function removeAllMembersViaPatch(groupId) {
+        // Get current group
+        const group = await getGroup(groupId);
+
+        // If no members enriched in response, we can't use PATCH - just do PUT with empty
+        // But wait, the members aren't in the response for ClickHouse groups...
+        // We need to use a different approach: use PATCH with member field
+        const request = getSharedRequest();
+        const response = await request
+            .patch(`/4_0_0/Group/${groupId}`)
+            .send([
+                { op: 'replace', path: '/member', value: [] }
+            ])
+            .set(getHeadersWithExternalStorage())
+            .set('Content-Type', 'application/json-patch+json');
+
+        expect([200, 201]).toContain(response.status);
+        return response.body;
+    }
+
+    /**
      * Helper to search Groups by member reference
      */
     async function searchGroupsByMember(memberReference) {
@@ -202,11 +226,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         expect(foundGroup).toBeDefined();
         expect(foundGroup.resource.id).toBe(actualGroupId);
 
-        // 2. Remove member
-        const groupWithoutMember = await getGroup(actualGroupId);
-        groupWithoutMember.member = [];
-
-        await updateGroup(actualGroupId, groupWithoutMember);
+        // 2. Remove member using PATCH (PUT with member:[] preserves members per INE-954 fix)
+        await removeAllMembersViaPatch(actualGroupId);
 
         // Wait for ClickHouse sync - expect empty results
         searchResults = await waitForClickHouseSync(memberRef, []);
@@ -285,10 +306,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         expect(groupIds).toContain(actualGroupBId);
         expect(groupIds).toContain(actualGroupCId);
 
-        // Remove member from group-b
-        const groupBToUpdate = await getGroup(actualGroupBId);
-        groupBToUpdate.member = [];
-        await updateGroup(actualGroupBId, groupBToUpdate);
+        // Remove member from group-b using PATCH
+        await removeAllMembersViaPatch(actualGroupBId);
 
         // Wait for ClickHouse sync - expect only 2 groups now
         searchResults = await waitForClickHouseSync(memberRef, [actualGroupAId, actualGroupCId]);
@@ -324,10 +343,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         expect(searchResults.entry).toBeDefined();
         expect(searchResults.entry.some(e => e.resource.id === actualGroupId)).toBe(true);
 
-        // Cycle 1: Remove
-        group = await getGroup(actualGroupId);
-        group.member = [];
-        await updateGroup(actualGroupId, group);
+        // Cycle 1: Remove using PATCH
+        await removeAllMembersViaPatch(actualGroupId);
 
         // Wait for ClickHouse sync - Cycle 1: Remove
         searchResults = await waitForClickHouseSync(memberRef, []);
@@ -350,10 +367,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         expect(searchResults.entry).toBeDefined();
         expect(searchResults.entry.some(e => e.resource.id === actualGroupId)).toBe(true);
 
-        // Cycle 2: Remove
-        group = await getGroup(actualGroupId);
-        group.member = [];
-        await updateGroup(actualGroupId, group);
+        // Cycle 2: Remove using PATCH
+        await removeAllMembersViaPatch(actualGroupId);
 
         // Wait for ClickHouse sync - Cycle 2: Remove
         searchResults = await waitForClickHouseSync(memberRef, []);
@@ -389,10 +404,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         });
         const actualGroupId = createdGroup.id;
 
-        // Attempt to remove member that was never added
-        const groupToUpdate = await getGroup(actualGroupId);
-        groupToUpdate.member = []; // Empty array (removing nothing)
-        await updateGroup(actualGroupId, groupToUpdate);
+        // Attempt to remove member that was never added using PATCH
+        await removeAllMembersViaPatch(actualGroupId);
 
         // Query events - should show no events for this member
         const events = await getClickHouseManager().queryAsync({
@@ -424,18 +437,14 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         // Wait for initial sync
         await waitForClickHouseSync(memberRef, [actualGroupId]);
 
-        // Remove member (first time)
-        let groupToUpdate = await getGroup(actualGroupId);
-        groupToUpdate.member = [];
-        await updateGroup(actualGroupId, groupToUpdate);
+        // Remove member (first time) using PATCH
+        await removeAllMembersViaPatch(actualGroupId);
 
         // Wait for sync - member should be gone
         await waitForClickHouseSync(memberRef, []);
 
-        // Remove member again (duplicate)
-        groupToUpdate = await getGroup(actualGroupId);
-        groupToUpdate.member = [];
-        await updateGroup(actualGroupId, groupToUpdate);
+        // Remove member again (duplicate) using PATCH
+        await removeAllMembersViaPatch(actualGroupId);
 
         // Wait and verify still not found (idempotent)
         await waitForClickHouseSync(memberRef, []);
