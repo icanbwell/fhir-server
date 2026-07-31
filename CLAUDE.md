@@ -6,6 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 R4-compliant FHIR server built with Express.js, MongoDB, and an IoC container pattern. Supports REST and GraphQL APIs, Kafka event streaming, Redis caching, and OAuth 2.0 / SMART on FHIR authentication.
 
+## Security-Sensitive Changes
+
+Before reviewing or approving any PR that touches resource search/read, Person/Patient link
+traversal (`$everything`, `$graph`, proxy-patient), resource writes (create/update/merge/patch/
+remove), OAuth scope/token parsing, request-scoped caching, or any cross-resource join on a
+shared identifier — read `review.md` at the repo root and adversarially review the diff against
+it.
+
 ## Essential Commands
 
 ```bash
