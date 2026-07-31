@@ -49,7 +49,14 @@ describe('Group Advanced Search', () => {
         return response.body;
     }
 
-    test('Combined filters: member AND name', async () => {
+    // `name` is NOT a FHIR R4 search parameter for Group (see the Group block in
+    // src/searchParameters/searchParameters.js: actual, characteristic, code, exclude,
+    // identifier, managing-entity, member, type, value). Under lenient handling an
+    // unrecognized parameter is ignored, so `?name=` does not narrow the result set — for a
+    // ClickHouse-backed Group or a pure-MongoDB one alike. This test pins that equivalence so
+    // the behavior is not later mistaken for a hybrid-storage filtering bug. Combining member
+    // with a *real* search parameter is covered by the two tests below.
+    test('Combined filters: member AND an unsupported param (name) ignores the param', async () => {
         const memberRef = 'Patient/search-combined-1';
 
         await createGroup({
@@ -79,16 +86,94 @@ describe('Group Advanced Search', () => {
         expect(response.status).toBe(200);
         expect(response.body.entry).toBeDefined();
 
-        // Verify Alpha Group is found (combined filter should work)
-        const alphaFound = response.body.entry.some(e => e.resource.name === 'Alpha Group');
-        expect(alphaFound).toBe(true);
+        // Both Groups contain the member, and `name` is not a Group search parameter, so both
+        // come back. Not a filtering bug — an unsupported parameter, ignored per FHIR lenient
+        // handling.
+        const names = response.body.entry.map(e => e.resource.name).sort();
+        expect(names).toEqual(['Alpha Group', 'Beta Group']);
+    }, 30000);
 
-        // Note: If Beta Group also appears, it means name filtering isn't applied correctly
-        // This is a known limitation - member search works, but combining with name filter may not
-        const betaFound = response.body.entry.some(e => e.resource.name === 'Beta Group');
-        if (betaFound) {
-            // Combined filter limitation detected
-        }
+    // Non-_id case: any supported non-member search parameter must still apply.
+    test('Combined filters: member AND identifier returns only the matching Group', async () => {
+        const memberRef = `Patient/search-combined-identifier-${Date.now()}`;
+        const identifierSystem = 'http://test-system.com/group-key';
+
+        const groupA = await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Identifier Group A',
+            identifier: [{ system: identifierSystem, value: 'key-a' }],
+            member: [{ entity: { reference: memberRef } }]
+        });
+
+        await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Identifier Group B',
+            identifier: [{ system: identifierSystem, value: 'key-b' }],
+            member: [{ entity: { reference: memberRef } }]
+        });
+
+        const request = getSharedRequest();
+        const response = await request
+            .get('/4_0_0/Group')
+            .query({ member: memberRef, identifier: `${identifierSystem}|key-a` })
+            .set(getTestHeadersWithExternalStorage());
+
+        expect(response.status).toBe(200);
+        expect(response.body.entry).toBeDefined();
+        expect(response.body.entry.map(e => e.resource.id)).toEqual([groupA.id]);
+    }, 30000);
+
+    // The hybrid member-search path built its MongoDB fetch as
+    // { id: { $in: <ids from ClickHouse> } }, discarding every other predicate in the original
+    // query. So `_id` (and any other non-member criterion) was silently ignored and the search
+    // returned every Group the member belonged to.
+    test('Combined filters: member AND _id returns only the requested Group', async () => {
+        const memberRef = `Patient/search-by-id-${Date.now()}`;
+
+        const groupA = await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Id Filter Group A',
+            member: [{ entity: { reference: memberRef } }]
+        });
+
+        const groupB = await createGroup({
+            type: 'person',
+            actual: true,
+            name: 'Id Filter Group B',
+            member: [{ entity: { reference: memberRef } }]
+        });
+
+        const request = getSharedRequest();
+
+        // Sanity check: without _id both Groups are found, so the filter below is what narrows it.
+        const unfiltered = await request
+            .get('/4_0_0/Group')
+            .query({ member: memberRef })
+            .set(getTestHeadersWithExternalStorage());
+        expect(unfiltered.status).toBe(200);
+        expect(unfiltered.body.entry.map(e => e.resource.id).sort())
+            .toEqual([groupA.id, groupB.id].sort());
+
+        const response = await request
+            .get('/4_0_0/Group')
+            .query({ member: memberRef, _id: groupA.id })
+            .set(getTestHeadersWithExternalStorage());
+
+        expect(response.status).toBe(200);
+        expect(response.body.entry).toBeDefined();
+        expect(response.body.entry.map(e => e.resource.id)).toEqual([groupA.id]);
+
+        // The count path resolves membership in ClickHouse too, so it must apply the same
+        // non-member predicates. Otherwise Bundle.total (2) contradicts Bundle.entry (1).
+        const counted = await request
+            .get('/4_0_0/Group')
+            .query({ member: memberRef, _id: groupA.id, _total: 'accurate' })
+            .set(getTestHeadersWithExternalStorage());
+        expect(counted.status).toBe(200);
+        expect(counted.body.total).toBe(1);
     }, 30000);
 
     test('Search with pagination (100+ results)', async () => {

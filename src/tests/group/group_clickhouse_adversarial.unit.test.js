@@ -33,10 +33,13 @@ describe('Group ClickHouse hardening (unit)', () => {
 
     const OWNER = 'test-owner';
     const ACCESS = 'test-access';
+    // _uuid as UuidColumnHandler stamps it pre-write; the handler sees it on the committed doc.
+    const GROUP_UUID = '6a4f2b1e-0000-5000-8000-000000000001';
 
     /** A committed FHIR-ish Group doc as the handler sees it post-save. */
     function makeGroupDoc({
         id = 'group-1',
+        uuid = GROUP_UUID,
         versionId = '1',
         lastUpdated = new Date('2026-01-02T03:04:05.678Z'),
         member = [],
@@ -48,6 +51,7 @@ describe('Group ClickHouse hardening (unit)', () => {
         if (access) security.push({ system: 'https://www.icanbwell.com/access', code: access });
         return {
             id,
+            _uuid: uuid,
             resourceType: 'Group',
             _sourceId: id,
             _sourceAssigningAuthority: owner || '',
@@ -431,11 +435,39 @@ describe('Group ClickHouse hardening (unit)', () => {
             expect(thrown.issue[0].code).toBe('forbidden');
         });
 
-        test('roster/count-by-group queries do NOT leak the tenant filter (scoped to one group id)', () => {
-            const roster = QueryBuilder.buildActiveMembers({ groupId: 'g1', limit: 10 });
-            expect(roster.query).toContain('group_id = {groupId:String}');
-            const count = QueryBuilder.buildActiveMemberCount({ groupId: 'g1' });
-            expect(count.query).toContain('group_id = {groupId:String}');
+        test('roster/count-by-group queries narrow on group_uuid, never the logical id', () => {
+            const roster = QueryBuilder.buildActiveMembers({ groupUuid: GROUP_UUID, limit: 10 });
+            expect(roster.query).toContain('group_uuid = {groupUuid:String}');
+            expect(roster.query).not.toContain('group_id =');
+            expect(roster.query_params.groupUuid).toBe(GROUP_UUID);
+
+            const count = QueryBuilder.buildActiveMemberCount({ groupUuid: GROUP_UUID });
+            expect(count.query).toContain('group_uuid = {groupUuid:String}');
+            expect(count.query).not.toContain('group_id =');
+            expect(count.query_params.groupUuid).toBe(GROUP_UUID);
+        });
+
+        test('a Group lookup without a groupUuid throws rather than spanning tenants', () => {
+            expect(() => QueryBuilder.buildActiveMembers({ limit: 10 }))
+                .toThrow(/requires a groupUuid/);
+            expect(() => QueryBuilder.buildActiveMemberCount({}))
+                .toThrow(/requires a groupUuid/);
+            expect(() => QueryBuilder.buildActiveMemberCount({ groupUuid: '' }))
+                .toThrow(/requires a groupUuid/);
+        });
+
+        test('the reverse lookup selects and pages on group_uuid, so MongoDB is handed _uuid', () => {
+            const page = QueryBuilder.buildFindGroupsByMemberQuery({
+                memberReferenceSourceId: 'Patient/123',
+                accessTags: [ACCESS],
+                ownerTags: [OWNER],
+                limit: 10,
+                afterGroupUuid: GROUP_UUID
+            });
+            expect(page.query).toContain('SELECT group_uuid');
+            expect(page.query).toContain('WHERE group_uuid > {afterGroupUuid:String}');
+            expect(page.query).toContain('ORDER BY group_uuid');
+            expect(page.query_params.afterGroupUuid).toBe(GROUP_UUID);
         });
     });
 
@@ -491,10 +523,21 @@ describe('Group ClickHouse hardening (unit)', () => {
         }
         const parsedArgs = { headers: { useexternalstorage: 'true' } };
 
+        /** A stored Group as the enricher sees it: the count is scoped by its _uuid. */
+        function storedGroup({ withMember = true } = {}) {
+            return {
+                resourceType: 'Group',
+                id: 'g1',
+                _uuid: GROUP_UUID,
+                _sourceAssigningAuthority: OWNER,
+                ...(withMember && { member: [{ entity: { reference: 'Patient/1' } }] })
+            };
+        }
+
         test('enrichAsync rethrows when the count query fails (no quantity:0 fallback)', async () => {
             const provider = enrichmentWith(async () => { throw new Error('ClickHouse read timeout'); });
             await expect(provider.enrichAsync({
-                resources: [{ resourceType: 'Group', id: 'g1', member: [{ entity: { reference: 'Patient/1' } }] }],
+                resources: [storedGroup()],
                 parsedArgs
             })).rejects.toThrow(/ClickHouse read timeout/);
         });
@@ -502,7 +545,7 @@ describe('Group ClickHouse hardening (unit)', () => {
         test('enrichBundleEntriesAsync rethrows when the count query fails', async () => {
             const provider = enrichmentWith(async () => { throw new Error('CH boom'); });
             await expect(provider.enrichBundleEntriesAsync({
-                entries: [{ resource: { resourceType: 'Group', id: 'g1' } }],
+                entries: [{ resource: storedGroup({ withMember: false }) }],
                 parsedArgs
             })).rejects.toThrow(/CH boom/);
         });
@@ -510,11 +553,45 @@ describe('Group ClickHouse hardening (unit)', () => {
         test('successful count → quantity set, member array stripped from the response', async () => {
             const provider = enrichmentWith(async () => [{ count: '42' }]);
             const [out] = await provider.enrichAsync({
-                resources: [{ resourceType: 'Group', id: 'g1', member: [{ entity: { reference: 'Patient/1' } }] }],
+                resources: [storedGroup()],
                 parsedArgs
             });
             expect(out.quantity).toBe(42);
             expect(out.member).toBeUndefined();
+        });
+
+        test('the count is bound to group_uuid taken from _uuid, not from resource.id', async () => {
+            const queryAsync = jestGlobal.fn(async () => [{ count: '42' }]);
+            const provider = enrichmentWith(queryAsync);
+            await provider.enrichAsync({ resources: [storedGroup()], parsedArgs });
+
+            const [{ query, query_params }] = queryAsync.mock.calls[0];
+            expect(query).toContain('WHERE group_uuid = {groupUuid:String}');
+            expect(query_params).toEqual({ groupUuid: GROUP_UUID });
+        });
+
+        test('a Group whose id was rewritten to its _uuid still counts on group_uuid', async () => {
+            // GlobalIdEnrichmentProvider sets resource.id = resource._uuid under
+            // Prefer: global_id=true, and runs before this provider. Reading identity off
+            // resource.id would query for a group that has no rows and report quantity 0.
+            const queryAsync = jestGlobal.fn(async () => [{ count: '42' }]);
+            const provider = enrichmentWith(queryAsync);
+            const mutated = { ...storedGroup(), id: GROUP_UUID };
+
+            const [out] = await provider.enrichAsync({ resources: [mutated], parsedArgs });
+
+            expect(out.quantity).toBe(42);
+            expect(queryAsync.mock.calls[0][0].query_params).toEqual({ groupUuid: GROUP_UUID });
+        });
+
+        test('a Group with no _uuid fails closed rather than counting every tenant', async () => {
+            const queryAsync = jestGlobal.fn(async () => [{ count: '42' }]);
+            const provider = enrichmentWith(queryAsync);
+            await expect(provider.enrichAsync({
+                resources: [{ resourceType: 'Group', id: 'g1' }],
+                parsedArgs
+            })).rejects.toThrow(/a groupUuid is required/);
+            expect(queryAsync).not.toHaveBeenCalled();
         });
 
         test('no external-storage header → passthrough, ClickHouse is never queried', async () => {
@@ -533,7 +610,8 @@ describe('Group ClickHouse hardening (unit)', () => {
                 mongoStorageProvider: {},
                 configManager: {}
             });
-            await expect(provider.getActiveMemberCountAsync('g1')).rejects.toThrow(/Error getting active member count/);
+            await expect(provider.getActiveMemberCountAsync(GROUP_UUID))
+                .rejects.toThrow(/Error getting active member count/);
         });
     });
 

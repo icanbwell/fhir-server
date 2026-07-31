@@ -8,6 +8,10 @@ const { USE_EXTERNAL_STORAGE_HEADER } = require('../../../../utils/contextDataBu
 
 const extraInfoWithHeader = { headers: { [USE_EXTERNAL_STORAGE_HEADER]: 'true' } };
 
+// ClickHouse returns group_uuid, and that is what MongoDB is matched on (_uuid).
+const GROUP_UUID_1 = '6a4f2b1e-0000-5000-8000-000000000001';
+const GROUP_UUID_2 = '6a4f2b1e-0000-5000-8000-000000000002';
+
 describe('MongoWithClickHouseStorageProvider', () => {
     let provider;
     let mockResourceLocator;
@@ -103,20 +107,21 @@ describe('MongoWithClickHouseStorageProvider', () => {
             const mockCursor = {};
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
-                { group_id: 'group-1' },
-                { group_id: 'group-2' }
+                { group_uuid: GROUP_UUID_1 },
+                { group_uuid: GROUP_UUID_2 }
             ]);
             mockMongoStorageProvider.findAsync.mockResolvedValue(mockCursor);
 
             await provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader });
 
             expect(mockClickHouseClientManager.queryAsync).toHaveBeenCalled();
-            expect(mockMongoStorageProvider.findAsync).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    query: { id: { $in: ['group-1', 'group-2'] } },
-                    extraInfo: extraInfoWithHeader
-                })
-            );
+            // The security tags are a residual predicate MongoDB must still apply, so the
+            // uuid list is ANDed with them rather than replacing them.
+            const [mongoCall] = mockMongoStorageProvider.findAsync.mock.calls[0];
+            expect(mongoCall.query.$and[0]).toEqual({
+                _uuid: { $in: [GROUP_UUID_1, GROUP_UUID_2] }
+            });
+            expect(mongoCall.extraInfo).toEqual(extraInfoWithHeader);
         });
     });
 
@@ -135,7 +140,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
             const query = withSecurityTags({ 'member.entity._sourceId': { $in: ['Patient/1', 'Patient/2'] } });
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
-                { group_id: 'group-1' }
+                { group_uuid: GROUP_UUID_1 }
             ]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
@@ -159,7 +164,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
             const options = { limit: 50 };
 
             mockClickHouseClientManager.queryAsync
-                .mockResolvedValueOnce([{ group_id: 'group-1' }]);
+                .mockResolvedValueOnce([{ group_uuid: GROUP_UUID_1 }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await provider.findAsync({ query, options, extraInfo: extraInfoWithHeader });
@@ -174,7 +179,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
             const options = {};
 
             mockClickHouseClientManager.queryAsync
-                .mockResolvedValueOnce([{ group_id: 'group-1' }]);
+                .mockResolvedValueOnce([{ group_uuid: GROUP_UUID_1 }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await provider.findAsync({ query, options, extraInfo: extraInfoWithHeader });
@@ -189,7 +194,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
             });
 
             mockClickHouseClientManager.queryAsync.mockResolvedValue([
-                { group_id: 'group-1' }
+                { group_uuid: GROUP_UUID_1 }
             ]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
@@ -207,7 +212,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
             await provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader });
 
             expect(mockMongoStorageProvider.findAsync).toHaveBeenCalledWith({
-                query: { id: { $in: [] } },
+                query: { _uuid: { $in: [] } },
                 options: {},
                 extraInfo: extraInfoWithHeader
             });
@@ -327,7 +332,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
 
         test('succeeds with valid security tags', async () => {
             const query = withSecurityTags({ 'member.entity._sourceId': 'Patient/test' });
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_id: 'group-1' }]);
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_uuid: GROUP_UUID_1 }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await provider.findAsync({ query, options: {}, extraInfo: extraInfoWithHeader });
@@ -392,7 +397,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
                 scope: 'access/*.* user/*.read',
                 user: 'admin'
             };
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_id: 'group-1' }]);
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_uuid: GROUP_UUID_1 }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await p.findAsync({ query, options: {}, extraInfo: adminExtraInfo });
@@ -429,7 +434,7 @@ describe('MongoWithClickHouseStorageProvider', () => {
                 scope: 'access/client1.* user/*.read',
                 user: 'u1'
             };
-            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_id: 'group-1' }]);
+            mockClickHouseClientManager.queryAsync.mockResolvedValue([{ group_uuid: GROUP_UUID_1 }]);
             mockMongoStorageProvider.findAsync.mockResolvedValue({});
 
             await p.findAsync({ query, options: {}, extraInfo: scopedExtraInfo });

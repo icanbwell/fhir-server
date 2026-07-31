@@ -253,6 +253,25 @@ function getTestHeadersWithExternalStorage() {
     };
 }
 
+/**
+ * Helper to get headers for a caller scoped to a single tenant, with external member
+ * storage enabled.
+ *
+ * getTestHeaders/getTestHeadersWithExternalStorage carry a wildcard scope, so every Group
+ * they write lands under one authority. Tenant-isolation behavior is only observable when
+ * two tenants exist, so prefer this helper over the wildcard ones for any test where
+ * "whose Group is it" matters.
+ *
+ * @param {string} tenant - Owner/access tag value, used as the _sourceAssigningAuthority
+ * @returns {Object} Request headers
+ */
+function getScopedHeaders(tenant) {
+    return {
+        ...getHeaders(`user/*.read user/*.write access/${tenant}.*`),
+        [USE_EXTERNAL_STORAGE_HEADER]: 'true'
+    };
+}
+
 module.exports = {
     setupGroupTests,
     teardownGroupTests,
@@ -262,5 +281,6 @@ module.exports = {
     getClickHouseManager,
     getTestHeaders,
     getTestHeadersWithExternalStorage,
+    getScopedHeaders,
     waitForData
 };

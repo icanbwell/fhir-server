@@ -3,9 +3,13 @@ const { GroupMemberEventBuilder } = require('../../../../dataLayer/builders/grou
 const { EVENT_TYPES } = require('../../../../constants/clickHouseConstants');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
+// _uuid as UuidColumnHandler would have stamped it before the write reaches the builder
+const GROUP_UUID = '6a4f2b1e-0000-5000-8000-000000000001';
+
 // Minimal group resource with required security tags
 const makeGroupResource = (overrides = {}) => ({
     id: 'test-group-id',
+    _uuid: GROUP_UUID,
     _sourceId: 'test-group-id',
     _sourceAssigningAuthority: 'test-authority',
     meta: {
@@ -28,6 +32,66 @@ const makeMember = (reference, uuid, sourceId, overrides = {}) => ({
 });
 
 describe('GroupMemberEventBuilder', () => {
+    describe('group identity', () => {
+        const member = makeMember('Patient/1|auth', 'Patient/uuid-1', 'Patient/1');
+
+        test('keys the event on the Group _uuid, carrying the logical id as provenance', () => {
+            const event = GroupMemberEventBuilder.buildEvent({
+                groupId: 'test-group-id',
+                entityReference: 'Patient/1|auth',
+                eventType: EVENT_TYPES.MEMBER_ADDED,
+                member,
+                groupResource: makeGroupResource()
+            });
+
+            expect(event.group_uuid).toBe(GROUP_UUID);
+            expect(event.group_id).toBe('test-group-id');
+        });
+
+        test('keys on _uuid even when the caller passes a mutated logical id', () => {
+            // GlobalIdEnrichmentProvider rewrites resource.id to the _uuid under
+            // Prefer: global_id=true. The row must land on the same group_uuid regardless.
+            const event = GroupMemberEventBuilder.buildEvent({
+                groupId: GROUP_UUID,
+                entityReference: 'Patient/1|auth',
+                eventType: EVENT_TYPES.MEMBER_ADDED,
+                member,
+                groupResource: makeGroupResource()
+            });
+
+            expect(event.group_uuid).toBe(GROUP_UUID);
+        });
+
+        test('throws when the Group resource has no _uuid', () => {
+            const groupResource = makeGroupResource();
+            delete groupResource._uuid;
+
+            expect(() => {
+                GroupMemberEventBuilder.buildEvent({
+                    groupId: 'test-group-id',
+                    entityReference: 'Patient/1|auth',
+                    eventType: EVENT_TYPES.MEMBER_ADDED,
+                    member,
+                    groupResource
+                });
+            }).toThrow('is missing _uuid');
+        });
+
+        test('buildEvents keys every event in the batch on the same group_uuid', () => {
+            const events = GroupMemberEventBuilder.buildEvents({
+                groupId: 'test-group-id',
+                members: [
+                    makeMember('Patient/1|auth', 'Patient/uuid-1', 'Patient/1'),
+                    makeMember('Patient/2|auth', 'Patient/uuid-2', 'Patient/2')
+                ],
+                eventType: EVENT_TYPES.MEMBER_ADDED,
+                groupResource: makeGroupResource()
+            });
+
+            expect(events.every(e => e.group_uuid === GROUP_UUID)).toBe(true);
+        });
+    });
+
     describe('entity reference enrichment fields', () => {
         test('reads _uuid and _sourceId from member entity reference', () => {
             const member = makeMember(
@@ -173,9 +237,9 @@ describe('GroupMemberEventBuilder', () => {
             expect(event.correlation_id).toBe('group-1|3');
         });
 
-        test('derives event_id deterministically as uuidv5(group|reference|type|correlation)', () => {
+        test('derives event_id deterministically as uuidv5(groupUuid|reference|type|correlation)', () => {
             const event = GroupMemberEventBuilder.buildEvent(buildArgs);
-            const expected = generateUUIDv5('group-1|Patient/1|auth|added|group-1|3');
+            const expected = generateUUIDv5(`${GROUP_UUID}|Patient/1|auth|added|group-1|3`);
             expect(event.event_id).toBe(expected);
         });
 

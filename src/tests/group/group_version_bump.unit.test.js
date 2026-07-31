@@ -23,11 +23,15 @@ describe('hybrid Group version-bump hook (unit)', () => {
 
     const hydrate = UpdateOperation.prototype._hydrateHybridGroupMembersBeforeMerge;
 
+    const GROUP_UUID = '6a4f2b1e-0000-5000-8000-000000000001';
+
     /** A stored Group doc carrying the external-storage member tag (member stripped from Mongo). */
-    function taggedGroup({ id = 'group-1' } = {}) {
+    function taggedGroup({ id = 'group-1', uuid = GROUP_UUID, sourceAssigningAuthority = 'tenant-a' } = {}) {
         return {
             id,
+            _uuid: uuid,
             resourceType: 'Group',
+            _sourceAssigningAuthority: sourceAssigningAuthority,
             meta: {
                 versionId: '1',
                 tag: [{ system: EXTERNAL_STORAGE_TAG_SYSTEM, code: EXTERNAL_STORAGE_TAG_CODE }]
@@ -74,7 +78,7 @@ describe('hybrid Group version-bump hook (unit)', () => {
 
             await hydrate.call(host({ repository }), 'Group', true, currentResource);
 
-            expect(repository.getActiveMembers).toHaveBeenCalledWith('group-1');
+            expect(repository.getActiveMembers).toHaveBeenCalledWith(GROUP_UUID);
             expect(currentResource.member).toEqual([
                 { entity: { reference: 'Patient/1' } },
                 { entity: { reference: 'Patient/2' } }
@@ -146,7 +150,7 @@ describe('hybrid Group version-bump hook (unit)', () => {
 
             await hydrate.call(host({ repository }), 'Group', true, currentResource);
 
-            expect(repository.getActiveMembers).toHaveBeenCalledWith('group-1');
+            expect(repository.getActiveMembers).toHaveBeenCalledWith(GROUP_UUID);
             expect(currentResource.member).toBeUndefined();
         });
 

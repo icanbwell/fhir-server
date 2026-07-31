@@ -17,6 +17,7 @@ describe('GroupMemberRepository.appendEvents', () => {
 
     const makeEvent = (overrides = {}) => ({
         event_id: 'e1',
+        group_uuid: '6a4f2b1e-0000-5000-8000-000000000001',
         group_id: 'group-1',
         entity_reference: 'Patient/1',
         entity_reference_uuid: 'Patient/uuid-1',
@@ -97,4 +98,37 @@ describe('GroupMemberRepository.appendEvents', () => {
         // initial attempt + 3 retries (APPEND_EVENTS_MAX_RETRIES)
         expect(mockClient.insertAsync).toHaveBeenCalledTimes(4);
     }, 20000);
+});
+
+describe('GroupMemberRepository.getActiveMembers', () => {
+    const GROUP_UUID = '6a4f2b1e-0000-5000-8000-000000000001';
+
+    function repositoryWith(queryImpl) {
+        return new GroupMemberRepository({
+            clickHouseClient: { queryAsync: queryImpl, insertAsync: jest.fn() }
+        });
+    }
+
+    test('narrows on group_uuid bound as a query parameter', async () => {
+        const queryAsync = jest.fn().mockResolvedValue([{ entity_reference: 'Patient/1' }]);
+        const references = await repositoryWith(queryAsync).getActiveMembers(GROUP_UUID);
+
+        const [{ query, query_params }] = queryAsync.mock.calls[0];
+        expect(query).toContain('WHERE group_uuid = {groupUuid:String}');
+        expect(query_params).toEqual({ groupUuid: GROUP_UUID });
+        expect(references).toEqual(['Patient/1']);
+    });
+
+    test('throws without a groupUuid rather than reading every tenant\'s roster', async () => {
+        const queryAsync = jest.fn();
+        await expect(repositoryWith(queryAsync).getActiveMembers(undefined))
+            .rejects.toThrow(/a groupUuid is required/);
+        expect(queryAsync).not.toHaveBeenCalled();
+    });
+
+    test('rethrows a read failure instead of reporting an empty roster', async () => {
+        const queryAsync = jest.fn().mockRejectedValue(new Error('ClickHouse read timeout'));
+        await expect(repositoryWith(queryAsync).getActiveMembers(GROUP_UUID))
+            .rejects.toThrow(/Error retrieving active members/);
+    });
 });
