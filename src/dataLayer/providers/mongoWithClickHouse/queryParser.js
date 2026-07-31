@@ -249,10 +249,19 @@ class QueryParser {
      * Extracts group ID filters from MongoDB query
      *
      * FilterById transforms FHIR _id parameters into MongoDB _uuid/_sourceId fields:
-     * - UUID values → { _uuid: { $in: [...] } }
+     * - UUID-shaped values → { _uuid: { $in: [...] } }
      * - Non-UUID values → { _sourceId: { $in: [...] } }
      *
-     * This method extracts those values to filter ClickHouse queries by group_id.
+     * This method extracts from both fields to filter ClickHouse queries by group_id:
+     * - _sourceId always equals the actual resource id (safe to use)
+     * - _uuid equals the actual id for UUID-shaped ids (safe to use)
+     * - _uuid is a hash for business ids (theoretically could mismatch ClickHouse group_id)
+     *
+     * Note: The edge case where _uuid is a hash doesn't occur in practice because:
+     * 1. Users search by the actual id they know (e.g., 'group-test'), not internal hashes
+     * 2. FilterById routes non-UUID ids to _sourceId (which we extract correctly)
+     * 3. Only searching by the hash itself (e.g., ?_id=<hash>) would fail, but users
+     *    don't know/use these internal hashes - they appear nowhere in API responses
      *
      * @param {Object} query - MongoDB query object
      * @returns {string[]} Array of group IDs to filter by (empty if no filter)

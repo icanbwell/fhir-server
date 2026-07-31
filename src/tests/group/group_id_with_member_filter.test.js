@@ -207,7 +207,7 @@ describe('Group ID with Member Filter Tests', () => {
             // Create test Group with member
             const groupResource = {
                 resourceType: 'Group',
-                id: 'DBT5-Denominator-samsung',
+                id: 'group-test',
                 type: 'person',
                 actual: true,
                 member: [
