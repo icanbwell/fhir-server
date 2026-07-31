@@ -611,6 +611,11 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
                     entity: { reference: 'Patient/r4b-removal-patient' },
                     period: { start: '2024-01-01T00:00:00Z', end: '2024-12-31T23:59:59Z' },
                     inactive: false
+                },
+                {
+                    entity: { reference: 'Patient/r4b-keep-patient' },
+                    period: { start: '2024-01-01T00:00:00Z', end: '2024-12-31T23:59:59Z' },
+                    inactive: false
                 }
             ]
         };
@@ -632,20 +637,23 @@ describe('FHIR R4B Group Compliance with ClickHouse', () => {
         });
         expect(addedEvents.length).toBeGreaterThanOrEqual(0);
 
-        // Update to remove member using PATCH (PUT with member:[] preserves members per INE-954 fix)
+        // Update to remove one member by sending updated Group with only the other member
+        // (INE-954 fix: member:[] preserves, so we explicitly list members we want to keep)
         const request = getSharedRequest();
         const updateResponse = await request
-            .patch(`/4_0_0/Group/${actualGroupId}`)
-            .send([
-                {
-                    op: 'remove',
-                    path: '/member/0'
-                }
-            ])
-            .set(getTestHeadersWithExternalStorage())
-            .set('Content-Type', 'application/json-patch+json');
+            .put(`/4_0_0/Group/${actualGroupId}`)
+            .send({
+                ...created,
+                member: [
+                    {
+                        entity: { reference: 'Patient/r4b-keep-patient' },
+                        period: { start: '2024-01-01T00:00:00Z', end: '2024-12-31T23:59:59Z' },
+                        inactive: false
+                    }
+                ] // Only keep one member, removing r4b-removal-patient
+            })
+            .set(getTestHeadersWithExternalStorage());
 
-        // PUT can return 200 (updated) or 201 (created if not found)
         expect([200, 201]).toContain(updateResponse.status);
 
 
