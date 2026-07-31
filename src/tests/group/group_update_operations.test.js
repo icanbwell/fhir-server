@@ -326,6 +326,43 @@ describe('Group UPDATE operations', () => {
         expect(parseInt(activeCount[0].count)).toBe(3);
     });
 
+    // A member-bearing PUT with a different set is a full replace: the new set becomes the roster.
+    test('PUT with a different member set replaces the roster', async () => {
+        const created = await createGroup({
+            type: 'person',
+            actual: true,
+            member: [
+                { entity: { reference: 'Patient/replace-old-0' } },
+                { entity: { reference: 'Patient/replace-old-1' } }
+            ]
+        });
+
+        const response = await updateGroup(created.id, {
+            ...created,
+            member: [
+                { entity: { reference: 'Patient/replace-old-0' } }, // kept
+                { entity: { reference: 'Patient/replace-new-0' } }, // added
+                { entity: { reference: 'Patient/replace-new-1' } }  // added
+            ]
+        });
+        expect([200, 201]).toContain(response.status);
+
+        // Active roster is exactly the new set: kept + 2 new, old-1 removed.
+        const active = await clickHouseManager.queryAsync({
+            query: `SELECT entity_reference FROM fhir.Group_4_0_0_MemberEvents
+                    WHERE group_id = '${created.id}'
+                    GROUP BY entity_reference
+                    HAVING argMax(event_type, (version_id, batch_seq, event_time, event_id)) = '${EVENT_TYPES.MEMBER_ADDED}'
+                    ORDER BY entity_reference`
+        });
+        const activeRefs = active.map(r => r.entity_reference).sort();
+        expect(activeRefs).toEqual([
+            'Patient/replace-new-0',
+            'Patient/replace-new-1',
+            'Patient/replace-old-0'
+        ]);
+    });
+
     test('PUT Group → quantity available via GET', async () => {
         // Create initial group with 2 members
         const initialMembers = Array.from({ length: 2 }, (_, i) => ({

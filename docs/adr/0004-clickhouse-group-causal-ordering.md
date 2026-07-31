@@ -31,8 +31,13 @@ This was reproduced end-to-end: a create with N members followed by a `PUT membe
 
 Per the FHIR R4 specification, `meta.versionId` and `meta.lastUpdated` MUST change each time the **content** of a resource changes, and `Group.member` is resource content. The frozen-version behavior is therefore itself a FHIR-compliance bug — and fixing it is exactly what makes the causal ordering resolvable.
 
+### A separate data-loss bug on the same path (member-omitting PUT)
+
+Naively bumping the version by hydrating the current roster before every merge would expose — and a straightforward implementation would worsen — a distinct **data-loss** bug that predates this change. For a hybrid Group, `GroupMemberEnrichmentProvider` strips `member` from every read and returns only `quantity`; **a GET never round-trips `member`**. So a normal read-modify-write client GETs a Group (metadata + `quantity`, no `member`), edits e.g. `name`, and PUTs back with **no `member` field**. The post-save membership diff (`clickHouseGroupHandler._handleUpdateAsync`) then compares the current ClickHouse roster against the incoming (empty) member array and computes *remove all* — silently wiping the entire membership on a metadata-only PUT. Because a GET cannot round-trip `member`, an omitted `member` on write cannot safely mean "clear"; for externally-stored membership it must mean "unchanged". This is a correctness fix, not merely a version-bump refinement.
+
 ## Decision Drivers
 
+- **No silent membership loss:** because a GET does not round-trip `member`, a write that omits `member` must leave the roster unchanged, never be interpreted as "clear". Only `member: []` clears.
 - **FHIR compliance:** a change to `Group.member` must advance `meta.versionId` / `meta.lastUpdated`, the same as it does for a pure-Mongo Group.
 - **Causal correctness:** a later operation must win over an earlier one for the same member.
 - **Idempotency (keep ADR 0003):** a retry of the same logical write must converge to the same state (identical rows).
@@ -75,6 +80,7 @@ The same tuple is applied in both places that resolve current state, so direct-e
 
 ## Consequences
 
+- **Data-loss fixed (member-omitting PUT no longer wipes the roster).** A metadata-only / read-modify-write PUT that omits `member` now leaves membership and its events untouched (`memberFieldPresent: false` gates both the pre-merge hydration and the post-save diff). `member: []` still clears explicitly. This closes a silent-deletion bug that affected every populated hybrid Group under a normal RMW workflow.
 - **FHIR compliance restored, opaquely.** A `Group.member` change now advances `meta.versionId` / `meta.lastUpdated` for hybrid Groups exactly as for pure-Mongo Groups, via the existing content-diff machinery. No new versioning rule was introduced.
 - **Cross-version add/remove ordering is now causal** (higher version wins), verified by the previously-failing repro (a create-then-`PUT member:[]` now reads back 0 active) and pure-unit contracts.
 - **Idempotency retained (ADR 0003):** a same-version retry re-derives the same `version_id`, `batch_seq`, and `event_id`, so rows stay identical and `argMax` converges.
