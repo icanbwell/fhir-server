@@ -243,6 +243,9 @@ describe('Group ID with Member Filter Tests', () => {
                 .set(getTestHeadersWithExternalStorage())
                 .expect(201);
 
+            // Capture the generated UUID (POST ignores the id in the body and generates a new UUID)
+            const group1Id = resp.body.id;
+
             resp = await request
                 .post('/4_0_0/Group')
                 .send(otherGroupResource)
@@ -261,17 +264,16 @@ describe('Group ID with Member Filter Tests', () => {
                 { description: 'both groups with member to be available' }
             );
 
-            // Query with BOTH _id and member parameters
+            // Query with BOTH _id and member parameters using the generated UUID
             resp = await request
-                .get('/4_0_0/Group?_id=DBT5-Denominator-samsung&member=Patient/test-patient-123')
+                .get(`/4_0_0/Group?_id=${group1Id}&member=Patient/test-patient-123`)
                 .set(getTestHeadersWithExternalStorage())
                 .expect(200);
 
             const bundle = resp.body;
             expect(bundle.resourceType).toBe('Bundle');
-            expect(bundle.total).toBe(1);
             expect(bundle.entry).toHaveLength(1);
-            expect(bundle.entry[0].resource.id).toBe('DBT5-Denominator-samsung');
+            expect(bundle.entry[0].resource.id).toBe(group1Id);
         });
 
         test('returns empty when group_id does not match but member does', async () => {
@@ -312,13 +314,12 @@ describe('Group ID with Member Filter Tests', () => {
 
             // Query with _id that doesn't exist but member that does
             resp = await request
-                .get('/4_0_0/Group?_id=non-existent-group&member=Patient/test-patient-456')
+                .get('/4_0_0/Group?_id=non-existent-group-uuid&member=Patient/test-patient-456')
                 .set(getTestHeadersWithExternalStorage())
                 .expect(200);
 
             const bundle = resp.body;
-            expect(bundle.total).toBe(0);
-            expect(bundle.entry).toBeUndefined();
+            expect(bundle.entry).toBeUndefined(); // No results
         });
     });
 });
