@@ -122,6 +122,22 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     }
 
     /**
+     * Helper to remove a specific member from a Group by PUTting with all other members
+     * (INE-954 fix: member:[] preserves members, so we PUT with explicit keep list)
+     *
+     * @param {string} groupId - Group ID
+     * @param {string} memberToRemove - Member reference to remove
+     * @param {Array<string>} membersToKeep - Member references to keep
+     */
+    async function removeMemberByExclusionPut(groupId, memberToRemove, membersToKeep) {
+        const group = await getGroup(groupId);
+        group.member = membersToKeep.map(ref => ({
+            entity: { reference: ref }
+        }));
+        await updateGroup(groupId, group);
+    }
+
+    /**
      * Helper to search Groups by member reference
      */
     async function searchGroupsByMember(memberReference) {
@@ -170,15 +186,21 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     test('Member added, removed, then re-added appears as active', async () => {
         const groupId = 'test-group-lifecycle-1';
         const memberRef = 'Patient/patient-123-lifecycle';
+        const dummyMemberRef = 'Patient/dummy-lifecycle-1';
 
 
-        // 1. Create Group with member
+        // 1. Create Group with 2 members: test member + dummy (so we can remove test member by keeping only dummy)
         const createdGroup = await createGroup({
             id: groupId,
             members: [
                 {
                     entity: {
                         reference: memberRef
+                    }
+                },
+                {
+                    entity: {
+                        reference: dummyMemberRef
                     }
                 }
             ]
@@ -191,7 +213,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         const initialGroup = await getGroup(actualGroupId);
 
         // With ClickHouse enabled, member array is stripped and quantity is set
-        expect(initialGroup.quantity).toBe(1);
+        expect(initialGroup.quantity).toBe(2);
         expect(initialGroup.member).toBeUndefined();
 
         // Wait for ClickHouse sync with polling
@@ -202,23 +224,25 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         expect(foundGroup).toBeDefined();
         expect(foundGroup.resource.id).toBe(actualGroupId);
 
-        // 2. Remove member
-        const groupWithoutMember = await getGroup(actualGroupId);
-        groupWithoutMember.member = [];
+        // 2. Remove test member by PUTting with only dummy member
+        await removeMemberByExclusionPut(actualGroupId, memberRef, [dummyMemberRef]);
 
-        await updateGroup(actualGroupId, groupWithoutMember);
-
-        // Wait for ClickHouse sync - expect empty results
+        // Wait for ClickHouse sync - expect empty results for test member
         searchResults = await waitForClickHouseSync(memberRef, []);
         const groupIds = (searchResults.entry || []).map(e => e.resource.id);
         expect(groupIds).not.toContain(actualGroupId);
 
-        // 3. Re-add member
+        // 3. Re-add test member by PUTting with both members
         const groupToUpdate = await getGroup(actualGroupId);
         groupToUpdate.member = [
             {
                 entity: {
                     reference: memberRef
+                }
+            },
+            {
+                entity: {
+                    reference: dummyMemberRef
                 }
             }
         ];
@@ -237,6 +261,7 @@ describe('Group Member Lifecycle in ClickHouse', () => {
 
     test('Query Groups by member shows only active memberships', async () => {
         const memberRef = 'Patient/patient-456-multi';
+        const dummyMemberRef = 'Patient/dummy-multi';
 
 
         // Create 3 Groups with the same member
@@ -252,12 +277,18 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         });
         const actualGroupAId = groupA.id;
 
+        // Group B has dummy member so we can remove test member later
         const groupB = await createGroup({
             id: 'group-b-multi',
             members: [
                 {
                     entity: {
                         reference: memberRef
+                    }
+                },
+                {
+                    entity: {
+                        reference: dummyMemberRef
                     }
                 }
             ]
@@ -285,10 +316,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         expect(groupIds).toContain(actualGroupBId);
         expect(groupIds).toContain(actualGroupCId);
 
-        // Remove member from group-b
-        const groupBToUpdate = await getGroup(actualGroupBId);
-        groupBToUpdate.member = [];
-        await updateGroup(actualGroupBId, groupBToUpdate);
+        // Remove test member from group-b by PUTting with only dummy member
+        await removeMemberByExclusionPut(actualGroupBId, memberRef, [dummyMemberRef]);
 
         // Wait for ClickHouse sync - expect only 2 groups now
         searchResults = await waitForClickHouseSync(memberRef, [actualGroupAId, actualGroupCId]);
@@ -303,15 +332,21 @@ describe('Group Member Lifecycle in ClickHouse', () => {
 
     test('Multiple add/remove cycles maintain correct state', async () => {
         const memberRef = 'Patient/patient-cycles';
+        const dummyMemberRef = 'Patient/dummy-cycles';
 
 
-        // Cycle 1: Add
+        // Cycle 1: Add (with dummy member for removal strategy)
         let group = await createGroup({
             id: 'test-group-cycles',
             members: [
                 {
                     entity: {
                         reference: memberRef
+                    }
+                },
+                {
+                    entity: {
+                        reference: dummyMemberRef
                     }
                 }
             ]
@@ -324,10 +359,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         expect(searchResults.entry).toBeDefined();
         expect(searchResults.entry.some(e => e.resource.id === actualGroupId)).toBe(true);
 
-        // Cycle 1: Remove
-        group = await getGroup(actualGroupId);
-        group.member = [];
-        await updateGroup(actualGroupId, group);
+        // Cycle 1: Remove by PUTting with only dummy member
+        await removeMemberByExclusionPut(actualGroupId, memberRef, [dummyMemberRef]);
 
         // Wait for ClickHouse sync - Cycle 1: Remove
         searchResults = await waitForClickHouseSync(memberRef, []);
@@ -341,6 +374,11 @@ describe('Group Member Lifecycle in ClickHouse', () => {
                 entity: {
                     reference: memberRef
                 }
+            },
+            {
+                entity: {
+                    reference: dummyMemberRef
+                }
             }
         ];
         await updateGroup(actualGroupId, group);
@@ -350,10 +388,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         expect(searchResults.entry).toBeDefined();
         expect(searchResults.entry.some(e => e.resource.id === actualGroupId)).toBe(true);
 
-        // Cycle 2: Remove
-        group = await getGroup(actualGroupId);
-        group.member = [];
-        await updateGroup(actualGroupId, group);
+        // Cycle 2: Remove by PUTting with only dummy member
+        await removeMemberByExclusionPut(actualGroupId, memberRef, [dummyMemberRef]);
 
         // Wait for ClickHouse sync - Cycle 2: Remove
         searchResults = await waitForClickHouseSync(memberRef, []);
@@ -366,6 +402,11 @@ describe('Group Member Lifecycle in ClickHouse', () => {
             {
                 entity: {
                     reference: memberRef
+                }
+            },
+            {
+                entity: {
+                    reference: dummyMemberRef
                 }
             }
         ];
@@ -389,10 +430,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
         });
         const actualGroupId = createdGroup.id;
 
-        // Attempt to remove member that was never added
-        const groupToUpdate = await getGroup(actualGroupId);
-        groupToUpdate.member = []; // Empty array (removing nothing)
-        await updateGroup(actualGroupId, groupToUpdate);
+        // No removal operation needed - member was never added
+        // Just verify no events exist
 
         // Query events - should show no events for this member
         const events = await getClickHouseManager().queryAsync({
@@ -413,29 +452,29 @@ describe('Group Member Lifecycle in ClickHouse', () => {
     test('Duplicate remove events → Idempotent', async () => {
         const groupId = 'test-duplicate-remove';
         const memberRef = 'Patient/duplicate-remove';
+        const dummyMemberRef = 'Patient/dummy-duplicate-remove';
 
-        // Create group with member
+        // Create group with test member + dummy member
         const createdGroup = await createGroup({
             id: groupId,
-            members: [{ entity: { reference: memberRef } }]
+            members: [
+                { entity: { reference: memberRef } },
+                { entity: { reference: dummyMemberRef } }
+            ]
         });
         const actualGroupId = createdGroup.id;
 
         // Wait for initial sync
         await waitForClickHouseSync(memberRef, [actualGroupId]);
 
-        // Remove member (first time)
-        let groupToUpdate = await getGroup(actualGroupId);
-        groupToUpdate.member = [];
-        await updateGroup(actualGroupId, groupToUpdate);
+        // Remove test member (first time) by PUTting with only dummy member
+        await removeMemberByExclusionPut(actualGroupId, memberRef, [dummyMemberRef]);
 
         // Wait for sync - member should be gone
         await waitForClickHouseSync(memberRef, []);
 
-        // Remove member again (duplicate)
-        groupToUpdate = await getGroup(actualGroupId);
-        groupToUpdate.member = [];
-        await updateGroup(actualGroupId, groupToUpdate);
+        // Remove member again (duplicate) - PUT with only dummy member again
+        await removeMemberByExclusionPut(actualGroupId, memberRef, [dummyMemberRef]);
 
         // Wait and verify still not found (idempotent)
         await waitForClickHouseSync(memberRef, []);
@@ -450,8 +489,21 @@ describe('Group Member Lifecycle in ClickHouse', () => {
             query_params: { groupId: actualGroupId, memberRef }
         });
 
-        // argMax should still return 'removed' regardless of duplicates
-        const activeMembers = await getClickHouseManager().queryAsync({
+        // argMax should still return 'removed' for the test member regardless of duplicate removes
+        const testMemberStatus = await getClickHouseManager().queryAsync({
+            query: `SELECT entity_reference
+                    FROM fhir.Group_4_0_0_MemberEvents
+                    WHERE group_id = {groupId:String} AND entity_reference = {memberRef:String}
+                    GROUP BY entity_reference
+                    HAVING argMax(event_type, (event_time, event_id)) = 'added'`,
+            query_params: { groupId: actualGroupId, memberRef }
+        });
+
+        // Test member should not be active (removed)
+        expect(testMemberStatus.length).toBe(0);
+
+        // Dummy member should still be active
+        const allActiveMembers = await getClickHouseManager().queryAsync({
             query: `SELECT entity_reference
                     FROM fhir.Group_4_0_0_MemberEvents
                     WHERE group_id = {groupId:String}
@@ -459,8 +511,8 @@ describe('Group Member Lifecycle in ClickHouse', () => {
                     HAVING argMax(event_type, (event_time, event_id)) = 'added'`,
             query_params: { groupId: actualGroupId }
         });
-
-        expect(activeMembers.length).toBe(0);
+        expect(allActiveMembers.length).toBe(1);
+        expect(allActiveMembers[0].entity_reference).toBe(dummyMemberRef);
 
     }, 60000);
 

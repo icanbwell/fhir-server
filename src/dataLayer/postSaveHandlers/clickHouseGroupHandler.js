@@ -172,6 +172,15 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
 
             // UPDATE: Compute diff and write events
             if (eventType === OPERATION_TYPES.UPDATE) {
+                // If member field is undefined (not provided in PUT), skip member processing
+                // This preserves existing members when updating Group metadata
+                if (contextData?.groupMembers === undefined) {
+                    logInfo('PUT without member field - preserving existing members', {
+                        groupId: doc.id
+                    });
+                    return;
+                }
+
                 logDebug('Processing UPDATE', {
                     groupId: doc.id,
                     originalMemberCount: originalMembers.length,
