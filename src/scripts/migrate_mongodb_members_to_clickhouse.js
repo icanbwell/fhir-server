@@ -163,6 +163,7 @@ async function migrateMongoDBMembersToClickHouse() {
 
     let totalMembersMigrated = 0;
     let groupsProcessed = 0;
+    let groupsSkipped = 0;
     const BATCH_SIZE = options.batchSize;
 
     console.log('========================================');
@@ -174,6 +175,14 @@ async function migrateMongoDBMembersToClickHouse() {
         console.log(`[${groupsProcessed}/${groupsWithMembers.length}] Group ${group.id}:`);
         console.log(`  Members: ${group.member.length}`);
 
+        // A Group is identified by _uuid. Without it the events cannot be keyed and the member
+        // array cannot be stripped from one document, so skip rather than write unattributable rows.
+        if (!group._sourceAssigningAuthority || !group._uuid) {
+            groupsSkipped++;
+            console.log('  ⚠️  Skipped: missing _sourceAssigningAuthority or _uuid\n');
+            continue;
+        }
+
         // Build 'added' events for all members
         const events = group.member.map(member => {
             const entityRef = member.entity.reference;
@@ -183,6 +192,7 @@ async function migrateMongoDBMembersToClickHouse() {
                 : new Date().toISOString().replace('T', ' ').replace('Z', '');
 
             return {
+                group_uuid: group._uuid,
                 group_id: group.id,
                 entity_reference: entityRef,
                 entity_type: extractEntityType(entityRef),
@@ -192,7 +202,7 @@ async function migrateMongoDBMembersToClickHouse() {
                 period_end: convertToClickHouseDateTime(member.period?.end),
                 inactive: member.inactive ? 1 : 0,
                 group_source_id: group._sourceId || '',
-                group_source_assigning_authority: group._sourceAssigningAuthority || '',
+                group_source_assigning_authority: group._sourceAssigningAuthority,
                 access_tags: group.meta?.security?.filter(s => s.system?.includes('access')).map(s => s.code) || [],
                 owner_tags: group.meta?.security?.filter(s => s.system?.includes('owner')).map(s => s.code) || []
             };
@@ -210,9 +220,10 @@ async function migrateMongoDBMembersToClickHouse() {
                 console.log(`  Inserted batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} events)`);
             }
 
-            // Remove member array from MongoDB (keep metadata only)
+            // Remove member array from MongoDB (keep metadata only). Matched on _uuid: `id` alone
+            // would also strip the member array from other tenants' Groups sharing that id.
             await groupCollection.updateOne(
-                { id: group.id },
+                { _uuid: group._uuid },
                 {
                     $unset: { member: '' },
                     $set: {
@@ -235,6 +246,7 @@ async function migrateMongoDBMembersToClickHouse() {
     console.log('Migration Summary');
     console.log('========================================\n');
     console.log(`Groups processed: ${groupsProcessed}`);
+    console.log(`Groups skipped (no _sourceAssigningAuthority): ${groupsSkipped}`);
     console.log(`Total members: ${totalMembersMigrated}`);
     console.log(`Mode: ${options.dryRun ? 'DRY RUN (no changes made)' : 'LIVE (data migrated)'}\n`);
 

@@ -57,27 +57,60 @@ class GroupMemberEventBuilder {
     }
 
     /**
+     * Reads the Group's identity for the membership tables.
+     *
+     * group_uuid carries MongoDB's _uuid = uuidv5(id|sourceAssigningAuthority) (UuidColumnHandler),
+     * which is the same value the AuditEvent ClickHouse tables and the Group compensation path key
+     * on. It is stamped by pre-save before the resource is committed, so every doc reaching a
+     * post-save handler has it. group_id is the FHIR logical id: payload for provenance, not
+     * identity, because a client can choose it via update-as-create and enrichment rewrites it on
+     * the read path.
+     *
+     * @param {Object} groupResource - Committed FHIR Group resource
+     * @returns {string} The Group's _uuid
+     * @throws {Error} If _uuid is absent
+     * @private
+     */
+    static _extractGroupUuid(groupResource) {
+        const groupUuid = groupResource?._uuid;
+        if (!groupUuid) {
+            const error = new Error(
+                `Group ${groupResource?.id} is missing _uuid: member events cannot be keyed to a ` +
+                'Group without it. Pre-save handler (uuidColumnHandler) must run before event building.'
+            );
+
+            logError('Group event rejected: No _uuid', {
+                groupId: groupResource?.id,
+                error: error.message
+            });
+
+            throw error;
+        }
+        return groupUuid;
+    }
+
+    /**
      * Derives a stable, deterministic event_id for idempotent retries.
      *
      * The Group member events table is an append-only MergeTree. A client that
      * retries a failed write (e.g. after a 500 from a transient ClickHouse
      * outage) must not create duplicate rows. By deriving event_id as a uuidv5
-     * of (group_id | entity_reference | event_type | correlation_id), a retry
+     * of (group_uuid | entity_reference | event_type | correlation_id), a retry
      * of the SAME logical operation produces the SAME event_id. Combined with a
      * deterministic event_time (see the handler, which sources it from
      * meta.lastUpdated) the full row — and thus the MergeTree ORDER BY key —
      * is identical on retry, so argMax aggregation converges to one logical
      * member state instead of diverging across duplicate rows.
      *
-     * @param {string} groupId
+     * @param {string} groupUuid
      * @param {string} entityReference
      * @param {string} eventType
      * @param {string} correlationId - Stable identifier for the logical operation
      * @returns {string} Deterministic UUID
      * @private
      */
-    static _deriveEventId(groupId, entityReference, eventType, correlationId) {
-        return generateUUIDv5(`${groupId}|${entityReference}|${eventType}|${correlationId}`);
+    static _deriveEventId(groupUuid, entityReference, eventType, correlationId) {
+        return generateUUIDv5(`${groupUuid}|${entityReference}|${eventType}|${correlationId}`);
     }
 
     /**
@@ -116,6 +149,7 @@ class GroupMemberEventBuilder {
      * @private
      */
     static _createEventObject({
+        groupUuid,
         groupId,
         entityReference,
         eventType,
@@ -159,7 +193,8 @@ class GroupMemberEventBuilder {
         const effectiveCorrelationId = correlationId || `${groupId}|${entityReference}`;
 
         return {
-            event_id: this._deriveEventId(groupId, entityReference, eventType, effectiveCorrelationId),
+            event_id: this._deriveEventId(groupUuid, entityReference, eventType, effectiveCorrelationId),
+            group_uuid: groupUuid,
             group_id: groupId,
             entity_reference: entityReference,
             entity_reference_uuid: entityReferenceUuid,
@@ -187,11 +222,12 @@ class GroupMemberEventBuilder {
      * Builds an event object for a Group member change
      *
      * @param {Object} params
-     * @param {string} params.groupId - Group UUID (unique identifier)
+     * @param {string} params.groupId - FHIR logical id of the Group (provenance; identity comes from
+     *   groupResource._uuid)
      * @param {string} params.entityReference - FHIR reference (e.g., "Patient/123")
      * @param {string} params.eventType - EVENT_TYPES.MEMBER_ADDED or MEMBER_REMOVED
      * @param {Object} [params.member] - FHIR Group.member object (optional, for period/inactive)
-     * @param {Object} params.groupResource - Full Group resource for metadata extraction
+     * @param {Object} params.groupResource - Full Group resource; supplies identity (_uuid) and metadata
      * @param {string} [params.eventTime] - ISO timestamp (defaults to now)
      * @param {string} [params.correlationId] - Stable id for the logical operation (enables idempotent retries)
      *
@@ -199,7 +235,7 @@ class GroupMemberEventBuilder {
      *
      * @example
      * const event = GroupMemberEventBuilder.buildEvent({
-     *   groupId: '550e8400-e29b-41d4-a716-446655440000',
+     *   groupId: 'my-cohort',
      *   entityReference: 'Patient/123',
      *   eventType: EVENT_TYPES.MEMBER_ADDED,
      *   member: {
@@ -207,13 +243,14 @@ class GroupMemberEventBuilder {
      *     period: { start: '2024-01-01T00:00:00Z' },
      *     inactive: false
      *   },
-     *   groupResource: { id: '...', meta: { security: [...] }, ... }
+     *   groupResource: { id: 'my-cohort', _uuid: '...', meta: { security: [...] }, ... }
      * });
      */
     static buildEvent({ groupId, entityReference, eventType, member, groupResource, eventTime, correlationId }) {
         const timestamp = eventTime || new Date().toISOString();
 
         return this._createEventObject({
+            groupUuid: this._extractGroupUuid(groupResource),
             groupId,
             entityReference,
             eventType,
@@ -236,17 +273,18 @@ class GroupMemberEventBuilder {
      * Optimized: Extracts common metadata once and reuses for all events.
      *
      * @param {Object} params
-     * @param {string} params.groupId - Group UUID
+     * @param {string} params.groupId - FHIR logical id of the Group (provenance; identity comes from
+     *   groupResource._uuid)
      * @param {Array} params.members - Array of Group.member objects
      * @param {string} params.eventType - EVENT_TYPES.MEMBER_ADDED or MEMBER_REMOVED
-     * @param {Object} params.groupResource - Full Group resource
+     * @param {Object} params.groupResource - Full Group resource; supplies identity (_uuid) and metadata
      * @param {string} [params.eventTime] - ISO timestamp (defaults to now, same for all events)
      *
      * @returns {Array<Object>} Array of event objects
      *
      * @example
      * const events = GroupMemberEventBuilder.buildEvents({
-     *   groupId: '550e8400-e29b-41d4-a716-446655440000',
+     *   groupId: 'my-cohort',
      *   members: [
      *     { entity: { reference: 'Patient/1' } },
      *     { entity: { reference: 'Patient/2' } }
@@ -262,6 +300,7 @@ class GroupMemberEventBuilder {
 
         // Optimization: Extract common metadata once for all events
         const timestamp = eventTime || new Date().toISOString();
+        const groupUuid = this._extractGroupUuid(groupResource);
         const groupSourceId = groupResource._sourceId || '';
         const groupSourceAuthority = groupResource._sourceAssigningAuthority || '';
         const accessTags = SecurityTagExtractor.extractAccessTags(groupResource);
@@ -275,6 +314,7 @@ class GroupMemberEventBuilder {
             const entityReference = member.entity.reference;
 
             return this._createEventObject({
+                groupUuid,
                 groupId,
                 entityReference,
                 eventType,

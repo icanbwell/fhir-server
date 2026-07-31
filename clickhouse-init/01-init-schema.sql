@@ -12,7 +12,8 @@ CREATE DATABASE IF NOT EXISTS fhir;
 
 CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberEvents
 (
-    -- Group identity
+    -- Group identity (see the note below the table). group_id is provenance, not identity.
+    group_uuid String,
     group_id String,
 
     -- member.entity (R! 1..1 per R4B spec)
@@ -59,17 +60,34 @@ CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberEvents
     source_assigning_authority LowCardinality(String) DEFAULT ''
 )
 ENGINE = MergeTree()
-ORDER BY (group_id, entity_reference, event_time, event_id);
+ORDER BY (group_uuid, entity_reference, event_time, event_id);
+
+-- A Group is identified by group_uuid, which carries MongoDB's _uuid = uuidv5(id|assigningAuthority)
+-- (see UuidColumnHandler). It is computed in Node before the write and copied here verbatim, so the
+-- same value identifies the Group in MongoDB, in the AuditEvent tables, and here.
+--
+-- group_id holds the FHIR logical id and is payload: provenance and debugging only. A client can
+-- choose it via update-as-create (PUT /Group/<id>), so it is unique only within a tenant, and
+-- enrichment rewrites resource.id on the read path (IdEnrichmentProvider, and
+-- GlobalIdEnrichmentProvider under Prefer: global_id=true), so it is not stable enough to identify
+-- a row. group_source_assigning_authority is payload for the same reason: it is one half of the
+-- input to group_uuid, kept for provenance rather than for narrowing.
+--
+-- Every query that narrows to "one Group" filters on group_uuid alone.
 
 -- No PARTITION BY:
 -- Primary access patterns are group-centric and must consider full history for correctness.
 -- Time partitioning fragments group history across partitions and harms "current roster" derivation.
--- If lifecycle management is needed later, consider partitioning by a stable group_id hash bucket.
+-- If lifecycle management is needed later, consider partitioning by a stable group_uuid hash bucket.
 
 -- ===========================================================================
 -- Derived Table: fhir.Group_4_0_0_MemberCurrent (Current State by Group + Member)
 -- ===========================================================================
--- One logical row per (group_id, entity_reference) after background merges.
+-- One logical row per (group_uuid, entity_reference) after background merges. On an
+-- AggregatingMergeTree the sorting key IS the aggregation key, so this table's ORDER BY is the
+-- identity of a member's current state, not merely an index: keyed on the logical id, two tenants'
+-- Groups sharing that id and a member reference collapse into a single row and one tenant's
+-- membership state silently overwrites the other's.
 -- This is the hot path for:
 --   - List members of group (paged/streamed)
 --   - Member state checks
@@ -77,7 +95,13 @@ ORDER BY (group_id, entity_reference, event_time, event_id);
 
 CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberCurrent
 (
-    group_id String,
+    group_uuid String,
+
+    -- Provenance, carried as latest-state metadata rather than identity: the logical id is
+    -- client-settable and the authority is one half of the input to group_uuid.
+    group_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    group_source_assigning_authority AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+
     entity_reference String,
     entity_reference_uuid AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
     entity_reference_source_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
@@ -102,19 +126,20 @@ CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberCurrent
 
     -- Latest security/metadata (copied from the event that produced the latest state)
     group_source_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
-    group_source_assigning_authority AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
     access_tags AggregateFunction(argMax, Array(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
     owner_tags  AggregateFunction(argMax, Array(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID))
 )
 ENGINE = AggregatingMergeTree
-ORDER BY (group_id, entity_reference);
+ORDER BY (group_uuid, entity_reference);
 
 -- MV: Maintain current member state as events arrive
 CREATE MATERIALIZED VIEW IF NOT EXISTS fhir.Group_4_0_0_MemberCurrent_MV
 TO fhir.Group_4_0_0_MemberCurrent
 AS
 SELECT
-    group_id,
+    group_uuid,
+    argMaxState(group_id, tie) AS group_id,
+    argMaxState(group_source_assigning_authority, tie) AS group_source_assigning_authority,
     entity_reference,
     argMaxState(entity_reference_uuid, tie) AS entity_reference_uuid,
     argMaxState(entity_reference_source_id, tie) AS entity_reference_source_id,
@@ -130,11 +155,11 @@ SELECT
     argMaxState(source, tie) AS source,
     argMaxState(correlation_id, tie) AS correlation_id,
     argMaxState(group_source_id, tie) AS group_source_id,
-    argMaxState(group_source_assigning_authority, tie) AS group_source_assigning_authority,
     argMaxState(access_tags, tie) AS access_tags,
     argMaxState(owner_tags, tie) AS owner_tags
 FROM (
     SELECT
+        group_uuid,
         group_id,
         entity_reference,
         entity_reference_uuid,
@@ -159,7 +184,7 @@ FROM (
         tuple(version_id, batch_seq, event_time, event_id) AS tie
     FROM fhir.Group_4_0_0_MemberEvents
 )
-GROUP BY group_id, entity_reference;
+GROUP BY group_uuid, entity_reference;
 
 -- ===========================================================================
 -- Derived Table: fhir.Group_4_0_0_MemberCurrentByEntity (Reverse Lookup)
@@ -173,7 +198,13 @@ GROUP BY group_id, entity_reference;
 CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberCurrentByEntity
 (
     entity_reference String,
-    group_id String,
+    group_uuid String,
+
+    -- Provenance for the Mongo hand-off and debugging, not identity. The reverse lookup returns
+    -- group_uuid and matches Mongo on _uuid; a logical id would not be tenant-unique there either.
+    group_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+    group_source_assigning_authority AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
+
     entity_reference_uuid AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
     entity_reference_source_id AggregateFunction(argMax, String, Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID)),
 
@@ -186,14 +217,16 @@ CREATE TABLE IF NOT EXISTS fhir.Group_4_0_0_MemberCurrentByEntity
     owner_tags  AggregateFunction(argMax, Array(String), Tuple(UInt64, UInt32, DateTime64(3, 'UTC'), UUID))
 )
 ENGINE = AggregatingMergeTree
-ORDER BY (entity_reference, group_id);
+ORDER BY (entity_reference, group_uuid);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS fhir.Group_4_0_0_MemberCurrentByEntity_MV
 TO fhir.Group_4_0_0_MemberCurrentByEntity
 AS
 SELECT
     entity_reference,
-    group_id,
+    group_uuid,
+    argMaxState(group_id, tie) AS group_id,
+    argMaxState(group_source_assigning_authority, tie) AS group_source_assigning_authority,
     argMaxState(entity_reference_uuid, tie) AS entity_reference_uuid,
     argMaxState(entity_reference_source_id, tie) AS entity_reference_source_id,
     argMaxState(event_type, tie) AS event_type,
@@ -203,7 +236,9 @@ SELECT
 FROM (
     SELECT
         entity_reference,
+        group_uuid,
         group_id,
+        group_source_assigning_authority,
         entity_reference_uuid,
         entity_reference_source_id,
         event_type,
@@ -217,11 +252,14 @@ FROM (
         tuple(version_id, batch_seq, event_time, event_id) AS tie
     FROM fhir.Group_4_0_0_MemberEvents
 )
-GROUP BY entity_reference, group_id;
+GROUP BY entity_reference, group_uuid;
 
 -- ===========================================================================
 -- Helper Queries (reference/documentation)
 -- ===========================================================================
+
+-- NOTE: every "one Group" query below narrows on group_uuid. The logical id is payload — see the
+-- identity note on the event log table.
 
 -- Current members of a group (seek pagination recommended)
 -- WITH filtered AS
@@ -231,7 +269,7 @@ GROUP BY entity_reference, group_id;
 --         argMaxMerge(entity_type) AS entity_type,
 --         argMaxMerge(inactive) AS inactive
 --     FROM fhir.Group_4_0_0_MemberCurrent
---     WHERE group_id = 'group-123'
+--     WHERE group_uuid = '6a4f2b1e-0000-5000-8000-000000000001'
 --       AND entity_reference > 'Patient/000123'   -- cursor
 --     GROUP BY entity_reference
 --     HAVING argMaxMerge(event_type) = 'added'
@@ -248,17 +286,17 @@ GROUP BY entity_reference, group_id;
 -- (
 --     SELECT entity_reference
 --     FROM fhir.Group_4_0_0_MemberCurrent
---     WHERE group_id = 'group-123'
+--     WHERE group_uuid = '6a4f2b1e-0000-5000-8000-000000000001'
 --     GROUP BY entity_reference
 --     HAVING argMaxMerge(event_type) = 'added'
 --        AND argMaxMerge(inactive) = 0
 -- );
 
--- Reverse lookup: groups for a member
--- SELECT group_id
+-- Reverse lookup: groups for a member. group_uuid is what the caller hands MongoDB (_uuid).
+-- SELECT group_uuid, argMaxMerge(group_id) AS group_id
 -- FROM fhir.Group_4_0_0_MemberCurrentByEntity
 -- WHERE entity_reference = 'Patient/123'
--- GROUP BY group_id
+-- GROUP BY group_uuid
 -- HAVING argMaxMerge(event_type) = 'added'
 --    AND argMaxMerge(inactive) = 0;
 
@@ -268,7 +306,7 @@ GROUP BY entity_reference, group_id;
 --     period_start, period_end, inactive,
 --     actor, reason, source, correlation_id
 -- FROM fhir.Group_4_0_0_MemberEvents
--- WHERE group_id = 'group-123'
+-- WHERE group_uuid = '6a4f2b1e-0000-5000-8000-000000000001'
 --   AND entity_reference = 'Patient/456'
 -- ORDER BY event_time, event_id;
 

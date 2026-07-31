@@ -27,7 +27,7 @@ class QueryBuilder {
      *   (access/*.*) scope and legitimately sees every tenant. When true, no tenant
      *   predicate is applied. See _buildActiveMemberHavingClause.
      * @param {number} params.limit - Page size
-     * @param {string|null} params.afterGroupId - Seek cursor (group_id to start after)
+     * @param {string|null} params.afterGroupUuid - Seek cursor (group_uuid to start after)
      * @param {number} params.skip - Offset for numeric pagination (fallback)
      * @returns {{query: string, query_params: Object}}
      */
@@ -38,7 +38,7 @@ class QueryBuilder {
         ownerTags = [],
         hasFullAccess = false,
         limit,
-        afterGroupId = null,
+        afterGroupUuid = null,
         skip = 0
     }) {
         // WATCH ITEM (read cost at scale): this reverse-lookup uses the FINAL
@@ -62,35 +62,38 @@ class QueryBuilder {
             ...(ownerTags.length > 0 && { ownerTags })
         };
 
-        if (afterGroupId) {
+        // group_uuid is what the caller hands MongoDB (matched against _uuid), so it is also what is
+        // grouped, ordered and paged on. group_id cannot serve here: in this table it is an
+        // AggregateFunction provenance column, not a key.
+        if (afterGroupUuid) {
             query = `
-                SELECT group_id
+                SELECT group_uuid
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                WHERE group_id > {afterGroupId:String}
-                GROUP BY group_id, entity_reference
+                WHERE group_uuid > {afterGroupUuid:String}
+                GROUP BY group_uuid, entity_reference
                 HAVING ${havingClause}
-                ORDER BY group_id
+                ORDER BY group_uuid
                 LIMIT {limit:UInt32}
             `;
-            query_params.afterGroupId = afterGroupId;
+            query_params.afterGroupUuid = afterGroupUuid;
         } else if (skip > 0) {
             query = `
-                SELECT group_id
+                SELECT group_uuid
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                GROUP BY group_id, entity_reference
+                GROUP BY group_uuid, entity_reference
                 HAVING ${havingClause}
-                ORDER BY group_id
+                ORDER BY group_uuid
                 LIMIT {limit:UInt32}
                 OFFSET {skip:UInt32}
             `;
             query_params.skip = skip;
         } else {
             query = `
-                SELECT group_id
+                SELECT group_uuid
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                GROUP BY group_id, entity_reference
+                GROUP BY group_uuid, entity_reference
                 HAVING ${havingClause}
-                ORDER BY group_id
+                ORDER BY group_uuid
                 LIMIT {limit:UInt32}
             `;
         }
@@ -126,9 +129,9 @@ class QueryBuilder {
         const query = `
             SELECT count() as total
             FROM (
-                SELECT group_id
+                SELECT group_uuid
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
-                GROUP BY group_id, entity_reference
+                GROUP BY group_uuid, entity_reference
                 HAVING ${havingClause}
             )
         `;
@@ -148,12 +151,15 @@ class QueryBuilder {
      * Supports seek cursor pagination via afterReference
      *
      * @param {Object} params
-     * @param {string} params.groupId - Group ID to query
+     * @param {string} params.groupUuid - The Group's _uuid, its identity in the membership tables
      * @param {number} params.limit - Page size
      * @param {string|null} params.afterReference - Seek cursor (entity_reference to start after)
      * @returns {{query: string, query_params: Object}}
+     * @throws {Error} When groupUuid is missing
      */
-    static buildActiveMembers({ groupId, limit, afterReference = null }) {
+    static buildActiveMembers({ groupUuid, limit, afterReference = null }) {
+        this._assertGroupIdentity(groupUuid);
+
         const cursorClause = afterReference
             ? 'AND entity_reference > {afterReference:String}'
             : '';
@@ -170,7 +176,7 @@ class QueryBuilder {
                     argMaxMerge(event_type)  AS event_type,
                     argMaxMerge(inactive)    AS inactive
                 FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL
-                WHERE group_id = {groupId:String}
+                WHERE group_uuid = {groupUuid:String}
                 GROUP BY entity_reference
             )
             WHERE event_type = '${EVENT_TYPES.MEMBER_ADDED}'
@@ -181,7 +187,7 @@ class QueryBuilder {
         `;
 
         const query_params = {
-            groupId,
+            groupUuid,
             limit,
             ...(afterReference && { afterReference })
         };
@@ -193,23 +199,47 @@ class QueryBuilder {
      * Builds count query for active members of a specific Group
      *
      * @param {Object} params
-     * @param {string} params.groupId - Group ID to query
+     * @param {string} params.groupUuid - The Group's _uuid, its identity in the membership tables
      * @returns {{query: string, query_params: Object}}
+     * @throws {Error} When groupUuid is missing
      */
-    static buildActiveMemberCount({ groupId }) {
+    static buildActiveMemberCount({ groupUuid }) {
+        this._assertGroupIdentity(groupUuid);
+
         const query = `
             SELECT count() as count
             FROM (
                 SELECT entity_reference
                 FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL
-                WHERE group_id = {groupId:String}
+                WHERE group_uuid = {groupUuid:String}
                 GROUP BY entity_reference
                 HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'
                    AND argMaxMerge(inactive) = 0
             )
         `;
 
-        return { query, query_params: { groupId } };
+        return { query, query_params: { groupUuid } };
+    }
+
+    /**
+     * Asserts a caller supplied a usable Group identity.
+     *
+     * A Group is identified by group_uuid, carrying MongoDB's
+     * _uuid = uuidv5(id|sourceAssigningAuthority) (UuidColumnHandler). It is a single non-null value
+     * present on every committed Group, so there is no partial-identity state: either the caller has
+     * it or the call is a programming error. Querying without it would return every tenant's rows.
+     *
+     * @param {string} groupUuid
+     * @throws {Error} When groupUuid is missing
+     * @private
+     */
+    static _assertGroupIdentity(groupUuid) {
+        if (!groupUuid) {
+            throw new Error(
+                'Group identity requires a groupUuid (the Group resource\'s _uuid). The FHIR logical ' +
+                'id is not identity: it is client-settable and rewritten by enrichment.'
+            );
+        }
     }
 
     /**

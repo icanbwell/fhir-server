@@ -303,9 +303,9 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
             //
             // To detect orphaned Groups after ClickHouse downtime:
             //
-            // MongoDB: const mongoGroupIds = await db.collection('Group_4_0_0').distinct('id');
-            // ClickHouse: const chResult = await clickhouse.query('SELECT DISTINCT group_id FROM fhir.Group_4_0_0_MemberEvents');
-            // Orphans: mongoGroupIds.filter(id => !chResult.map(r => r.group_id).includes(id))
+            // MongoDB: const mongoGroupUuids = await db.collection('Group_4_0_0').distinct('_uuid');
+            // ClickHouse: const chResult = await clickhouse.query('SELECT DISTINCT group_uuid FROM fhir.Group_4_0_0_MemberEvents');
+            // Orphans: mongoGroupUuids.filter(uuid => !chResult.map(r => r.group_uuid).includes(uuid))
             //
             // This is better than swallowing the error (200 OK with silent data loss).
             // ClickHouse is the source of truth for Group membership.
@@ -438,12 +438,12 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
     /**
      * Gets current member references from repository
      *
-     * @param {string} groupId - Group resource ID
+     * @param {string} groupUuid - The Group's _uuid, its identity in the membership tables
      * @returns {Promise<Set<string>>} Set of current member references
      * @private
      */
-    async _getCurrentMembers(groupId) {
-        const references = await this.repository.getActiveMembers(groupId);
+    async _getCurrentMembers(groupUuid) {
+        const references = await this.repository.getActiveMembers(groupUuid);
         return new Set(references);
     }
 
@@ -457,8 +457,8 @@ class ClickHouseGroupHandler extends BasePostSaveHandler {
      */
     async _handleUpdateAsync(groupResource, { smartMerge, idempotency = {} } = {}) {
         try {
-            // Get current members from repository
-            const currentReferences = await this._getCurrentMembers(groupResource.id);
+            // Get current members from repository for this Group
+            const currentReferences = await this._getCurrentMembers(groupResource._uuid);
 
             // Compute diff
             const { additions, removals: computedRemovals } = GroupMemberDiffComputer.compute(

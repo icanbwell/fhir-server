@@ -69,7 +69,7 @@ class QueryFragments {
         }
 
         // Validate column parameter (allowlist for SQL injection prevention)
-        const allowedColumns = ['entity_reference', 'group_id', 'event_time', 'event_id', 'access_tags', 'owner_tags'];
+        const allowedColumns = ['entity_reference', 'group_uuid', 'group_id', 'event_time', 'event_id', 'access_tags', 'owner_tags'];
         if (!allowedColumns.includes(column)) {
             throw new Error(`Invalid column name: ${column}`);
         }
@@ -103,34 +103,30 @@ class QueryFragments {
     }
 
     /**
-     * Builds WHERE clause for filtering by Group ID
+     * Builds WHERE clause identifying a single Group.
      *
-     * @param {string} groupId - Group UUID
+     * Group identity is group_uuid, which carries MongoDB's tenant-unique
+     * _uuid = uuidv5(id|sourceAssigningAuthority). group_id holds the FHIR logical id and must never
+     * be used to narrow to one Group: a client can choose it via update-as-create (PUT /Group/<id>),
+     * so it is unique only within a tenant, and enrichment rewrites resource.id on the read path.
+     *
      * @param {boolean} [parameterized=false] - Use parameterized query
      *
      * @returns {string} SQL WHERE clause
      *
      * @example
-     * QueryFragments.whereGroupId('550e8400-e29b-41d4-a716-446655440000')
-     * // Returns: "WHERE group_id = '550e8400-e29b-41d4-a716-446655440000'"
-     *
-     * QueryFragments.whereGroupId('...', true)
-     * // Returns: "WHERE group_id = {groupId:String}"
+     * QueryFragments.whereGroupUuid(true)
+     * // Returns: "WHERE group_uuid = {groupUuid:String}"
      */
-    static whereGroupId(groupId, parameterized = false) {
+    static whereGroupUuid(parameterized = false) {
         if (parameterized) {
-            return 'WHERE group_id = {groupId:String}';
+            return 'WHERE group_uuid = {groupUuid:String}';
         }
 
-        // Validate UUID format
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (!uuidRegex.test(groupId)) {
-            throw new Error('Invalid group ID format. Must be a UUID.');
-        }
-
-        // Use ClickHouse proper escaping: double single quotes (not backslash escaping)
-        const escapedId = groupId.replace(/'/g, "''");
-        return `WHERE group_id = '${escapedId}'`;
+        throw new Error(
+            'whereGroupUuid requires the parameterized form: the Group identity must be bound as a ' +
+            'query parameter rather than interpolated.'
+        );
     }
 
     /**

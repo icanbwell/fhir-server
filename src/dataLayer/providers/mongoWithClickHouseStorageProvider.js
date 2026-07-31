@@ -1,7 +1,7 @@
 const { StorageProvider } = require('./storageProvider');
 const { logDebug, logInfo, logError, logWarn } = require('../../operations/common/logging');
 const { RethrownError } = require('../../utils/rethrownError');
-const { TABLES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
+const { TABLES, EVENT_TYPES, LIMITS } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 const { QueryParser } = require('./mongoWithClickHouse/queryParser');
@@ -80,12 +80,12 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * Uses HAVING pattern (canonical for ID-only queries on AggregatingMergeTree)
      * Active-by-default: Counts only event_type=MEMBER_ADDED AND inactive=0 members
      *
-     * @param {string} groupId - Group ID
+     * @param {string} groupUuid - The Group's _uuid, its identity in the membership tables
      * @returns {{query: string, query_params: Object}}
      * @private
      */
-    _buildCountQuery(groupId) {
-        return QueryBuilder.buildActiveMemberCount({ groupId });
+    _buildCountQuery(groupUuid) {
+        return QueryBuilder.buildActiveMemberCount({ groupUuid });
     }
 
     /**
@@ -93,15 +93,19 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * Uses canonical subquery + outer WHERE pattern (for AggregatingMergeTree)
      * Active-by-default: Returns only event_type=MEMBER_ADDED AND inactive=0 members
      *
-     * @param {string} groupId - Group ID
+     * @param {string} groupUuid - The Group's _uuid, its identity in the membership tables
      * @param {Object} options
      * @param {number} options.limit - Page size
      * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
      * @returns {{query: string, query_params: Object}}
      * @private
      */
-    _buildRosterQuery(groupId, { limit, afterReference = null }) {
-        return QueryBuilder.buildActiveMembers({ groupId, limit, afterReference });
+    _buildRosterQuery(groupUuid, { limit, afterReference = null }) {
+        return QueryBuilder.buildActiveMembers({
+            groupUuid,
+            limit,
+            afterReference
+        });
     }
 
     /**
@@ -109,16 +113,24 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * Uses argMaxMerge on pre-aggregated state (not argMax on events)
      * Returns only active members (event_type=MEMBER_ADDED AND inactive=0)
      *
-     * @param {string} groupId - Group ID to query
+     * Scoped to one tenant's Group: group_uuid carries MongoDB's tenant-unique _uuid.
+     *
+     * @param {string} groupUuid - The Group's _uuid, its identity in the membership tables
      * @param {Object} options - Query options
      * @param {number} options.limit - Page size (default 100)
      * @param {string|null} options.afterReference - Seek cursor (entity_reference to start after)
      * @returns {Promise<{members: Array<Object>, totalCount: number}>}
      */
-    async getCurrentMembersWithCountAsync(groupId, { limit = 100, afterReference = null } = {}) {
+    async getCurrentMembersWithCountAsync(
+        groupUuid,
+        { limit = 100, afterReference = null } = {}
+    ) {
         try {
-            const countQuery = this._buildCountQuery(groupId);
-            const rosterQuery = this._buildRosterQuery(groupId, { limit, afterReference });
+            const countQuery = this._buildCountQuery(groupUuid);
+            const rosterQuery = this._buildRosterQuery(groupUuid, {
+                limit,
+                afterReference
+            });
 
             // Run queries in parallel for performance
             const [countResult, members] = await Promise.all([
@@ -135,7 +147,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
         } catch (error) {
             logError('Error querying current members from ClickHouse current state table', {
                 error: error.message,
-                groupId,
+                groupUuid,
                 limit,
                 afterReference
             });
@@ -143,7 +155,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             throw new RethrownError({
                 message: 'Error getting current members with count from ClickHouse',
                 error,
-                args: { groupId, limit, afterReference }
+                args: { groupUuid, limit, afterReference }
             });
         }
     }
@@ -153,38 +165,28 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * Uses argMaxMerge on pre-aggregated current state table
      * Counts members where event_type=MEMBER_ADDED AND inactive=0
      *
-     * @param {string} groupId - Group ID to query
+     * Scoped to one tenant's Group: group_uuid carries MongoDB's tenant-unique _uuid.
+     *
+     * @param {string} groupUuid - The Group's _uuid, its identity in the membership tables
      * @returns {Promise<number>} Count of active, non-inactive members
      */
-    async getActiveMemberCountAsync(groupId) {
+    async getActiveMemberCountAsync(groupUuid) {
         try {
-            const query = `
-                SELECT count() as count
-                FROM (
-                    SELECT entity_reference
-                    FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL  -- need to force sync with MVs
-                    WHERE group_id = {groupId:String}
-                    GROUP BY entity_reference
-                    HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}' AND argMaxMerge(inactive) = 0
-                )
-            `;
+            const queryDef = QueryBuilder.buildActiveMemberCount({ groupUuid });
 
-            const result = await this.clickHouseClientManager.queryAsync({
-                query,
-                query_params: { groupId }
-            });
+            const result = await this.clickHouseClientManager.queryAsync(queryDef);
 
             return parseInt(result[0]?.count || 0);
         } catch (error) {
             logError('Error querying active member count from ClickHouse current state table', {
                 error: error.message,
-                groupId
+                groupUuid
             });
 
             throw new RethrownError({
                 message: 'Error getting active member count from ClickHouse',
                 error,
-                args: { groupId }
+                args: { groupUuid }
             });
         }
     }
@@ -194,19 +196,19 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
      * Tuple tie-breaker ensures deterministic argMax
      *
      * @param {string} memberReference - Member reference to search for
-     * @returns {Promise<Array<Object>>} Array of { group_id } objects
+     * @returns {Promise<Array<Object>>} Array of { group_uuid } objects
      */
     async findGroupsByMemberAsync(memberReference) {
         try {
             const query = `
-                SELECT DISTINCT group_id
+                SELECT DISTINCT group_uuid
                 FROM (
                     SELECT
-                        group_id,
+                        group_uuid,
                         ${QueryFragments.argMaxWithTieBreaker('event_type')} as latest_event
                     FROM ${TABLES.GROUP_MEMBER_EVENTS}
                     ${QueryFragments.whereEntityReference('', true)}
-                    GROUP BY group_id
+                    GROUP BY group_uuid
                 )
                 WHERE latest_event = '${EVENT_TYPES.MEMBER_ADDED}'
             `;
@@ -357,6 +359,19 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 return await this.mongoStorageProvider.countAsync({ query });
             }
 
+            // Non-member predicates ClickHouse cannot answer (`_id`, `identifier`, the
+            // hidden-tag guard, ...). The search path applies them in MongoDB, so the count
+            // must too or Bundle.total contradicts Bundle.entry.
+            const residualQuery = QueryParser.extractResidualQuery(query);
+            if (residualQuery) {
+                return await this._countGroupsByMemberWithResidual({
+                    validation,
+                    securityTags,
+                    residualQuery,
+                    extraInfo
+                });
+            }
+
             // Build ClickHouse count query
             const queryDef = QueryBuilder.buildCountGroupsByMemberQuery({
                 memberReferenceUuid: validation.entityReferenceUuid,
@@ -381,6 +396,69 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
 
         // For non-member queries, delegate to MongoDB
         return await this.mongoStorageProvider.countAsync({ query });
+    }
+
+    /**
+     * Counts Groups matching BOTH the ClickHouse member criteria and the MongoDB-only residual
+     * predicates, by resolving candidate group ids in ClickHouse and counting the intersection
+     * in MongoDB.
+     *
+     * Neither store can answer this alone: membership lives only in ClickHouse, and the residual
+     * fields (`_id`, `name`, `meta.tag`, ...) live only in the MongoDB document.
+     *
+     * The candidate id fetch is capped at LIMITS.MAX_PAGE_SIZE. Exceeding it is logged rather
+     * than silently truncated — a count that large is already beyond what `_total=accurate` is
+     * meant for, and reporting a bounded number beats reporting a wrong one. This cost is only
+     * paid when a caller explicitly asks for an accurate total.
+     *
+     * @param {Object} params
+     * @param {Object} params.validation - Validated member criteria from QueryParser
+     * @param {{accessTags: string[], ownerTags: string[]}} params.securityTags
+     * @param {Object} params.residualQuery - Non-member predicates MongoDB must apply
+     * @param {Object} [params.extraInfo]
+     * @returns {Promise<number>}
+     * @private
+     */
+    async _countGroupsByMemberWithResidual({ validation, securityTags, residualQuery, extraInfo }) {
+        const candidateLimit = LIMITS.MAX_PAGE_SIZE;
+
+        const queryDef = QueryBuilder.buildFindGroupsByMemberQuery({
+            memberReferenceUuid: validation.entityReferenceUuid,
+            memberReferenceSourceId: validation.entityReferenceSourceId,
+            accessTags: securityTags.accessTags,
+            ownerTags: securityTags.ownerTags,
+            hasFullAccess: this._callerHasFullAccess(extraInfo),
+            limit: candidateLimit
+        });
+
+        let groupUuids;
+        try {
+            const rows = await this.clickHouseClientManager.queryAsync(queryDef);
+            groupUuids = (rows || []).map((row) => row.group_uuid);
+        } catch (error) {
+            logError('Error executing ClickHouse candidate query for filtered count', {
+                error: error.message,
+                query: queryDef.query,
+                queryParams: queryDef.query_params
+            });
+            throw error;
+        }
+
+        if (groupUuids.length === 0) {
+            return 0;
+        }
+
+        if (groupUuids.length === candidateLimit) {
+            logWarn('Filtered Group member count hit the candidate cap; total may under-report', {
+                candidateLimit
+            });
+        }
+
+        // Hand MongoDB _uuid, not id: the logical id is unique only within a tenant, so an id-based
+        // $in can match another tenant's Group document.
+        return await this.mongoStorageProvider.countAsync({
+            query: { $and: [{ _uuid: { $in: groupUuids } }, residualQuery] }
+        });
     }
 
     /**
@@ -454,12 +532,19 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
             // Parse query
             const limit = options?.limit || 100;
             const skip = options?.skip || 0;
-            const afterGroupId = QueryParser.extractPaginationCursor(query);
+            // The next-link cursor is a _uuid value (configManager.defaultSortId), which is what the
+            // ClickHouse page is now ordered and seeked on.
+            const afterGroupUuid = QueryParser.extractPaginationCursor(query);
             const cleanQuery = QueryParser.cleanPaginationFromQuery(query);
 
             // Extract criteria
             const memberCriteria = QueryParser.extractMemberCriteria(cleanQuery);
             const securityTags = QueryParser.extractSecurityTags(query);
+
+            // Everything ClickHouse cannot answer (_id, identifier, the hidden-tag guard, ...)
+            // must still be applied when the Groups are fetched back from MongoDB. Dropping it
+            // made `?_id=X&member=Patient/Y` return every Group Y belongs to.
+            const residualQuery = QueryParser.extractResidualQuery(query);
 
             // Validate criteria
             const validation = QueryParser.validateMemberCriteria(memberCriteria);
@@ -476,7 +561,7 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 ownerTags: securityTags.ownerTags,
                 hasFullAccess: this._callerHasFullAccess(extraInfo),
                 limit,
-                afterGroupId,
+                afterGroupUuid,
                 skip
             });
 
@@ -487,7 +572,9 @@ class MongoWithClickHouseStorageProvider extends StorageProvider {
                 queryDef,
                 limit,
                 options,
-                extraInfo
+                extraInfo,
+                residualQuery,
+                residualBoundsResultSet: QueryParser.hasIdConstraint(residualQuery)
             });
         } catch (error) {
             logError('Error querying ClickHouse for Groups by member', {

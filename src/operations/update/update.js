@@ -184,7 +184,7 @@ class UpdateOperation {
             return;
         }
 
-        const references = await this.groupMemberRepository.getActiveMembers(currentResource.id);
+        const references = await this.groupMemberRepository.getActiveMembers(currentResource._uuid);
         if (references && references.length > 0) {
             // Minimal member entries — enough for the content diff to register the roster; the array
             // is re-stripped before the Mongo write so only metadata persists there. getActiveMembers

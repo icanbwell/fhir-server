@@ -4,6 +4,7 @@ const { TABLES } = require('../../constants/clickHouseConstants');
 const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { USE_EXTERNAL_STORAGE_HEADER } = require('../../utils/contextDataBuilder');
 const { isTrue } = require('../../utils/isTrue');
+const { assertIsValid } = require('../../utils/assertType');
 
 /**
  * Enrichment provider for Group resources using ClickHouse member storage
@@ -127,13 +128,15 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
      */
     async _enrichGroupResource(resource) {
         try {
-            const groupId = resource.id;
-
-            // Query ClickHouse for current member count
-            const memberCount = await this._getMemberCount(groupId);
+            // _uuid, never resource.id. Providers run sequentially in registration order
+            // (see createContainer), and IdEnrichmentProvider / GlobalIdEnrichmentProvider have
+            // already rewritten resource.id by the time this one runs — under
+            // Prefer: global_id=true it holds the _uuid, so a count keyed on it would find no rows
+            // and report a Group with members as empty.
+            const memberCount = await this._getMemberCount(resource._uuid);
 
             logDebug('Enriching Group resource', {
-                groupId,
+                groupUuid: resource._uuid,
                 memberCount,
                 hadMemberArray: !!resource.member
             });
@@ -154,7 +157,7 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
             // surfaces the error instead of returning silently wrong member data.
             logError('Error enriching Group resource', {
                 error: error.message,
-                groupId: resource.id
+                groupUuid: resource._uuid
             });
             throw error;
         }
@@ -162,11 +165,18 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
 
     /**
      * Get current member count for a Group from ClickHouse
-     * @param {string} groupId - Group ID
+     *
+     * Scoped to one tenant's Group: group_uuid carries MongoDB's
+     * _uuid = uuidv5(id|sourceAssigningAuthority), so it is tenant-unique by construction.
+     *
+     * @param {string} groupUuid - The Group's _uuid, its identity in the membership tables
      * @returns {Promise<number>} Number of active members
+     * @throws {AssertionError} When groupUuid is missing
      * @private
      */
-    async _getMemberCount(groupId) {
+    async _getMemberCount(groupUuid) {
+        assertIsValid(groupUuid, 'Cannot count Group members: a groupUuid is required.');
+
         try {
             const query = `
                 SELECT count() as count
@@ -175,7 +185,7 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
                         entity_reference,
                         ${QueryFragments.argMaxWithTieBreaker('event_type')} as latest_event_type
                     FROM ${TABLES.GROUP_MEMBER_EVENTS}
-                    ${QueryFragments.whereGroupId('', true)}
+                    ${QueryFragments.whereGroupUuid(true)}
                     ${QueryFragments.groupByEntityReference()}
                     HAVING ${QueryFragments.activeMembers()}
                 )
@@ -183,11 +193,11 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
 
             const rows = await this.clickHouseClientManager.queryAsync({
                 query,
-                query_params: { groupId }
+                query_params: { groupUuid }
             });
 
             logDebug('ClickHouse member count query result', {
-                groupId,
+                groupUuid,
                 rowsLength: rows.length,
                 firstRow: rows[0],
                 count: rows.length > 0 ? rows[0].count : null,
@@ -202,7 +212,7 @@ class GroupMemberEnrichmentProvider extends EnrichmentProvider {
             // fail loudly (see enrichAsync, which rethrows).
             logError('Error querying member count from ClickHouse', {
                 error: error.message,
-                groupId
+                groupUuid
             });
             throw error;
         }

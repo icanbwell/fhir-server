@@ -58,6 +58,130 @@ class QueryParser {
     }
 
     /**
+     * Extracts the residual (non-member) predicates from a MongoDB query.
+     *
+     * The hybrid member-search path resolves group ids in ClickHouse and then fetches those
+     * Groups from MongoDB. Only the member criteria are answerable by ClickHouse; every other
+     * predicate in the original query (`_id`, `name`, the hidden-tag guard, security tags, ...)
+     * still has to be applied when the Groups are read back from MongoDB, or the search silently
+     * ignores it and returns every Group the member belongs to.
+     *
+     * Two classes of predicate are removed:
+     *  - member predicates (`member`, `member.*`) — the Mongo document for a hybrid Group has its
+     *    `member` array stripped, so applying them there would match nothing.
+     *  - the pagination cursor (`_uuid.$gt`) — ClickHouse already paginated; see
+     *    extractPaginationCursor, whose match condition this mirrors. An exact-match `_uuid`
+     *    (what `_id=<uuid>` compiles to) is NOT a cursor and is kept.
+     *
+     * `$or`/`$nor` branches are not partially rewritten: dropping one arm of a disjunction changes
+     * its meaning, and keeping a member arm would exclude Groups that match only via membership.
+     * A disjunction containing a member field is therefore dropped whole, which under-filters
+     * (the pre-existing behavior) rather than dropping matching Groups.
+     *
+     * @param {Object} query - MongoDB query object
+     * @returns {Object|null} Residual query, or null when nothing is left to apply
+     */
+    static extractResidualQuery(query) {
+        const isMemberKey = (key) => key === 'member' || key.startsWith('member.');
+        const isPaginationCursor = (key, value) =>
+            key === '_uuid' && value && typeof value === 'object' && value.$gt !== undefined;
+
+        /**
+         * True if any part of the subtree references a member field
+         * @param {*} obj
+         * @returns {boolean}
+         */
+        const containsMemberField = (obj) => {
+            if (!obj || typeof obj !== 'object') return false;
+            if (Array.isArray(obj)) return obj.some(containsMemberField);
+
+            return Object.entries(obj).some(
+                ([key, value]) => isMemberKey(key) || containsMemberField(value)
+            );
+        };
+
+        /**
+         * Copies obj without member predicates or the pagination cursor
+         * @param {*} obj
+         * @returns {Object}
+         */
+        const strip = (obj) => {
+            const result = {};
+            if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+                return result;
+            }
+
+            for (const [key, value] of Object.entries(obj)) {
+                if (isMemberKey(key) || isPaginationCursor(key, value)) {
+                    continue;
+                }
+
+                if (key === '$and' && Array.isArray(value)) {
+                    const kept = value.map(strip).filter((c) => Object.keys(c).length > 0);
+                    if (kept.length > 0) {
+                        result.$and = kept;
+                    }
+                    continue;
+                }
+
+                if ((key === '$or' || key === '$nor') && Array.isArray(value)) {
+                    // All-or-nothing: see the note above on disjunctions.
+                    if (!value.some(containsMemberField)) {
+                        result[key] = value;
+                    }
+                    continue;
+                }
+
+                result[key] = value;
+            }
+
+            return result;
+        };
+
+        const residual = strip(query);
+        const hasPredicates = Object.keys(residual).length > 0;
+
+        logDebug('Extracted residual (non-member) query', {
+            residual: hasPredicates ? JSON.stringify(residual) : null
+        });
+
+        return hasPredicates ? residual : null;
+    }
+
+    /**
+     * True when a query narrows on resource identity (`_id` in FHIR terms).
+     *
+     * `_id=<value>` compiles to `_uuid`/`_sourceId` predicates (see FilterById), never to `id`,
+     * but `id` is accepted here because internal callers build it directly.
+     *
+     * Only the top level and a top-level `$and` are inspected — that is the shape
+     * buildR4SearchQuery produces. An id buried inside a disjunction does not bound the result
+     * set anyway, so treating it as "not an id constraint" is the safe answer.
+     *
+     * @param {Object} query - MongoDB query object (typically a residual query)
+     * @returns {boolean}
+     */
+    static hasIdConstraint(query) {
+        const ID_FIELDS = ['_uuid', '_sourceId', 'id'];
+
+        const isIdPredicate = (obj) =>
+            !!obj &&
+            typeof obj === 'object' &&
+            ID_FIELDS.some((field) => {
+                const value = obj[field];
+                if (value === undefined) return false;
+                // A cursor (`_uuid.$gt`) is pagination, not identity.
+                return !(value && typeof value === 'object' && value.$gt !== undefined);
+            });
+
+        if (isIdPredicate(query)) {
+            return true;
+        }
+
+        return Array.isArray(query?.$and) && query.$and.some(isIdPredicate);
+    }
+
+    /**
      * Extracts member search criteria from MongoDB query
      * Handles nested $and/$or operators and MongoDB operator unwrapping
      *

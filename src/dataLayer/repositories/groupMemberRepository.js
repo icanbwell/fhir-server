@@ -4,13 +4,14 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { DateTimeFormatter } = require('../../utils/clickHouse/dateTimeFormatter');
 const { retryWithBackoff } = require('../../utils/retryWithBackoff');
 const { logWarn } = require('../../operations/common/logging');
+const { assertIsValid } = require('../../utils/assertType');
 
 // Bounded retry policy for the Group member event insert. This write is on the
 // synchronous Group save path (ClickHouse is the source of truth for
 // membership) and previously had no retry, so a single transient ClickHouse
 // blip surfaced as a 500. Retries are safe because the write is idempotent by
 // CONTENT, not by an engine dedup token: each row's event_id is a uuidv5 of
-// (group_id | entity_reference | event_type | correlation_id) and event_time is
+// (group_uuid | entity_reference | event_type | correlation_id) and event_time is
 // deterministic (sourced from meta.lastUpdated), so a re-driven block produces
 // byte-identical rows. The Group_4_0_0_MemberEvents table is a plain (non-
 // Replicated) MergeTree, and the current-state tables are AggregatingMergeTree
@@ -51,14 +52,21 @@ class GroupMemberRepository {
      * Uses event log aggregation to compute current state from history.
      * Returns only the reference strings for efficient set operations.
      *
-     * @param {string} groupId - Group resource ID
+     * The update path diffs an incoming roster against this result, so identifying the right Group
+     * here is load-bearing for writes as well as reads: a result spanning Groups would emit
+     * 'removed' events for members that were never in the Group being written.
+     *
+     * @param {string} groupUuid - The Group's _uuid, its identity in the membership tables
      * @returns {Promise<string[]>} Array of member reference strings
+     * @throws {Error} When groupUuid is missing
      *
      * @example
-     * const references = await repository.getActiveMembers('group-123');
+     * const references = await repository.getActiveMembers('6a4f2b1e-0000-5000-8000-000000000001');
      * // Returns: ['Patient/1', 'Patient/2', ...]
      */
-    async getActiveMembers(groupId) {
+    async getActiveMembers(groupUuid) {
+        assertIsValid(groupUuid, 'Cannot read active members: a groupUuid is required.');
+
         try {
             // ORDER BY entity_reference gives a stable roster order. This keeps update-path
             // hydration deterministic, so a client re-PUTing an unchanged roster in the same order
@@ -66,7 +74,7 @@ class GroupMemberRepository {
             const query = `
                 SELECT entity_reference
                 FROM ${TABLES.GROUP_MEMBER_EVENTS}
-                ${QueryFragments.whereGroupId('', true)}
+                ${QueryFragments.whereGroupUuid(true)}
                 ${QueryFragments.groupByEntityReference()}
                 HAVING ${QueryFragments.activeMembers()}
                 ${QueryFragments.orderByEntityReference()}
@@ -74,7 +82,7 @@ class GroupMemberRepository {
 
             const results = await this.client.queryAsync({
                 query,
-                query_params: { groupId }
+                query_params: { groupUuid }
             });
 
             return (results || []).map(row => row.entity_reference);
@@ -82,7 +90,7 @@ class GroupMemberRepository {
             throw new RethrownError({
                 message: 'Error retrieving active members from repository',
                 error,
-                args: { groupId }
+                args: { groupUuid }
             });
         }
     }
@@ -111,10 +119,10 @@ class GroupMemberRepository {
      *
      * @example
      * await repository.appendEvents([
-     *   { group_id: 'group-123', entity_reference: 'Patient/1', event_type: 'added',
-     *     event_time: '2024-01-01T00:00:00.000Z', ... },
-     *   { group_id: 'group-123', entity_reference: 'Patient/2', event_type: 'added',
-     *     event_time: '2024-01-01T00:00:00.000Z', ... }
+     *   { group_uuid: '<uuid>', group_id: 'group-123', entity_reference: 'Patient/1',
+     *     event_type: 'added', event_time: '2024-01-01T00:00:00.000Z', ... },
+     *   { group_uuid: '<uuid>', group_id: 'group-123', entity_reference: 'Patient/2',
+     *     event_type: 'added', event_time: '2024-01-01T00:00:00.000Z', ... }
      * ], { correlationId: 'group-123|2' });
      */
     async appendEvents(events, { correlationId } = {}) {
