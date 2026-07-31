@@ -5,7 +5,7 @@ const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory')
 const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
 const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { S3NdjsonReader } = require('./s3NdjsonReader');
-const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { generateUUID } = require('../../utils/uid.util');
@@ -249,9 +249,9 @@ class BulkImportConsumerRunner {
                     sinceLastFlush++;
 
                     try {
-                        const fhirResource = FhirResourceCreator.create(
-                            this.applyDefaultSecurityTagsIfMissing(resource)
-                        );
+                        const fhirResource = FhirResourceWriteSerializer.serialize({
+                            obj: this.applyDefaultSecurityTagsIfMissing(resource)
+                        });
                         const contextData = buildContextDataForHybridStorage(
                             fhirResource.resourceType, fhirResource, requestInfo
                         );
