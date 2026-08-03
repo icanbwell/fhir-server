@@ -24,7 +24,10 @@ class CmsConsentManager {
     /**
      * @description Fetches all the consent resources for provided proxy patients.
      * @param {string[]} proxyPatientRefs - proxy patient references
-     * @param {string[]} ownerTags - tenant owner tags the caller is authorized for
+     * @param {string[]} ownerTags - tenant owner tags the caller is authorized for. Empty/absent
+     *   means the caller has wildcard ('*') access, matching the convention used everywhere else
+     *   this array is threaded through (e.g. searchManager's securityTags) -- so no owner filter
+     *   is applied, rather than the filter matching nothing.
      * @returns Consent resource list
      */
     async getConsentResources(proxyPatientRefs, ownerTags) {
@@ -40,17 +43,20 @@ class CmsConsentManager {
                         }
                     }
                 },
-                { 'provision.type': 'permit' },
-                {
-                    'meta.security': {
-                        $elemMatch: {
-                            system: 'https://www.icanbwell.com/owner',
-                            code: { $in: ownerTags }
-                        }
-                    }
-                }
+                { 'provision.type': 'permit' }
             ]
         };
+
+        if (ownerTags && ownerTags.length > 0) {
+            query.$and.push({
+                'meta.security': {
+                    $elemMatch: {
+                        system: 'https://www.icanbwell.com/owner',
+                        code: { $in: ownerTags }
+                    }
+                }
+            });
+        }
 
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',

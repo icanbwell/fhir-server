@@ -142,6 +142,24 @@ describe('CmsConsentManager', () => {
             expect(result).toEqual(mockConsents);
         });
 
+        test('SEC-1586 regression: omits the owner filter (does not use $in: []) when ownerTags is empty, since an empty array means wildcard/full access here -- same convention searchManager uses for securityTags', async () => {
+            await cmsConsentManager.getConsentResources(['Patient/person.p1'], []);
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            expect(findCall.query.$and).not.toContainEqual(
+                expect.objectContaining({ 'meta.security': expect.anything() })
+            );
+        });
+
+        test('SEC-1586 regression: omits the owner filter when ownerTags is undefined', async () => {
+            await cmsConsentManager.getConsentResources(['Patient/person.p1'], undefined);
+
+            const findCall = mockQueryManager.findAsync.mock.calls[0][0];
+            expect(findCall.query.$and).not.toContainEqual(
+                expect.objectContaining({ 'meta.security': expect.anything() })
+            );
+        });
+
         test('should handle empty proxy patient refs array', async () => {
             await cmsConsentManager.getConsentResources([], ['tenant-a']);
 
