@@ -34,7 +34,7 @@ const {handleAdminGet, handleAdminPost, handleAdminDelete, handleAdminPut} = req
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ACCESS_LOGS_ENTRY_DATA, REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
-const {logInfo, logDebug, logError} = require('./operations/common/logging');
+const {logInfo, logError} = require('./operations/common/logging');
 const {generateNonce} = require('./utils/nonce');
 const {handleServerError} = require('./routeHandlers/handleError');
 const {shouldReturnHtml} = require('./utils/requestHelpers.js');
@@ -169,13 +169,6 @@ function createApp({fnGetContainer}) {
                     statusCode: res.statusCode,
                     username
                 });
-                // Debug log added for logging authentication token
-                if (req.headers.authorization) {
-                    logDebug(
-                        'Request Completed',
-                        {authenticationToken: req.headers.authorization}
-                    );
-                }
             }
 
             if (res.statusCode === 401 && configManager.enableAccessAuditEvent) {
