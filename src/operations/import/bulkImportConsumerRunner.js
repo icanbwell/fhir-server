@@ -15,6 +15,17 @@ const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
 const { logInfo, logError } = require('../common/logging');
 
+/**
+ * Extension URL used to record a marker on the Task each time a byte-range finishes
+ * processing. Markers accumulate across concurrent consumer pods/files (Task.output/
+ * extension array merges are additive — see resourceMerger's array-union semantics) and
+ * are the only way to determine when every range of every input file is done, since no
+ * single event carries a task-wide range count (ImportRangeRequested's totalRanges is
+ * per-file only).
+ * @type {string}
+ */
+const BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL = 'https://www.icanbwell.com/bulk-import-range-completed';
+
 class BulkImportConsumerRunner {
     /**
      * @typedef {Object} ConstructorParams
@@ -149,13 +160,17 @@ class BulkImportConsumerRunner {
     }
 
     /**
-     * Updates the Task status in MongoDB
+     * Updates the Task status in MongoDB. Uses replaceOneAsync's optimistic-concurrency
+     * merge (not a raw full-document replace) since multiple consumer pods update the
+     * same Task concurrently — a raw replace built from a stale snapshot would silently
+     * wipe out another pod's already-committed output/extension entries.
      * @param {Object} task
      * @param {string} status
      * @param {string} [statusReason]
+     * @param {FhirRequestInfo} requestInfo
      * @returns {Promise<void>}
      */
-    async updateTaskStatusAsync(task, status, statusReason) {
+    async updateTaskStatusAsync(task, status, statusReason, requestInfo) {
         const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'Task',
             base_version: '4_0_0'
@@ -171,7 +186,156 @@ class BulkImportConsumerRunner {
             updated.statusReason.text = statusReason;
         }
 
-        await databaseUpdateManager.updateOneAsync({ doc: updated });
+        await databaseUpdateManager.replaceOneAsync({ base_version: '4_0_0', requestInfo, doc: updated });
+    }
+
+    /**
+     * Splits an S3 key (relative to its bucket) into a result and an error output key
+     * for the given range, nesting both under an "output/" prefix alongside the input file.
+     * e.g. "run-20260521/Patient.ndjson" + rangeIndex 0 -> "run-20260521/output/Patient-001.ndjson"
+     * @param {{ key: string, rangeIndex: number }} params
+     * @returns {{ resultKey: string, errorKey: string }}
+     */
+    buildRangeOutputKeys({ key, rangeIndex }) {
+        const lastSlash = key.lastIndexOf('/');
+        const dir = lastSlash === -1 ? '' : key.slice(0, lastSlash + 1);
+        const filename = lastSlash === -1 ? key : key.slice(lastSlash + 1);
+        const base = filename.replace(/\.ndjson$/i, '');
+        const suffix = String(rangeIndex + 1).padStart(3, '0');
+        return {
+            resultKey: `${dir}output/${base}-${suffix}.ndjson`,
+            errorKey: `${dir}output/errors/${base}-${suffix}-errors.ndjson`
+        };
+    }
+
+    /**
+     * @param {import('../common/mergeResultEntry').MergeResultEntry[]} entries
+     * @returns {string}
+     */
+    buildNdjson(entries) {
+        return entries.map((entry) => JSON.stringify(entry.toJSON())).join('\n') + '\n';
+    }
+
+    /**
+     * Whether every byte-range of every input file on this Task has recorded a
+     * completion marker. Cross-references Task.input (fixed at Task creation) against
+     * the completion markers accumulated in Task.extension.
+     * @param {Object} task
+     * @returns {boolean}
+     */
+    isTaskFullyComplete(task) {
+        const inputUrls = (task.input || []).map((i) => i.valueUri).filter(Boolean);
+        if (inputUrls.length === 0) {
+            return false;
+        }
+
+        const markers = (task.extension || [])
+            .filter((e) => e.url === BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL && e.valueString)
+            .map((e) => {
+                const [markerFilepath, markerRangeIndex, markerTotalRanges] = e.valueString.split('|');
+                return {
+                    filepath: markerFilepath,
+                    rangeIndex: Number(markerRangeIndex),
+                    totalRanges: Number(markerTotalRanges)
+                };
+            });
+
+        return inputUrls.every((url) => {
+            const fileMarkers = markers.filter((m) => m.filepath === url);
+            if (fileMarkers.length === 0) {
+                return false;
+            }
+            const distinctRanges = new Set(fileMarkers.map((m) => m.rangeIndex));
+            return distinctRanges.size === fileMarkers[0].totalRanges;
+        });
+    }
+
+    /**
+     * Writes this range's merge-result (and error, if any) NDJSON to S3, appends
+     * Task.output entries pointing at them, and records a completion marker so
+     * isTaskFullyComplete() can detect when every range of every file is done.
+     * Best-effort: a failure here is logged but does not fail the range — the
+     * underlying MongoDB writes already succeeded by this point.
+     * @param {Object} params
+     * @param {Object} params.task
+     * @param {string} params.taskId
+     * @param {string} params.filepath
+     * @param {number} params.rangeIndex
+     * @param {number} params.totalRanges
+     * @param {import('../common/mergeResultEntry').MergeResultEntry[]} params.mergeResultEntries
+     * @param {FhirRequestInfo} params.requestInfo
+     * @returns {Promise<void>}
+     */
+    async recordRangeCompletionAsync({ taskId, filepath, rangeIndex, totalRanges, mergeResultEntries, requestInfo }) {
+        try {
+            // Reload fresh rather than reusing the Task loaded at the top of handleMessageAsync —
+            // that snapshot can be minutes stale by the time a large range finishes, and
+            // replaceOneAsync's merge takes scalar fields (e.g. status) from OUR doc when they
+            // differ from the DB, so a stale snapshot here could silently regress a concurrent
+            // status change.
+            const task = await this.loadTaskAsync(taskId);
+            if (!task) {
+                logError('Task disappeared before range completion could be recorded', { taskId, filepath, rangeIndex });
+                return;
+            }
+
+            const { bucket, key } = this.s3NdjsonReader.parseS3Uri(filepath);
+            const { resultKey, errorKey } = this.buildRangeOutputKeys({ key, rangeIndex });
+
+            const newOutputs = [];
+            if (mergeResultEntries.length > 0) {
+                const resultUri = `s3://${bucket}/${resultKey}`;
+                await this.s3NdjsonReader.writeNdjsonAsync({
+                    filepath: resultUri,
+                    data: this.buildNdjson(mergeResultEntries)
+                });
+                newOutputs.push({ type: { text: 'result' }, valueUri: resultUri });
+            }
+
+            const failedEntries = mergeResultEntries.filter((entry) => entry.operationOutcome);
+            if (failedEntries.length > 0) {
+                const errorUri = `s3://${bucket}/${errorKey}`;
+                await this.s3NdjsonReader.writeNdjsonAsync({
+                    filepath: errorUri,
+                    data: this.buildNdjson(failedEntries)
+                });
+                newOutputs.push({ type: { text: 'error' }, valueUri: errorUri });
+            }
+
+            const updated = task.clone();
+            updated.output = [...(updated.output || []), ...newOutputs];
+            updated.extension = [
+                ...(updated.extension || []),
+                {
+                    url: BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL,
+                    valueString: `${filepath}|${rangeIndex}|${totalRanges}`
+                }
+            ];
+
+            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+                resourceType: 'Task',
+                base_version: '4_0_0'
+            });
+            const { savedResource } = await databaseUpdateManager.replaceOneAsync({
+                base_version: '4_0_0',
+                requestInfo,
+                doc: updated
+            });
+
+            // A null savedResource means the merge detected no change (e.g. a Kafka
+            // redelivery of a range already recorded) — re-read to see current state.
+            const finalTask = savedResource || await this.loadTaskAsync(taskId);
+            if (finalTask && finalTask.status !== 'completed' && this.isTaskFullyComplete(finalTask)) {
+                await this.updateTaskStatusAsync(finalTask, 'completed', undefined, requestInfo);
+            }
+        } catch (e) {
+            logError('Failed to record bulk import range completion', {
+                taskId,
+                filepath,
+                rangeIndex,
+                error: e.message
+            });
+        }
     }
 
     /**
@@ -208,12 +372,13 @@ class BulkImportConsumerRunner {
             return;
         }
 
+        const requestInfo = this.buildRangeRequestInfo({ user, scope });
+
         if (task.status === 'requested') {
-            await this.updateTaskStatusAsync(task, 'in-progress');
+            await this.updateTaskStatusAsync(task, 'in-progress', undefined, requestInfo);
         }
 
         const base_version = '4_0_0';
-        const requestInfo = this.buildRangeRequestInfo({ user, scope });
         const batchSize = this.configManager.bulkImportBatchSize;
         const batchDelayMs = this.configManager.bulkImportBatchDelayMs;
 
@@ -222,10 +387,12 @@ class BulkImportConsumerRunner {
         let created = 0;
         let updated = 0;
         let failed = 0;
+        const mergeResultEntries = [];
 
         const flushBatchAsync = async () => {
             const mergeResults = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
             for (const mergeResult of mergeResults) {
+                mergeResultEntries.push(mergeResult);
                 if (mergeResult.created) {
                     created++;
                 } else if (mergeResult.updated) {
@@ -289,7 +456,7 @@ class BulkImportConsumerRunner {
                     rangeIndex,
                     error: e.message
                 });
-                await this.updateTaskStatusAsync(task, 'failed', e.message);
+                await this.updateTaskStatusAsync(task, 'failed', e.message, requestInfo);
                 return;
             }
 
@@ -302,6 +469,15 @@ class BulkImportConsumerRunner {
                 created,
                 updated,
                 failed
+            });
+
+            await this.recordRangeCompletionAsync({
+                taskId,
+                filepath,
+                rangeIndex,
+                totalRanges,
+                mergeResultEntries,
+                requestInfo
             });
         } finally {
             // FastDatabaseBulkInserter defers history writes onto postRequestProcessor's

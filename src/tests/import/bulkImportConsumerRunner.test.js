@@ -96,7 +96,9 @@ describe('BulkImportConsumerRunner', () => {
 
         await runner.handleMessageAsync({
             key: 'import-consumer-001-0-0',
-            value: makeCloudEvent(),
+            // totalRanges: 2 so this single range does not also complete the Task —
+            // that behavior is covered separately below.
+            value: makeCloudEvent({ totalRanges: 2 }),
             headers: []
         });
 
@@ -119,7 +121,7 @@ describe('BulkImportConsumerRunner', () => {
         });
     });
 
-    test('handleMessageAsync does not downgrade in-progress to in-progress', async () => {
+    test('handleMessageAsync does not downgrade in-progress, then marks Task completed after the last range', async () => {
         const request = await createTestRequest();
 
         await request
@@ -138,17 +140,23 @@ describe('BulkImportConsumerRunner', () => {
             headers: []
         });
 
+        let taskResp = await request
+            .get('/4_0_0/Task/import-consumer-001')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('in-progress');
+
         await runner.handleMessageAsync({
             key: 'import-consumer-001-1',
             value: makeCloudEvent({ rangeIndex: 1, totalRanges: 2 }),
             headers: []
         });
 
-        const taskResp = await request
+        taskResp = await request
             .get('/4_0_0/Task/import-consumer-001')
             .set(getHeaders())
             .expect(200);
-        expect(taskResp.body.status).toBe('in-progress');
+        expect(taskResp.body.status).toBe('completed');
     });
 
     test('handleMessageAsync ignores malformed messages', async () => {
@@ -277,7 +285,10 @@ describe('BulkImportConsumerRunner', () => {
             .get('/4_0_0/Task/import-consumer-partial-fail')
             .set(getHeaders())
             .expect(200);
-        expect(taskResp.body.status).toBe('in-progress');
+        // This is the only range for the only input file, so the range finishing
+        // (even with a partial failure) completes the whole Task — partial
+        // failures are surfaced via the error output file, not a non-completed status.
+        expect(taskResp.body.status).toBe('completed');
     });
 
     test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {
@@ -314,5 +325,96 @@ describe('BulkImportConsumerRunner', () => {
 
         executeAsyncSpy.mockRestore();
         clearAsyncSpy.mockRestore();
+    });
+
+    test('buildRangeOutputKeys nests result/error keys under an output/ prefix', () => {
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        const { resultKey, errorKey } = runner.buildRangeOutputKeys({
+            key: 'run-20260521/Patient.ndjson',
+            rangeIndex: 0
+        });
+        expect(resultKey).toBe('run-20260521/output/Patient-001.ndjson');
+        expect(errorKey).toBe('run-20260521/output/errors/Patient-001-errors.ndjson');
+    });
+
+    test('isTaskFullyComplete is false until every range of every input file is marked complete', () => {
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        const marker = (filepath, rangeIndex, totalRanges) => ({
+            url: 'https://www.icanbwell.com/bulk-import-range-completed',
+            valueString: `${filepath}|${rangeIndex}|${totalRanges}`
+        });
+
+        expect(runner.isTaskFullyComplete({
+            input: [{ valueUri: 's3://bucket/a.ndjson' }],
+            extension: []
+        })).toBe(false);
+
+        expect(runner.isTaskFullyComplete({
+            input: [
+                { valueUri: 's3://bucket/a.ndjson' },
+                { valueUri: 's3://bucket/b.ndjson' }
+            ],
+            extension: [
+                marker('s3://bucket/a.ndjson', 0, 2),
+                marker('s3://bucket/a.ndjson', 1, 2)
+            ]
+        })).toBe(false); // file "b" hasn't started
+
+        expect(runner.isTaskFullyComplete({
+            input: [
+                { valueUri: 's3://bucket/a.ndjson' },
+                { valueUri: 's3://bucket/b.ndjson' }
+            ],
+            extension: [
+                marker('s3://bucket/a.ndjson', 0, 2),
+                marker('s3://bucket/a.ndjson', 1, 2),
+                marker('s3://bucket/b.ndjson', 0, 1)
+            ]
+        })).toBe(true);
+    });
+
+    test('handleMessageAsync writes result NDJSON to S3 and records Task.output + completion', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-output' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-output-1', name: [{ family: 'Output' }] }
+        ]);
+
+        await runner.handleMessageAsync({
+            key: 'import-consumer-output-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-output' }),
+            headers: []
+        });
+
+        const writeCalls = container.s3NdjsonReader.getWriteCalls();
+        expect(writeCalls).toHaveLength(1);
+        expect(writeCalls[0].filepath).toBe('s3://allowed-bucket/output/Patient-001.ndjson');
+        expect(writeCalls[0].data).toContain('"id":"bulk-import-output-1"');
+        expect(writeCalls[0].data).toContain('"created":true');
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-output')
+            .set(getHeaders())
+            .expect(200);
+
+        expect(taskResp.body.status).toBe('completed');
+        const resultOutput = taskResp.body.output.find((o) => o.type.text === 'result');
+        expect(resultOutput.valueUri).toBe('s3://allowed-bucket/output/Patient-001.ndjson');
     });
 });
