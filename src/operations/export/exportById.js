@@ -44,7 +44,9 @@ class ExportByIdOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
-            scope
+            scope,
+            /** @type {string} */
+            user
         } = requestInfo;
 
         const { id } = args;
@@ -60,7 +62,12 @@ class ExportByIdOperation {
                 exportStatusId: id
             });
 
-            if (!exportStatusResource) {
+            // ExportStatus carries no tenant/access security tag (every job is tagged owner=bwell
+            // regardless of requester) — the only record of who may check on it is the `user` who
+            // started it, so ownership is checked against that instead. A mismatch returns the
+            // same not-found response as a truly nonexistent id, rather than confirming that a
+            // guessed/enumerated export id belongs to someone else.
+            if (!exportStatusResource || exportStatusResource.user !== user) {
                 throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
             }
 
