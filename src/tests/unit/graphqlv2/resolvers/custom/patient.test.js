@@ -165,6 +165,117 @@ describe('graphqlv2/resolvers/custom/patient', () => {
                 'SubscriptionTopic'
             );
         });
+
+        test('SEC-1585: excludes a SubscriptionTopic matched only by the shared source_patient_id from a different tenant', async () => {
+            const parent = { id: 'p-st', _sourceAssigningAuthority: 'client2' };
+            mockContext.dataApi.getResources.mockResolvedValue([
+                {
+                    id: 'topic-client2',
+                    identifier: [{ system: 'https://icanbwell.com/codes/service_slug', value: 'client2' }]
+                },
+                {
+                    id: 'topic-other-tenant',
+                    identifier: [{ system: 'https://icanbwell.com/codes/service_slug', value: 'client-other-tenant' }]
+                }
+            ]);
+
+            const result = await patientResolvers.Patient.subscriptionTopics(parent, {}, mockContext, mockInfo);
+
+            expect(result).toEqual([{
+                id: 'topic-client2',
+                identifier: [{ system: 'https://icanbwell.com/codes/service_slug', value: 'client2' }]
+            }]);
+        });
+
+        test('SEC-1585: excludes a resource with no identifier array at all', async () => {
+            const parent = { id: 'p-st', _sourceAssigningAuthority: 'client2' };
+            mockContext.dataApi.getResources.mockResolvedValue([{ id: 'no-identifier' }]);
+
+            const result = await patientResolvers.Patient.subscriptionTopics(parent, {}, mockContext, mockInfo);
+
+            expect(result).toHaveLength(0);
+        });
+    });
+
+    describe('Patient.subscriptions resolver', () => {
+        test('calls dataApi.getResources with extension for Subscription', async () => {
+            const parent = { id: 'p-sub' };
+            await patientResolvers.Patient.subscriptions(parent, {}, mockContext, mockInfo);
+            expect(mockContext.dataApi.getResources).toHaveBeenCalledWith(
+                parent,
+                { extension: 'https://icanbwell.com/codes/source_patient_id|p-sub' },
+                mockContext,
+                mockInfo,
+                'Subscription'
+            );
+        });
+
+        test('SEC-1585: excludes a Subscription matched only by the shared source_patient_id from a different tenant', async () => {
+            const parent = { id: 'shared-source-patient-id', _sourceAssigningAuthority: 'client2' };
+            mockContext.dataApi.getResources.mockResolvedValue([
+                {
+                    id: 'sub-client2',
+                    extension: [
+                        { url: 'https://icanbwell.com/codes/source_patient_id', valueString: 'shared-source-patient-id' },
+                        { url: 'https://icanbwell.com/codes/service_slug', valueString: 'client2' }
+                    ]
+                },
+                {
+                    id: 'sub-other-tenant',
+                    extension: [
+                        { url: 'https://icanbwell.com/codes/source_patient_id', valueString: 'shared-source-patient-id' },
+                        { url: 'https://icanbwell.com/codes/service_slug', valueString: 'client-other-tenant' }
+                    ]
+                }
+            ]);
+
+            const result = await patientResolvers.Patient.subscriptions(parent, {}, mockContext, mockInfo);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].id).toBe('sub-client2');
+        });
+
+        test('SEC-1585: excludes a resource with no extension array at all', async () => {
+            const parent = { id: 'p-sub', _sourceAssigningAuthority: 'client2' };
+            mockContext.dataApi.getResources.mockResolvedValue([{ id: 'no-extension' }]);
+
+            const result = await patientResolvers.Patient.subscriptions(parent, {}, mockContext, mockInfo);
+
+            expect(result).toHaveLength(0);
+        });
+    });
+
+    describe('Patient.subscriptionStatuses resolver', () => {
+        test('calls dataApi.getResources with extension for SubscriptionStatus', async () => {
+            const parent = { id: 'p-sub-status' };
+            await patientResolvers.Patient.subscriptionStatuses(parent, {}, mockContext, mockInfo);
+            expect(mockContext.dataApi.getResources).toHaveBeenCalledWith(
+                parent,
+                { extension: 'https://icanbwell.com/codes/source_patient_id|p-sub-status' },
+                mockContext,
+                mockInfo,
+                'SubscriptionStatus'
+            );
+        });
+
+        test('SEC-1585: excludes a SubscriptionStatus matched only by the shared source_patient_id from a different tenant', async () => {
+            const parent = { id: 'shared-source-patient-id', _sourceAssigningAuthority: 'client2' };
+            mockContext.dataApi.getResources.mockResolvedValue([
+                {
+                    id: 'status-client2',
+                    extension: [{ url: 'https://icanbwell.com/codes/service_slug', valueString: 'client2' }]
+                },
+                {
+                    id: 'status-other-tenant',
+                    extension: [{ url: 'https://icanbwell.com/codes/service_slug', valueString: 'client-other-tenant' }]
+                }
+            ]);
+
+            const result = await patientResolvers.Patient.subscriptionStatuses(parent, {}, mockContext, mockInfo);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].id).toBe('status-client2');
+        });
     });
 
     describe('args spreading preserves existing args', () => {

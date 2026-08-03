@@ -1264,7 +1264,7 @@ module.exports = {
          * @return {Promise<Resource>}
          */
         subscriptions: async (parent, args, context, info) => {
-            return await context.dataApi.getResources(
+            const resources = await context.dataApi.getResources(
                 parent,
                 {
                     ...args,
@@ -1274,6 +1274,14 @@ module.exports = {
                 info,
                 'Subscription'
             );
+            // source_patient_id is a shared identifier that collides across source systems --
+            // the search above can only filter on it alone, so also require service_slug to
+            // match the parent Patient's own source, the same two-part join
+            // everythingRelatedResourcesMapper.js uses for this same resource type.
+            return resources.filter((r) => Array.isArray(r.extension) && r.extension.some(
+                (e) => e.url === 'https://icanbwell.com/codes/service_slug' &&
+                    e.valueString === parent._sourceAssigningAuthority
+            ));
         },
         /**
          * @param {Resource|null} parent
@@ -1283,7 +1291,7 @@ module.exports = {
          * @return {Promise<Resource>}
          */
         subscriptionStatuses: async (parent, args, context, info) => {
-            return await context.dataApi.getResources(
+            const resources = await context.dataApi.getResources(
                 parent,
                 {
                     ...args,
@@ -1293,6 +1301,14 @@ module.exports = {
                 info,
                 'SubscriptionStatus'
             );
+            // source_patient_id is a shared identifier that collides across source systems --
+            // the search above can only filter on it alone, so also require service_slug to
+            // match the parent Patient's own source, the same two-part join
+            // everythingRelatedResourcesMapper.js uses for this same resource type.
+            return resources.filter((r) => Array.isArray(r.extension) && r.extension.some(
+                (e) => e.url === 'https://icanbwell.com/codes/service_slug' &&
+                    e.valueString === parent._sourceAssigningAuthority
+            ));
         },
         /**
          * @param {Resource|null} parent
@@ -1302,7 +1318,7 @@ module.exports = {
          * @return {Promise<Resource>}
          */
         subscriptionTopics: async (parent, args, context, info) => {
-            return await context.dataApi.getResources(
+            const resources = await context.dataApi.getResources(
                 parent,
                 {
                     ...args,
@@ -1312,6 +1328,14 @@ module.exports = {
                 info,
                 'SubscriptionTopic'
             );
+            // source_patient_id is a shared identifier that collides across source systems --
+            // the search above can only filter on it alone, so also require service_slug to
+            // match the parent Patient's own source, the same two-part join
+            // everythingRelatedResourcesMapper.js uses for this same resource type.
+            return resources.filter((r) => Array.isArray(r.identifier) && r.identifier.some(
+                (i) => i.system === 'https://icanbwell.com/codes/service_slug' &&
+                    i.value === parent._sourceAssigningAuthority
+            ));
         },
         /**
          * @param {Resource|null} parent
