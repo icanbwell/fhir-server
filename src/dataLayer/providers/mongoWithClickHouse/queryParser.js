@@ -246,96 +246,71 @@ class QueryParser {
     }
 
     /**
-     * Extracts group ID filters from MongoDB query
+     * Extracts requested resource id constraints from a MongoDB query.
      *
-     * FilterById transforms FHIR _id parameters into MongoDB _uuid/_sourceId fields:
-     * - UUID-shaped values → { _uuid: { $in: [...] } }
-     * - Non-UUID values → { _sourceId: { $in: [...] } }
+     * A `_id` search parameter is rewritten upstream into one of several field
+     * shapes before it reaches this provider:
+     * - `_uuid` (when the id is a uuid)
+     * - `_sourceId` (when the id is a plain source id)
+     * - `id` (raw id field)
+     * - `_id` (Mongo document id)
+     * each as an equality (`{ field: value }` or `{ field: { $eq } }`) or an
+     * `$in` (`{ field: { $in: [...] } }`), possibly nested inside `$and`/`$or`.
      *
-     * This method extracts from both fields to filter ClickHouse queries by group_id:
-     * - _sourceId always equals the actual resource id (safe to use)
-     * - _uuid equals the actual id for UUID-shaped ids (safe to use)
-     * - _uuid is a hash for business ids (theoretically could mismatch ClickHouse group_id)
-     *
-     * Note: The edge case where _uuid is a hash doesn't occur in practice because:
-     * 1. Users search by the actual id they know (e.g., 'group-test'), not internal hashes
-     * 2. FilterById routes non-UUID ids to _sourceId (which we extract correctly)
-     * 3. Only searching by the hash itself (e.g., ?_id=<hash>) would fail, but users
-     *    don't know/use these internal hashes - they appear nowhere in API responses
+     * All matching values are collected so the caller can intersect them with
+     * the group ids returned by ClickHouse. Returns null when no id constraint
+     * is present (so callers can leave behavior unchanged).
      *
      * @param {Object} query - MongoDB query object
-     * @returns {string[]} Array of group IDs to filter by (empty if no filter)
+     * @returns {string[]|null} Requested ids, or null if none were specified
      */
-    static extractGroupIdFilter(query) {
-        const groupIds = [];
+    static extractRequestedIds(query) {
+        const idFields = new Set(['id', '_id', '_uuid', '_sourceId']);
+        const ids = new Set();
 
         /**
-         * Unwraps MongoDB operators to get actual values
-         * @param {*} value - The value to unwrap
-         * @returns {string[]} Array of values
+         * Collects id value(s) from a single field value (equality or $in)
+         * @param {*} value - The field value to collect from
          */
-        const unwrapValues = (value) => {
-            if (!value) return [];
-
-            // Handle $in operator - array of values
-            if (value.$in && Array.isArray(value.$in)) {
-                return value.$in;
+        const collectFromValue = (value) => {
+            if (value && typeof value === 'object') {
+                if (Array.isArray(value.$in)) {
+                    value.$in.forEach((v) => ids.add(v));
+                    return;
+                }
+                if (value.$eq !== undefined) {
+                    ids.add(value.$eq);
+                    return;
+                }
+                // Unsupported operator shape (e.g. $gt cursor) - ignore
+                return;
             }
-
-            // Handle $eq operator
-            if (value.$eq !== undefined) {
-                return [value.$eq];
+            if (value !== undefined && value !== null) {
+                ids.add(value);
             }
-
-            // Direct string value
-            if (typeof value === 'string') {
-                return [value];
-            }
-
-            return [];
         };
 
         /**
-         * Recursively extract group IDs from query structure
+         * Recursively walks the query, collecting id constraints
          * @param {Object} obj - Query object to search
          */
-        const extractRecursive = (obj) => {
+        const walk = (obj) => {
             if (!obj || typeof obj !== 'object') {
                 return;
             }
 
-            // Extract from _uuid field (UUID-based IDs from FilterById)
-            if (obj._uuid) {
-                groupIds.push(...unwrapValues(obj._uuid));
-            }
-
-            // Extract from _sourceId field (non-UUID IDs from FilterById)
-            if (obj._sourceId) {
-                groupIds.push(...unwrapValues(obj._sourceId));
-            }
-
-            // Recurse into $and arrays
-            if (obj.$and && Array.isArray(obj.$and)) {
-                obj.$and.forEach(extractRecursive);
-            }
-
-            // Recurse into $or arrays
-            if (obj.$or && Array.isArray(obj.$or)) {
-                obj.$or.forEach(extractRecursive);
+            for (const [key, value] of Object.entries(obj)) {
+                if (idFields.has(key)) {
+                    collectFromValue(value);
+                } else if ((key === '$and' || key === '$or') && Array.isArray(value)) {
+                    value.forEach(walk);
+                }
             }
         };
 
-        extractRecursive(query);
+        walk(query);
 
-        // Deduplicate and filter out empty strings
-        const uniqueIds = [...new Set(groupIds)].filter(id => id && typeof id === 'string');
-
-        logDebug('Extracted group ID filter', {
-            query: JSON.stringify(query),
-            groupIds: uniqueIds
-        });
-
-        return uniqueIds;
+        return ids.size > 0 ? [...ids] : null;
     }
 
     /**

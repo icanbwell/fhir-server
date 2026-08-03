@@ -12,13 +12,12 @@ const { TABLES, EVENT_TYPES } = require('../../../constants/clickHouseConstants'
 class QueryBuilder {
     /**
      * Builds query to find Groups containing a specific member
-     * Supports pagination (seek cursor or offset), group ID filtering, and security tag filtering
+     * Supports pagination (seek cursor or offset) and security tag filtering
      *
      * Searches on entity_reference_uuid or entity_reference_source_id columns,
      * which are AggregateFunction columns filtered via HAVING with argMaxMerge().
      *
      * @param {Object} params
-     * @param {string[]} [params.groupIds] - Optional array of group IDs to filter by
      * @param {string} [params.memberReferenceUuid] - UUID reference (e.g., "Patient/<uuidv5>")
      * @param {string} [params.memberReferenceSourceId] - Source ID reference (e.g., "Patient/123")
      * @param {string[]} params.accessTags - Access security tags for filtering
@@ -26,45 +25,43 @@ class QueryBuilder {
      * @param {number} params.limit - Page size
      * @param {string|null} params.afterGroupId - Seek cursor (group_id to start after)
      * @param {number} params.skip - Offset for numeric pagination (fallback)
+     * @param {string[]|null} [params.requestedIds] - Requested `_id` constraint; when present, restricts results to these group ids so LIMIT applies after id filtering
      * @returns {{query: string, query_params: Object}}
      */
     static buildFindGroupsByMemberQuery({
-        groupIds = [],
         memberReferenceUuid,
         memberReferenceSourceId,
         accessTags = [],
         ownerTags = [],
         limit,
         afterGroupId = null,
-        skip = 0
+        skip = 0,
+        requestedIds = null
     }) {
         const havingClause = this._buildActiveMemberHavingClause(
             accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
         );
 
-        // Build WHERE clause for group_id filtering
-        const whereConditions = [];
-        if (groupIds.length > 0) {
-            whereConditions.push('group_id IN {groupIds:Array(String)}');
-        }
-        if (afterGroupId) {
-            whereConditions.push('group_id > {afterGroupId:String}');
-        }
-        const whereClause = whereConditions.length > 0
-            ? `WHERE ${whereConditions.join(' AND ')}`
-            : '';
+        // Push any requested `_id` constraint into the SQL so LIMIT and ordering
+        // apply to the id-filtered set, not before it. group_id is a plain column,
+        // so it belongs in WHERE (combined with the pagination cursor via AND).
+        const hasRequestedIds = Array.isArray(requestedIds) && requestedIds.length > 0;
+        const requestedIdsPredicate = 'group_id IN ({requestedIds:Array(String)})';
 
         let query;
         const query_params = {
             memberReferenceUuid: memberReferenceUuid || '',
             memberReferenceSourceId: memberReferenceSourceId || '',
             limit,
-            ...(groupIds.length > 0 && { groupIds }),
             ...(accessTags.length > 0 && { accessTags }),
-            ...(ownerTags.length > 0 && { ownerTags })
+            ...(ownerTags.length > 0 && { ownerTags }),
+            ...(hasRequestedIds && { requestedIds })
         };
 
         if (afterGroupId) {
+            const whereClause = hasRequestedIds
+                ? `WHERE group_id > {afterGroupId:String} AND ${requestedIdsPredicate}`
+                : 'WHERE group_id > {afterGroupId:String}';
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
@@ -76,6 +73,7 @@ class QueryBuilder {
             `;
             query_params.afterGroupId = afterGroupId;
         } else if (skip > 0) {
+            const whereClause = hasRequestedIds ? `WHERE ${requestedIdsPredicate}` : '';
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
@@ -88,6 +86,7 @@ class QueryBuilder {
             `;
             query_params.skip = skip;
         } else {
+            const whereClause = hasRequestedIds ? `WHERE ${requestedIdsPredicate}` : '';
             query = `
                 SELECT group_id
                 FROM ${TABLES.GROUP_MEMBER_CURRENT_BY_ENTITY} FINAL
@@ -107,28 +106,28 @@ class QueryBuilder {
      * Matches filtering logic from findGroupsByMemberQuery
      *
      * @param {Object} params
-     * @param {string[]} [params.groupIds] - Optional array of group IDs to filter by
      * @param {string} [params.memberReferenceUuid] - UUID reference
      * @param {string} [params.memberReferenceSourceId] - Source ID reference
      * @param {string[]} params.accessTags - Access security tags for filtering
      * @param {string[]} params.ownerTags - Owner security tags for filtering
+     * @param {string[]|null} [params.requestedIds] - Requested `_id` constraint; when present, restricts the count to these group ids so total matches the id-filtered result set
      * @returns {{query: string, query_params: Object}}
      */
     static buildCountGroupsByMemberQuery({
-        groupIds = [],
         memberReferenceUuid,
         memberReferenceSourceId,
         accessTags = [],
-        ownerTags = []
+        ownerTags = [],
+        requestedIds = null
     }) {
         const havingClause = this._buildActiveMemberHavingClause(
             accessTags, ownerTags, memberReferenceUuid, memberReferenceSourceId
         );
 
-        // Build WHERE clause for group_id filtering
-        const whereClause = groupIds.length > 0
-            ? 'WHERE group_id IN {groupIds:Array(String)}'
-            : '';
+        // Mirror the find query: when an `_id` constraint is present, restrict the
+        // counted set to those group ids so Bundle.total matches Bundle.entry.
+        const hasRequestedIds = Array.isArray(requestedIds) && requestedIds.length > 0;
+        const whereClause = hasRequestedIds ? 'WHERE group_id IN ({requestedIds:Array(String)})' : '';
 
         const query = `
             SELECT count() as total
@@ -144,81 +143,12 @@ class QueryBuilder {
         const query_params = {
             memberReferenceUuid: memberReferenceUuid || '',
             memberReferenceSourceId: memberReferenceSourceId || '',
-            ...(groupIds.length > 0 && { groupIds }),
             ...(accessTags.length > 0 && { accessTags }),
-            ...(ownerTags.length > 0 && { ownerTags })
+            ...(ownerTags.length > 0 && { ownerTags }),
+            ...(hasRequestedIds && { requestedIds })
         };
 
         return { query, query_params };
-    }
-
-    /**
-     * Builds query for active members of a specific Group (roster query)
-     * Supports seek cursor pagination via afterReference
-     *
-     * @param {Object} params
-     * @param {string} params.groupId - Group ID to query
-     * @param {number} params.limit - Page size
-     * @param {string|null} params.afterReference - Seek cursor (entity_reference to start after)
-     * @returns {{query: string, query_params: Object}}
-     */
-    static buildActiveMembers({ groupId, limit, afterReference = null }) {
-        const cursorClause = afterReference
-            ? 'AND entity_reference > {afterReference:String}'
-            : '';
-
-        const query = `
-            SELECT
-                entity_reference,
-                entity_type,
-                inactive
-            FROM (
-                SELECT
-                    entity_reference,
-                    argMaxMerge(entity_type) AS entity_type,
-                    argMaxMerge(event_type)  AS event_type,
-                    argMaxMerge(inactive)    AS inactive
-                FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL
-                WHERE group_id = {groupId:String}
-                GROUP BY entity_reference
-            )
-            WHERE event_type = '${EVENT_TYPES.MEMBER_ADDED}'
-              AND inactive = 0
-              ${cursorClause}
-            ORDER BY entity_reference
-            LIMIT {limit:UInt32}
-        `;
-
-        const query_params = {
-            groupId,
-            limit,
-            ...(afterReference && { afterReference })
-        };
-
-        return { query, query_params };
-    }
-
-    /**
-     * Builds count query for active members of a specific Group
-     *
-     * @param {Object} params
-     * @param {string} params.groupId - Group ID to query
-     * @returns {{query: string, query_params: Object}}
-     */
-    static buildActiveMemberCount({ groupId }) {
-        const query = `
-            SELECT count() as count
-            FROM (
-                SELECT entity_reference
-                FROM ${TABLES.GROUP_MEMBER_CURRENT} FINAL
-                WHERE group_id = {groupId:String}
-                GROUP BY entity_reference
-                HAVING argMaxMerge(event_type) = '${EVENT_TYPES.MEMBER_ADDED}'
-                   AND argMaxMerge(inactive) = 0
-            )
-        `;
-
-        return { query, query_params: { groupId } };
     }
 
     /**
