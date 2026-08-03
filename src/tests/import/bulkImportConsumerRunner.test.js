@@ -1,5 +1,5 @@
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect, jest } = require('@jest/globals');
 
 const makeCloudEvent = (overrides = {}) => {
     const data = {
@@ -161,5 +161,158 @@ describe('BulkImportConsumerRunner', () => {
             value: 'not-valid-json{{{',
             headers: []
         });
+    });
+
+    test('handleMessageAsync writes valid NDJSON resources to MongoDB', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-write' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-patient-1', name: [{ family: 'Smith', given: ['John'] }] },
+            { resourceType: 'Patient', id: 'bulk-import-patient-2', name: [{ family: 'Jones', given: ['Sarah'] }] }
+        ]);
+
+        await runner.handleMessageAsync({
+            key: 'import-consumer-write-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-write' }),
+            headers: []
+        });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-patient-1')
+            .set(getHeaders())
+            .expect(200)
+            .then((res) => {
+                expect(res.body.name[0].family).toBe('Smith');
+            });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-patient-2')
+            .set(getHeaders())
+            .expect(200)
+            .then((res) => {
+                expect(res.body.name[0].family).toBe('Jones');
+            });
+    });
+
+    test('handleMessageAsync flushes across multiple batches without dropping resources', async () => {
+        process.env.BULK_IMPORT_BATCH_SIZE = '2';
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-batches' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-batch-1', name: [{ family: 'One' }] },
+            { resourceType: 'Patient', id: 'bulk-import-batch-2', name: [{ family: 'Two' }] },
+            { resourceType: 'Patient', id: 'bulk-import-batch-3', name: [{ family: 'Three' }] },
+            { resourceType: 'Patient', id: 'bulk-import-batch-4', name: [{ family: 'Four' }] },
+            { resourceType: 'Patient', id: 'bulk-import-batch-5', name: [{ family: 'Five' }] }
+        ]);
+
+        try {
+            await runner.handleMessageAsync({
+                key: 'import-consumer-batches-0',
+                value: makeCloudEvent({ taskId: 'import-consumer-batches' }),
+                headers: []
+            });
+        } finally {
+            delete process.env.BULK_IMPORT_BATCH_SIZE;
+        }
+
+        for (let i = 1; i <= 5; i++) {
+            await request
+                .get(`/4_0_0/Patient/bulk-import-batch-${i}`)
+                .set(getHeaders())
+                .expect(200);
+        }
+    });
+
+    test('handleMessageAsync counts per-resource failures without aborting the range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-partial-fail' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { id: 'missing-resource-type' },
+            { resourceType: 'Patient', id: 'bulk-import-survivor', name: [{ family: 'Survivor' }] }
+        ]);
+
+        await runner.handleMessageAsync({
+            key: 'import-consumer-partial-fail-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-partial-fail' }),
+            headers: []
+        });
+
+        await request
+            .get('/4_0_0/Patient/bulk-import-survivor')
+            .set(getHeaders())
+            .expect(200);
+
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-partial-fail')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('in-progress');
+    });
+
+    test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-cleanup' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-cleanup-1', name: [{ family: 'Cleanup' }] }
+        ]);
+
+        const executeAsyncSpy = jest.spyOn(container.postRequestProcessor, 'executeAsync');
+        const clearAsyncSpy = jest.spyOn(container.requestSpecificCache, 'clearAsync');
+        const requestIdsBefore = container.requestSpecificCache.getRequestIds().length;
+
+        await runner.handleMessageAsync({
+            key: 'import-consumer-cleanup-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-cleanup' }),
+            headers: []
+        });
+
+        expect(executeAsyncSpy).toHaveBeenCalled();
+        expect(clearAsyncSpy).toHaveBeenCalled();
+        // no leaked requestSpecificCache entry for the per-range requestId
+        expect(container.requestSpecificCache.getRequestIds().length).toBe(requestIdsBefore);
+
+        executeAsyncSpy.mockRestore();
+        clearAsyncSpy.mockRestore();
     });
 });

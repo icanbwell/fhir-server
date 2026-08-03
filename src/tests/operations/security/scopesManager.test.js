@@ -1,10 +1,56 @@
-const { describe, test, expect } = require('@jest/globals');
-const { ScopesManager } = require('../../../../operations/security/scopesManager');
-const { ConfigManager } = require('../../../../utils/configManager');
-const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
-const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
+const {
+    describe,
+    beforeEach,
+    afterEach,
+    test,
+    expect
+} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getTestContainer,
+    createTestRequest
+} = require('../../common');
+const { ScopesManager } = require('../../../operations/security/scopesManager');
+const { ConfigManager } = require('../../../utils/configManager');
+const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 
-describe('ScopesManager Tests', () => {
+describe('ScopesManager - getAccessCodesFromScopes Tests', () => {
+    beforeEach(async () => {
+        await commonBeforeEach();
+    });
+
+    afterEach(async () => {
+        await commonAfterEach();
+    });
+
+    test('only matches scopes with the access/ prefix, not any scope merely starting with "access" (SEC-1580 F11)', async () => {
+        await createTestRequest();
+        const container = getTestContainer();
+        const scopesManager = container.scopesManager;
+
+        // a scope that starts with the literal characters "access" but is not
+        // an access/<tenant>.<action> scope must not be treated as one
+        const accessCodes = scopesManager.getAccessCodesFromScopes(
+            'write', 'testUser', 'accessory/clientA.write user/*.write'
+        );
+        expect(accessCodes).toStrictEqual([]);
+    });
+
+    test('still matches a real access/ scope', async () => {
+        await createTestRequest();
+        const container = getTestContainer();
+        const scopesManager = container.scopesManager;
+
+        const accessCodes = scopesManager.getAccessCodesFromScopes(
+            'write', 'testUser', 'access/clientA.write user/*.write'
+        );
+        expect(accessCodes).toStrictEqual(['clientA']);
+    });
+});
+
+describe('ScopesManager - access tag change Tests (SEC-1580 F2)', () => {
     const scopesManager = new ScopesManager({
         configManager: new ConfigManager(),
         patientFilterManager: new PatientFilterManager()

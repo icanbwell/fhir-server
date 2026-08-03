@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> `AGENTS.md` at the repo root is the organization-wide baseline maintained by Enterprise Architecture and sets the floor for all repos. This file adds repo-specific context and may tighten those rules but must not weaken or contradict them.
+
 ## Project Overview
 
 R4-compliant FHIR server built with Express.js, MongoDB, and an IoC container pattern. Supports REST and GraphQL APIs, Kafka event streaming, Redis caching, and OAuth 2.0 / SMART on FHIR authentication.
