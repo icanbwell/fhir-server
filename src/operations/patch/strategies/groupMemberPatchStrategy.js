@@ -62,12 +62,12 @@ class GroupMemberPatchStrategy {
             return null;
         }
 
-        const memberOps = patchContent.filter(op =>
-            op.path.startsWith(PATCH_PATHS.MEMBER_PREFIX)
-        );
-        const nonMemberOps = patchContent.filter(op =>
-            !op.path.startsWith(PATCH_PATHS.MEMBER_PREFIX)
-        );
+        const isMemberPath = (path) =>
+            path === PATCH_PATHS.MEMBER_PREFIX ||
+            path.startsWith(PATCH_PATHS.MEMBER_PREFIX + '/') ||
+            path.startsWith(PATCH_PATHS.MEMBER_PREFIX + '-');
+        const memberOps = patchContent.filter(op => isMemberPath(op.path));
+        const nonMemberOps = patchContent.filter(op => !isMemberPath(op.path));
 
         if (memberOps.length === 0) {
             return null;
@@ -187,7 +187,15 @@ class GroupMemberPatchStrategy {
             }
         }
 
-        // 3. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
+        // 3. Validate sourceAssigningAuthority before any writes
+        const sourceAssigningAuthority = foundResource._sourceAssigningAuthority;
+        if (!sourceAssigningAuthority) {
+            throw new Error(
+                `Group ${foundResource.id || foundResource._uuid} has no _sourceAssigningAuthority; cannot enrich member references`
+            );
+        }
+
+        // 4. Update Group metadata in MongoDB FIRST (increment versionId, update lastUpdated)
         // IMPORTANT: Write MongoDB first, then ClickHouse (matches CREATE/UPDATE pattern)
         // Different write orders = different failure modes = unpredictable behavior
         const updatedResource = foundResource.clone ? foundResource.clone() : { ...foundResource };
@@ -220,14 +228,13 @@ class GroupMemberPatchStrategy {
             base_version
         });
 
-        // 4. Enrich member references with _uuid and _sourceId
+        // 5. Enrich member references with _uuid and _sourceId
         // PATCH bypasses the normal pre-save pipeline (referenceGlobalIdHandler),
         // so we must enrich references before writing ClickHouse events.
-        const sourceAssigningAuthority = foundResource._sourceAssigningAuthority;
         enrichMemberReferences(eventsToAdd, sourceAssigningAuthority);
         enrichMemberReferences(eventsToRemove, sourceAssigningAuthority);
 
-        // 5. Write events to ClickHouse (AFTER MongoDB commit)
+        // 6. Write events to ClickHouse (AFTER MongoDB commit)
         // Direct translation: 1 operation = 1 event (added or removed)
         if (eventsToAdd.length > 0 || eventsToRemove.length > 0) {
             await groupHandler.writeEventsAsync({

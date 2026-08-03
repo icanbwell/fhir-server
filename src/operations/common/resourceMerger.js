@@ -153,6 +153,17 @@ class ResourceMerger {
             resourceToMerge
         });
 
+        // deduplicate meta.security by system+code
+        if (resourceToMerge.meta && resourceToMerge.meta.security && Array.isArray(resourceToMerge.meta.security)) {
+            const seen = new Set();
+            resourceToMerge.meta.security = resourceToMerge.meta.security.filter(tag => {
+                const key = `${tag.system}|${tag.code}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
         if (currentResource.identifier &&
