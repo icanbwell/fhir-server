@@ -44,7 +44,9 @@ class ExportByIdOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
-            scope
+            scope,
+            /** @type {string} */
+            user
         } = requestInfo;
 
         const { id } = args;
@@ -57,11 +59,24 @@ class ExportByIdOperation {
 
         try {
             const exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
-                exportStatusId: id
+                exportStatusId: id,
+                scope,
+                user
             });
 
             if (!exportStatusResource) {
                 throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
+            }
+
+            if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource: exportStatusResource,
+                user,
+                scope,
+                accessRequested: 'read'
+            })) {
+                throw new ForbiddenError(
+                    `user ${user} with scopes [${scope}] does not have access to ExportStatus ${id}`
+                );
             }
 
             // log operation

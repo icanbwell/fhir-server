@@ -78,7 +78,7 @@ class PatientQueryCreator {
                 resourceType
             });
             if (patientFilterProperty) {
-                if (Array.isArray(patientFilterProperty)) {
+                if (Array.isArray(patientFilterProperty) && patientFilterProperty.length > 0) {
                     patientsUuidQuery = {
                         $or: patientFilterProperty.map(p => {
                                 // if patient itself then search by _uuid
@@ -91,7 +91,7 @@ class PatientQueryCreator {
                             }
                         )
                     };
-                } else {
+                } else if (!Array.isArray(patientFilterProperty)) {
                     // if patient itself then search by _uuid
                     // noinspection IfStatementWithIdenticalBranchesJS
                     if (patientFilterProperty === 'id') {
@@ -155,7 +155,7 @@ class PatientQueryCreator {
             });
 
             if (patientFilterProperty) {
-                if (Array.isArray(patientFilterProperty)) {
+                if (Array.isArray(patientFilterProperty) && patientFilterProperty.length > 0) {
                     patientsNonUuidQuery = {
                         $or: patientFilterProperty.map(p => {
                                 // if patient itself then search by _sourceId
@@ -168,7 +168,7 @@ class PatientQueryCreator {
                             }
                         )
                     };
-                } else {
+                } else if (!Array.isArray(patientFilterProperty)) {
                     // if patient itself then search by _sourceId
                     // noinspection IfStatementWithIdenticalBranchesJS
                     if (patientFilterProperty === 'id') {
