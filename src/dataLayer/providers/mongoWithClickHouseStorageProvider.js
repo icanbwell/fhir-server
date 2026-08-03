@@ -1,8 +1,6 @@
 const { StorageProvider } = require('./storageProvider');
 const { logDebug, logInfo, logError, logWarn } = require('../../operations/common/logging');
 const { RethrownError } = require('../../utils/rethrownError');
-const { TABLES, EVENT_TYPES } = require('../../constants/clickHouseConstants');
-const { QueryFragments } = require('../../utils/clickHouse/queryFragments');
 const { STORAGE_PROVIDER_TYPES } = require('./storageProviderTypes');
 const { QueryParser } = require('./mongoWithClickHouse/queryParser');
 const { QueryBuilder } = require('./mongoWithClickHouse/queryBuilder');
