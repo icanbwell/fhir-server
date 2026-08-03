@@ -201,6 +201,57 @@ describe('Person $access-history Tests', () => {
         expect(resp).toHaveResponse(expected);
     });
 
+    test('$access-history return 404 response for Person not accessible via given scope', async () => {
+        const request = sharedRequest;
+
+        // create person with access tag healthsystem1
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .post('/4_0_0/Patient/1/$merge?validate=true')
+            .send(patient1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const patientUuid = resp.body.uuid;
+
+        const accessorRef = 'Practitioner/dr-reader-uuid';
+        const entityRef = `Patient/${patientUuid}`;
+        await insertAuditEvents([{
+            id: 'ae-1',
+            _uuid: 'ae-uuid-1',
+            recorded: daysAgo(0),
+            action: 'R',
+            agent_who: [accessorRef],
+            agent_altid: [],
+            entity_what: [entityRef],
+            agent_requestor_who: accessorRef
+        }]);
+
+        // request with access tag healthsystem2
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid}/$access-history`)
+            .set(getHeaders("user/*.* access/healthsystem2.*"));
+
+        expect(resp.status).toBe(404);
+        expect(resp).toHaveResponse({
+            issue: [
+                {
+                    code: 'not-found',
+                    details: {
+                        text: 'Person with id 5f3ca115-8630-5e55-a97d-4d6ee26c0adc not found'
+                    },
+                    severity: 'error'
+                }
+            ],
+            resourceType: 'OperationOutcome'
+        });
+    });
+
     test('$access-history returns accessor details after a resource is read', async () => {
         const request = sharedRequest;
 
