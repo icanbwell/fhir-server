@@ -289,6 +289,17 @@ describe('BulkImportConsumerRunner', () => {
         // (even with a partial failure) completes the whole Task — partial
         // failures are surfaced via the error output file, not a non-completed status.
         expect(taskResp.body.status).toBe('completed');
+
+        // The line with no resourceType fails before ever reaching the bulk inserter —
+        // it must still show up in the error NDJSON and Task.output, not just a log line.
+        const writeCalls = container.s3NdjsonReader.getWriteCalls();
+        const errorWrite = writeCalls.find((c) => c.filepath.includes('/output/errors/'));
+        expect(errorWrite).toBeDefined();
+        expect(errorWrite.data).toContain('missing-resource-type');
+
+        const errorOutput = taskResp.body.output.find((o) => o.type.text === 'error');
+        expect(errorOutput).toBeDefined();
+        expect(errorOutput.valueUri).toBe(errorWrite.filepath);
     });
 
     test('handleMessageAsync flushes postRequestProcessor and clears requestSpecificCache per range', async () => {
@@ -347,7 +358,7 @@ describe('BulkImportConsumerRunner', () => {
 
         const marker = (filepath, rangeIndex, totalRanges) => ({
             url: 'https://www.icanbwell.com/bulk-import-range-completed',
-            valueString: `${filepath}|${rangeIndex}|${totalRanges}`
+            valueString: JSON.stringify({ filepath, rangeIndex, totalRanges })
         });
 
         expect(runner.isTaskFullyComplete({
@@ -416,5 +427,139 @@ describe('BulkImportConsumerRunner', () => {
         expect(taskResp.body.status).toBe('completed');
         const resultOutput = taskResp.body.output.find((o) => o.type.text === 'result');
         expect(resultOutput.valueUri).toBe('s3://allowed-bucket/output/Patient-001.ndjson');
+    });
+
+    test('isTaskFullyComplete ignores an unparseable completion marker rather than throwing', () => {
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        expect(() => runner.isTaskFullyComplete({
+            input: [{ valueUri: 's3://bucket/a.ndjson' }],
+            extension: [
+                { url: 'https://www.icanbwell.com/bulk-import-range-completed', valueString: 'not-json' }
+            ]
+        })).not.toThrow();
+    });
+
+    test('writeNdjsonWithRetryAsync retries transient failures and succeeds', async () => {
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        const writeSpy = jest.spyOn(container.s3NdjsonReader, 'writeNdjsonAsync')
+            .mockRejectedValueOnce(new Error('throttled'))
+            .mockResolvedValueOnce(undefined);
+
+        await runner.writeNdjsonWithRetryAsync({ filepath: 's3://allowed-bucket/x.ndjson', data: '{}\n' });
+
+        expect(writeSpy).toHaveBeenCalledTimes(2);
+        writeSpy.mockRestore();
+    });
+
+    test('writeNdjsonWithRetryAsync throws after exhausting retries', async () => {
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        const writeSpy = jest.spyOn(container.s3NdjsonReader, 'writeNdjsonAsync')
+            .mockRejectedValue(new Error('persistent S3 failure'));
+
+        await expect(runner.writeNdjsonWithRetryAsync({
+            filepath: 's3://allowed-bucket/x.ndjson',
+            data: '{}\n',
+            attempts: 2
+        })).rejects.toThrow('persistent S3 failure');
+        expect(writeSpy).toHaveBeenCalledTimes(2);
+
+        writeSpy.mockRestore();
+    });
+
+    test('handleMessageAsync propagates a persistent S3 write failure instead of silently dropping the range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-write-fail' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-write-fail-1', name: [{ family: 'Fail' }] }
+        ]);
+        const writeSpy = jest.spyOn(container.s3NdjsonReader, 'writeNdjsonAsync')
+            .mockRejectedValue(new Error('persistent S3 failure'));
+
+        await expect(runner.handleMessageAsync({
+            key: 'import-consumer-write-fail-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-write-fail' }),
+            headers: []
+        })).rejects.toThrow('persistent S3 failure');
+
+        // The Task never got a completion marker recorded, so it must not be
+        // silently stuck reporting a misleadingly "fine" status.
+        const taskResp = await request
+            .get('/4_0_0/Task/import-consumer-write-fail')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).not.toBe('completed');
+
+        writeSpy.mockRestore();
+    });
+
+    test('handleMessageAsync does not regress a completed Task back to failed on a redelivered range', async () => {
+        const request = await createTestRequest();
+
+        await request
+            .post('/4_0_0/$import')
+            .send({ ...validParametersBody, id: 'import-consumer-no-regress' })
+            .set(getHeaders())
+            .expect(202);
+
+        const { createTestContainer } = require('../createTestContainer');
+        const container = createTestContainer();
+        const runner = container.bulkImportConsumerRunner;
+
+        container.s3NdjsonReader.setLinesToYield([
+            { resourceType: 'Patient', id: 'bulk-import-no-regress-1', name: [{ family: 'Once' }] }
+        ]);
+
+        // First delivery: only range, only file -> Task completes.
+        await runner.handleMessageAsync({
+            key: 'import-consumer-no-regress-0',
+            value: makeCloudEvent({ taskId: 'import-consumer-no-regress' }),
+            headers: []
+        });
+
+        let taskResp = await request
+            .get('/4_0_0/Task/import-consumer-no-regress')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        // Kafka redelivers the same range; this time the S3 read hits a transient error.
+        const readSpy = jest.spyOn(container.s3NdjsonReader, 'readNdjsonAsync')
+            // eslint-disable-next-line require-yield -- deliberately throws before ever yielding
+            .mockImplementation(async function* () {
+                throw new Error('transient S3 read error');
+            });
+
+        await runner.handleMessageAsync({
+            key: 'import-consumer-no-regress-0-redelivered',
+            value: makeCloudEvent({ taskId: 'import-consumer-no-regress' }),
+            headers: []
+        });
+
+        taskResp = await request
+            .get('/4_0_0/Task/import-consumer-no-regress')
+            .set(getHeaders())
+            .expect(200);
+        expect(taskResp.body.status).toBe('completed');
+
+        readSpy.mockRestore();
     });
 });

@@ -13,6 +13,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
+const { MergeResultEntry } = require('../common/mergeResultEntry');
 const { logInfo, logError } = require('../common/logging');
 
 /**
@@ -232,13 +233,13 @@ class BulkImportConsumerRunner {
         const markers = (task.extension || [])
             .filter((e) => e.url === BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL && e.valueString)
             .map((e) => {
-                const [markerFilepath, markerRangeIndex, markerTotalRanges] = e.valueString.split('|');
-                return {
-                    filepath: markerFilepath,
-                    rangeIndex: Number(markerRangeIndex),
-                    totalRanges: Number(markerTotalRanges)
-                };
-            });
+                try {
+                    return JSON.parse(e.valueString);
+                } catch (parseError) {
+                    return null;
+                }
+            })
+            .filter(Boolean);
 
         return inputUrls.every((url) => {
             const fileMarkers = markers.filter((m) => m.filepath === url);
@@ -251,13 +252,41 @@ class BulkImportConsumerRunner {
     }
 
     /**
+     * Writes NDJSON to S3 with bounded retries — transient throttling/network errors
+     * must not permanently block a range from ever recording its completion marker.
+     * @param {Object} params
+     * @param {string} params.filepath
+     * @param {string} params.data
+     * @param {number} [params.attempts]
+     * @returns {Promise<void>}
+     */
+    async writeNdjsonWithRetryAsync({ filepath, data, attempts = 3 }) {
+        let lastError;
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            try {
+                await this.s3NdjsonReader.writeNdjsonAsync({ filepath, data });
+                return;
+            } catch (e) {
+                lastError = e;
+                logError('S3 NDJSON write attempt failed', { filepath, attempt, attempts, error: e.message });
+                if (attempt < attempts) {
+                    await new Promise((resolve) => setTimeout(resolve, 200 * attempt));
+                }
+            }
+        }
+        throw lastError;
+    }
+
+    /**
      * Writes this range's merge-result (and error, if any) NDJSON to S3, appends
      * Task.output entries pointing at them, and records a completion marker so
      * isTaskFullyComplete() can detect when every range of every file is done.
-     * Best-effort: a failure here is logged but does not fail the range — the
-     * underlying MongoDB writes already succeeded by this point.
+     * Throws (after retries) rather than swallowing failures — the caller must let
+     * this propagate so an unacknowledged Kafka message gets redelivered instead of
+     * a range silently never recording its marker (which would permanently block
+     * the Task from ever reaching 'completed'). Redelivery is safe: the underlying
+     * MongoDB writes for this range are idempotent merges.
      * @param {Object} params
-     * @param {Object} params.task
      * @param {string} params.taskId
      * @param {string} params.filepath
      * @param {number} params.rangeIndex
@@ -267,74 +296,67 @@ class BulkImportConsumerRunner {
      * @returns {Promise<void>}
      */
     async recordRangeCompletionAsync({ taskId, filepath, rangeIndex, totalRanges, mergeResultEntries, requestInfo }) {
-        try {
-            // Reload fresh rather than reusing the Task loaded at the top of handleMessageAsync —
-            // that snapshot can be minutes stale by the time a large range finishes, and
-            // replaceOneAsync's merge takes scalar fields (e.g. status) from OUR doc when they
-            // differ from the DB, so a stale snapshot here could silently regress a concurrent
-            // status change.
-            const task = await this.loadTaskAsync(taskId);
-            if (!task) {
-                logError('Task disappeared before range completion could be recorded', { taskId, filepath, rangeIndex });
-                return;
-            }
+        // Reload fresh rather than reusing the Task loaded at the top of handleMessageAsync —
+        // that snapshot can be minutes stale by the time a large range finishes, and
+        // replaceOneAsync's merge takes scalar fields (e.g. status) from OUR doc when they
+        // differ from the DB, so a stale snapshot here could silently regress a concurrent
+        // status change.
+        const task = await this.loadTaskAsync(taskId);
+        if (!task) {
+            logError('Task disappeared before range completion could be recorded', { taskId, filepath, rangeIndex });
+            return;
+        }
 
-            const { bucket, key } = this.s3NdjsonReader.parseS3Uri(filepath);
-            const { resultKey, errorKey } = this.buildRangeOutputKeys({ key, rangeIndex });
+        const { bucket, key } = this.s3NdjsonReader.parseS3Uri(filepath);
+        const { resultKey, errorKey } = this.buildRangeOutputKeys({ key, rangeIndex });
 
-            const newOutputs = [];
-            if (mergeResultEntries.length > 0) {
-                const resultUri = `s3://${bucket}/${resultKey}`;
-                await this.s3NdjsonReader.writeNdjsonAsync({
-                    filepath: resultUri,
-                    data: this.buildNdjson(mergeResultEntries)
-                });
-                newOutputs.push({ type: { text: 'result' }, valueUri: resultUri });
-            }
-
-            const failedEntries = mergeResultEntries.filter((entry) => entry.operationOutcome);
-            if (failedEntries.length > 0) {
-                const errorUri = `s3://${bucket}/${errorKey}`;
-                await this.s3NdjsonReader.writeNdjsonAsync({
-                    filepath: errorUri,
-                    data: this.buildNdjson(failedEntries)
-                });
-                newOutputs.push({ type: { text: 'error' }, valueUri: errorUri });
-            }
-
-            const updated = task.clone();
-            updated.output = [...(updated.output || []), ...newOutputs];
-            updated.extension = [
-                ...(updated.extension || []),
-                {
-                    url: BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL,
-                    valueString: `${filepath}|${rangeIndex}|${totalRanges}`
-                }
-            ];
-
-            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
-                resourceType: 'Task',
-                base_version: '4_0_0'
+        const newOutputs = [];
+        if (mergeResultEntries.length > 0) {
+            const resultUri = `s3://${bucket}/${resultKey}`;
+            await this.writeNdjsonWithRetryAsync({
+                filepath: resultUri,
+                data: this.buildNdjson(mergeResultEntries)
             });
-            const { savedResource } = await databaseUpdateManager.replaceOneAsync({
-                base_version: '4_0_0',
-                requestInfo,
-                doc: updated
-            });
+            newOutputs.push({ type: { text: 'result' }, valueUri: resultUri });
+        }
 
-            // A null savedResource means the merge detected no change (e.g. a Kafka
-            // redelivery of a range already recorded) — re-read to see current state.
-            const finalTask = savedResource || await this.loadTaskAsync(taskId);
-            if (finalTask && finalTask.status !== 'completed' && this.isTaskFullyComplete(finalTask)) {
-                await this.updateTaskStatusAsync(finalTask, 'completed', undefined, requestInfo);
-            }
-        } catch (e) {
-            logError('Failed to record bulk import range completion', {
-                taskId,
-                filepath,
-                rangeIndex,
-                error: e.message
+        const failedEntries = mergeResultEntries.filter((entry) => entry.operationOutcome);
+        if (failedEntries.length > 0) {
+            const errorUri = `s3://${bucket}/${errorKey}`;
+            await this.writeNdjsonWithRetryAsync({
+                filepath: errorUri,
+                data: this.buildNdjson(failedEntries)
             });
+            newOutputs.push({ type: { text: 'error' }, valueUri: errorUri });
+        }
+
+        const updated = task.clone();
+        updated.output = [...(updated.output || []), ...newOutputs];
+        updated.extension = [
+            ...(updated.extension || []),
+            {
+                url: BULK_IMPORT_RANGE_COMPLETED_EXTENSION_URL,
+                // JSON-encoded rather than a delimited string — '|' is a legal S3 key
+                // character and would otherwise corrupt parsing for a pathological filepath.
+                valueString: JSON.stringify({ filepath, rangeIndex, totalRanges })
+            }
+        ];
+
+        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            resourceType: 'Task',
+            base_version: '4_0_0'
+        });
+        const { savedResource } = await databaseUpdateManager.replaceOneAsync({
+            base_version: '4_0_0',
+            requestInfo,
+            doc: updated
+        });
+
+        // A null savedResource means the merge detected no change (e.g. a Kafka
+        // redelivery of a range already recorded) — re-read to see current state.
+        const finalTask = savedResource || await this.loadTaskAsync(taskId);
+        if (finalTask && finalTask.status !== 'completed' && this.isTaskFullyComplete(finalTask)) {
+            await this.updateTaskStatusAsync(finalTask, 'completed', undefined, requestInfo);
         }
     }
 
@@ -431,6 +453,12 @@ class BulkImportConsumerRunner {
                         });
                     } catch (resourceError) {
                         failed++;
+                        // Failed before reaching the bulk inserter (e.g. missing/unsupported
+                        // resourceType) — still record it so it lands in the error NDJSON and
+                        // Task.output, not just a log line.
+                        mergeResultEntries.push(
+                            MergeResultEntry.createFromError({ error: resourceError, resource })
+                        );
                         logError('Failed to buffer bulk import resource for write', {
                             taskId,
                             filepath,
@@ -456,7 +484,14 @@ class BulkImportConsumerRunner {
                     rangeIndex,
                     error: e.message
                 });
-                await this.updateTaskStatusAsync(task, 'failed', e.message, requestInfo);
+                // Reload fresh (the Task loaded at the top of this function can be stale by
+                // now) and skip the write if the Task already completed — Kafka redelivering
+                // this same range after every other range already finished must not regress
+                // a completed import back to failed.
+                const currentTask = await this.loadTaskAsync(taskId);
+                if (currentTask && currentTask.status !== 'completed') {
+                    await this.updateTaskStatusAsync(currentTask, 'failed', e.message, requestInfo);
+                }
                 return;
             }
 
