@@ -22,9 +22,10 @@ module.exports = {
         '<rootDir>/src/graphql/resolvers',
         '<rootDir>/src/graphqlv2/resolvers'
     ],
-    // These suites assert correct behavior for known, tracked bugs (see BUG_REPORT.md) and fail
-    // by design until each is fixed; excluded here so a documented-but-unfixed bug doesn't fail CI.
-    // Remove an entry as its bug is fixed.
+    // These suites assert correct behavior for known, tracked bugs (see BUG_REPORT.md /
+    // fhir-server-security-bugs.csv) and fail by design until each is fixed (security findings
+    // also need adversarial review against review.md); excluded here so a documented-but-unfixed
+    // bug doesn't fail CI. Remove an entry once its bug is fixed (and reviewed, for security ones).
     testPathIgnorePatterns: [
         '<rootDir>/src/tests/performance/',
         '<rootDir>/.claude/',
@@ -80,7 +81,36 @@ module.exports = {
         '<rootDir>/src/tests/unit/utils/mongoQuerySimplifier.test.js',
         '<rootDir>/src/tests/unit/utils/patientPersonDataChangeEventProducer.test.js',
         '<rootDir>/src/tests/unit/utils/personToPatientIdsExpander.test.js',
-        '<rootDir>/src/tests/unit/utils/s3Client.test.js'
+        '<rootDir>/src/tests/unit/utils/s3Client.test.js',
+        '<rootDir>/src/tests/unit/dataLayer/databaseBulkInserter.nullPatches.test.js',
+        '<rootDir>/src/tests/unit/enrich/enrichmentManager.test.js',
+        '<rootDir>/src/tests/unit/enrich/globalIdEnrichmentProvider.test.js',
+        '<rootDir>/src/tests/unit/enrich/proxyPatientReferenceEnrichmentProvider.test.js',
+        '<rootDir>/src/tests/unit/graphql/resolvers/graphqlResolver.crossTenant.test.js',
+        '<rootDir>/src/tests/unit/graphqlv2/crossTenantPhiLeakage.test.js',
+        '<rootDir>/src/tests/unit/middleware/errorInformationDisclosure.test.js',
+        '<rootDir>/src/tests/unit/operations/everything/patientEverything.consent.test.js',
+        '<rootDir>/src/tests/unit/operations/export/bulkDataExportRunner.crossTenant.test.js',
+        '<rootDir>/src/tests/unit/operations/history/historyCrossTenant.test.js',
+        '<rootDir>/src/tests/unit/operations/merge/merge.crossTenant.test.js',
+        '<rootDir>/src/tests/unit/operations/merge/mergeCrossTenantWrite.test.js',
+        '<rootDir>/src/tests/unit/operations/merge/mergeSecurityTagRace.test.js',
+        '<rootDir>/src/tests/unit/operations/merge/metaSecurityDeduplication.test.js',
+        '<rootDir>/src/tests/unit/operations/patch/patchSecurityTagEscalation.test.js',
+        '<rootDir>/src/tests/unit/operations/query/searchQuery.crossTenant.test.js',
+        '<rootDir>/src/tests/unit/operations/search/proaConsentVulnerabilities.test.js',
+        '<rootDir>/src/tests/unit/operations/security/delegatedAccessScopeManager.test.js',
+        '<rootDir>/src/tests/unit/operations/security/patientScopeWriteBypass.test.js',
+        '<rootDir>/src/tests/unit/operations/security/scopesManager.crossTenant.test.js',
+        '<rootDir>/src/tests/unit/operations/security/scopesManager.writeBypass.test.js',
+        '<rootDir>/src/tests/unit/operations/security/writeAuthorizationBypass.test.js',
+        '<rootDir>/src/tests/unit/operations/subscription/subscription.crossTenant.test.js',
+        '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
+        '<rootDir>/src/tests/unit/operations/update/conditionalCrossTenant.test.js',
+        '<rootDir>/src/tests/unit/strategies/authFailureMode.test.js',
+        '<rootDir>/src/tests/unit/strategies/jwtCacheThunderingHerd.test.js',
+        '<rootDir>/src/tests/unit/utils/credentialExposureInLogs.test.js',
+        '<rootDir>/src/tests/unit/utils/personToPatientIdsExpander.crossTenant.test.js'
     ],
     setupFiles: [
         '<rootDir>/jest/patchClickHouseClient.js',
