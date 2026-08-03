@@ -10,6 +10,28 @@ const {
     getClickHouseManager
 } = require('./accessHistoryTestSetup');
 
+// getAccessHistoryAsync only returns rows within a rolling 90-day window
+// (recorded_month >= toStartOfMonth(now() - INTERVAL 90 DAY)), so test dates must be
+// computed relative to the actual run time rather than hardcoded, or they silently
+// fall out of the window as real time passes.
+function formatClickHouseDateTime(date) {
+    const pad = (n, len = 2) => String(n).padStart(len, '0');
+    return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ` +
+        `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}.${pad(date.getUTCMilliseconds(), 3)}`;
+}
+
+/**
+ * @param {{monthsAgo?: number, day: number, hour?: number, minute?: number}} params
+ * @returns {string} a 'YYYY-MM-DD HH:mm:ss.SSS' UTC timestamp, `monthsAgo` calendar months
+ *  before the current month, on the given day/hour/minute
+ */
+function recordedAt({ monthsAgo = 0, day, hour = 0, minute = 0 }) {
+    const now = new Date();
+    return formatClickHouseDateTime(
+        new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - monthsAgo, day, hour, minute, 0, 0))
+    );
+}
+
 describe('AccessHistoryClickHouseRepository', () => {
     let repository;
 
@@ -64,7 +86,7 @@ describe('AccessHistoryClickHouseRepository', () => {
         test('aggregates access counts across multiple inserts', async () => {
             await insertAuditEvents([
                 {
-                    recorded: '2026-05-16 09:00:00.000',
+                    recorded: recordedAt({ day: 16, hour: 9 }),
                     agent_requestor_who: 'Practitioner/dr-smith',
                     entity_what: ['Patient/patient-1'],
                     purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' }]
@@ -105,7 +127,7 @@ describe('AccessHistoryClickHouseRepository', () => {
         test('aggregates across different recorded months into single row', async () => {
             await insertAuditEvents([
                 {
-                    recorded: '2026-04-20 11:00:00.000',
+                    recorded: recordedAt({ monthsAgo: 1, day: 20, hour: 11 }),
                     agent_requestor_who: 'Practitioner/dr-smith',
                     entity_what: ['Patient/patient-1'],
                     purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'OPERATIONS' }]
@@ -126,7 +148,7 @@ describe('AccessHistoryClickHouseRepository', () => {
         test('returns row with default PATRQT when purpose_of_event is empty', async () => {
             await insertAuditEvents([
                 {
-                    recorded: '2026-05-20 10:00:00.000',
+                    recorded: recordedAt({ day: 20, hour: 10 }),
                     agent_requestor_who: 'Practitioner/dr-no-purpose',
                     entity_what: ['Patient/patient-empty-purpose'],
                     purpose_of_event: []
@@ -147,13 +169,13 @@ describe('AccessHistoryClickHouseRepository', () => {
         test('returns separate rows for different accessors', async () => {
             await insertAuditEvents([
                 {
-                    recorded: '2026-05-18 12:00:00.000',
+                    recorded: recordedAt({ day: 18, hour: 12 }),
                     agent_requestor_who: 'Practitioner/dr-wilson',
                     entity_what: ['Patient/patient-1'],
                     purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' }]
                 },
                 {
-                    recorded: '2026-05-17 15:00:00.000',
+                    recorded: recordedAt({ day: 17, hour: 15 }),
                     agent_requestor_who: 'Practitioner/dr-house',
                     entity_what: ['Patient/patient-1'],
                     purpose_of_event: []
@@ -176,19 +198,19 @@ describe('AccessHistoryClickHouseRepository', () => {
 async function insertTestData() {
     await insertAuditEvents([
         {
-            recorded: '2026-05-15 14:30:00.000',
+            recorded: recordedAt({ day: 15, hour: 14, minute: 30 }),
             agent_requestor_who: 'Practitioner/dr-smith',
             entity_what: ['Patient/patient-1'],
             purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'TREATMENT' }]
         },
         {
-            recorded: '2026-05-10 09:00:00.000',
+            recorded: recordedAt({ day: 10, hour: 9 }),
             agent_requestor_who: 'Practitioner/dr-jones',
             entity_what: ['Patient/patient-1'],
             purpose_of_event: []
         },
         {
-            recorded: '2026-05-12 16:00:00.000',
+            recorded: recordedAt({ day: 12, hour: 16 }),
             agent_requestor_who: 'Practitioner/dr-smith',
             entity_what: ['Observation/obs-1'],
             purpose_of_event: [{ system: 'http://healthit.gov/nhin/purposeofuse', code: 'OPERATIONS' }]

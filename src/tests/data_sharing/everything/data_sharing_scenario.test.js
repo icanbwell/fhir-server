@@ -39,6 +39,29 @@ const expectedResponse9Resource = require('./fixtures/expected/expected_response
 const expectedResponse10Resource = require('./fixtures/expected/expected_response_10.json');
 const expectedResponse11Resource = require('./fixtures/expected/expected_response_11.json');
 
+const proaDedupClientPersonResource = require('./fixtures/person/proa_dedup_client_person.json');
+const proaDedupClient2PersonResource = require('./fixtures/person/proa_dedup_client2_person.json');
+const proaDedupClientPatientResource = require('./fixtures/patient/proa_dedup_client_patient.json');
+const proaDedupClient2PatientResource = require('./fixtures/patient/proa_dedup_client2_patient.json');
+const proaDedupCommonProaPatientClientResource = require('./fixtures/patient/proa_dedup_common_proa_patient_client.json');
+const proaDedupCommonProaPatientClient2Resource = require('./fixtures/patient/proa_dedup_common_proa_patient_client2.json');
+const proaDedupClient2ConsentResource = require('./fixtures/consent/proa_dedup_client2_consent.json');
+const proaDedupSubscriptionClientResource = require('./fixtures/subscription/proa_dedup_subscription_client.json');
+const proaDedupSubscriptionClient2Resource = require('./fixtures/subscription/proa_dedup_subscription_client2.json');
+const proaDedupSubscriptionStatusClientResource = require('./fixtures/subscriptionStatus/proa_dedup_subscription_status_client.json');
+const proaDedupSubscriptionStatusClient2Resource = require('./fixtures/subscriptionStatus/proa_dedup_subscription_status_client2.json');
+const proaDedupSubscriptionTopicClientResource = require('./fixtures/subscriptionTopic/proa_dedup_subscription_topic_client.json');
+const proaDedupSubscriptionTopicClient2Resource = require('./fixtures/subscriptionTopic/proa_dedup_subscription_topic_client2.json');
+const expectedProaDedupEverythingResponse = require('./fixtures/expected/expected_proa_dedup_subscription_everything.json');
+
+// Two client persons of the SAME client, each independently linked (via their own sibling Person)
+// to the SAME common PROA-connected patient. Each has its own Subscription/SubscriptionStatus/
+// SubscriptionTopic (client_person_id pointing back to its own sibling Person).
+const sameClientPersonAPayload = require('./fixtures/same_client_person_a_payload.json');
+const sameClientPersonBPayload = require('./fixtures/same_client_person_b_payload.json');
+const expectedSameClientPersonAEverything = require('./fixtures/expected/expected_same_client_person_a_everything.json');
+const expectedSameClientPersonBEverything = require('./fixtures/expected/expected_same_client_person_b_everything.json');
+
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -47,6 +70,7 @@ const {
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
 const { DatabaseCursor } = require('../../../dataLayer/databaseCursor');
+const deepcopy = require('deepcopy');
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
@@ -151,7 +175,15 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse3Resource);
         });
 
-        test('Everything operation on client person: Get data only for proa patient when access token of proa patient provided & no consent provided', async () => {
+        test('Everything operation on client person: Get no data when access token does not match the client person & no consent provided', async () => {
+            // The proxy-person-to-patient expansion (personToPatientIdsExpander) applies the
+            // caller's access-scope security tag to the Person lookup itself before resolving its
+            // linked patients (enableProxyPersonScopeCheckForEverything). Since health-service's
+            // scope does not match client person c12345's own access tag ('client'), the Person
+            // lookup returns nothing and the whole $everything call yields no data - even though
+            // c12345 links to a patient (proaPatient1Resource) that health-service does own. This
+            // is by design: resolving a person's linked patients requires read access to the
+            // person record itself.
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -643,6 +675,108 @@ describe('Data sharing test cases for different scenarios', () => {
             ).length;
             expect(phase2PatientCount).toEqual(16);
             });
+
+            test('PROA data sharing flow: same source PROA patient owned by two different clients should only return one Subscription in Person $everything', async () => {
+            const request = await createTestRequest((c) => c);
+
+            const PERSON_CLIENT_ID = 'acd0945a-3eab-4372-823c-6e4c896582e2';
+            const PERSON_CLIENT2_ID = '76e37ad9-128b-495f-aa79-3634e4d5b0a7';
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([
+                    proaDedupClientPersonResource,
+                    proaDedupClient2PersonResource,
+                    proaDedupClientPatientResource,
+                    proaDedupClient2PatientResource,
+                    proaDedupClient2ConsentResource,
+                    proaDedupCommonProaPatientClientResource,
+                    proaDedupCommonProaPatientClient2Resource,
+                    proaDedupSubscriptionClientResource,
+                    proaDedupSubscriptionClient2Resource,
+                    proaDedupSubscriptionStatusClientResource,
+                    proaDedupSubscriptionStatusClient2Resource,
+                    proaDedupSubscriptionTopicClientResource,
+                    proaDedupSubscriptionTopicClient2Resource
+                ])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            const combinedHeaders = getHeaders('user/*.read access/client2.*');
+
+            resp = await request
+                .get(`/4_0_0/Person/${PERSON_CLIENT2_ID}/$everything?_type=Subscription,SubscriptionStatus,SubscriptionTopic&_debug=1`)
+                .set({ ...combinedHeaders, prefer: 'global_id=false' });
+
+            const expectedResp = deepcopy(expectedProaDedupEverythingResponse);
+
+            // client2 has consented, so its own copy of the shared PROA patient (and Subscription)
+            // is reachable. client's copy has no consent and is a separate Person entirely, so its
+            // Subscription must never appear here - only client2's own Subscription should come back.
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResp);
+
+            // client2's own consent must not grant it access to a completely different Person
+            // (personClient) that it has no link to at all - calling $everything on personClient
+            // using client2's own access scope should return no data.
+            resp = await request
+                .get(`/4_0_0/Person/${PERSON_CLIENT_ID}/$everything?_type=Patient&_debug=1`)
+                .set({ ...combinedHeaders, prefer: 'global_id=false' });
+
+            expect(resp.body.entry ?? []).toHaveLength(0);
+            });
         });
     });
+
+    test('Two client person of same client having common connection should ', async () => {
+        const request = await createTestRequest((c) => c);
+
+        // Two DIFFERENT client persons of the SAME client (same owner/access = 'client2'), each
+        // linked (via their own sibling Person) to the SAME common PROA-connected patient. Each has
+        // its own Subscription/SubscriptionStatus/SubscriptionTopic pointing back to its own sibling
+        // Person via client_person_id. The client person id targeted below is the sibling Person's
+        // id (the one holding both the own-patient link and the common-patient link) - i.e. the
+        // resource ending in "3" within each payload.
+        const PERSON_A_CLIENT_ID = '3e89b5be-a773-4aa7-af74-a23e6abedb653';
+        const PERSON_B_CLIENT_ID = '624fa318-ffa8-4c5d-8a27-3c216bc280323';
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(sameClientPersonAPayload)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        resp = await request
+            .post('/4_0_0/Person/1/$merge')
+            .send(sameClientPersonBPayload)
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMergeResponse({ created: true });
+
+        const client2Headers = getHeaders('user/*.read access/client2.*');
+
+        // client2's own Subscription for person A must come back, and person B's Subscription
+        // (a different, sibling client person under the same client) must never leak in - even
+        // though both share the exact same underlying common-connection PROA patient.
+        resp = await request
+            .get(`/4_0_0/Person/${PERSON_A_CLIENT_ID}/$everything?_debug=1`)
+            .set({ ...client2Headers, prefer: 'global_id=false' });
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedSameClientPersonAEverything);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedSameClientPersonAEverything);
+
+        // Symmetric check: person B's own Subscription must come back, person A's must not.
+        resp = await request
+            .get(`/4_0_0/Person/${PERSON_B_CLIENT_ID}/$everything?_debug=1`)
+            .set({ ...client2Headers, prefer: 'global_id=false' });
+
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveMongoQuery(expectedSameClientPersonBEverything);
+        // noinspection JSUnresolvedFunction
+        expect(resp).toHaveResponse(expectedSameClientPersonBEverything);
+    })
 });
