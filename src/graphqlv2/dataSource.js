@@ -599,6 +599,16 @@ class FhirDataSource {
 
                     if (!this.resourceProjections[resourceType]) {
                         this.resourceProjections[resourceType] = new Set(['_uuid', '_sourceId', '_sourceAssigningAuthority', 'resourceType'])
+                        // Patient.subscriptions/subscriptionStatuses join on source_patient_id, which
+                        // collides across source systems, so the resolver also checks service_slug
+                        // (carried in extension/identifier) against the parent Patient's source --
+                        // that field must be projected even when the caller's selection set doesn't
+                        // ask for it directly, or the security check silently sees no candidates.
+                        if (resourceType === 'Subscription' || resourceType === 'SubscriptionStatus') {
+                            this.resourceProjections[resourceType].add('extension');
+                        } else if (resourceType === 'SubscriptionTopic') {
+                            this.resourceProjections[resourceType].add('identifier');
+                        }
                     }
                     Object.values(value).forEach(field => {
                         // check if field is valid for resource type as some resources have custom fields

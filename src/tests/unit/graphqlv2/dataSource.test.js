@@ -185,6 +185,41 @@ describe('FhirDataSource (graphqlv2)', () => {
         });
     });
 
+    describe('extractFieldsForResource', () => {
+        test('SEC-1585: forces extension into the Subscription projection even when not requested', () => {
+            dataSource.resourceProjections = {};
+            dataSource.extractFieldsForResource({
+                Subscription: { id: { name: 'id' }, resourceType: { name: 'resourceType' } }
+            });
+            expect(dataSource.resourceProjections.Subscription.has('extension')).toBe(true);
+        });
+
+        test('SEC-1585: forces extension into the SubscriptionStatus projection even when not requested', () => {
+            dataSource.resourceProjections = {};
+            dataSource.extractFieldsForResource({
+                SubscriptionStatus: { id: { name: 'id' }, resourceType: { name: 'resourceType' } }
+            });
+            expect(dataSource.resourceProjections.SubscriptionStatus.has('extension')).toBe(true);
+        });
+
+        test('SEC-1585: forces identifier into the SubscriptionTopic projection even when not requested', () => {
+            dataSource.resourceProjections = {};
+            dataSource.extractFieldsForResource({
+                SubscriptionTopic: { id: { name: 'id' }, resourceType: { name: 'resourceType' } }
+            });
+            expect(dataSource.resourceProjections.SubscriptionTopic.has('identifier')).toBe(true);
+        });
+
+        test('does not force extension/identifier onto unrelated resource types', () => {
+            dataSource.resourceProjections = {};
+            dataSource.extractFieldsForResource({
+                Patient: { id: { name: 'id' }, resourceType: { name: 'resourceType' } }
+            });
+            expect(dataSource.resourceProjections.Patient.has('extension')).toBe(false);
+            expect(dataSource.resourceProjections.Patient.has('identifier')).toBe(false);
+        });
+    });
+
     describe('getExtensionValueByUrl', () => {
         test('returns value for matching extension', async () => {
             const resource = {
