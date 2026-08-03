@@ -286,6 +286,28 @@ describe('MergeOperation - Null Safety', () => {
         });
     });
 
+    describe('mergeAsync - headers.prefer null safety', () => {
+        test('does not throw when headers is null', async () => {
+            const parsedArgs = makeParsedArgs();
+
+            mockMergeValidator.validateAsync.mockResolvedValue({
+                mergePreCheckErrors: [],
+                resourcesIncomingArray: [],
+                wasIncomingAList: false
+            });
+
+            const requestInfo = makeRequestInfo({ headers: null });
+
+            const result = await mergeOperation.mergeAsync({
+                requestInfo,
+                parsedArgs,
+                resourceType: 'Patient'
+            });
+
+            expect(result).toBeDefined();
+        });
+    });
+
     describe('mergeAsync - finally block always records metrics', () => {
         test('recordMergeOutcomes is called even when an error is thrown', async () => {
             const parsedArgs = makeParsedArgs();

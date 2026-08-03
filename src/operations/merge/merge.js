@@ -288,7 +288,7 @@ class MergeOperation {
              * @type {number}
              */
             const stopTime = Date.now();
-            if (headers.prefer && headers.prefer === 'return=OperationOutcome') {
+            if (headers && headers.prefer && headers.prefer === 'return=OperationOutcome') {
                 // https://hl7.org/fhir/http.html#ops
                 // Client is requesting the result as OperationOutcome
                 // Create a bundle of OperationOutcomes
