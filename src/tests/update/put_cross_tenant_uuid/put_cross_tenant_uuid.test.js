@@ -39,8 +39,11 @@ describe('PUT by UUID cross-tenant tests', () => {
                 .send(observation1AttackerPut)
                 .set(getHeaders('access/clientB.* user/*.*'));
 
-            // Must not be a 403 (that would confirm the uuid belongs to someone else's tenant)
-            expect(attackerResp.status).not.toBe(403);
+            // Must not be a 403 (that would confirm the uuid belongs to someone else's tenant,
+            // distinguishing it from a uuid that doesn't exist anywhere) and must not silently
+            // create-and-collide with the existing resource (a uuid is never a client-chosen id
+            // for a new resource) — a plain 404 is the only response that leaks nothing.
+            expect(attackerResp.status).toStrictEqual(404);
 
             // The original clientA resource must be untouched by the attacker's PUT
             const readBackResp = await request
@@ -82,6 +85,19 @@ describe('PUT by UUID cross-tenant tests', () => {
 
             expect(readBackResp._body.meta.versionId).toStrictEqual('2');
             expect(readBackResp._body.valueQuantity.value).toStrictEqual(72.0);
+        });
+
+        test('PUT by a uuid that does not exist anywhere also returns 404, matching the cross-tenant case', async () => {
+            const request = await createTestRequest();
+
+            const nonExistentUuid = '11111111-2222-5333-8444-555555555555';
+
+            const resp = await request
+                .put('/4_0_0/Observation/' + nonExistentUuid)
+                .send(observation1AttackerPut)
+                .set(getHeaders('access/clientB.* user/*.*'));
+
+            expect(resp.status).toStrictEqual(404);
         });
     });
 });

@@ -183,6 +183,9 @@ describe('Patient Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
+            // PUT-by-uuid is tenant-scoped at the query level (SEC-1580 F5), so a caller without
+            // access to this resource's tenant gets a plain not-found rather than a 403 that would
+            // confirm the uuid belongs to someone else's tenant.
             let resp = await request
                 .put('/4_0_0/Observation/' + createResp._body.uuid)
                 .send(observation2Resource)
@@ -191,12 +194,10 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse({
                 issue: [
                     {
-                        code: 'forbidden',
+                        code: 'not-found',
                         details: {
-                            text: 'user imran with scopes [access/access.* user/*.*] has no write access to resource Observation with id 1'
+                            text: `Resource not found: Observation/${createResp._body.uuid}`
                         },
-                        diagnostics:
-                            'user imran with scopes [access/access.* user/*.*] has no write access to resource Observation with id 1',
                         severity: 'error'
                     }
                 ],

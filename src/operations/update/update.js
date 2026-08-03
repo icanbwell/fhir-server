@@ -1,6 +1,6 @@
 const httpContext = require('express-http-context');
 const moment = require('moment-timezone');
-const { NotValidatedError, BadRequestError, PreconditionFailedError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, PreconditionFailedError, NotFoundError } = require('../../utils/httpErrors');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
@@ -22,6 +22,7 @@ const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
 const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE }, ACCESS_LOGS_ENTRY_DATA, BLOB_OP } = require('../../constants');
+const { isUuid } = require('../../utils/uid.util');
 const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
 const { IdentifierEnrichmentProvider } = require('../../enrich/providers/identifierEnrichmentProvider');
 const { FhirResourceSerializer } = require('../../fhir/fhirResourceSerializer');
@@ -272,6 +273,27 @@ class UpdateOperation {
              * @type {Resource | null}
              */
             const data = resources[0];
+
+            // A uuid identifies a specific, already-existing resource (unlike a source id, it is
+            // never chosen by the client for a new resource). If a uuid didn't match under the
+            // caller's tenant-scoped query, treat it as not-found rather than falling through to
+            // the create-new path below: since UuidColumnHandler reuses resource.id verbatim as
+            // _uuid whenever it is already a valid uuid, creating "new" here would collide with
+            // whatever resource actually owns that uuid instead of creating a distinct resource.
+            // Only applies when the query was actually narrowed by a tenant/access-tag filter
+            // (a specific, non-'*' access/<tenant> scope, and not a patient-scoped token, which
+            // resolves access via linked patient/person ids rather than security tags) — for a
+            // caller with unrestricted ('*') access, or patient-scoped access, no tenant filter
+            // was applied to the query at all, so "not found" already unambiguously means the
+            // uuid doesn't exist anywhere, and legitimate create-with-explicit-uuid must proceed.
+            if (!data && isUuid(rawId) && !isUser) {
+                const accessCodes = this.scopesValidator.scopesManager.getAccessCodesFromScopes(
+                    'write', user, scope
+                );
+                if (!accessCodes.includes('*')) {
+                    throw new NotFoundError(`Resource not found: ${resourceType}/${rawId}`);
+                }
+            }
             /**
              * @type {OperationOutcome|null}
              */
