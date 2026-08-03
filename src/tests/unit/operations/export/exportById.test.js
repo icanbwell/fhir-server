@@ -33,7 +33,10 @@ describe('ExportByIdOperation', () => {
     let mockDatabaseExportManager;
 
     beforeEach(() => {
-        mockScopesManager = { hasPatientScope: jestObj.fn(() => false) };
+        mockScopesManager = {
+            hasPatientScope: jestObj.fn(() => false),
+            isAccessToResourceAllowedByAccessTagOnly: jestObj.fn(() => true)
+        };
         mockFhirLoggingManager = {
             logOperationSuccessAsync: jestObj.fn().mockResolvedValue(undefined),
             logOperationFailureAsync: jestObj.fn().mockResolvedValue(undefined)
