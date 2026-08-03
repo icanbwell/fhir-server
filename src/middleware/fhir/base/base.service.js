@@ -37,11 +37,17 @@ const makeResultBundle = (results, res, baseVersion, type) => {
     return bundle;
 };
 
+const ALLOWED_METHODS = new Set(['get', 'post', 'put', 'delete', 'patch']);
+// Only allow relative FHIR resource paths: no protocol, no host, no .. traversal
+const RELATIVE_PATH_RE = /^[A-Za-z0-9$_\-][A-Za-z0-9$_.\-\/]*$/;
+
 const createRequestPromises = (entries, req, baseVersion) => {
     const {
         protocol,
         baseUrl
     } = req;
+    // Use the server's own host from req.hostname instead of the attacker-controllable Host header
+    const serverHost = req.hostname;
     const requestPromises = [];
     const results = [];
 
@@ -51,13 +57,20 @@ const createRequestPromises = (entries, req, baseVersion) => {
             method
         } = entry.request;
         const resource = entry.resource;
-        const destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
+        const normalizedMethod = (method || '').toLowerCase();
+        if (!ALLOWED_METHODS.has(normalizedMethod)) {
+            throw new Error(`Disallowed method in bundle entry: ${method}`);
+        }
+        if (!url || !RELATIVE_PATH_RE.test(url) || url.includes('..')) {
+            throw new Error(`Disallowed or unsafe URL in bundle entry: ${url}`);
+        }
+        const destinationUrl = `${protocol}://${path.join(serverHost, baseUrl, baseVersion, url)}`;
         results.push({
             method,
             url: destinationUrl
         });
         requestPromises.push(Promise.resolve(
-            request[method.toLowerCase()](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir')
+            request[normalizedMethod](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir')
         ).catch(err => {
             return err;
         }));
