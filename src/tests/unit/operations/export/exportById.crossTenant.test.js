@@ -12,6 +12,8 @@ jest.mock('../../../../operations/common/logging', () => {
 const { ExportByIdOperation } = require('../../../../operations/export/exportById');
 const { DatabaseExportManager } = require('../../../../dataLayer/databaseExportManager');
 const { ScopesManager } = require('../../../../operations/security/scopesManager');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 const { FhirLoggingManager } = require('../../../../operations/common/fhirLoggingManager');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 
@@ -35,19 +37,12 @@ describe('ExportByIdOperation - Cross-Tenant PHI Leakage', () => {
     let mockDatabaseExportManager;
 
     beforeEach(() => {
-        mockScopesManager = createMockInstance(ScopesManager);
-        mockScopesManager.hasPatientScope = jest.fn().mockReturnValue(false);
-        mockScopesManager.getAccessCodesFromScopes = jest.fn();
-        mockScopesManager.isAccessToResourceAllowedBySecurityTags = jest.fn(({ resource, user, scope }) => {
-            const accessCodes = (scope || '').split(' ')
-                .filter(s => s.startsWith('access/'))
-                .map(s => s.replace('access/', '').split('.')[0]);
-            if (accessCodes.includes('*')) return true;
-            if (!resource.meta || !resource.meta.security) return false;
-            const resourceAccessCodes = resource.meta.security
-                .filter(s => s.system === SecurityTagSystem.access)
-                .map(s => s.code);
-            return accessCodes.some(c => resourceAccessCodes.includes(c));
+        // Use the real ScopesManager rather than re-implementing its access-check logic in a
+        // mock: a hand-rolled mock previously diverged from the production owner+access check,
+        // which is exactly what masked the cross-tenant regression these tests exist to catch.
+        mockScopesManager = new ScopesManager({
+            configManager: new ConfigManager(),
+            patientFilterManager: new PatientFilterManager()
         });
 
         mockFhirLoggingManager = createMockInstance(FhirLoggingManager);
@@ -114,14 +109,56 @@ describe('ExportByIdOperation - Cross-Tenant PHI Leakage', () => {
             user: 'tenantB-service-account'
         };
 
-        // CORRECT behavior: should throw ForbiddenError because tenantB
-        // does not have access to tenantA's export status
+        // CORRECT behavior: should throw the same "doesn't exists" NotFoundError used for a
+        // missing resource (statusCode 404), not ForbiddenError. Reusing the same error as a
+        // missing resource avoids letting a caller distinguish "exists, not mine" from "does
+        // not exist" (NB: this repo's ServerError base class resets its own prototype in its
+        // constructor, so `instanceof`/class-based matchers don't work on these errors — assert
+        // on statusCode/message instead).
         await expect(
             exportByIdOp.exportByIdAsync({
                 requestInfo,
                 args: { id: 'export-tenantA-123' }
             })
-        ).rejects.toThrow();
+        ).rejects.toMatchObject({ statusCode: 404, message: expect.stringContaining("doesn't exists") });
+    });
+
+    test('should allow tenant to read back their own export status (owner tag is always bwell)', async () => {
+        // ExportStatus is always created with a platform-level owner tag of 'bwell' regardless
+        // of the triggering tenant (see ExportManager.generateExportStatusResourceAsync); only
+        // the access tag identifies the owning tenant. A caller polling their own export with
+        // just their tenant's access scope must not be denied for lacking the 'bwell' owner scope.
+        mockDatabaseExportManager.getExportStatusResourceWithId = jest.fn().mockResolvedValue({
+            id: 'export-tenantA-self',
+            _uuid: 'export-tenantA-uuid-self',
+            resourceType: 'ExportStatus',
+            status: 'completed',
+            meta: {
+                security: [
+                    { system: 'https://www.icanbwell.com/owner', code: 'bwell' },
+                    { system: SecurityTagSystem.access, code: 'tenantA' }
+                ]
+            },
+            output: [
+                { type: 'Patient', url: 's3://bucket/exports/tenantA/export-tenantA-uuid-self/Patient.ndjson' }
+            ],
+            scope: 'user/*.read access/tenantA.*',
+            user: 'tenantA-service-account'
+        });
+
+        const requestInfo = {
+            requestId: 'req-tenantA-self',
+            scope: 'user/*.read access/tenantA.*',
+            user: 'tenantA-service-account'
+        };
+
+        const result = await exportByIdOp.exportByIdAsync({
+            requestInfo,
+            args: { id: 'export-tenantA-self' }
+        });
+
+        expect(result).toBeDefined();
+        expect(result.id).toBe('export-tenantA-self');
     });
 
     test('should deny access when caller has no access scopes at all', async () => {
@@ -221,7 +258,7 @@ describe('ExportByIdOperation - Cross-Tenant PHI Leakage', () => {
                 requestInfo,
                 args: { id: 'export-tenantA-wild' }
             })
-        ).rejects.toThrow();
+        ).rejects.toMatchObject({ statusCode: 404, message: expect.stringContaining("doesn't exists") });
     });
 
     test('should use security-tag-filtered query to fetch ExportStatus, not raw ID lookup', async () => {
