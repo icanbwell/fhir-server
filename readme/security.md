@@ -270,6 +270,33 @@ The FHIR server looks for the patient scopes that start with "patient/”. Patie
 
 If someone has scopes like `patient/Observation.read` then that person has read access to Observation resources of the patients related to master person.
 
+#### 5.3.1 `_uuid` / `id` are not secrets
+
+Every resource has an internal `_uuid` that is either passed through as-is (if the incoming `id` is
+already a UUID) or deterministically derived by `generateUUIDv5()` in `src/utils/uid.util.js`
+(see `src/preSaveHandlers/handlers/uuidColumnHandler.js`) as a UUIDv5 hash of
+`<sourceId>|<sourceAssigningAuthority>` — the resource's source-system id and its owning tenant
+(`sourceAssigningAuthority`, which typically becomes the `owner` security tag described in 5.2.1).
+The namespace constant (`OID_NAMESPACE`) used for this hash is a fixed value hardcoded in this
+open-source repository.
+
+Because the inputs and the namespace are both knowable, **`_uuid` is not a secret**: anyone who
+knows or can guess a resource's source-system id and owning tenant can compute the exact `_uuid`
+offline, with no prior access to FHIR data. The same is true of the resource `id` field whenever it
+equals the uuid.
+
+Consequences for any code that reads or writes resources by `_uuid`/`id`:
+
+1. `_uuid`/`id` must never be the sole factor in an authorization decision. "The caller supplied
+   the exact id" is not evidence the caller is entitled to it — every lookup by `_uuid`/`id` must
+   still be filtered by the caller's `user`/`access`/`patient` scopes, exactly as search/read/patch/
+   remove already do (see sections 5.1-5.3 above).
+2. A code path that reveals, to a caller not separately authorized for the owning tenant, whether a
+   record with a given `_uuid` exists — via a status-code difference (e.g., 404 vs 403), a timing
+   difference, or any other observable side channel — is a **cross-tenant existence-oracle bug**,
+   not a hardening nice-to-have. It should be treated with the same severity as returning the record
+   itself, because the "secret" half of the lookup (the `_uuid`) was never actually secret.
+
 #### 5.4 Access
 
 Note that the final access for a user is a combination of both present in 5.1[Control access by resource] & 5.2[Control access by security tags] or only by using 5.3[Control access by patient data graph] only
