@@ -165,6 +165,81 @@ PUT /4_0_0/Group/{id}
 
 **ClickHouse optimization:** The server only writes events for net changes (additions/removals), not duplicates.
 
+### PUT Behavior for Metadata Updates (Important)
+
+**⚠️ Breaking Change (INE-954):** When updating ClickHouse Groups via PUT, omitting the `member` field now **preserves existing members** instead of deleting them.
+
+**Why this change was made:**
+- Groups with 10K-100K+ members are too large to safely lose via accidental omission
+- Standard REST PUT semantics (replace entire resource) are unsafe for large relationship arrays
+- FHIR R4 spec cleans empty arrays (`member: []`) to `undefined`, making it indistinguishable from an omitted field
+
+**Behavior:**
+
+```bash
+# PUT without member field - PRESERVES existing members
+PUT /4_0_0/Group/{id}
+{
+  "resourceType": "Group",
+  "name": "Updated Name",
+  "active": false
+  // member field omitted
+}
+# Result: Name and active updated, members unchanged
+```
+
+```bash
+# PUT with member: [] - Also PRESERVES (FHIR cleans [] to undefined)
+PUT /4_0_0/Group/{id}
+{
+  "resourceType": "Group",
+  "name": "Updated Name",
+  "member": []  // Empty array cleaned to undefined by FHIR
+}
+# Result: Same as above - members preserved
+```
+
+**Recommended approaches for updating members:**
+
+1. **For metadata-only updates**: Use **PATCH** (safest)
+   ```bash
+   PATCH /4_0_0/Group/{id}
+   Content-Type: application/json-patch+json
+
+   [
+     { "op": "replace", "path": "/name", "value": "New Name" },
+     { "op": "replace", "path": "/active", "value": false }
+   ]
+   ```
+
+2. **For member changes**: Use **PATCH** with member operations
+   ```bash
+   # Add members
+   [{ "op": "add", "path": "/member/-", "value": {"entity": {"reference": "Patient/123"}} }]
+
+   # Remove members
+   [{ "op": "remove", "path": "/member/-", "value": {"entity": {"reference": "Patient/123"}} }]
+   ```
+
+3. **For bulk member replacement**: Use **PUT with explicit member list**
+   ```bash
+   PUT /4_0_0/Group/{id}
+   {
+     "resourceType": "Group",
+     "name": "My Group",
+     "member": [
+       { "entity": { "reference": "Patient/1" } },
+       { "entity": { "reference": "Patient/2" } }
+       // Explicit list - server computes diff
+     ]
+   }
+   ```
+
+**Migration notes:**
+- This change only affects Groups with `useExternalStorage: true` header
+- MongoDB-only Groups (without the header) maintain standard FHIR behavior
+- Clients relying on PUT to delete members must update to use explicit member lists or PATCH
+
 ### Searching by Member
 
 Find all Groups containing a specific patient:

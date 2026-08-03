@@ -103,7 +103,7 @@ Slot, Schedule, PractitionerRole, Practitioner
 
 ### Person DELETE
 
-NOTE: Details for Person GET $everything [patientEverything.md](patientEverything.md)
+NOTE: Details for Person GET $everything: general mechanics in [patientEverything.md](patientEverything.md), Person-specific scoping behavior in [personEverything.md](personEverything.md)
 
 URL: <base_url>/4_0_0/Person/<person_id>/$everything
 

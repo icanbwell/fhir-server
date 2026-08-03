@@ -2,6 +2,8 @@
 
 The FHIR server supports the Patient/Person GET $everything endpoint of the FHIR specification (https://www.hl7.org/fhir/R4B/patient-operation-everything.html). This operation is used to retrieve all resources related to the provided patient. Along with the linked non-clinical resources upto depth 3.
 
+Note: Person $everything shares this same underlying mechanism but scopes some of the results to the requested person(s) — see [Person $everything](personEverything.md) for the behavior that is specific to it.
+
 It is mandatory to provide `id` either in search query parameter or in path parameter.
 For example:
 
@@ -66,6 +68,12 @@ Sample $everything result for patient
 Person $everything operation is mapped to Patient $everything under the hood as proxy Patient $everything
 
 `<base_url>/4_0_0/Person/\<person1>/$everything` is same as `<base_url>/4_0_0/Patient/person.\<person1>/$everything`
+
+### Patient $everything includes all linked persons
+
+A patient can be linked to more than one Person resource. Patient $everything has no notion of "which person the caller asked about", so it returns **every** Person resource linked to the resolved patient(s).
+
+This is different from calling Person $everything directly, which scopes the result down to only the Person id(s) that were explicitly requested. See [Person $everything](personEverything.md) for details and an example.
 
 ## Notes
 - If loading the result of each resource for $everything to node.js takes more than the specified time in MONGO_TIMEOUT (default 2 mins), a error is returned.
