@@ -389,6 +389,14 @@ class PatchOperation {
                 this.resourceMerger.overWriteNonWritableFields({
                     currentResource: foundResource, resourceToMerge: resource
                 });
+            } else if (foundResource?.meta) {
+                // Access tags must never depend on the meta.source gate above -- a patch that
+                // adds/keeps a foreign access tag has to be caught here even when neither side
+                // has a source set yet, rather than relying on an unrelated validation elsewhere
+                // to coincidentally reject the request.
+                this.resourceMerger.restoreAccessTags({
+                    currentResource: foundResource, resourceToMerge: resource
+                });
             }
 
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);

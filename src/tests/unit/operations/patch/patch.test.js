@@ -127,6 +127,7 @@ describe('PatchOperation', () => {
             status: 'amended'
         }));
         mocks.resourceMerger.overWriteNonWritableFields = jest.fn();
+        mocks.resourceMerger.restoreAccessTags = jest.fn();
         mocks.resourceMerger.compareObjects = jest.fn().mockReturnValue([{ op: 'replace', path: '/status', value: 'amended' }]);
         mocks.resourceMerger.updateMeta = jest.fn();
         mocks.databaseBulkInserter.replaceOneAsync = jest.fn().mockResolvedValue(undefined);
@@ -222,6 +223,50 @@ describe('PatchOperation', () => {
             expect(result.updated).toBe(true);
             expect(result.created).toBe(false);
             expect(mocks.databaseBulkInserter.replaceOneAsync).toHaveBeenCalled();
+        });
+
+        test('SEC-1583: restores access tags even when meta.source is missing on both sides (overWriteNonWritableFields gate skipped)', async () => {
+            const foundResourceNoSource = {
+                id: 'obs-1',
+                _uuid: 'uuid-obs-1',
+                _sourceAssigningAuthority: 'bwell',
+                resourceType: 'Observation',
+                status: 'final',
+                meta: { versionId: '1', lastUpdated: new Date(), security: [] },
+                toJSON: () => ({ id: 'obs-1', resourceType: 'Observation', status: 'final', meta: { versionId: '1' } }),
+                toJSONInternal: () => ({ id: 'obs-1', resourceType: 'Observation', status: 'final', meta: { versionId: '1' } }),
+                clone: function () { return { ...this, toJSON: this.toJSON, toJSONInternal: this.toJSONInternal, clone: this.clone }; }
+            };
+            mocks.databaseQueryFactory.createQuery.mockReturnValue({
+                findAsync: jest.fn().mockResolvedValue({
+                    toObjectArrayAsync: jest.fn().mockResolvedValue([foundResourceNoSource])
+                })
+            });
+            mocks.resourceMerger.applyPatch = jest.fn(() => ({
+                id: 'obs-1', resourceType: 'Observation', status: 'amended', meta: { versionId: '1', security: [] }
+            }));
+
+            const requestInfo = {
+                requestId: 'req-1',
+                body: [{ op: 'replace', path: '/status', value: 'amended' }],
+                contentTypeFromHeader: { type: fhirContentTypes.jsonPatch },
+                user: 'admin',
+                scope: 'user/*.write',
+                isUser: false,
+                personIdFromJwtToken: null,
+                path: '/Observation/obs-1'
+            };
+
+            await patchOp.patchAsync({
+                requestInfo,
+                parsedArgs: mockParsedArgs,
+                resourceType: 'Observation'
+            });
+
+            expect(mocks.resourceMerger.overWriteNonWritableFields).not.toHaveBeenCalled();
+            expect(mocks.resourceMerger.restoreAccessTags).toHaveBeenCalledWith(
+                expect.objectContaining({ currentResource: foundResourceNoSource })
+            );
         });
 
         test('throws BadRequestError when multiple resources found', async () => {
