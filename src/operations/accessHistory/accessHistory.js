@@ -4,6 +4,7 @@ const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsEx
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ConfigManager } = require('../../utils/configManager');
 const { ScopesValidator } = require('../security/scopesValidator');
+const { ScopesManager } = require('../security/scopesManager');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
 const { PERSON_PROXY_PREFIX } = require('../../constants');
 const { sliceIntoChunks } = require('../../utils/list.util');
@@ -19,6 +20,7 @@ class AccessHistoryOperation {
      * @param {AccessHistoryClickHouseRepository} params.accessHistoryClickHouseRepository
      * @param {ConfigManager} params.configManager
      * @param {ScopesValidator} params.scopesValidator
+     * @param {ScopesManager} params.scopesManager
      */
     constructor({
         databaseQueryFactory,
@@ -26,7 +28,8 @@ class AccessHistoryOperation {
         patientFilterManager,
         accessHistoryClickHouseRepository,
         configManager,
-        scopesValidator
+        scopesValidator,
+        scopesManager
     }) {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
@@ -44,6 +47,9 @@ class AccessHistoryOperation {
 
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
+
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -98,12 +104,34 @@ class AccessHistoryOperation {
             throw new NotFoundError(`Person with id ${id} not found`);
         }
 
-        if (requestInfo.isUser &&
-            resolvedPersonUuid !== requestInfo.personIdFromJwtToken &&
-            resolvedPersonUuid !== requestInfo.masterPersonIdFromJwtToken) {
-            throw new ForbiddenError(
-                'Access denied: you can only view access history for your own Person resource'
-            );
+        if (requestInfo.isUser) {
+            if (resolvedPersonUuid !== requestInfo.personIdFromJwtToken &&
+                resolvedPersonUuid !== requestInfo.masterPersonIdFromJwtToken) {
+                throw new ForbiddenError(
+                    'Access denied: you can only view access history for your own Person resource'
+                );
+            }
+        } else {
+            // Service-account/tenant-scoped callers aren't anchored to a specific Person by JWT
+            // claim, so the identity check above doesn't apply to them -- verify their scope
+            // authorizes this specific Person's owner/access tags instead, the same way any other
+            // fetch-by-id read path does.
+            const [person] = await this._findResourcesByUuids({
+                resourceType: 'Person',
+                uuids: [resolvedPersonUuid],
+                base_version,
+                projection: { _uuid: 1, meta: 1 }
+            });
+            // Denied and genuinely-nonexistent are reported identically (NotFoundError) so a
+            // caller can't enumerate valid Person ids across tenants by distinguishing 403 from
+            // 404 -- same discipline exportById.js uses for ExportStatus lookups.
+            if (!person || !this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource: person,
+                user: requestInfo.user,
+                scope: requestInfo.scope
+            })) {
+                throw new NotFoundError(`Person with id ${id} not found`);
+            }
         }
 
         // 2. Collect entity_refs from MongoDB

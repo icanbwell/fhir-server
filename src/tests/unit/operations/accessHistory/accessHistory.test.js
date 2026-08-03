@@ -15,6 +15,7 @@ const { PersonToPatientIdsExpander } = require('../../../../utils/personToPatien
 const { PatientFilterManager } = require('../../../../fhir/patientFilterManager');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { ScopesValidator } = require('../../../../operations/security/scopesValidator');
+const { ScopesManager } = require('../../../../operations/security/scopesManager');
 
 describe('AccessHistoryOperation', () => {
     let operation;
@@ -24,6 +25,7 @@ describe('AccessHistoryOperation', () => {
     let mockAccessHistoryClickHouseRepository;
     let mockConfigManager;
     let mockScopesValidator;
+    let mockScopesManager;
     let mockCursor;
 
     beforeEach(() => {
@@ -61,13 +63,28 @@ describe('AccessHistoryOperation', () => {
         mockScopesValidator = Object.create(ScopesValidator.prototype);
         mockScopesValidator.verifyHasValidScopesAsync = jest.fn().mockResolvedValue(true);
 
+        mockScopesManager = Object.create(ScopesManager.prototype);
+        mockScopesManager.isAccessToResourceAllowedBySecurityTags = jest.fn().mockReturnValue(true);
+
         operation = new AccessHistoryOperation({
             databaseQueryFactory: mockDatabaseQueryFactory,
             personToPatientIdsExpander: mockPersonToPatientIdsExpander,
             patientFilterManager: mockPatientFilterManager,
             accessHistoryClickHouseRepository: mockAccessHistoryClickHouseRepository,
             configManager: mockConfigManager,
-            scopesValidator: mockScopesValidator
+            scopesValidator: mockScopesValidator,
+            scopesManager: mockScopesManager
+        });
+
+        // Default: the Person auth check (for non-patient-scoped callers) resolves the target
+        // Person; other resource-type lookups (Practitioner, etc. for accessor display names)
+        // default to empty unless a test overrides this. Kept resourceType-aware so tests that
+        // override this for accessor-detail resolution don't also break the Person auth check.
+        operation._findResourcesByUuids = jest.fn().mockImplementation(({ resourceType }) => {
+            if (resourceType === 'Person') {
+                return Promise.resolve([{ _uuid: 'uuid-person-1', meta: { security: [] } }]);
+            }
+            return Promise.resolve([]);
         });
     });
 
@@ -76,6 +93,8 @@ describe('AccessHistoryOperation', () => {
             isUser: false,
             personIdFromJwtToken: null,
             masterPersonIdFromJwtToken: null,
+            user: 'tenant-a-service-account',
+            scope: 'access/tenant-a.read user/Person.read',
             path: '/Patient/p1/$access-history'
         };
 
@@ -131,6 +150,41 @@ describe('AccessHistoryOperation', () => {
                 resourceType: 'Patient'
             });
             expect(result.resourceType).toBe('Parameters');
+        });
+
+        test('SEC-1584: throws NotFoundError (not ForbiddenError, to avoid leaking existence) when service-account/tenant-scoped caller lacks access to the target Person', async () => {
+            mockScopesManager.isAccessToResourceAllowedBySecurityTags.mockReturnValue(false);
+            await expect(operation.accessHistoryAsync({
+                requestInfo: baseRequestInfo,
+                parsedArgs: baseParsedArgs,
+                resourceType: 'Patient'
+            })).rejects.toThrow('Person with id p1 not found');
+            expect(mockScopesManager.isAccessToResourceAllowedBySecurityTags).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    resource: expect.objectContaining({ _uuid: 'uuid-person-1' }),
+                    user: baseRequestInfo.user,
+                    scope: baseRequestInfo.scope
+                })
+            );
+        });
+
+        test('SEC-1584: allows service-account/tenant-scoped caller whose scope covers the target Person', async () => {
+            mockScopesManager.isAccessToResourceAllowedBySecurityTags.mockReturnValue(true);
+            const result = await operation.accessHistoryAsync({
+                requestInfo: baseRequestInfo,
+                parsedArgs: baseParsedArgs,
+                resourceType: 'Patient'
+            });
+            expect(result.resourceType).toBe('Parameters');
+        });
+
+        test('SEC-1584: throws NotFoundError when the target Person cannot be found for a tenant-scoped caller', async () => {
+            operation._findResourcesByUuids = jest.fn().mockResolvedValue([]);
+            await expect(operation.accessHistoryAsync({
+                requestInfo: baseRequestInfo,
+                parsedArgs: baseParsedArgs,
+                resourceType: 'Patient'
+            })).rejects.toThrow('Person with id p1 not found');
         });
 
         test('returns empty parameters when no ClickHouse rows found', async () => {

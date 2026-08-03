@@ -1000,7 +1000,8 @@ const createContainer = function () {
         patientFilterManager: c.patientFilterManager,
         accessHistoryClickHouseRepository: c.accessHistoryClickHouseRepository,
         configManager: c.configManager,
-        scopesValidator: c.scopesValidator
+        scopesValidator: c.scopesValidator,
+        scopesManager: c.scopesManager
     }));
 
     container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
