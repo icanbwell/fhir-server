@@ -1358,6 +1358,24 @@ class ConfigManager {
     }
 
     /**
+     * Number of resources to buffer before flushing a Mongo bulk write during bulk import
+     * @return {number}
+     */
+    get bulkImportBatchSize() {
+        const parsed = parseInt(env.BULK_IMPORT_BATCH_SIZE, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+    }
+
+    /**
+     * Delay in milliseconds between bulk import batch flushes, to pace MongoDB write load
+     * @return {number}
+     */
+    get bulkImportBatchDelayMs() {
+        const parsed = parseInt(env.BULK_IMPORT_BATCH_DELAY_MS, 10);
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    }
+
+    /**
      * Kafka topic for bulk import task-created notifications
      * @return {string}
      */

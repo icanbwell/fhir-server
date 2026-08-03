@@ -3,7 +3,16 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
+const { FastDatabaseBulkInserter } = require('../../dataLayer/fastDatabaseBulkInserter');
 const { S3NdjsonReader } = require('./s3NdjsonReader');
+const { FhirResourceWriteSerializer } = require('../../fhir/fhirResourceWriteSerializer');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { buildContextDataForHybridStorage } = require('../../utils/contextDataBuilder');
+const { generateUUID } = require('../../utils/uid.util');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../../constants');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
 const { logInfo, logError } = require('../common/logging');
 
 class BulkImportConsumerRunner {
@@ -12,11 +21,22 @@ class BulkImportConsumerRunner {
      * @property {ConfigManager} configManager
      * @property {DatabaseQueryFactory} databaseQueryFactory
      * @property {DatabaseUpdateFactory} databaseUpdateFactory
+     * @property {FastDatabaseBulkInserter} fastDatabaseBulkInserter
      * @property {S3NdjsonReader} s3NdjsonReader
+     * @property {PostRequestProcessor} postRequestProcessor
+     * @property {RequestSpecificCache} requestSpecificCache
      *
      * @param {ConstructorParams}
      */
-    constructor({ configManager, databaseQueryFactory, databaseUpdateFactory, s3NdjsonReader }) {
+    constructor({
+        configManager,
+        databaseQueryFactory,
+        databaseUpdateFactory,
+        fastDatabaseBulkInserter,
+        s3NdjsonReader,
+        postRequestProcessor,
+        requestSpecificCache
+    }) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
@@ -26,8 +46,74 @@ class BulkImportConsumerRunner {
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
 
+        this.fastDatabaseBulkInserter = fastDatabaseBulkInserter;
+        assertTypeEquals(fastDatabaseBulkInserter, FastDatabaseBulkInserter);
+
         this.s3NdjsonReader = s3NdjsonReader;
         assertTypeEquals(s3NdjsonReader, S3NdjsonReader);
+
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+    }
+
+    /**
+     * Builds a request-scoped FhirRequestInfo for a single byte-range's writes.
+     * A fresh requestId is required per range so concurrent ranges don't share
+     * the singleton FastDatabaseBulkInserter's buffered-operations map.
+     * @param {{ user: string|null, scope: string|null }} params
+     * @returns {FhirRequestInfo}
+     */
+    buildRangeRequestInfo({ user, scope }) {
+        return new FhirRequestInfo({
+            user: user || null,
+            scope: scope || null,
+            remoteIpAddress: null,
+            requestId: generateUUID(),
+            userRequestId: null,
+            protocol: 'kafka',
+            originalUrl: '$import',
+            path: '$import',
+            host: null,
+            body: null,
+            accept: 'application/fhir+json',
+            isUser: false,
+            userType: null,
+            personIdFromJwtToken: null,
+            masterPersonIdFromJwtToken: null,
+            managingOrganizationId: null,
+            headers: {},
+            method: 'POST',
+            contentTypeFromHeader: null,
+            alternateUserId: null,
+            actor: null,
+            purposeOfUse: null
+        });
+    }
+
+    /**
+     * NDJSON lines typically carry no ownership metadata. Stamp the same
+     * default owner/sourceAssigningAuthority tags $import's Task creation uses,
+     * unless the source file already provided its own security tags.
+     * @param {Object} rawResource
+     * @returns {Object}
+     */
+    applyDefaultSecurityTagsIfMissing(rawResource) {
+        if (!rawResource.meta) {
+            rawResource.meta = {};
+        }
+        if (!rawResource.meta.security || rawResource.meta.security.length === 0) {
+            rawResource.meta.security = [
+                { system: SecurityTagSystem.owner, code: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY },
+                { system: SecurityTagSystem.sourceAssigningAuthority, code: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY }
+            ];
+        }
+        if (!rawResource.meta.source) {
+            rawResource.meta.source = BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY;
+        }
+        return rawResource;
     }
 
     /**
@@ -105,7 +191,7 @@ class BulkImportConsumerRunner {
             return;
         }
 
-        const { taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize } = eventData;
+        const { taskId, filepath, byteRangeStart, byteRangeEnd, rangeIndex, totalRanges, fileSize, user, scope } = eventData;
 
         logInfo('Processing bulk import range', {
             taskId,
@@ -126,35 +212,106 @@ class BulkImportConsumerRunner {
             await this.updateTaskStatusAsync(task, 'in-progress');
         }
 
+        const base_version = '4_0_0';
+        const requestInfo = this.buildRangeRequestInfo({ user, scope });
+        const batchSize = this.configManager.bulkImportBatchSize;
+        const batchDelayMs = this.configManager.bulkImportBatchDelayMs;
+
         let linesRead = 0;
-        try {
-            for await (const { lineNumber, resource } of this.s3NdjsonReader.readNdjsonAsync({
-                filepath,
-                byteRangeStart,
-                byteRangeEnd,
-                fileSize
-            })) {
-                linesRead++;
-                // Phase 4 (BAI-221) will add batched MongoDB writes here
+        let sinceLastFlush = 0;
+        let created = 0;
+        let updated = 0;
+        let failed = 0;
+
+        const flushBatchAsync = async () => {
+            const mergeResults = await this.fastDatabaseBulkInserter.executeAsync({ requestInfo, base_version });
+            for (const mergeResult of mergeResults) {
+                if (mergeResult.created) {
+                    created++;
+                } else if (mergeResult.updated) {
+                    updated++;
+                } else if (mergeResult.operationOutcome) {
+                    failed++;
+                }
             }
-        } catch (e) {
-            logError('Error reading S3 NDJSON range', {
+            sinceLastFlush = 0;
+        };
+
+        try {
+            try {
+                for await (const { lineNumber, resource } of this.s3NdjsonReader.readNdjsonAsync({
+                    filepath,
+                    byteRangeStart,
+                    byteRangeEnd,
+                    fileSize
+                })) {
+                    linesRead++;
+                    sinceLastFlush++;
+
+                    try {
+                        const fhirResource = FhirResourceWriteSerializer.serialize({
+                            obj: this.applyDefaultSecurityTagsIfMissing(resource)
+                        });
+                        const contextData = buildContextDataForHybridStorage(
+                            fhirResource.resourceType, fhirResource, requestInfo
+                        );
+                        await this.fastDatabaseBulkInserter.insertOneAsync({
+                            base_version,
+                            requestInfo,
+                            resourceType: fhirResource.resourceType,
+                            doc: fhirResource,
+                            contextData
+                        });
+                    } catch (resourceError) {
+                        failed++;
+                        logError('Failed to buffer bulk import resource for write', {
+                            taskId,
+                            filepath,
+                            lineNumber,
+                            error: resourceError.message
+                        });
+                    }
+
+                    if (sinceLastFlush >= batchSize) {
+                        await flushBatchAsync();
+                        // Rate control: yield between batches so a single range doesn't
+                        // monopolize the event loop or MongoDB's write capacity.
+                        await new Promise((resolve) => setTimeout(resolve, batchDelayMs));
+                    }
+                }
+                if (sinceLastFlush > 0) {
+                    await flushBatchAsync();
+                }
+            } catch (e) {
+                logError('Error reading S3 NDJSON range', {
+                    taskId,
+                    filepath,
+                    rangeIndex,
+                    error: e.message
+                });
+                await this.updateTaskStatusAsync(task, 'failed', e.message);
+                return;
+            }
+
+            logInfo('Bulk import range processed', {
                 taskId,
                 filepath,
                 rangeIndex,
-                error: e.message
+                totalRanges,
+                linesRead,
+                created,
+                updated,
+                failed
             });
-            await this.updateTaskStatusAsync(task, 'failed', e.message);
-            return;
+        } finally {
+            // FastDatabaseBulkInserter defers history writes onto postRequestProcessor's
+            // queue rather than writing them inline — without this, history writes for
+            // every bulk-imported resource would be silently dropped. RequestSpecificCache
+            // entries are also only ever freed by an explicit clearAsync, so skipping this
+            // would leak one entry per Kafka message in this long-running consumer.
+            await this.postRequestProcessor.executeAsync({ requestId: requestInfo.requestId });
+            await this.requestSpecificCache.clearAsync({ requestId: requestInfo.requestId });
         }
-
-        logInfo('Bulk import range processed', {
-            taskId,
-            filepath,
-            rangeIndex,
-            totalRanges,
-            linesRead
-        });
     }
 }
 
