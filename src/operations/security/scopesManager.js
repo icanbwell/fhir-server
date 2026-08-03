@@ -112,6 +112,10 @@ class ScopesManager {
             .map(s => s.code);
 
         const hasOwnerCode = accessCodes.some(c => accessCodesFromOwnerTag.includes(c));
+
+        // A resource can carry multiple access tags at once, and if access tag matching the scopes
+        // is present in resource, the client gets access to resource irrespective of presence of another
+        // access tag
         const hasAccessCode = accessCodes.some(c => accessCodesFromAccessTag.includes(c));
 
         return hasOwnerCode && hasAccessCode;
