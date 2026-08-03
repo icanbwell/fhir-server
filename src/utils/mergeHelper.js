@@ -109,12 +109,18 @@ function mergeArrays (oldArray, newArray) {
      * @type {string[]}
      */
     const idsOfItemsToDelete = newArray
-        .filter(n => n.id !== null && n.id !== undefined && n.id.endsWith('-delete'))
+        .filter(n => n !== null && n !== undefined && n.id !== null && n.id !== undefined && n.id.endsWith('-delete'))
         .map(n => n.id.slice(0, -7)); // get id without the -delete at the end
     // remove the "-delete" ids from newArray
-    newArray = newArray.filter(n => ((n.id === null || n.id === undefined) || !n.id.endsWith('-delete')));
+    newArray = newArray.filter(n => (
+        n === null || n === undefined ||
+        n.id === null || n.id === undefined || !n.id.endsWith('-delete')
+    ));
     // remove items with these ids from oldArray
-    oldArray = oldArray.filter(o => ((o.id === null || o.id === undefined) || !(idsOfItemsToDelete.includes(o.id))));
+    oldArray = oldArray.filter(o => (
+        o === null || o === undefined ||
+        o.id === null || o.id === undefined || !(idsOfItemsToDelete.includes(o.id))
+    ));
     /**
      * @type {? Object[]}
      */

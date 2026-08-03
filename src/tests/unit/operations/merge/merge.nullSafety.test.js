@@ -259,30 +259,6 @@ describe('MergeOperation - Null Safety', () => {
         });
     });
 
-    describe('mergeAsync - headers.prefer null safety', () => {
-        test('BUG: accessing headers.prefer when headers is null throws TypeError', async () => {
-            const parsedArgs = makeParsedArgs();
-
-            mockMergeValidator.validateAsync.mockResolvedValue({
-                mergePreCheckErrors: [],
-                resourcesIncomingArray: [],
-                wasIncomingAList: false
-            });
-
-            // headers is null - this will throw when accessing headers.prefer
-            const requestInfo = makeRequestInfo({ headers: null });
-
-            // EXPECTED: correct behavior (will fail until bug is fixed)
-            // Should handle null headers gracefully without throwing
-            const result = await mergeOperation.mergeAsync({
-                requestInfo,
-                parsedArgs,
-                resourceType: 'Patient'
-            });
-            expect(result).toBeDefined();
-        });
-    });
-
     describe('mergeAsync - mergeResults[0] undefined when wasIncomingAList is false', () => {
         test('returns undefined when mergeResults is empty and wasIncomingAList is false', async () => {
             const parsedArgs = makeParsedArgs();

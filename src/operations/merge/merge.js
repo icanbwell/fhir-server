@@ -367,7 +367,10 @@ class MergeOperation {
                     }
                 );
             } else {
-                return wasIncomingAList ? mergeResults : mergeResults[0];
+                // mergeResults[0] can be undefined if the incoming payload produced no
+                // resources to merge (e.g. an empty Bundle) — return null (a valid,
+                // defined value) instead of undefined so the response body isn't empty.
+                return wasIncomingAList ? mergeResults : (mergeResults[0] ?? null);
             }
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
