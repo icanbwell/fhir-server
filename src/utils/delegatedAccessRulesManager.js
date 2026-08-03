@@ -156,7 +156,10 @@ class DelegatedAccessRulesManager {
             const lowerSensitiveCategoryId = SENSITIVE_CATEGORY.SYSTEM.toLowerCase();
             for (const nestedProvision of consent.provision.provision) {
                 if (nestedProvision.type === 'deny' && nestedProvision.securityLabel) {
-                    for (const securityLabel of nestedProvision.securityLabel) {
+                    const labels = Array.isArray(nestedProvision.securityLabel)
+                        ? nestedProvision.securityLabel
+                        : [nestedProvision.securityLabel];
+                    for (const securityLabel of labels) {
                         if (securityLabel.code && securityLabel.system &&
                             // match with case insensitive
                             securityLabel.system.toLowerCase() === lowerSensitiveCategoryId) {
@@ -359,7 +362,9 @@ class DelegatedAccessRulesManager {
         }
         const { consentId, consentVersion } = filteringRules;
         // set the actor policy
-        actor.consentPolicy = `Consent/${consentId}?version=${consentVersion}`;
+        actor.consentPolicy = consentVersion
+            ? `Consent/${consentId}?version=${consentVersion}`
+            : `Consent/${consentId}`;
         return true;
     }
 }
