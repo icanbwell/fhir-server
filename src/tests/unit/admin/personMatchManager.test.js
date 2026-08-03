@@ -479,15 +479,17 @@ describe('PersonMatchManager', () => {
                 timeout: jestGlobal.fn().mockRejectedValue(Object.assign(new Error('timeout'), { timeout: true }))
             });
 
-            const result = await personMatchManager.personMatchAsync({
-                sourceId: 'src-1',
-                targetId: 'tgt-1'
-            });
+            try {
+                const result = await personMatchManager.personMatchAsync({
+                    sourceId: 'src-1',
+                    targetId: 'tgt-1'
+                });
 
-            expect(result.issue).toBeDefined();
-            expect(result.issue[0].code).toBe('timeout');
-
-            superagent.post = originalPost;
+                expect(result.issue).toBeDefined();
+                expect(result.issue[0].code).toBe('timeout');
+            } finally {
+                superagent.post = originalPost;
+            }
         });
 
         test('throws non-timeout errors', async () => {
@@ -516,12 +518,14 @@ describe('PersonMatchManager', () => {
                 timeout: jestGlobal.fn().mockRejectedValue(new Error('Server error'))
             });
 
-            await expect(personMatchManager.personMatchAsync({
-                sourceId: 'src-1',
-                targetId: 'tgt-1'
-            })).rejects.toThrow('Server error');
-
-            superagent.post = originalPost;
+            try {
+                await expect(personMatchManager.personMatchAsync({
+                    sourceId: 'src-1',
+                    targetId: 'tgt-1'
+                })).rejects.toThrow('Server error');
+            } finally {
+                superagent.post = originalPost;
+            }
         });
 
         test('uses Person query manager when sourceType is Person', async () => {
@@ -703,17 +707,19 @@ describe('PersonMatchManager', () => {
                 timeout: jestGlobal.fn().mockRejectedValue(Object.assign(new Error('timeout'), { timeout: true }))
             });
 
-            const parameters = {
-                resourceType: 'Parameters',
-                parameter: [{ name: 'resource', resource: { resourceType: 'Patient' } }]
-            };
+            try {
+                const parameters = {
+                    resourceType: 'Parameters',
+                    parameter: [{ name: 'resource', resource: { resourceType: 'Patient' } }]
+                };
 
-            const result = await personMatchManager.runMatchWithPayloadAsync({ parameters });
-            expect(result.issue).toBeDefined();
-            expect(result.issue[0].code).toBe('timeout');
-            expect(result.issue[0].diagnostics).toContain('timed out');
-
-            superagent.post = originalPost;
+                const result = await personMatchManager.runMatchWithPayloadAsync({ parameters });
+                expect(result.issue).toBeDefined();
+                expect(result.issue[0].code).toBe('timeout');
+                expect(result.issue[0].diagnostics).toContain('timed out');
+            } finally {
+                superagent.post = originalPost;
+            }
         });
 
         test('throws non-timeout errors', async () => {
@@ -726,14 +732,16 @@ describe('PersonMatchManager', () => {
                 timeout: jestGlobal.fn().mockRejectedValue(new Error('500 Internal'))
             });
 
-            const parameters = {
-                resourceType: 'Parameters',
-                parameter: [{ name: 'resource', resource: { resourceType: 'Patient' } }]
-            };
+            try {
+                const parameters = {
+                    resourceType: 'Parameters',
+                    parameter: [{ name: 'resource', resource: { resourceType: 'Patient' } }]
+                };
 
-            await expect(personMatchManager.runMatchWithPayloadAsync({ parameters })).rejects.toThrow('500 Internal');
-
-            superagent.post = originalPost;
+                await expect(personMatchManager.runMatchWithPayloadAsync({ parameters })).rejects.toThrow('500 Internal');
+            } finally {
+                superagent.post = originalPost;
+            }
         });
 
         test('sends correct authorization header', async () => {
@@ -969,14 +977,17 @@ describe('PersonMatchManager', () => {
                 timeout: jestGlobal.fn().mockRejectedValue(Object.assign(new Error('timeout'), { timeout: true }))
             });
 
-            const result = await personMatchManager.personOneToNMatchAsync({
-                id: 'patient-1',
-                resourceType: 'Patient',
-                requestInfo: { requestId: 'req-1' }
-            });
+            try {
+                const result = await personMatchManager.personOneToNMatchAsync({
+                    id: 'patient-1',
+                    resourceType: 'Patient',
+                    requestInfo: { requestId: 'req-1' }
+                });
 
-            expect(result.issue[0].code).toBe('timeout');
-            superagent.post = originalPost;
+                expect(result.issue[0].code).toBe('timeout');
+            } finally {
+                superagent.post = originalPost;
+            }
         });
 
         test('executes postRequestProcessor and clears cache in finally', async () => {
