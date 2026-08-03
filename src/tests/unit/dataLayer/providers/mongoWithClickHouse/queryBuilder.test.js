@@ -3,7 +3,6 @@
 const { describe, test, expect } = require('@jest/globals');
 const { QueryBuilder } = require('../../../../../dataLayer/providers/mongoWithClickHouse/queryBuilder');
 const { TABLES, EVENT_TYPES } = require('../../../../../constants/clickHouseConstants');
-const { TABLES, EVENT_TYPES } = require('../../../../../constants/clickHouseConstants');
 
 describe('QueryBuilder', () => {
     describe('buildFindGroupsByMemberQuery', () => {
