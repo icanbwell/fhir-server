@@ -714,6 +714,17 @@ class FhirOperationsManager {
         // person ids to retrict result to
         if (resourceType === "Person" && combined_args.id) {
             scopedPersonIds = combined_args.id.split(',');
+        } else if (resourceType === 'Patient' && combined_args.id) {
+            // the equivalent of Person $everything can also be requested directly against the
+            // Patient endpoint using the proxy patient id form (Patient/person.<id>/$everything);
+            // apply the same sibling-record scoping in that case too
+            const proxyPersonIds = combined_args.id
+                .split(',')
+                .filter((id) => id.startsWith(PERSON_PROXY_PREFIX))
+                .map((id) => id.replace(PERSON_PROXY_PREFIX, ''));
+            if (proxyPersonIds.length > 0) {
+                scopedPersonIds = proxyPersonIds;
+            }
         }
 
         // map Person GET $everything to Patient GET $everything
