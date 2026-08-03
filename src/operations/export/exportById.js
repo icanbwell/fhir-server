@@ -68,15 +68,17 @@ class ExportByIdOperation {
                 throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
             }
 
-            if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+            // ExportStatus is always created with a platform-level owner tag (see
+            // ExportManager.generateExportStatusResourceAsync) regardless of the triggering
+            // tenant, so access is gated on the access tag only. Denied access is reported the
+            // same way as a missing resource to avoid leaking existence via status code.
+            if (!this.scopesManager.isAccessToResourceAllowedByAccessTagOnly({
                 resource: exportStatusResource,
                 user,
                 scope,
                 accessRequested: 'read'
             })) {
-                throw new ForbiddenError(
-                    `user ${user} with scopes [${scope}] does not have access to ExportStatus ${id}`
-                );
+                throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
             }
 
             // log operation
