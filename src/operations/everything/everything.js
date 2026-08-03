@@ -291,7 +291,7 @@ class EverythingOperation {
                         throw new Error('$everything is not supported for resource: ' + resourceType);
                 }
 
-                if (resourceFilter) {
+                if (resourceFilter && parsedArgs.resource) {
                     parsedArgs.resource = filterGraphResources(
                         deepcopy(parsedArgs.resource),
                         parsedArgs.resourceFilterList
