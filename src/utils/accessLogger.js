@@ -339,7 +339,7 @@ class AccessLogger {
             /**
              * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
              */
-            const mergeResultErrors = mergeResults.filter((m) => m.issue);
+            const mergeResultErrors = (mergeResults || []).filter((m) => m.issue);
             if (mergeResultErrors.length > 0) {
                 logError('Error creating access-log entries', {
                     error: mergeResultErrors,
