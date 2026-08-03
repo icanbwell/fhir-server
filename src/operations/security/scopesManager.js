@@ -122,6 +122,35 @@ class ScopesManager {
     }
 
     /**
+     * Checks whether the resource has any access code (ignoring the owner tag) that is in the
+     * passed in accessCodes list. Use for resource types whose owner tag is intentionally fixed
+     * to a platform-level value regardless of tenant (e.g. ExportStatus is always owned by
+     * 'bwell'), where tenant isolation is enforced solely via the access tag.
+     * @param {string[]} accessCodes
+     * @param {Resource} resource
+     * @return {boolean}
+     */
+    doesResourceHaveAnyAccessCodeInAccessTag (accessCodes, resource) {
+        if (!accessCodes || accessCodes.length === 0) {
+            return false;
+        }
+
+        if (accessCodes.includes('*')) {
+            return true;
+        }
+
+        if (!resource.meta || !resource.meta.security) {
+            return false;
+        }
+
+        const accessCodesFromAccessTag = resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+
+        return accessCodes.some(c => accessCodesFromAccessTag.includes(c));
+    }
+
+    /**
      * Returns true if resource can be accessed with scope
      * @param {Resource} resource
      * @param {string} user
@@ -146,6 +175,28 @@ class ScopesManager {
             throw new ForbiddenError(errorMessage);
         }
         return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
+    }
+
+    /**
+     * Returns true if resource can be accessed with scope, checking only the access tag and
+     * ignoring the owner tag. Use for resource types whose owner tag is intentionally fixed to a
+     * platform-level value regardless of tenant (e.g. ExportStatus).
+     * @param {Resource} resource
+     * @param {string} user
+     * @param {string} scope
+     * @param {string} accessRequested
+     * @return {boolean}
+     */
+    isAccessToResourceAllowedByAccessTagOnly ({ resource, user, scope, accessRequested = 'read' }) {
+        /**
+         * @type {string[]}
+         */
+        const accessCodes = this.getAccessCodesFromScopes(accessRequested, user, scope);
+        if (!accessCodes || accessCodes.length === 0) {
+            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            throw new ForbiddenError(errorMessage);
+        }
+        return this.doesResourceHaveAnyAccessCodeInAccessTag(accessCodes, resource);
     }
 
     /**
