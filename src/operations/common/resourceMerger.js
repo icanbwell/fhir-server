@@ -144,9 +144,18 @@ class ResourceMerger {
         if (!resourceToMerge.meta.security) {
             resourceToMerge.meta.security = [];
         }
-        resourceToMerge.meta.security = resourceToMerge.meta.security
-            .filter(s => s.system !== SecurityTagSystem.access)
-            .concat(currentAccessTags);
+
+        // Insert the restored tags where the first access tag already was, rather than at the
+        // end, so this doesn't reorder meta.security relative to the other tags.
+        const firstAccessIndex = resourceToMerge.meta.security.findIndex(
+            s => s.system === SecurityTagSystem.access
+        );
+        const securityWithoutAccess = resourceToMerge.meta.security.filter(
+            s => s.system !== SecurityTagSystem.access
+        );
+        const insertAt = firstAccessIndex === -1 ? securityWithoutAccess.length : firstAccessIndex;
+        securityWithoutAccess.splice(insertAt, 0, ...currentAccessTags);
+        resourceToMerge.meta.security = securityWithoutAccess;
     }
 
     /**
