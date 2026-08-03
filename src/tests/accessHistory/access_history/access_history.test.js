@@ -499,6 +499,33 @@ describe('Person $access-history Tests', () => {
         expect(resp.status).toBe(404);
     });
 
+    test('$access-history returns 400 when multiple ids are passed', async () => {
+        const request = sharedRequest;
+
+        let resp = await request
+            .post('/4_0_0/Person/1/$merge?validate=true')
+            .send(person1Resource)
+            .set(getHeaders());
+        expect(resp).toHaveMergeResponse({ created: true });
+        const personUuid = resp.body.uuid;
+
+        resp = await request
+            .get(`/4_0_0/Person/${personUuid},another-person-id/$access-history`)
+            .set(getHeaders());
+
+        expect(resp.status).toBe(400);
+    });
+
+    test('$access-history returns 400 when id contains proxy patient prefix', async () => {
+        const request = sharedRequest;
+
+        const resp = await request
+            .get('/4_0_0/Person/person.some-person-id/$access-history')
+            .set(getHeaders());
+
+        expect(resp.status).toBe(400);
+    });
+
     test('$access-history returns 403 when Person read scope is missing', async () => {
         const request = sharedRequest;
 

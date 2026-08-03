@@ -58,6 +58,14 @@ class AccessHistoryOperation {
         const base_version = parsedArgs.base_version;
         assertIsValid(id, 'id is required for $access-history');
 
+        const idList = Array.isArray(id) ? id : id.split(',');
+        if (idList.length > 1) {
+            throw new BadRequestError(new Error('Multiple IDs are not allowed for $access-history'));
+        }
+        if (idList.some((i) => i.includes(PERSON_PROXY_PREFIX))) {
+            throw new BadRequestError(new Error('Proxy patient id is not allowed for $access-history'));
+        }
+
         const startTime = Date.now();
         await Promise.all([
             this.scopesValidator.verifyHasValidScopesAsync({
@@ -87,7 +95,7 @@ class AccessHistoryOperation {
         const patientUuids = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version,
             requestInfo,
-            ids: [id],
+            ids: idList,
             includePatientPrefix: false,
             addTopPersonAccessCheck: true
         });
