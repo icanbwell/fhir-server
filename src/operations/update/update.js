@@ -410,6 +410,12 @@ class UpdateOperation {
                 doc = await this.base64DataManager.transformAsync(doc, BLOB_OP.INSERT, requestInfo, { alwaysCreateNew: true });
 
                 if (data && data.meta) {
+                    // the check above ran against the resource as stored, so the access tags the merge took
+                    // from the incoming body still need to be validated before the merged doc is persisted
+                    this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                        requestInfo, currentResource: foundResource, updatedResource: doc
+                    });
+
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);
 
                     await this.databaseBulkInserter.replaceOneAsync(
@@ -429,6 +435,9 @@ class UpdateOperation {
                     doc.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource: doc, requestInfo, base_version
+                    });
+                    this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                        requestInfo, currentResource: null, updatedResource: doc
                     });
 
                     const contextData = buildContextDataForHybridStorage(resourceType, doc, requestInfo);

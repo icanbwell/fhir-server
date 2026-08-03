@@ -394,6 +394,12 @@ class PatchOperation {
             const preSaveOptions = PreSaveOptions.fromRequestInfo(requestInfo);
             resource = await this.preSaveManager.preSaveAsync({ resource, options: preSaveOptions });
 
+            // the check above ran against the resource as stored, so any access tag the patch itself added or
+            // removed still needs to be validated
+            this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                requestInfo, currentResource: originalResource, updatedResource: resource
+            });
+
             /**
              * @type {OperationOutcome|null}
              */

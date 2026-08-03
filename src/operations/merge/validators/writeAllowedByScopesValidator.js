@@ -55,9 +55,21 @@ class WriteAllowedByScopesValidator extends BaseValidator {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource: foundResource, requestInfo, base_version
                     });
+                    // the check above ran against the resource as stored, so the access tags coming from the
+                    // incoming body still need to be validated. A smart merge only appends to arrays, so tags
+                    // missing from the incoming body aren't removals and must not be treated as such.
+                    this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                        requestInfo,
+                        currentResource: foundResource,
+                        updatedResource: resource,
+                        ignoreRemovals: effectiveSmartMerge
+                    });
                 } else {
                     await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                         resource, requestInfo, base_version
+                    });
+                    this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                        requestInfo, currentResource: null, updatedResource: resource
                     });
                 }
                 validIncomingResources.push(resource);

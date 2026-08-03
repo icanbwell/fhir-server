@@ -223,6 +223,9 @@ class CreateOperation {
             await this.scopesValidator.isAccessToResourceAllowedByAccessAndPatientScopes({
                 requestInfo, resource, base_version
             });
+            this.scopesValidator.isAccessTagChangeAllowedByAccessScopes({
+                requestInfo, currentResource: null, updatedResource: resource
+            });
             /**
              * @type {Resource}
              */

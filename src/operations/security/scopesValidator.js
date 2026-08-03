@@ -202,6 +202,35 @@ class ScopesValidator {
 
 
     /**
+     * Throws forbidden error when the caller is not allowed to make this change to the resource's access tags
+     * @typedef {Object} IsAccessTagChangeAllowedByAccessScopesParams
+     * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @property {Resource|null} currentResource resource as currently stored, null when it is being created
+     * @property {Resource} updatedResource resource as it will be stored
+     * @property {boolean} ignoreRemovals set when the write path can only add access tags, never remove them
+     *
+     * @param {IsAccessTagChangeAllowedByAccessScopesParams}
+     */
+    isAccessTagChangeAllowedByAccessScopes({requestInfo, currentResource, updatedResource, ignoreRemovals = false}) {
+        const {user, scope} = requestInfo;
+        if (
+            !this.scopesManager.isAccessTagChangeAllowedByScopes({
+                oldAccessCodes: this.scopesManager.getAccessTagCodes(currentResource),
+                newAccessCodes: this.scopesManager.getAccessTagCodes(updatedResource),
+                resourceType: updatedResource.resourceType,
+                user,
+                scope,
+                ignoreRemovals
+            })
+        ) {
+            throw new ForbiddenError(
+                `user ${user} with scopes [${scope}] can only add or remove access tags it has access to, ` +
+                `for resource ${updatedResource.resourceType} with id ${updatedResource.id}`
+            );
+        }
+    }
+
+    /**
      * Throws forbidden error when access through access scope is not allowed
      * @typedef {Object} IsAccessToResourceAllowedByAccessScopesParams
      * @property {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo

@@ -118,6 +118,75 @@ class ScopesManager {
     }
 
     /**
+     * Returns the codes of all access tags present on the resource
+     * @param {Resource|Object|null} resource
+     * @return {string[]}
+     */
+    getAccessTagCodes (resource) {
+        if (!resource || !resource.meta || !resource.meta.security) {
+            return [];
+        }
+        return resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+    }
+
+    /**
+     * Returns whether the caller is allowed to change a resource's access tags from oldAccessCodes to
+     * newAccessCodes.
+     *
+     * A resource can legitimately carry access tags for several clients at once, and a client that has
+     * access to a resource is allowed to share it with, or stop sharing it with, other clients by adding
+     * or removing access tags. But the write check on the resource itself only requires that *one* of its
+     * access tags matches the caller's scopes, so without this check a caller could add an access tag for
+     * a client it has no access to (silently sharing the resource with that client) or remove one
+     * (silently hiding the resource from a client that was entitled to it). So unless the caller holds the
+     * '*' access code, every access code it adds or removes must be one it is itself authorized for.
+     *
+     * @typedef {Object} IsAccessTagChangeAllowedByScopesParams
+     * @property {string[]} oldAccessCodes access codes on the resource as currently stored
+     * @property {string[]} newAccessCodes access codes on the resource as it will be stored
+     * @property {string} resourceType
+     * @property {string} user
+     * @property {string} scope
+     * @property {boolean} ignoreRemovals when the write path can only add access tags, never remove them
+     *
+     * @param {IsAccessTagChangeAllowedByScopesParams}
+     * @return {boolean}
+     */
+    isAccessTagChangeAllowedByScopes ({
+        oldAccessCodes,
+        newAccessCodes,
+        resourceType,
+        user,
+        scope,
+        ignoreRemovals = false
+    }) {
+        // a patient scoped caller is authorized by the patient the resource belongs to rather than by access
+        // codes, and holds no access scopes to compare against, so leave it to the patient scope checks
+        if (this.isAccessAllowedByPatientScopes({ scope, resourceType })) {
+            return true;
+        }
+        /**
+         * @type {string[]}
+         */
+        const accessCodes = this.getAccessCodesFromScopes('write', user, scope);
+        if (accessCodes.includes('*')) {
+            return true;
+        }
+        const oldCodes = new Set(oldAccessCodes);
+        const newCodes = new Set(newAccessCodes);
+        /**
+         * @type {string[]}
+         */
+        const changedCodes = newAccessCodes.filter(c => !oldCodes.has(c));
+        if (!ignoreRemovals) {
+            changedCodes.push(...oldAccessCodes.filter(c => !newCodes.has(c)));
+        }
+        return changedCodes.every(c => accessCodes.includes(c));
+    }
+
+    /**
      * Returns true if resource can be accessed with scope
      * @param {Resource} resource
      * @param {string} user
