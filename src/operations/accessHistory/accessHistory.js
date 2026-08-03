@@ -86,8 +86,10 @@ class AccessHistoryOperation {
         // 1. Get linked Patient UUIDs (resolves sourceId to UUID internally)
         const patientUuids = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version,
+            requestInfo,
             ids: [id],
-            includePatientPrefix: false
+            includePatientPrefix: false,
+            addTopPersonAccessCheck: true
         });
 
         // Extract the resolved Person UUID from the proxy patient entry
