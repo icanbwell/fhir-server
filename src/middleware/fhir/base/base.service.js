@@ -10,6 +10,8 @@ const request = require('superagent');
 
 const errors = require('../utils/error.utils');
 
+const { fhirServerConfig } = require('../../../config');
+
 const makeResultBundle = (results, res, baseVersion, type) => {
     const Bundle = require(`../resources/${baseVersion}/schemas/bundle`);
 
@@ -39,15 +41,20 @@ const makeResultBundle = (results, res, baseVersion, type) => {
 
 const ALLOWED_METHODS = new Set(['get', 'post', 'put', 'delete', 'patch']);
 // Only allow relative FHIR resource paths: no protocol, no host, no .. traversal
-const RELATIVE_PATH_RE = /^[A-Za-z0-9$_\-][A-Za-z0-9$_.\-\/]*$/;
+const RELATIVE_PATH_RE = /^[A-Za-z0-9$_-][A-Za-z0-9$_./-]*$/;
 
 const createRequestPromises = (entries, req, baseVersion) => {
     const {
-        protocol,
         baseUrl
     } = req;
-    // Use the server's own host from req.hostname instead of the attacker-controllable Host header
-    const serverHost = req.hostname;
+    // This is a same-process loopback call: the batch/transaction handler re-dispatches each
+    // bundle entry back through this server's own single-resource endpoints. The destination
+    // must never be derived from anything caller-controlled - not even req.hostname, which
+    // resolves to an attacker-suppliable value here (this app enables "trust proxy"
+    // unconditionally in src/app.js, so req.hostname/req.host prefer X-Forwarded-Host from any
+    // client, not only from a verified upstream proxy). Always target our own configured
+    // listening port on loopback instead, over plain HTTP (this app never terminates TLS itself).
+    const serverHost = `127.0.0.1:${fhirServerConfig.server.port}`;
     const requestPromises = [];
     const results = [];
 
@@ -64,7 +71,7 @@ const createRequestPromises = (entries, req, baseVersion) => {
         if (!url || !RELATIVE_PATH_RE.test(url) || url.includes('..')) {
             throw new Error(`Disallowed or unsafe URL in bundle entry: ${url}`);
         }
-        const destinationUrl = `${protocol}://${path.join(serverHost, baseUrl, baseVersion, url)}`;
+        const destinationUrl = `http://${path.join(serverHost, baseUrl, baseVersion, url)}`;
         results.push({
             method,
             url: destinationUrl
