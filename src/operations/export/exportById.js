@@ -44,7 +44,9 @@ class ExportByIdOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
-            scope
+            scope,
+            /** @type {string} */
+            user
         } = requestInfo;
 
         const { id } = args;
@@ -57,10 +59,30 @@ class ExportByIdOperation {
 
         try {
             const exportStatusResource = await this.databaseExportManager.getExportStatusResourceWithId({
-                exportStatusId: id
+                exportStatusId: id,
+                scope,
+                user
             });
 
-            if (!exportStatusResource) {
+            // ExportStatus carries no tenant/access security tag (every job is tagged owner=bwell
+            // regardless of requester) — the only record of who may check on it is the `user` who
+            // started it, so ownership is checked against that instead. A mismatch returns the
+            // same not-found response as a truly nonexistent id, rather than confirming that a
+            // guessed/enumerated export id belongs to someone else.
+            if (!exportStatusResource || exportStatusResource.user !== user) {
+                throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
+            }
+
+            // ExportStatus is always created with a platform-level owner tag (see
+            // ExportManager.generateExportStatusResourceAsync) regardless of the triggering
+            // tenant, so access is gated on the access tag only. Denied access is reported the
+            // same way as a missing resource to avoid leaking existence via status code.
+            if (!this.scopesManager.isAccessToResourceAllowedByAccessTagOnly({
+                resource: exportStatusResource,
+                user,
+                scope,
+                accessRequested: 'read'
+            })) {
                 throw new NotFoundError(`ExportStatus resoure with id ${id} doesn't exists`);
             }
 
