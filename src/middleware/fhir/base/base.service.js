@@ -11,11 +11,11 @@ const request = require('superagent');
 const errors = require('../utils/error.utils');
 
 const makeResultBundle = (results, res, baseVersion, type) => {
-    const Bundle = require(`../resources/${baseVersion}/schemas/bundle`);
+    const Bundle = require(`../../../fhir/classes/${baseVersion}/resources/bundle`);
 
-    const BundleLink = require(`../resources/${baseVersion}/schemas/bundlelink`);
+    const BundleLink = require(`../../../fhir/classes/${baseVersion}/backbone_elements/bundleLink`);
 
-    const BundleEntry = require(`../resources/${baseVersion}/schemas/bundleentry`);
+    const BundleEntry = require(`../../../fhir/classes/${baseVersion}/backbone_elements/bundleEntry`);
 
     const selfLink = new BundleLink({
         url: `${res.req.protocol}://${path.join(res.req.get('host'), res.req.baseUrl)}`,
@@ -93,7 +93,7 @@ const processRequest = requestType => {
 
             const resultsBundle = makeResultBundle(results, res, baseVersion, requestType);
             resolve(resultsBundle);
-        });
+        }).catch(reject);
     });
 };
 
