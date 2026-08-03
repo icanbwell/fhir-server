@@ -42,7 +42,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/dataLayer/base64DataManager.test.js',
         '<rootDir>/src/tests/unit/dataLayer/bulkWriteExecutors/clickHouseBulkWriteExecutor.bugs.test.js',
         '<rootDir>/src/tests/unit/dataLayer/databaseBulkLoader.test.js',
-        '<rootDir>/src/tests/unit/dataLayer/databaseUpdateManager.nullPatches.test.js',
         '<rootDir>/src/tests/unit/dataLayer/postSaveHandlers/clickHouseGroupHandler.nullSafety.test.js',
         '<rootDir>/src/tests/unit/dataLayer/providers/mongoWithClickHouse/queryBuilder.test.js',
         '<rootDir>/src/tests/unit/dataLayer/providers/mongoWithClickHouseStorageProvider.unit.test.js',
