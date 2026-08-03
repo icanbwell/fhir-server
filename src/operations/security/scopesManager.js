@@ -77,12 +77,20 @@ class ScopesManager {
     }
 
     /**
-     * Checks whether the resource has any access and owner codes that are in the passed in accessCodes list
+     * Checks whether the resource has any access and owner codes that are in the passed in accessCodes list.
+     * For write requests, every access code present on the resource must be one the caller is
+     * authorized for (or the caller must have '*') -- a resource can carry multiple access tags at
+     * once (e.g. shared across tenants), and for a write, matching just one of them is not enough:
+     * that would let a caller who only owns one of the tags add, keep, or strip a tag belonging to a
+     * tenant they have no relationship with. For reads, any one matching access code is sufficient,
+     * since read access to a resource shared with your tenant shouldn't require also being
+     * authorized for every other tenant it happens to be shared with.
      * @param {string[]} accessCodes
      * @param {Resource} resource
+     * @param {string} accessRequested
      * @return {boolean}
      */
-    doesResourceHaveAnyAccessCodeFromThisList (accessCodes, resource) {
+    doesResourceHaveAnyAccessCodeFromThisList (accessCodes, resource, accessRequested = 'read') {
         // fail if there are no access codes
         if (!accessCodes || accessCodes.length === 0) {
             return false;
@@ -113,10 +121,10 @@ class ScopesManager {
 
         const hasOwnerCode = accessCodes.some(c => accessCodesFromOwnerTag.includes(c));
 
-        // A resource can carry multiple access tags at once, and if access tag matching the scopes
-        // is present in resource, the client gets access to resource irrespective of presence of another
-        // access tag
-        const hasAccessCode = accessCodes.some(c => accessCodesFromAccessTag.includes(c));
+        const hasAccessCode = accessRequested === 'write'
+            ? accessCodesFromAccessTag.length > 0 &&
+                accessCodesFromAccessTag.every(c => accessCodes.includes(c))
+            : accessCodes.some(c => accessCodesFromAccessTag.includes(c));
 
         return hasOwnerCode && hasAccessCode;
     }
@@ -174,7 +182,7 @@ class ScopesManager {
             const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);
         }
-        return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource);
+        return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, resource, accessRequested);
     }
 
     /**

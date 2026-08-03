@@ -179,6 +179,81 @@ describe('ScopesManager', () => {
             };
             expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(['client'], resource)).toBe(false);
         });
+
+        describe('SEC-1583: write requires every access tag on the resource to be authorized, not just one', () => {
+            const multiTenantResource = {
+                meta: {
+                    security: [
+                        { system: SecurityTagSystem.owner, code: 'tenant-a' },
+                        { system: SecurityTagSystem.access, code: 'tenant-a' },
+                        { system: SecurityTagSystem.access, code: 'tenant-b' }
+                    ]
+                }
+            };
+
+            test('read: matching only one of two access tags is sufficient (unchanged, default accessRequested)', () => {
+                expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    ['tenant-a'], multiTenantResource
+                )).toBe(true);
+            });
+
+            test('read: matching only one of two access tags is sufficient (explicit accessRequested="read")', () => {
+                expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    ['tenant-a'], multiTenantResource, 'read'
+                )).toBe(true);
+            });
+
+            test('write: matching only one of two access tags is NOT sufficient -- this is the attack SEC-1583 closes', () => {
+                expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    ['tenant-a'], multiTenantResource, 'write'
+                )).toBe(false);
+            });
+
+            test('write: caller authorized for every access tag on the resource is allowed', () => {
+                expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    ['tenant-a', 'tenant-b'], multiTenantResource, 'write'
+                )).toBe(true);
+            });
+
+            test('write: caller authorized for every access tag plus extras is still allowed', () => {
+                expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    ['tenant-a', 'tenant-b', 'tenant-c'], multiTenantResource, 'write'
+                )).toBe(true);
+            });
+
+            test('write: wildcard * still bypasses the check entirely', () => {
+                expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    ['*'], multiTenantResource, 'write'
+                )).toBe(true);
+            });
+
+            test('write: single-access-tag resource behaves identically to read (no regression for the common case)', () => {
+                const singleTagResource = {
+                    meta: {
+                        security: [
+                            { system: SecurityTagSystem.owner, code: 'tenant-a' },
+                            { system: SecurityTagSystem.access, code: 'tenant-a' }
+                        ]
+                    }
+                };
+                expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    ['tenant-a'], singleTagResource, 'write'
+                )).toBe(true);
+            });
+
+            test('write: resource with no access tags at all is denied even with a matching owner tag', () => {
+                const ownerOnlyResource = {
+                    meta: {
+                        security: [
+                            { system: SecurityTagSystem.owner, code: 'tenant-a' }
+                        ]
+                    }
+                };
+                expect(scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    ['tenant-a'], ownerOnlyResource, 'write'
+                )).toBe(false);
+            });
+        });
     });
 
     describe('isAccessToResourceAllowedBySecurityTags', () => {
@@ -221,6 +296,48 @@ describe('ScopesManager', () => {
                 user: 'testUser',
                 scope: 'user/Patient.read access/client.read',
                 accessRequested: 'read'
+            });
+            expect(result).toBe(true);
+        });
+
+        test('SEC-1583: write denies a caller authorized for only one of two access tags on the resource', () => {
+            mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(false);
+            const resource = {
+                resourceType: 'Patient',
+                meta: {
+                    security: [
+                        { system: SecurityTagSystem.owner, code: 'tenant-a' },
+                        { system: SecurityTagSystem.access, code: 'tenant-a' },
+                        { system: SecurityTagSystem.access, code: 'tenant-b' }
+                    ]
+                }
+            };
+            const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource,
+                user: 'testUser',
+                scope: 'user/Patient.write access/tenant-a.write',
+                accessRequested: 'write'
+            });
+            expect(result).toBe(false);
+        });
+
+        test('SEC-1583: write allows a caller authorized for every access tag on the resource', () => {
+            mockPatientFilterManager.canAccessResourceWithPatientScope.mockReturnValue(false);
+            const resource = {
+                resourceType: 'Patient',
+                meta: {
+                    security: [
+                        { system: SecurityTagSystem.owner, code: 'tenant-a' },
+                        { system: SecurityTagSystem.access, code: 'tenant-a' },
+                        { system: SecurityTagSystem.access, code: 'tenant-b' }
+                    ]
+                }
+            };
+            const result = scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource,
+                user: 'testUser',
+                scope: 'user/Patient.write access/tenant-a.write access/tenant-b.write',
+                accessRequested: 'write'
             });
             expect(result).toBe(true);
         });

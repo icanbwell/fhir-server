@@ -127,6 +127,29 @@ class ResourceMerger {
     }
 
     /**
+     * Restores the access tags on resourceToMerge to exactly the set present on currentResource.
+     * Unlike owner/sourceAssigningAuthority (exactly one value, handled by updateSecurityTag),
+     * a resource can carry multiple access tags at once, so this replaces the whole set rather
+     * than updating a single entry. Access tags govern which tenants may read a resource -- if a
+     * write could change them, a caller authorized for only one of a resource's tags could add or
+     * strip a tag belonging to a tenant it has no relationship with (SEC-1583). There is no
+     * supported path for changing access tags through an ordinary create/update/merge/patch; a
+     * dedicated, explicitly-authorized mechanism should be used if that's ever needed.
+     * @param {UpdateSecurityTagProps}
+     */
+    restoreAccessTags ({ currentResource, resourceToMerge }) {
+        const currentAccessTags = (currentResource.meta.security || [])
+            .filter(s => s.system === SecurityTagSystem.access);
+
+        if (!resourceToMerge.meta.security) {
+            resourceToMerge.meta.security = [];
+        }
+        resourceToMerge.meta.security = resourceToMerge.meta.security
+            .filter(s => s.system !== SecurityTagSystem.access)
+            .concat(currentAccessTags);
+    }
+
+    /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated
      * @param {OverWriteNonWritableFieldsProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
@@ -152,6 +175,7 @@ class ResourceMerger {
             currentResource,
             resourceToMerge
         });
+        this.restoreAccessTags({ currentResource, resourceToMerge });
 
         // deduplicate meta.security by system+code
         if (resourceToMerge.meta && resourceToMerge.meta.security && Array.isArray(resourceToMerge.meta.security)) {

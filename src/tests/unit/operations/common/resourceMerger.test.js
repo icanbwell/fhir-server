@@ -231,6 +231,115 @@ describe('ResourceMerger', () => {
         });
     });
 
+    describe('restoreAccessTags', () => {
+        it('SEC-1583: strips an access tag injected on resourceToMerge that is not on currentResource', () => {
+            const currentResource = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/owner', code: 'tenant-a' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
+                    ]
+                }
+            };
+            const resourceToMerge = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/owner', code: 'tenant-a' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-b' }
+                    ]
+                }
+            };
+
+            resourceMerger.restoreAccessTags({ currentResource, resourceToMerge });
+
+            const accessTags = resourceToMerge.meta.security.filter(
+                s => s.system === 'https://www.icanbwell.com/access'
+            );
+            expect(accessTags).toEqual([{ system: 'https://www.icanbwell.com/access', code: 'tenant-a' }]);
+        });
+
+        it('SEC-1583: restores an access tag that resourceToMerge tried to remove', () => {
+            const currentResource = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-b' }
+                    ]
+                }
+            };
+            const resourceToMerge = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
+                    ]
+                }
+            };
+
+            resourceMerger.restoreAccessTags({ currentResource, resourceToMerge });
+
+            const accessCodes = resourceToMerge.meta.security
+                .filter(s => s.system === 'https://www.icanbwell.com/access')
+                .map(s => s.code);
+            expect(accessCodes.sort()).toEqual(['tenant-a', 'tenant-b']);
+        });
+
+        it('does not disturb non-access security tags', () => {
+            const currentResource = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
+                    ]
+                }
+            };
+            const resourceToMerge = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/owner', code: 'tenant-a' },
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-hijacked' }
+                    ]
+                }
+            };
+
+            resourceMerger.restoreAccessTags({ currentResource, resourceToMerge });
+
+            expect(resourceToMerge.meta.security).toContainEqual(
+                { system: 'https://www.icanbwell.com/owner', code: 'tenant-a' }
+            );
+        });
+
+        it('results in no access tags when currentResource has none, regardless of what resourceToMerge had', () => {
+            const currentResource = { meta: { security: [] } };
+            const resourceToMerge = {
+                meta: {
+                    security: [
+                        { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
+                    ]
+                }
+            };
+
+            resourceMerger.restoreAccessTags({ currentResource, resourceToMerge });
+
+            const accessTags = resourceToMerge.meta.security.filter(
+                s => s.system === 'https://www.icanbwell.com/access'
+            );
+            expect(accessTags).toEqual([]);
+        });
+
+        it('creates meta.security on resourceToMerge if missing', () => {
+            const currentResource = {
+                meta: { security: [{ system: 'https://www.icanbwell.com/access', code: 'tenant-a' }] }
+            };
+            const resourceToMerge = { meta: {} };
+
+            resourceMerger.restoreAccessTags({ currentResource, resourceToMerge });
+
+            expect(resourceToMerge.meta.security).toEqual([
+                { system: 'https://www.icanbwell.com/access', code: 'tenant-a' }
+            ]);
+        });
+    });
+
     describe('compareObjects', () => {
         it('returns patches for differences between objects', () => {
             const currentObject = { status: 'active', code: 'A' };
