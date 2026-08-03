@@ -84,7 +84,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/utils/s3Client.test.js',
         '<rootDir>/src/tests/unit/dataLayer/databaseBulkInserter.nullPatches.test.js',
         '<rootDir>/src/tests/unit/enrich/enrichmentManager.test.js',
-        '<rootDir>/src/tests/unit/enrich/globalIdEnrichmentProvider.test.js',
         '<rootDir>/src/tests/unit/enrich/proxyPatientReferenceEnrichmentProvider.test.js',
         '<rootDir>/src/tests/unit/graphql/resolvers/graphqlResolver.crossTenant.test.js',
         '<rootDir>/src/tests/unit/graphqlv2/crossTenantPhiLeakage.test.js',
@@ -108,7 +107,6 @@ module.exports = {
         '<rootDir>/src/tests/unit/operations/subscription/webhookPhiLeakage.test.js',
         '<rootDir>/src/tests/unit/operations/update/conditionalCrossTenant.test.js',
         '<rootDir>/src/tests/unit/strategies/authFailureMode.test.js',
-        '<rootDir>/src/tests/unit/strategies/jwtCacheThunderingHerd.test.js',
         '<rootDir>/src/tests/unit/utils/credentialExposureInLogs.test.js',
         '<rootDir>/src/tests/unit/utils/personToPatientIdsExpander.crossTenant.test.js'
     ],
